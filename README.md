@@ -1,4 +1,4 @@
-# Publieke agenda district Antwerpen
+# Mijn publieke agenda voor District Antwerpen
 
 Standalone publieke agenda-site voor Render. Render publiceert alleen de map `site/`.
 
