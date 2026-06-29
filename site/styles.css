@@ -192,6 +192,10 @@ a {
   --accent: #6c5a9b;
 }
 
+.event.call {
+  --accent: #b7791f;
+}
+
 .time {
   border-right: 2px solid var(--line);
   color: var(--deep);
