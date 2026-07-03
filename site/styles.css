@@ -146,11 +146,120 @@ a {
   gap: 20px;
 }
 
+.works-overview {
+  background: #f2faf6;
+  border: 1px solid #b9d8c9;
+  border-radius: 8px;
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+}
+
+.works-overview > header {
+  align-items: start;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.works-overview span {
+  color: #1f7a5a;
+  display: block;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.works-overview h2 {
+  color: var(--deep);
+  font-size: 22px;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.works-overview p {
+  color: var(--muted);
+  font-size: 14px;
+  font-weight: 760;
+  line-height: 1.45;
+  margin: 6px 0 0;
+}
+
+.works-overview > header > strong {
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid #b9d8c9;
+  border-radius: 999px;
+  color: #1f7a5a;
+  display: inline-flex;
+  font-size: 18px;
+  font-weight: 900;
+  height: 42px;
+  justify-content: center;
+  min-width: 42px;
+}
+
+.works-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.work-card {
+  background: var(--surface);
+  border: 1px solid #cfe3da;
+  border-left: 5px solid #1f7a5a;
+  border-radius: 8px;
+  display: grid;
+  gap: 7px;
+  padding: 14px;
+}
+
+.work-card strong {
+  color: var(--deep);
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.work-card span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+  margin: 0;
+  text-transform: none;
+}
+
+.work-card p {
+  color: #33495d;
+  font-size: 13px;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.work-card a {
+  color: #0d5f9e;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
 .day-block {
   border-top: 3px solid var(--deep);
   display: grid;
   gap: 12px;
   padding-top: 14px;
+}
+
+.day-block.today-marker {
+  background: var(--surface);
+  border: 1px solid #c7ddea;
+  border-top: 4px solid #246b9f;
+  border-radius: 8px;
+  padding: 16px;
+  scroll-margin-top: 18px;
 }
 
 .day-block h2 {
@@ -334,6 +443,14 @@ a {
 .empty {
   color: var(--muted);
   font-weight: 800;
+}
+
+.today-empty {
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  margin: 0;
+  padding: 16px;
 }
 
 @media (max-width: 720px) {
