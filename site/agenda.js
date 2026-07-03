@@ -1,29 +1,29 @@
 const agendaItems = [
   {
-    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29",
-    "title": "Theater op de pleintjes op 5 locaties",
-    "theme": "Activiteit",
-    "className": "activity",
-    "date": "2026-06-29",
-    "dateLabel": "21 juni 2026, tot 9 juli 2026",
-    "timeSlot": "14:00",
-    "timeText": "telkens om 14 en 16 uur",
-    "location": "Kielpark, Stuivenbergplein, Sint-Andriesplaats",
-    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
-  },
-  {
-    "id": "poetische-rimpelingen-2026-06-29",
+    "id": "poetische-rimpelingen-2026-06-29-2026-06-13-152302ff",
     "title": "Poëtische Rimpelingen",
     "theme": "Activiteit",
     "className": "activity",
-    "date": "2026-06-29",
-    "dateLabel": "13 juni 2026, tot 10 oktober 2026",
-    "timeSlot": "Reeks",
-    "timeText": "13 juni 18.30 uur; 5 juli 10.30 uur; 19 september 14 uur; 10 oktober 14 uur",
-    "location": "Charles De Costerlaan",
+    "date": "2026-06-13",
+    "dateLabel": "13 juni 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 uur",
+    "location": "voetgangerstunnel",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+  },
+  {
+    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-06-21-7c67995",
+    "title": "Theater op de pleintjes op 5 locaties",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-06-21",
+    "dateLabel": "21 juni 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "Stuivenbergplein",
+    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
   },
   {
     "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
@@ -78,25 +78,25 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken"
   },
   {
-    "id": "antwerpen-danst-2026-06-30",
+    "id": "antwerpen-danst-2026-06-30-2026-06-30-bcd0d383",
     "title": "Antwerpen Danst",
     "theme": "Activiteit",
     "className": "activity",
     "date": "2026-06-30",
-    "dateLabel": "30 juni 2026, tot 27 augustus 2026",
-    "timeSlot": "Reeks",
-    "timeText": "elke dinsdag 18.30 tot 20 uur en donderdag 20 tot 21.30 uur",
+    "dateLabel": "30 juni 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
     "location": "Waagnatie, Rijnkaai, Galgenweel",
     "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
     "link": "https://antwerpendanst.life/"
   },
   {
-    "id": "yogalates-op-boeienweide-2026-07-01",
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",
     "title": "Yogalates op Boeienweide",
     "theme": "Oproep/deadline",
     "className": "call",
     "date": "2026-07-01",
-    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
+    "dateLabel": "1 juli 2026",
     "timeSlot": "10:00",
     "timeText": "woensdagen 10 tot 11 uur",
     "location": "Boeienweide, Louis Paul Boonstraat",
@@ -117,43 +117,30 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/info/68107cf3eb02357caa7042e2/zomer-mee-in-het-harmoniepark"
   },
   {
-    "id": "3x3-basket-2026-07-01",
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-01-54018f",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-01",
+    "dateLabel": "1 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-07-01-921f88cd",
     "title": "3x3 basket",
     "theme": "Sport",
     "className": "sport",
     "date": "2026-07-01",
-    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
+    "dateLabel": "1 juli 2026",
     "timeSlot": "15:00",
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
-  },
-  {
-    "id": "freedom-friday-in-scratch-2026-07-01",
-    "title": "Freedom Friday in Scratch",
-    "theme": "Sport",
-    "className": "sport",
-    "date": "2026-07-01",
-    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
-    "timeSlot": "19:00",
-    "timeText": "vrijdagen 19 tot 22 uur",
-    "location": "JC Scratch",
-    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
-  },
-  {
-    "id": "sportinitiaties-met-jespo-2026-07-01",
-    "title": "Sportinitiaties met Jespo",
-    "theme": "Sport",
-    "className": "sport",
-    "date": "2026-07-01",
-    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
-    "timeSlot": "Reeks",
-    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
-    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
-    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
   },
   {
     "id": "aquajogging-start-to-wake-2026-07-01",
@@ -182,6 +169,84 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
   },
   {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-02-d9cd6e51",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-02",
+    "dateLabel": "2 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-02-e3002706",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-02",
+    "dateLabel": "2 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-07-03-e3bb4e3d",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-03",
+    "dateLabel": "3 juli 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-04-3989d5d3",
+    "title": "Theater op de pleintjes op 5 locaties",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-04",
+    "dateLabel": "4 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "Kielpark",
+    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+  },
+  {
+    "id": "feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7",
+    "title": "Feesten in het Stadspark",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-04",
+    "dateLabel": "4 juli 2026",
+    "timeSlot": "15:00",
+    "timeText": "15 uur; 17.30 uur; 19.30 uur; 20 uur; 22 uur",
+    "location": "Stadspark",
+    "info": "Zaterdagprogramma met GRCA, SAHRA, Miss Angel, Kenny Montana b2b Séa en Jean Le Rouge.",
+    "link": "https://www.feesteninhetstadspark.be"
+  },
+  {
+    "id": "poetische-rimpelingen-2026-06-29-2026-07-05-8759daf4",
+    "title": "Poëtische Rimpelingen",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-05",
+    "dateLabel": "5 juli 2026",
+    "timeSlot": "10:30",
+    "timeText": "10.30 uur",
+    "location": "Charles De Costerlaan",
+    "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+  },
+  {
     "id": "15-van-het-galgenweel-2026-07-05",
     "title": "15 van het Galgenweel",
     "theme": "Activiteit",
@@ -195,12 +260,25 @@ const agendaItems = [
     "link": "https://kraftmanchronotiming.be/15galgenweel-2/"
   },
   {
-    "id": "gratis-initiaties-boogschieten-2026-07-05",
+    "id": "feesten-in-het-stadspark-2026-07-05-2026-07-05-be0fe503",
+    "title": "Feesten in het Stadspark",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-05",
+    "dateLabel": "5 juli 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 uur; 13.30 uur; 15 uur; 16.30 uur; 18 uur; 19.30 uur; 21 uur",
+    "location": "Stadspark",
+    "info": "Zondagprogramma met T-Dansant, speech, Waiko, Laurent Laenen, Fulco, Johannes Is Zijn Naam en Het Zesde Metaal.",
+    "link": "https://www.feesteninhetstadspark.be"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-05-d104f9e9",
     "title": "Gratis initiaties boogschieten",
     "theme": "Sport",
     "className": "sport",
     "date": "2026-07-05",
-    "dateLabel": "5 juli 2026, tot 20 september 2026",
+    "dateLabel": "5 juli 2026",
     "timeSlot": "14:00",
     "timeText": "zondagen vanaf 14 uur",
     "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
@@ -208,30 +286,147 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
   },
   {
-    "id": "feesten-in-het-stadspark-2026-07-05",
-    "title": "Feesten in het Stadspark",
+    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-05-1e43bd5d",
+    "title": "Theater op de pleintjes op 5 locaties",
     "theme": "Activiteit",
     "className": "activity",
     "date": "2026-07-05",
     "dateLabel": "5 juli 2026",
-    "timeSlot": "Reeks",
-    "timeText": "12 uur; speech om 13.30 uur; programma vanaf 15 uur",
-    "location": "Stadspark",
-    "info": "Vrijwilligersmoment en festivalprogramma in het Stadspark.",
-    "link": "https://www.feesteninhetstadspark.be"
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "Sint-Andriesplaats",
+    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
   },
   {
-    "id": "theater-op-de-pleintjes-zeeboenk-2026-07-08",
-    "title": "Theater op de pleintjes: ZEEBOENK",
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-07-b7d2e605",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-07",
+    "dateLabel": "7 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-07-bcd0d385",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-07",
+    "dateLabel": "7 juli 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-07-08-b67ef9ec",
+    "title": "Yogalates op Boeienweide",
     "theme": "Oproep/deadline",
     "className": "call",
     "date": "2026-07-08",
-    "dateLabel": "8 juli 2026, tot 9 juli 2026",
+    "dateLabel": "8 juli 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-08-540192",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-08",
+    "dateLabel": "8 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-08-a3ede26e",
+    "title": "Theater op de pleintjes op 5 locaties",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-08",
+    "dateLabel": "8 juli 2026",
     "timeSlot": "14:00",
-    "timeText": "telkens om 14 en 16 uur",
-    "location": "Willem Elsschotstraat",
-    "info": "Een speelse, interactieve installatievoorstelling voor het hele gezin over het leven op zee. Laat je onderdompelen in een fantasierijke maritieme wereld!",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-n/"
+    "timeText": "14 en 16 uur",
+    "location": "Bib Elsschot",
+    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-07-08-921f88ce",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-08",
+    "dateLabel": "8 juli 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-09-d9cd6e54",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-09",
+    "dateLabel": "9 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-09-ecf926ec",
+    "title": "Theater op de pleintjes op 5 locaties",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-09",
+    "dateLabel": "9 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "BLOC2030",
+    "info": "Deze zomer brengen we theater tot dicht bij jou met de allereerste editie van Theater op de pleintjes. Theater FroeFroe speelt de avontuurlijke familievoorstelling 'Zeeboenk'.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-09-e3002708",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-09",
+    "dateLabel": "9 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-07-10-e3bb4e3e",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-10",
+    "dateLabel": "10 juli 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
   },
   {
     "id": "tall-ships-races-2026-07-11",
@@ -247,17 +442,433 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
   },
   {
-    "id": "cafe-kamyon-2026-07-12",
+    "id": "cafe-kamyon-2026-07-12-2026-07-12-1eb9f801",
     "title": "Café Kamyon",
     "theme": "Oproep/deadline",
     "className": "call",
     "date": "2026-07-12",
-    "dateLabel": "12 juli 2026, tot 19 juli 2026",
-    "timeSlot": "Reeks",
-    "timeText": "programma met o.a. 12 juli 14u/16u, 15 juli 18u, 16 juli 20u, 17 juli 20u, 18 juli 17u en 19 juli 14u/16u",
-    "location": "Café Kamyon, Beatrijslaan, Linkeroever",
+    "dateLabel": "12 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "Café Kamyon",
     "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
     "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-12-d104f9ea",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-12",
+    "dateLabel": "12 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-14-b7d2e608",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-14",
+    "dateLabel": "14 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-14-bcd0d387",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-14",
+    "dateLabel": "14 juli 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-07-15-b67ef9ed",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-15",
+    "dateLabel": "15 juli 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-15-540195",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-15",
+    "dateLabel": "15 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-07-15-921f88cf",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-15",
+    "dateLabel": "15 juli 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "cafe-kamyon-2026-07-12-2026-07-15-dd6c5d2a",
+    "title": "Café Kamyon",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-15",
+    "dateLabel": "15 juli 2026",
+    "timeSlot": "18:00",
+    "timeText": "18 uur",
+    "location": "Café Kamyon",
+    "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
+    "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-16-d9cd6e57",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-16",
+    "dateLabel": "16 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-16-e300270a",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-16",
+    "dateLabel": "16 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "cafe-kamyon-2026-07-12-2026-07-16-9e1bb002",
+    "title": "Café Kamyon",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-16",
+    "dateLabel": "16 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 uur",
+    "location": "Café Kamyon",
+    "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
+    "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-07-17-e3bb4e3f",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-17",
+    "dateLabel": "17 juli 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "cafe-kamyon-2026-07-12-2026-07-17-9e1bb003",
+    "title": "Café Kamyon",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-17",
+    "dateLabel": "17 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 uur",
+    "location": "Café Kamyon",
+    "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
+    "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "cafe-kamyon-2026-07-12-2026-07-18-a88621ec",
+    "title": "Café Kamyon",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-18",
+    "dateLabel": "18 juli 2026",
+    "timeSlot": "17:00",
+    "timeText": "17 uur",
+    "location": "Café Kamyon",
+    "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
+    "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "cafe-kamyon-2026-07-12-2026-07-19-1eb9f806",
+    "title": "Café Kamyon",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-19",
+    "dateLabel": "19 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 en 16 uur",
+    "location": "Café Kamyon",
+    "info": "District Antwerpen ondersteunt Café Kamyon als lokale ontmoetingsplaats voor een gratis aanbod aan socioculturele activiteiten. 👉 Het volledige programma",
+    "link": "https://www.cafekamyon.be/programma/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-19-d104f9eb",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-19",
+    "dateLabel": "19 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-21-b7d2e60b",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-21",
+    "dateLabel": "21 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-21-bcd0d389",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-21",
+    "dateLabel": "21 juli 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-07-22-b67ef9ee",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-22",
+    "dateLabel": "22 juli 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-22-540198",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-22",
+    "dateLabel": "22 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-07-22-921f88d0",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-22",
+    "dateLabel": "22 juli 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-23-5fe05bff",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-23",
+    "dateLabel": "23 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-23-e300270c",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-23",
+    "dateLabel": "23 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-07-24-e3bb4e40",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-24",
+    "dateLabel": "24 juli 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-26-d104f9ec",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-26",
+    "dateLabel": "26 juli 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-28-4289daad",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-28",
+    "dateLabel": "28 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-28-bcd0d38b",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-28",
+    "dateLabel": "28 juli 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-07-29-b67ef9ef",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-07-29",
+    "dateLabel": "29 juli 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-29-a2c30a2",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-29",
+    "dateLabel": "29 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-07-29-921f88d1",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-29",
+    "dateLabel": "29 juli 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-30-5fe05c02",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-30",
+    "dateLabel": "30 juli 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-07-30-e300270e",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-30",
+    "dateLabel": "30 juli 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-07-31-e3bb4e41",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-31",
+    "dateLabel": "31 juli 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
   },
   {
     "id": "tuk-tuk-rommelmarkt-2026-08-01",
@@ -273,6 +884,474 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-k/"
   },
   {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-02-d104f9ed",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-02",
+    "dateLabel": "2 augustus 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-04-4289dab0",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-04",
+    "dateLabel": "4 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-04-dd499d2c",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-04",
+    "dateLabel": "4 augustus 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-08-05-b67ef9f0",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-08-05",
+    "dateLabel": "5 augustus 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-05-a2c30a5",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-05",
+    "dateLabel": "5 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-08-05-921f88d2",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-05",
+    "dateLabel": "5 augustus 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-06-5fe05c05",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-06",
+    "dateLabel": "6 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-06-7d04b9eb",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-06",
+    "dateLabel": "6 augustus 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-08-07-e3bb4e42",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-07",
+    "dateLabel": "7 augustus 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-09-d104f9ee",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-09",
+    "dateLabel": "9 augustus 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-11-4289dab3",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-11",
+    "dateLabel": "11 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-11-dd499d2e",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-11",
+    "dateLabel": "11 augustus 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-08-12-b67ef9f1",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-08-12",
+    "dateLabel": "12 augustus 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-12-a2c30a8",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-12",
+    "dateLabel": "12 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-08-12-921f88d3",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-12",
+    "dateLabel": "12 augustus 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-13-5fe05c08",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-13",
+    "dateLabel": "13 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-13-7d04b9ed",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-13",
+    "dateLabel": "13 augustus 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-08-14-e3bb4e43",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-14",
+    "dateLabel": "14 augustus 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-16-d104f9ef",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-16",
+    "dateLabel": "16 augustus 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-18-4289dacb",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-18",
+    "dateLabel": "18 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-18-dd499d30",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-18",
+    "dateLabel": "18 augustus 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-08-19-b67ef9f2",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-08-19",
+    "dateLabel": "19 augustus 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-19-a2c30c0",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-19",
+    "dateLabel": "19 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-08-19-921f88d4",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-19",
+    "dateLabel": "19 augustus 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-20-5fe05c20",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-20",
+    "dateLabel": "20 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-20-7d04b9ef",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-20",
+    "dateLabel": "20 augustus 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-08-21-e3bb4e44",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-21",
+    "dateLabel": "21 augustus 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-23-d104f9f0",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-23",
+    "dateLabel": "23 augustus 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-25-4289dace",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-25",
+    "dateLabel": "25 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "dinsdag, woensdag en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-25-dd499d32",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-25",
+    "dateLabel": "25 augustus 2026",
+    "timeSlot": "18:30",
+    "timeText": "18.30 tot 20 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "yogalates-op-boeienweide-2026-07-01-2026-08-26-b67ef9f3",
+    "title": "Yogalates op Boeienweide",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-08-26",
+    "dateLabel": "26 augustus 2026",
+    "timeSlot": "10:00",
+    "timeText": "woensdagen 10 tot 11 uur",
+    "location": "Boeienweide, Louis Paul Boonstraat",
+    "info": "📅 Elke woensdag in juli en augustus 🕙 10 tot 11 uur 📍 Boeienweide, op het grasplein aan zaal Thonetje 🌧️ Bij regen: Sporthal IGLO, Louis Paul Boonstraat 43 👉 Meer info",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-26-a2c30c3",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-26",
+    "dateLabel": "26 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "en donderdag 13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "3x3-basket-2026-07-01-2026-08-26-921f88d5",
+    "title": "3x3 basket",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-26",
+    "dateLabel": "26 augustus 2026",
+    "timeSlot": "15:00",
+    "timeText": "woensdagen 15 tot 18 uur",
+    "location": "Kielpark",
+    "info": "Schuilt er een Lion of Cat in jou? De coaches van 3x3 Together leren je dribbelen, passing, rolover en lay-ups.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+  },
+  {
+    "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-27-5fe05c23",
+    "title": "Sportinitiaties met Jespo",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-27",
+    "dateLabel": "27 augustus 2026",
+    "timeSlot": "13:30",
+    "timeText": "13.30 tot 16.30 uur",
+    "location": "Bonapartedok, Zwemzone Bonapartedok, Sint-Michielskaai, Dageraadplaats",
+    "info": "Goed nieuws voor iedereen die deze zomer een verfrissende duik wil nemen in het Bonapartedok. Antwerpen breidt de zwemzone verder uit om het comfort en de toegankelijkheid te verhogen.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerpen-danst-2026-06-30-2026-08-27-7d04b9f1",
+    "title": "Antwerpen Danst",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-27",
+    "dateLabel": "27 augustus 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 tot 21.30 uur",
+    "location": "Waagnatie, Rijnkaai, Galgenweel",
+    "info": "Zin om te dansen deze zomer? Antwerpen Danst verwelkomt iedereen voor gratis initiaties in allerlei stijlen: van swing en tango tot hiphop en flamenco.",
+    "link": "https://antwerpendanst.life/"
+  },
+  {
+    "id": "freedom-friday-in-scratch-2026-07-01-2026-08-28-e3bb4e45",
+    "title": "Freedom Friday in Scratch",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-28",
+    "dateLabel": "28 augustus 2026",
+    "timeSlot": "19:00",
+    "timeText": "vrijdagen 19 tot 22 uur",
+    "location": "JC Scratch",
+    "info": "Elke vrijdag tussen 19 en 22 uur is er in JC Scratch een open sessie. Hier kunnen jongeren gratis de Urban sfeer (en sporten) uittesten.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+  },
+  {
     "id": "eilandje-in-beweging-2026-08-29",
     "title": "Eilandje in beweging",
     "theme": "Sport",
@@ -284,6 +1363,19 @@ const agendaItems = [
     "location": "Eilandje",
     "info": "Sport- en buurtactiviteit op het Eilandje.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-30-d104f9f1",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-30",
+    "dateLabel": "30 augustus 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
   },
   {
     "id": "red-star-run-2026-08-30",
@@ -325,6 +1417,19 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/swingen-en-dansen-op-het-bal-van-de-bevrijding"
   },
   {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-09-06",
+    "dateLabel": "6 september 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
     "id": "reanimatielessen-2026-09-10",
     "title": "Reanimatielessen",
     "theme": "Activiteit",
@@ -338,6 +1443,32 @@ const agendaItems = [
     "link": "https://antwerpenredt.be/"
   },
   {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-13-4f9a4386",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-09-13",
+    "dateLabel": "13 september 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "poetische-rimpelingen-2026-06-29-2026-09-19-64e62867",
+    "title": "Poëtische Rimpelingen",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-09-19",
+    "dateLabel": "19 september 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 uur",
+    "location": "WZC Hof ter Schelde",
+    "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+  },
+  {
     "id": "beweegdag-55-2026-09-19",
     "title": "Beweegdag 55+",
     "theme": "Sport",
@@ -349,12 +1480,264 @@ const agendaItems = [
     "location": "Wandeldijk, Sporthal Linkeroever, Tennisclub Linkeroever, Linkeroever",
     "info": "Sport- en beweegdag voor 55-plussers op Linkeroever.",
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/beweegdag-55"
+  },
+  {
+    "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387",
+    "title": "Gratis initiaties boogschieten",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-09-20",
+    "dateLabel": "20 september 2026",
+    "timeSlot": "14:00",
+    "timeText": "zondagen vanaf 14 uur",
+    "location": "Harmoniepark, Nachtegalenpark, Wipmaatschappij La Renaissance Floraliënlaan",
+    "info": "Wil je weten hoe het voelt om raak te schieten? Heb je zin in een toffe namiddag.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
+    "title": "Poëtische Rimpelingen",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-10-10",
+    "dateLabel": "10 oktober 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 uur",
+    "location": "Regatta",
+    "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
   }
 ];
+
+const renderedAgendaItems = expandAgendaItems(agendaItems);
 
 const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
 let enabledThemes = new Set(themeOrder);
 let openId = "";
+let hasScrolledToToday = false;
+
+function todayIso() {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+}
+
+function addDaysIso(iso, days) {
+  const [year, month, day] = iso.split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+}
+
+function dateRange(startIso, endIso, limit = 120) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(startIso || ""))) return [];
+  const stopIso = /^\d{4}-\d{2}-\d{2}$/.test(String(endIso || "")) ? endIso : startIso;
+  const dates = [];
+  let current = startIso;
+  while (current <= stopIso && dates.length < limit) {
+    dates.push(current);
+    current = addDaysIso(current, 1);
+  }
+  return dates;
+}
+
+function formatSimpleDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "long", year: "numeric" }).format(
+    new Date(year, month - 1, day)
+  );
+}
+
+function normalizeText(value) {
+  return String(value || "")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
+}
+
+function slugText(value) {
+  return normalizeText(value)
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+}
+
+function stableHash(value) {
+  let hash = 0;
+  const text = String(value || "");
+  for (let index = 0; index < text.length; index += 1) {
+    hash = (hash * 31 + text.charCodeAt(index)) >>> 0;
+  }
+  return hash.toString(16);
+}
+
+function weekdayIndex(iso) {
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Date(year, month - 1, day).getDay();
+}
+
+function weekdayName(iso) {
+  return ["zondag", "maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag"][weekdayIndex(iso)] || "";
+}
+
+function recurringWeekdays(item) {
+  if (item.theme === "Werken") return [];
+  const text = normalizeText(item.timeText);
+  const hasSignal =
+    /\belke\b/.test(text) ||
+    /(maandagen|dinsdagen|woensdagen|donderdagen|vrijdagen|zaterdagen|zondagen)/.test(text) ||
+    /dinsdag\s*,\s*woensdag\s+en\s+donderdag/.test(text);
+  if (!hasSignal) return [];
+  const weekdays = new Set();
+  [
+    ["zondag", "zondagen", 0],
+    ["maandag", "maandagen", 1],
+    ["dinsdag", "dinsdagen", 2],
+    ["woensdag", "woensdagen", 3],
+    ["donderdag", "donderdagen", 4],
+    ["vrijdag", "vrijdagen", 5],
+    ["zaterdag", "zaterdagen", 6],
+  ].forEach(([singular, plural, index]) => {
+    if (text.includes(singular) || text.includes(plural)) weekdays.add(index);
+  });
+  return [...weekdays].sort((a, b) => a - b);
+}
+
+function timeSlotFromText(value) {
+  const match = String(value || "").match(/(\d{1,2})(?:[.:h]\s*(\d{2}))?/i);
+  if (!match) return "Uur volgt";
+  return `${String(Math.min(23, Number(match[1]) || 0)).padStart(2, "0")}:${String(
+    Math.min(59, Number(match[2]) || 0)
+  ).padStart(2, "0")}`;
+}
+
+function occurrenceTimeText(item, occurrence) {
+  if (occurrence.timeText) return occurrence.timeText;
+  const raw = item.timeText || "";
+  const weekday = weekdayName(occurrence.date);
+  if (weekday && raw) {
+    const direct = raw.match(new RegExp(`${weekday}\\s+([^;]+?)(?=\\s+en\\s+\\w+dag|;|$)`, "i"));
+    if (direct?.[1]) return direct[1].trim();
+  }
+  return raw;
+}
+
+function knownOccurrences(item) {
+  const title = normalizeText(item.title);
+  const expandSignal = normalizeText(`${item.dateLabel || ""} ${item.timeText || ""}`);
+  const shouldExpandKnown =
+    expandSignal.includes("tot") ||
+    expandSignal.includes("programma vanaf") ||
+    expandSignal.includes("programma met");
+  if (!shouldExpandKnown) return [];
+  if (title.includes("theater op de pleintjes") || title.includes("zeeboenk")) {
+    return [
+      { date: "2026-06-21", timeText: "14 en 16 uur", location: "Stuivenbergplein" },
+      { date: "2026-07-04", timeText: "14 en 16 uur", location: "Kielpark" },
+      { date: "2026-07-05", timeText: "14 en 16 uur", location: "Sint-Andriesplaats" },
+      { date: "2026-07-08", timeText: "14 en 16 uur", location: "Bib Elsschot" },
+      { date: "2026-07-09", timeText: "14 en 16 uur", location: "BLOC2030" },
+    ];
+  }
+  if (title.includes("feesten in het stadspark")) {
+    return [
+      {
+        date: "2026-07-04",
+        timeText: "15 uur; 17.30 uur; 19.30 uur; 20 uur; 22 uur",
+        location: "Stadspark",
+        info: "Zaterdagprogramma met GRCA, SAHRA, Miss Angel, Kenny Montana b2b Séa en Jean Le Rouge.",
+      },
+      {
+        date: "2026-07-05",
+        timeText: "12 uur; 13.30 uur; 15 uur; 16.30 uur; 18 uur; 19.30 uur; 21 uur",
+        location: "Stadspark",
+        info: "Zondagprogramma met T-Dansant, speech, Waiko, Laurent Laenen, Fulco, Johannes Is Zijn Naam en Het Zesde Metaal.",
+      },
+    ];
+  }
+  if (title.includes("cafe kamyon")) {
+    return [
+      { date: "2026-07-12", timeText: "14 en 16 uur", location: "Café Kamyon" },
+      { date: "2026-07-15", timeText: "18 uur", location: "Café Kamyon" },
+      { date: "2026-07-16", timeText: "20 uur", location: "Café Kamyon" },
+      { date: "2026-07-17", timeText: "20 uur", location: "Café Kamyon" },
+      { date: "2026-07-18", timeText: "17 uur", location: "Café Kamyon" },
+      { date: "2026-07-19", timeText: "14 en 16 uur", location: "Café Kamyon" },
+    ];
+  }
+  if (title.includes("poetische rimpelingen")) {
+    return [
+      { date: "2026-06-13", timeText: "18.30 uur", location: "voetgangerstunnel" },
+      { date: "2026-07-05", timeText: "10.30 uur", location: "Charles De Costerlaan" },
+      { date: "2026-09-19", timeText: "14 uur", location: "WZC Hof ter Schelde" },
+      { date: "2026-10-10", timeText: "14 uur", location: "Regatta" },
+    ];
+  }
+  return [];
+}
+
+function cloneOccurrence(item, occurrence, index) {
+  const timeText = occurrenceTimeText(item, occurrence);
+  return {
+    ...item,
+    id: `${item.id}-${occurrence.date}-${stableHash(`${occurrence.location || ""}-${timeText}-${index}`)}`,
+    date: occurrence.date,
+    dateLabel: formatSimpleDate(occurrence.date) || item.dateLabel,
+    timeText,
+    timeSlot: timeSlotFromText(timeText),
+    location: occurrence.location || item.location,
+    info: occurrence.info || item.info,
+  };
+}
+
+function logicalAgendaTitle(item) {
+  const title = normalizeText(item.title);
+  if (title.includes("theater op de pleintjes") || title.includes("zeeboenk")) return "theater-op-de-pleintjes-zeeboenk";
+  if (title.includes("poetische rimpelingen")) return "poetische-rimpelingen";
+  if (title.includes("feesten in het stadspark")) return "feesten-in-het-stadspark";
+  if (title.includes("cafe kamyon")) return "cafe-kamyon";
+  if (title.includes("antwerpen danst")) return "antwerpen-danst";
+  return slugText(item.title);
+}
+
+function expandAgendaItems(items) {
+  const expanded = items.flatMap((item) => {
+    if (item.theme === "Werken") return [item];
+    const known = knownOccurrences(item);
+    if (known.length) return known.map((occurrence, index) => cloneOccurrence(item, occurrence, index));
+    const weekdays = recurringWeekdays(item);
+    if (!weekdays.length || !/tot/i.test(item.dateLabel || "")) return [item];
+    const start = item.date;
+    const endMatch = String(item.dateLabel || "").match(/tot\s+(\d{1,2})\s+([a-z]+)\s+(\d{4})/i);
+    if (!start || !endMatch) return [item];
+    const monthIndex = {
+      januari: "01",
+      februari: "02",
+      maart: "03",
+      april: "04",
+      mei: "05",
+      juni: "06",
+      juli: "07",
+      augustus: "08",
+      september: "09",
+      oktober: "10",
+      november: "11",
+      december: "12",
+    }[normalizeText(endMatch[2])];
+    const end = monthIndex ? `${endMatch[3]}-${monthIndex}-${String(Number(endMatch[1])).padStart(2, "0")}` : "";
+    if (!end) return [item];
+    return dateRange(start, end, 120)
+      .filter((date) => weekdays.includes(weekdayIndex(date)))
+      .map((date, index) => cloneOccurrence(item, { date }, index));
+  });
+  const seen = new Set();
+  return expanded.filter((item) => {
+    const key = [logicalAgendaTitle(item), item.date, item.timeSlot, normalizeText(item.location)].join("|");
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
 
 function formatDateTitle(iso) {
   const [year, month, day] = iso.split("-").map(Number);
@@ -376,6 +1759,35 @@ function byDate(items) {
   }, {});
 }
 
+function worksOverviewTemplate(items) {
+  if (!items.length) return "";
+  return `
+    <section class="works-overview" aria-label="Overzicht werken en hinder">
+      <header>
+        <div>
+          <span>Werken en hinder</span>
+          <h2>Langlopende werken los van de dagagenda</h2>
+          <p>Deze punten blijven als overzicht zichtbaar, zonder elke dag opnieuw in de agenda te staan.</p>
+        </div>
+        <strong>${items.length}</strong>
+      </header>
+      <div class="works-grid">
+        ${items
+          .sort((a, b) => String(a.dateLabel || a.date).localeCompare(String(b.dateLabel || b.date)) || a.title.localeCompare(b.title))
+          .map((item) => `
+            <article class="work-card">
+              <strong>${item.title}</strong>
+              <span>${[item.dateLabel, item.location].filter(Boolean).join(" · ")}</span>
+              ${item.info ? `<p>${item.info}</p>` : ""}
+              ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Meer info</a>` : ""}
+            </article>
+          `)
+          .join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderControls() {
   const root = document.getElementById("theme-controls");
   root.innerHTML = "";
@@ -392,7 +1804,7 @@ function renderControls() {
   root.appendChild(allButton);
 
   themeOrder.forEach((theme) => {
-    const sample = agendaItems.find((item) => item.theme === theme);
+    const sample = renderedAgendaItems.find((item) => item.theme === theme);
     const button = document.createElement("button");
     button.type = "button";
     button.className = enabledThemes.has(theme) ? "active" : "";
@@ -455,24 +1867,33 @@ function renderList(items) {
     return;
   }
 
-  const groups = byDate(items);
-  root.innerHTML = Object.entries(groups)
+  const works = items.filter((item) => item.theme === "Werken");
+  const calendarItems = items.filter((item) => item.theme !== "Werken");
+  const groups = byDate(calendarItems);
+  const today = todayIso();
+  if (!groups[today]) groups[today] = [];
+  const schedule = Object.entries(groups)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([date, dateItems]) => `
-      <section class="day-block">
+      <section class="day-block ${date === today ? "today-marker" : ""}" data-agenda-today="${date === today ? "true" : "false"}">
         <header>
-          <h2>${formatDateTitle(date)}</h2>
+          <h2>${date === today ? `Vandaag · ${formatDateTitle(date)}` : formatDateTitle(date)}</h2>
           <p>${formatDateSummary(date, dateItems.length)}</p>
         </header>
         <div class="event-list">
-          ${dateItems
-            .sort((a, b) => a.timeSlot.localeCompare(b.timeSlot) || a.title.localeCompare(b.title))
-            .map(eventTemplate)
-            .join("")}
+          ${
+            dateItems.length
+              ? dateItems
+                  .sort((a, b) => a.timeSlot.localeCompare(b.timeSlot) || a.title.localeCompare(b.title))
+                  .map(eventTemplate)
+                  .join("")
+              : `<p class="empty today-empty">Geen publiek agenda-item vandaag.</p>`
+          }
         </div>
       </section>
     `)
     .join("");
+  root.innerHTML = `${worksOverviewTemplate(works)}${schedule}`;
 
   root.querySelectorAll(".event-toggle").forEach((button) => {
     button.addEventListener("click", () => {
@@ -482,6 +1903,14 @@ function renderList(items) {
       document.getElementById(id)?.scrollIntoView({ block: "nearest" });
     });
   });
+  if (!hasScrolledToToday) {
+    window.setTimeout(() => {
+      const todayBlock = document.querySelector('[data-agenda-today="true"]');
+      if (!todayBlock) return;
+      hasScrolledToToday = true;
+      todayBlock.scrollIntoView({ block: "start" });
+    }, 80);
+  }
 }
 
 function renderCounts(items) {
@@ -494,7 +1923,7 @@ function renderCounts(items) {
 }
 
 function render() {
-  const visible = agendaItems.filter((item) => enabledThemes.has(item.theme));
+  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme));
   renderControls();
   renderCounts(visible);
   renderList(visible);
