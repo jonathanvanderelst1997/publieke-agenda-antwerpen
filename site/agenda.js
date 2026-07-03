@@ -13,6 +13,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
   },
   {
+    "id": "strip-en-boekenplein-2026-06-21",
+    "title": "Strip- en boekenplein",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-06-21",
+    "dateLabel": "21 juni 2026",
+    "timeSlot": "10:00",
+    "timeText": "10 tot 16 uur",
+    "location": "De Coninckplein bij bibliotheek Permeke",
+    "info": "Gezellige strip- en boekenmarkt met muziek aan bibliotheek Permeke.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-06-21-7c67995",
     "title": "Theater op de pleintjes: Zeeboenk",
     "theme": "Activiteit",
@@ -24,6 +37,19 @@ const agendaItems = [
     "location": "Stuivenbergplein",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+  },
+  {
+    "id": "lambermontmartre-2026-06-28",
+    "title": "Lambermontmartre",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-06-28",
+    "dateLabel": "28 juni 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 uur",
+    "location": "Leopold de Waelplaats",
+    "info": "Openlucht schildersmarkt voor schilders, tekenaars, fotografen en kunstliefhebbers.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
@@ -143,6 +169,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
   },
   {
+    "id": "aquajogging-start-to-wake-2026-07-01",
+    "title": "Aquajogging / Start to Wake",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-07-01",
+    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
+    "timeSlot": "Info",
+    "timeText": "lessenreeks in de zomer",
+    "location": "Linkeroever",
+    "info": "Lessenreeksen Aquajogging en Start to Wake op Linkeroever; inschrijven via de publieke sportlink.",
+    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-i/"
+  },
+  {
     "id": "openluchtzwemmen-2026-07-01",
     "title": "Openluchtzwemmen Bonapartedok",
     "theme": "Sport",
@@ -154,19 +193,6 @@ const agendaItems = [
     "location": "Bonapartedok",
     "info": "ZwemDok/openluchtzwemmen in het Bonapartedok; check de officiële info voor openingsuren, voorwaarden en toegankelijkheid.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
-  },
-  {
-    "id": "aquajogging-start-to-wake-2026-07-01",
-    "title": "Aquajogging / Start to Wake",
-    "theme": "Sport",
-    "className": "sport",
-    "date": "2026-07-01",
-    "dateLabel": "1 juli 2026, tot 31 augustus 2026",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
-    "location": "Linkeroever",
-    "info": "Lessenreeksen Aquajogging en Start to Wake op Linkeroever; inschrijven via de publieke sportlink.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-i/"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-02-d9cd6e51",
@@ -663,6 +689,19 @@ const agendaItems = [
     "link": "https://www.cafekamyon.be/programma/"
   },
   {
+    "id": "strip-en-boekenplein-2026-07-19",
+    "title": "Strip- en boekenplein",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-19",
+    "dateLabel": "19 juli 2026",
+    "timeSlot": "10:00",
+    "timeText": "10 tot 16 uur",
+    "location": "De Coninckplein bij bibliotheek Permeke",
+    "info": "Gezellige strip- en boekenmarkt met muziek aan bibliotheek Permeke.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "cafe-kamyon-2026-07-12-2026-07-19-1eb9f806",
     "title": "Café Kamyon",
     "theme": "Activiteit",
@@ -793,6 +832,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
   },
   {
+    "id": "lambermontmartre-2026-07-26",
+    "title": "Lambermontmartre",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-07-26",
+    "dateLabel": "26 juli 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 uur",
+    "location": "Leopold de Waelplaats",
+    "info": "Openlucht schildersmarkt voor schilders, tekenaars, fotografen en kunstliefhebbers.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-26-d104f9ec",
     "title": "Gratis initiaties boogschieten",
     "theme": "Sport",
@@ -916,8 +968,8 @@ const agendaItems = [
     "className": "activity",
     "date": "2026-08-01",
     "dateLabel": "1 augustus 2026",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
+    "timeSlot": "Info",
+    "timeText": "programma via organisator",
     "location": "Beatrijslaan, Linkeroever",
     "info": "Rommelmarkt en buurtfestival op en rond de Beatrijslaan; inschrijven voor de rommelmarkt via de organisator.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-k/"
@@ -1157,6 +1209,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
   },
   {
+    "id": "strip-en-boekenplein-2026-08-16",
+    "title": "Strip- en boekenplein",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-16",
+    "dateLabel": "16 augustus 2026",
+    "timeSlot": "10:00",
+    "timeText": "10 tot 16 uur",
+    "location": "De Coninckplein bij bibliotheek Permeke",
+    "info": "Gezellige strip- en boekenmarkt met muziek aan bibliotheek Permeke.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-16-d104f9ef",
     "title": "Gratis initiaties boogschieten",
     "theme": "Sport",
@@ -1326,6 +1391,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
   },
   {
+    "id": "zomer-mee-park-spoor-noord-2026-08-26",
+    "title": "Zomer Mee Park Spoor Noord",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-26",
+    "dateLabel": "26 augustus 2026",
+    "timeSlot": "13:00",
+    "timeText": "13 tot 17 uur",
+    "location": "Park Spoor Noord",
+    "info": "Sport-, spel- en infomarkt waar kinderen en gezinnen hobby's en jeugdclubs kunnen ontdekken.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-26-a2c30c3",
     "title": "Sportinitiaties met Jespo",
     "theme": "Sport",
@@ -1378,6 +1456,19 @@ const agendaItems = [
     "link": "https://antwerpendanst.life/"
   },
   {
+    "id": "tabletcafe-2026-08-28",
+    "title": "Tabletcafé",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-28",
+    "dateLabel": "28 augustus 2026",
+    "timeSlot": "09:30",
+    "timeText": "9.30 tot 11.30 uur",
+    "location": "WZC Arthur, Solvynsstraat 80",
+    "info": "Senioren kunnen samen oefenen en vragen stellen rond tabletgebruik.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "freedom-friday-in-scratch-2026-07-01-2026-08-28-e3bb4e45",
     "title": "Freedom Friday in Scratch",
     "theme": "Sport",
@@ -1391,6 +1482,19 @@ const agendaItems = [
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
   },
   {
+    "id": "antwerp-sup-festival-2026-08-29",
+    "title": "Antwerp Sup Festival",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-29",
+    "dateLabel": "29 augustus 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 tot 17 uur",
+    "location": "Kattendijkdok-Oostkaai",
+    "info": "Sup-initiaties, recreatieve suptochten, wedstrijd en optredens langs de kade.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
     "id": "eilandje-in-beweging-2026-08-29",
     "title": "Eilandje in beweging",
     "theme": "Sport",
@@ -1402,6 +1506,32 @@ const agendaItems = [
     "location": "Eilandje",
     "info": "Sport- en buurtactiviteit op het Eilandje.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
+  },
+  {
+    "id": "antwerp-sup-festival-2026-08-30",
+    "title": "Antwerp Sup Festival",
+    "theme": "Sport",
+    "className": "sport",
+    "date": "2026-08-30",
+    "dateLabel": "30 augustus 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 tot 17 uur",
+    "location": "Kattendijkdok-Oostkaai",
+    "info": "Sup-initiaties, recreatieve suptochten, wedstrijd en optredens langs de kade.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  {
+    "id": "lambermontmartre-2026-08-30",
+    "title": "Lambermontmartre",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-08-30",
+    "dateLabel": "30 augustus 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 uur",
+    "location": "Leopold de Waelplaats",
+    "info": "Openlucht schildersmarkt voor schilders, tekenaars, fotografen en kunstliefhebbers.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-30-d104f9f1",
@@ -1449,8 +1579,8 @@ const agendaItems = [
     "className": "sport",
     "date": "2026-08-30",
     "dateLabel": "30 augustus 2026",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
+    "timeSlot": "Info",
+    "timeText": "zondag 30 augustus",
     "location": "Eilandje",
     "info": "Loopactiviteit in de omgeving van het Eilandje.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
@@ -1467,6 +1597,19 @@ const agendaItems = [
     "location": "Groenplaats",
     "info": "Gratis volksbal op de Groenplaats ter gelegenheid van de bevrijding.",
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/swingen-en-dansen-op-het-bal-van-de-bevrijding"
+  },
+  {
+    "id": "inschrijven-herfstklaar-2026-09-04",
+    "title": "Inschrijven Herfstklaar",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-09-04",
+    "dateLabel": "4 september 2026",
+    "timeSlot": "Deadline",
+    "timeText": "aanvragen tot 4 september",
+    "location": "district Antwerpen",
+    "info": "Bewoners kunnen ondersteuning aanvragen om hun straat tijdens het weekend van 23, 24 en 25 oktober herfstklaar te maken.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2",
@@ -1488,9 +1631,9 @@ const agendaItems = [
     "className": "activity",
     "date": "2026-09-10",
     "dateLabel": "10 september 2026, tot 10 december 2026",
-    "timeSlot": "Reeks",
-    "timeText": "meerdere lesmomenten, onder meer 19 tot 21 uur, 14 tot 16 uur, 13 tot 15 uur en 18 tot 20 uur",
-    "location": "Huis van het Kind - Pothoekstraat, Huis van het Kind - Montignystraat, Huis van het Kind - Hanegraafstraat, PeeCee Kaffee - Heldenstraat, Huis van het Kind - Lodewijk van Berckenlaan",
+    "timeSlot": "Info",
+    "timeText": "meerdere lesmomenten van september tot december",
+    "location": "meerdere locaties in district Antwerpen",
     "info": "Gratis lessen reanimeren en AED-gebruik op meerdere locaties; kies een concreet lesmoment via Antwerpen Redt.",
     "link": "https://antwerpenredt.be/"
   },
@@ -1527,9 +1670,9 @@ const agendaItems = [
     "className": "sport",
     "date": "2026-09-19",
     "dateLabel": "19 september 2026",
-    "timeSlot": "Reeks",
+    "timeSlot": "Info",
     "timeText": "programma overdag; check de officiële pagina voor het uurrooster",
-    "location": "Wandeldijk, Sporthal Linkeroever, Tennisclub Linkeroever, Linkeroever",
+    "location": "Linkeroever",
     "info": "Sport- en beweegdag voor 55-plussers op Linkeroever; programma en inschrijving via de officiële pagina.",
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/beweegdag-55"
   },
@@ -1545,6 +1688,19 @@ const agendaItems = [
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
     "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+  },
+  {
+    "id": "lambermontmartre-2026-09-27",
+    "title": "Lambermontmartre",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-09-27",
+    "dateLabel": "27 september 2026",
+    "timeSlot": "12:00",
+    "timeText": "12 uur",
+    "location": "Leopold de Waelplaats",
+    "info": "Openlucht schildersmarkt voor schilders, tekenaars, fotografen en kunstliefhebbers.",
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
