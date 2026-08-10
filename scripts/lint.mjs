@@ -11,8 +11,11 @@ const javascriptFiles = [
   "site/agenda.js",
   "scripts/agenda-source.mjs",
   "scripts/build-agenda.mjs",
+  "scripts/build-provenance-sla.mjs",
+  "scripts/provenance-sla.mjs",
   "scripts/lint.mjs",
   "tests/agenda-refresh.test.mjs",
+  "tests/provenance-sla.test.mjs",
 ];
 
 for (const file of javascriptFiles) {
@@ -42,6 +45,11 @@ for (const item of result.publicItems) {
   if (item.verificationState !== "verified" || !item.sourceId || !item.sourceRetrievedAt) {
     throw new Error(`Publiek item ${item.id} is niet volledig brongeverifieerd.`);
   }
+}
+
+const provenanceMatrix = JSON.parse(fs.readFileSync(path.join(rootDir, "audit", "provenance-expiry-sla.json"), "utf8"));
+if (provenanceMatrix.sourceItemCount !== items.length || provenanceMatrix.items.length !== items.length) {
+  throw new Error("De provenance-/vervalmatrix moet elk bronitem exact één keer bevatten.");
 }
 
 console.log(`Lint passed: ${items.length} bronitems, ${result.publicItems.length} publiek verifieerbaar.`);

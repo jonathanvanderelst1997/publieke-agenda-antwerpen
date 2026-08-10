@@ -274,7 +274,7 @@
 
   const config = {
     schemaVersion: 1,
-    classificationAsOf: "2026-08-10",
+    classificationAsOf: "2026-08-11",
     retrievedAt,
     rollback: {
       baseCommit: "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3",

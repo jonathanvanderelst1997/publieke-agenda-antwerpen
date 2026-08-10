@@ -2,13 +2,13 @@
   "schemaVersion": 2,
   "state": "local-candidate-not-published",
   "candidateGeneratedAt": "2026-08-10T09:08:00Z",
-  "classificationAsOf": "2026-08-10",
+  "classificationAsOf": "2026-08-11",
   "sourceCount": 132,
   "count": 31,
   "classifications": {
     "expired": 82,
-    "current": 2,
-    "future": 29,
+    "current": 3,
+    "future": 28,
     "review_required": 19
   },
   "digest": "a8380e09dbc0971b810c0ac207a4b6047f7ae5686acd44f59b99a2175a473962",

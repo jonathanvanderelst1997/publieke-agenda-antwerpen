@@ -9,7 +9,7 @@ import { loadExpandedAgendaItems, loadRefreshEngine } from "../scripts/agenda-so
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const items = loadExpandedAgendaItems(rootDir);
 const engine = loadRefreshEngine(rootDir);
-const result = engine.reconcileAgendaItems(items, "2026-08-10");
+const result = engine.reconcileAgendaItems(items, engine.config.classificationAsOf);
 
 function find(title, date) {
   return result.auditItems.find((item) => item.title === title && item.date === date);
@@ -65,7 +65,7 @@ test("publiceert alleen geverifieerde huidige of toekomstige items met officiël
 test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "public-agenda-manifest.json"), "utf8"));
   assert.equal(manifest.state, "local-candidate-not-published");
-  assert.equal(manifest.classificationAsOf, "2026-08-10");
+  assert.equal(manifest.classificationAsOf, engine.config.classificationAsOf);
   assert.equal(manifest.count, result.publicItems.length);
   assert.deepEqual(manifest.classifications, JSON.parse(JSON.stringify(result.counts)));
   assert.equal(manifest.rollback.baseCommit, "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3");

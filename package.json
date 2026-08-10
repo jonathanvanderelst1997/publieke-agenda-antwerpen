@@ -5,8 +5,9 @@
   "type": "module",
   "scripts": {
     "build": "node scripts/build-agenda.mjs",
+    "build:provenance-sla": "node scripts/build-provenance-sla.mjs",
     "lint": "node scripts/lint.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run build && npm run lint && npm test"
+    "check": "npm run build && npm run build:provenance-sla && npm run lint && npm test"
   }
 }

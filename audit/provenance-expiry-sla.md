@@ -1,0 +1,145 @@
+# Bronprovenance- en verval-SLA-matrix
+
+Status: lokale audit, niet gepubliceerd. Classificatie op 2026-08-11; geverifieerde bronsnapshot 2026-08-10T09:08:00Z.
+
+- Bronitems: 132
+- Fail-closed lokale kandidaat: 31
+- Classificaties: current=3, expired=82, future=28, review_required=19
+- SLA-statussen: blocked_review_required=19, expired_not_public=82, fresh_verified=31
+
+Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
+
+| # | Item-ID | Datum | Classificatie | Bron-ID | Verificatie | SLA dagen | Hercontrole uiterlijk | SLA-status | Kandidaat |
+|---:|---|---|---|---|---|---:|---|---|---|
+| 1 | poetische-rimpelingen-2026-06-29-2026-06-13-152302ff | 2026-06-13 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 2 | strip-en-boekenplein-2026-06-21 | 2026-06-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 3 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-06-21-7c67995 | 2026-06-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 4 | lambermontmartre-2026-06-28 | 2026-06-28 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 5 | fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29 | 2026-06-29 | current | city-works-permit | verified | 2 | 2026-08-12 | fresh_verified | ja |
+| 6 | kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29 | 2026-06-29 | expired | slim-kammenstraat | verified | - | - | expired_not_public | nee |
+| 7 | nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29 | 2026-06-29 | review_required | city-gaston-works | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 8 | werken-halenstraat-en-schijnpoortweg-2026-06-29 | 2026-06-29 | current | city-works-permit | verified | 2 | 2026-08-12 | fresh_verified | ja |
+| 9 | antwerpen-danst-2026-06-30-2026-06-30-bcd0d383 | 2026-06-30 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 10 | yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 11 | zomer-mee-in-harmoniepark-2026-07-01 | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 12 | sportinitiaties-met-jespo-2026-07-01-2026-07-01-54018f | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 13 | 3x3-basket-2026-07-01-2026-07-01-921f88cd | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 14 | aquajogging-start-to-wake-2026-07-01 | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 15 | openluchtzwemmen-2026-07-01 | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 16 | sportinitiaties-met-jespo-2026-07-01-2026-07-02-d9cd6e51 | 2026-07-02 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 17 | antwerpen-danst-2026-06-30-2026-07-02-e3002706 | 2026-07-02 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 18 | freedom-friday-in-scratch-2026-07-01-2026-07-03-e3bb4e3d | 2026-07-03 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 19 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-04-3989d5d3 | 2026-07-04 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 20 | feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7 | 2026-07-04 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 21 | poetische-rimpelingen-2026-06-29-2026-07-05-8759daf4 | 2026-07-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 22 | 15-van-het-galgenweel-2026-07-05 | 2026-07-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 23 | feesten-in-het-stadspark-2026-07-05-2026-07-05-be0fe503 | 2026-07-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 24 | gratis-initiaties-boogschieten-2026-07-05-2026-07-05-d104f9e9 | 2026-07-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 25 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-05-1e43bd5d | 2026-07-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 26 | sportinitiaties-met-jespo-2026-07-01-2026-07-07-b7d2e605 | 2026-07-07 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 27 | antwerpen-danst-2026-06-30-2026-07-07-bcd0d385 | 2026-07-07 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 28 | yogalates-op-boeienweide-2026-07-01-2026-07-08-b67ef9ec | 2026-07-08 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 29 | sportinitiaties-met-jespo-2026-07-01-2026-07-08-540192 | 2026-07-08 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 30 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-08-a3ede26e | 2026-07-08 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 31 | 3x3-basket-2026-07-01-2026-07-08-921f88ce | 2026-07-08 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 32 | sportinitiaties-met-jespo-2026-07-01-2026-07-09-d9cd6e54 | 2026-07-09 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 33 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-09-ecf926ec | 2026-07-09 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 34 | antwerpen-danst-2026-06-30-2026-07-09-e3002708 | 2026-07-09 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 35 | freedom-friday-in-scratch-2026-07-01-2026-07-10-e3bb4e3e | 2026-07-10 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 36 | the-tall-ships-races-antwerpen-2026-07-11 | 2026-07-11 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 37 | cafe-kamyon-2026-07-12-2026-07-12-1eb9f801 | 2026-07-12 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 38 | gratis-initiaties-boogschieten-2026-07-05-2026-07-12-d104f9ea | 2026-07-12 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 39 | the-tall-ships-races-antwerpen-2026-07-12 | 2026-07-12 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 40 | the-tall-ships-races-antwerpen-2026-07-13 | 2026-07-13 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 41 | sportinitiaties-met-jespo-2026-07-01-2026-07-14-b7d2e608 | 2026-07-14 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 42 | antwerpen-danst-2026-06-30-2026-07-14-bcd0d387 | 2026-07-14 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 43 | the-tall-ships-races-antwerpen-2026-07-14 | 2026-07-14 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 44 | yogalates-op-boeienweide-2026-07-01-2026-07-15-b67ef9ed | 2026-07-15 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 45 | sportinitiaties-met-jespo-2026-07-01-2026-07-15-540195 | 2026-07-15 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 46 | 3x3-basket-2026-07-01-2026-07-15-921f88cf | 2026-07-15 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 47 | cafe-kamyon-2026-07-12-2026-07-15-dd6c5d2a | 2026-07-15 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 48 | sportinitiaties-met-jespo-2026-07-01-2026-07-16-d9cd6e57 | 2026-07-16 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 49 | antwerpen-danst-2026-06-30-2026-07-16-e300270a | 2026-07-16 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 50 | cafe-kamyon-2026-07-12-2026-07-16-9e1bb002 | 2026-07-16 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 51 | freedom-friday-in-scratch-2026-07-01-2026-07-17-e3bb4e3f | 2026-07-17 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 52 | cafe-kamyon-2026-07-12-2026-07-17-9e1bb003 | 2026-07-17 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 53 | cafe-kamyon-2026-07-12-2026-07-18-a88621ec | 2026-07-18 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 54 | strip-en-boekenplein-2026-07-19 | 2026-07-19 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 55 | cafe-kamyon-2026-07-12-2026-07-19-1eb9f806 | 2026-07-19 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 56 | gratis-initiaties-boogschieten-2026-07-05-2026-07-19-d104f9eb | 2026-07-19 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 57 | sportinitiaties-met-jespo-2026-07-01-2026-07-21-b7d2e60b | 2026-07-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 58 | antwerpen-danst-2026-06-30-2026-07-21-bcd0d389 | 2026-07-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 59 | yogalates-op-boeienweide-2026-07-01-2026-07-22-b67ef9ee | 2026-07-22 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 60 | sportinitiaties-met-jespo-2026-07-01-2026-07-22-540198 | 2026-07-22 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 61 | 3x3-basket-2026-07-01-2026-07-22-921f88d0 | 2026-07-22 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 62 | sportinitiaties-met-jespo-2026-07-01-2026-07-23-5fe05bff | 2026-07-23 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 63 | antwerpen-danst-2026-06-30-2026-07-23-e300270c | 2026-07-23 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 64 | freedom-friday-in-scratch-2026-07-01-2026-07-24-e3bb4e40 | 2026-07-24 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 65 | lambermontmartre-2026-07-26 | 2026-07-26 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 66 | gratis-initiaties-boogschieten-2026-07-05-2026-07-26-d104f9ec | 2026-07-26 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 67 | sportinitiaties-met-jespo-2026-07-01-2026-07-28-4289daad | 2026-07-28 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 68 | antwerpen-danst-2026-06-30-2026-07-28-bcd0d38b | 2026-07-28 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 69 | yogalates-op-boeienweide-2026-07-01-2026-07-29-b67ef9ef | 2026-07-29 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 70 | sportinitiaties-met-jespo-2026-07-01-2026-07-29-a2c30a2 | 2026-07-29 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 71 | 3x3-basket-2026-07-01-2026-07-29-921f88d1 | 2026-07-29 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 72 | sportinitiaties-met-jespo-2026-07-01-2026-07-30-5fe05c02 | 2026-07-30 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 73 | antwerpen-danst-2026-06-30-2026-07-30-e300270e | 2026-07-30 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 74 | freedom-friday-in-scratch-2026-07-01-2026-07-31-e3bb4e41 | 2026-07-31 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 75 | tuk-tuk-rommelmarkt-2026-08-01 | 2026-08-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 76 | gratis-initiaties-boogschieten-2026-07-05-2026-08-02-d104f9ed | 2026-08-02 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 77 | sportinitiaties-met-jespo-2026-07-01-2026-08-04-4289dab0 | 2026-08-04 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 78 | antwerpen-danst-2026-06-30-2026-08-04-dd499d2c | 2026-08-04 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 79 | yogalates-op-boeienweide-2026-07-01-2026-08-05-b67ef9f0 | 2026-08-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 80 | sportinitiaties-met-jespo-2026-07-01-2026-08-05-a2c30a5 | 2026-08-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 81 | 3x3-basket-2026-07-01-2026-08-05-921f88d2 | 2026-08-05 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 82 | sportinitiaties-met-jespo-2026-07-01-2026-08-06-5fe05c05 | 2026-08-06 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 83 | antwerpen-danst-2026-06-30-2026-08-06-7d04b9eb | 2026-08-06 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 84 | freedom-friday-in-scratch-2026-07-01-2026-08-07-e3bb4e42 | 2026-08-07 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 85 | gratis-initiaties-boogschieten-2026-07-05-2026-08-09-d104f9ee | 2026-08-09 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
+| 86 | sportinitiaties-met-jespo-2026-07-01-2026-08-11-4289dab3 | 2026-08-11 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 87 | antwerpen-danst-2026-06-30-2026-08-11-dd499d2e | 2026-08-11 | current | antwerpen-danst | verified | 2 | 2026-08-12 | fresh_verified | ja |
+| 88 | yogalates-op-boeienweide-2026-07-01-2026-08-12-b67ef9f1 | 2026-08-12 | future | city-yogalates | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 89 | sportinitiaties-met-jespo-2026-07-01-2026-08-12-a2c30a8 | 2026-08-12 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 90 | 3x3-basket-2026-07-01-2026-08-12-921f88d3 | 2026-08-12 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 91 | sportinitiaties-met-jespo-2026-07-01-2026-08-13-5fe05c08 | 2026-08-13 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 92 | antwerpen-danst-2026-06-30-2026-08-13-7d04b9ed | 2026-08-13 | future | antwerpen-danst | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 93 | freedom-friday-in-scratch-2026-07-01-2026-08-14-e3bb4e43 | 2026-08-14 | future | scratch-freedom-friday | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 94 | strip-en-boekenplein-2026-08-16 | 2026-08-16 | future | city-district-calendar | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 95 | gratis-initiaties-boogschieten-2026-07-05-2026-08-16-d104f9ef | 2026-08-16 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 96 | sportinitiaties-met-jespo-2026-07-01-2026-08-18-4289dacb | 2026-08-18 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 97 | antwerpen-danst-2026-06-30-2026-08-18-dd499d30 | 2026-08-18 | future | antwerpen-danst | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 98 | yogalates-op-boeienweide-2026-07-01-2026-08-19-b67ef9f2 | 2026-08-19 | future | city-yogalates | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 99 | sportinitiaties-met-jespo-2026-07-01-2026-08-19-a2c30c0 | 2026-08-19 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 100 | 3x3-basket-2026-07-01-2026-08-19-921f88d4 | 2026-08-19 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 101 | sportinitiaties-met-jespo-2026-07-01-2026-08-20-5fe05c20 | 2026-08-20 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 102 | antwerpen-danst-2026-06-30-2026-08-20-7d04b9ef | 2026-08-20 | future | antwerpen-danst | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 103 | freedom-friday-in-scratch-2026-07-01-2026-08-21-e3bb4e44 | 2026-08-21 | future | scratch-freedom-friday | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 104 | gratis-initiaties-boogschieten-2026-07-05-2026-08-23-d104f9f0 | 2026-08-23 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 105 | sportinitiaties-met-jespo-2026-07-01-2026-08-25-4289dace | 2026-08-25 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 106 | antwerpen-danst-2026-06-30-2026-08-25-dd499d32 | 2026-08-25 | future | antwerpen-danst | verified | 3 | 2026-08-13 | fresh_verified | ja |
+| 107 | yogalates-op-boeienweide-2026-07-01-2026-08-26-b67ef9f3 | 2026-08-26 | future | city-yogalates | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 108 | zomer-mee-park-spoor-noord-2026-08-26 | 2026-08-26 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 109 | sportinitiaties-met-jespo-2026-07-01-2026-08-26-a2c30c3 | 2026-08-26 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 110 | 3x3-basket-2026-07-01-2026-08-26-921f88d5 | 2026-08-26 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 111 | sportinitiaties-met-jespo-2026-07-01-2026-08-27-5fe05c23 | 2026-08-27 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 112 | antwerpen-danst-2026-06-30-2026-08-27-7d04b9f1 | 2026-08-27 | future | antwerpen-danst | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 113 | tabletcafe-2026-08-28 | 2026-08-28 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 114 | freedom-friday-in-scratch-2026-07-01-2026-08-28-e3bb4e45 | 2026-08-28 | future | scratch-freedom-friday | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 115 | antwerp-sup-festival-2026-08-29 | 2026-08-29 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 116 | eilandje-in-beweging-2026-08-29 | 2026-08-29 | future | district-summer-roundup | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 117 | antwerp-sup-festival-2026-08-30 | 2026-08-30 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 118 | lambermontmartre-2026-08-30 | 2026-08-30 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 119 | gratis-initiaties-boogschieten-2026-07-05-2026-08-30-d104f9f1 | 2026-08-30 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 120 | zomerfeest-albertpark-2026-08-30 | 2026-08-30 | future | city-zomerfeest | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 121 | eilandje-in-beweging-2026-08-30 | 2026-08-30 | future | district-summer-roundup | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 122 | red-star-run-2026-08-30 | 2026-08-30 | future | district-summer-roundup | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 123 | bal-van-de-bevrijding-2026-09-04 | 2026-09-04 | future | city-bal-bevrijding | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 124 | inschrijven-herfstklaar-2026-09-04 | 2026-09-04 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 125 | gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2 | 2026-09-06 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 126 | reanimatielessen-2026-09-10 | 2026-09-10 | future | antwerpen-redt | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 127 | gratis-initiaties-boogschieten-2026-07-05-2026-09-13-4f9a4386 | 2026-09-13 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 128 | poetische-rimpelingen-2026-06-29-2026-09-19-64e62867 | 2026-09-19 | future | citaat-op-straat | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 129 | beweegdag-55-2026-09-19 | 2026-09-19 | future | city-beweegdag | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 130 | gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387 | 2026-09-20 | review_required | archery-organizer-social | review_required | 0 | 2026-08-10 | blocked_review_required | nee |
+| 131 | lambermontmartre-2026-09-27 | 2026-09-27 | future | city-district-calendar | verified | 7 | 2026-08-17 | fresh_verified | ja |
+| 132 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | future | citaat-op-straat | verified | 7 | 2026-08-17 | fresh_verified | ja |
