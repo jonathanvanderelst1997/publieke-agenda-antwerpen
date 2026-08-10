@@ -25,6 +25,12 @@ a {
   font: inherit;
 }
 
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid #173f74;
+  outline-offset: 3px;
+}
+
 a {
   color: inherit;
 }
@@ -83,6 +89,19 @@ a {
   font-size: 12px;
   font-weight: 800;
   line-height: 1.35;
+}
+
+.agenda-refresh-note {
+  background: #eef6fc;
+  border: 1px solid #9bc1da;
+  border-left: 5px solid #246b9f;
+  border-radius: 8px;
+  color: #233f56;
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.5;
+  margin: 0;
+  padding: 12px 14px;
 }
 
 .agenda-controls {

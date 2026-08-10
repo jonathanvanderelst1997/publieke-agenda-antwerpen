@@ -1717,7 +1717,10 @@ const agendaItems = [
   }
 ];
 
-const renderedAgendaItems = expandAgendaItems(agendaItems);
+const refreshEngine = window.PUBLIC_AGENDA_REFRESH_ENGINE;
+if (!refreshEngine) throw new Error("Agenda refresh metadata ontbreekt.");
+const agendaReconciliation = refreshEngine.reconcileAgendaItems(expandAgendaItems(agendaItems), todayIso());
+const renderedAgendaItems = agendaReconciliation.publicItems;
 
 const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
 let enabledThemes = new Set(themeOrder);
@@ -1987,7 +1990,8 @@ function worksOverviewTemplate(items) {
               <strong>${item.title}</strong>
               <span>${[item.dateLabel, item.location].filter(Boolean).join(" · ")}</span>
               ${item.info ? `<p>${item.info}</p>` : ""}
-              ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Meer info</a>` : ""}
+              <span>Bron gecontroleerd ${formatSimpleDate(item.sourceRetrievedAt.slice(0, 10))}</span>
+              ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
             </article>
           `)
           .join("")}
@@ -2053,6 +2057,7 @@ function eventTemplate(item) {
         <div class="meta">
           ${item.location ? `<span>${item.location}</span>` : ""}
           ${item.dateLabel ? `<span>${item.dateLabel}</span>` : ""}
+          <span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>
         </div>
         <div class="details">
           ${item.info ? `<p>${item.info}</p>` : ""}
@@ -2060,8 +2065,10 @@ function eventTemplate(item) {
             <div><dt>Wanneer</dt><dd>${item.dateLabel}</dd></div>
             ${item.timeText ? `<div><dt>Uur</dt><dd>${item.timeText}</dd></div>` : ""}
             ${item.location ? `<div><dt>Waar</dt><dd>${item.location}</dd></div>` : ""}
+            <div><dt>Bron</dt><dd>${item.sourcePublisher}</dd></div>
+            <div><dt>Gecontroleerd</dt><dd>${formatSimpleDate(item.sourceRetrievedAt.slice(0, 10))}</dd></div>
           </dl>
-          ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Meer info</a>` : ""}
+          ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
         </div>
       </div>
     </article>
@@ -2128,6 +2135,10 @@ function renderCounts(items) {
   const sport = items.filter((item) => item.theme === "Sport").length;
   const activities = items.filter((item) => item.theme === "Activiteit").length;
   document.getElementById("agenda-count-detail").textContent = `${activities} activiteiten, ${sport} sport, ${calls} oproepen, ${works} werken.`;
+  const { expired, review_required: reviewRequired } = agendaReconciliation.counts;
+  document.getElementById("agenda-refresh-note").textContent =
+    `Officiële broncontrole ${formatSimpleDate(refreshEngine.config.retrievedAt.slice(0, 10))}: ` +
+    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict worden niet als actueel getoond.`;
 }
 
 function render() {

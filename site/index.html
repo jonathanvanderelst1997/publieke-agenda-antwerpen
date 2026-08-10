@@ -35,10 +35,12 @@
         </div>
         <aside class="agenda-count" aria-label="Aantal agenda-items">
           <span id="agenda-count-value">0</span>
-          <strong>actuele punten</strong>
+          <strong>geverifieerde punten</strong>
           <small id="agenda-count-detail"></small>
         </aside>
       </header>
+
+      <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
 
       <section class="agenda-controls" aria-label="Agenda filteren">
         <div class="agenda-controls-title">Thema's</div>
@@ -48,6 +50,7 @@
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
+    <script src="./agenda-refresh.js"></script>
     <script src="./agenda.js"></script>
   </body>
 </html>
