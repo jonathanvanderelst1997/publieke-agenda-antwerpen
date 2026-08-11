@@ -11,6 +11,8 @@
     "test:stale-policy": "node --test tests/stale-policy.test.mjs",
     "lint": "node scripts/lint.mjs",
     "test": "node --test tests/*.test.mjs",
-    "check": "npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot && npm run lint && npm test"
-  }
+    "audit:events": "node scripts/audit-events.mjs",
+    "check": "npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot && npm run lint && npm test && npm run audit:events"
+  },
+  "engines": { "node": ">=20" }
 }
