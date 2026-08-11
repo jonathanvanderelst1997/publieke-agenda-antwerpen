@@ -1,3 +1,5 @@
+import { evaluateStalePolicy } from "./stale-policy.mjs";
+
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function dateAtUtc(value) {
@@ -37,15 +39,17 @@ export function buildProvenanceSlaMatrix(items, engine) {
     const sourceRetrievedAt = configuredSource?.retrievedAt ?? null;
     const ttlDays = maxAgeDays(item);
     const dueOn = sourceRetrievedAt && ttlDays != null ? addDays(sourceRetrievedAt, ttlDays) : null;
-    const verified = item.verificationState === "verified" && configuredSource?.officialPublic === true;
-    let slaStatus;
-    if (item.classification === "expired") slaStatus = "expired_not_public";
-    else if (item.classification === "review_required") slaStatus = "blocked_review_required";
-    else if (!verified || !sourceRetrievedAt) slaStatus = "blocked_unverified_source";
-    else if (engine.config.classificationAsOf > dueOn) slaStatus = "stale_blocked";
-    else slaStatus = "fresh_verified";
-
-    const eligible = slaStatus === "fresh_verified" && ["current", "future"].includes(item.classification);
+    const policy = evaluateStalePolicy({
+      classification: item.classification,
+      classificationAsOf: engine.config.classificationAsOf,
+      verificationState: item.verificationState,
+      officialPublic: configuredSource?.officialPublic,
+      canonicalSourceUrl,
+      sourceRetrievedAt,
+      recheckDueOn: dueOn,
+    });
+    const slaStatus = policy.status;
+    const eligible = policy.publishEligible;
     return {
       id: item.id,
       title: item.title,
@@ -65,7 +69,7 @@ export function buildProvenanceSlaMatrix(items, engine) {
       slaStatus,
       publishEligible: eligible,
       includedInLocalCandidate: localCandidateIds.has(item.id),
-      failClosed: !eligible,
+      failClosed: policy.failClosed,
     };
   });
 

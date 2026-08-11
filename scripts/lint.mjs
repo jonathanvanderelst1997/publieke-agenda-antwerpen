@@ -12,10 +12,15 @@ const javascriptFiles = [
   "scripts/agenda-source.mjs",
   "scripts/build-agenda.mjs",
   "scripts/build-provenance-sla.mjs",
+  "scripts/build-provenance-snapshot.mjs",
+  "scripts/provenance-snapshot.mjs",
   "scripts/provenance-sla.mjs",
+  "scripts/stale-policy.mjs",
   "scripts/lint.mjs",
   "tests/agenda-refresh.test.mjs",
   "tests/provenance-sla.test.mjs",
+  "tests/provenance-snapshot.test.mjs",
+  "tests/stale-policy.test.mjs",
 ];
 
 for (const file of javascriptFiles) {
