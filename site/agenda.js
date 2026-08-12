@@ -1722,10 +1722,24 @@ if (!refreshEngine) throw new Error("Agenda refresh metadata ontbreekt.");
 const agendaReconciliation = refreshEngine.reconcileAgendaItems(expandAgendaItems(agendaItems), todayIso());
 const renderedAgendaItems = agendaReconciliation.publicItems;
 
+function requestedEventId() {
+  const url = new URL(window.location.href);
+  const pathMatch = url.pathname.match(/^\/event\/([^/]+)\/?$/);
+  const hashMatch = url.hash.match(/^#event=(.+)$/);
+  const value = pathMatch?.[1] || url.searchParams.get("event") || hashMatch?.[1] || "";
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return "";
+  }
+}
+
+const initialEventId = requestedEventId();
+
 const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
 let enabledThemes = new Set(themeOrder);
-let openId = "";
-let hasScrolledToToday = false;
+let openId = renderedAgendaItems.some((item) => item.id === initialEventId) ? initialEventId : "";
+let hasScrolledToToday = Boolean(openId);
 
 function todayIso() {
   const now = new Date();
@@ -2069,6 +2083,7 @@ function eventTemplate(item) {
             <div><dt>Gecontroleerd</dt><dd>${formatSimpleDate(item.sourceRetrievedAt.slice(0, 10))}</dd></div>
           </dl>
           ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
+          <a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>
         </div>
       </div>
     </article>
@@ -2114,6 +2129,11 @@ function renderList(items) {
     button.addEventListener("click", () => {
       const id = button.dataset.id;
       openId = openId === id ? "" : id;
+      const nextUrl = new URL(window.location.href);
+      nextUrl.pathname = "/";
+      nextUrl.search = openId ? `?event=${encodeURIComponent(openId)}` : "";
+      nextUrl.hash = "";
+      window.history.replaceState(null, "", nextUrl);
       render();
       document.getElementById(id)?.scrollIntoView({ block: "nearest" });
     });
@@ -2149,3 +2169,7 @@ function render() {
 }
 
 render();
+
+if (openId) {
+  window.setTimeout(() => document.getElementById(openId)?.scrollIntoView({ block: "center" }), 80);
+}
