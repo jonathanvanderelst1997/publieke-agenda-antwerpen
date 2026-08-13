@@ -7,12 +7,14 @@ const source = await readFile(new URL('../site/agenda.js', import.meta.url), 'ut
 
 assert.match(index, /href="\/styles\.css"/)
 assert.match(index, /src="\/agenda\.js"/)
+assert.match(index, /src="\/agenda-ics\.js"/)
 assert.match(fallback, /pathname\.match/)
 assert.match(fallback, /decodeURIComponent/)
 assert.match(fallback, /\?event=/)
 assert.match(source, /requestedEventId/)
 assert.match(source, /event-deep-link/)
 assert.match(source, /history\.replaceState/)
+assert.match(source, /event-calendar/)
 
 const ids = [...source.matchAll(/^\s+"id":\s+"([^"]+)"/gm)].map((match) => match[1])
 assert.ok(ids.length >= 100, `expected at least 100 source event IDs, got ${ids.length}`)

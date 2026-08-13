@@ -459,6 +459,27 @@ a {
   text-decoration: none;
 }
 
+.details .event-calendar {
+  align-items: center;
+  background: #0d5f9e;
+  border: 0;
+  border-radius: 6px;
+  color: #ffffff;
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  justify-self: start;
+  min-height: 40px;
+  padding: 9px 12px;
+}
+
+.details .event-calendar:focus-visible {
+  outline: 3px solid #f2b84b;
+  outline-offset: 3px;
+}
+
 .empty {
   color: var(--muted);
   font-weight: 800;

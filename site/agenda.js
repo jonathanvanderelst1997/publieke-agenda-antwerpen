@@ -2084,6 +2084,7 @@ function eventTemplate(item) {
           </dl>
           ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
           <a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>
+          <button type="button" class="event-calendar" data-calendar-id="${item.id}">Voeg toe aan agenda (.ics)</button>
         </div>
       </div>
     </article>
@@ -2136,6 +2137,19 @@ function renderList(items) {
       window.history.replaceState(null, "", nextUrl);
       render();
       document.getElementById(id)?.scrollIntoView({ block: "nearest" });
+    });
+  });
+  root.querySelectorAll(".event-calendar").forEach((button) => {
+    button.addEventListener("click", () => {
+      const item = renderedAgendaItems.find((candidate) => candidate.id === button.dataset.calendarId);
+      if (!item) return;
+      try {
+        window.AgendaIcs.downloadIndividualIcs(item);
+        button.textContent = "Agendabestand klaar";
+      } catch (error) {
+        button.textContent = "Export niet beschikbaar";
+        console.error(error);
+      }
     });
   });
   if (!hasScrolledToToday) {
