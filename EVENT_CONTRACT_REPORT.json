@@ -1,0 +1,92 @@
+{
+  "schema": "public-agenda-event-contract-report/v1",
+  "counts": {
+    "events": 132,
+    "errors": 0,
+    "warnings": 16,
+    "unconfirmedStart": 16
+  },
+  "errors": [],
+  "warnings": [
+    {
+      "code": "unconfirmed_start",
+      "index": 4,
+      "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 5,
+      "id": "kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 6,
+      "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 7,
+      "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 13,
+      "id": "aquajogging-start-to-wake-2026-07-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 14,
+      "id": "openluchtzwemmen-2026-07-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 38,
+      "id": "the-tall-ships-races-antwerpen-2026-07-12"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 39,
+      "id": "the-tall-ships-races-antwerpen-2026-07-13"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 42,
+      "id": "the-tall-ships-races-antwerpen-2026-07-14"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 74,
+      "id": "tuk-tuk-rommelmarkt-2026-08-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 115,
+      "id": "eilandje-in-beweging-2026-08-29"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 120,
+      "id": "eilandje-in-beweging-2026-08-30"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 121,
+      "id": "red-star-run-2026-08-30"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 123,
+      "id": "inschrijven-herfstklaar-2026-09-04"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 125,
+      "id": "reanimatielessen-2026-09-10"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 128,
+      "id": "beweegdag-55-2026-09-19"
+    }
+  ]
+}

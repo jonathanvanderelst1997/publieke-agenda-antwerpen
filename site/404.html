@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="nl-BE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex" />
+    <title>Agenda-item openen</title>
+  </head>
+  <body>
+    <p>Het agenda-item wordt geopend…</p>
+    <script>
+      const eventMatch = window.location.pathname.match(/^\/event\/([^/]+)\/?$/);
+      const eventId = eventMatch ? decodeURIComponent(eventMatch[1]) : "";
+      const destination = eventId ? `/?event=${encodeURIComponent(eventId)}` : "/";
+      window.location.replace(`${destination}${window.location.hash || ""}`);
+    </script>
+  </body>
+</html>
