@@ -42,10 +42,18 @@ test("elke bewezen bron heeft een geldige HTTPS-provenance en expliciete vervald
 });
 
 test("onzekere toekomstige sportreeksen blijven geblokkeerd", () => {
-  for (const title of ["Sportinitiaties met Jespo", "3x3 basket", "Gratis initiaties boogschieten"]) {
+  for (const title of ["Sportinitiaties met Jespo", "Gratis initiaties boogschieten"]) {
     const futureRows = matrix.items.filter((item) => item.title === title && item.eventDate >= matrix.classificationAsOf);
     assert.ok(futureRows.length > 0);
     assert.ok(futureRows.every((item) => item.slaStatus === "blocked_review_required"));
     assert.ok(futureRows.every((item) => !item.publishEligible));
   }
+});
+
+test("de officieel bevestigde 3x3-reeks is publiceerbaar met verse provenance", () => {
+  const futureRows = matrix.items.filter((item) => item.title === "3x3 basket" && item.eventDate > matrix.classificationAsOf);
+  assert.equal(futureRows.length, 2);
+  assert.ok(futureRows.every((item) => item.slaStatus === "fresh_verified"));
+  assert.ok(futureRows.every((item) => item.publishEligible));
+  assert.ok(futureRows.every((item) => item.sourceId === "city-3x3-summer-2026"));
 });
