@@ -28,6 +28,7 @@ Scope: read-only live release check of every configured source in `site/agenda-r
 - Classification is fixed at 13 August 2026 for deterministic release evidence.
 - From 132 stored records: 84 are `expired`, 3 `current`, 26 `future`, and 19 `review_required`.
 - Exactly 29 current/future records pass the official-source and freshness gates.
+- The release emits one static `/event/:id` route for each of those 29 records so direct shared links return HTTP 200 even when the host-level rewrite is not active.
 - All 19 `review_required` records remain excluded. Missing hours are left visible as unknown; no time or location was inferred.
 - No mailbox, political dossier, account data, Spain material or other private source is included.
 
