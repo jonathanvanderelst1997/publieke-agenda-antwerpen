@@ -1,27 +1,25 @@
 {
   "schemaVersion": 2,
-  "state": "local-candidate-not-published",
-  "candidateGeneratedAt": "2026-08-10T09:08:00Z",
-  "classificationAsOf": "2026-08-11",
+  "state": "published-release",
+  "candidateGeneratedAt": "2026-08-13T13:24:19Z",
+  "classificationAsOf": "2026-08-13",
   "sourceCount": 132,
-  "count": 31,
+  "count": 29,
   "classifications": {
-    "expired": 82,
+    "expired": 84,
     "current": 3,
-    "future": 28,
+    "future": 26,
     "review_required": 19
   },
-  "digest": "a8380e09dbc0971b810c0ac207a4b6047f7ae5686acd44f59b99a2175a473962",
+  "digest": "7aec32a5742e07018b7656741fff769200c18fce1f0542e4da053b7a80dddcb8",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3",
-    "strategy": "Restore the candidate tree to the recorded base commit; no deployment or external state is part of this patch."
+    "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
     "Fasewissel heraanleg Balansstraat en Lange Elzenstraat",
     "Werken Halenstraat en Schijnpoortweg",
-    "Antwerpen Danst",
-    "Yogalates op Boeienweide",
     "Antwerpen Danst",
     "Freedom Friday in Scratch",
     "Strip- en boekenplein",

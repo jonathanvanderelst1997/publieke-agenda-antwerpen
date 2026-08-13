@@ -64,7 +64,7 @@ test("publiceert alleen geverifieerde huidige of toekomstige items met officiël
 
 test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "public-agenda-manifest.json"), "utf8"));
-  assert.equal(manifest.state, "local-candidate-not-published");
+  assert.equal(manifest.state, "published-release");
   assert.equal(manifest.classificationAsOf, engine.config.classificationAsOf);
   assert.equal(manifest.count, result.publicItems.length);
   assert.deepEqual(manifest.classifications, JSON.parse(JSON.stringify(result.counts)));

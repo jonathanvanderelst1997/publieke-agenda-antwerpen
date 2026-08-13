@@ -21,8 +21,9 @@ test("de bron- en provenanceprojecties bevatten dezelfde 132 deterministische ri
 });
 
 test("de gegenereerde snapshot en diff zijn exact actueel", () => {
-  const snapshot = JSON.parse(fs.readFileSync(path.join(rootDir, "audit", "provenance-source-snapshot-20260811.json"), "utf8"));
-  const diff = JSON.parse(fs.readFileSync(path.join(rootDir, "audit", "provenance-source-diff-20260811.json"), "utf8"));
+  const snapshotDate = engine.config.classificationAsOf.replaceAll("-", "");
+  const snapshot = JSON.parse(fs.readFileSync(path.join(rootDir, "audit", `provenance-source-snapshot-${snapshotDate}.json`), "utf8"));
+  const diff = JSON.parse(fs.readFileSync(path.join(rootDir, "audit", `provenance-source-diff-${snapshotDate}.json`), "utf8"));
   assert.deepEqual(snapshot, actual.snapshot);
   assert.deepEqual(diff, actual.diff);
 });

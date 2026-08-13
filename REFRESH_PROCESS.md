@@ -1,6 +1,6 @@
 # Transparante agenda-refresh
 
-Deze lokale kandidaat scheidt drie zaken:
+Deze gepubliceerde release scheidt drie zaken:
 
 1. de bestaande bronitems in `site/agenda.js`;
 2. de actuele broncontrole, correcties en reviewgrenzen in `site/agenda-refresh.js`;
@@ -13,7 +13,7 @@ Deze lokale kandidaat scheidt drie zaken:
 - `future`: een officiële bron bevestigt een latere datum;
 - `review_required`: bron, uur, locatie of actuele afronding is niet eenduidig bevestigd.
 
-Alleen `current` en `future` met bronstatus `verified` verschijnen in de publieke kandidaat. Verlopen punten blijven als rollback- en audithistoriek in de bestaande bron staan. Items met een bronconflict worden niet stil verwijderd en niet als actueel getoond.
+Alleen `current` en `future` met bronstatus `verified` verschijnen in de publieke agenda. Verlopen punten blijven als rollback- en audithistoriek in de bestaande bron staan. Items met een bronconflict worden niet stil verwijderd en niet als actueel getoond.
 
 ## Herhalen
 
@@ -25,4 +25,4 @@ De build gebruikt geen netwerk. Een inhoudelijke refresh begint altijd met een n
 
 ## Rollback
 
-De vastgelegde bronbasis is commit `f9ce9badc00b2300d083996b9e93b5d5cb7c15f3`. Deze kandidaat verandert geen deployment of account; lokaal terugkeren naar die boom herstelt daarom de vorige websitebron volledig.
+De vastgelegde rollbackbasis is commit `f9ce9badc00b2300d083996b9e93b5d5cb7c15f3`. Als live validatie faalt, wordt de release-merge op `main` teruggedraaid naar die broninhoud zodat Render de vorige website opnieuw uitrolt.

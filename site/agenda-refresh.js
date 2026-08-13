@@ -1,11 +1,12 @@
 (() => {
-  const retrievedAt = "2026-08-10T09:08:00Z";
+  const previousRetrievedAt = "2026-08-10T09:08:00Z";
+  const releaseRetrievedAt = "2026-08-13T13:24:19Z";
 
   const sources = {
     "city-district-calendar": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele publieke districtskalender met data, uren en locaties.",
       officialPublic: true,
@@ -13,7 +14,7 @@
     "antwerpen-danst": {
       publisher: "Antwerpen Danst / District Antwerpen",
       url: "https://antwerpendanst.life/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Officiële organisatorpagina voor de reeks van 30 juni tot en met 27 augustus 2026.",
       officialPublic: true,
@@ -21,7 +22,7 @@
     "city-yogalates": {
       publisher: "Stad Antwerpen",
       url: "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele pagina voor wekelijkse Yogalates op de Boeienweide in juli en augustus.",
       officialPublic: true,
@@ -29,7 +30,7 @@
     "scratch-freedom-friday": {
       publisher: "SCRATCH",
       url: "https://www.scratch-antwerp.be/freedom-friday/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Officiële organisatorpagina: elke vrijdag van 19 tot 22 uur.",
       officialPublic: true,
@@ -37,7 +38,7 @@
     "district-summer-roundup": {
       publisher: "District Antwerpen",
       url: "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Officiële publieke nieuwsbrief die Eilandje in beweging en Red Star Run dateert.",
       officialPublic: true,
@@ -45,7 +46,7 @@
     "city-zomerfeest": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6475b557e7cec95b032c253c/zomerfeest-in-het-albertpark",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele detailpagina voor Zomerfeest Albertpark.",
       officialPublic: true,
@@ -53,7 +54,7 @@
     "city-bal-bevrijding": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/664e0139bc28fd07a114a7e6/swingen-en-dansen-op-het-bal-van-de-bevrijding",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele detailpagina voor het Bal van de Bevrijding.",
       officialPublic: true,
@@ -61,7 +62,7 @@
     "antwerpen-redt": {
       publisher: "Antwerpen Redt",
       url: "https://antwerpenredt.be/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Officiële organisatoragenda met Antwerpse reanimatielessen van september tot december 2026.",
       officialPublic: true,
@@ -69,7 +70,7 @@
     "citaat-op-straat": {
       publisher: "Citaat op Straat",
       url: "https://www.citaatopstraat.be/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Officiële organisatoragenda voor de wandelingen van 19 september en 10 oktober.",
       officialPublic: true,
@@ -77,7 +78,7 @@
     "city-beweegdag": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6a422229d82fbac5fe0a2613/beweegdag-55-in-het-zuiderpershuis",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele detailpagina voor Beweegdag 55+ in Zuiderpershuis en Zuidpark.",
       officialPublic: true,
@@ -85,7 +86,7 @@
     "city-works-permit": {
       publisher: "Stad Antwerpen",
       url: "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "verified",
       scope: "Actuele officiële fasering voor Balansstraat/Lange Elzenstraat en Halenstraat/Schijnpoortweg.",
       officialPublic: true,
@@ -93,15 +94,15 @@
     "city-gaston-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "review_required",
-      scope: "De pagina noemt een verwachte afronding tegen het bouwverlof, maar bevestigt geen feitelijke oplevering.",
+      scope: "De pagina noemt een verwachte afronding begin september 2026, maar bevestigt geen feitelijke oplevering.",
       officialPublic: true,
     },
     "slim-kammenstraat": {
       publisher: "Slim naar Antwerpen",
       url: "https://www.slimnaarantwerpen.be/en/works-events/kammenstraat-car-free-at-the-start-of-the-sales-period",
-      retrievedAt,
+      retrievedAt: previousRetrievedAt,
       state: "verified",
       scope: "Officiële bereikbaarheidspagina: maatregel eindigde op 13 juli 2026.",
       officialPublic: true,
@@ -109,7 +110,7 @@
     "city-old-sport-newsletter": {
       publisher: "District Antwerpen",
       url: "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "review_required",
       scope: "De actuele bestemming bevestigt de ingevoerde Jespo-herhalingen niet en vermeldt Red Star Run alleen op datum.",
       officialPublic: true,
@@ -117,7 +118,7 @@
     "city-withdrawn-3x3-detail": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "review_required",
       scope: "De oude detailroute levert geen eenduidige actuele uren en locaties; recente officiële informatie wijkt af.",
       officialPublic: true,
@@ -125,7 +126,7 @@
     "archery-organizer-social": {
       publisher: "Koninklijke Wipmaatschappij La Renaissance",
       url: "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance",
-      retrievedAt,
+      retrievedAt: releaseRetrievedAt,
       state: "review_required",
       scope: "De publieke organisatorpagina gaf in deze audit geen controleerbare reeksdata terug.",
       officialPublic: true,
@@ -274,11 +275,11 @@
 
   const config = {
     schemaVersion: 1,
-    classificationAsOf: "2026-08-11",
-    retrievedAt,
+    classificationAsOf: "2026-08-13",
+    retrievedAt: releaseRetrievedAt,
     rollback: {
       baseCommit: "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3",
-      strategy: "Restore the candidate tree to the recorded base commit; no deployment or external state is part of this patch.",
+      strategy: "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback.",
     },
     sources,
     rules,
@@ -323,7 +324,7 @@
       classificationAsOf: asOf,
       sourceId: rule?.sourceId || "historical-stored-source",
       sourcePublisher: source?.publisher || "Historische bronverwijzing",
-      sourceRetrievedAt: source?.retrievedAt || config.retrievedAt,
+      sourceRetrievedAt: source?.retrievedAt || previousRetrievedAt,
       verificationState: source?.state || (classification === "expired" ? "date_elapsed_only" : "review_required"),
     };
   }

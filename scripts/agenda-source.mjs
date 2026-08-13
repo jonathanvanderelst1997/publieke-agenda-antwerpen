@@ -24,7 +24,7 @@ export function loadExpandedAgendaItems(rootDir) {
             counts: { expired: 0, current: 0, future: 0, review_required: 0 },
           };
         },
-        config: { retrievedAt: "2026-08-10T09:08:00Z" },
+        config: { retrievedAt: "2026-08-13T13:24:19Z" },
       },
     },
   };

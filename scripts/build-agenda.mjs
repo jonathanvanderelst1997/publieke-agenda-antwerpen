@@ -22,7 +22,7 @@ const digestInput = result.publicItems.map((item) => ({
 const digest = crypto.createHash("sha256").update(JSON.stringify(digestInput)).digest("hex");
 const manifest = {
   schemaVersion: 2,
-  state: "local-candidate-not-published",
+  state: "published-release",
   candidateGeneratedAt: engine.config.retrievedAt,
   classificationAsOf: engine.config.classificationAsOf,
   sourceCount: items.length,
