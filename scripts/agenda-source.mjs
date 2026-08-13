@@ -3,12 +3,19 @@ import path from "node:path";
 import vm from "node:vm";
 
 export function loadExpandedAgendaItems(rootDir) {
-  const source = fs.readFileSync(path.join(rootDir, "site", "agenda.js"), "utf8").replace(/\nrender\(\);\s*$/, "");
+  const fullSource = fs.readFileSync(path.join(rootDir, "site", "agenda.js"), "utf8");
+  const renderBoundary = fullSource.lastIndexOf("\nrender();");
+  if (renderBoundary < 0) throw new Error("Agenda render boundary ontbreekt.");
+  const source = fullSource.slice(0, renderBoundary);
   let expandedItems = [];
   const context = {
     Date,
     Intl,
+    URL,
     window: {
+      location: { href: "http://localhost/" },
+      history: { replaceState() {} },
+      setTimeout() {},
       PUBLIC_AGENDA_REFRESH_ENGINE: {
         reconcileAgendaItems(items) {
           expandedItems = structuredClone(items);
@@ -19,7 +26,6 @@ export function loadExpandedAgendaItems(rootDir) {
         },
         config: { retrievedAt: "2026-08-10T09:08:00Z" },
       },
-      setTimeout() {},
     },
   };
   vm.createContext(context);

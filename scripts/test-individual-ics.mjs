@@ -1,8 +1,6 @@
 import assert from "node:assert/strict";
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-const { buildIndividualIcs, filenameForItem, validateIndividualIcs } = require("../site/agenda-ics.js");
+await import("../site/agenda-ics.js");
+const { buildIndividualIcs, filenameForItem, validateIndividualIcs } = globalThis.AgendaIcs;
 
 const timed = {
   id: "poetische-rimpelingen-2026-10-10",
