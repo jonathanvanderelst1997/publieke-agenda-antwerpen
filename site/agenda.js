@@ -2022,7 +2022,8 @@ function renderControls() {
   const allButton = document.createElement("button");
   allButton.type = "button";
   allButton.className = allActive ? "active" : "";
-  allButton.textContent = allActive ? "Alles uit" : "Alles aan";
+  allButton.textContent = "Alle thema's";
+  allButton.setAttribute("aria-pressed", String(allActive));
   allButton.addEventListener("click", () => {
     enabledThemes = allActive ? new Set() : new Set(themeOrder);
     render();
@@ -2034,7 +2035,8 @@ function renderControls() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = enabledThemes.has(theme) ? "active" : "";
-    button.innerHTML = `<span class="theme-dot" style="--accent: ${accentForClass(sample?.className || "activity")}"></span>${theme}`;
+    button.setAttribute("aria-pressed", String(enabledThemes.has(theme)));
+    button.innerHTML = `<span class="theme-dot" aria-hidden="true" style="--accent: ${accentForClass(sample?.className || "activity")}"></span>${theme}`;
     button.addEventListener("click", () => {
       if (enabledThemes.has(theme)) {
         enabledThemes.delete(theme);
@@ -2050,7 +2052,7 @@ function renderControls() {
 function accentForClass(className) {
   if (className === "works") return "#1f7a5a";
   if (className === "sport") return "#6c5a9b";
-  if (className === "call") return "#b7791f";
+  if (className === "call") return "#8b5a11";
   return "#246b9f";
 }
 
@@ -2063,17 +2065,17 @@ function eventTemplate(item) {
         ${item.timeText ? `<span>${item.timeText}</span>` : ""}
       </div>
       <div class="event-card">
-        <button type="button" class="event-toggle" data-id="${item.id}" aria-expanded="${open ? "true" : "false"}">
+        <button type="button" class="event-toggle" data-id="${item.id}" aria-expanded="${open ? "true" : "false"}" aria-controls="details-${item.id}">
           <span class="theme-label">${item.theme}</span>
           <strong>${item.title}</strong>
-          <span class="chevron">${open ? "^" : "v"}</span>
+          <span class="chevron" aria-hidden="true">${open ? "^" : "v"}</span>
         </button>
         <div class="meta">
           ${item.location ? `<span>${item.location}</span>` : ""}
           ${item.dateLabel ? `<span>${item.dateLabel}</span>` : ""}
           <span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>
         </div>
-        <div class="details">
+        <div class="details" id="details-${item.id}">
           ${item.info ? `<p>${item.info}</p>` : ""}
           <dl>
             <div><dt>Wanneer</dt><dd>${item.dateLabel}</dd></div>
