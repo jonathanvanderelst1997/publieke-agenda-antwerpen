@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-08-13",
   "sourceItemCount": 132,
-  "sourceDigest": "c1d7399a0ef3739b51f93a4482511d28f0b6e1aed4b5b1508d2863c78aa1d9d0",
+  "sourceDigest": "d9af4ed531e31a85e403547c788078d2a80b9561885f2d68070d794d600d2e35",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -100,40 +100,40 @@
       "id": "3x3-basket-2026-07-01-2026-08-12-921f88d3",
       "title": "3x3 basket",
       "eventDate": "2026-08-12",
-      "classification": "review_required",
+      "classification": "expired",
       "classificationAsOf": "2026-08-13",
-      "sourceId": "city-withdrawn-3x3-detail",
-      "sourcePublisher": "District Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen",
+      "sourceId": "city-3x3-summer-2026",
+      "sourcePublisher": "Sporting A / Stad Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-08-13T13:24:19Z",
-      "verificationState": "review_required"
+      "sourceRetrievedAt": "2026-08-13T15:34:15Z",
+      "verificationState": "verified"
     },
     {
       "id": "3x3-basket-2026-07-01-2026-08-19-921f88d4",
       "title": "3x3 basket",
       "eventDate": "2026-08-19",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-08-13",
-      "sourceId": "city-withdrawn-3x3-detail",
-      "sourcePublisher": "District Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen",
+      "sourceId": "city-3x3-summer-2026",
+      "sourcePublisher": "Sporting A / Stad Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-08-13T13:24:19Z",
-      "verificationState": "review_required"
+      "sourceRetrievedAt": "2026-08-13T15:34:15Z",
+      "verificationState": "verified"
     },
     {
       "id": "3x3-basket-2026-07-01-2026-08-26-921f88d5",
       "title": "3x3 basket",
       "eventDate": "2026-08-26",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-08-13",
-      "sourceId": "city-withdrawn-3x3-detail",
-      "sourcePublisher": "District Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen",
+      "sourceId": "city-3x3-summer-2026",
+      "sourcePublisher": "Sporting A / Stad Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-08-13T13:24:19Z",
-      "verificationState": "review_required"
+      "sourceRetrievedAt": "2026-08-13T15:34:15Z",
+      "verificationState": "verified"
     },
     {
       "id": "antwerp-sup-festival-2026-08-29",

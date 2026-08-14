@@ -123,6 +123,14 @@
       scope: "De oude detailroute levert geen eenduidige actuele uren en locaties; recente officiële informatie wijkt af.",
       officialPublic: true,
     },
+    "city-3x3-summer-2026": {
+      publisher: "Sporting A / Stad Antwerpen",
+      url: "https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad",
+      retrievedAt: "2026-08-13T15:34:15Z",
+      state: "verified",
+      scope: "Actuele officiële pagina: Kielpark is een vast plein van 20 mei tot 9 september; sessies zijn elke woensdag van 15 tot 18 uur.",
+      officialPublic: true,
+    },
     "archery-organizer-social": {
       publisher: "Koninklijke Wipmaatschappij La Renaissance",
       url: "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance",
@@ -167,8 +175,13 @@
     },
     {
       match: { title: "3x3 basket", dateFrom: "2026-08-10" },
-      sourceId: "city-withdrawn-3x3-detail",
-      classification: "review_required",
+      sourceId: "city-3x3-summer-2026",
+      changes: {
+        timeText: "15 tot 18 uur",
+        timeSlot: "15:00",
+        location: "Kielpark, 2020 Antwerpen",
+        info: "Gratis 3x3-basketmomenten voor jongeren van 12 tot 18 jaar in het Kielpark, elke woensdag van 15 tot 18 uur.",
+      },
     },
     {
       match: { title: "Gratis initiaties boogschieten", dateFrom: "2026-08-10" },

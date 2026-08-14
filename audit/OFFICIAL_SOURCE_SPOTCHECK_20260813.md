@@ -21,15 +21,16 @@ Scope: read-only live release check of every configured source in `site/agenda-r
 | `slim-kammenstraat` | Official route returned HTTP 200, but no current body evidence was extracted in this run. Its only mapped item ended 13 Jul and is forced `expired`. | Previous retrieval date retained; no public effect. |
 | `city-old-sport-newsletter` | Live newsletter confirms Red Star Run only by date and describes 3x3 as Apr–Jun; it does not corroborate stored Jespo repeats. | Freshly checked, remains `review_required`. |
 | `city-withdrawn-3x3-detail` | Current official result describes Apr–Jun dates, not the stored Aug repeats; the old detail route has no usable current detail payload. | Freshly checked, remains `review_required`. |
+| `city-3x3-summer-2026` | Current Sporting A page confirms Kielpark as a permanent 3x3 location from 20 May through 9 Sep, every Wednesday 15:00–18:00. | Fresh `verified`; stored 12, 19 and 26 Aug dates now have exact primary-source support. |
 | `archery-organizer-social` | Public organizer profile identity is reachable, but it exposes no verifiable 2026 series dates. | Freshly checked, remains `review_required`. |
 
 ## Publication boundary
 
 - Classification is fixed at 13 August 2026 for deterministic release evidence.
-- From 132 stored records: 84 are `expired`, 3 `current`, 26 `future`, and 19 `review_required`.
-- Exactly 29 current/future records pass the official-source and freshness gates.
-- The release emits one static `/event/:id` route for each of those 29 records so direct shared links return HTTP 200 even when the host-level rewrite is not active.
-- All 19 `review_required` records remain excluded. Missing hours are left visible as unknown; no time or location was inferred.
+- From 132 stored records: 85 are `expired`, 3 `current`, 28 `future`, and 16 `review_required`.
+- Exactly 31 current/future records pass the official-source and freshness gates.
+- The release emits one static `/event/:id` route for each of those 31 records so direct shared links return HTTP 200 even when the host-level rewrite is not active.
+- All 16 remaining `review_required` records remain excluded. Missing hours are left visible as unknown; no time or location was inferred.
 - No mailbox, political dossier, account data, Spain material or other private source is included.
 
 ## Official URLs
@@ -50,6 +51,7 @@ Scope: read-only live release check of every configured source in `site/agenda-r
 - https://www.slimnaarantwerpen.be/en/works-events/kammenstraat-car-free-at-the-start-of-the-sales-period
 - https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/
 - https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen
+- https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad
 - https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance
 
 Result: **PASS for release with fail-closed exclusions**.

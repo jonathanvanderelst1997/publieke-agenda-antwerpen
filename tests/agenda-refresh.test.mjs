@@ -30,12 +30,26 @@ test("classificeert verlopen, lopende en toekomstige punten deterministisch", ()
 test("sluit bronconflicten uit de publieke kandidaat", () => {
   for (const [title, date] of [
     ["Sportinitiaties met Jespo", "2026-08-11"],
-    ["3x3 basket", "2026-08-12"],
     ["Gratis initiaties boogschieten", "2026-08-16"],
   ]) {
     const item = find(title, date);
     assert.equal(item.classification, "review_required");
     assert.ok(!result.publicItems.some((candidate) => candidate.id === item.id));
+  }
+});
+
+test("neemt de officieel bevestigde 3x3-reeks in Kielpark fail-open op", () => {
+  const elapsed = find("3x3 basket", "2026-08-12");
+  assert.equal(elapsed.classification, "expired");
+  assert.ok(!result.publicItems.some((candidate) => candidate.id === elapsed.id));
+
+  for (const date of ["2026-08-19", "2026-08-26"]) {
+    const item = find("3x3 basket", date);
+    assert.equal(item.classification, "future");
+    assert.equal(item.verificationState, "verified");
+    assert.equal(item.timeText, "15 tot 18 uur");
+    assert.equal(item.location, "Kielpark, 2020 Antwerpen");
+    assert.ok(result.publicItems.some((candidate) => candidate.id === item.id));
   }
 });
 

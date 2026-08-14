@@ -9,6 +9,10 @@ const manifest = JSON.parse(await readFile(new URL('../site/public-agenda-manife
 assert.match(index, /href="\/styles\.css"/)
 assert.match(index, /src="\/agenda\.js"/)
 assert.match(index, /src="\/agenda-ics\.js"/)
+assert.match(index, /name="referrer" content="strict-origin-when-cross-origin"/)
+assert.match(index, /property="og:title"/)
+assert.match(index, /application\/ld\+json/)
+assert.match(index, /class="skip-link"/)
 assert.match(fallback, /pathname\.match/)
 assert.match(fallback, /decodeURIComponent/)
 assert.match(fallback, /\?event=/)
@@ -33,8 +37,19 @@ for (const id of eventPageDirs) {
   assert.ok(ids.includes(id), `generated event page has unknown source id: ${id}`)
   const page = await readFile(new URL(`../site/event/${id}/index.html`, import.meta.url), 'utf8')
   assert.match(page, new RegExp(`\\?event=${id}`))
-  assert.match(page, /window\.location\.replace/)
+  assert.match(page, new RegExp(`/event/${id}/`))
+  assert.match(page, /property="og:title"/)
+  assert.match(page, /application\/ld\+json/)
+  assert.doesNotMatch(page, /window\.location\.replace/)
 }
+
+const robots = await readFile(new URL('../site/robots.txt', import.meta.url), 'utf8')
+const sitemap = await readFile(new URL('../site/sitemap.xml', import.meta.url), 'utf8')
+assert.match(robots, /Sitemap: https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/sitemap\.xml/)
+assert.equal((sitemap.match(/<url>/g) ?? []).length, manifest.count + 1)
+assert.match(source, /aria-pressed/)
+assert.match(source, /aria-controls/)
+assert.match(source, /aria-hidden="true"/)
 
 console.log(JSON.stringify({
   sourceEventIds: ids.length,

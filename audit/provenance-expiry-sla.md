@@ -3,9 +3,9 @@
 Status: lokale audit, niet gepubliceerd. Classificatie op 2026-08-13; geverifieerde bronsnapshot 2026-08-13T13:24:19Z.
 
 - Bronitems: 132
-- Fail-closed lokale kandidaat: 29
-- Classificaties: current=3, expired=84, future=26, review_required=19
-- SLA-statussen: blocked_review_required=19, expired_not_public=84, fresh_verified=29
+- Fail-closed lokale kandidaat: 31
+- Classificaties: current=3, expired=85, future=28, review_required=16
+- SLA-statussen: blocked_review_required=16, expired_not_public=85, fresh_verified=31
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -100,7 +100,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 87 | antwerpen-danst-2026-06-30-2026-08-11-dd499d2e | 2026-08-11 | expired | antwerpen-danst | verified | - | - | expired_not_public | nee |
 | 88 | yogalates-op-boeienweide-2026-07-01-2026-08-12-b67ef9f1 | 2026-08-12 | expired | city-yogalates | verified | - | - | expired_not_public | nee |
 | 89 | sportinitiaties-met-jespo-2026-07-01-2026-08-12-a2c30a8 | 2026-08-12 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 90 | 3x3-basket-2026-07-01-2026-08-12-921f88d3 | 2026-08-12 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
+| 90 | 3x3-basket-2026-07-01-2026-08-12-921f88d3 | 2026-08-12 | expired | city-3x3-summer-2026 | verified | - | - | expired_not_public | nee |
 | 91 | sportinitiaties-met-jespo-2026-07-01-2026-08-13-5fe05c08 | 2026-08-13 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 92 | antwerpen-danst-2026-06-30-2026-08-13-7d04b9ed | 2026-08-13 | current | antwerpen-danst | verified | 2 | 2026-08-15 | fresh_verified | ja |
 | 93 | freedom-friday-in-scratch-2026-07-01-2026-08-14-e3bb4e43 | 2026-08-14 | future | scratch-freedom-friday | verified | 3 | 2026-08-16 | fresh_verified | ja |
@@ -110,7 +110,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 97 | antwerpen-danst-2026-06-30-2026-08-18-dd499d30 | 2026-08-18 | future | antwerpen-danst | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 98 | yogalates-op-boeienweide-2026-07-01-2026-08-19-b67ef9f2 | 2026-08-19 | future | city-yogalates | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 99 | sportinitiaties-met-jespo-2026-07-01-2026-08-19-a2c30c0 | 2026-08-19 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 100 | 3x3-basket-2026-07-01-2026-08-19-921f88d4 | 2026-08-19 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
+| 100 | 3x3-basket-2026-07-01-2026-08-19-921f88d4 | 2026-08-19 | future | city-3x3-summer-2026 | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 101 | sportinitiaties-met-jespo-2026-07-01-2026-08-20-5fe05c20 | 2026-08-20 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 102 | antwerpen-danst-2026-06-30-2026-08-20-7d04b9ef | 2026-08-20 | future | antwerpen-danst | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 103 | freedom-friday-in-scratch-2026-07-01-2026-08-21-e3bb4e44 | 2026-08-21 | future | scratch-freedom-friday | verified | 3 | 2026-08-16 | fresh_verified | ja |
@@ -120,7 +120,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 107 | yogalates-op-boeienweide-2026-07-01-2026-08-26-b67ef9f3 | 2026-08-26 | future | city-yogalates | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 108 | zomer-mee-park-spoor-noord-2026-08-26 | 2026-08-26 | future | city-district-calendar | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 109 | sportinitiaties-met-jespo-2026-07-01-2026-08-26-a2c30c3 | 2026-08-26 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 110 | 3x3-basket-2026-07-01-2026-08-26-921f88d5 | 2026-08-26 | review_required | city-withdrawn-3x3-detail | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
+| 110 | 3x3-basket-2026-07-01-2026-08-26-921f88d5 | 2026-08-26 | future | city-3x3-summer-2026 | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 111 | sportinitiaties-met-jespo-2026-07-01-2026-08-27-5fe05c23 | 2026-08-27 | review_required | city-old-sport-newsletter | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 112 | antwerpen-danst-2026-06-30-2026-08-27-7d04b9f1 | 2026-08-27 | future | antwerpen-danst | verified | 3 | 2026-08-16 | fresh_verified | ja |
 | 113 | tabletcafe-2026-08-28 | 2026-08-28 | future | city-district-calendar | verified | 7 | 2026-08-20 | fresh_verified | ja |

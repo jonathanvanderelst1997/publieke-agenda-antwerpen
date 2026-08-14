@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-08-13",
-  "sourceDigest": "c1d7399a0ef3739b51f93a4482511d28f0b6e1aed4b5b1508d2863c78aa1d9d0",
-  "matrixDigest": "c1d7399a0ef3739b51f93a4482511d28f0b6e1aed4b5b1508d2863c78aa1d9d0",
+  "sourceDigest": "d9af4ed531e31a85e403547c788078d2a80b9561885f2d68070d794d600d2e35",
+  "matrixDigest": "d9af4ed531e31a85e403547c788078d2a80b9561885f2d68070d794d600d2e35",
   "counts": {
     "add": 0,
     "change": 0,
@@ -58,20 +58,20 @@
     {
       "id": "3x3-basket-2026-07-01-2026-08-12-921f88d3",
       "action": "unchanged",
-      "sourceDigest": "3ad705a2deb187ff29852cae7073f012b83d9991f59f5444d89f739f325d2ef8",
-      "matrixDigest": "3ad705a2deb187ff29852cae7073f012b83d9991f59f5444d89f739f325d2ef8"
+      "sourceDigest": "d2d9b8856b8960f0216dae763c7d72a8a75e84989240721737b0b21aa48a00f8",
+      "matrixDigest": "d2d9b8856b8960f0216dae763c7d72a8a75e84989240721737b0b21aa48a00f8"
     },
     {
       "id": "3x3-basket-2026-07-01-2026-08-19-921f88d4",
       "action": "unchanged",
-      "sourceDigest": "dbc4c12bbcb72332371ea05101fba4db267a8533925a911440426dff557e2245",
-      "matrixDigest": "dbc4c12bbcb72332371ea05101fba4db267a8533925a911440426dff557e2245"
+      "sourceDigest": "f99ee40e34c85966aa6b1a7c753e49b79d94c4beb9ee33cba06c51b4f51d639d",
+      "matrixDigest": "f99ee40e34c85966aa6b1a7c753e49b79d94c4beb9ee33cba06c51b4f51d639d"
     },
     {
       "id": "3x3-basket-2026-07-01-2026-08-26-921f88d5",
       "action": "unchanged",
-      "sourceDigest": "b1789ef6eb694fbd3ed8d6b9f0f53629ba2063f5cd46d94ebde79b6387e6c71f",
-      "matrixDigest": "b1789ef6eb694fbd3ed8d6b9f0f53629ba2063f5cd46d94ebde79b6387e6c71f"
+      "sourceDigest": "ad4cb7aad3fbd120afca4c8b7c5d4f995b2de779418e6f511ec2a2f885f54b22",
+      "matrixDigest": "ad4cb7aad3fbd120afca4c8b7c5d4f995b2de779418e6f511ec2a2f885f54b22"
     },
     {
       "id": "antwerp-sup-festival-2026-08-29",
