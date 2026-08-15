@@ -12,10 +12,11 @@
     "test:deep-links": "node scripts/test-deep-links.mjs",
     "test:individual-ics": "node scripts/test-individual-ics.mjs",
     "test:site-quality": "node scripts/test-site-quality.mjs",
+    "test:render-headers": "node scripts/test-render-security-headers.mjs",
     "lint": "node scripts/lint.mjs",
     "test": "node --test tests/*.test.mjs",
     "audit:events": "node scripts/audit-events.mjs",
-    "check": "npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot && npm run lint && npm test && npm run audit:events && npm run test:deep-links && npm run test:individual-ics && npm run test:site-quality"
+    "check": "npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot && npm run lint && npm test && npm run audit:events && npm run test:deep-links && npm run test:individual-ics && npm run test:site-quality && npm run test:render-headers"
   },
   "engines": { "node": ">=20" }
 }
