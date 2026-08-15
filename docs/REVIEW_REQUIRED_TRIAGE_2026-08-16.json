@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-08-16",
+  "source": "EVENT_CONTRACT_REPORT.json",
+  "policy": "Past events are closed as historical warnings unless they affect a recurring/future route. Future events with unconfirmed start remain fail-closed and require an official source before publication as time-confirmed.",
+  "items": [
+    {"id":"fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29","date":"2026-06-29","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29","date":"2026-06-29","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29","date":"2026-06-29","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"werken-halenstraat-en-schijnpoortweg-2026-06-29","date":"2026-06-29","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"aquajogging-start-to-wake-2026-07-01","date":"2026-07-01","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"openluchtzwemmen-2026-07-01","date":"2026-07-01","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"the-tall-ships-races-antwerpen-2026-07-12","date":"2026-07-12","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"the-tall-ships-races-antwerpen-2026-07-13","date":"2026-07-13","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"the-tall-ships-races-antwerpen-2026-07-14","date":"2026-07-14","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"tuk-tuk-rommelmarkt-2026-08-01","date":"2026-08-01","classification":"other","reason":"historical_expired","action":"none"},
+    {"id":"eilandje-in-beweging-2026-08-29","date":"2026-08-29","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before_time-confirmed publication"},
+    {"id":"eilandje-in-beweging-2026-08-30","date":"2026-08-30","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before_time-confirmed publication"},
+    {"id":"red-star-run-2026-08-30","date":"2026-08-30","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before_time-confirmed publication"},
+    {"id":"inschrijven-herfstklaar-2026-09-04","date":"2026-09-04","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before time-confirmed publication"},
+    {"id":"reanimatielessen-2026-09-10","date":"2026-09-10","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before time-confirmed publication"},
+    {"id":"beweegdag-55-2026-09-19","date":"2026-09-19","classification":"source_gap","reason":"unconfirmed_start_time","action":"official_source_needed_before time-confirmed publication"}
+  ],
+  "summary": {"historical_closed":10,"future_source_gap":6,"date_conflict":0,"status_conflict":0}
+}
