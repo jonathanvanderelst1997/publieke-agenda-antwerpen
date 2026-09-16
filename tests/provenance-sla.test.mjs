@@ -10,10 +10,10 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const engine = loadRefreshEngine(rootDir);
 const matrix = buildProvenanceSlaMatrix(loadExpandedAgendaItems(rootDir), engine);
 
-test("de SLA-matrix bevat elk van de 132 bronitems exact één keer", () => {
-  assert.equal(matrix.sourceItemCount, 132);
-  assert.equal(matrix.items.length, 132);
-  assert.equal(new Set(matrix.items.map((item) => item.id)).size, 132);
+test("de SLA-matrix bevat elk van de 133 bronitems exact één keer", () => {
+  assert.equal(matrix.sourceItemCount, 133);
+  assert.equal(matrix.items.length, 133);
+  assert.equal(new Set(matrix.items.map((item) => item.id)).size, 133);
 });
 
 test("publiceerbaarheid blijft fail-closed bij verlopen of onbewezen bronnen", () => {
@@ -41,19 +41,23 @@ test("elke bewezen bron heeft een geldige HTTPS-provenance en expliciete vervald
   }
 });
 
-test("onzekere toekomstige sportreeksen blijven geblokkeerd", () => {
+test("onzekere sportreeksen blijven geblokkeerd, ook nadat hun datum verstreken is", () => {
   for (const title of ["Sportinitiaties met Jespo", "Gratis initiaties boogschieten"]) {
-    const futureRows = matrix.items.filter((item) => item.title === title && item.eventDate >= matrix.classificationAsOf);
-    assert.ok(futureRows.length > 0);
-    assert.ok(futureRows.every((item) => item.slaStatus === "blocked_review_required"));
-    assert.ok(futureRows.every((item) => !item.publishEligible));
+    const rows = matrix.items.filter((item) => item.title === title);
+    const uncertainRows = rows.filter((item) => item.verificationState === "review_required");
+    assert.ok(rows.length > 0);
+    assert.ok(rows.every((item) => !item.publishEligible));
+    assert.ok(uncertainRows.length > 0);
+    assert.ok(uncertainRows.every((item) => item.slaStatus === "blocked_review_required"));
   }
 });
 
-test("de officieel bevestigde 3x3-reeks is publiceerbaar met verse provenance", () => {
-  const futureRows = matrix.items.filter((item) => item.title === "3x3 basket" && item.eventDate > matrix.classificationAsOf);
-  assert.equal(futureRows.length, 2);
-  assert.ok(futureRows.every((item) => item.slaStatus === "fresh_verified"));
-  assert.ok(futureRows.every((item) => item.publishEligible));
-  assert.ok(futureRows.every((item) => item.sourceId === "city-3x3-summer-2026"));
+test("de actuele wegenwerkfase is publiceerbaar met verse provenance", () => {
+  const row = matrix.items.find(
+    (item) => item.title === "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2"
+  );
+  assert.equal(row.classification, "current");
+  assert.equal(row.slaStatus, "fresh_verified");
+  assert.equal(row.publishEligible, true);
+  assert.equal(row.sourceId, "city-osystraat-works");
 });

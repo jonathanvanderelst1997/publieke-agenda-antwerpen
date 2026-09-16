@@ -14,9 +14,9 @@ const engine = loadRefreshEngine(rootDir);
 const matrix = buildProvenanceSlaMatrix(items, engine);
 const actual = buildProvenanceSnapshot(items, engine, matrix);
 
-test("de bron- en provenanceprojecties bevatten dezelfde 132 deterministische rijen", () => {
-  assert.equal(actual.snapshot.sourceItemCount, 132);
-  assert.deepEqual(actual.diff.counts, { add: 0, change: 0, remove: 0, unchanged: 132 });
+test("de bron- en provenanceprojecties bevatten dezelfde 133 deterministische rijen", () => {
+  assert.equal(actual.snapshot.sourceItemCount, 133);
+  assert.deepEqual(actual.diff.counts, { add: 0, change: 0, remove: 0, unchanged: 133 });
   assert.equal(actual.diff.sourceDigest, actual.diff.matrixDigest);
 });
 

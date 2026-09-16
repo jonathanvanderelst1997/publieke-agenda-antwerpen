@@ -104,6 +104,19 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken"
   },
   {
+    "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03",
+    "title": "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2",
+    "theme": "Werken",
+    "className": "works",
+    "date": "2026-08-03",
+    "dateLabel": "3 augustus 2026 tot voorjaar 2027",
+    "timeSlot": "Info",
+    "timeText": "fase 2 in uitvoering",
+    "location": "Van Maerlantstraat, Vondelstraat en kruispunt Sint-Jansplein",
+    "info": "De tweede fase van de heraanleg loopt van de Van Maerlantstraat tot en met de volledige Vondelstraat. Raadpleeg de officiële pagina voor de actuele bereikbaarheid en fasering.",
+    "link": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat"
+  },
+  {
     "id": "antwerpen-danst-2026-06-30-2026-06-30-bcd0d383",
     "title": "Antwerpen Danst",
     "theme": "Activiteit",
@@ -1599,17 +1612,17 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/swingen-en-dansen-op-het-bal-van-de-bevrijding"
   },
   {
-    "id": "inschrijven-herfstklaar-2026-09-04",
+    "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",
     "title": "Inschrijven Herfstklaar",
     "theme": "Oproep/deadline",
     "className": "call",
-    "date": "2026-09-04",
-    "dateLabel": "4 september 2026",
+    "date": "2026-09-25",
+    "dateLabel": "25 september 2026",
     "timeSlot": "Deadline",
-    "timeText": "aanvragen tot 4 september",
+    "timeText": "aanvragen zonder materiaal of straatafsluiting tot 25 september",
     "location": "district Antwerpen",
-    "info": "Bewoners kunnen ondersteuning aanvragen om hun straat tijdens het weekend van 23, 24 en 25 oktober herfstklaar te maken.",
-    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+    "info": "De gewone deadline met materiaal en straatafsluiting is voorbij. Wie geen materiaal of straatafsluiting nodig heeft, kan nog tot 25 september een Herfstklaar-activiteit aanvragen voor 23, 24 of 25 oktober.",
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2",
@@ -1670,11 +1683,11 @@ const agendaItems = [
     "className": "sport",
     "date": "2026-09-19",
     "dateLabel": "19 september 2026",
-    "timeSlot": "Info",
-    "timeText": "programma overdag; check de officiële pagina voor het uurrooster",
-    "location": "Linkeroever",
-    "info": "Sport- en beweegdag voor 55-plussers op Linkeroever; programma en inschrijving via de officiële pagina.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/beweegdag-55"
+    "timeSlot": "09:00",
+    "timeText": "deuren 9 uur; programma tot 17.15 uur",
+    "location": "Zuiderpershuis en Zuidpark, ingang Waalsekaai 14",
+    "info": "Gratis sportinitiaties, wandelingen en infosessies voor 55-plussers. Online inschrijven is gesloten; vrije plaatsen kunnen ter plaatse worden opgenomen.",
+    "link": "https://www.antwerpen.be/info/6a422229d82fbac5fe0a2613/beweegdag-55-in-het-zuiderpershuis"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387",
