@@ -21,7 +21,7 @@ test("classificeert verlopen, lopende en toekomstige punten deterministisch", ()
     find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29").classification,
     "current"
   );
-  assert.equal(find("Strip- en boekenplein", "2026-08-16").classification, "future");
+  assert.equal(find("Inschrijven Herfstklaar", "2026-09-25").classification, "future");
   assert.ok(result.counts.expired > 0);
   assert.ok(result.counts.current > 0);
   assert.ok(result.counts.future > 0);
@@ -38,18 +38,14 @@ test("sluit bronconflicten uit de publieke kandidaat", () => {
   }
 });
 
-test("neemt de officieel bevestigde 3x3-reeks in Kielpark fail-open op", () => {
-  const elapsed = find("3x3 basket", "2026-08-12");
-  assert.equal(elapsed.classification, "expired");
-  assert.ok(!result.publicItems.some((candidate) => candidate.id === elapsed.id));
-
-  for (const date of ["2026-08-19", "2026-08-26"]) {
+test("verwijdert de afgelopen 3x3-reeks in Kielpark uit de publieke agenda", () => {
+  for (const date of ["2026-08-12", "2026-08-19", "2026-08-26"]) {
     const item = find("3x3 basket", date);
-    assert.equal(item.classification, "future");
+    assert.equal(item.classification, "expired");
     assert.equal(item.verificationState, "verified");
     assert.equal(item.timeText, "15 tot 18 uur");
     assert.equal(item.location, "Kielpark, 2020 Antwerpen");
-    assert.ok(result.publicItems.some((candidate) => candidate.id === item.id));
+    assert.ok(!result.publicItems.some((candidate) => candidate.id === item.id));
   }
 });
 
@@ -82,5 +78,5 @@ test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {
   assert.equal(manifest.classificationAsOf, engine.config.classificationAsOf);
   assert.equal(manifest.count, result.publicItems.length);
   assert.deepEqual(manifest.classifications, JSON.parse(JSON.stringify(result.counts)));
-  assert.equal(manifest.rollback.baseCommit, "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3");
+  assert.equal(manifest.rollback.baseCommit, "36ea97332e1742d0ed1650a1226c2276733a34f3");
 });

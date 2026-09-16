@@ -25,4 +25,4 @@ De build gebruikt geen netwerk. Een inhoudelijke refresh begint altijd met een n
 
 ## Rollback
 
-De vastgelegde rollbackbasis is commit `f9ce9badc00b2300d083996b9e93b5d5cb7c15f3`. Als live validatie faalt, wordt de release-merge op `main` teruggedraaid naar die broninhoud zodat Render de vorige website opnieuw uitrolt.
+De vastgelegde rollbackbasis is commit `36ea97332e1742d0ed1650a1226c2276733a34f3`. Als live validatie faalt, wordt de release-merge op `main` teruggedraaid naar die broninhoud zodat Render de vorige website opnieuw uitrolt.

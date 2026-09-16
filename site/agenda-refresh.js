@@ -1,12 +1,13 @@
 (() => {
   const previousRetrievedAt = "2026-08-10T09:08:00Z";
   const releaseRetrievedAt = "2026-08-13T13:24:19Z";
+  const currentRetrievedAt = "2026-09-16T12:46:42Z";
 
   const sources = {
     "city-district-calendar": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      retrievedAt: releaseRetrievedAt,
+      retrievedAt: currentRetrievedAt,
       state: "verified",
       scope: "Actuele publieke districtskalender met data, uren en locaties.",
       officialPublic: true,
@@ -62,7 +63,7 @@
     "antwerpen-redt": {
       publisher: "Antwerpen Redt",
       url: "https://antwerpenredt.be/",
-      retrievedAt: releaseRetrievedAt,
+      retrievedAt: currentRetrievedAt,
       state: "verified",
       scope: "Officiële organisatoragenda met Antwerpse reanimatielessen van september tot december 2026.",
       officialPublic: true,
@@ -70,7 +71,7 @@
     "citaat-op-straat": {
       publisher: "Citaat op Straat",
       url: "https://www.citaatopstraat.be/",
-      retrievedAt: releaseRetrievedAt,
+      retrievedAt: currentRetrievedAt,
       state: "verified",
       scope: "Officiële organisatoragenda voor de wandelingen van 19 september en 10 oktober.",
       officialPublic: true,
@@ -78,7 +79,7 @@
     "city-beweegdag": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6a422229d82fbac5fe0a2613/beweegdag-55-in-het-zuiderpershuis",
-      retrievedAt: releaseRetrievedAt,
+      retrievedAt: currentRetrievedAt,
       state: "verified",
       scope: "Actuele detailpagina voor Beweegdag 55+ in Zuiderpershuis en Zuidpark.",
       officialPublic: true,
@@ -86,9 +87,25 @@
     "city-works-permit": {
       publisher: "Stad Antwerpen",
       url: "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
-      retrievedAt: releaseRetrievedAt,
+      retrievedAt: currentRetrievedAt,
       state: "verified",
       scope: "Actuele officiële fasering voor Balansstraat/Lange Elzenstraat en Halenstraat/Schijnpoortweg.",
+      officialPublic: true,
+    },
+    "city-herfstklaar": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      retrievedAt: currentRetrievedAt,
+      state: "verified",
+      scope: "Actuele oproep: zonder materiaal of straatafsluiting kan een aanvraag nog tot 25 september 2026.",
+      officialPublic: true,
+    },
+    "city-osystraat-works": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
+      retrievedAt: currentRetrievedAt,
+      state: "verified",
+      scope: "Actuele officiële fasering voor Van Maerlantstraat en Vondelstraat: fase 2 loopt sinds 3 augustus 2026 tot voorjaar 2027.",
       officialPublic: true,
     },
     "city-gaston-works": {
@@ -224,8 +241,13 @@
       sourceId: "city-district-calendar",
     },
     {
-      match: { title: "Inschrijven Herfstklaar", dates: ["2026-09-04"] },
-      sourceId: "city-district-calendar",
+      match: { title: "Inschrijven Herfstklaar", dates: ["2026-09-25"] },
+      sourceId: "city-herfstklaar",
+    },
+    {
+      match: { title: "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2", dates: ["2026-08-03"] },
+      sourceId: "city-osystraat-works",
+      classification: "current",
     },
     {
       match: { title: "Eilandje in beweging", dates: ["2026-08-29", "2026-08-30"] },
@@ -288,10 +310,10 @@
 
   const config = {
     schemaVersion: 1,
-    classificationAsOf: "2026-08-13",
-    retrievedAt: releaseRetrievedAt,
+    classificationAsOf: "2026-09-16",
+    retrievedAt: currentRetrievedAt,
     rollback: {
-      baseCommit: "f9ce9badc00b2300d083996b9e93b5d5cb7c15f3",
+      baseCommit: "36ea97332e1742d0ed1650a1226c2276733a34f3",
       strategy: "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback.",
     },
     sources,
