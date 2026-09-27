@@ -1,4 +1,8 @@
-name: CI
+# Deze naam is de binding in de Gateway: config/operator-repositories.json
+# (publieke-agenda, required_workflows) noemt "Public Agenda Validate" op dit
+# pad, en de operator zoekt runs op precies die naam. Hernoem je hem, dan
+# wordt die controle voor deze repo nooit meer groen.
+name: Public Agenda Validate
 
 on:
   pull_request:
