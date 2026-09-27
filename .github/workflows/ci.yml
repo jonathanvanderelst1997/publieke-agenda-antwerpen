@@ -21,11 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      # v6 en niet v4: v4 draait op Node.js 20, dat GitHub afbouwt; de eerste
+      # run gaf daar een waarschuwing voor. v6 draait op node24.
+      - uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v6
         with:
           # package.json vraagt node >=20; 22 is de LTS waarmee lokaal getest is.
           node-version: 22
