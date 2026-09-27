@@ -1,0 +1,58 @@
+# Deze naam is de binding in de Gateway: config/operator-repositories.json
+# (publieke-agenda, required_workflows) noemt "Public Agenda Validate" op dit
+# pad, en de operator zoekt runs op precies die naam. Hernoem je hem, dan
+# wordt die controle voor deze repo nooit meer groen.
+name: Public Agenda Validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    # Deze repo is publiek: GitHub-gehoste runners kosten hier geen minuten.
+    # Laat deze job nooit naar een self-hosted runner verhuizen. Bij een
+    # publieke repo kan elke fork een PR openen, en die code zou dan op de Mac
+    # van de eigenaar draaien.
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # v6 en niet v4: v4 draait op Node.js 20, dat GitHub afbouwt; de eerste
+      # run gaf daar een waarschuwing voor. v6 draait op node24.
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v6
+        with:
+          # package.json vraagt node >=20; 22 is de LTS waarmee lokaal getest is.
+          node-version: 22
+
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        run: npm ci --ignore-scripts
+
+      # Bouwt manifest, provenance-SLA en snapshot opnieuw en draait daarna
+      # lint, tests, eventaudit, deeplinks, ICS, sitekwaliteit en headers.
+      # Alles lokaal en zonder netwerk; dezelfde stap als in README.md.
+      - name: npm run check
+        run: npm run check
+
+      # De build is deterministisch. Wijkt het resultaat af van wat in de
+      # commit staat, dan is er een gegenereerd bestand niet meegecommit en zou
+      # Render iets anders publiceren dan wat hier gecontroleerd werd.
+      - name: Gegenereerde bestanden staan in de commit
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::npm run check wijzigde bestanden die niet in de commit staan:"
+            git status --porcelain
+            git --no-pager diff --stat
+            exit 1
+          fi
