@@ -46,7 +46,7 @@
       }
     </script>
     <title>Mijn publieke agenda voor District Antwerpen</title>
-    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/styles.css" />\n    <link rel="stylesheet" href="/works-live.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
@@ -73,10 +73,17 @@
         <div id="theme-controls" class="theme-controls"></div>
       </section>
 
+      <section id="works-live" class="works-live" aria-label="Actuele werken en hinder">
+        <div class="works-live-header"><div><span class="works-live-kicker">Werken en hinder</span><h2>Actuele en geplande werken in district Antwerpen</h2><p>Live uit GIPOD, met controle tegen de officiële districtsgrens.</p></div><div class="works-live-summary"><strong data-works-count>Werken laden…</strong><small data-works-meta></small></div></div>
+        <p class="works-live-note" data-works-note>De live werkenlaag wordt geladen zodra dit deel van de pagina in beeld komt.</p>
+        <div class="works-live-controls"><input data-works-search type="search" placeholder="Zoek straat, werk, beheerder of GIPOD-nummer" aria-label="Zoek in werken" /><select data-works-owner aria-label="Filter op beheerder"><option value="">Alle beheerders</option></select><select data-works-status aria-label="Filter op status"><option value="">Alle statussen</option><option value="In uitvoering">In uitvoering</option><option value="Concreet gepland">Concreet gepland</option></select></div>
+        <div class="works-live-list" data-works-list></div><button class="works-live-more" type="button" data-works-more hidden>Toon meer</button>
+      </section>
+
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
-    <script src="/agenda-refresh.js"></script>
+    <script type="module" src="/works-live.js"></script>\n    <script src="/agenda-refresh.js"></script>
     <script src="/agenda-ics.js"></script>
     <script src="/agenda.js"></script>
   </body>
