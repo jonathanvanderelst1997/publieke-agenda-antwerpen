@@ -11,20 +11,46 @@ const items = loadExpandedAgendaItems(rootDir);
 const engine = loadRefreshEngine(rootDir);
 const result = engine.reconcileAgendaItems(items, engine.config.classificationAsOf);
 
+function addDays(value, days) {
+  const date = new Date(`${String(value).slice(0, 10)}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
 function find(title, date) {
   return result.auditItems.find((item) => item.title === title && item.date === date);
 }
 
 test("classificeert verlopen, lopende en toekomstige punten deterministisch", () => {
+  const asOf = engine.config.classificationAsOf;
+  assert.match(asOf, /^\d{4}-\d{2}-\d{2}$/);
+  // Een regel met een vaste classificatie wint, los van de datum.
   assert.equal(find("Kammenstraat autovrij tijdens soldenperiode", "2026-06-29").classification, "expired");
-  assert.equal(
-    find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29").classification,
-    "current"
-  );
-  assert.equal(find("Inschrijven Herfstklaar", "2026-09-25").classification, "future");
+  assert.equal(find("Kammenstraat autovrij tijdens soldenperiode", "2026-06-29").classificationBasis, "rule");
+
+  // Een lopende werf blijft lopend zolang zijn bron vers is; daarna verouderd en niet publiek.
+  const works = find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29");
+  const worksSource = engine.config.sources[works.sourceId];
+  const worksDue = addDays(worksSource.retrievedAt, 2);
+  if (asOf <= worksDue) assert.equal(works.classification, "current");
+  else assert.deepEqual([works.classification, works.reviewReason], ["review_required", "stale_source"]);
+
+  // Elk item dat op datum geclassificeerd is, klopt met classificationAsOf en zijn date/endDate.
+  for (const item of result.auditItems.filter((candidate) => candidate.classificationBasis === "date")) {
+    const last = item.endDate && item.endDate > item.date ? item.endDate : item.date;
+    const byDate = last < asOf ? "expired" : item.date <= asOf ? "current" : "future";
+    if (item.classification === "review_required") {
+      assert.ok(["stale_source", "unverified_source", "unverified_feed_item", "works_without_rule"].includes(item.reviewReason), item.id);
+      if (item.reviewReason !== "works_without_rule") {
+        assert.notEqual(byDate, "expired", `${item.id}: een verlopen item hoort expired te zijn, niet review_required`);
+      }
+    } else {
+      assert.equal(item.classification, byDate, item.id);
+    }
+  }
+  const total = result.counts.expired + result.counts.current + result.counts.future + result.counts.review_required;
+  assert.equal(total, result.auditItems.length);
   assert.ok(result.counts.expired > 0);
-  assert.ok(result.counts.current > 0);
-  assert.ok(result.counts.future > 0);
 });
 
 test("sluit bronconflicten uit de publieke kandidaat", () => {
@@ -69,7 +95,22 @@ test("publiceert alleen geverifieerde huidige of toekomstige items met officiël
     const source = engine.config.sources[item.sourceId];
     assert.equal(source.officialPublic, true);
     assert.equal(new URL(item.link).protocol, "https:");
+    if (item.feed) assert.ok(source.allowedHosts.includes(new URL(item.link).hostname), item.id);
   }
+});
+
+test("elke bron heeft een scope; district en stad blijven gescheiden", () => {
+  for (const [sourceId, source] of Object.entries(engine.config.sources)) {
+    assert.ok(["district", "stad"].includes(source.scope), sourceId);
+  }
+  for (const item of result.auditItems) assert.ok(["district", "stad"].includes(item.scope), item.id);
+  assert.equal(engine.config.sources["city-works-permit"].scope, "stad");
+  assert.equal(engine.config.sources["city-district-calendar"].scope, "district");
+});
+
+test("geen getraceerde nieuwsbrieflinks meer in de handmatige data of bronnen", () => {
+  for (const item of items) assert.doesNotMatch(String(item.link ?? ""), /nieuwsbrief\.antwerpen\.be\/t\/|\/t\/j-/, item.id);
+  for (const source of Object.values(engine.config.sources)) assert.doesNotMatch(source.url, /nieuwsbrief\.antwerpen\.be\/t\//);
 });
 
 test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {

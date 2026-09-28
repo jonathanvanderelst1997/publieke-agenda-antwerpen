@@ -16,8 +16,9 @@ function dayDelta(from, to) {
   return Math.round((dateAtUtc(to).getTime() - dateAtUtc(from).getTime()) / DAY_MS);
 }
 
-function sourceKind(sourceId, publisher) {
+function sourceKind(sourceId, publisher, feed = false) {
   if (sourceId === "historical-stored-source") return "historical_link_only";
+  if (feed) return "official_feed";
   if (/stad antwerpen|district antwerpen|slim naar antwerpen/i.test(publisher)) return "public_authority";
   return "official_organizer";
 }
@@ -35,11 +36,14 @@ export function buildProvenanceSlaMatrix(items, engine) {
   const localCandidateIds = new Set(result.publicItems.map((item) => item.id));
   const rows = result.auditItems.map((item) => {
     const configuredSource = engine.config.sources[item.sourceId] ?? null;
-    const canonicalSourceUrl = configuredSource?.url ?? item.link ?? "";
-    const sourceRetrievedAt = configuredSource?.retrievedAt ?? null;
-    const ttlDays = maxAgeDays(item);
-    const dueOn = sourceRetrievedAt && ttlDays != null ? addDays(sourceRetrievedAt, ttlDays) : null;
-    const policy = evaluateStalePolicy({
+    // Een feed-item houdt zijn eigen bron-URL; die wordt nooit door de algemene bron-URL vervangen.
+    const canonicalSourceUrl = item.feed ? item.link ?? "" : configuredSource?.url ?? item.link ?? "";
+    // Het ophaalmoment per item gaat voor op dat van de bron.
+    const sourceRetrievedAt = configuredSource ? item.retrievedAt ?? configuredSource.retrievedAt ?? null : null;
+    // De engine past dezelfde vensters toe; neem zijn waarden over zodat kandidaat en SLA per constructie gelijk zijn.
+    const ttlDays = item.slaMaxAgeDays ?? (item.slaMaxAgeHours != null ? item.slaMaxAgeHours / 24 : maxAgeDays(item));
+    const dueOn = item.recheckDueOn ?? (sourceRetrievedAt && ttlDays != null ? addDays(sourceRetrievedAt, ttlDays) : null);
+    let policy = evaluateStalePolicy({
       classification: item.classification,
       classificationAsOf: engine.config.classificationAsOf,
       verificationState: item.verificationState,
@@ -48,6 +52,7 @@ export function buildProvenanceSlaMatrix(items, engine) {
       sourceRetrievedAt,
       recheckDueOn: dueOn,
     });
+    if (item.reviewReason === "stale_source") policy = { status: "stale_blocked", publishEligible: false, failClosed: true };
     const slaStatus = policy.status;
     const eligible = policy.publishEligible;
     return {
@@ -59,11 +64,13 @@ export function buildProvenanceSlaMatrix(items, engine) {
       classificationAsOf: item.classificationAsOf,
       sourceId: item.sourceId,
       sourcePublisher: item.sourcePublisher,
-      sourceKind: sourceKind(item.sourceId, item.sourcePublisher),
+      sourceKind: sourceKind(item.sourceId, item.sourcePublisher, item.feed === true),
+      scope: item.scope ?? null,
       canonicalSourceUrl,
       sourceHost: canonicalSourceUrl ? new URL(canonicalSourceUrl).hostname : null,
       sourceRetrievedAt,
       verificationState: item.verificationState,
+      reviewReason: item.reviewReason ?? null,
       maxAgeDays: ttlDays,
       recheckDueOn: dueOn,
       slaStatus,

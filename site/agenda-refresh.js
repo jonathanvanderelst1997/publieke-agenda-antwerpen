@@ -9,152 +9,174 @@
       url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Actuele publieke districtskalender met data, uren en locaties.",
+      note: "Actuele publieke districtskalender met data, uren en locaties.",
       officialPublic: true,
+      scope: "district",
     },
     "antwerpen-danst": {
       publisher: "Antwerpen Danst / District Antwerpen",
       url: "https://antwerpendanst.life/",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Officiële organisatorpagina voor de reeks van 30 juni tot en met 27 augustus 2026.",
+      note: "Officiële organisatorpagina voor de reeks van 30 juni tot en met 27 augustus 2026.",
       officialPublic: true,
+      scope: "district",
     },
     "city-yogalates": {
       publisher: "Stad Antwerpen",
       url: "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Actuele pagina voor wekelijkse Yogalates op de Boeienweide in juli en augustus.",
+      note: "Actuele pagina voor wekelijkse Yogalates op de Boeienweide in juli en augustus.",
       officialPublic: true,
+      scope: "stad",
+      inDistrict: true,
     },
     "scratch-freedom-friday": {
       publisher: "SCRATCH",
       url: "https://www.scratch-antwerp.be/freedom-friday/",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Officiële organisatorpagina: elke vrijdag van 19 tot 22 uur.",
+      note: "Officiële organisatorpagina: elke vrijdag van 19 tot 22 uur.",
       officialPublic: true,
+      scope: "district",
     },
     "district-summer-roundup": {
       publisher: "District Antwerpen",
-      url: "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/",
+      url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Officiële publieke nieuwsbrief die Eilandje in beweging en Red Star Run dateert.",
+      note: "Oorspronkelijk gedateerd in de publieke districtsnieuwsbrief; de getraceerde nieuwsbrieflink is vervangen door de officiële districtskalender.",
       officialPublic: true,
+      scope: "district",
     },
     "city-zomerfeest": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6475b557e7cec95b032c253c/zomerfeest-in-het-albertpark",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Actuele detailpagina voor Zomerfeest Albertpark.",
+      note: "Actuele detailpagina voor Zomerfeest Albertpark.",
       officialPublic: true,
+      scope: "district",
     },
     "city-bal-bevrijding": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/664e0139bc28fd07a114a7e6/swingen-en-dansen-op-het-bal-van-de-bevrijding",
       retrievedAt: releaseRetrievedAt,
       state: "verified",
-      scope: "Actuele detailpagina voor het Bal van de Bevrijding.",
+      note: "Actuele detailpagina voor het Bal van de Bevrijding.",
       officialPublic: true,
+      scope: "district",
     },
     "antwerpen-redt": {
       publisher: "Antwerpen Redt",
       url: "https://antwerpenredt.be/",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Officiële organisatoragenda met Antwerpse reanimatielessen van september tot december 2026.",
+      note: "Officiële organisatoragenda met Antwerpse reanimatielessen van september tot december 2026.",
       officialPublic: true,
+      scope: "district",
     },
     "citaat-op-straat": {
       publisher: "Citaat op Straat",
       url: "https://www.citaatopstraat.be/",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Officiële organisatoragenda voor de wandelingen van 19 september en 10 oktober.",
+      note: "Officiële organisatoragenda voor de wandelingen van 19 september en 10 oktober.",
       officialPublic: true,
+      scope: "district",
     },
     "city-beweegdag": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6a422229d82fbac5fe0a2613/beweegdag-55-in-het-zuiderpershuis",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Actuele detailpagina voor Beweegdag 55+ in Zuiderpershuis en Zuidpark.",
+      note: "Actuele detailpagina voor Beweegdag 55+ in Zuiderpershuis en Zuidpark.",
       officialPublic: true,
+      scope: "district",
     },
     "city-works-permit": {
       publisher: "Stad Antwerpen",
       url: "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Actuele officiële fasering voor Balansstraat/Lange Elzenstraat en Halenstraat/Schijnpoortweg.",
+      note: "Actuele officiële fasering voor Balansstraat/Lange Elzenstraat en Halenstraat/Schijnpoortweg.",
       officialPublic: true,
+      scope: "stad",
+      inDistrict: true,
     },
     "city-herfstklaar": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Actuele oproep: zonder materiaal of straatafsluiting kan een aanvraag nog tot 25 september 2026.",
+      note: "Actuele oproep: zonder materiaal of straatafsluiting kan een aanvraag nog tot 25 september 2026.",
       officialPublic: true,
+      scope: "district",
     },
     "city-osystraat-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      scope: "Actuele officiële fasering voor Van Maerlantstraat en Vondelstraat: fase 2 loopt sinds 3 augustus 2026 tot voorjaar 2027.",
+      note: "Actuele officiële fasering voor Van Maerlantstraat en Vondelstraat: fase 2 loopt sinds 3 augustus 2026 tot voorjaar 2027.",
       officialPublic: true,
+      scope: "district",
     },
     "city-gaston-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
       retrievedAt: releaseRetrievedAt,
       state: "review_required",
-      scope: "De pagina noemt een verwachte afronding begin september 2026, maar bevestigt geen feitelijke oplevering.",
+      note: "De pagina noemt een verwachte afronding begin september 2026, maar bevestigt geen feitelijke oplevering.",
       officialPublic: true,
+      scope: "district",
     },
     "slim-kammenstraat": {
       publisher: "Slim naar Antwerpen",
       url: "https://www.slimnaarantwerpen.be/en/works-events/kammenstraat-car-free-at-the-start-of-the-sales-period",
       retrievedAt: previousRetrievedAt,
       state: "verified",
-      scope: "Officiële bereikbaarheidspagina: maatregel eindigde op 13 juli 2026.",
+      note: "Officiële bereikbaarheidspagina: maatregel eindigde op 13 juli 2026.",
       officialPublic: true,
+      scope: "district",
     },
     "city-old-sport-newsletter": {
       publisher: "District Antwerpen",
-      url: "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/",
+      url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
       retrievedAt: releaseRetrievedAt,
       state: "review_required",
-      scope: "De actuele bestemming bevestigt de ingevoerde Jespo-herhalingen niet en vermeldt Red Star Run alleen op datum.",
+      note: "De sportnieuwsbrief bevestigt de ingevoerde Jespo-herhalingen niet en vermeldt Red Star Run alleen op datum; de getraceerde nieuwsbrieflink is vervangen door de officiële districtskalender.",
       officialPublic: true,
+      scope: "district",
     },
     "city-withdrawn-3x3-detail": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen",
       retrievedAt: releaseRetrievedAt,
       state: "review_required",
-      scope: "De oude detailroute levert geen eenduidige actuele uren en locaties; recente officiële informatie wijkt af.",
+      note: "De oude detailroute levert geen eenduidige actuele uren en locaties; recente officiële informatie wijkt af.",
       officialPublic: true,
+      scope: "district",
     },
     "city-3x3-summer-2026": {
       publisher: "Sporting A / Stad Antwerpen",
       url: "https://www.antwerpen.be/info/6a183dbaae0fb6a5f52d9820/beleef-een-hele-zomer-lang-3x3-op-de-pleintjes-in-t-stad",
       retrievedAt: "2026-08-13T15:34:15Z",
       state: "verified",
-      scope: "Actuele officiële pagina: Kielpark is een vast plein van 20 mei tot 9 september; sessies zijn elke woensdag van 15 tot 18 uur.",
+      note: "Actuele officiële pagina: Kielpark is een vast plein van 20 mei tot 9 september; sessies zijn elke woensdag van 15 tot 18 uur.",
       officialPublic: true,
+      scope: "stad",
+      inDistrict: true,
     },
     "archery-organizer-social": {
       publisher: "Koninklijke Wipmaatschappij La Renaissance",
       url: "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance",
       retrievedAt: releaseRetrievedAt,
       state: "review_required",
-      scope: "De publieke organisatorpagina gaf in deze audit geen controleerbare reeksdata terug.",
+      note: "De publieke organisatorpagina gaf in deze audit geen controleerbare reeksdata terug.",
       officialPublic: true,
+      scope: "stad",
     },
   };
 
@@ -308,10 +330,33 @@
     },
   ];
 
+  // Automatische bronnen uit site/agenda-feed.js (gebouwd door scripts/build-sources.mjs).
+  const feed = (typeof window !== "undefined" && window.PUBLIC_AGENDA_FEED) || null;
+  for (const feedSource of Array.isArray(feed?.sources) ? feed.sources : []) {
+    sources[feedSource.sourceId] = {
+      publisher: feedSource.publisher,
+      label: feedSource.label || feedSource.publisher,
+      url: feedSource.url,
+      retrievedAt: feedSource.retrievedAt,
+      state: feedSource.officialPublic === true ? "verified" : "review_required",
+      note: feedSource.method,
+      officialPublic: feedSource.officialPublic === true,
+      scope: feedSource.scope,
+      allowedHosts: Array.isArray(feedSource.allowedHosts) ? [...feedSource.allowedHosts] : [],
+      maxAgeHours: Number.isFinite(feedSource.maxAgeHours) ? feedSource.maxAgeHours : 48,
+      fetchStatus: feedSource.fetchStatus,
+      errorCode: feedSource.errorCode ?? null,
+      attribution: feedSource.attribution,
+      itemCount: feedSource.itemCount ?? 0,
+      feed: true,
+    };
+  }
+
   const config = {
     schemaVersion: 1,
-    classificationAsOf: "2026-09-16",
-    retrievedAt: currentRetrievedAt,
+    classificationAsOf: window.PUBLIC_AGENDA_FEED?.classificationAsOf ?? "2026-09-16",
+    retrievedAt: feed?.generatedAt ?? currentRetrievedAt,
+    generatedAt: feed?.generatedAt ?? null,
     rollback: {
       baseCommit: "36ea97332e1742d0ed1650a1226c2276733a34f3",
       strategy: "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback.",
@@ -319,6 +364,61 @@
     sources,
     rules,
   };
+
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const HOUR_MS = 60 * 60 * 1000;
+  const brusselsDateFormat = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Europe/Brussels",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+
+  function brusselsDateOf(instantMs) {
+    if (!Number.isFinite(instantMs)) return null;
+    const parts = Object.fromEntries(brusselsDateFormat.formatToParts(new Date(instantMs)).map((part) => [part.type, part.value]));
+    return `${parts.year}-${parts.month}-${parts.day}`;
+  }
+
+  function addDays(isoDateOrInstant, days) {
+    const date = new Date(`${String(isoDateOrInstant).slice(0, 10)}T00:00:00.000Z`);
+    date.setUTCDate(date.getUTCDate() + days);
+    return date.toISOString().slice(0, 10);
+  }
+
+  function dayDelta(from, to) {
+    return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
+  }
+
+  // Dezelfde vensters als scripts/provenance-sla.mjs: huidig of werken 2 dagen, toekomstig binnen
+  // 14 dagen 3 dagen, verder weg 7 dagen.
+  function maxAgeDaysFor(classification, theme, date, asOf) {
+    if (classification === "expired") return null;
+    if (classification === "review_required") return 0;
+    if (classification === "current" || theme === "Werken") return 2;
+    return dayDelta(asOf, date) <= 14 ? 3 : 7;
+  }
+
+  function dateClassification(date, endDate, asOf) {
+    const last = endDate && endDate > date ? endDate : date;
+    if (last < asOf) return "expired";
+    if (date <= asOf) return "current";
+    return "future";
+  }
+
+  function isAllowedHttps(url, allowedHosts) {
+    try {
+      const parsed = new URL(String(url || ""));
+      return parsed.protocol === "https:" && !parsed.search && !parsed.hash && allowedHosts.includes(parsed.hostname);
+    } catch {
+      return false;
+    }
+  }
+
+  function defaultNow(asOf) {
+    if (asOf === config.classificationAsOf && config.generatedAt) return config.generatedAt;
+    return `${asOf}T12:00:00Z`;
+  }
 
   function matches(item, match) {
     if (match.title && item.title !== match.title) return false;
@@ -329,43 +429,114 @@
     return true;
   }
 
-  function classifyAgendaItem(item, asOf = config.classificationAsOf) {
-    const rule = config.rules.find((candidate) => matches(item, candidate.match));
-    const source = rule?.sourceId ? config.sources[rule.sourceId] : null;
+  function classifyAgendaItem(item, asOf = config.classificationAsOf, options = {}) {
+    const now = options.now || defaultNow(asOf);
+    const isFeed = item.feed === true;
+    const rule = isFeed ? null : config.rules.find((candidate) => matches(item, candidate.match));
+    const source = isFeed ? config.sources[item.sourceId] || null : rule?.sourceId ? config.sources[rule.sourceId] : null;
     const reconciled = {
       ...item,
       ...(rule?.changes || {}),
     };
 
     let classification = rule?.classification;
+    const classificationBasis = classification ? "rule" : "date";
+    let reviewReason = classification === "review_required" ? "rule" : null;
     if (!classification) {
-      if (reconciled.theme === "Werken") classification = "review_required";
-      else if (reconciled.date < asOf) classification = "expired";
-      else if (reconciled.date === asOf) classification = "current";
-      else classification = "future";
+      if (reconciled.theme === "Werken" && !isFeed) {
+        classification = "review_required";
+        reviewReason = "works_without_rule";
+      } else {
+        classification = dateClassification(reconciled.date, reconciled.endDate, asOf);
+      }
     }
 
-    if (["current", "future"].includes(classification) && source?.state !== "verified") {
+    const verified = isFeed
+      ? Boolean(source?.feed) && source.officialPublic === true && source.state === "verified" && isAllowedHttps(item.sourceUrl, source.allowedHosts)
+      : source?.state === "verified";
+    if (["current", "future"].includes(classification) && !verified) {
       classification = "review_required";
+      reviewReason = isFeed ? "unverified_feed_item" : "unverified_source";
+    }
+
+    const sourceRetrievedAt = item.retrievedAt ?? source?.retrievedAt ?? previousRetrievedAt;
+
+    // Versheid: een feed-bron veroudert na maxAgeHours; een handmatige bron volgt de provenance-SLA.
+    let slaMaxAgeDays = null;
+    let slaMaxAgeHours = null;
+    let recheckDueOn = null;
+    if (["current", "future"].includes(classification)) {
+      let stale;
+      if (isFeed) {
+        slaMaxAgeHours = source.maxAgeHours;
+        const dueAt = Date.parse(sourceRetrievedAt) + slaMaxAgeHours * HOUR_MS;
+        recheckDueOn = brusselsDateOf(dueAt);
+        stale = !Number.isFinite(dueAt) || Date.parse(now) > dueAt;
+      } else {
+        slaMaxAgeDays = maxAgeDaysFor(classification, reconciled.theme, reconciled.date, asOf);
+        recheckDueOn = addDays(sourceRetrievedAt, slaMaxAgeDays);
+        stale = asOf > recheckDueOn;
+      }
+      if (stale) {
+        classification = "review_required";
+        reviewReason = "stale_source";
+      }
     }
 
     const sourceUrl = reconciled.link || source?.url || "";
     const canonicalSourceUrl = source?.state === "verified" ? source.url : sourceUrl;
+    const scope = isFeed ? item.scope || source?.scope || "district" : source?.scope || "district";
+    const inDistrict = isFeed ? item.inDistrict ?? (scope === "district" ? true : null) : source?.inDistrict ?? (scope === "district" ? true : null);
 
     return {
       ...reconciled,
-      link: rule?.changes?.link || canonicalSourceUrl,
+      link: isFeed ? item.link || item.sourceUrl : rule?.changes?.link || canonicalSourceUrl,
       classification,
       classificationAsOf: asOf,
-      sourceId: rule?.sourceId || "historical-stored-source",
+      classificationBasis,
+      reviewReason,
+      sourceId: isFeed ? item.sourceId : rule?.sourceId || "historical-stored-source",
       sourcePublisher: source?.publisher || "Historische bronverwijzing",
-      sourceRetrievedAt: source?.retrievedAt || previousRetrievedAt,
-      verificationState: source?.state || (classification === "expired" ? "date_elapsed_only" : "review_required"),
+      sourceRetrievedAt,
+      verificationState: isFeed ? (verified ? "verified" : "review_required") : source?.state || (classification === "expired" ? "date_elapsed_only" : "review_required"),
+      scope,
+      inDistrict,
+      slaMaxAgeDays,
+      slaMaxAgeHours,
+      recheckDueOn,
     };
   }
 
-  function reconcileAgendaItems(items, asOf = config.classificationAsOf) {
-    const auditItems = items.map((item) => classifyAgendaItem(item, asOf));
+  function sourceFreshnessAt(nowMs) {
+    return Object.entries(config.sources)
+      .filter(([, source]) => source.feed)
+      .map(([sourceId, source]) => {
+        const retrievedMs = Date.parse(source.retrievedAt || "");
+        const dueMs = retrievedMs + source.maxAgeHours * HOUR_MS;
+        const inactive = ["skipped_no_key", "disabled", "test_only"].includes(source.fetchStatus);
+        let state = "fresh";
+        if (inactive && !(source.itemCount > 0)) state = "inactive";
+        else if (!Number.isFinite(retrievedMs) || nowMs > dueMs) state = "stale";
+        return {
+          sourceId,
+          label: source.label,
+          scope: source.scope,
+          publisher: source.publisher,
+          fetchStatus: source.fetchStatus,
+          errorCode: source.errorCode,
+          retrievedAt: source.retrievedAt || null,
+          maxAgeHours: source.maxAgeHours,
+          itemCount: source.itemCount,
+          state,
+          staleSince: state === "stale" && Number.isFinite(dueMs) ? new Date(dueMs).toISOString() : null,
+        };
+      })
+      .sort((a, b) => a.sourceId.localeCompare(b.sourceId));
+  }
+
+  function reconcileAgendaItems(items, asOf = config.classificationAsOf, options = {}) {
+    const now = options.now || defaultNow(asOf);
+    const auditItems = items.map((item) => classifyAgendaItem(item, asOf, { now }));
     const publicItems = auditItems.filter(
       (item) => ["current", "future"].includes(item.classification) && item.verificationState === "verified"
     );
@@ -377,7 +548,7 @@
       { expired: 0, current: 0, future: 0, review_required: 0 }
     );
 
-    return { auditItems, publicItems, counts };
+    return { auditItems, publicItems, counts, sourceFreshness: sourceFreshnessAt(Date.parse(now)) };
   }
 
   window.PUBLIC_AGENDA_REFRESH_ENGINE = Object.freeze({

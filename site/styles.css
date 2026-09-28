@@ -168,6 +168,111 @@ a {
   color: #123a5b;
 }
 
+.agenda-controls-group {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.scope-controls {
+  align-items: center;
+}
+
+.stad-place-controls {
+  border-left: 2px solid var(--line);
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-left: 10px;
+}
+
+.stad-place-controls button {
+  align-items: center;
+  background: var(--surface);
+  border: 1px dashed #8fb7d2;
+  border-radius: 999px;
+  color: #36546d;
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 800;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+}
+
+.stad-place-controls button.active {
+  background: #eef6fc;
+  border-style: solid;
+  color: #123a5b;
+}
+
+.scope-count {
+  background: #e4edf4;
+  border-radius: 999px;
+  color: #123a5b;
+  font-size: 11px;
+  font-weight: 900;
+  padding: 1px 7px;
+}
+
+.agenda-source-status {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: #233f56;
+  display: grid;
+  font-size: 13px;
+  gap: 10px;
+  line-height: 1.45;
+  padding: 10px 14px;
+}
+
+.agenda-source-status p,
+.agenda-source-status ul {
+  margin: 0;
+}
+
+.agenda-source-status ul {
+  display: grid;
+  gap: 2px;
+  padding-left: 18px;
+}
+
+.agenda-source-status a {
+  color: #0d5f9e;
+  font-weight: 800;
+}
+
+.source-fresh {
+  color: #1d5e46;
+  font-weight: 750;
+}
+
+.source-stale {
+  color: #a4262c;
+  font-weight: 850;
+}
+
+.source-inactive {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.scope-badge {
+  font-weight: 850;
+}
+
+.event-sources {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
 .theme-dot {
   background: var(--accent);
   border-radius: 999px;
@@ -605,6 +710,16 @@ a {
 
   .theme-controls {
     justify-content: flex-start;
+  }
+
+  .agenda-controls-group {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .stad-place-controls {
+    border-left: 0;
+    padding-left: 0;
   }
 
   .event {

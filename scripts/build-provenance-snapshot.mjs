@@ -12,10 +12,11 @@ const engine = loadRefreshEngine(rootDir);
 const matrix = buildProvenanceSlaMatrix(items, engine);
 const { snapshot, diff } = buildProvenanceSnapshot(items, engine, matrix);
 const auditDir = path.join(rootDir, "audit");
-const snapshotDate = engine.config.classificationAsOf.replaceAll("-", "");
+// Vaste bestandsnamen: een dagelijkse data-refresh schrijft zo geen nieuw bestand per dag
+// (zie lib/data-lane-paths.json). De oudere bestanden met een datum blijven als historiek staan.
 fs.mkdirSync(auditDir, { recursive: true });
-fs.writeFileSync(path.join(auditDir, `provenance-source-snapshot-${snapshotDate}.json`), `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
-fs.writeFileSync(path.join(auditDir, `provenance-source-diff-${snapshotDate}.json`), `${JSON.stringify(diff, null, 2)}\n`, "utf8");
+fs.writeFileSync(path.join(auditDir, "provenance-source-snapshot-latest.json"), `${JSON.stringify(snapshot, null, 2)}\n`, "utf8");
+fs.writeFileSync(path.join(auditDir, "provenance-source-diff-latest.json"), `${JSON.stringify(diff, null, 2)}\n`, "utf8");
 console.log(JSON.stringify({
   sourceItemCount: snapshot.sourceItemCount,
   sourceDigest: snapshot.sourceDigest,
