@@ -25,8 +25,9 @@ Zie [REFRESH_PROCESS.md](REFRESH_PROCESS.md) voor de classificaties en rollbackp
 
 ## Automatische bronnen
 
-De agenda vult zich uit de districtskalender, het districtsnieuws, UiTdatabank (alleen met een sleutel) en
-herverifieerde nieuwsbriefsignalen. District en stad zijn twee aparte groepen. Zie
+De agenda vult zich uit de districtskalender, het districtsnieuws, het nieuws van de andere districten, de
+markten uit GIPOD, UiTdatabank (alleen met een sleutel) en herverifieerde nieuwsbriefsignalen. District en
+stad zijn twee aparte groepen. Zie
 [docs/AGENDA_SOURCES.md](docs/AGENDA_SOURCES.md).
 
 ```bash

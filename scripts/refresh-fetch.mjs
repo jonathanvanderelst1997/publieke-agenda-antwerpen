@@ -10,12 +10,13 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
 
-export async function refreshAll({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, fetchers = FETCHERS } = {}) {
+// `sleep` (optioneel) gaat naar fetchers die pauzeren tussen verzoeken; toetsen geven een lege pauze mee.
+export async function refreshAll({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, fetchers = FETCHERS, sleep } = {}) {
   const statuses = [];
   for (const fetcher of fetchers) {
     try {
       const module = await fetcher.load();
-      const result = await module.run({ fetch: fetchImpl, clock, rootDir, env, log });
+      const result = await module.run({ fetch: fetchImpl, clock, rootDir, env, log, ...(sleep ? { sleep } : {}) });
       statuses.push(...result);
     } catch (error) {
       const code = errorCodeOf(error) === "unexpected_error" ? "fetcher_crashed" : errorCodeOf(error);

@@ -2,10 +2,10 @@
 
 Status: lokale audit, niet gepubliceerd. Classificatie op 2026-09-28; geverifieerde bronsnapshot 2026-09-28T11:36:33.870Z.
 
-- Bronitems: 150
-- Fail-closed lokale kandidaat: 13
-- Classificaties: current=1, expired=117, future=12, review_required=20
-- SLA-statussen: blocked_review_required=16, expired_not_public=117, fresh_verified=13, stale_blocked=4
+- Bronitems: 198
+- Fail-closed lokale kandidaat: 61
+- Classificaties: current=1, expired=117, future=60, review_required=20
+- SLA-statussen: blocked_review_required=16, expired_not_public=117, fresh_verified=61, stale_blocked=4
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -149,15 +149,63 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 136 | district-kal-6a746a7ff4182b8edf63a774-2026-09-25 | 2026-09-25 | expired | district-kalender | verified | - | - | expired_not_public | nee |
 | 137 | district-kal-6a04d45c9fb3aa7ae4213cab-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
 | 138 | district-kal-6a746a7ff4182b8edf63a764-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 139 | district-kal-6a746a7ff4182b8edf63a776-2026-10-04 | 2026-10-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 140 | district-news-547d6be7cca8a798038b457f-2026-10-07 | 2026-10-07 | future | district-nieuws | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 141 | district-kal-6a746a7ff4182b8edf63a777-2026-10-10 | 2026-10-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 142 | district-kal-6a746a7ff4182b8edf63a779-2026-10-18 | 2026-10-18 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 143 | district-kal-6a746a7ff4182b8edf63a774-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 144 | district-kal-6a746a7ff4182b8edf63a76b-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 145 | district-kal-6a746a7ff4182b8edf63a77b-2026-10-31 | 2026-10-31 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 146 | district-kal-6a746a7ff4182b8edf63a77d-2026-11-04 | 2026-11-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 147 | district-kal-6a746a7ff4182b8edf63a77e-2026-11-10 | 2026-11-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 148 | district-kal-6a746a7ff4182b8edf63a76b-2026-11-20 | 2026-11-20 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 149 | district-kal-6a746a7ff4182b8edf63a780-2026-11-26 | 2026-11-26 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 150 | district-kal-6a746a7ff4182b8edf63a774-2026-11-27 | 2026-11-27 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 139 | markt-ma15-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 140 | markt-ma22-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 141 | markt-ma23-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 142 | stad-news-merksem-6a71e3e8d82fba3f307d2c83-2026-09-29 | 2026-09-29 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 143 | markt-ma13-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 144 | markt-ma25-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 145 | markt-ma6-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 146 | stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30 | 2026-09-30 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 147 | markt-ma19-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 148 | markt-ma31-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 149 | markt-ma8-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 150 | stad-news-wilrijk-648d2efc50afea0013656346-t0r0-2026-10-01 | 2026-10-01 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 151 | markt-ma2-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 152 | markt-ma18-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 153 | markt-ma3-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 154 | markt-ma9-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 155 | markt-ma5-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 156 | markt-ma14-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 157 | markt-ma20-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 158 | markt-ma27-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 159 | markt-ma4-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 160 | markt-ma24-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 161 | markt-ma10-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 162 | markt-ma26-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 163 | district-kal-6a746a7ff4182b8edf63a776-2026-10-04 | 2026-10-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 164 | stad-news-deurne-6a86d1d6a7e51177702c406b-2026-10-04 | 2026-10-04 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 165 | markt-ma1-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 166 | markt-ma7-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 167 | stad-news-wilrijk-648d2efc50afea0013656346-t0r1-2026-10-05 | 2026-10-05 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 168 | stad-news-wilrijk-648d2efc50afea0013656346-t0r2-2026-10-06 | 2026-10-06 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 169 | stad-news-merksem-6a7aff9ed82fbaaad21424f2-2026-10-07 | 2026-10-07 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 170 | district-news-547d6be7cca8a798038b457f-2026-10-07 | 2026-10-07 | future | district-nieuws | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 171 | stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-08 | 2026-10-08 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 172 | stad-news-hoboken-5daeb0c3f8412527a4787a4c-2026-10-09 | 2026-10-09 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 173 | district-kal-6a746a7ff4182b8edf63a777-2026-10-10 | 2026-10-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 174 | stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13 | 2026-10-13 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 175 | stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15 | 2026-10-15 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 176 | stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17 | 2026-10-17 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 177 | district-kal-6a746a7ff4182b8edf63a779-2026-10-18 | 2026-10-18 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 178 | stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22 | 2026-10-22 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 179 | district-kal-6a746a7ff4182b8edf63a774-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 180 | district-kal-6a746a7ff4182b8edf63a76b-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 181 | stad-news-hoboken-6718b2f31beefe7ae24580cd-2026-10-30 | 2026-10-30 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 182 | district-kal-6a746a7ff4182b8edf63a77b-2026-10-31 | 2026-10-31 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 183 | stad-news-merksem-6655c1fac846040011359f8b-2026-10-31 | 2026-10-31 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 184 | district-kal-6a746a7ff4182b8edf63a77d-2026-11-04 | 2026-11-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 185 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06 | 2026-11-06 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 186 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07 | 2026-11-07 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 187 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08 | 2026-11-08 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 188 | district-kal-6a746a7ff4182b8edf63a77e-2026-11-10 | 2026-11-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 189 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13 | 2026-11-13 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 190 | stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15 | 2026-11-15 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 191 | stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 192 | stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 193 | stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19 | 2026-11-19 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 194 | district-kal-6a746a7ff4182b8edf63a76b-2026-11-20 | 2026-11-20 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 195 | district-kal-6a746a7ff4182b8edf63a780-2026-11-26 | 2026-11-26 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 196 | district-kal-6a746a7ff4182b8edf63a774-2026-11-27 | 2026-11-27 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 197 | stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10 | 2026-12-10 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 198 | stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11 | 2026-12-11 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |

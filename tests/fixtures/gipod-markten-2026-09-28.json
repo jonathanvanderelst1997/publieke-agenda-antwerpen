@@ -1,0 +1,1041 @@
+{
+ "note": "Uittreksel uit GIPOD INNAME_PUNT (Digitaal Vlaanderen, Modellicentie Gratis Hergebruik v1.0), opgevraagd 2026-09-28 voor 28-09 t/m 28-10; alleen de velden die de agenda leest.",
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350257-2609280600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35108016,
+     51.17454004
+    ]
+   },
+   "properties": {
+    "GipodId": 12350257,
+    "Description": "Gemengde markt\nKioskplaats",
+    "Reference": "MA1",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-09-28T06:00:00Z",
+    "End": "2026-09-28T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350257-2610050600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35108016,
+     51.17454004
+    ]
+   },
+   "properties": {
+    "GipodId": 12350257,
+    "Description": "Gemengde markt\nKioskplaats",
+    "Reference": "MA1",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-05T06:00:00Z",
+    "End": "2026-10-05T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350257-2610120600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35108016,
+     51.17454004
+    ]
+   },
+   "properties": {
+    "GipodId": 12350257,
+    "Description": "Gemengde markt\nKioskplaats",
+    "Reference": "MA1",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-12T06:00:00Z",
+    "End": "2026-10-12T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350257-2610190600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35108016,
+     51.17454004
+    ]
+   },
+   "properties": {
+    "GipodId": 12350257,
+    "Description": "Gemengde markt\nKioskplaats",
+    "Reference": "MA1",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-19T06:00:00Z",
+    "End": "2026-10-19T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350257-2610260700",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35108016,
+     51.17454004
+    ]
+   },
+   "properties": {
+    "GipodId": 12350257,
+    "Description": "Gemengde markt\nKioskplaats",
+    "Reference": "MA1",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-26T07:00:00Z",
+    "End": "2026-10-26T12:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350279-2610020400",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.37475442,
+     51.18063296
+    ]
+   },
+   "properties": {
+    "GipodId": 12350279,
+    "Description": "Gemengde markt\nMichel Willemsplein",
+    "Reference": "MA2",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-02T04:00:00Z",
+    "End": "2026-10-02T13:00:00Z",
+    "Owner": "Stad Antwerpen - Ondernemen en Stadsmarketing",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350279-2610090400",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.37475442,
+     51.18063296
+    ]
+   },
+   "properties": {
+    "GipodId": 12350279,
+    "Description": "Gemengde markt\nMichel Willemsplein",
+    "Reference": "MA2",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-09T04:00:00Z",
+    "End": "2026-10-09T13:00:00Z",
+    "Owner": "Stad Antwerpen - Ondernemen en Stadsmarketing",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350279-2610160400",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.37475442,
+     51.18063296
+    ]
+   },
+   "properties": {
+    "GipodId": 12350279,
+    "Description": "Gemengde markt\nMichel Willemsplein",
+    "Reference": "MA2",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-16T04:00:00Z",
+    "End": "2026-10-16T13:00:00Z",
+    "Owner": "Stad Antwerpen - Ondernemen en Stadsmarketing",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12350279-2610230400",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.37475442,
+     51.18063296
+    ]
+   },
+   "properties": {
+    "GipodId": 12350279,
+    "Description": "Gemengde markt\nMichel Willemsplein",
+    "Reference": "MA2",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-23T04:00:00Z",
+    "End": "2026-10-23T13:00:00Z",
+    "Owner": "Stad Antwerpen - Ondernemen en Stadsmarketing",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351512-2610040700",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.39650397,
+     51.21861604
+    ]
+   },
+   "properties": {
+    "GipodId": 12351512,
+    "Description": "Markt voor klein antiek\nSINT-JANSVLIET",
+    "Reference": "MA10",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-04T07:00:00Z",
+    "End": "2026-10-04T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351512-2610110700",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.39650397,
+     51.21861604
+    ]
+   },
+   "properties": {
+    "GipodId": 12351512,
+    "Description": "Markt voor klein antiek\nSINT-JANSVLIET",
+    "Reference": "MA10",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-11T07:00:00Z",
+    "End": "2026-10-11T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351512-2610180700",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.39650397,
+     51.21861604
+    ]
+   },
+   "properties": {
+    "GipodId": 12351512,
+    "Description": "Markt voor klein antiek\nSINT-JANSVLIET",
+    "Reference": "MA10",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-18T07:00:00Z",
+    "End": "2026-10-18T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351512-2610250800",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.39650397,
+     51.21861604
+    ]
+   },
+   "properties": {
+    "GipodId": 12351512,
+    "Description": "Markt voor klein antiek\nSINT-JANSVLIET",
+    "Reference": "MA10",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-25T08:00:00Z",
+    "End": "2026-10-25T16:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2609300600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-09-30T06:00:00Z",
+    "End": "2026-09-30T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610020600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-02T06:00:00Z",
+    "End": "2026-10-02T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610070600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-07T06:00:00Z",
+    "End": "2026-10-07T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610090600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-09T06:00:00Z",
+    "End": "2026-10-09T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610140600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-14T06:00:00Z",
+    "End": "2026-10-14T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610160600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-16T06:00:00Z",
+    "End": "2026-10-16T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610210600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-21T06:00:00Z",
+    "End": "2026-10-21T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351519-2610230600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41767732,
+     51.22537173
+    ]
+   },
+   "properties": {
+    "GipodId": 12351519,
+    "Description": "Gemengde markt\nSINT-JANSPLEIN",
+    "Reference": "MA13",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-23T06:00:00Z",
+    "End": "2026-10-23T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351544-2610020600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.30868149,
+     51.35995113
+    ]
+   },
+   "properties": {
+    "GipodId": 12351544,
+    "Description": "BOTERMARKT\nGemengde markt",
+    "Reference": "MA18",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-02T06:00:00Z",
+    "End": "2026-10-02T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351544-2610090600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.30868149,
+     51.35995113
+    ]
+   },
+   "properties": {
+    "GipodId": 12351544,
+    "Description": "BOTERMARKT\nGemengde markt",
+    "Reference": "MA18",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-09T06:00:00Z",
+    "End": "2026-10-09T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351544-2610160600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.30868149,
+     51.35995113
+    ]
+   },
+   "properties": {
+    "GipodId": 12351544,
+    "Description": "BOTERMARKT\nGemengde markt",
+    "Reference": "MA18",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-16T06:00:00Z",
+    "End": "2026-10-16T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351544-2610230600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.30868149,
+     51.35995113
+    ]
+   },
+   "properties": {
+    "GipodId": 12351544,
+    "Description": "BOTERMARKT\nGemengde markt",
+    "Reference": "MA18",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-23T06:00:00Z",
+    "End": "2026-10-23T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351561-2610030600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.40974558,
+     51.2151354
+    ]
+   },
+   "properties": {
+    "GipodId": 12351561,
+    "Description": "Gemengde markt en exotische markt\nOUDEVAARTPLAATS",
+    "Reference": "MA20",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-03T06:00:00Z",
+    "End": "2026-10-03T14:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351561-2610100600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.40974558,
+     51.2151354
+    ]
+   },
+   "properties": {
+    "GipodId": 12351561,
+    "Description": "Gemengde markt en exotische markt\nOUDEVAARTPLAATS",
+    "Reference": "MA20",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-10T06:00:00Z",
+    "End": "2026-10-10T14:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351561-2610170600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.40974558,
+     51.2151354
+    ]
+   },
+   "properties": {
+    "GipodId": 12351561,
+    "Description": "Gemengde markt en exotische markt\nOUDEVAARTPLAATS",
+    "Reference": "MA20",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-17T06:00:00Z",
+    "End": "2026-10-17T14:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351561-2610240600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.40974558,
+     51.2151354
+    ]
+   },
+   "properties": {
+    "GipodId": 12351561,
+    "Description": "Gemengde markt en exotische markt\nOUDEVAARTPLAATS",
+    "Reference": "MA20",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-24T06:00:00Z",
+    "End": "2026-10-24T14:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351588-2610030600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35100859,
+     51.17473508
+    ]
+   },
+   "properties": {
+    "GipodId": 12351588,
+    "Description": "voeding, bloemen en planten\nKIOSKPLAATS",
+    "Reference": "MA27",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-03T06:00:00Z",
+    "End": "2026-10-03T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351588-2610100600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35100859,
+     51.17473508
+    ]
+   },
+   "properties": {
+    "GipodId": 12351588,
+    "Description": "voeding, bloemen en planten\nKIOSKPLAATS",
+    "Reference": "MA27",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-10T06:00:00Z",
+    "End": "2026-10-10T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351588-2610170600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35100859,
+     51.17473508
+    ]
+   },
+   "properties": {
+    "GipodId": 12351588,
+    "Description": "voeding, bloemen en planten\nKIOSKPLAATS",
+    "Reference": "MA27",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-17T06:00:00Z",
+    "End": "2026-10-17T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.12351588-2610240600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.35100859,
+     51.17473508
+    ]
+   },
+   "properties": {
+    "GipodId": 12351588,
+    "Description": "voeding, bloemen en planten\nKIOSKPLAATS",
+    "Reference": "MA27",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-24T06:00:00Z",
+    "End": "2026-10-24T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.15573170-2610030300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41294272,
+     51.21077044
+    ]
+   },
+   "properties": {
+    "GipodId": 15573170,
+    "Description": "Parkeervoorziening voor zaterdagmarkt OUDEVAARTPLAATS",
+    "Reference": "MA20_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt;Andere",
+    "Status": "Lopende",
+    "Start": "2026-10-03T03:00:00Z",
+    "End": "2026-10-03T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.15573170-2610100300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41294272,
+     51.21077044
+    ]
+   },
+   "properties": {
+    "GipodId": 15573170,
+    "Description": "Parkeervoorziening voor zaterdagmarkt OUDEVAARTPLAATS",
+    "Reference": "MA20_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt;Andere",
+    "Status": "Lopende",
+    "Start": "2026-10-10T03:00:00Z",
+    "End": "2026-10-10T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.15573170-2610170300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41294272,
+     51.21077044
+    ]
+   },
+   "properties": {
+    "GipodId": 15573170,
+    "Description": "Parkeervoorziening voor zaterdagmarkt OUDEVAARTPLAATS",
+    "Reference": "MA20_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt;Andere",
+    "Status": "Lopende",
+    "Start": "2026-10-17T03:00:00Z",
+    "End": "2026-10-17T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.15573170-2610240300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.41294272,
+     51.21077044
+    ]
+   },
+   "properties": {
+    "GipodId": 15573170,
+    "Description": "Parkeervoorziening voor zaterdagmarkt OUDEVAARTPLAATS",
+    "Reference": "MA20_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt;Andere",
+    "Status": "Lopende",
+    "Start": "2026-10-24T03:00:00Z",
+    "End": "2026-10-24T15:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382376-2609300300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45223673,
+     51.19648953
+    ]
+   },
+   "properties": {
+    "GipodId": 20382376,
+    "Description": "Parkeervoorziening voor woensdagmarkt Vosstraat.",
+    "Reference": "MA6_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-09-30T03:00:00Z",
+    "End": "2026-09-30T13:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382376-2610070300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45223673,
+     51.19648953
+    ]
+   },
+   "properties": {
+    "GipodId": 20382376,
+    "Description": "Parkeervoorziening voor woensdagmarkt Vosstraat.",
+    "Reference": "MA6_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-07T03:00:00Z",
+    "End": "2026-10-07T13:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382376-2610140300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45223673,
+     51.19648953
+    ]
+   },
+   "properties": {
+    "GipodId": 20382376,
+    "Description": "Parkeervoorziening voor woensdagmarkt Vosstraat.",
+    "Reference": "MA6_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-14T03:00:00Z",
+    "End": "2026-10-14T13:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382376-2610210300",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45223673,
+     51.19648953
+    ]
+   },
+   "properties": {
+    "GipodId": 20382376,
+    "Description": "Parkeervoorziening voor woensdagmarkt Vosstraat.",
+    "Reference": "MA6_P",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-21T03:00:00Z",
+    "End": "2026-10-21T13:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382503-2609300600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45288856,
+     51.19778224
+    ]
+   },
+   "properties": {
+    "GipodId": 20382503,
+    "Description": "Woensdagmarkt Vosstraat",
+    "Reference": "MA6",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-09-30T06:00:00Z",
+    "End": "2026-09-30T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382503-2610070600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45288856,
+     51.19778224
+    ]
+   },
+   "properties": {
+    "GipodId": 20382503,
+    "Description": "Woensdagmarkt Vosstraat",
+    "Reference": "MA6",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-07T06:00:00Z",
+    "End": "2026-10-07T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382503-2610140600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45288856,
+     51.19778224
+    ]
+   },
+   "properties": {
+    "GipodId": 20382503,
+    "Description": "Woensdagmarkt Vosstraat",
+    "Reference": "MA6",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-14T06:00:00Z",
+    "End": "2026-10-14T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "INNAME_PUNT.20382503-2610210600",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     4.45288856,
+     51.19778224
+    ]
+   },
+   "properties": {
+    "GipodId": 20382503,
+    "Description": "Woensdagmarkt Vosstraat",
+    "Reference": "MA6",
+    "Type": "Evenement",
+    "PublicDomainOccupancyTypes": "Markt",
+    "Status": "Lopende",
+    "Start": "2026-10-21T06:00:00Z",
+    "End": "2026-10-21T11:00:00Z",
+    "Owner": "Stad Antwerpen - Stadsbeheer",
+    "ContactOrganisations": null
+   }
+  }
+ ]
+}

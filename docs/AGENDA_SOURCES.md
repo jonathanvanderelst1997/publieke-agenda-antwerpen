@@ -10,7 +10,9 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
-| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3; **uit zolang er geen sleutel is** |
+| `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
+| `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
+| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is** |
 | `mail-district`, `mail-stad` | district / stad | publieke activiteiten uit nieuwsbrieven | mail-signalen van de Brain Gateway; titel en datum worden op de officiële pagina gecontroleerd, uur en plaats alleen overgenomen als ze daar ook staan (zie onder) |
 
 De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten hosts) staan in
@@ -38,7 +40,7 @@ eigenaarsbeslissing.
 Een bron die wel antwoordt maar (bijna) niets meer oplevert, is eerder stuk (een andere datumopmaak,
 een leeg kanaal) dan leeg. Daarom:
 
-- Elke fetcher (`district-kalender`, `district-nieuws`, `stad-uit`) vergelijkt het aantal **komende**
+- Elke fetcher (`district-kalender`, `district-nieuws`, `stad-markten`, `stad-uit`) vergelijkt het aantal **komende**
   items (einddatum of datum ≥ vandaag) met de vorige versie. Verdacht is: 0 terwijl er vorige keer meer
   dan 0 waren, of meer dan de helft minder als er vorige keer minstens 4 waren. Dan wordt niets
   weggeschreven: de bron krijgt `fetchStatus: "error"` met `errorCode: "suspicious_drop"` en de vorige
@@ -50,6 +52,12 @@ een leeg kanaal) dan leeg. Daarom:
   lege agenda tegen de dagelijkse controle aan.
 - Een bewuste, grote daling laat de eigenaar toe met `AGENDA_ALLOW_DROP=<sourceId>[,<sourceId>…]`,
   zowel bij het ophalen als bij `sources:health`. De automatische dagelijkse ronde zet dat nooit.
+- `stad-districten` heeft bewust geen krimpgrens op het aantal items (`shrinkGuard: false` in
+  `lib/source-feed.mjs`; ook `sources:health` vergelijkt haar niet met HEAD): nul komende activiteiten is
+  daar normaal. Gezond is: **elk kanaal antwoordde met minstens één artikel**. Faalt één kanaal (fout,
+  time-out, 0 artikels), dan blijven alleen de vorige items van dat kanaal staan en krijgt de bron
+  `fetchStatus: "error"` met `errorCode: "channel_<code>"` (bijvoorbeeld `channel_http_503`); de andere
+  kanalen worden gewoon ververst. Falen alle kanalen, dan blijft alles staan.
 - `mail-district` en `mail-stad` hebben bewust geen krimpgrens: haalt de Gateway een item terug (bijvoorbeeld
   omdat het toch privé bleek), dan moet het meteen van de site verdwijnen.
 
@@ -70,7 +78,8 @@ een leeg kanaal) dan leeg. Daarom:
 - Ook samen: dezelfde datum en hetzelfde uur met dezelfde detailpagina op www.antwerpen.be, of een titel
   (minstens 8 tekens) die volledig in de andere staat.
 - Nooit samen: twee items met verschillende, niet-lege postcodelijsten.
-- Voorrang: `district-kalender` > `district-nieuws` > `stad-uit` > `mail-district` > `mail-stad` > handmatig.
+- Voorrang: `district-kalender` > `district-nieuws` > `stad-districten` > `stad-markten` > `stad-uit` >
+  `mail-district` > `mail-stad` > handmatig.
 - Het samengevoegde item houdt de velden van de bron met voorrang en toont **alle** bronlinks.
 - Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het en
   de build verwijdert de eventpagina.
@@ -83,9 +92,63 @@ een leeg kanaal) dan leeg. Daarom:
   toekomstig binnen 14 dagen 3 dagen, verder weg 7 dagen.
 - Per bron toont de site "ververst op …", "verouderd sinds …" of "nog niet actief".
 
+## De andere districten (`stad-districten`)
+
+- Kanalen: Berchem, Berendrecht-Zandvliet-Lillo, Borgerhout, Borsbeek (district sinds 2025), Deurne,
+  Ekeren, Hoboken, Merksem en Wilrijk. Kanaal-id, slug, postcode en URL staan vast in
+  `lib/district-channels.mjs`. Geen van die districten heeft een eigen "Wat beleef je"-pagina; hun
+  agendapagina's tonen alleen een UiT-widget.
+- `GET https://www.antwerpen.be/api/portaal/channel/<id>?contentType=10&start=0&limit=25`, één per kanaal,
+  3 seconden ertussen, 20 seconden time-out per verzoek.
+- Gelezen wordt alleen: id, slug, titel, publicatiedatum, `publishUntil` en de tekst- en tabelblokken.
+  Personeelsvelden (`creator`, `assignee`, `lockOwner`) worden meteen weggegooid, afbeeldingen nooit
+  overgenomen (foto's, video en grafisch werk vragen schriftelijke toestemming van de stad).
+- Bovenop de regels van `district-nieuws` (tabel met datum/uur/locatie, "Wanneer:", "Datum:", "Praktisch"):
+  - **Activiteitentabel**: een tabel met een datumkolom ("Datum…", "Wanneer") én een kolom "Activiteit…"
+    of "Wat": elke rij is een eigen activiteit. De titel komt uit die cel (bij een link: de linktekst).
+    Een rij zonder leesbare datum ("Tot oktober") valt weg; een link wordt alleen `infoUrl` als hij op
+    www.antwerpen.be staat zonder querystring.
+  - **Eén blok**: als niets anders een datum geeft, precies één blok `<p><strong>Titel</strong><br>datum …`
+    (meestal "Meer info" onderaan), gelezen met `readBlock`/`parseBlock` van de districtskalender. Twee
+    blokken met een datum is dubbelzinnig; een blok met als titel "Praktische info", "Info" of "Meer info"
+    wordt geweigerd.
+  - Artikels over werken, omleidingen, heraanleg of proefopstellingen worden overgeslagen.
+- Altijd: alleen datums tussen de artikeldatum en `publishUntil`; wat al voorbij is, blijft niet staan.
+- Noemt het artikel zelf geen plaats, dan wordt de plaats "District X, locatie via de officiële bron" met de
+  postcode van dat district. Een artikel dat in meer dan één kanaal staat, gaat over de hele stad: dan
+  "Stad Antwerpen, locatie via de officiële bron" zonder postcode.
+- `inDistrict` is `true` alleen als de postcodes van het item bij district Antwerpen horen.
+- Gemeten op 28-09-2026: 152 artikels, 25 komende activiteiten in de 9 kanalen samen.
+
+## Markten (`stad-markten`)
+
+- Eén verzoek naar GIPOD:
+  `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items` met
+  `filter=Type='Evenement' AND PublicDomainOccupancyTypes LIKE 'Markt%' AND Owner LIKE 'Stad Antwerpen%'`
+  (`filter-lang=cql-text`), het venster nu tot 14 dagen later en de bbox van de stad.
+- Optioneel een tweede verzoek, 2 seconden later: de marktlijst van de stad
+  (`geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek3/MapServer/202`). Haar `id` is
+  de GIPOD-`Reference` (MA1, MA5 …) en geeft district en postcode. Faalt ze, dan gaan de markten zonder
+  postcode door.
+- Weg: parkeerrijen (`*_P`, "Parkeervoorziening …"), elke rij met "Ambulante handel", geannuleerde rijen,
+  een eigenaar die niet "Stad Antwerpen" is, en een markt waarvan marktlijst en coördinaten elkaar
+  tegenspreken over district Antwerpen.
+- Titel zoals "Gemengde markt Kioskplaats"; `Start`/`End` staan in UTC en worden Brusselse tijd;
+  `inDistrict` komt uit de coördinaten en de officiële districtsgrens (`pointInDistrict`).
+- Per markt alleen de **eerstvolgende** marktdag die nog niet voorbij is, zodat de markten de stadsgroep
+  niet overspoelen. Gemeten op 28-09-2026: 23 markten, waarvan 8 in district Antwerpen.
+- De bronlink van een markt is haar GIPOD-rij (`…/items/INNAME_PUNT.<id>`).
+- Licentie: Modellicentie Gratis Hergebruik v1.0, met bronvermelding.
+
 ## Attributie
 
 - District: "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)".
+- Andere districten: "Bron: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data
+  licentie)".
+- Markten: "Bron: GIPOD, Digitaal Vlaanderen, en marktlijst stad Antwerpen (Modellicentie Gratis
+  Hergebruik v1.0)", met een link naar de OGC API van GIPOD.
+- Op de site staat bij elke gratis stadsbron haar eigen bronvermelding; op een eventpagina die van de bron
+  met voorrang.
 - Stad: "Bron: UiTinVlaanderen.be" met een link naar https://www.uitinvlaanderen.be, en per UiT-item
   "Bron: uitinvlaanderen.be" met een link naar de eigen UiT-pagina.
 - Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op

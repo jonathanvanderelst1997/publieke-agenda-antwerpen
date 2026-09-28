@@ -1,0 +1,95 @@
+{
+ "note": "Uittreksel uit de marktlijst van geodata.antwerpen.be (P_Portal/portal_publiek3/MapServer/202), opgevraagd 2026-09-28.",
+ "features": [
+  {
+   "attributes": {
+    "id": "MA18",
+    "type": "Openbare markt",
+    "locatie": "BOTERMARKT",
+    "postcode": "2040",
+    "district": "BEZALI",
+    "soort": "Gemengde markt"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA1",
+    "type": "Openbare markt",
+    "locatie": "KIOSKPLAATS",
+    "postcode": "2660",
+    "district": "HOBOKEN",
+    "soort": "Gemengde markt"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA20",
+    "type": "Openbare markt",
+    "locatie": "OUDEVAARTPLAATS",
+    "postcode": "2000",
+    "district": "ANTWERPEN",
+    "soort": "Gemengde markt en exotische markt"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA13",
+    "type": "Openbare markt",
+    "locatie": "SINT-JANSPLEIN",
+    "postcode": "2060",
+    "district": "ANTWERPEN",
+    "soort": "Gemengde markt"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA10",
+    "type": "Openbare markt",
+    "locatie": "SINT-JANSVLIET",
+    "postcode": "2000",
+    "district": "ANTWERPEN",
+    "soort": "Markt voor klein antiek"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA27",
+    "type": "Openbare markt",
+    "locatie": "KIOSKPLAATS",
+    "postcode": "2660",
+    "district": "HOBOKEN",
+    "soort": "voeding, bloemen en planten"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA20_P",
+    "type": "Parkeervoorziening",
+    "locatie": "OUDEVAARTPLAATS",
+    "postcode": "2000",
+    "district": "ANTWERPEN",
+    "soort": null
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA6",
+    "type": "Openbare markt",
+    "locatie": "VOSSTRAAT",
+    "postcode": "2140",
+    "district": "BORGERHOUT",
+    "soort": "Gemengde markt"
+   }
+  },
+  {
+   "attributes": {
+    "id": "MA6_P",
+    "type": "Parkeervoorziening",
+    "locatie": "VOSSTRAAT",
+    "postcode": "2140",
+    "district": "BORGERHOUT",
+    "soort": null
+   }
+  }
+ ]
+}
