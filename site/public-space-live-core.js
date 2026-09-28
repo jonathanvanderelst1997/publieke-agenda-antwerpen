@@ -65,7 +65,8 @@ function iodItems(features,district){
   const exact=features.filter(f=>geometryIntersectsDistrict(geom(f),district));
   return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
-    location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,detail:n.phase||"",
+    location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
+    detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
     sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"
   }));
 }
