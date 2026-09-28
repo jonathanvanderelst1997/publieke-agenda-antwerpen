@@ -1,0 +1,37 @@
+const clean=value=>String(value??"").replace(/\s+/g," ").trim();
+const earlier=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))<=0?a:b);
+const later=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))>=0?a:b);
+export function causingGipodIds(value=""){
+  const ids=new Set();
+  for(const part of String(value||"").split(";")){
+    const match=part.trim().match(/\/(?:works|groundworks|events|public-domain-occupancies)\/(\d+)(?:[/?#]|$)/i);
+    if(match)ids.add(Number(match[1]));
+  }
+  return[...ids].filter(Number.isFinite);
+}
+export function collectHindrance(features=[]){
+  const byWork=new Map();
+  for(const feature of features){
+    const p=feature?.properties||{};
+    if(clean(p.HindranceStatus)!=="Gevalideerd")continue;
+    const ids=causingGipodIds(p.HindranceConsequenceOf);
+    if(!ids.length)continue;
+    const consequences=String(p.Consequences||"").split(";").map(clean).filter(Boolean);
+    for(const gipodId of ids){
+      const current=byWork.get(gipodId)||{gipodId,severe:false,consequences:new Set(),start:"",end:"",hindranceIds:new Set(),sourceUrls:new Set()};
+      current.severe=current.severe||p.SevereHindrance===true;
+      for(const consequence of consequences)current.consequences.add(consequence);
+      current.start=earlier(current.start,p.HindranceStart||"");
+      current.end=later(current.end,p.HindranceEnd||"");
+      const hindranceId=Number(p.HindranceGipodId);
+      if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
+      if(typeof p.HindranceURI==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.HindranceURI))current.sourceUrls.add(p.HindranceURI);
+      byWork.set(gipodId,current);
+    }
+  }
+  return new Map([...byWork].map(([id,item])=>[id,{...item,consequences:[...item.consequences].sort((a,b)=>a.localeCompare(b,"nl")),hindranceIds:[...item.hindranceIds],sourceUrls:[...item.sourceUrls]}]));
+}
+export function attachHindrance(items=[],features=[],sourceLoaded=true){
+  const byWork=collectHindrance(features);
+  return items.map(item=>({...item,hindrance:byWork.get(Number(item.gipodId))||null,hindranceSourceLoaded:sourceLoaded}));
+}
