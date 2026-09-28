@@ -1,0 +1,588 @@
+{
+ "note": "Opgeschoonde uittreksels uit de publieke nieuwskanalen van antwerpen.be (2026-09-28). Alleen id, slug, titel, publicatiedata en tekst/tabel; geen personeelsvelden, geen afbeeldingen, geen namen of contactgegevens van personeel.",
+ "channels": {
+  "wilrijk": [
+   {
+    "id": "648d2efc50afea0013656346",
+    "slug": "lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
+    "title": "Lezingen, workshops en leesclubs in de Wilrijkse bibliotheek",
+    "publishedAt": "2026-09-21T10:40:00+00:00",
+    "publishUntil": "2026-12-31T10:45:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Regelmatig&nbsp;ontvangt A-bib Bist schrijvers&nbsp;voor een lezing of literair gesprek. Je kan er ook extra diep in een boek duiken via de leesclubs en een inspirerende infosessie of workshop bijwonen.&nbsp;</p>"
+      }
+     },
+     {
+      "type": "table",
+      "body": {
+       "title": "Overzicht activiteiten Samen Veerkrachtig",
+       "data": {
+        "head": {
+         "cols": [
+          {
+           "content": "Activiteit (klik voor meer info)"
+          },
+          {
+           "content": "Datum"
+          },
+          {
+           "content": "Tijdstip"
+          }
+         ]
+        },
+        "rows": [
+         {
+          "cols": [
+           {
+            "content": "VOLZET - Workshop | Omgaan met piekeren - interactieve lees- en reflectiesessie"
+           },
+           {
+            "content": "donderdag 1/10"
+           },
+           {
+            "content": "19.30 uur"
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter"
+           },
+           {
+            "content": "maandag 5/10"
+           },
+           {
+            "content": "19.00 uur"
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "VOLZET - Infosessie | Verbindende communicatie - mijn gezin in interactie"
+           },
+           {
+            "content": "dinsdag 6/10"
+           },
+           {
+            "content": "19.00 uur"
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "VOLZET - Lezing | Hoe het lichaam onthoudt wat je zelf vergeten bent"
+           },
+           {
+            "content": "donderdag 15/10"
+           },
+           {
+            "content": "19.30 uur"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     },
+     {
+      "type": "table",
+      "body": {
+       "title": "Overzicht leesclubs",
+       "data": {
+        "head": {
+         "cols": [
+          {
+           "content": "Activiteit (klik voor meer info)"
+          },
+          {
+           "content": "Datum"
+          },
+          {
+           "content": "Tijdstip"
+          }
+         ]
+        },
+        "rows": [
+         {
+          "cols": [
+           {
+            "content": "[\"https://cid.recreatex.be/Tickets/Detail.aspx?language=NL&smallmenu=1&code=CID-BIBBIST-261022A\" \"De eenzaamheid van de priemgetallen – Paolo Giordano\" \"Klik hier voor meer info en tickets\"]"
+           },
+           {
+            "content": "donderdag 22/10"
+           },
+           {
+            "content": "20.00 uur"
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "[\"https://cid.recreatex.be/Tickets/Detail.aspx?language=NL&smallmenu=1&code=CID-BIBBIST-261119A\" \"Zwarte september – Sandro Veronesi\" \"Klik hier voor meer info & tickets\"]"
+           },
+           {
+            "content": "donderdag 19/11"
+           },
+           {
+            "content": "20.00 uur"
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "[\"https://cid.recreatex.be/Tickets/Detail.aspx?language=NL&smallmenu=1&code=CID-BIBBIST-261210A\" \"Het leugenachtige leven van volwassenen – Elena Ferrante\" \"Klik hier voor meer info & tickets\"]"
+           },
+           {
+            "content": "donderdag 10/12"
+           },
+           {
+            "content": "20.00 uur"
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ],
+  "borgerhout": [
+   {
+    "id": "66d6eef576ce660545139265",
+    "slug": "najaar-2026-save-the-date",
+    "title": "Najaar 2026: save the date",
+    "publishedAt": "2026-09-07T12:00:00+00:00",
+    "publishUntil": "2026-12-16T23:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Een greep uit het aanbod dit&nbsp;najaar in het district Borgerhout.&nbsp;</p>"
+      }
+     },
+     {
+      "type": "table",
+      "body": {
+       "title": "",
+       "data": {
+        "head": {
+         "cols": [
+          {
+           "content": "datum"
+          },
+          {
+           "content": "activiteit"
+          },
+          {
+           "content": "meer info"
+          }
+         ]
+        },
+        "rows": [
+         {
+          "cols": [
+           {
+            "content": "Tot 30 september"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/district-borgerhout/nieuws/talk-of-the-town-in-districtshuis-borgerhout\" \"Talk of the Town\" \"Talk of the Town\"]"
+           },
+           {
+            "content": "Fototentoonstelling over een diverse groep Antwerpenaren die zich inzetten om van onze stad een mooiere thuisplek te maken."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "Tot oktober"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/district-borgerhout/nieuws/gratis-wandelingen-voor-55-plussers-in-borgerhout\" \"Gratis wandelingen voor 55-plussers\" \"Gratis wandelingen voor 55-plussers\"]"
+           },
+           {
+            "content": "Gratis natuur- en cultuurwandelingen voor 55-plussers."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "September tot november"
+           },
+           {
+            "content": "Borgersound"
+           },
+           {
+            "content": "Verrassende concertjes op verschillende locaties."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "13/9"
+           },
+           {
+            "content": "[\"https://www.openmonumentendag.be/\" \"Open Monumentendag\" \"Open Monumentendag\"]"
+           },
+           {
+            "content": "38ste Open Monumentendag met als thema 'In goede handen'."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "18/9 tot 20/9"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/info/69f1b4f3469ef56bbb7ff4f4/borgerhart-zoekt-creatief-talent\" \"BorgerhArt\" \"BorgerhArt\"]"
+           },
+           {
+            "content": "Open ateliers van lokale kunstenaars."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "18/9"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/district-borgerhout/nieuws/verzoekconcertjes-op-de-borgerhoutse-beiaard-wat-vraag-jij-aan\" \"Zomerconcertjes beiaard\" \"Zomerconcertjes beiaard\"]"
+           },
+           {
+            "content": "Tweewekelijkse zomerconcertjes op vrijdag, met de districtsbeiaardier."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "19/9"
+           },
+           {
+            "content": "[\"https://www.oostnatie.org/onder-de-geel-kranen\" \"Doopfeest Boom van Borgerhout\" \"Doopfeest Boom van Borgerhout\"]"
+           },
+           {
+            "content": "Muziek, volkskeuken, circus en de Reuskens op Spoor Oost."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "19/9"
+           },
+           {
+            "content": "[\"https://hetakkoord.be/kalender/\" \"15 jaar fanfare 't Akkoord\" \"15 jaar fanfare 't Akkoord\"]"
+           },
+           {
+            "content": "Muziekparade door Borgerhout."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "20/9"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/borgerhout-bewaart/nieuws/district-borgerhout-luistert-naar-de-echo-s-van-erasmus\" \"Echo's van Erasmus\" \"Echo's van Erasmus\"]"
+           },
+           {
+            "content": "Slotfeest rond het erfgoed van het Erasmusziekenhuis."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "23/9"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/district-borgerhout/jeugd/zet-je-mening-niet-op-mute-praat-mee-op-de-jeugdraad-van-borgerhout\" \"Open Jeugdraad\" \"Open Jeugdraad\"]"
+           },
+           {
+            "content": "Zet je mening niet op mute."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "26/9"
+           },
+           {
+            "content": "[\"https://www.reuskens.be/projecten/reuzenstoet\" \"Reuzenstoet\" \"Reuzenstoet\"]"
+           },
+           {
+            "content": "Jaarlijkse verjaardagsparade van de Borgerhoutse Reuskens."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "8/10"
+           },
+           {
+            "content": "Praatcafé Dementie"
+           },
+           {
+            "content": "Aan de hand van De Verlieskoffer komen we tot een gesprek met elkaar."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "17/10"
+           },
+           {
+            "content": "[\"https://www.antwerpen.be/nl/overzicht/district-borgerhout/borgerbouwers/groeidagen-in-borgerhout-gratis-geveltuintjes-tegelwippen-win-een-groeistraat-en-meer\" \"Groeidag\" \"Groeidag\"]"
+           },
+           {
+            "content": "Vergroen mee je buurt."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "November"
+           },
+           {
+            "content": "Maand van de senior"
+           },
+           {
+            "content": "Een hele maand november vol optredens, workshops, film, sport, bewegen en nog veel meer op maat van 55-plussers."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "6, 7, 8 en 13/11"
+           },
+           {
+            "content": "[\"https://www.theatergarage.be/stan-ockers\" \"Stanneke\" \"Stanneke\"]"
+           },
+           {
+            "content": "Theatervoorstelling en expo over wielerlegende Stan Ockers."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "15/11"
+           },
+           {
+            "content": "Kunstendag voor kinderen"
+           },
+           {
+            "content": "Kunstendag voor kinderen."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "11-13/12"
+           },
+           {
+            "content": "Bohoho's warm winterfeest"
+           },
+           {
+            "content": "Cultuur en animatie in Borgerhoutse winkelstraten."
+           }
+          ]
+         },
+         {
+          "cols": [
+           {
+            "content": "20/12"
+           },
+           {
+            "content": "Jingle Jogging"
+           },
+           {
+            "content": "Warme winterloop in en rond het Te Boelaerpark."
+           }
+          ]
+         }
+        ]
+       }
+      }
+     }
+    ]
+   }
+  ],
+  "deurne": [
+   {
+    "id": "6a4f695bf4182bb5535706d9",
+    "slug": "seniorenklap-wandelen-ontmoeten-en-genieten-in-het-boekenbergpark",
+    "title": "Seniorenklap: wandelen, ontmoeten en genieten in het Boekenbergpark",
+    "publishedAt": "2026-09-21T22:00:00+00:00",
+    "publishUntil": "2026-09-30T20:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Ben je een Deurnse senior en heb je zin in een gezellige voormiddag in goed gezelschap? Dan ben je van harte welkom op woensdag 30 september op de &#39;Seniorenklap&#39; in het Boekenbergpark en de Unitas Tuinwijk, het ontmoetingsmoment voor Deurnse senioren. Op het programma staat een (gegidste) wandeling door het park en de Unitaswijk, een&nbsp;bezoek&nbsp;aan het Natuurhistorisch Museum&nbsp;en gezellig samen iets&nbsp;drinken.&nbsp;Tijdens deze editie staan ontmoeting, beweging en gezellig samenzijn centraal.</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<h3>Seniorenklap</h3><p>Op woensdag 30 september&nbsp;2026 vanaf 9.30 uur&nbsp;nodigt de seniorenraad van Deurne alle senioren uit voor een nieuw Seniorenklap, met een warm en gezellig ontmoetingsmoment in het Boekenbergpark en de Unitas Tuinwijk. &nbsp;</p><p>Maak kennis met andere Deurnse senioren, ontdek mooie plekjes in en rond de Unitaswijk en geniet van een ontspannen wandeling door het park. Onderweg is er volop gelegenheid voor een praatje, een ontmoeting en nieuwe contacten.</p><p>Seniorenklap is de ideale gelegenheid om andere senioren&nbsp;beter te leren kennen, ervaringen uit te wisselen en te praten over wat leeft onder senioren in Deurne.</p><p>Deelname aan Seniorenklap is gratis, maar inschrijven is verplicht.&nbsp;Schrijf je dus snel in en geniet samen met andere Deurnese senioren van een boeiende, gezellige en smakelijke voormiddag in het prachtige Boekenbergpark.</p><h3>Ontdek verborgen parels&nbsp;</h3><p>De wandeling voert je langs enkele bijzondere locaties in het Boekenbergpark. Zo passeer je onder meer het Natuurhistorisch Museum (&#39;t&nbsp;Grotteke), de Chinese pagode en de ecologische&nbsp;zwemvijver. Ook wandel je door de Unitas Tuinwijk waar ook infopunten zijn voorzien. Op verschillende plaatsen onderweg staan gidsen klaar om boeiende verhalen te vertellen over de geschiedenis van de buurt en de bezienswaardigheden die je onderweg tegenkomt.</p><p>Na de wandeling sluit je&nbsp;de voormiddag af in het Paviljoen, waar iedereen wordt getrakteerd op een drankje en een stuk gebak. Een ideaal moment om na te praten en elkaar beter te leren kennen.</p><h3>Praktisch</h3><p>Je start tussen 9.30 en 10 uur aan de ingang van het Boekenbergpark aan de Unitaslaan, recht tegenover de Heirmanstraat.&nbsp;Meld je aan bij het tentje van de seniorenraad Deurne. Daar ontvang je:</p><ul><li>een plannetje van de wandeling;</li><li>een toegangskaartje voor het Natuurhistorisch Museum;</li><li>een consumptiebon voor het Paviljoen.</li></ul><p>Daarna kan je de wandeling starten op je eigen tempo.</p><ul><li>Afstand: ongeveer 2 kilometer</li><li>Traject loopt deels over onverharde parkwegen</li><li>Toegang tot &#39;t Grotteke via enkele trappen</li><li>Niet volledig toegankelijk voor personen met een beperkte mobiliteit</li></ul>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<h3>Inschrijven</h3><p>Deelnemen is gratis, maar inschrijven is verplicht (t.e.m. 23/9).</p><ul><li>via het seniorenaanspreekpunt</li><li>via telefonisch (niet op vrijdag,&nbsp;niet van 17/7 t.e.m. 26/7 en van 3 t.e.m. 9/8)</li></ul><h3>Vlot bereikbaar</h3><p>Kom indien mogelijk te voet, met de fiets of het openbaar vervoer.</p><ul><li>Bus 19 &ndash; halte <span>Eksterlaar</span></li><li>Bus 20 &ndash; halte <span>Boekenberglei</span></li><li>Pendelbus P9 &ndash; halte Van den <span>Hautelei</span></li></ul><h3>Meer info&nbsp;</h3><p><strong>Seniorenklap in het <span>Boekenbergpark</span></strong><br />woensdag 30 september 2026<br />Vertrek wandeling tussen 9.30 en 10 uur&nbsp;<br />Ingang Boekenbergpark, Unitaslaan<br />Gratis, inschrijven is verplicht (t.e.m. 23/9)&nbsp;via het seniorenaanspreekpunt&nbsp;of&nbsp;telefonisch (niet op vrijdag, niet van 3 t.e.m. 9/8)</p><p><strong>Seniorenaanspreekpunt Deurne</strong><br />Districtshuis Deurne, Maurice Dequeeckerplein 1</p>"
+      }
+     }
+    ]
+   },
+   {
+    "id": "69ba7c8b3120e97a682db5c8",
+    "slug": "aziatische-hoornaars-wat-kan-je-doen",
+    "title": "Aziatische hoornaars: wat kan je doen?",
+    "publishedAt": "2026-05-01T06:00:00+00:00",
+    "publishUntil": "2026-11-01T00:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>De Aziatische hoornaar komt steeds vaker voor in Antwerpen. Deze invasieve wespensoort vormt een bedreiging voor onze biodiversiteit, honingbijen en fruitteelt. Daarom zet de stad in op bestrijding. Meld elk nest dat je ziet.</p>"
+      }
+     }
+    ]
+   }
+  ],
+  "hoboken": [
+   {
+    "id": "5daeb0c3f8412527a4787a4c",
+    "slug": "tournee-musicale-muziek-op-elke-hoek-van-de-straat",
+    "title": "Tournée Musicale: muziek op elke hoek van de straat",
+    "publishedAt": "2026-08-28T22:00:00+00:00",
+    "publishUntil": "2026-10-09T22:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Tijdens de 11e&nbsp;editie van Tourn&eacute;e Musicale, een muzikale kroegentocht, klinkt livemuziek in tal van caf&eacute;s en cultuurplekken in het centrum.&nbsp;</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Trek langs caf&eacute;s en culturele hotspots en laat je verrassen door een uitgebreid aanbod aan livemuziek. Van pop, rock en jazz tot soul, blues en Latijnse ritmes: elke locatie heeft haar eigen sfeer en geluid. Stippel je eigen route uit en laat je een hele avond meevoeren door muzikaal talent van eigen bodem.</p><p><a target=\"_self\" href=\"https://gravenhof.antwerpen.be/tournee-musicale-1\">Meer over&nbsp;Tourn&eacute;e Musicale hier</a>.</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<h3>Meer info</h3><p><strong>Tourn&eacute;e Musicale</strong></p><ul><li>Vrijdag 9&nbsp;oktober&nbsp;vanaf 19&nbsp;uur</li><li>Diverse locaties</li><li>Gratis</li><li>Haal vanaf september je kaart op in het Gravenhof, Louisalei 7</li></ul>"
+      }
+     }
+    ]
+   }
+  ],
+  "berendrecht-zandvliet-lillo": [
+   {
+    "id": "63357141fca03f428619a8cc",
+    "slug": "nationale-sluitingsprijs-komt-door-berendrecht",
+    "title": "Nationale Sluitingsprijs komt door Berendrecht",
+    "publishedAt": "2026-09-24T09:00:00+00:00",
+    "publishUntil": "2026-10-13T16:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>De laatste wielerwedstrijd van het seizoen is steevast de&nbsp;Nationale Sluitingsprijs&nbsp;Putte-Kapellen. Supporters kunnen de wielrenners ook in ons district aanmoedigen.&nbsp;</p><p>Het parcours dat door Berendrecht komt loopt als&nbsp;volgt:&nbsp;vanuit Stabroek (Abtsdreef) - Monnikenhofstraat - Solftplaats &ndash; Dorpstraat - Zandvlietsesteenweg&nbsp;- Zoutestraat - Sint-Jan Baptiststraat - Dorpstraat - Solftplaats - Oude Papenstraat - Schouwvegerstraat&nbsp;- Antwerpsebaan - Oudbroeksestraat&nbsp;en verder richting Stabroek. In de betrokken straten mag niet geparkeerd worden. De straten worden op het parcours wel verkeersvrij gemaakt, maar niet afgesloten. Het verkeer mag met de richting van de koers mee rijden.</p><h3>Omleiding - De Lijn</h3><p><strong>De bussen van de Lijn zullen Berendrecht vanaf 10 tot 17 uur niet bedienen! </strong></p><p>Zowel vanuit Zandvliet als vanuit Antwerpen zal De Lijn rijden&nbsp;via de Zandvlietsteenweg - Zandweg - Steenovenstraat - oprit A12.</p><p>Meer info over omleidingen van De Lijn, kan je&nbsp;steeds terugvinden via:</p><ul><li>de app van De Lijn</li><li>de <a target=\"_self\" href=\"https://www.delijn.be/nl/\">website</a> van De Lijn</li><li>aan de halte<ul><li>Scan de affiches met QR-codes die aan de haltes hangen.&nbsp;</li><li>Raadpleeg de HALTE-pagina&#39;s voor gedetailleerde informatie over je specifieke bushalte.</li></ul></li></ul><h3>Meer info</h3><p><strong>Nationale Sluitingsprijs Putte-Kapellen</strong><br />dinsdag 13&nbsp;oktober&nbsp;<br /><a target=\"_self\" href=\"https://www.schaalsels.be/nationale-sluitingsprijs/sp-parcours--mobiliteit\">https://www.schaalsels.be/nationale-sluitingsprijs/sp-parcours--mobiliteit</a><br />&nbsp;</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Op dinsdag 13&nbsp;oktober starten de renners om 12 uur&nbsp;volgens traditie in de Ertbrandstraat in Putte. Na 10,7 km&nbsp;wordt de offici&euml;le start gegeven aan de Solftplaats&nbsp;(caf&eacute; Nelekes)&nbsp;in Berendrecht (+/- 12.10 uur).&nbsp;&nbsp;De wedstrijd telt in totaal 7 rondes van 20,10 km door Putte, Kapellen, Woensdrecht, Berendrecht en Stabroek.</p>"
+      }
+     }
+    ]
+   },
+   {
+    "id": "678e44c941c6b4d3f152fc10",
+    "slug": "werken-omgeving-zandvliet-berendrechtsluis",
+    "title": "Werken omgeving Zandvliet-Berendrechtsluis",
+    "publishedAt": "2026-09-21T09:00:00+00:00",
+    "publishUntil": "2026-10-16T16:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Op 3 oktober starten er werken aan de weg en het spoor aan beide zijden van de Zandvlietbrug. De werken duren tot 15 oktober.</p>"
+      }
+     }
+    ]
+   },
+   {
+    "id": "69ba7c8b3120e97a682db5c8",
+    "slug": "aziatische-hoornaars-wat-kan-je-doen",
+    "title": "Aziatische hoornaars: wat kan je doen?",
+    "publishedAt": "2026-05-01T06:00:00+00:00",
+    "publishUntil": "2026-11-01T00:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>De Aziatische hoornaar komt steeds vaker voor in Antwerpen. Deze invasieve wespensoort vormt een bedreiging voor onze biodiversiteit, honingbijen en fruitteelt. Daarom zet de stad in op bestrijding. Meld elk nest dat je ziet.</p>"
+      }
+     }
+    ]
+   }
+  ],
+  "merksem": [
+   {
+    "id": "6a97c90144947476b56a9e02",
+    "slug": "plezier-verzekerd-op-de-fun-games",
+    "title": "Plezier verzekerd op de Fun Games",
+    "publishedAt": "2026-09-01T22:00:00+00:00",
+    "publishUntil": "2026-11-18T16:00:00+00:00",
+    "snippets": [
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Klaar voor actie en creativiteit in de herfstvakantie? Tijdens de Fun Games beleven kinderen van 8 tot 13&nbsp;jaar een gratis namiddag vol speel-&nbsp;en sportplezier in sporthal De Rode Loop.</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<p>Op de Fun Games valt er heel wat&nbsp;te beleven. Het Merksemse Junior Team trakteert kinderen op een gratis namiddag boordevol creatieve uitdagingen, wedstrijden en sportieve spelletjes. Je vervelen is geen optie!</p><p>Benieuwd welke sporten en spellen je kan ontdekken? Het volledige programma wordt hier binnenkort bekend gemaakt. Hou deze pagina dus in de gaten en kom later nog eens kijken.</p>"
+      }
+     },
+     {
+      "type": "wysiwyg",
+      "body": {
+       "text": "<h3>Praktisch</h3><ul><li>woensdag 18 november 2026</li><li>van 13 tot 16 uur</li><li>voor kinderen van 8 tot 13 jaar</li><li>gratis, zonder inschrijving vooraf</li></ul>"
+      }
+     }
+    ]
+   }
+  ]
+ }
+}

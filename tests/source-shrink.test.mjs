@@ -53,6 +53,8 @@ function makeRoot() {
 
 const read = (root, sourceId) => JSON.parse(fs.readFileSync(path.join(root, "site", "sources", `${sourceId}.json`), "utf8"));
 const quiet = () => {};
+// De districtskanalen pauzeren 3 s tussen verzoeken; in een toets hoeft dat niet.
+const noSleep = async () => {};
 
 test("suspiciousDrop: 0 na >0, of meer dan de helft minder vanaf 4; voorbije items tellen niet", () => {
   const item = (date, endDate = null) => ({ date, endDate });
@@ -74,7 +76,7 @@ test("gewijzigde districtspagina en leeg nieuwskanaal: error, vorige data blijft
   assert.ok(kalenderBefore.items.length >= 13 && nieuwsBefore.items.length >= 1, "vertrekpunt heeft data");
 
   const logs = [];
-  const status = await refreshAll({ rootDir: root, clock, env: {}, fetch: routes({ page: changedPage(), news: { data: [] } }), log: (line) => logs.push(line) });
+  const status = await refreshAll({ rootDir: root, clock, env: {}, sleep: noSleep, fetch: routes({ page: changedPage(), news: { data: [] } }), log: (line) => logs.push(line) });
   const bySource = Object.fromEntries(status.sources.map((entry) => [entry.sourceId, entry]));
   assert.deepEqual([bySource["district-kalender"].fetchStatus, bySource["district-kalender"].errorCode], ["error", "suspicious_drop"]);
   assert.deepEqual([bySource["district-nieuws"].fetchStatus, bySource["district-nieuws"].errorCode], ["error", "no_articles"]);
@@ -103,7 +105,7 @@ test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_dr
     publishUntil: "2026-12-01T22:00:00+00:00",
     snippets: [{ type: "wysiwyg", body: { text: NEW_MARKUP } }],
   };
-  const status = await refreshAll({ rootDir: root, clock, env: {}, fetch: routes({ news: { data: [article] } }), log: quiet });
+  const status = await refreshAll({ rootDir: root, clock, env: {}, sleep: noSleep, fetch: routes({ news: { data: [article] } }), log: quiet });
   const entry = status.sources.find((candidate) => candidate.sourceId === "district-nieuws");
   assert.deepEqual([entry.fetchStatus, entry.errorCode], ["error", "suspicious_drop"]);
   assert.deepEqual(read(root, "district-nieuws").items, nieuwsBefore.items);
@@ -113,14 +115,14 @@ test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_dr
 
 test("AGENDA_ALLOW_DROP laat een bewuste daling door; voorbije items tellen nooit als krimp", async () => {
   const allowed = makeRoot();
-  const status = await refreshAll({ rootDir: allowed, clock, env: { AGENDA_ALLOW_DROP: "district-kalender" }, fetch: routes({ page: changedPage(), news: { data: [] } }), log: quiet });
+  const status = await refreshAll({ rootDir: allowed, clock, sleep: noSleep, env: { AGENDA_ALLOW_DROP: "district-kalender" }, fetch: routes({ page: changedPage(), news: { data: [] } }), log: quiet });
   const entry = status.sources.find((candidate) => candidate.sourceId === "district-kalender");
   assert.deepEqual([entry.fetchStatus, entry.itemCount], ["ok", 0]);
 
   // Drie maanden later is alles van nu voorbij: een lege pagina is dan geen storing.
   const later = makeRoot();
   const laterClock = () => new Date("2027-01-15T06:00:00Z");
-  const laterStatus = await refreshAll({ rootDir: later, clock: laterClock, env: {}, fetch: routes({ page: changedPage() }), log: quiet });
+  const laterStatus = await refreshAll({ rootDir: later, clock: laterClock, env: {}, sleep: noSleep, fetch: routes({ page: changedPage() }), log: quiet });
   assert.equal(laterStatus.sources.find((candidate) => candidate.sourceId === "district-kalender").fetchStatus, "ok");
 });
 
