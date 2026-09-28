@@ -49,6 +49,7 @@
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/works-live.css" />
     <link rel="stylesheet" href="/public-space-live.css" />
+    <link rel="stylesheet" href="/street-overview.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
@@ -82,6 +83,17 @@
         </div>
       </section>
 
+      <section id="street-overview" class="street-overview" aria-label="Alles per straat">
+        <div class="street-overview-header">
+          <div><span class="street-kicker">Per straat</span><h2>Alles wat er in een straat speelt</h2><p>Werken, hinder, parkeerverboden, innames, omleidingen, markten en activiteiten gebundeld op de officiële Antwerpse straatnaam.</p></div>
+          <div class="street-summary" data-street-summary>Straatinformatie laden…</div>
+        </div>
+        <div class="street-controls"><input type="search" data-street-search placeholder="Zoek een straat of item" aria-label="Zoek in straatfiches" /></div>
+        <p class="street-note" data-street-note>Officiële straatas wordt geladen…</p>
+        <div class="street-list" data-street-list></div>
+        <button type="button" class="street-more" data-street-more hidden>Toon meer straten</button>
+      </section>
+
       <section id="works-live" class="works-live" aria-label="Actuele werken en hinder">
         <div class="works-live-header"><div><span class="works-live-kicker">Werken en hinder</span><h2>Actuele en geplande werken in district Antwerpen</h2><p>Live uit GIPOD, met controle tegen de officiële districtsgrens.</p></div><div class="works-live-summary"><strong data-works-count>Werken laden…</strong><small data-works-meta></small></div></div>
         <p class="works-live-note" data-works-note>De live werkenlaag wordt geladen zodra dit deel van de pagina in beeld komt.</p>
@@ -102,6 +114,7 @@
     <script type="module" src="/works-live.js"></script>
     <script type="module" src="/public-space-live.js"></script>
     <script src="/agenda-feed.js"></script>
+    <script type="module" src="/street-overview.js"></script>
     <script src="/agenda-refresh.js"></script>
     <script src="/agenda-ics.js"></script>
     <script src="/agenda.js"></script>
