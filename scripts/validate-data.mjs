@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
+import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -50,6 +51,17 @@ if (!fs.existsSync(sourcesDir)) {
     summary[sourceId] = { fetchStatus: json.fetchStatus, items: Array.isArray(json.items) ? json.items.length : 0 };
   }
   for (const sourceId of SOURCE_IDS) if (!summary[sourceId]) problems.push(`${sourceId}.json ontbreekt`);
+}
+
+const historyFile = path.join(rootDir, LIVE_HISTORY_FILE);
+if (fs.existsSync(historyFile)) {
+  try {
+    const history = JSON.parse(fs.readFileSync(historyFile, "utf8"));
+    for (const error of validateLiveHistory(history)) problems.push(`${LIVE_HISTORY_FILE}: ${error}`);
+    for (const finding of privacyFindings(history)) problems.push(`${LIVE_HISTORY_FILE}: privacy ${finding.code} op ${finding.path}`);
+  } catch {
+    problems.push(`${LIVE_HISTORY_FILE}: geen geldige JSON`);
+  }
 }
 
 for (const problem of problems) console.error(problem);

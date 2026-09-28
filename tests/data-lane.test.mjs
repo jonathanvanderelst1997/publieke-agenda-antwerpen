@@ -11,6 +11,7 @@ const allowed = (lines) => checkDataLane(lines, spec).length === 0;
 
 const POSITIVES = [
   "site/sources/x.json",
+  "site/history/live-layers.json",
   "site/agenda-feed.js",
   "site/event/a-b/index.html",
   "audit/provenance-source-diff-latest.json",
@@ -26,6 +27,7 @@ const NEGATIVES = [
   "site/agenda-refresh.js",
   "site/works-snapshot.js",
   "site/sources/x.json.js",
+  "site/history/other.json",
   "lib/data-lane-paths.json",
   "package.json",
   ".github/workflows/ci.yml",
@@ -37,7 +39,7 @@ const NEGATIVES = [
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 8);
+  assert.equal(spec.allowed.length, 9);
   assert.deepEqual(spec.deletableUnder, ["site/event/"]);
   for (const pattern of spec.allowed) {
     assert.ok(pattern.startsWith("^") && pattern.endsWith("$"), pattern);

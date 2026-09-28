@@ -1,0 +1,119 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  compactPublicSpaceItem,
+  compactWorkItem,
+  updateLiveHistory,
+  validateLiveHistory,
+} from "../lib/live-history.mjs";
+
+const T1 = "2026-09-28T06:00:00.000Z";
+const T2 = "2026-09-29T06:00:00.000Z";
+
+const work = (overrides = {}) => ({
+  gipodId: 123,
+  title: "Testwerk",
+  status: "Concreet gepland",
+  start: "2026-10-01T06:00:00Z",
+  end: "2026-10-02T18:00:00Z",
+  owner: "Stad Antwerpen",
+  ownerGroup: "Stad Antwerpen",
+  boundaryConfidence: "exact_snapshot",
+  workTypes: ["Nutswerk"],
+  occupancyTypes: ["Werkzone"],
+  hindrance: null,
+  ...overrides,
+});
+
+const space = (overrides = {}) => ({
+  id: "parking:D1|L1",
+  kind: "parking",
+  kindLabel: "Parkeerverbod",
+  title: "Werfsignalisatie",
+  location: "Teststraat 1",
+  start: "2026-10-01T06:00:00Z",
+  end: "2026-10-02T18:00:00Z",
+  status: "Goedgekeurd",
+  reference: "D1",
+  detail: "",
+  ...overrides,
+});
+
+test("eerste run is alleen baseline, niet duizenden added-events", () => {
+  const history = updateLiveHistory(null, {
+    observedAt: T1,
+    worksResult: { ok: true, items: [work()] },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  assert.equal(history.layers.works.count, 1);
+  assert.equal(history.layers.publicSpace.count, 1);
+  assert.deepEqual(history.changes, []);
+  assert.deepEqual(validateLiveHistory(history), []);
+});
+
+test("volgende run bewaart added, removed en changed", () => {
+  const baseline = updateLiveHistory(null, {
+    observedAt: T1,
+    worksResult: { ok: true, items: [work(), work({ gipodId: 999, title: "Verdwijnt" })] },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  const next = updateLiveHistory(baseline, {
+    observedAt: T2,
+    worksResult: {
+      ok: true,
+      items: [
+        work({ status: "In uitvoering", hindrance: { severe: true, consequences: ["Parkeerverbod"], start: T2, end: "2026-10-02T18:00:00Z" } }),
+        work({ gipodId: 456, title: "Nieuw werk" }),
+      ],
+    },
+    publicSpaceResult: { ok: true, items: [space(), space({ id: "sgw:R1|F1", kind: "sgw", kindLabel: "Werfzone", reference: "R1" })] },
+  });
+  const today = next.changes.filter((entry) => entry.observedAt === T2);
+  assert.ok(today.some((entry) => entry.layer === "works" && entry.id === "work:123" && entry.type === "changed" && entry.fields.includes("status")));
+  assert.ok(today.some((entry) => entry.layer === "works" && entry.id === "work:999" && entry.type === "removed"));
+  assert.ok(today.some((entry) => entry.layer === "works" && entry.id === "work:456" && entry.type === "added"));
+  assert.ok(today.some((entry) => entry.layer === "publicSpace" && entry.id === "sgw:R1|F1" && entry.type === "added"));
+  assert.deepEqual(validateLiveHistory(next), []);
+});
+
+test("bronfout maakt vorige laag stale en veroorzaakt geen verwijderingen", () => {
+  const baseline = updateLiveHistory(null, {
+    observedAt: T1,
+    worksResult: { ok: true, items: [work()] },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  const next = updateLiveHistory(baseline, {
+    observedAt: T2,
+    worksResult: { ok: false, errorCode: "http_503" },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  assert.equal(next.layers.works.status, "stale");
+  assert.equal(next.layers.works.count, 1);
+  assert.equal(next.layers.works.errorCode, "http_503");
+  assert.equal(next.changes.filter((entry) => entry.observedAt === T2 && entry.layer === "works").length, 0);
+  assert.deepEqual(validateLiveHistory(next), []);
+});
+
+test("compacte records nemen geen broncontacten of geometrie over", () => {
+  const w = compactWorkItem(work({ secret: "niet meenemen", point: [4.4, 51.2] }));
+  const p = compactPublicSpaceItem(space({ applicant: "niet meenemen", geometry: { x: 1, y: 2 } }));
+  assert.equal("secret" in w, false);
+  assert.equal("point" in w, false);
+  assert.equal("applicant" in p, false);
+  assert.equal("geometry" in p, false);
+});
+
+test("validator weigert dubbele ids en foutieve digest", () => {
+  const history = updateLiveHistory(null, {
+    observedAt: T1,
+    worksResult: { ok: true, items: [work()] },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  history.layers.works.items.push(history.layers.works.items[0]);
+  history.layers.works.count = 2;
+  history.layers.works.digest = "0".repeat(64);
+  const errors = validateLiveHistory(history);
+  assert.ok(errors.some((error) => error.includes("dubbele id")));
+  assert.ok(errors.some((error) => error.includes("digest wijkt af")));
+});
