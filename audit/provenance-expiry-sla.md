@@ -1,11 +1,11 @@
 # Bronprovenance- en verval-SLA-matrix
 
-Status: lokale audit, niet gepubliceerd. Classificatie op 2026-09-16; geverifieerde bronsnapshot 2026-09-16T12:46:42Z.
+Status: lokale audit, niet gepubliceerd. Classificatie op 2026-09-28; geverifieerde bronsnapshot 2026-09-28T11:36:33.870Z.
 
-- Bronitems: 133
-- Fail-closed lokale kandidaat: 8
-- Classificaties: current=3, expired=109, future=5, review_required=16
-- SLA-statussen: blocked_review_required=16, expired_not_public=109, fresh_verified=8
+- Bronitems: 150
+- Fail-closed lokale kandidaat: 13
+- Classificaties: current=1, expired=117, future=12, review_required=20
+- SLA-statussen: blocked_review_required=16, expired_not_public=117, fresh_verified=13, stale_blocked=4
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -15,11 +15,11 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 2 | strip-en-boekenplein-2026-06-21 | 2026-06-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
 | 3 | theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-06-21-7c67995 | 2026-06-21 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
 | 4 | lambermontmartre-2026-06-28 | 2026-06-28 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
-| 5 | fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29 | 2026-06-29 | current | city-works-permit | verified | 2 | 2026-09-18 | fresh_verified | ja |
+| 5 | fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29 | 2026-06-29 | review_required | city-works-permit | verified | 2 | 2026-09-18 | stale_blocked | nee |
 | 6 | kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29 | 2026-06-29 | expired | slim-kammenstraat | verified | - | - | expired_not_public | nee |
 | 7 | nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29 | 2026-06-29 | review_required | city-gaston-works | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 8 | werken-halenstraat-en-schijnpoortweg-2026-06-29 | 2026-06-29 | current | city-works-permit | verified | 2 | 2026-09-18 | fresh_verified | ja |
-| 9 | heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03 | 2026-08-03 | current | city-osystraat-works | verified | 2 | 2026-09-18 | fresh_verified | ja |
+| 8 | werken-halenstraat-en-schijnpoortweg-2026-06-29 | 2026-06-29 | review_required | city-works-permit | verified | 2 | 2026-09-18 | stale_blocked | nee |
+| 9 | heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03 | 2026-08-03 | review_required | city-osystraat-works | verified | 2 | 2026-09-18 | stale_blocked | nee |
 | 10 | antwerpen-danst-2026-06-30-2026-06-30-bcd0d383 | 2026-06-30 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
 | 11 | yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
 | 12 | zomer-mee-in-harmoniepark-2026-07-01 | 2026-07-01 | expired | historical-stored-source | date_elapsed_only | - | - | expired_not_public | nee |
@@ -135,12 +135,29 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 122 | eilandje-in-beweging-2026-08-30 | 2026-08-30 | expired | district-summer-roundup | verified | - | - | expired_not_public | nee |
 | 123 | red-star-run-2026-08-30 | 2026-08-30 | expired | district-summer-roundup | verified | - | - | expired_not_public | nee |
 | 124 | bal-van-de-bevrijding-2026-09-04 | 2026-09-04 | expired | city-bal-bevrijding | verified | - | - | expired_not_public | nee |
-| 125 | inschrijven-herfstklaar-zonder-materiaal-2026-09-25 | 2026-09-25 | future | city-herfstklaar | verified | 3 | 2026-09-19 | fresh_verified | ja |
+| 125 | inschrijven-herfstklaar-zonder-materiaal-2026-09-25 | 2026-09-25 | expired | city-herfstklaar | verified | - | - | expired_not_public | nee |
 | 126 | gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2 | 2026-09-06 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 127 | reanimatielessen-2026-09-10 | 2026-09-10 | expired | antwerpen-redt | verified | - | - | expired_not_public | nee |
 | 128 | gratis-initiaties-boogschieten-2026-07-05-2026-09-13-4f9a4386 | 2026-09-13 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 129 | poetische-rimpelingen-2026-06-29-2026-09-19-64e62867 | 2026-09-19 | future | citaat-op-straat | verified | 3 | 2026-09-19 | fresh_verified | ja |
-| 130 | beweegdag-55-2026-09-19 | 2026-09-19 | future | city-beweegdag | verified | 3 | 2026-09-19 | fresh_verified | ja |
+| 129 | poetische-rimpelingen-2026-06-29-2026-09-19-64e62867 | 2026-09-19 | expired | citaat-op-straat | verified | - | - | expired_not_public | nee |
+| 130 | beweegdag-55-2026-09-19 | 2026-09-19 | expired | city-beweegdag | verified | - | - | expired_not_public | nee |
 | 131 | gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387 | 2026-09-20 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 132 | lambermontmartre-2026-09-27 | 2026-09-27 | future | city-district-calendar | verified | 3 | 2026-09-19 | fresh_verified | ja |
-| 133 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | future | citaat-op-straat | verified | 7 | 2026-09-23 | fresh_verified | ja |
+| 132 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 3 | 2026-09-19 | stale_blocked | nee |
+| 133 | district-kal-6a746a7ff4182b8edf63a75e-2026-09-03 | 2026-09-03 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 134 | district-kal-6a746a7ff4182b8edf63a766-2026-09-09 | 2026-09-09 | current | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 135 | district-kal-6a746a7ff4182b8edf63a772-2026-09-22 | 2026-09-22 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 136 | district-kal-6a746a7ff4182b8edf63a774-2026-09-25 | 2026-09-25 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 137 | district-kal-6a04d45c9fb3aa7ae4213cab-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 138 | district-kal-6a746a7ff4182b8edf63a764-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 139 | district-kal-6a746a7ff4182b8edf63a776-2026-10-04 | 2026-10-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 140 | district-news-547d6be7cca8a798038b457f-2026-10-07 | 2026-10-07 | future | district-nieuws | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 141 | district-kal-6a746a7ff4182b8edf63a777-2026-10-10 | 2026-10-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 142 | district-kal-6a746a7ff4182b8edf63a779-2026-10-18 | 2026-10-18 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 143 | district-kal-6a746a7ff4182b8edf63a774-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 144 | district-kal-6a746a7ff4182b8edf63a76b-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 145 | district-kal-6a746a7ff4182b8edf63a77b-2026-10-31 | 2026-10-31 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 146 | district-kal-6a746a7ff4182b8edf63a77d-2026-11-04 | 2026-11-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 147 | district-kal-6a746a7ff4182b8edf63a77e-2026-11-10 | 2026-11-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 148 | district-kal-6a746a7ff4182b8edf63a76b-2026-11-20 | 2026-11-20 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 149 | district-kal-6a746a7ff4182b8edf63a780-2026-11-26 | 2026-11-26 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
+| 150 | district-kal-6a746a7ff4182b8edf63a774-2026-11-27 | 2026-11-27 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |

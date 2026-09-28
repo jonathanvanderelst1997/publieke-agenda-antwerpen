@@ -14,7 +14,7 @@ function digest(value) {
 
 function snapshotRow(item, engine) {
   const source = engine.config.sources[item.sourceId] ?? null;
-  const canonicalSourceUrl = source?.url ?? item.link ?? "";
+  const canonicalSourceUrl = item.feed ? item.link ?? "" : source?.url ?? item.link ?? "";
   return {
     id: item.id,
     title: item.title,
@@ -25,7 +25,7 @@ function snapshotRow(item, engine) {
     sourcePublisher: item.sourcePublisher,
     canonicalSourceUrl,
     sourceHost: canonicalSourceUrl ? new URL(canonicalSourceUrl).hostname : null,
-    sourceRetrievedAt: source?.retrievedAt ?? null,
+    sourceRetrievedAt: source ? item.retrievedAt ?? source.retrievedAt ?? null : null,
     verificationState: item.verificationState,
   };
 }
