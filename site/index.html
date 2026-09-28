@@ -46,7 +46,8 @@
       }
     </script>
     <title>Mijn publieke agenda voor District Antwerpen</title>
-    <link rel="stylesheet" href="/styles.css" />\n    <link rel="stylesheet" href="/works-live.css" />
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/works-live.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
@@ -67,10 +68,17 @@
       </header>
 
       <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
+      <div id="agenda-source-status" class="agenda-source-status" aria-label="Versheid per bron" hidden></div>
 
       <section class="agenda-controls" aria-label="Agenda filteren">
-        <div class="agenda-controls-title">Thema's</div>
-        <div id="theme-controls" class="theme-controls"></div>
+        <div class="agenda-controls-group">
+          <div class="agenda-controls-title">Thema's</div>
+          <div id="theme-controls" class="theme-controls"></div>
+        </div>
+        <div class="agenda-controls-group">
+          <div class="agenda-controls-title">District en stad</div>
+          <div id="scope-controls" class="theme-controls scope-controls" role="group" aria-label="District Antwerpen of Stad Antwerpen"></div>
+        </div>
       </section>
 
       <section id="works-live" class="works-live" aria-label="Actuele werken en hinder">
@@ -83,7 +91,9 @@
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
-    <script type="module" src="/works-live.js"></script>\n    <script src="/agenda-refresh.js"></script>
+    <script type="module" src="/works-live.js"></script>
+    <script src="/agenda-feed.js"></script>
+    <script src="/agenda-refresh.js"></script>
     <script src="/agenda-ics.js"></script>
     <script src="/agenda.js"></script>
   </body>

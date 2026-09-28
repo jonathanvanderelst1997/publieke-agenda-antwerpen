@@ -1,0 +1,81 @@
+{
+ "source": "geodata.antwerpen.be P_Portal/portal_publiek9/MapServer/905 (wegenregister_straatas_postzone), distinct postcode+DISTRICT, opgehaald 2026-09-28",
+ "district_antwerpen": [
+  "2000",
+  "2018",
+  "2020",
+  "2030",
+  "2050",
+  "2060"
+ ],
+ "rest_van_de_stad": {
+  "2040": "Berendrecht-Zandvliet-Lillo",
+  "2100": "Deurne",
+  "2140": "Borgerhout",
+  "2150": "Borsbeek",
+  "2170": "Merksem",
+  "2180": "Ekeren",
+  "2600": "Berchem",
+  "2610": "Wilrijk",
+  "2660": "Hoboken"
+ },
+ "uit_regions": [
+  {
+   "name": "Provincie Antwerpen",
+   "key": "nis-10000"
+  },
+  {
+   "name": "Regio Antwerpen",
+   "key": "reg-antwerpen"
+  },
+  {
+   "name": "Antwerpen + deelgemeenten",
+   "key": "nis-11002"
+  },
+  {
+   "name": "Antwerpen (Antwerpen)",
+   "key": "nis-11002-Z"
+  },
+  {
+   "name": "Berendrecht-Zandvliet-Lillo (Antwerpen)",
+   "key": "nis-11002-Y"
+  },
+  {
+   "name": "Ekeren (Antwerpen)",
+   "key": "nis-11002P"
+  },
+  {
+   "name": "Merksem (Antwerpen)",
+   "key": "nis-11002Q"
+  },
+  {
+   "name": "Deurne (Antwerpen)",
+   "key": "nis-11002R"
+  },
+  {
+   "name": "Berchem (Antwerpen)",
+   "key": "nis-11002T"
+  },
+  {
+   "name": "Borgerhout (Antwerpen)",
+   "key": "nis-11002S"
+  },
+  {
+   "name": "Wilrijk (Antwerpen)",
+   "key": "nis-11002U"
+  },
+  {
+   "name": "Hoboken (Antwerpen)",
+   "key": "nis-11002V"
+  },
+  {
+   "name": "Borsbeek (Antwerpen)",
+   "key": "nis-11007A"
+  }
+ ],
+ "district_boundary": {
+  "layer": "geodata.antwerpen.be P_Portal/portal_publiek2/MapServer/109 (districtnaam ANTWERPEN)",
+  "already_used_in": "site/works-live.js district() + site/works-core.js pointInGeometry()",
+  "committed_as": "lib/district-antwerpen-grens.geojson"
+ }
+}

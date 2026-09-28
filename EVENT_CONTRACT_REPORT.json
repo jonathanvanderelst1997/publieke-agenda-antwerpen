@@ -1,10 +1,10 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 133,
+    "events": 150,
     "errors": 0,
-    "warnings": 16,
-    "unconfirmedStart": 16
+    "warnings": 18,
+    "unconfirmedStart": 18
   },
   "errors": [],
   "warnings": [
@@ -87,6 +87,16 @@
       "code": "unconfirmed_start",
       "index": 126,
       "id": "reanimatielessen-2026-09-10"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 132,
+      "id": "district-kal-6a746a7ff4182b8edf63a75e-2026-09-03"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 133,
+      "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09"
     }
   ]
 }

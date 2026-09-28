@@ -9,15 +9,19 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const items = loadExpandedAgendaItems(rootDir);
 const engine = loadRefreshEngine(rootDir);
 const result = engine.reconcileAgendaItems(items, engine.config.classificationAsOf);
+const pageItems = result.publicItems.filter((item) => !item.noEventPage);
 const digestInput = result.publicItems.map((item) => ({
   id: item.id,
   title: item.title,
   theme: item.theme,
   date: item.date,
+  endDate: item.endDate ?? null,
   timeText: item.timeText,
   location: item.location,
   sourceId: item.sourceId,
   link: item.link,
+  scope: item.scope,
+  sources: Array.isArray(item.sources) ? item.sources.map((source) => `${source.sourceId}|${source.url}`) : [`${item.sourceId}|${item.link}`],
 }));
 const digest = crypto.createHash("sha256").update(JSON.stringify(digestInput)).digest("hex");
 const siteDir = path.join(rootDir, "site");
@@ -36,6 +40,38 @@ function jsonForHtml(value) {
   return JSON.stringify(value).replaceAll("<", "\\u003c");
 }
 
+const DISTRICT_ATTRIBUTION = "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)";
+
+function safeHttps(value) {
+  return /^https:\/\/[^\s"'<>]+$/i.test(String(value ?? "")) ? String(value) : "";
+}
+
+function sourceLinks(item) {
+  const links = [];
+  const seen = new Set();
+  const add = (url, label) => {
+    const href = safeHttps(url);
+    if (!href || seen.has(href)) return;
+    seen.add(href);
+    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a></li>`);
+  };
+  if (Array.isArray(item.sources) && item.sources.length) {
+    for (const source of item.sources) {
+      add(source.url, source.sourceId === "stad-uit" ? "Bron: uitinvlaanderen.be" : engine.config.sources[source.sourceId]?.label ?? "Officiële bron");
+    }
+  } else {
+    add(item.link, "Officiële bron");
+  }
+  add(item.infoUrl, "Meer info bij de organisator");
+  return links.join("\n            ");
+}
+
+function attributionFor(item) {
+  const primary = engine.config.sources[item.sourceId];
+  if (item.scope === "district") return DISTRICT_ATTRIBUTION;
+  return primary?.attribution?.text ?? `Bron: ${primary?.publisher ?? "officiële publieke bron"}`;
+}
+
 function buildEventRedirectPage(item) {
   const destination = `/?event=${encodeURIComponent(item.id)}`;
   const canonical = `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(item.id)}/`;
@@ -51,6 +87,7 @@ function buildEventRedirectPage(item) {
     name: item.title,
     startDate: item.date,
     description: item.info || undefined,
+    endDate: item.endDate || undefined,
     location: item.location ? { "@type": "Place", name: item.location } : undefined,
     url: canonical,
     inLanguage: "nl-BE",
@@ -90,8 +127,11 @@ function buildEventRedirectPage(item) {
         </dl>
         <div class="event-actions">
           <a href="${destination}">Bekijk in de volledige agenda</a>
-          ${item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
         </div>
+        <ul class="event-sources" aria-label="Bronnen">
+            ${sourceLinks(item)}
+        </ul>
+        <p class="event-attribution">${escapeHtml(attributionFor(item))}</p>
       </article>
     </main>
   </body>
@@ -99,14 +139,25 @@ function buildEventRedirectPage(item) {
 `;
 }
 
-fs.rmSync(eventPagesDir, { recursive: true, force: true });
-for (const item of result.publicItems) {
+// Eén statische pagina per publiek item met eigen eventpagina; mappen van items die niet meer
+// publiek zijn (verlopen, verouderd of vervangen) worden in vaste volgorde verwijderd.
+const pageIds = new Set();
+for (const item of pageItems) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id)) {
     throw new Error(`Onveilige event-ID voor statische route: ${item.id}`);
   }
+  pageIds.add(item.id);
+}
+fs.mkdirSync(eventPagesDir, { recursive: true });
+for (const entry of fs.readdirSync(eventPagesDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+  if (!entry.isDirectory() || !pageIds.has(entry.name)) fs.rmSync(path.join(eventPagesDir, entry.name), { recursive: true, force: true });
+}
+for (const item of [...pageItems].sort((a, b) => a.id.localeCompare(b.id))) {
   const itemDir = path.join(eventPagesDir, item.id);
   fs.mkdirSync(itemDir, { recursive: true });
-  fs.writeFileSync(path.join(itemDir, "index.html"), buildEventRedirectPage(item), "utf8");
+  const file = path.join(itemDir, "index.html");
+  const page = buildEventRedirectPage(item);
+  if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== page) fs.writeFileSync(file, page, "utf8");
 }
 
 const manifest = {
@@ -116,8 +167,21 @@ const manifest = {
   classificationAsOf: engine.config.classificationAsOf,
   sourceCount: items.length,
   count: result.publicItems.length,
-  eventPageCount: result.publicItems.length,
+  eventPageCount: pageItems.length,
   classifications: result.counts,
+  scopeCounts: {
+    district: result.publicItems.filter((item) => item.scope !== "stad").length,
+    stad: result.publicItems.filter((item) => item.scope === "stad").length,
+  },
+  feedGeneratedAt: engine.config.generatedAt,
+  feedSources: (result.sourceFreshness ?? []).map((source) => ({
+    sourceId: source.sourceId,
+    scope: source.scope,
+    fetchStatus: source.fetchStatus,
+    retrievedAt: source.retrievedAt,
+    state: source.state,
+    ...(source.coverage ? { coverage: source.coverage } : {}),
+  })),
   digest,
   publicUrl: "https://mijn-publieke-agenda-voor-district.onrender.com/",
   rollback: engine.config.rollback,
@@ -132,7 +196,7 @@ fs.writeFileSync(
 
 const sitemapUrls = [
   "https://mijn-publieke-agenda-voor-district.onrender.com/",
-  ...result.publicItems.map((item) =>
+  ...pageItems.map((item) =>
     `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(item.id)}/`
   ),
 ];

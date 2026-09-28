@@ -8,12 +8,20 @@ import { buildProvenanceSlaMatrix } from "../scripts/provenance-sla.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const engine = loadRefreshEngine(rootDir);
-const matrix = buildProvenanceSlaMatrix(loadExpandedAgendaItems(rootDir), engine);
+const items = loadExpandedAgendaItems(rootDir);
+const matrix = buildProvenanceSlaMatrix(items, engine);
 
-test("de SLA-matrix bevat elk van de 133 bronitems exact één keer", () => {
-  assert.equal(matrix.sourceItemCount, 133);
-  assert.equal(matrix.items.length, 133);
-  assert.equal(new Set(matrix.items.map((item) => item.id)).size, 133);
+function addDays(value, days) {
+  const date = new Date(`${String(value).slice(0, 10)}T00:00:00.000Z`);
+  date.setUTCDate(date.getUTCDate() + days);
+  return date.toISOString().slice(0, 10);
+}
+
+test("de SLA-matrix bevat elk geladen bronitem exact één keer", () => {
+  assert.ok(items.length >= 100);
+  assert.equal(matrix.sourceItemCount, items.length);
+  assert.equal(matrix.items.length, items.length);
+  assert.equal(new Set(matrix.items.map((item) => item.id)).size, items.length);
 });
 
 test("publiceerbaarheid blijft fail-closed bij verlopen of onbewezen bronnen", () => {
@@ -36,7 +44,9 @@ test("elke bewezen bron heeft een geldige HTTPS-provenance en expliciete vervald
     assert.ok(item.sourceRetrievedAt);
     if (["current", "future"].includes(item.classification)) {
       assert.ok(item.maxAgeDays > 0);
-      assert.match(item.recheckDueOn, /^2026-\d{2}-\d{2}$/);
+      assert.match(item.recheckDueOn, /^\d{4}-\d{2}-\d{2}$/);
+      assert.equal(new Date(`${item.recheckDueOn}T00:00:00Z`).toISOString().slice(0, 10), item.recheckDueOn);
+      assert.ok(item.recheckDueOn >= item.sourceRetrievedAt.slice(0, 10));
     }
   }
 });
@@ -52,12 +62,30 @@ test("onzekere sportreeksen blijven geblokkeerd, ook nadat hun datum verstreken 
   }
 });
 
-test("de actuele wegenwerkfase is publiceerbaar met verse provenance", () => {
+test("de actuele wegenwerkfase is publiceerbaar zolang haar bron vers is, en daarna geblokkeerd", () => {
   const row = matrix.items.find(
     (item) => item.title === "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2"
   );
-  assert.equal(row.classification, "current");
-  assert.equal(row.slaStatus, "fresh_verified");
-  assert.equal(row.publishEligible, true);
   assert.equal(row.sourceId, "city-osystraat-works");
+  const source = engine.config.sources[row.sourceId];
+  assert.equal(row.sourceRetrievedAt, source.retrievedAt);
+  const fresh = matrix.classificationAsOf <= addDays(source.retrievedAt, 2);
+  if (fresh) {
+    assert.equal(row.classification, "current");
+    assert.equal(row.slaStatus, "fresh_verified");
+    assert.equal(row.publishEligible, true);
+  } else {
+    assert.equal(row.classification, "review_required");
+    assert.equal(row.reviewReason, "stale_source");
+    assert.equal(row.slaStatus, "stale_blocked");
+    assert.equal(row.publishEligible, false);
+  }
+});
+
+test("feed-items houden hun eigen bron-URL en ophaalmoment in de matrix", () => {
+  for (const row of matrix.items.filter((item) => item.sourceKind === "official_feed")) {
+    const item = items.find((candidate) => candidate.id === row.id);
+    assert.equal(row.canonicalSourceUrl, item.link);
+    assert.equal(row.sourceRetrievedAt, item.retrievedAt);
+  }
 });

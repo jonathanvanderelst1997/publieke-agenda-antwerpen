@@ -10,7 +10,7 @@ const agendaItems = [
     "timeText": "18.30 uur",
     "location": "voetgangerstunnel",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+    "link": "https://www.citaatopstraat.be/"
   },
   {
     "id": "strip-en-boekenplein-2026-06-21",
@@ -36,7 +36,7 @@ const agendaItems = [
     "timeText": "14 en 16 uur",
     "location": "Stuivenbergplein",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/theater-op-de-pleintjes-gratis-zomertheater-voor-het-hele-gezin"
   },
   {
     "id": "lambermontmartre-2026-06-28",
@@ -140,7 +140,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "zomer-mee-in-harmoniepark-2026-07-01",
@@ -166,7 +166,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-07-01-921f88cd",
@@ -179,7 +179,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "aquajogging-start-to-wake-2026-07-01",
@@ -192,7 +192,7 @@ const agendaItems = [
     "timeText": "lessenreeks in de zomer",
     "location": "Linkeroever",
     "info": "Lessenreeksen Aquajogging en Start to Wake op Linkeroever; inschrijven via de publieke sportlink.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-i/"
+    "link": "https://sport.antwerpen.be/sportenbeweegmee"
   },
   {
     "id": "openluchtzwemmen-2026-07-01",
@@ -205,7 +205,7 @@ const agendaItems = [
     "timeText": "zomer 2026; uren en voorwaarden via officiële info",
     "location": "Bonapartedok",
     "info": "ZwemDok/openluchtzwemmen in het Bonapartedok; check de officiële info voor openingsuren, voorwaarden en toegankelijkheid.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-02-d9cd6e51",
@@ -218,7 +218,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-02-e3002706",
@@ -244,7 +244,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-04-3989d5d3",
@@ -257,7 +257,7 @@ const agendaItems = [
     "timeText": "14 en 16 uur",
     "location": "Kielpark",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/theater-op-de-pleintjes-gratis-zomertheater-voor-het-hele-gezin"
   },
   {
     "id": "feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7",
@@ -283,7 +283,7 @@ const agendaItems = [
     "timeText": "10.30 uur",
     "location": "Charles De Costerlaan",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+    "link": "https://www.citaatopstraat.be/"
   },
   {
     "id": "15-van-het-galgenweel-2026-07-05",
@@ -322,7 +322,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-05-1e43bd5d",
@@ -335,7 +335,7 @@ const agendaItems = [
     "timeText": "14 en 16 uur",
     "location": "Sint-Andriesplaats",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/theater-op-de-pleintjes-gratis-zomertheater-voor-het-hele-gezin"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-07-b7d2e605",
@@ -348,7 +348,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-07-bcd0d385",
@@ -374,7 +374,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-08-540192",
@@ -387,7 +387,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-08-a3ede26e",
@@ -400,7 +400,7 @@ const agendaItems = [
     "timeText": "14 en 16 uur",
     "location": "Bib Elsschot",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/theater-op-de-pleintjes-gratis-zomertheater-voor-het-hele-gezin"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-07-08-921f88ce",
@@ -413,7 +413,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-09-d9cd6e54",
@@ -426,7 +426,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "theater-op-de-pleintjes-op-5-locaties-2026-06-29-2026-07-09-ecf926ec",
@@ -439,7 +439,7 @@ const agendaItems = [
     "timeText": "14 en 16 uur",
     "location": "BLOC2030",
     "info": "Gratis familievoorstelling van Theater FroeFroe op pleintjes in district Antwerpen. Deze kaart toont het concrete speelmoment en de locatie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhhvuk-hhtjvijdl-h/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/theater-op-de-pleintjes-gratis-zomertheater-voor-het-hele-gezin"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-09-e3002708",
@@ -465,7 +465,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "the-tall-ships-races-antwerpen-2026-07-11",
@@ -504,7 +504,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "the-tall-ships-races-antwerpen-2026-07-12",
@@ -543,7 +543,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-14-bcd0d387",
@@ -582,7 +582,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-15-540195",
@@ -595,7 +595,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-07-15-921f88cf",
@@ -608,7 +608,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "cafe-kamyon-2026-07-12-2026-07-15-dd6c5d2a",
@@ -634,7 +634,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-16-e300270a",
@@ -673,7 +673,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "cafe-kamyon-2026-07-12-2026-07-17-9e1bb003",
@@ -738,7 +738,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-21-b7d2e60b",
@@ -751,7 +751,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-21-bcd0d389",
@@ -777,7 +777,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-22-540198",
@@ -790,7 +790,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-07-22-921f88d0",
@@ -803,7 +803,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-23-5fe05bff",
@@ -816,7 +816,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-23-e300270c",
@@ -842,7 +842,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "lambermontmartre-2026-07-26",
@@ -868,7 +868,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-28-4289daad",
@@ -881,7 +881,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-28-bcd0d38b",
@@ -907,7 +907,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-29-a2c30a2",
@@ -920,7 +920,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-07-29-921f88d1",
@@ -933,7 +933,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-07-30-5fe05c02",
@@ -946,7 +946,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-07-30-e300270e",
@@ -972,7 +972,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "tuk-tuk-rommelmarkt-2026-08-01",
@@ -985,7 +985,7 @@ const agendaItems = [
     "timeText": "programma via organisator",
     "location": "Beatrijslaan, Linkeroever",
     "info": "Rommelmarkt en buurtfestival op en rond de Beatrijslaan; inschrijven voor de rommelmarkt via de organisator.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-k/"
+    "link": "https://minigolfbeatrijs.be/tuktuk-rommelmarkt/"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-02-d104f9ed",
@@ -998,7 +998,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-04-4289dab0",
@@ -1011,7 +1011,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-04-dd499d2c",
@@ -1037,7 +1037,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-05-a2c30a5",
@@ -1050,7 +1050,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-08-05-921f88d2",
@@ -1063,7 +1063,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-06-5fe05c05",
@@ -1076,7 +1076,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-06-7d04b9eb",
@@ -1102,7 +1102,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-09-d104f9ee",
@@ -1115,7 +1115,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-11-4289dab3",
@@ -1128,7 +1128,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-11-dd499d2e",
@@ -1154,7 +1154,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-12-a2c30a8",
@@ -1167,7 +1167,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-08-12-921f88d3",
@@ -1180,7 +1180,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-13-5fe05c08",
@@ -1193,7 +1193,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-13-7d04b9ed",
@@ -1219,7 +1219,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "strip-en-boekenplein-2026-08-16",
@@ -1245,7 +1245,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-18-4289dacb",
@@ -1258,7 +1258,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-18-dd499d30",
@@ -1284,7 +1284,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-19-a2c30c0",
@@ -1297,7 +1297,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-08-19-921f88d4",
@@ -1310,7 +1310,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-20-5fe05c20",
@@ -1323,7 +1323,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-20-7d04b9ef",
@@ -1349,7 +1349,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-23-d104f9f0",
@@ -1362,7 +1362,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-25-4289dace",
@@ -1375,7 +1375,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-25-dd499d32",
@@ -1401,7 +1401,7 @@ const agendaItems = [
     "timeText": "10 tot 11 uur",
     "location": "Boeienweide; bij regen Sporthal IGLO",
     "info": "Gratis Yogalates op de Boeienweide, elke woensdag in juli en augustus van 10 tot 11 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydklfht-hhtjvijdl-t/"
+    "link": "https://www.antwerpen.be/info/68416577eb023525675d4482/gratis-lessen-yoga-tai-chi-en-pilates-in-openlucht"
   },
   {
     "id": "zomer-mee-park-spoor-noord-2026-08-26",
@@ -1427,7 +1427,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "3x3-basket-2026-07-01-2026-08-26-921f88d5",
@@ -1440,7 +1440,7 @@ const agendaItems = [
     "timeText": "woensdagen 15 tot 18 uur",
     "location": "Kielpark",
     "info": "Gratis 3x3-basketmomenten in het Kielpark, elke woensdag van 15 tot 18 uur.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhyiln-hhtjvijdl-i/"
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/sport/ontdek-de-3x3-basketbalinitiaties-in-district-antwerpen"
   },
   {
     "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-27-5fe05c23",
@@ -1453,7 +1453,7 @@ const agendaItems = [
     "timeText": "13.30 tot 16.30 uur",
     "location": "Sint-Michielskaai en Dageraadplaats",
     "info": "Gratis sportinitiaties met Jespo voor kinderen en jongeren tijdens de zomervakantie.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-08-27-7d04b9f1",
@@ -1492,7 +1492,7 @@ const agendaItems = [
     "timeText": "vrijdagen 19 tot 22 uur",
     "location": "JC Scratch",
     "info": "Gratis open sessies in JC Scratch waar jongeren urban sporten en sfeer kunnen uitproberen.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-b/"
+    "link": "https://www.scratch-antwerp.be/freedom-friday/"
   },
   {
     "id": "antwerp-sup-festival-2026-08-29",
@@ -1518,7 +1518,7 @@ const agendaItems = [
     "timeText": "programma volgt",
     "location": "Eilandje",
     "info": "Sport- en buurtactiviteit op het Eilandje.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "antwerp-sup-festival-2026-08-30",
@@ -1557,7 +1557,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "zomerfeest-albertpark-2026-08-30",
@@ -1583,7 +1583,7 @@ const agendaItems = [
     "timeText": "programma volgt",
     "location": "Eilandje",
     "info": "Sport- en buurtactiviteit op het Eilandje.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydkthktd-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "red-star-run-2026-08-30",
@@ -1596,7 +1596,7 @@ const agendaItems = [
     "timeText": "zondag 30 augustus",
     "location": "Eilandje",
     "info": "Loopactiviteit in de omgeving van het Eilandje.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-e-ydhyiln-hhtjvijdl-r/"
+    "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
     "id": "bal-van-de-bevrijding-2026-09-04",
@@ -1635,7 +1635,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "reanimatielessen-2026-09-10",
@@ -1661,7 +1661,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "poetische-rimpelingen-2026-06-29-2026-09-19-64e62867",
@@ -1674,7 +1674,7 @@ const agendaItems = [
     "timeText": "14 uur",
     "location": "WZC Hof ter Schelde",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+    "link": "https://www.citaatopstraat.be/"
   },
   {
     "id": "beweegdag-55-2026-09-19",
@@ -1700,7 +1700,7 @@ const agendaItems = [
     "timeText": "zondagen vanaf 14 uur",
     "location": "Nachtegalenpark, Floraliënlaan",
     "info": "Gratis boogschietinitiaties op zondagen in de zomer.",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydkthktd-hhtjvijdl-h/"
+    "link": "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance"
   },
   {
     "id": "lambermontmartre-2026-09-27",
@@ -1726,14 +1726,32 @@ const agendaItems = [
     "timeText": "14 uur",
     "location": "Regatta",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
-    "link": "https://nieuwsbrief.antwerpen.be/t/j-l-ydhlso-hhtjvijdl-o/"
+    "link": "https://www.citaatopstraat.be/"
   }
 ];
 
 const refreshEngine = window.PUBLIC_AGENDA_REFRESH_ENGINE;
 if (!refreshEngine) throw new Error("Agenda refresh metadata ontbreekt.");
-const agendaReconciliation = refreshEngine.reconcileAgendaItems(expandAgendaItems(agendaItems), todayIso());
-const renderedAgendaItems = agendaReconciliation.publicItems;
+
+// Automatische bronnen (site/agenda-feed.js). Een feed-item dat een handmatig item vervangt,
+// verbergt dat handmatige item; feed-items worden nooit als herhalende reeks uitgevouwen.
+const CANONICAL_HOST = "mijn-publieke-agenda-voor-district.onrender.com";
+const CANONICAL_URL = `https://${CANONICAL_HOST}/`;
+const agendaFeed = window.PUBLIC_AGENDA_FEED || { sources: [], items: [], supersedes: [] };
+const supersededHandIds = new Set(Array.isArray(agendaFeed.supersedes) ? agendaFeed.supersedes : []);
+const feedAgendaItems = (Array.isArray(agendaFeed.items) ? agendaFeed.items : []).map((item) => ({ ...item, feed: true }));
+const agendaSourceItems = expandAgendaItems([...agendaItems, ...feedAgendaItems]).filter(
+  (item) => item.feed || !supersededHandIds.has(item.id)
+);
+const agendaReconciliation = refreshEngine.reconcileAgendaItems(agendaSourceItems, todayIso(), { now: agendaNow().toISOString() });
+const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
+// Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.
+const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
+const renderedAgendaItems = agendaReconciliation.publicItems.filter((item) => onCanonicalHost || !isUitItem(item));
+
+function isUitItem(item) {
+  return item.sourceId === "stad-uit";
+}
 
 function requestedEventId() {
   const url = new URL(window.location.href);
@@ -1751,11 +1769,75 @@ const initialEventId = requestedEventId();
 
 const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
 let enabledThemes = new Set(themeOrder);
-let openId = renderedAgendaItems.some((item) => item.id === initialEventId) ? initialEventId : "";
+// District en stad zijn twee aparte groepen. District staat standaard aan.
+const scopeOrder = ["district", "stad"];
+const scopeLabels = { district: "District Antwerpen", stad: "Stad Antwerpen" };
+const stadPlaceOrder = ["in", "out"];
+const stadPlaceLabels = { in: "in district Antwerpen", out: "andere districten" };
+let enabledScopes = new Set(["district"]);
+let enabledStadPlaces = new Set(stadPlaceOrder);
+const initialEventItem = renderedAgendaItems.find((item) => item.id === initialEventId);
+if (initialEventItem && scopeOf(initialEventItem) === "stad") enabledScopes.add("stad");
+let openId = initialEventItem ? initialEventId : "";
 let hasScrolledToToday = Boolean(openId);
 
+function agendaNow() {
+  return typeof window.PUBLIC_AGENDA_CLOCK === "function" ? window.PUBLIC_AGENDA_CLOCK() : new Date();
+}
+
+function scopeOf(item) {
+  return item.scope === "stad" ? "stad" : "district";
+}
+
+function stadPlaceOf(item) {
+  if (item.inDistrict === true) return "in";
+  if (item.inDistrict === false) return "out";
+  return null;
+}
+
+function passesScope(item) {
+  const scope = scopeOf(item);
+  if (!enabledScopes.has(scope)) return false;
+  if (scope !== "stad") return true;
+  const place = stadPlaceOf(item);
+  return place ? enabledStadPlaces.has(place) : enabledStadPlaces.size > 0;
+}
+
+function esc(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
+}
+
+// Alleen https-links worden een href; al de rest (javascript:, data:, http:) valt weg.
+function safeHref(value) {
+  const text = String(value ?? "").trim();
+  if (!/^https:\/\/[^\s"'<>]+$/i.test(text)) return "";
+  try {
+    return new URL(text).protocol === "https:" ? text : "";
+  } catch {
+    return "";
+  }
+}
+
+function sourceLabel(sourceId) {
+  const source = refreshEngine.config.sources[sourceId];
+  return source?.label || source?.publisher || "Officiële bron";
+}
+
+function formatInstant(iso) {
+  const value = Date.parse(String(iso || ""));
+  if (!Number.isFinite(value)) return "";
+  return new Intl.DateTimeFormat("nl-BE", {
+    timeZone: "Europe/Brussels",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 function todayIso() {
-  const now = new Date();
+  const now = agendaNow();
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 }
 
@@ -1940,6 +2022,7 @@ function logicalAgendaTitle(item) {
 
 function expandAgendaItems(items) {
   const expanded = items.flatMap((item) => {
+    if (item.feed) return [item];
     if (item.theme === "Werken") return [item];
     const known = knownOccurrences(item);
     if (known.length) return known.map((occurrence, index) => cloneOccurrence(item, occurrence, index));
@@ -1970,6 +2053,7 @@ function expandAgendaItems(items) {
   });
   const seen = new Set();
   return expanded.filter((item) => {
+    if (item.feed) return true;
     const key = [logicalAgendaTitle(item), item.date, item.timeSlot, normalizeText(item.location)].join("|");
     if (seen.has(key)) return false;
     seen.add(key);
@@ -1990,9 +2074,15 @@ function formatDateSummary(iso, count) {
   return `${day} ${label} - ${count} punt${count === 1 ? "" : "en"}`;
 }
 
-function byDate(items) {
+// Een meerdaags item dat vandaag loopt (date < vandaag <= endDate) staat bij vandaag.
+function displayDate(item, today) {
+  return item.endDate && item.date < today && item.endDate >= today ? today : item.date;
+}
+
+function byDate(items, today = "") {
   return items.reduce((groups, item) => {
-    groups[item.date] = [...(groups[item.date] || []), item];
+    const date = today ? displayDate(item, today) : item.date;
+    groups[date] = [...(groups[date] || []), item];
     return groups;
   }, {});
 }
@@ -2007,18 +2097,18 @@ function worksOverviewTemplate(items) {
           <h2>Langlopende werken los van de dagagenda</h2>
           <p>Deze punten blijven als overzicht zichtbaar, zonder elke dag opnieuw in de agenda te staan.</p>
         </div>
-        <strong>${items.length}</strong>
+        <strong>${esc(items.length)}</strong>
       </header>
       <div class="works-grid">
         ${items
           .sort((a, b) => String(a.dateLabel || a.date).localeCompare(String(b.dateLabel || b.date)) || a.title.localeCompare(b.title))
           .map((item) => `
             <article class="work-card">
-              <strong>${item.title}</strong>
-              <span>${[item.dateLabel, item.location].filter(Boolean).join(" · ")}</span>
-              ${item.info ? `<p>${item.info}</p>` : ""}
-              <span>Bron gecontroleerd ${formatSimpleDate(item.sourceRetrievedAt.slice(0, 10))}</span>
-              ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
+              <strong>${esc(item.title)}</strong>
+              <span>${esc([item.dateLabel, item.location].filter(Boolean).join(" · "))}</span>
+              ${item.info ? `<p>${esc(item.info)}</p>` : ""}
+              <span>Bron gecontroleerd ${esc(formatSimpleDate(String(item.sourceRetrievedAt || "").slice(0, 10)))}</span>
+              ${safeHref(item.link) ? `<a href="${esc(safeHref(item.link))}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
             </article>
           `)
           .join("")}
@@ -2049,7 +2139,7 @@ function renderControls() {
     button.type = "button";
     button.className = enabledThemes.has(theme) ? "active" : "";
     button.setAttribute("aria-pressed", String(enabledThemes.has(theme)));
-    button.innerHTML = `<span class="theme-dot" aria-hidden="true" style="--accent: ${accentForClass(sample?.className || "activity")}"></span>${theme}`;
+    button.innerHTML = `<span class="theme-dot" aria-hidden="true" style="--accent: ${accentForClass(sample?.className || "activity")}"></span>${esc(theme)}`;
     button.addEventListener("click", () => {
       if (enabledThemes.has(theme)) {
         enabledThemes.delete(theme);
@@ -2060,6 +2150,52 @@ function renderControls() {
     });
     root.appendChild(button);
   });
+
+  renderScopeControls();
+}
+
+// Aparte groep "District Antwerpen | Stad Antwerpen", met binnen Stad een deelkeuze
+// "in district Antwerpen" / "andere districten".
+function renderScopeControls() {
+  const root = document.getElementById("scope-controls");
+  if (!root) return;
+  root.innerHTML = "";
+  const themed = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme));
+  scopeOrder.forEach((scope) => {
+    const count = themed.filter((item) => scopeOf(item) === scope).length;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = enabledScopes.has(scope) ? "active" : "";
+    button.setAttribute("aria-pressed", String(enabledScopes.has(scope)));
+    button.dataset.scope = scope;
+    button.innerHTML = `${esc(scopeLabels[scope])} <span class="scope-count">${esc(count)}</span>`;
+    button.addEventListener("click", () => {
+      if (enabledScopes.has(scope)) enabledScopes.delete(scope);
+      else enabledScopes.add(scope);
+      render();
+    });
+    root.appendChild(button);
+  });
+  if (!enabledScopes.has("stad")) return;
+  const group = document.createElement("div");
+  group.className = "stad-place-controls";
+  group.setAttribute("role", "group");
+  group.setAttribute("aria-label", "Stad Antwerpen: waar");
+  stadPlaceOrder.forEach((place) => {
+    const count = themed.filter((item) => scopeOf(item) === "stad" && stadPlaceOf(item) === place).length;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = enabledStadPlaces.has(place) ? "active" : "";
+    button.setAttribute("aria-pressed", String(enabledStadPlaces.has(place)));
+    button.innerHTML = `${esc(stadPlaceLabels[place])} <span class="scope-count">${esc(count)}</span>`;
+    button.addEventListener("click", () => {
+      if (enabledStadPlaces.has(place)) enabledStadPlaces.delete(place);
+      else enabledStadPlaces.add(place);
+      render();
+    });
+    group.appendChild(button);
+  });
+  root.appendChild(group);
 }
 
 function accentForClass(className) {
@@ -2069,37 +2205,57 @@ function accentForClass(className) {
   return "#246b9f";
 }
 
+function sourceLinksTemplate(item) {
+  const links = [];
+  const seen = new Set();
+  const add = (url, label) => {
+    const href = safeHref(url);
+    if (!href || seen.has(href)) return;
+    seen.add(href);
+    links.push(`<li><a href="${esc(href)}" target="_blank" rel="noreferrer">${esc(label)}</a></li>`);
+  };
+  if (Array.isArray(item.sources) && item.sources.length) {
+    item.sources.forEach((source) => add(source.url, source.sourceId === "stad-uit" ? "Bron: uitinvlaanderen.be" : sourceLabel(source.sourceId)));
+  } else {
+    add(item.link, "Officiële bron");
+  }
+  add(item.infoUrl, "Meer info bij de organisator");
+  return links.length ? `<ul class="event-sources" aria-label="Bronnen">${links.join("")}</ul>` : "";
+}
+
 function eventTemplate(item) {
   const open = openId === item.id;
+  const id = esc(item.id);
   return `
-    <article class="event ${item.className} ${open ? "open" : ""}" id="${item.id}">
+    <article class="event ${esc(item.className)} ${open ? "open" : ""}" id="${id}">
       <div class="time">
-        <strong>${item.timeSlot}</strong>
-        ${item.timeText ? `<span>${item.timeText}</span>` : ""}
+        <strong>${esc(item.timeSlot)}</strong>
+        ${item.timeText ? `<span>${esc(item.timeText)}</span>` : ""}
       </div>
       <div class="event-card">
-        <button type="button" class="event-toggle" data-id="${item.id}" aria-expanded="${open ? "true" : "false"}" aria-controls="details-${item.id}">
-          <span class="theme-label">${item.theme}</span>
-          <strong>${item.title}</strong>
+        <button type="button" class="event-toggle" data-id="${id}" aria-expanded="${open ? "true" : "false"}" aria-controls="details-${id}">
+          <span class="theme-label">${esc(item.theme)}</span>
+          <strong>${esc(item.title)}</strong>
           <span class="chevron" aria-hidden="true">${open ? "^" : "v"}</span>
         </button>
         <div class="meta">
-          ${item.location ? `<span>${item.location}</span>` : ""}
-          ${item.dateLabel ? `<span>${item.dateLabel}</span>` : ""}
+          ${item.location ? `<span>${esc(item.location)}</span>` : ""}
+          ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
           <span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>
+          <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
-        <div class="details" id="details-${item.id}">
-          ${item.info ? `<p>${item.info}</p>` : ""}
+        <div class="details" id="details-${id}">
+          ${item.info ? `<p>${esc(item.info)}</p>` : ""}
           <dl>
-            <div><dt>Wanneer</dt><dd>${item.dateLabel}</dd></div>
-            ${item.timeText ? `<div><dt>Uur</dt><dd>${item.timeText}</dd></div>` : ""}
-            ${item.location ? `<div><dt>Waar</dt><dd>${item.location}</dd></div>` : ""}
-            <div><dt>Bron</dt><dd>${item.sourcePublisher}</dd></div>
-            <div><dt>Gecontroleerd</dt><dd>${formatSimpleDate(item.sourceRetrievedAt.slice(0, 10))}</dd></div>
+            <div><dt>Wanneer</dt><dd>${esc(item.dateLabel)}</dd></div>
+            ${item.timeText ? `<div><dt>Uur</dt><dd>${esc(item.timeText)}</dd></div>` : ""}
+            ${item.location ? `<div><dt>Waar</dt><dd>${esc(item.location)}</dd></div>` : ""}
+            <div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>
+            <div><dt>Gecontroleerd</dt><dd>${esc(formatSimpleDate(String(item.sourceRetrievedAt || "").slice(0, 10)))}</dd></div>
           </dl>
-          ${item.link ? `<a href="${item.link}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
-          <a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>
-          <button type="button" class="event-calendar" data-calendar-id="${item.id}">Voeg toe aan agenda (.ics)</button>
+          ${sourceLinksTemplate(item)}
+          ${item.noEventPage ? "" : `<a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>`}
+          <button type="button" class="event-calendar" data-calendar-id="${id}">Voeg toe aan agenda (.ics)</button>
         </div>
       </div>
     </article>
@@ -2115,8 +2271,8 @@ function renderList(items) {
 
   const works = items.filter((item) => item.theme === "Werken");
   const calendarItems = items.filter((item) => item.theme !== "Werken");
-  const groups = byDate(calendarItems);
   const today = todayIso();
+  const groups = byDate(calendarItems, today);
   if (!groups[today]) groups[today] = [];
   const schedule = Object.entries(groups)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -2183,15 +2339,59 @@ function renderCounts(items) {
   const calls = items.filter((item) => item.theme === "Oproep/deadline").length;
   const sport = items.filter((item) => item.theme === "Sport").length;
   const activities = items.filter((item) => item.theme === "Activiteit").length;
-  document.getElementById("agenda-count-detail").textContent = `${activities} activiteiten, ${sport} sport, ${calls} oproepen, ${works} werken.`;
+  const district = items.filter((item) => scopeOf(item) === "district").length;
+  const stad = items.filter((item) => scopeOf(item) === "stad").length;
+  document.getElementById("agenda-count-detail").textContent =
+    `${activities} activiteiten, ${sport} sport, ${calls} oproepen, ${works} werken. District ${district}, stad ${stad}.`;
   const { expired, review_required: reviewRequired } = agendaReconciliation.counts;
   document.getElementById("agenda-refresh-note").textContent =
-    `Officiële broncontrole ${formatSimpleDate(refreshEngine.config.retrievedAt.slice(0, 10))}: ` +
-    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict worden niet als actueel getoond.`;
+    `Officiële broncontrole ${formatSimpleDate(String(refreshEngine.config.retrievedAt).slice(0, 10))}: ` +
+    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict of verouderde bron worden niet als actueel getoond.`;
+  renderSourceStatus();
+}
+
+const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
+
+// Per bron: "ververst op …", in het rood "verouderd sinds …", of "nog niet actief".
+function renderSourceStatus() {
+  const root = document.getElementById("agenda-source-status");
+  if (!root) return;
+  const freshness = Array.isArray(agendaReconciliation.sourceFreshness) ? agendaReconciliation.sourceFreshness : [];
+  const groups = scopeOrder
+    .map((scope) => {
+      const entries = freshness.filter((entry) => entry.scope === scope);
+      const attribution =
+        scope === "stad"
+          ? `<a href="https://www.uitinvlaanderen.be" target="_blank" rel="noreferrer">Bron: UiTinVlaanderen.be</a>`
+          : `<span>Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)</span>`;
+      const lines = entries.map((entry) => {
+        let status;
+        if (entry.state === "inactive") status = `<span class="source-inactive">nog niet actief</span>`;
+        else if (entry.state === "stale") status = `<span class="source-stale">verouderd sinds ${esc(formatInstant(entry.staleSince))}</span>`;
+        else status = `<span class="source-fresh">ververst op ${esc(formatInstant(entry.retrievedAt))}</span>`;
+        const failed = entry.fetchStatus === "error" && entry.state !== "inactive" ? ` <span class="source-stale">(laatste ophaalpoging mislukt)</span>` : "";
+        // Een bron die afkapt (UiT), zegt tot wanneer ze volledig is en hoeveel er in totaal was.
+        const coverage = entry.coverage?.capped
+          ? `<br><span class="source-capped">${
+              entry.coverage.until ? `volledig t/m ${esc(formatSimpleDate(entry.coverage.until))}` : "geen volledige dag"
+            }: ${esc(entry.itemCount)} van ${esc(entry.coverage.candidateCount)} activiteiten in 30 dagen; meer op <a href="${UIT_CITY_AGENDA_URL}" target="_blank" rel="noreferrer">UiTinVlaanderen</a></span>`
+          : "";
+        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}</li>`;
+      });
+      const canonicalNote =
+        scope === "stad" && !onCanonicalHost
+          ? `<li>UiT-activiteiten verschijnen alleen op <a href="${esc(CANONICAL_URL)}">de publieke agenda</a>${hiddenUitItems.length ? ` (${esc(hiddenUitItems.length)} punten)` : ""}.</li>`
+          : "";
+      if (!lines.length && !canonicalNote) return "";
+      return `<div class="source-group source-group-${scope}"><p><strong>${esc(scopeLabels[scope])}</strong> · ${attribution}</p><ul>${lines.join("")}${canonicalNote}</ul></div>`;
+    })
+    .join("");
+  root.innerHTML = groups;
+  root.hidden = !groups;
 }
 
 function render() {
-  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme));
+  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item));
   renderControls();
   renderCounts(visible);
   renderList(visible);

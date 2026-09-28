@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "stad-uit",
+  "scope": "stad",
+  "publisher": "UiTinVlaanderen / publiq",
+  "attribution": {
+    "text": "Bron: UiTinVlaanderen.be",
+    "url": "https://www.uitinvlaanderen.be"
+  },
+  "url": "https://www.uitinvlaanderen.be/",
+  "allowedHosts": [
+    "www.uitinvlaanderen.be"
+  ],
+  "officialPublic": true,
+  "method": "UiTdatabank Search API v3 (alleen met UITDATABANK_CLIENT_ID)",
+  "retrievedAt": null,
+  "fetchStatus": "skipped_no_key",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": []
+}
