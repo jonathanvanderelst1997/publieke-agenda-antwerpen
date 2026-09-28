@@ -2376,7 +2376,17 @@ function renderSourceStatus() {
               entry.coverage.until ? `volledig t/m ${esc(formatSimpleDate(entry.coverage.until))}` : "geen volledige dag"
             }: ${esc(entry.itemCount)} van ${esc(entry.coverage.candidateCount)} activiteiten in 30 dagen; meer op <a href="${UIT_CITY_AGENDA_URL}" target="_blank" rel="noreferrer">UiTinVlaanderen</a></span>`
           : "";
-        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}</li>`;
+        // Een gratis stadsbron naast UiT (districtsnieuws, markten) toont haar eigen bronvermelding.
+        const sourceAttribution = refreshEngine.config.sources[entry.sourceId]?.attribution;
+        const ownAttribution =
+          scope === "stad" && entry.sourceId !== "stad-uit" && sourceAttribution?.text
+            ? `<br><span class="source-attribution">${
+                safeHref(sourceAttribution.url)
+                  ? `<a href="${esc(safeHref(sourceAttribution.url))}" target="_blank" rel="noreferrer">${esc(sourceAttribution.text)}</a>`
+                  : esc(sourceAttribution.text)
+              }</span>`
+            : "";
+        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}${ownAttribution}</li>`;
       });
       const canonicalNote =
         scope === "stad" && !onCanonicalHost

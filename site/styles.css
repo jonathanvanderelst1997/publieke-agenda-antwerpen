@@ -255,7 +255,8 @@ a {
   font-weight: 850;
 }
 
-.source-capped {
+.source-capped,
+.source-attribution {
   color: var(--muted);
 }
 

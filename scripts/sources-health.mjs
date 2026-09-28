@@ -7,6 +7,7 @@
 // (--baseline <ref> kiest een andere, --no-baseline slaat ze over). Dat is een tweede slot naast de
 // grendel in de fetchers: ook een fetcher die zich vergist, kan zo geen lege agenda live zetten.
 // Een bewuste daling laat de eigenaar toe met AGENDA_ALLOW_DROP=<sourceId>[,<sourceId>…].
+// Een bron met shrinkGuard: false in lib/source-feed.mjs (stad-districten) wordt niet vergeleken.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -14,7 +15,7 @@ import { fileURLToPath } from "node:url";
 
 import { dropAllowed, isMainModule, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { SOURCE_IDS, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
+import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
 
 export function gitBaseline(rootDir, ref) {
   return (sourceId) => {
@@ -63,6 +64,8 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     const today = brusselsDate(new Date(at));
     let compared = 0;
     for (const sourceId of SOURCE_IDS) {
+      // stad-districten: gezond is "elk kanaal antwoordde", niet het aantal items.
+      if (!shrinkGuardFor(sourceId)) continue;
       const before = baseline(sourceId);
       const now = readJson(path.join(rootDir, "site", sourceFileName(sourceId)));
       if (!before || !now) continue;
