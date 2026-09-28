@@ -9,6 +9,7 @@ import { errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry }
 import { brusselsDate } from "../lib/html-text.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
+import { refreshLiveHistory } from "./refresh-live-history.mjs";
 
 // `sleep` (optioneel) gaat naar fetchers die pauzeren tussen verzoeken; toetsen geven een lege pauze mee.
 export async function refreshAll({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, fetchers = FETCHERS, sleep } = {}) {
@@ -45,10 +46,11 @@ export async function refreshAll({ fetch: fetchImpl = globalThis.fetch, clock = 
 if (isMainModule(import.meta.url)) {
   const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   refreshAll({ rootDir })
-    .then((status) => {
+    .then(async (status) => {
       for (const entry of status.sources) {
         console.log(JSON.stringify({ sourceId: entry.sourceId, fetchStatus: entry.fetchStatus, itemCount: entry.itemCount, errorCode: entry.errorCode }));
       }
+      await refreshLiveHistory({ rootDir });
     })
     .catch((error) => {
       console.error(error?.message ?? String(error));
