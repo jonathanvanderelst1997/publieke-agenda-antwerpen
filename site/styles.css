@@ -255,6 +255,10 @@ a {
   font-weight: 850;
 }
 
+.source-capped {
+  color: var(--muted);
+}
+
 .source-inactive {
   color: var(--muted);
   font-style: italic;

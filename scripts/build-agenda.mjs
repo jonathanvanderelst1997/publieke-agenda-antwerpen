@@ -180,6 +180,7 @@ const manifest = {
     fetchStatus: source.fetchStatus,
     retrievedAt: source.retrievedAt,
     state: source.state,
+    ...(source.coverage ? { coverage: source.coverage } : {}),
   })),
   digest,
   publicUrl: "https://mijn-publieke-agenda-voor-district.onrender.com/",

@@ -8,14 +8,14 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { DISTRICT_NEWS_CHANNEL_ID, parseDistrictNewsArticle } from "../lib/district-news-parser.mjs";
-import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 
 export const SOURCE_ID = "district-nieuws";
 export const DISTRICT_NEWS_URL = `https://www.antwerpen.be/api/portaal/channel/${DISTRICT_NEWS_CHANNEL_ID}?contentType=10&start=0&limit=25`;
 
-export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, dryRun = false, log = console.log } = {}) {
+export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
   const now = clock();
   const retrievedAt = now.toISOString();
@@ -34,6 +34,8 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
       throw new FetchError("invalid_json");
     }
     if (!Array.isArray(body?.data)) throw new FetchError("invalid_payload");
+    // Het kanaal van een district is nooit leeg; een lege lijst is een storing, geen nieuws.
+    if (!body.data.length) throw new FetchError("no_articles");
     articles = body.data;
   } catch (error) {
     const code = errorCodeOf(error);
@@ -65,9 +67,12 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     reasons,
   };
   if (dryRun) {
-    log(JSON.stringify({ dryRun: true, ...counts }));
-    return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length })];
+    const drop = previous ? suspiciousDrop(previous.items, screened.items, today) : null;
+    log(JSON.stringify({ dryRun: true, ...counts, suspiciousDrop: drop }));
+    return [statusEntry(SOURCE_ID, { fetchStatus: drop ? "error" : "ok", retrievedAt, itemCount: screened.items.length, errorCode: drop ? "suspicious_drop" : null })];
   }
+  const shrink = guardShrink({ rootDir, sourceId: SOURCE_ID, previous, items: screened.items, today, env, log, counts });
+  if (shrink) return [shrink];
   const document = writeSourceDocument(
     rootDir,
     SOURCE_ID,

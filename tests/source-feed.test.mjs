@@ -176,3 +176,26 @@ test("feed-items worden niet als herhalende reeks uitgevouwen", () => {
   const hand = { ...recurring, id: "handmatige-reeks-2026-10-01", feed: undefined };
   assert.ok(runtime.expandAgendaItems([hand]).length > 1, "een handmatige reeks wordt wel uitgevouwen");
 });
+
+test("een afgekapte UiT-bron draagt haar dekking tot op de site; de site toont 'volledig t/m' en de link", () => {
+  const item = feedItem("uit-00000000-aaaa-4bbb-8ccc-000000000001-2026-10-01-1400", {
+    date: "2026-10-01",
+    sourceUrl: "https://www.uitinvlaanderen.be/agenda/e/x/00000000-aaaa-4bbb-8ccc-000000000001",
+    noEventPage: true,
+    inDistrict: true,
+    reviewRequired: false,
+  });
+  const documents = [
+    sourceDocument("stad-uit", { retrievedAt: RETRIEVED, fetchStatus: "ok", coverage: { until: "2026-10-04", candidateCount: 1900, capped: true }, items: [item] }),
+  ];
+  assert.deepEqual(validateSourceDocument(documents[0], { expectedSourceId: "stad-uit" }), []);
+  const { feed } = buildFeed({ status: { schemaVersion: 1, generatedAt: RETRIEVED, classificationAsOf: "2026-09-28", sources: [] }, documents }, []);
+  assert.deepEqual(feed.sources[0].coverage, { until: "2026-10-04", candidateCount: 1900, capped: true });
+  const engine = engineWith(feed);
+  const result = engine.reconcileAgendaItems(feed.items, "2026-09-28", { now: "2026-09-28T06:00:00.000Z" });
+  const freshness = result.sourceFreshness.find((entry) => entry.sourceId === "stad-uit");
+  assert.deepEqual({ ...freshness.coverage }, { until: "2026-10-04", candidateCount: 1900, capped: true });
+  const agendaSource = fs.readFileSync(path.join(rootDir, "site", "agenda.js"), "utf8");
+  assert.match(agendaSource, /volledig t\/m \$\{esc\(formatSimpleDate\(entry\.coverage\.until\)\)\}/);
+  assert.match(agendaSource, /UIT_CITY_AGENDA_URL = "https:\/\/www\.uitinvlaanderen\.be\/agenda\/alle\/antwerpen"/);
+});

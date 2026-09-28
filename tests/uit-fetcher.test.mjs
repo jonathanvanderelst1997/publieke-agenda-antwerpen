@@ -4,8 +4,8 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { ITEM_CAP, run, searchUrl, uitQuery } from "../scripts/fetch-sources-uit.mjs";
-import { FORBIDDEN_KEYS, privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
+import { ITEM_CAP, cutAtDayBoundary, run, searchUrl, uitQuery } from "../scripts/fetch-sources-uit.mjs";
+import { FORBIDDEN_KEYS, privacyFindings, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 
 // Synthetische UiTdatabank-respons (geen echte data). Bevat bewust verboden velden om te bewijzen
 // dat ze nooit in het bronbestand terechtkomen.
@@ -180,25 +180,90 @@ test("postcode en coördinaten die elkaar tegenspreken: niet weggeschreven", asy
   assert.match(logs.join("\n"), /"postcode_geo_conflict":1/);
 });
 
-test(`hoogstens ${ITEM_CAP} items, gesorteerd op begin, en paginering tot totalItems`, async () => {
-  const root = makeRoot();
-  const members = Array.from({ length: 600 }, (_, index) => {
+function spreadMembers(count) {
+  // 600 events over 28 dagen: 1-12 oktober elk 22, 13-28 oktober elk 21.
+  return Array.from({ length: count }, (_, index) => {
     const day = String(1 + (index % 28)).padStart(2, "0");
     return event(`${String(index).padStart(8, "0")}-aaaa-4bbb-8ccc-000000000000`, {
       startDate: `2026-10-${day}T08:00:00+00:00`,
       endDate: `2026-10-${day}T09:00:00+00:00`,
     });
   });
+}
+
+test(`binnen de limiet (${ITEM_CAP}): alles, gesorteerd op begin, paginering tot totalItems, coverage niet afgekapt`, async () => {
+  const root = makeRoot();
+  const members = spreadMembers(600);
   const { fetchImpl, calls } = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
   const logs = [];
-  await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: fetchImpl, clock, log: (line) => logs.push(line) });
+  const [status] = await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: fetchImpl, clock, log: (line) => logs.push(line) });
   assert.equal(calls.length, 3);
   assert.deepEqual(calls.map((call) => new URL(call.url).searchParams.get("start")), ["0", "250", "500"]);
   const document = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", "stad-uit.json"), "utf8"));
-  assert.equal(document.items.length, ITEM_CAP);
+  assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-uit" }), []);
+  assert.equal(document.items.length, 600);
   const dates = document.items.map((item) => item.date);
   assert.deepEqual(dates, [...dates].sort());
+  assert.deepEqual(document.coverage, { until: "2026-10-28", candidateCount: 600, capped: false });
+  assert.deepEqual([status.capped, status.coverageUntil], [false, "2026-10-28"]);
   assert.match(logs.join("\n"), /"candidates":600/);
+});
+
+test("boven de limiet: afgekapt op een daggrens, nooit midden in een dag; dekking in bestand en status", async () => {
+  const root = makeRoot();
+  const members = spreadMembers(600);
+  const { fetchImpl } = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
+  const [status] = await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: fetchImpl, clock, log: () => {}, itemCap: 100 });
+  const document = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", "stad-uit.json"), "utf8"));
+  assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-uit" }), []);
+  // 1-4 oktober = 4 × 22 = 88 items; 5 oktober zou er 110 maken en valt dus volledig weg.
+  assert.equal(document.items.length, 88);
+  assert.ok(document.items.every((item) => item.date <= "2026-10-04"));
+  assert.deepEqual(document.coverage, { until: "2026-10-04", candidateCount: 600, capped: true });
+  assert.deepEqual([status.fetchStatus, status.itemCount, status.capped, status.coverageUntil], ["ok", 88, true, "2026-10-04"]);
+});
+
+test("cutAtDayBoundary: lopende items en vandaag passen samen niet → geen volledige dag", () => {
+  const item = (date, n) => ({ id: `uit-x-${date}-${n}`, date });
+  const items = [item("2026-09-20", 1), item("2026-09-21", 2), item("2026-09-28", 3), item("2026-09-28", 4), item("2026-09-29", 5)];
+  assert.deepEqual(cutAtDayBoundary(items, 3, { today: "2026-09-28", until: "2026-10-28" }), {
+    items: items.slice(0, 2),
+    coverageUntil: null,
+    capped: true,
+  });
+  assert.deepEqual(cutAtDayBoundary(items, 4, { today: "2026-09-28", until: "2026-10-28" }).coverageUntil, "2026-09-28");
+  assert.deepEqual(cutAtDayBoundary(items, 5, { today: "2026-09-28", until: "2026-10-28" }).capped, false);
+});
+
+test("krimpgrens: 0 treffers terwijl er komende items waren → error suspicious_drop, vorige data blijft", async () => {
+  const root = makeRoot();
+  const members = spreadMembers(40);
+  const first = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
+  await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: first.fetchImpl, clock, log: () => {} });
+  const file = path.join(root, "site", "sources", "stad-uit.json");
+  const before = fs.readFileSync(file, "utf8");
+  assert.equal(JSON.parse(before).items.length, 40);
+
+  const empty = fakeFetch(() => collection([], 0));
+  const logs = [];
+  const [status] = await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: empty.fetchImpl, clock, log: (line) => logs.push(line) });
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "suspicious_drop", 40]);
+  const after = JSON.parse(fs.readFileSync(file, "utf8"));
+  assert.equal(after.fetchStatus, "error");
+  assert.deepEqual(after.items, JSON.parse(before).items, "de vorige items blijven staan");
+  assert.deepEqual(after.coverage, JSON.parse(before).coverage);
+  assert.match(logs.join("\n"), /"upcomingBefore":40,"upcomingAfter":0/);
+
+  // Met AGENDA_ALLOW_DROP=stad-uit mag de eigenaar een bewuste daling doorlaten.
+  const [allowed] = await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c", AGENDA_ALLOW_DROP: "stad-uit" }, fetch: empty.fetchImpl, clock, log: () => {} });
+  assert.deepEqual([allowed.fetchStatus, allowed.itemCount], ["ok", 0]);
+});
+
+test("sourceDocument/validate: coverage moet kloppen met de items", () => {
+  const base = { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: [] };
+  assert.deepEqual(validateSourceDocument(sourceDocument("stad-uit", { ...base, coverage: { until: "2026-10-28", candidateCount: 0, capped: false } })), []);
+  assert.ok(validateSourceDocument(sourceDocument("stad-uit", { ...base, coverage: { until: "2026-10-28", candidateCount: 5, capped: false } })).length);
+  assert.ok(validateSourceDocument(sourceDocument("stad-uit", { ...base, coverage: { until: "28-10", candidateCount: 0, capped: false } })).length);
 });
 
 test("zoek-URL: postcodefilter, venster en '+' als %2B", () => {

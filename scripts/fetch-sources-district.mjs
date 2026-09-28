@@ -8,7 +8,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { DISTRICT_PAGE_UUID, parseDistrictPage } from "../lib/district-parser.mjs";
-import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 
@@ -44,7 +44,7 @@ async function getPage(fetchImpl) {
   throw lastError ?? new FetchError("network_error");
 }
 
-export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, dryRun = false, log = console.log } = {}) {
+export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
   const now = clock();
   const retrievedAt = now.toISOString();
@@ -72,8 +72,9 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     droppedLinks: parsed.droppedLinks,
   };
   if (dryRun) {
-    log(JSON.stringify({ dryRun: true, ...counts }));
-    return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length })];
+    const drop = previous ? suspiciousDrop(previous.items, screened.items, today) : null;
+    log(JSON.stringify({ dryRun: true, ...counts, suspiciousDrop: drop }));
+    return [statusEntry(SOURCE_ID, { fetchStatus: drop ? "error" : "ok", retrievedAt, itemCount: screened.items.length, errorCode: drop ? "suspicious_drop" : null })];
   }
 
   if (!parsed.blocks) {
@@ -88,6 +89,9 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     items = previous.items.map((item) => ({ ...item, retrievedAt }));
     counts.restamped = true;
   }
+  // Blokken maar (bijna) geen items meer, bijvoorbeeld na een andere datumopmaak: nooit wegschrijven.
+  const shrink = guardShrink({ rootDir, sourceId: SOURCE_ID, previous, items, today, env, log, counts });
+  if (shrink) return [shrink];
   const document = writeSourceDocument(
     rootDir,
     SOURCE_ID,

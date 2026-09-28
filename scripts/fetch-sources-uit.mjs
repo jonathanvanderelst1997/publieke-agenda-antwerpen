@@ -14,15 +14,19 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { themeFor, classNameForTheme } from "../lib/district-parser.mjs";
-import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, sourcePath, statusEntry, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, sourcePath, statusEntry, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
 import { addDaysIso, brusselsDate, brusselsOffset, brusselsParts, cleanText, stripEmails } from "../lib/html-text.mjs";
 import { CITY_POSTCODES, isDistrictPostcode, pointInDistrict } from "../lib/postcodes.mjs";
-import { sourceDocument } from "../lib/source-feed.mjs";
+import { SOURCE_DEFINITIONS, sourceDocument } from "../lib/source-feed.mjs";
 
 export const SOURCE_ID = "stad-uit";
 export const DEFAULT_SEARCH_BASE = "https://search.uitdatabank.be";
 export const PAGE_SIZE = 250;
-export const ITEM_CAP = 500;
+// Gemeten op 28-09-2026 op uitinvlaanderen.be (Antwerpen + deelgemeenten): 825 activiteiten vandaag,
+// 1.508 in 14 dagen, 1.900 in 30 dagen. Een vaste kap op 500 dekte dus nog geen volle dag. Er wordt
+// nu alleen op een daggrens afgekapt: alles t/m de laatste volledige dag, en die dag staat in
+// `coverage` en op de site ("volledig t/m …, meer op UiTinVlaanderen").
+export const ITEM_CAP = SOURCE_DEFINITIONS[SOURCE_ID].maxItems;
 export const WINDOW_DAYS = 30;
 const MAX_PAGES = 40;
 
@@ -170,13 +174,26 @@ export function itemsForEvent(projected, { today, until, boundary }) {
   return { items, reasons };
 }
 
+// Kapt een op datum gesorteerde lijst af op een daggrens: alle items t/m de laatste dag die er nog
+// volledig in past. Een dag wordt nooit half getoond. `until` is het einde van het venster.
+// Resultaat: { items, coverageUntil, capped }; coverageUntil is null als zelfs de lopende items en
+// vandaag samen niet passen.
+export function cutAtDayBoundary(items, cap, { today, until }) {
+  if (items.length <= cap) return { items, coverageUntil: until, capped: false };
+  const firstOver = items[cap].date;
+  const kept = items.filter((item) => item.date < firstOver);
+  const lastDate = kept.length ? kept[kept.length - 1].date : null;
+  const coverageUntil = firstOver > today ? addDaysIso(firstOver, -1) : null;
+  return { items: kept, coverageUntil: coverageUntil && lastDate ? coverageUntil : null, capped: true };
+}
+
 function keyHeaders(env) {
   if (env.UITDATABANK_CLIENT_ID) return { "x-client-id": env.UITDATABANK_CLIENT_ID };
   if (env.UITDATABANK_API_KEY) return { "x-api-key": env.UITDATABANK_API_KEY };
   return null;
 }
 
-export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, boundary } = {}) {
+export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, boundary, itemCap = ITEM_CAP } = {}) {
   const file = sourcePath(rootDir, SOURCE_ID);
   const headers = keyHeaders(env);
   if (!headers) {
@@ -240,17 +257,18 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   for (const item of collected.sort((a, b) => a.date.localeCompare(b.date) || a.timeSlot.localeCompare(b.timeSlot) || a.id.localeCompare(b.id))) {
     if (!unique.has(item.id)) unique.set(item.id, item);
   }
-  const sorted = [...unique.values()];
-  const capped = sorted.slice(0, ITEM_CAP);
-  const screened = screenItems(capped);
+  const screened = screenItems([...unique.values()]);
+  const cut = cutAtDayBoundary(screened.items, itemCap, { today, until });
+  const coverage = { until: cut.coverageUntil, candidateCount: screened.items.length, capped: cut.capped };
   const counts = {
     source: SOURCE_ID,
     totalItems,
     events: events.length,
-    candidates: sorted.length,
-    capped: sorted.length > ITEM_CAP,
-    items: screened.items.length,
-    upcoming: upcomingCount(screened.items, today),
+    candidates: screened.items.length,
+    capped: cut.capped,
+    coverageUntil: cut.coverageUntil,
+    items: cut.items.length,
+    upcoming: upcomingCount(cut.items, today),
     reviewRequired: (reasons.postcode_geo_conflict ?? 0) + screened.rejected.privacy + screened.rejected.contract,
     reasons,
   };
@@ -258,9 +276,11 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     log(JSON.stringify({ testOnly: true, ...counts }));
     return [statusEntry(SOURCE_ID, { fetchStatus: "test_only", retrievedAt: null, itemCount: 0 })];
   }
-  const document = writeSourceDocument(rootDir, SOURCE_ID, sourceDocument(SOURCE_ID, { retrievedAt, fetchStatus: "ok", items: screened.items }));
+  const shrink = guardShrink({ rootDir, sourceId: SOURCE_ID, previous, items: cut.items, today, env, log, counts });
+  if (shrink) return [shrink];
+  const document = writeSourceDocument(rootDir, SOURCE_ID, sourceDocument(SOURCE_ID, { retrievedAt, fetchStatus: "ok", coverage, items: cut.items }));
   log(JSON.stringify({ ...counts, written: document.items.length }));
-  return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: document.items.length })];
+  return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: document.items.length, capped: cut.capped, coverageUntil: cut.coverageUntil })];
 }
 
 if (isMainModule(import.meta.url)) {

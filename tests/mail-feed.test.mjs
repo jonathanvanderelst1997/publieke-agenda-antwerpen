@@ -5,7 +5,7 @@ import path from "node:path";
 import test from "node:test";
 
 import { run } from "../scripts/fetch-sources-mail.mjs";
-import { sha256Hex, validateMailSignals } from "../lib/mail-signals.mjs";
+import { dateOnPage, pageText, placeOnPage, sha256Hex, timeOnPage, titleOnPage, validateMailSignals } from "../lib/mail-signals.mjs";
 import { privacyFindings, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 
 const NOW = new Date("2026-09-28T06:00:00Z");
@@ -33,7 +33,7 @@ function signal(url, fields = {}) {
 const payload = (items, fields = {}) => ({ schema_version: 1, generated_on: "2026-09-27", items, ...fields });
 const DISTRICT_URL = "https://www.antwerpen.be/info/aaaaaaaaaaaaaaaaaaaaaaaa/infomarkt-burgerbegroting";
 const CITY_URL = "https://www.uitinvlaanderen.be/agenda/e/stadsfeest/00000000-aaaa-4bbb-8ccc-000000000001";
-const PAGE_OK = "<html><body><h1>Infomarkt Burgerbegroting</h1><p>Op woensdag 14 oktober om 19 uur.</p></body></html>";
+const PAGE_OK = "<html><body><h1>Infomarkt Burgerbegroting</h1><p>Op woensdag 14 oktober van 19 tot 21 uur in Districtshuis Harmonie, 2018 Antwerpen.</p></body></html>";
 
 function response(status, body = "", headers = {}) {
   const text = typeof body === "string" ? body : JSON.stringify(body);
@@ -96,14 +96,14 @@ test("200: elk item wordt op de officiële pagina herverifieerd en per groep weg
   const body = payload([
     signal(DISTRICT_URL),
     signal(failing, { title: "Titel die niet op de pagina staat" }),
-    signal(CITY_URL, { group: "stad", sender_class: "participatie", title: "Stadsfeest", start: "2026-10-20", end: null, all_day: true, place: null }),
+    signal(CITY_URL, { group: "stad", sender_class: "participatie", title: "Stadsfeest op de Groenplaats", start: "2026-10-20", end: null, all_day: true, place: null }),
     signal(redirected, { title: "Finale Burgerbegroting", start: "2026-10-25T10:00", end: null }),
   ]);
   const { fetchImpl, calls } = fakeFetch({
     [ENDPOINT]: response(200, body),
     [DISTRICT_URL]: response(200, PAGE_OK),
     [failing]: response(200, PAGE_OK),
-    [CITY_URL]: response(200, "<h1>Stadsfeest</h1><p>Datum: 20/10</p>"),
+    [CITY_URL]: response(200, "<h1>Stadsfeest op de Groenplaats</h1><p>Datum: 20/10</p>"),
     [redirected]: response(301, "", { location: "https://www.burgerbegroting.be/finale-2026" }),
     "https://www.burgerbegroting.be/finale-2026": response(200, "<h1>Finale Burgerbegroting</h1><time>2026-10-25</time>"),
   });
@@ -250,4 +250,59 @@ test("netwerkfout of andere 5xx: fetchStatus error, eerdere items blijven", asyn
   assert.deepEqual([third[0].fetchStatus, third[0].errorCode], ["error", "invalid_payload"]);
   // Andere bronnen worden nooit aangeraakt.
   assert.deepEqual(fs.readdirSync(path.join(root, "site", "sources")).sort(), ["mail-district.json", "mail-stad.json"]);
+});
+
+test("herverificatie: een algemene titel of een titel midden in een woord bewijst niets", () => {
+  const text = pageText("<p>Opening van het nieuwe districtshuis op 4 oktober. Welkom! Supermarkt op het pleintje.</p>");
+  assert.equal(dateOnPage("2026-10-04", text), true);
+  assert.equal(titleOnPage("Opening", text), false, "te kort: 1 woord, 7 tekens");
+  assert.equal(titleOnPage("Receptie", pageText("<p>Receptie op 4 oktober</p>")), false);
+  assert.equal(titleOnPage("Markt op het plein", text), false, "staat alleen als stuk van 'Supermarkt … pleintje'");
+  assert.equal(titleOnPage("Opening van het nieuwe districtshuis", text), true);
+});
+
+test("herverificatie: uur en plaats alleen als ze op de pagina staan", () => {
+  const text = pageText("<p>Zaterdag 10 oktober van 14.30 tot 17 uur in Districtshuis Harmonie, Kiel. Deuren om 19u.</p>");
+  assert.equal(timeOnPage("14:30", text), true);
+  assert.equal(timeOnPage("17:00", text), true);
+  assert.equal(timeOnPage("19:00", text), true);
+  assert.equal(timeOnPage("20:00", text), false);
+  assert.equal(timeOnPage("10:00", text), false, "'10 oktober' is geen uur");
+  assert.equal(timeOnPage("04:30", text), false, "'14.30' is geen 4.30");
+  assert.equal(placeOnPage("Districtshuis Harmonie, Kiel", text), true);
+  assert.equal(placeOnPage("Kerkstraat 12, 2018 Antwerpen", text), false);
+  assert.equal(placeOnPage("Districtshuis Harmonie, Kerkstraat 12", text), false, "elk deel moet op de pagina staan");
+});
+
+test("een privé-plaats en -uur uit het signaal komen nooit op de site; privémarkering en algemene titel worden niet opgehaald", async () => {
+  const root = makeRoot();
+  const expoUrl = "https://www.antwerpen.be/info/cccccccccccccccccccccccc/opening-expo-verbeeld-verleden";
+  const privateUrl = "https://www.antwerpen.be/info/dddddddddddddddddddddddd/uitnodiging";
+  const shortUrl = "https://www.antwerpen.be/info/eeeeeeeeeeeeeeeeeeeeeeee/receptie";
+  const body = payload([
+    // Titel en datum staan op de officiële pagina; plaats en uur komen alleen uit het signaal.
+    signal(expoUrl, { title: "Opening expo Verbeeld Verleden", start: "2026-10-10T20:00", end: "2026-10-10T23:00", place: "Kerkstraat 12, 2018 Antwerpen" }),
+    signal(privateUrl, { title: "[PERSOONLIJKE UITNODIGING – NOG BESLISSEN] Opening expo Verbeeld Verleden", start: "2026-10-10T20:00", end: null }),
+    signal(shortUrl, { title: "Receptie", start: "2026-10-10T20:00", end: null }),
+  ]);
+  const { fetchImpl, calls } = fakeFetch({
+    [ENDPOINT]: response(200, body),
+    [expoUrl]: response(200, "<h1>Opening expo Verbeeld Verleden</h1><p>Zaterdag 10 oktober in het museum. Gratis.</p>"),
+  });
+  const logs = [];
+  await run({ rootDir: root, env: { MAIL_SIGNALEN_URL: ENDPOINT }, fetch: fetchImpl, clock, log: (line) => logs.push(line) });
+  assert.deepEqual(calls.map((call) => call.url), [ENDPOINT, expoUrl], "privémarkering en algemene titel: geen verzoek");
+  const district = read(root, "mail-district");
+  assert.equal(district.items.length, 1);
+  const [item] = district.items;
+  assert.equal(item.title, "Opening expo Verbeeld Verleden");
+  assert.equal(item.date, "2026-10-10");
+  assert.equal(item.location, "locatie via de officiële bron");
+  assert.deepEqual(item.postcodes, []);
+  assert.equal(item.timeSlot, "Info");
+  assert.equal(item.timeText, "");
+  const text = JSON.stringify(district);
+  assert.doesNotMatch(text, /Kerkstraat|20:00|PERSOONLIJKE|Receptie/);
+  assert.match(logs.join("\n"), /"private_marker":1/);
+  assert.match(logs.join("\n"), /"title_too_generic":1/);
 });

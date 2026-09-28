@@ -348,6 +348,7 @@
       errorCode: feedSource.errorCode ?? null,
       attribution: feedSource.attribution,
       itemCount: feedSource.itemCount ?? 0,
+      coverage: feedSource.coverage ?? null,
       feed: true,
     };
   }
@@ -527,6 +528,7 @@
           retrievedAt: source.retrievedAt || null,
           maxAgeHours: source.maxAgeHours,
           itemCount: source.itemCount,
+          coverage: source.coverage ?? null,
           state,
           staleSince: state === "stale" && Number.isFinite(dueMs) ? new Date(dueMs).toISOString() : null,
         };

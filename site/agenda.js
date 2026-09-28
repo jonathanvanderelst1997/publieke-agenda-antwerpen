@@ -2350,6 +2350,8 @@ function renderCounts(items) {
   renderSourceStatus();
 }
 
+const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
+
 // Per bron: "ververst op …", in het rood "verouderd sinds …", of "nog niet actief".
 function renderSourceStatus() {
   const root = document.getElementById("agenda-source-status");
@@ -2368,7 +2370,13 @@ function renderSourceStatus() {
         else if (entry.state === "stale") status = `<span class="source-stale">verouderd sinds ${esc(formatInstant(entry.staleSince))}</span>`;
         else status = `<span class="source-fresh">ververst op ${esc(formatInstant(entry.retrievedAt))}</span>`;
         const failed = entry.fetchStatus === "error" && entry.state !== "inactive" ? ` <span class="source-stale">(laatste ophaalpoging mislukt)</span>` : "";
-        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}</li>`;
+        // Een bron die afkapt (UiT), zegt tot wanneer ze volledig is en hoeveel er in totaal was.
+        const coverage = entry.coverage?.capped
+          ? `<br><span class="source-capped">${
+              entry.coverage.until ? `volledig t/m ${esc(formatSimpleDate(entry.coverage.until))}` : "geen volledige dag"
+            }: ${esc(entry.itemCount)} van ${esc(entry.coverage.candidateCount)} activiteiten in 30 dagen; meer op <a href="${UIT_CITY_AGENDA_URL}" target="_blank" rel="noreferrer">UiTinVlaanderen</a></span>`
+          : "";
+        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}</li>`;
       });
       const canonicalNote =
         scope === "stad" && !onCanonicalHost
