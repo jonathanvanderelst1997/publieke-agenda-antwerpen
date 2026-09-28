@@ -117,3 +117,5 @@ test("validator weigert dubbele ids en foutieve digest", () => {
   assert.ok(errors.some((error) => error.includes("dubbele id")));
   assert.ok(errors.some((error) => error.includes("digest wijkt af")));
 });
+
+test("straatmetadata veroorzaakt geen operationeel change-event",()=>{const a=updateLiveHistory(null,{observedAt:T1,worksResult:{ok:true,items:[work({streets:[],streetResolution:"unresolved"})]},publicSpaceResult:{ok:true,items:[space()]}});const b=updateLiveHistory(a,{observedAt:T2,worksResult:{ok:true,items:[work({streets:[{id:"10",name:"Teststraat",postcode:"2000"}],streetResolution:"nearest_official_axis",streetDistanceMeters:4})]},publicSpaceResult:{ok:true,items:[space()]}});assert.equal(b.changes.filter(x=>x.observedAt===T2&&x.layer==="works").length,0);assert.equal(b.layers.works.items[0].streets[0].name,"Teststraat")});
