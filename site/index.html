@@ -46,7 +46,7 @@
       }
     </script>
     <title>Mijn publieke agenda voor District Antwerpen</title>
-    <link rel="stylesheet" href="/styles.css" />\n    <link rel="stylesheet" href="/works-live.css" />
+    <link rel="stylesheet" href="/styles.css" />\n    <link rel="stylesheet" href="/works-live.css" />\n    <link rel="stylesheet" href="/public-space-live.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
@@ -80,10 +80,17 @@
         <div class="works-live-list" data-works-list></div><button class="works-live-more" type="button" data-works-more hidden>Toon meer</button>
       </section>
 
+      <section id="public-space-live" class="public-space-live" aria-label="Tijdelijke innames en verkeersmaatregelen">
+        <div class="public-space-header"><div><span class="public-space-kicker">Publieke ruimte</span><h2>Parkeerverboden, innames, werfzones en omleidingen</h2><p>Alleen publiek bevestigde maatregelen, rechtstreeks uit de officiële Antwerpse A-Sign-bronnen.</p></div><div class="public-space-summary"><strong data-space-count>Maatregelen laden…</strong><small data-space-meta></small></div></div>
+        <p class="public-space-note" data-space-note>Deze laag wordt geladen zodra dit deel van de pagina in beeld komt.</p>
+        <div class="public-space-controls"><input data-space-search type="search" placeholder="Zoek locatie, type, dossier of fase" aria-label="Zoek in publieke-ruimtemaatregelen" /><select data-space-kind aria-label="Filter op maatregel"><option value="">Alle maatregelen</option><option value="parking">Parkeerverboden</option><option value="iod">Innames openbaar domein</option><option value="sgw">Werfzones en omleidingen</option></select></div>
+        <div class="public-space-list" data-space-list></div><button class="public-space-more" type="button" data-space-more hidden>Toon meer</button>
+      </section>
+
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
-    <script type="module" src="/works-live.js"></script>\n    <script src="/agenda-refresh.js"></script>
+    <script type="module" src="/works-live.js"></script>\n    <script type="module" src="/public-space-live.js"></script>\n    <script src="/agenda-refresh.js"></script>
     <script src="/agenda-ics.js"></script>
     <script src="/agenda.js"></script>
   </body>
