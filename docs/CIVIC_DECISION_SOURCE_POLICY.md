@@ -13,3 +13,9 @@ Voor besluiten van districtscollege Antwerpen kan de parser concrete foor-/kermi
 Speelstraatbesluiten keuren doorgaans een lijst in PDF-bijlage goed. De discovery bewaart daarom alleen de publieke PDF-link en markeert dat de bijlage nog geparsed moet worden. Zij verzint geen straatnamen of data uit de besluittekst. Pas na privacyveilige parsing van de publieke bijlage mogen concrete speelstraatitems naar de agenda.
 
 Ruwe besluittekst, aanwezigheidslijsten en persoonsgegevens worden niet in output of repository opgeslagen. Alleen besluitcode, classificatie, publieke bronlink, veilige bijlagemetadata en geparseerde kalendergegevens worden behouden.
+
+## Speelstraten 2026 — fail-closed grens
+
+Voor 2026 zijn onder meer de CBS-goedkeuringen voor krokus- en paasvakantie en hun PDF-bestandsnamen publiek bevestigd. De concrete speelstraten staan volgens de besluiten in die bijlagen. De huidige publieke web-/Gatewayroutes leveren de bijlagebytes of het eBesluit-document-id niet betrouwbaar op. Een principebeslissing van districtscollege Antwerpen over de stratenlijst 2026 is eveneens vindbaar, maar de concrete lijst is niet geïndexeerd.
+
+Daarom blijft de bron fail-closed: geen straatnaam of periode wordt uit zoekresultaten, titels of historische formaten afgeleid. Alleen de echte publieke bijlage mag een concreet speelstraatitem produceren.
