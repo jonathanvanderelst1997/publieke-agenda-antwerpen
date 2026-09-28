@@ -2,10 +2,14 @@
 
 Stand: 28 september 2026.
 
-Deze laag ontdekt alleen kandidaatbesluiten voor de publieke agenda. Zij publiceert nog geen straatnamen of kalenderitems.
-
 Bron: eBesluit Antwerpen, publieke zoek- en agendapuntpagina's met Referer-header.
 
-De classifier onderscheidt concrete goedgekeurde speelstraatperioden, weigeringen, reglementswijzigingen, kandidaat-kermis/foorbesluiten en kandidaat-marktafwijkingen.
+De discovery doorloopt zoekresultaten gepagineerd (maximaal 20 pagina's per zoekterm) en rapporteert expliciet of de zoekdekking compleet was. Alleen gepubliceerde agendapunten worden gelezen.
 
-Alleen beslissingen met een concrete goedkeuringscategorie worden als kandidaat gemarkeerd. Ruwe besluittekst, aanwezigheidslijsten en persoonsgegevens worden niet opgeslagen. Een volgende parser moet locaties en data uit het besluit of de publieke bijlage halen en opnieuw privacyveilig valideren voordat iets in de publieke agenda komt.
+De classifier onderscheidt concrete goedgekeurde speelstraatperioden, weigeringen, reglementswijzigingen, kermis/foorbesluiten en marktafwijkingen.
+
+Voor besluiten van districtscollege Antwerpen kan de parser concrete foor-/kermisplaatsen en -perioden uit artikel 1 halen. Bij feestdagmarkten worden markten die doorgaan en markten die niet doorgaan afzonderlijk opgeslagen; een geannuleerde markt wordt niet als gewoon agenda-evenement behandeld.
+
+Speelstraatbesluiten keuren doorgaans een lijst in PDF-bijlage goed. De discovery bewaart daarom alleen de publieke PDF-link en markeert dat de bijlage nog geparsed moet worden. Zij verzint geen straatnamen of data uit de besluittekst. Pas na privacyveilige parsing van de publieke bijlage mogen concrete speelstraatitems naar de agenda.
+
+Ruwe besluittekst, aanwezigheidslijsten en persoonsgegevens worden niet in output of repository opgeslagen. Alleen besluitcode, classificatie, publieke bronlink, veilige bijlagemetadata en geparseerde kalendergegevens worden behouden.
