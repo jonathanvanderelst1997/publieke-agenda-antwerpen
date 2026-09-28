@@ -4,3 +4,5 @@ const features=[{type:"Feature",properties:{DISTRICT:"ANTWERPEN",LSTRNMID:1,LSTR
 test("punt gebruikt officiële straatas",()=>assert.equal(resolvePointStreet([4.4002,51.20002],index).streets[0].name,"Teststraat"));
 test("adres vindt straat ook na locatienaam",()=>assert.equal(resolveAddressStreet("Huis, Teststraat 4, 2000 Antwerpen",index).streets[0].name,"Teststraat"));
 test("lijngeometrie kan meerdere straten raken",()=>{const r=resolveGeometryStreets({paths:[[[4.4,51.2],[4.4007,51.2]]]},index);assert.ok(r.streets.some(s=>s.name==="Teststraat"));assert.ok(r.streets.some(s=>s.name==="Zijstraat"))});
+
+test("ruimtelijke grid beperkt kandidaten zonder resultaat te wijzigen",()=>{assert.ok(index.grid instanceof Map);const a=resolvePointStreet([4.4002,51.20002],index);const b=resolveGeometryStreets({paths:[[[4.4,51.2],[4.4007,51.2]]]},index);assert.equal(a.streets[0].name,"Teststraat");assert.ok(b.streets.length>=1)});
