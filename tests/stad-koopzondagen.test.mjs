@@ -143,6 +143,7 @@ test("fetcher: storing, geen HTML of een andere opmaak wist niets", async () => 
     [html("", 503), "http_503"],
     [html("{}", 200, "application/json"), "not_html"],
     [html("<html><body><h1>Koopzondagen</h1><p>Deze pagina is verhuisd.</p></body></html>"), "no_list"],
+    [{ ...html(""), text: async () => { throw new TypeError("terminated"); } }, "body_read_failed"],
   ]) {
     const status = await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => response });
     assert.deepEqual([status[0].fetchStatus, status[0].errorCode, status[0].itemCount], ["error", code, 6], code);

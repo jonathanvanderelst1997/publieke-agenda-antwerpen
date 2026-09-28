@@ -34,7 +34,13 @@ async function getPage(fetchImpl) {
   if (!response.ok) throw new FetchError(`http_${response.status}`);
   const type = String(response.headers?.get?.("content-type") ?? "");
   if (type && !/text\/html/i.test(type)) throw new FetchError("not_html");
-  const html = await response.text();
+  let html;
+  try {
+    html = await response.text();
+  } catch {
+    // Een verbinding die halverwege de body wegvalt, is een storing en geen "unexpected_error".
+    throw new FetchError("body_read_failed");
+  }
   if (html.length > MAX_HTML_BYTES) throw new FetchError("too_large");
   return html;
 }
