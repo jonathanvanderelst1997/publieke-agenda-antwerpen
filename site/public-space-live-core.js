@@ -1,4 +1,5 @@
 import {dedupeByKey,normalizeIod,normalizeParking,normalizeSgw,publicOnly} from "./public-space-core.js";
+import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 
 const attrs=f=>f?.properties||f?.attributes||f||{};
@@ -53,41 +54,41 @@ export function geometryIntersectsDistrict(g,district){
   return false;
 }
 
-function parkingItems(features){
+function parkingItems(features,streetIndex){
   return publicOnly(dedupeByKey(features.map(attrs),normalizeParking)).map(n=>({
     id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:n.reason||"Tijdelijk parkeerverbod",
     location:n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
-    sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20"
+    sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",...(()=>{const r=streetIndex?resolveAddressStreet(n.address,streetIndex):{streets:[],confidence:"unresolved",distanceMeters:null};return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})()
   }));
 }
-function iodItems(features,district){
-  const exact=features.filter(f=>geometryIntersectsDistrict(geom(f),district));
+function iodItems(features,district,streetIndex){
+  const exact=features.filter(f=>geometryIntersectsDistrict(geom(f),district)),byKey=new Map();if(streetIndex)for(const f of exact){const n=normalizeIod(attrs(f));if(n.key){const a=byKey.get(n.key)||[];a.push(resolveGeometryStreets(geom(f),streetIndex));byKey.set(n.key,a)}}
   return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
-    sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"
+    sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})()
   }));
 }
-function sgwItems(features,district){
+function sgwItems(features,district,streetIndex){
   const m=new Map();
   for(const row of features){
     const f=row?.feature||row;if(!geometryIntersectsDistrict(geom(f),district))continue;
     const n=normalizeSgw(attrs(f));if(!n.key||!n.publicConfirmed)continue;
-    const cur=m.get(n.key)||{...n,kinds:new Set()};
-    cur.kinds.add(row?.kind||"Maatregel");cur.start=earlier(cur.start,n.start);cur.end=later(cur.end,n.end);m.set(n.key,cur);
+    const cur=m.get(n.key)||{...n,kinds:new Set(),streetResolutions:[]};
+    cur.kinds.add(row?.kind||"Maatregel");if(streetIndex)cur.streetResolutions.push(resolveGeometryStreets(geom(f),streetIndex));cur.start=earlier(cur.start,n.start);cur.end=later(cur.end,n.end);m.set(n.key,cur);
   }
   return[...m.values()].map(n=>({
     id:`sgw:${n.key}`,kind:"sgw",kindLabel:[...n.kinds].sort().join(" + "),title:[...n.kinds].sort().join(" + "),
     location:"",start:n.start,end:n.end,status:n.status,reference:n.reference,detail:n.phase?"Fase "+n.phase:"",
-    sourceLabel:"A-Sign SGW",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/48"
+    sourceLabel:"A-Sign SGW",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/48",...(()=>{const r=combineStreetResolutions(n.streetResolutions||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})()
   }));
 }
 const stamp=v=>{const t=Date.parse(v||"");return Number.isFinite(t)?t:Infinity};
-export function collectPublicSpace({parkingFeatures=[],iodFeatures=[],sgwFeatures=[],districtGeometry=null}={}){
-  const items=[...parkingItems(parkingFeatures)];
-  if(districtGeometry){items.push(...iodItems(iodFeatures,districtGeometry),...sgwItems(sgwFeatures,districtGeometry))}
+export function collectPublicSpace({parkingFeatures=[],iodFeatures=[],sgwFeatures=[],districtGeometry=null,streetIndex=null}={}){
+  const items=[...parkingItems(parkingFeatures,streetIndex)];
+  if(districtGeometry){items.push(...iodItems(iodFeatures,districtGeometry,streetIndex),...sgwItems(sgwFeatures,districtGeometry,streetIndex))}
   return items.sort((a,b)=>stamp(a.start)-stamp(b.start)||a.kindLabel.localeCompare(b.kindLabel,"nl")||a.title.localeCompare(b.title,"nl"));
 }
 export function publicSpaceStats(items=[]){
