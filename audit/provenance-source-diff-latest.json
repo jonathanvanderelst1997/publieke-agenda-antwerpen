@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-09-28",
-  "sourceDigest": "70bda69b74afb3ed00a819a6122718fef7ccff5853f445af7f34a4e84fae6d81",
-  "matrixDigest": "70bda69b74afb3ed00a819a6122718fef7ccff5853f445af7f34a4e84fae6d81",
+  "sourceDigest": "80bbb0ca0cb67fb331d896afd96261c24625a5a46ab2bd1625f2dd363bb4b4a5",
+  "matrixDigest": "80bbb0ca0cb67fb331d896afd96261c24625a5a46ab2bd1625f2dd363bb4b4a5",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 198
+    "unchanged": 204
   },
   "actions": [
     {
@@ -528,6 +528,42 @@
       "action": "unchanged",
       "sourceDigest": "6a59db5e35c15b3a05805876818f44fc67fbed362a0d305d273995a5083d0735",
       "matrixDigest": "6a59db5e35c15b3a05805876818f44fc67fbed362a0d305d273995a5083d0735"
+    },
+    {
+      "id": "koopzondag-2026-10-04",
+      "action": "unchanged",
+      "sourceDigest": "b961f01e4cbc047e7c3523f7e075f4e33f9e98c119def979a3f14827a7e37f16",
+      "matrixDigest": "b961f01e4cbc047e7c3523f7e075f4e33f9e98c119def979a3f14827a7e37f16"
+    },
+    {
+      "id": "koopzondag-2026-11-01",
+      "action": "unchanged",
+      "sourceDigest": "0bc86827c995965d8a620957b51110780d896be3ca8a4308f68f5271a94a76e6",
+      "matrixDigest": "0bc86827c995965d8a620957b51110780d896be3ca8a4308f68f5271a94a76e6"
+    },
+    {
+      "id": "koopzondag-2026-12-06",
+      "action": "unchanged",
+      "sourceDigest": "1e288fc0a470b219fbc2223e51a38748e6c193298e3efee6b22eed4191a34597",
+      "matrixDigest": "1e288fc0a470b219fbc2223e51a38748e6c193298e3efee6b22eed4191a34597"
+    },
+    {
+      "id": "koopzondag-2026-12-13",
+      "action": "unchanged",
+      "sourceDigest": "305b8b63ee236474c216018c33f8d6c0cd4d37d28ce2806a6e902b2ba65e2f1d",
+      "matrixDigest": "305b8b63ee236474c216018c33f8d6c0cd4d37d28ce2806a6e902b2ba65e2f1d"
+    },
+    {
+      "id": "koopzondag-2026-12-20",
+      "action": "unchanged",
+      "sourceDigest": "9db9e7e589902bb9b05d92c0fc3faa9ad46c3831a86eeb7afab2e7bc4fbcbd58",
+      "matrixDigest": "9db9e7e589902bb9b05d92c0fc3faa9ad46c3831a86eeb7afab2e7bc4fbcbd58"
+    },
+    {
+      "id": "koopzondag-2026-12-27",
+      "action": "unchanged",
+      "sourceDigest": "f6c6d404018f3333213e339c73e65a6aac2fe796d170d20b78d9fc401bd0c5b5",
+      "matrixDigest": "f6c6d404018f3333213e339c73e65a6aac2fe796d170d20b78d9fc401bd0c5b5"
     },
     {
       "id": "lambermontmartre-2026-06-28",
