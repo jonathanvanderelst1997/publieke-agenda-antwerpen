@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-09-28",
-  "sourceDigest": "a185e754f070a1a2790fe5977b29b60fd5fa571bdbe3b95164764448428e7036",
-  "matrixDigest": "a185e754f070a1a2790fe5977b29b60fd5fa571bdbe3b95164764448428e7036",
+  "sourceDigest": "70bda69b74afb3ed00a819a6122718fef7ccff5853f445af7f34a4e84fae6d81",
+  "matrixDigest": "70bda69b74afb3ed00a819a6122718fef7ccff5853f445af7f34a4e84fae6d81",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 150
+    "unchanged": 198
   },
   "actions": [
     {
@@ -548,6 +548,144 @@
       "matrixDigest": "d95588c88b2542c191acc24f06735b6f12467d2ffe99ca8b68c0435ec3f76145"
     },
     {
+      "id": "markt-ma1-2026-10-05",
+      "action": "unchanged",
+      "sourceDigest": "24ecfa2ca155cbe19915a92c42b3494c8146df00f10edabb69e9495b8e446c1c",
+      "matrixDigest": "24ecfa2ca155cbe19915a92c42b3494c8146df00f10edabb69e9495b8e446c1c"
+    },
+    {
+      "id": "markt-ma10-2026-10-04",
+      "action": "unchanged",
+      "sourceDigest": "eb4acc863130e172c3bdde0369017854ebd8158f980fa04e31f88e99b4aa062c",
+      "matrixDigest": "eb4acc863130e172c3bdde0369017854ebd8158f980fa04e31f88e99b4aa062c"
+    },
+    {
+      "id": "markt-ma13-2026-09-30",
+      "action": "unchanged",
+      "sourceDigest": "b87055229849cbed62fe80fa1f6b402c457cbe4d0626813311d3603f099e560c",
+      "matrixDigest": "b87055229849cbed62fe80fa1f6b402c457cbe4d0626813311d3603f099e560c"
+    },
+    {
+      "id": "markt-ma14-2026-10-03",
+      "action": "unchanged",
+      "sourceDigest": "adc0efe1614b0ef52f3e19c777033fb3f23b47a5eac3388838b5e839425aa524",
+      "matrixDigest": "adc0efe1614b0ef52f3e19c777033fb3f23b47a5eac3388838b5e839425aa524"
+    },
+    {
+      "id": "markt-ma15-2026-09-29",
+      "action": "unchanged",
+      "sourceDigest": "bae2177547cdb91fd6282d6d4c66f2c7506593e5153f040a2b4b440281a4d099",
+      "matrixDigest": "bae2177547cdb91fd6282d6d4c66f2c7506593e5153f040a2b4b440281a4d099"
+    },
+    {
+      "id": "markt-ma18-2026-10-02",
+      "action": "unchanged",
+      "sourceDigest": "0630a9442478aa29dbc417768a701858ee99f22fe241d345642bff004a3ca8b2",
+      "matrixDigest": "0630a9442478aa29dbc417768a701858ee99f22fe241d345642bff004a3ca8b2"
+    },
+    {
+      "id": "markt-ma19-2026-10-01",
+      "action": "unchanged",
+      "sourceDigest": "fea0a884d4d373b887ec780e42cef9a7bbc7999106673585af825d17737c8cd2",
+      "matrixDigest": "fea0a884d4d373b887ec780e42cef9a7bbc7999106673585af825d17737c8cd2"
+    },
+    {
+      "id": "markt-ma2-2026-10-02",
+      "action": "unchanged",
+      "sourceDigest": "e7f99e12fc7802c6b6bf587fc67bae36c0e6508336feed54d3412e85ea33f197",
+      "matrixDigest": "e7f99e12fc7802c6b6bf587fc67bae36c0e6508336feed54d3412e85ea33f197"
+    },
+    {
+      "id": "markt-ma20-2026-10-03",
+      "action": "unchanged",
+      "sourceDigest": "99fb15a1be11e79c72f8c0beb7dcb6a4638652253ca524c54c5f9ba3e0763c48",
+      "matrixDigest": "99fb15a1be11e79c72f8c0beb7dcb6a4638652253ca524c54c5f9ba3e0763c48"
+    },
+    {
+      "id": "markt-ma22-2026-09-29",
+      "action": "unchanged",
+      "sourceDigest": "707dd72230a44c4e21b0a1c57f30540d26bd1cbe311027f0845127478e9c0c72",
+      "matrixDigest": "707dd72230a44c4e21b0a1c57f30540d26bd1cbe311027f0845127478e9c0c72"
+    },
+    {
+      "id": "markt-ma23-2026-09-29",
+      "action": "unchanged",
+      "sourceDigest": "61782b08c24fa730c13251c8ddf0790fa3896530544ff9998be1f00723d8ad5f",
+      "matrixDigest": "61782b08c24fa730c13251c8ddf0790fa3896530544ff9998be1f00723d8ad5f"
+    },
+    {
+      "id": "markt-ma24-2026-10-04",
+      "action": "unchanged",
+      "sourceDigest": "a97d4cac01a7d7c0a3fb6ce2a3ee6062d6464a77111b6157d8330321ea5d9fb2",
+      "matrixDigest": "a97d4cac01a7d7c0a3fb6ce2a3ee6062d6464a77111b6157d8330321ea5d9fb2"
+    },
+    {
+      "id": "markt-ma25-2026-09-30",
+      "action": "unchanged",
+      "sourceDigest": "670143617f8cd08ba3a60f72fbc79d148ee8a0c0beaab5e79d5922016809b35e",
+      "matrixDigest": "670143617f8cd08ba3a60f72fbc79d148ee8a0c0beaab5e79d5922016809b35e"
+    },
+    {
+      "id": "markt-ma26-2026-10-04",
+      "action": "unchanged",
+      "sourceDigest": "15091124055138a27987d13f69b572ebd2b478a275ad91765e6786ba5106b5b5",
+      "matrixDigest": "15091124055138a27987d13f69b572ebd2b478a275ad91765e6786ba5106b5b5"
+    },
+    {
+      "id": "markt-ma27-2026-10-03",
+      "action": "unchanged",
+      "sourceDigest": "4fa14cc5df9f8ba4e6e82ced7c5d40fc0eeb07c809355737835f118eb3be30a8",
+      "matrixDigest": "4fa14cc5df9f8ba4e6e82ced7c5d40fc0eeb07c809355737835f118eb3be30a8"
+    },
+    {
+      "id": "markt-ma3-2026-10-02",
+      "action": "unchanged",
+      "sourceDigest": "523825aaf0e58506617d90b065f00f637d94e5564f7b4df6c16cf7b0e59dc7e3",
+      "matrixDigest": "523825aaf0e58506617d90b065f00f637d94e5564f7b4df6c16cf7b0e59dc7e3"
+    },
+    {
+      "id": "markt-ma31-2026-10-01",
+      "action": "unchanged",
+      "sourceDigest": "9659950326431ea91bca26572001b7161da22f39cb215416afd6699f71db1f96",
+      "matrixDigest": "9659950326431ea91bca26572001b7161da22f39cb215416afd6699f71db1f96"
+    },
+    {
+      "id": "markt-ma4-2026-10-03",
+      "action": "unchanged",
+      "sourceDigest": "18cd2a403c754cdb7b01ff37b15d52c69e7c208f0a47f36f42224c809d94c0a2",
+      "matrixDigest": "18cd2a403c754cdb7b01ff37b15d52c69e7c208f0a47f36f42224c809d94c0a2"
+    },
+    {
+      "id": "markt-ma5-2026-10-02",
+      "action": "unchanged",
+      "sourceDigest": "1edac71ef61965e0b10c925458fd38f40bb2c137d312dabf3fa2f583165f6ce2",
+      "matrixDigest": "1edac71ef61965e0b10c925458fd38f40bb2c137d312dabf3fa2f583165f6ce2"
+    },
+    {
+      "id": "markt-ma6-2026-09-30",
+      "action": "unchanged",
+      "sourceDigest": "a51e6c817b2d16049c0aaec36bcc0f58c043b138744fb8bb0297103c33afed09",
+      "matrixDigest": "a51e6c817b2d16049c0aaec36bcc0f58c043b138744fb8bb0297103c33afed09"
+    },
+    {
+      "id": "markt-ma7-2026-10-05",
+      "action": "unchanged",
+      "sourceDigest": "a992d3cf405a1b426e016abc79811b53cfe788ae126545b6f45dca202f687002",
+      "matrixDigest": "a992d3cf405a1b426e016abc79811b53cfe788ae126545b6f45dca202f687002"
+    },
+    {
+      "id": "markt-ma8-2026-10-01",
+      "action": "unchanged",
+      "sourceDigest": "58fee2c550712165927b8083b2ecb6b9891c9ae64edde969fd9f7fba547117a5",
+      "matrixDigest": "58fee2c550712165927b8083b2ecb6b9891c9ae64edde969fd9f7fba547117a5"
+    },
+    {
+      "id": "markt-ma9-2026-10-02",
+      "action": "unchanged",
+      "sourceDigest": "76e2fb4303e58af61c26a102eebbedc47cadd8bf495d901fa693e0470cefc0f5",
+      "matrixDigest": "76e2fb4303e58af61c26a102eebbedc47cadd8bf495d901fa693e0470cefc0f5"
+    },
+    {
       "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29",
       "action": "unchanged",
       "sourceDigest": "ae0f876e10154ea988ecd63daa32367686fd6feb999a2dad94cc96f59d50e8b6",
@@ -750,6 +888,156 @@
       "action": "unchanged",
       "sourceDigest": "f675a06c23467fb6e4474850681b3be53cd9cc8acc6af8303dbe01ea4dad6898",
       "matrixDigest": "f675a06c23467fb6e4474850681b3be53cd9cc8acc6af8303dbe01ea4dad6898"
+    },
+    {
+      "id": "stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13",
+      "action": "unchanged",
+      "sourceDigest": "77ebf62ffeb966f80ba8f5dd3496d01748abf95c716a417b83236b7dcd104d7c",
+      "matrixDigest": "77ebf62ffeb966f80ba8f5dd3496d01748abf95c716a417b83236b7dcd104d7c"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-08",
+      "action": "unchanged",
+      "sourceDigest": "243e147a0a67f1ffee9454fbb590ebcbcc1bf452d38b9a15db5c763a6e64b106",
+      "matrixDigest": "243e147a0a67f1ffee9454fbb590ebcbcc1bf452d38b9a15db5c763a6e64b106"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17",
+      "action": "unchanged",
+      "sourceDigest": "d8ee5e587ecd3675716ca8d82c94a4572c338228153fa94f8cce5892a4967f83",
+      "matrixDigest": "d8ee5e587ecd3675716ca8d82c94a4572c338228153fa94f8cce5892a4967f83"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06",
+      "action": "unchanged",
+      "sourceDigest": "41c0395faf737bb77520dcda4f16d85a6eb8bc71df13bb182f6d3de353e6998b",
+      "matrixDigest": "41c0395faf737bb77520dcda4f16d85a6eb8bc71df13bb182f6d3de353e6998b"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07",
+      "action": "unchanged",
+      "sourceDigest": "68a30ce15826eed6bde1f729503a16d90f176f054265520963913fa6db10f89a",
+      "matrixDigest": "68a30ce15826eed6bde1f729503a16d90f176f054265520963913fa6db10f89a"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08",
+      "action": "unchanged",
+      "sourceDigest": "76a72a132da5620edd28102106163823cc1e410ed2bc94ef7b9eee26abd343c9",
+      "matrixDigest": "76a72a132da5620edd28102106163823cc1e410ed2bc94ef7b9eee26abd343c9"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13",
+      "action": "unchanged",
+      "sourceDigest": "53a0bb7643b4a8d47e631cb436d9a34b75998a8b5f04b55ea0607abdea1a264b",
+      "matrixDigest": "53a0bb7643b4a8d47e631cb436d9a34b75998a8b5f04b55ea0607abdea1a264b"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15",
+      "action": "unchanged",
+      "sourceDigest": "d9669c90bab13316095c4494ea01dc3c967f783950ce623f36b1cb37183de09e",
+      "matrixDigest": "d9669c90bab13316095c4494ea01dc3c967f783950ce623f36b1cb37183de09e"
+    },
+    {
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11",
+      "action": "unchanged",
+      "sourceDigest": "6c9798791bfe5df47a03c6ec53f489d3ab8c631d73ac77b753571d3df2bcacf3",
+      "matrixDigest": "6c9798791bfe5df47a03c6ec53f489d3ab8c631d73ac77b753571d3df2bcacf3"
+    },
+    {
+      "id": "stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30",
+      "action": "unchanged",
+      "sourceDigest": "7e45908f8c885d5bcb710825f66a89342766bfad3bb5eb980ca1bd264f610f5f",
+      "matrixDigest": "7e45908f8c885d5bcb710825f66a89342766bfad3bb5eb980ca1bd264f610f5f"
+    },
+    {
+      "id": "stad-news-deurne-6a86d1d6a7e51177702c406b-2026-10-04",
+      "action": "unchanged",
+      "sourceDigest": "960b039ce347a6a54a2a5b3afbe2b62cb33f2f42a31e992418628de0d1406433",
+      "matrixDigest": "960b039ce347a6a54a2a5b3afbe2b62cb33f2f42a31e992418628de0d1406433"
+    },
+    {
+      "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18",
+      "action": "unchanged",
+      "sourceDigest": "32dfa0f15bb38e4c84443c6a92b03d3e1310c05623a1488250d721820e07581f",
+      "matrixDigest": "32dfa0f15bb38e4c84443c6a92b03d3e1310c05623a1488250d721820e07581f"
+    },
+    {
+      "id": "stad-news-hoboken-5daeb0c3f8412527a4787a4c-2026-10-09",
+      "action": "unchanged",
+      "sourceDigest": "0646e03aca0725c3c082d57016a12c52ec9adc4ec19a196b2c33c6ec8515fff8",
+      "matrixDigest": "0646e03aca0725c3c082d57016a12c52ec9adc4ec19a196b2c33c6ec8515fff8"
+    },
+    {
+      "id": "stad-news-hoboken-6718b2f31beefe7ae24580cd-2026-10-30",
+      "action": "unchanged",
+      "sourceDigest": "ff47aed76dc22fce57f8dadca0c99c77641b8449e450b3bc47ed12e8688509a2",
+      "matrixDigest": "ff47aed76dc22fce57f8dadca0c99c77641b8449e450b3bc47ed12e8688509a2"
+    },
+    {
+      "id": "stad-news-merksem-6655c1fac846040011359f8b-2026-10-31",
+      "action": "unchanged",
+      "sourceDigest": "b0693057e26ccce8961e3e72d28ca625d7e821aae534d19b15f3b308ff092e3a",
+      "matrixDigest": "b0693057e26ccce8961e3e72d28ca625d7e821aae534d19b15f3b308ff092e3a"
+    },
+    {
+      "id": "stad-news-merksem-6a71e3e8d82fba3f307d2c83-2026-09-29",
+      "action": "unchanged",
+      "sourceDigest": "aa77f6f4bb2ffee950f55a461bc09383a6a2905c4d5a110b5646119ecd8b97ef",
+      "matrixDigest": "aa77f6f4bb2ffee950f55a461bc09383a6a2905c4d5a110b5646119ecd8b97ef"
+    },
+    {
+      "id": "stad-news-merksem-6a7aff9ed82fbaaad21424f2-2026-10-07",
+      "action": "unchanged",
+      "sourceDigest": "6a63f0e8a3fd72eb255105b12c502331bb0e1a5e5910e5abacd9edbd44ce8d04",
+      "matrixDigest": "6a63f0e8a3fd72eb255105b12c502331bb0e1a5e5910e5abacd9edbd44ce8d04"
+    },
+    {
+      "id": "stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18",
+      "action": "unchanged",
+      "sourceDigest": "6bf5d52ba3534d32acde6442eea83af81df48124467c2d86ee114a2def7fc432",
+      "matrixDigest": "6bf5d52ba3534d32acde6442eea83af81df48124467c2d86ee114a2def7fc432"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t0r0-2026-10-01",
+      "action": "unchanged",
+      "sourceDigest": "d1b3146e77b2c764a2bb49f59d9e124a62801aec496bfda5845c52e45622506f",
+      "matrixDigest": "d1b3146e77b2c764a2bb49f59d9e124a62801aec496bfda5845c52e45622506f"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t0r1-2026-10-05",
+      "action": "unchanged",
+      "sourceDigest": "6d77ff3f123f1d2a6d1ae4cfa8ac2d3ce316cbc2effd15dae5ac1551604db015",
+      "matrixDigest": "6d77ff3f123f1d2a6d1ae4cfa8ac2d3ce316cbc2effd15dae5ac1551604db015"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t0r2-2026-10-06",
+      "action": "unchanged",
+      "sourceDigest": "78c04dbc996559f82f3a74df39b0d602b6b96baf86520ddb02ce16bffc43cf7e",
+      "matrixDigest": "78c04dbc996559f82f3a74df39b0d602b6b96baf86520ddb02ce16bffc43cf7e"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15",
+      "action": "unchanged",
+      "sourceDigest": "03f884404fcb104f4928775d2abd728915d67a463dd27a67a71ec24167b93693",
+      "matrixDigest": "03f884404fcb104f4928775d2abd728915d67a463dd27a67a71ec24167b93693"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22",
+      "action": "unchanged",
+      "sourceDigest": "fde39e2c3bc859edb2f916b5fc5c3286376034ab6236040bd33b0ba7ca3ac39e",
+      "matrixDigest": "fde39e2c3bc859edb2f916b5fc5c3286376034ab6236040bd33b0ba7ca3ac39e"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19",
+      "action": "unchanged",
+      "sourceDigest": "9f39a7da42b617e2bc8545177710d67a2325c40592154fa514a91423010f19c8",
+      "matrixDigest": "9f39a7da42b617e2bc8545177710d67a2325c40592154fa514a91423010f19c8"
+    },
+    {
+      "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10",
+      "action": "unchanged",
+      "sourceDigest": "fb153dce5e98a0c5b2769a262fa4776e0dd8434a151a08f384aead2ca0b585c9",
+      "matrixDigest": "fb153dce5e98a0c5b2769a262fa4776e0dd8434a151a08f384aead2ca0b585c9"
     },
     {
       "id": "strip-en-boekenplein-2026-06-21",

@@ -44,6 +44,26 @@
       "errorCode": "endpoint_not_public"
     },
     {
+      "sourceId": "stad-districten",
+      "file": "sources/stad-districten.json",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T13:30:59.191Z",
+      "maxAgeHours": 48,
+      "itemCount": 25,
+      "errorCode": null
+    },
+    {
+      "sourceId": "stad-markten",
+      "file": "sources/stad-markten.json",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "maxAgeHours": 48,
+      "itemCount": 23,
+      "errorCode": null
+    },
+    {
       "sourceId": "stad-uit",
       "file": "sources/stad-uit.json",
       "scope": "stad",
