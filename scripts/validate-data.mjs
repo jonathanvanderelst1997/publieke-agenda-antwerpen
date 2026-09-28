@@ -6,7 +6,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { validateEventContract } from "../lib/event-contract.mjs";
-import { SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
+import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -35,7 +35,11 @@ if (!fs.existsSync(sourcesDir)) {
     if (name === "refresh-status.json") {
       for (const error of validateRefreshStatus(json)) problems.push(`${name}: ${error}`);
       const listed = (json.sources ?? []).map((entry) => entry.sourceId);
-      for (const sourceId of SOURCE_IDS) if (!listed.includes(sourceId)) problems.push(`${name}: ${sourceId} ontbreekt`);
+      for (const sourceId of SOURCE_IDS) {
+        if (!listed.includes(sourceId) && SOURCE_DEFINITIONS[sourceId]?.bootstrapOptional !== true) {
+          problems.push(`${name}: ${sourceId} ontbreekt`);
+        }
+      }
       continue;
     }
     const sourceId = name.replace(/\.json$/, "");
@@ -50,7 +54,11 @@ if (!fs.existsSync(sourcesDir)) {
     for (const error of contract.errors) problems.push(`${name}: eventcontract ${error.code} (${error.id ?? error.index})`);
     summary[sourceId] = { fetchStatus: json.fetchStatus, items: Array.isArray(json.items) ? json.items.length : 0 };
   }
-  for (const sourceId of SOURCE_IDS) if (!summary[sourceId]) problems.push(`${sourceId}.json ontbreekt`);
+  for (const sourceId of SOURCE_IDS) {
+    if (!summary[sourceId] && SOURCE_DEFINITIONS[sourceId]?.bootstrapOptional !== true) {
+      problems.push(`${sourceId}.json ontbreekt`);
+    }
+  }
 }
 
 const historyFile = path.join(rootDir, LIVE_HISTORY_FILE);
