@@ -1,37 +1,78 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-09-16T12:46:42Z",
-  "classificationAsOf": "2026-09-16",
-  "sourceCount": 133,
-  "count": 8,
-  "eventPageCount": 8,
+  "candidateGeneratedAt": "2026-09-28T11:36:33.870Z",
+  "classificationAsOf": "2026-09-28",
+  "sourceCount": 150,
+  "count": 13,
+  "eventPageCount": 13,
   "classifications": {
-    "expired": 109,
-    "current": 3,
-    "future": 5,
-    "review_required": 16
+    "expired": 117,
+    "current": 1,
+    "future": 12,
+    "review_required": 20
   },
   "scopeCounts": {
-    "district": 6,
-    "stad": 2
+    "district": 13,
+    "stad": 0
   },
-  "feedGeneratedAt": null,
-  "feedSources": [],
-  "digest": "6223a6a5a3454a5afc51dd3aa077c3ad3cbf64b877dda482053a61f30d2d5cb9",
+  "feedGeneratedAt": "2026-09-28T11:36:33.870Z",
+  "feedSources": [
+    {
+      "sourceId": "district-kalender",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "state": "fresh"
+    },
+    {
+      "sourceId": "district-nieuws",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T11:36:33.610Z",
+      "state": "fresh"
+    },
+    {
+      "sourceId": "mail-district",
+      "scope": "district",
+      "fetchStatus": "disabled",
+      "retrievedAt": null,
+      "state": "inactive"
+    },
+    {
+      "sourceId": "mail-stad",
+      "scope": "stad",
+      "fetchStatus": "disabled",
+      "retrievedAt": null,
+      "state": "inactive"
+    },
+    {
+      "sourceId": "stad-uit",
+      "scope": "stad",
+      "fetchStatus": "skipped_no_key",
+      "retrievedAt": null,
+      "state": "inactive"
+    }
+  ],
+  "digest": "597ad9eba0e855fd4093e4b1f602251380b50e1c4b4eef2dbf426b4a12d0f27d",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
-    "Fasewissel heraanleg Balansstraat en Lange Elzenstraat",
-    "Werken Halenstraat en Schijnpoortweg",
-    "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2",
-    "Inschrijven Herfstklaar",
-    "Poëtische Rimpelingen",
-    "Beweegdag 55+",
-    "Lambermontmartre",
-    "Poëtische Rimpelingen"
+    "Humans of Antwerp",
+    "‘t Kiel Loopt",
+    "Vliegend College komt naar de wijken",
+    "Linkeroever Criterium",
+    "Familiedag in Permeke",
+    "Tabletcafé",
+    "Vrijdagen van de Poëzie",
+    "Halloween",
+    "FURIE!",
+    "Verlangen naar verbinding",
+    "Vrijdagen van de Poëzie",
+    "Noorderlicht",
+    "Tabletcafé"
   ]
 }

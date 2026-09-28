@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "mail-stad",
+  "scope": "stad",
+  "publisher": "Stad Antwerpen (aangekondigd in een publieke nieuwsbrief)",
+  "attribution": {
+    "text": "Bron: officiële publieke pagina, opnieuw gecontroleerd na aankondiging in een publieke nieuwsbrief",
+    "url": "https://www.antwerpen.be/"
+  },
+  "url": "https://www.antwerpen.be/",
+  "allowedHosts": [
+    "www.antwerpen.be",
+    "burgerbegroting.be",
+    "www.burgerbegroting.be",
+    "www.uitinvlaanderen.be"
+  ],
+  "officialPublic": true,
+  "method": "Brain Gateway mail-signalen, elk item herverifieerd op de officiële pagina",
+  "retrievedAt": null,
+  "fetchStatus": "disabled",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": []
+}

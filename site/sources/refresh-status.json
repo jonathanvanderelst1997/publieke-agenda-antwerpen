@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-09-28T11:36:33.870Z",
+  "classificationAsOf": "2026-09-28",
+  "sources": [
+    {
+      "sourceId": "district-kalender",
+      "file": "sources/district-kalender.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "maxAgeHours": 48,
+      "itemCount": 17,
+      "errorCode": null
+    },
+    {
+      "sourceId": "district-nieuws",
+      "file": "sources/district-nieuws.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T11:36:33.610Z",
+      "maxAgeHours": 48,
+      "itemCount": 3,
+      "errorCode": null
+    },
+    {
+      "sourceId": "mail-district",
+      "file": "sources/mail-district.json",
+      "scope": "district",
+      "fetchStatus": "disabled",
+      "retrievedAt": null,
+      "maxAgeHours": 48,
+      "itemCount": 0,
+      "errorCode": "endpoint_not_public"
+    },
+    {
+      "sourceId": "mail-stad",
+      "file": "sources/mail-stad.json",
+      "scope": "stad",
+      "fetchStatus": "disabled",
+      "retrievedAt": null,
+      "maxAgeHours": 48,
+      "itemCount": 0,
+      "errorCode": "endpoint_not_public"
+    },
+    {
+      "sourceId": "stad-uit",
+      "file": "sources/stad-uit.json",
+      "scope": "stad",
+      "fetchStatus": "skipped_no_key",
+      "retrievedAt": null,
+      "maxAgeHours": 48,
+      "itemCount": 0,
+      "errorCode": null
+    }
+  ]
+}
