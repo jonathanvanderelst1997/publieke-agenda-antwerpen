@@ -26,3 +26,7 @@ De historiek bevat alleen velden die al publiek in de live kaarten mogen staan. 
 ## Datalaan
 
 `site/history/live-layers.json` is het enige toegelaten historypad in de data-lane. Na merge van deze codewijziging kan een gewone dagelijkse refresh dat bestand aanpassen zonder codepaden te openen.
+
+## Canonieke straatkoppeling
+
+De dagelijkse refresh gebruikt de officiële Antwerpse wegenregisterlaag `wegenregister_straatas_postzone` (laag 905). GIPOD-werkpunten worden alleen aan de dichtstbijzijnde straatas gekoppeld als de match voldoende nabij en niet ambigu is. Parkeerverboden worden via hun officiële adres aan dezelfde canonieke straatnamen/postcodes gekoppeld. Ambigue of te verre matches blijven onopgelost. IOD/SGW volgen later via een geometrische join. Straatmetadata veroorzaakt op zichzelf geen operationeel `changed`-event. Bij uitval van de straatbron blijft de history fail-closed.

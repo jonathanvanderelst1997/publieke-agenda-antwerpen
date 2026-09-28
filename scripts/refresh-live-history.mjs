@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { brusselsDate } from "../lib/html-text.mjs";
 import { updateLiveHistory, validateLiveHistory } from "../lib/live-history.mjs";
+import { applyPublicSpaceStreetResolution, applyWorkStreetResolution, buildStreetIndex } from "../lib/street-resolver.mjs";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { worksExactSnapshot } from "../site/works-snapshot.js";
 import { attachHindrance } from "../site/works-hindrance.js";
@@ -14,6 +15,7 @@ const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
 const HINDRANCE_BBOX = "4.29,51.17,4.47,51.32";
 const ASIGN_BASE = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer";
 const DISTRICT_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/109/query";
+const STREET_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek9/MapServer/905/query";
 
 function errorCode(error, fallback) {
   const code = String(error?.code || "").toLowerCase();
@@ -77,6 +79,8 @@ async function gipodCollection(collection, params, fetchImpl) {
   return features;
 }
 
+async function streetIndex(fetchImpl){const idsUrl=new URL(STREET_URL);idsUrl.search=new URLSearchParams({where:"DISTRICT='ANTWERPEN'",returnIdsOnly:"true",f:"json"});const idData=await getJson(idsUrl,fetchImpl),ids=Array.isArray(idData.objectIds)?idData.objectIds:[];if(!ids.length||ids.length>20000){const e=new Error("straatas ids ongeldig");e.code="street_axis_invalid";throw e}const features=[];for(let offset=0;offset<ids.length;offset+=500){const url=new URL(STREET_URL);url.search=new URLSearchParams({objectIds:ids.slice(offset,offset+500).join(","),outFields:"LSTRNMID,LSTRNM,RSTRNMID,RSTRNM,postcode,DISTRICT",returnGeometry:"true",outSR:"4326",f:"geojson"});const data=await getJson(url,fetchImpl);if(!Array.isArray(data.features)){const e=new Error("straatas features ontbreken");e.code="street_axis_invalid";throw e}features.push(...data.features)}const index=buildStreetIndex(features);if(!index.segments.length){const e=new Error("straatas leeg");e.code="street_axis_empty";throw e}return index}
+
 async function districtGeometry(fetchImpl) {
   const url = new URL(DISTRICT_URL);
   url.search = new URLSearchParams({
@@ -135,7 +139,7 @@ async function asignLayer(layer, { where, outFields, geometry = false, spatial =
   return features;
 }
 
-export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch } = {}) {
+export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets } = {}) {
   try {
     const [features, district, hindrance] = await Promise.all([
       gipodCollection(
@@ -163,14 +167,14 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch } 
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = attachHindrance(collectWorks(features, exactIds, district), hindrance, true);
+    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets);
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };
   }
 }
 
-export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date() } = {}) {
+export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), streets } = {}) {
   const dateSql = `DATE '${brusselsDate(clock())}'`;
   try {
     const [parking, iod22, iod23, sgw47, sgw48, district] = await Promise.all([
@@ -214,7 +218,7 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       sgwFeatures: sgw,
       districtGeometry: district,
     });
-    return { ok: true, items };
+    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets) };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "public_space_fetch_failed") };
   }
@@ -234,10 +238,7 @@ export async function refreshLiveHistory({
     const previousErrors = validateLiveHistory(previous);
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
-  const [worksResult, publicSpaceResult] = await Promise.all([
-    fetchWorksHistory({ fetch: fetchImpl }),
-    fetchPublicSpaceHistory({ fetch: fetchImpl, clock }),
-  ]);
+  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
   const history = updateLiveHistory(previous, { observedAt, worksResult, publicSpaceResult });
   const errors = validateLiveHistory(history);
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
