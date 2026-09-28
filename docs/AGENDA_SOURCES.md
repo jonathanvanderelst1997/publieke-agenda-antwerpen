@@ -12,6 +12,7 @@ automatische bron gaat voor.
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
+| `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
 | `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is** |
 | `mail-district`, `mail-stad` | district / stad | publieke activiteiten uit nieuwsbrieven | mail-signalen van de Brain Gateway; titel en datum worden op de officiële pagina gecontroleerd, uur en plaats alleen overgenomen als ze daar ook staan (zie onder) |
 
@@ -40,7 +41,7 @@ eigenaarsbeslissing.
 Een bron die wel antwoordt maar (bijna) niets meer oplevert, is eerder stuk (een andere datumopmaak,
 een leeg kanaal) dan leeg. Daarom:
 
-- Elke fetcher (`district-kalender`, `district-nieuws`, `stad-markten`, `stad-uit`) vergelijkt het aantal **komende**
+- Elke fetcher (`district-kalender`, `district-nieuws`, `stad-markten`, `stad-koopzondagen`, `stad-uit`) vergelijkt het aantal **komende**
   items (einddatum of datum ≥ vandaag) met de vorige versie. Verdacht is: 0 terwijl er vorige keer meer
   dan 0 waren, of meer dan de helft minder als er vorige keer minstens 4 waren. Dan wordt niets
   weggeschreven: de bron krijgt `fetchStatus: "error"` met `errorCode: "suspicious_drop"` en de vorige
@@ -78,8 +79,8 @@ een leeg kanaal) dan leeg. Daarom:
 - Ook samen: dezelfde datum en hetzelfde uur met dezelfde detailpagina op www.antwerpen.be, of een titel
   (minstens 8 tekens) die volledig in de andere staat.
 - Nooit samen: twee items met verschillende, niet-lege postcodelijsten.
-- Voorrang: `district-kalender` > `district-nieuws` > `stad-districten` > `stad-markten` > `stad-uit` >
-  `mail-district` > `mail-stad` > handmatig.
+- Voorrang: `district-kalender` > `district-nieuws` > `stad-districten` > `stad-markten` > `stad-koopzondagen` >
+  `stad-uit` > `mail-district` > `mail-stad` > handmatig.
 - Het samengevoegde item houdt de velden van de bron met voorrang en toont **alle** bronlinks.
 - Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het en
   de build verwijdert de eventpagina.
@@ -140,11 +141,46 @@ een leeg kanaal) dan leeg. Daarom:
 - De bronlink van een markt is haar GIPOD-rij (`…/items/INNAME_PUNT.<id>`).
 - Licentie: Modellicentie Gratis Hergebruik v1.0, met bronvermelding.
 
+## Koopzondagen (`stad-koopzondagen`)
+
+- Eén `GET https://www.antwerpen.be/info/koopzondagen` per ronde (`accept: text/html`, geen redirects,
+  20 seconden time-out, hoogstens 2 MB), zonder herhaling: de lijst verandert een paar keer per jaar.
+- Waarom HTML en niet de portaal-API (`page-content-by-uuid`) zoals de districtskalender: dit is een
+  infopagina van de nieuwe generatie zonder portaal-id van 24 hextekens; een API-adres raden levert niets
+  zekers op. De gerenderde HTML is wat de stad publiceert.
+- Gelezen wordt alleen de `<ul>` direct na de kop "Koopzondagen in <jaar>" (er mogen er meer zijn, zoals
+  rond de jaarwissel). Scripts worden eerst weggeknipt (de Next.js-payload herhaalt de lijst ge-escapet);
+  het contactblok onderaan de pagina wordt nooit gelezen. De ruwe HTML wordt nergens bewaard.
+- Een regel telt alleen als hij volledig "<dag> <maand> <jaar>" is, optioneel met ": <korte context>"
+  (Pasen, zomersolden, Allerheiligen …). Het jaar moet dat van de kop zijn en de dag een zondag. Een uur,
+  een ander jaar, een andere weekdag of een dubbele datum: niet publiceren.
+- Titel "Koopzondag", met de context tussen haakjes ("Koopzondag (Allerheiligen)"); uur "Info"; plaats
+  "Toeristisch centrum Antwerpen", zoals de pagina het gebied noemt. Die zone ligt volledig in district
+  Antwerpen, over de postcodes 2000 (kaaien, centrum, Eilandje) en 2018 (Pelikaanstraat, Quellinstraat,
+  Britselei): daarom `postcodes: ["2000", "2018"]` en `inDistrict: true`. Groep `stad`. Zonder postcodes
+  zou de samenvoeging een "Koopzondag" van een ander district (bijvoorbeeld Deurne, 2100) of een UiT-item
+  in Wilrijk met deze koopzondag samenvoegen, en er als hoofditem zelfs `inDistrict: true` van maken; een
+  UiT-item met alleen 2000 blijft nu een apart item (dubbel is beter dan een verkeerd district).
+- Infotekst, voor elke datum dezelfde en neutraal: "Koopzondag in het toeristische stadscentrum volgens
+  de lijst van stad Antwerpen. Openingsuren verschillen per winkel." Geen juridische uitleg over wie
+  wanneer open mag: die staat op de officiële pagina (die nieuwe regelgeving aankondigt).
+- Alleen komende koopzondagen (datum ≥ vandaag, Brusselse tijd). Na de laatste koopzondag van het jaar is
+  0 items gezond: voorbije data tellen nooit als krimp.
+- De kop verdraagt een harde spatie (letterlijk of als `&nbsp;`) en een dubbelpunt voor of na `</strong>`.
+- Fouten: geen 200 of geen HTML → `error` met de HTTP-code of `not_html`; een body die halverwege wegvalt
+  → `body_read_failed`; meer dan 2 MB (geteld in tekens, na het lezen) → `too_large`; geen lijst meer op
+  de pagina (andere opmaak) → `error` met `no_list`. In al die gevallen blijven de vorige items staan.
+  Een lijst die ineens (bijna) niets meer oplevert, valt onder de gewone krimpgrens (`suspicious_drop`).
+- Gemeten op 28-09-2026: 15 koopzondagen in 2026, waarvan 6 komende (4 oktober t/m 27 december).
+- Licentie: open data van stad Antwerpen (Vlaamse gratis open data licentie), met bronvermelding.
+
 ## Attributie
 
 - District: "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)".
 - Andere districten: "Bron: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data
   licentie)".
+- Koopzondagen: "Bron: stad Antwerpen, koopzondagen (Vlaamse gratis open data licentie)", met een link
+  naar https://www.antwerpen.be/info/koopzondagen.
 - Markten: "Bron: GIPOD, Digitaal Vlaanderen, en marktlijst stad Antwerpen (Modellicentie Gratis
   Hergebruik v1.0)", met een link naar de OGC API van GIPOD.
 - Op de site staat bij elke gratis stadsbron haar eigen bronvermelding; op een eventpagina die van de bron

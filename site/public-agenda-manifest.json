@@ -3,18 +3,18 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-09-28T11:36:33.870Z",
   "classificationAsOf": "2026-09-28",
-  "sourceCount": 198,
-  "count": 61,
-  "eventPageCount": 61,
+  "sourceCount": 204,
+  "count": 67,
+  "eventPageCount": 67,
   "classifications": {
     "expired": 117,
     "current": 1,
-    "future": 60,
+    "future": 66,
     "review_required": 20
   },
   "scopeCounts": {
     "district": 13,
-    "stad": 48
+    "stad": 54
   },
   "feedGeneratedAt": "2026-09-28T11:36:33.870Z",
   "feedSources": [
@@ -54,6 +54,13 @@
       "state": "fresh"
     },
     {
+      "sourceId": "stad-koopzondagen",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T22:29:25.188Z",
+      "state": "fresh"
+    },
+    {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
@@ -68,7 +75,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "895cb22566f8b59750b0ff672654dd90116ce4606a6e438e99a3c117daa28a51",
+  "digest": "eb9f3266bf1dc7707fffd319be06f9219575856ad69eea099217f4b328879f1a",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -101,6 +108,7 @@
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "‘t Kiel Loopt",
+    "Koopzondag",
     "'k ZEN in Deurne, een inspirerende dag rond mentaal welzijn",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
@@ -121,6 +129,7 @@
     "Griezelfort: De enige speelhal waar jij de inzet bent (12+)",
     "Halloween",
     "Lopen en griezelen tijdens de Halloween Survival Run",
+    "Koopzondag (Allerheiligen)",
     "FURIE!",
     "Stanneke",
     "Stanneke",
@@ -134,7 +143,11 @@
     "Vrijdagen van de Poëzie",
     "Noorderlicht",
     "Tabletcafé",
+    "Koopzondag",
     "Het leugenachtige leven van volwassenen – Elena Ferrante",
-    "Bohoho's warm winterfeest"
+    "Bohoho's warm winterfeest",
+    "Koopzondag",
+    "Koopzondag",
+    "Koopzondag"
   ]
 }

@@ -54,6 +54,16 @@
       "errorCode": null
     },
     {
+      "sourceId": "stad-koopzondagen",
+      "file": "sources/stad-koopzondagen.json",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-09-28T22:29:25.188Z",
+      "maxAgeHours": 48,
+      "itemCount": 6,
+      "errorCode": null
+    },
+    {
       "sourceId": "stad-markten",
       "file": "sources/stad-markten.json",
       "scope": "stad",
