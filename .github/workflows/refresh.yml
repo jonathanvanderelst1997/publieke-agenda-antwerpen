@@ -1,0 +1,475 @@
+# Agenda Data Refresh: de databaan. Uitleg en de stappen voor de eigenaar
+# staan in docs/DATA_LANE.md.
+#
+# Wat hij doet: elke ochtend de bronnen ophalen, npm run check en de
+# datacontroles draaien, en de wijziging als precies één commit van
+# github-actions[bot] op een eigen tak data/refresh-<JJJJMMDD>-<run_id> zetten,
+# met het artefact 'data-lane-binding' dat zegt welke commit en welke
+# bestanden dat zijn.
+#
+# Wat hij NOOIT doet: een PR openen, CI starten, mergen, automatisch mergen aanzetten
+# of geheimen aanmaken. De Gateway opent later de PR met het token van de
+# eigenaar, toetst de binding en de runs, en merget pas daarna.
+#
+# De toegelaten paden staan op één plek: lib/data-lane-paths.json. Die lijst
+# komt uit de bronnen-PR (claude/agenda-bronnen); die moet eerst op main staan.
+name: Agenda Data Refresh
+
+on:
+  schedule:
+    # Niet op het hele uur: dan vertraagt GitHub geplande runs het vaakst.
+    - cron: "17 5 * * *" # verversen + versheid van wat live staat
+      timezone: "Europe/Brussels"
+    - cron: "17 13 * * *" # alleen versheid van wat live staat
+      timezone: "Europe/Brussels"
+  workflow_dispatch:
+    inputs:
+      # Alleen een keuzelijst, geen vrije tekst: alles in een run is publiek.
+      # De aanleiding is een label; ze verandert niets aan wat de run doet.
+      reason:
+        description: "Aanleiding (publiek zichtbaar)"
+        type: choice
+        required: true
+        default: handmatig
+        options:
+          - handmatig
+          - brain
+          - test
+
+permissions: {}
+
+concurrency:
+  group: agenda-data-refresh
+  cancel-in-progress: false
+
+jobs:
+  # Draait de code van main met alleen leesrechten en zonder bewaarde
+  # inloggegevens. Levert een patch af, schrijft zelf niets naar de repo.
+  refresh:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 5 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.diff.outputs.changed }}
+    steps:
+      - name: Alleen vanaf main
+        env:
+          REASON: ${{ inputs.reason }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
+            echo "::error title=Alleen main::De dataverversing draait alleen vanaf refs/heads/main."
+            exit 1
+          fi
+          echo "Aanleiding: ${REASON:-$GITHUB_EVENT_NAME}"
+
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      # Zonder de bronnen-PR op main bestaat de databaan nog niet. Dan liever
+      # meteen rood met de reden dan een halve run.
+      - name: Databaan aanwezig op main
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ ! -f lib/data-lane-paths.json ]; then
+            echo "::error title=Databaan niet klaar::lib/data-lane-paths.json ontbreekt op main. Merge eerst de bronnen-PR (claude/agenda-bronnen), daarna deze workflow."
+            missing=1
+          fi
+          for script in refresh check validate:data sources:health check:data-lane; do
+            if ! jq -e --arg s "$script" '.scripts[$s] | type == "string"' package.json >/dev/null; then
+              echo "::error title=Databaan niet klaar::npm-script '${script}' ontbreekt in package.json op main. Merge eerst de bronnen-PR (claude/agenda-bronnen)."
+              missing=1
+            fi
+          done
+          exit "$missing"
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        run: npm ci --ignore-scripts
+
+      # UiTdatabank (publiq) voor de stadsactiviteiten. Liever een
+      # Actions-variabele dan een geheim: publiq noemt de client-id zelf
+      # niet geheim, en een repo-geheim laat de Gateway main als 'niet
+      # geverifieerd' melden. Het geheim staat hier alleen bij naam, voor het
+      # geval publiq toch een sleutel levert. Ontbreekt een waarde, dan is ze
+      # leeg en doet de fetcher niets (status skipped_no_key).
+      - name: Bronnen ophalen en opnieuw opbouwen
+        env:
+          UITDATABANK_CLIENT_ID: ${{ vars.UITDATABANK_CLIENT_ID }}
+          UITDATABANK_SEARCH_BASE: ${{ vars.UITDATABANK_SEARCH_BASE }}
+          UITDATABANK_API_KEY: ${{ secrets.UITDATABANK_API_KEY }}
+        run: npm run refresh
+
+      - name: npm run check
+        run: npm run check
+
+      # Blokkeert: te oude, onpublieke of schemavreemde data gaat niet door.
+      - name: Data vers, publiek en binnen het schema
+        run: npm run validate:data -- --max-age-hours 26
+
+      # Meldt alleen; een haperende bron houdt de andere bronnen niet tegen.
+      # De job source-health maakt de run daarvoor rood.
+      - name: Bronstatus (meldt, blokkeert niet)
+        continue-on-error: true
+        run: npm run sources:health -- --max-age-hours 26
+
+      - name: Alleen paden uit de datalijst
+        id: diff
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/data-patch"
+          mkdir -p "$out"
+          git add -A
+          git diff --cached --name-status -M0 > "$out/changes.txt"
+          git diff --cached --binary > "$out/data.patch"
+          cp site/sources/refresh-status.json "$out/refresh-status.json"
+          if [ ! -s "$out/changes.txt" ]; then
+            # Hoort niet te gebeuren: generatedAt verandert elke run.
+            echo "::notice title=Geen wijziging::De verversing leverde geen enkele wijziging; er komt geen datatak."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          npm run -s check:data-lane < "$out/changes.txt"
+          echo "Gewijzigde paden: $(wc -l < "$out/changes.txt")"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: data-patch
+          path: ${{ runner.temp }}/data-patch
+          retention-days: 3
+          if-no-files-found: error
+
+  # Het enige deel met schrijfrechten. Voert geen repocode uit: geen npm,
+  # geen node, geen scripts uit de repo. Het past de patch toe, toetst de
+  # datalijst opnieuw in bash en duwt één commit naar een nieuwe tak.
+  publish-branch:
+    needs: refresh
+    if: needs.refresh.outputs.changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: data-patch
+          path: ${{ runner.temp }}/in
+
+      - name: Patch toepassen en de datalijst opnieuw toetsen
+        run: |
+          set -euo pipefail
+          # >>> databaantoets (letterlijk dezelfde tekst in refresh.yml en ci.yml)
+          # Faalt dicht. $1 = padlijst (JSON), $2 = 'git diff --name-status -M0',
+          # $3 = 'git diff --raw -M0 --no-abbrev' van dezelfde wijziging.
+          # Elk pad moet volledig op een patroon passen (^(patroon)$), D alleen
+          # onder deletableUnder, een hernoeming (R) telt als D van het oude en A
+          # van het nieuwe pad, alleen gewone bestanden (100644), lijst niet leeg.
+          lane_fail() { printf 'AFGEWEZEN %s %s: %s\n' "$1" "$2" "$3"; }
+          lane_allowed() {
+            local re full
+            for re in "${lane_allowed_list[@]}"; do
+              full="^(${re})\$"
+              if [[ $1 =~ $full ]]; then return 0; fi
+            done
+            return 1
+          }
+          lane_deletable() {
+            local d
+            for d in ${lane_deletable_list[@]+"${lane_deletable_list[@]}"}; do
+              case "$1" in "$d"*) return 0 ;; esac
+            done
+            return 1
+          }
+          lane_check() {
+            local bad=0 n=0 m=0 rc full status p1 p2 extra line meta om nm
+            lane_allowed_list=() lane_deletable_list=()
+            if ! jq -e '.schemaVersion == 1
+                and (.allowed | type == "array" and length > 0
+                     and all(.[]; type == "string" and length > 0 and (contains("\n") | not)))
+                and (.deletableUnder | type == "array"
+                     and all(.[]; type == "string" and endswith("/") and (contains("\n") | not)))' "$1" >/dev/null; then
+              echo "::error title=Databaan::De padlijst heeft niet de vorm {schemaVersion:1, allowed:[...], deletableUnder:[...]}."
+              return 1
+            fi
+            while IFS= read -r line; do lane_allowed_list+=("$line"); done < <(jq -r '.allowed[]' "$1")
+            while IFS= read -r line; do lane_deletable_list+=("$line"); done < <(jq -r '.deletableUnder[]' "$1")
+            # Elk patroon moet compileren, ook als een eerder patroon al past.
+            for line in "${lane_allowed_list[@]}"; do
+              rc=0 full="^(${line})\$"
+              [[ x =~ $full ]] || rc=$?
+              if [ "$rc" -eq 2 ]; then lane_fail regex "$line" "ongeldig patroon in de padlijst"; bad=1; fi
+            done
+            if [ "$bad" -ne 0 ]; then
+              echo "::error title=Databaan::De padlijst bevat een ongeldig patroon."
+              return 1
+            fi
+            while IFS=$'\t' read -r status p1 p2 extra || [ -n "$status" ]; do
+              if [ -z "$status" ] && [ -z "$p1" ]; then continue; fi
+              n=$((n + 1))
+              case "$status" in
+                A|M)
+                  if [ -z "$p1" ] || [ -n "$p2" ] || ! lane_allowed "$p1"; then
+                    lane_fail "$status" "$p1" "pad staat niet in de datalijst"; bad=1
+                  fi ;;
+                D)
+                  if [ -z "$p1" ] || [ -n "$p2" ] || ! lane_allowed "$p1"; then
+                    lane_fail D "$p1" "pad staat niet in de datalijst"; bad=1
+                  elif ! lane_deletable "$p1"; then
+                    lane_fail D "$p1" "verwijderen mag alleen onder deletableUnder"; bad=1
+                  fi ;;
+                R[0-9]*)
+                  if [ -z "$p1" ] || [ -z "$p2" ] || [ -n "$extra" ]; then
+                    lane_fail "$status" "$p1" "onvolledige hernoeming"; bad=1
+                  else
+                    if ! lane_allowed "$p1" || ! lane_deletable "$p1"; then
+                      lane_fail "$status" "$p1" "oud pad mag niet verdwijnen"; bad=1
+                    fi
+                    if ! lane_allowed "$p2"; then
+                      lane_fail "$status" "$p2" "nieuw pad staat niet in de datalijst"; bad=1
+                    fi
+                  fi ;;
+                *)
+                  lane_fail "$status" "$p1" "status niet toegelaten in de databaan"; bad=1 ;;
+              esac
+            done < "$2"
+            while IFS= read -r line || [ -n "$line" ]; do
+              if [ -z "$line" ]; then continue; fi
+              m=$((m + 1))
+              meta=${line%%$'\t'*}
+              read -r om nm _ <<<"$meta"
+              case "$nm" in
+                100644|000000) ;;
+                *) lane_fail "modus-$nm" "${line#*$'\t'}" "alleen gewone bestanden (100644)"; bad=1 ;;
+              esac
+            done < "$3"
+            if [ "$n" -eq 0 ]; then
+              echo "::error title=Databaan::Lege wijzigingslijst: niets om te publiceren."; bad=1
+            fi
+            if [ "$m" -ne "$n" ]; then
+              echo "::error title=Databaan::De twee diff-lijsten verschillen in lengte (${n} tegen ${m})."; bad=1
+            fi
+            if [ "$bad" -ne 0 ]; then
+              echo "::error title=Databaan::Wijziging buiten de databaan; zie de regels die met AFGEWEZEN beginnen."
+            fi
+            return "$bad"
+          }
+          # <<< databaantoets
+
+          # De padlijst uit de basiscommit, gelezen VOOR de patch: een patch
+          # kan zo zijn eigen lijst nooit verruimen.
+          if ! git show HEAD:lib/data-lane-paths.json > "$RUNNER_TEMP/paths.json"; then
+            echo "::error title=Databaan niet klaar::lib/data-lane-paths.json ontbreekt in de basiscommit."
+            exit 1
+          fi
+          git apply --index "$RUNNER_TEMP/in/data.patch"
+          git diff --cached --name-status -M0 > "$RUNNER_TEMP/changes.txt"
+          git diff --cached --raw -M0 --no-abbrev > "$RUNNER_TEMP/raw.txt"
+          lane_check "$RUNNER_TEMP/paths.json" "$RUNNER_TEMP/changes.txt" "$RUNNER_TEMP/raw.txt"
+          echo "Datalijst in orde: $(wc -l < "$RUNNER_TEMP/changes.txt") pad(en)."
+
+      - name: Eén datacommit op een eigen tak
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_ATTEMPT: ${{ github.run_attempt }}
+          BASE_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$(git rev-parse HEAD)" != "$BASE_SHA" ]; then
+            echo "::error title=Databaan::De checkout staat niet op de basiscommit."; exit 1
+          fi
+          status_file=site/sources/refresh-status.json
+          as_of=$(jq -er '.classificationAsOf | strings' "$status_file")
+          generated_at=$(jq -er '.generatedAt | strings' "$status_file")
+          date_re='^[0-9]{4}-[0-9]{2}-[0-9]{2}([T ][0-9:.]+(Z|[+-][0-9]{2}:?[0-9]{2})?)?$'
+          if ! [[ $as_of =~ $date_re && $generated_at =~ $date_re ]]; then
+            echo "::error title=Databaan::classificationAsOf of generatedAt in ${status_file} is geen datum."; exit 1
+          fi
+
+          day=$(TZ=Europe/Brussels date +%Y%m%d)
+          branch="data/refresh-${day}-${RUN_ID}"
+          if ! [[ $branch =~ ^data/refresh-[0-9]{8}-[0-9]+$ ]]; then
+            echo "::error title=Databaan::Onverwachte taknaam."; exit 1
+          fi
+
+          export GIT_AUTHOR_NAME='github-actions[bot]'
+          export GIT_AUTHOR_EMAIL='41898282+github-actions[bot]@users.noreply.github.com'
+          export GIT_COMMITTER_NAME="$GIT_AUTHOR_NAME"
+          export GIT_COMMITTER_EMAIL="$GIT_AUTHOR_EMAIL"
+          git commit --quiet --no-verify -m "Dataverversing ${as_of} (run ${RUN_ID})"
+          head_sha=$(git rev-parse HEAD)
+
+          # Het token alleen voor de git-opdrachten van deze stap, niet in
+          # .git/config en niet op de opdrachtregel.
+          auth=$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)
+          echo "::add-mask::${auth}"
+          export GIT_CONFIG_COUNT=1
+          export GIT_CONFIG_KEY_0='http.https://github.com/.extraheader'
+          export GIT_CONFIG_VALUE_0="AUTHORIZATION: basic ${auth}"
+
+          if git ls-remote --exit-code --heads origin "refs/heads/${branch}" >/dev/null; then
+            echo "::error title=Databaan::Tak ${branch} bestaat al (herhaalde poging?). Start een nieuwe run."; exit 1
+          fi
+          git push --quiet --no-verify origin "HEAD:refs/heads/${branch}"
+          echo "Geduwd: ${branch} op ${head_sha}"
+
+          # De binding: welke run welke commit met welke bestanden maakte. Een
+          # hernoeming staat erin als D van het oude en A van het nieuwe pad.
+          mkdir -p "$RUNNER_TEMP/binding"
+          git diff --name-status -M0 "${BASE_SHA}" "${head_sha}" \
+            | jq -Rn '[inputs | select(length > 0) | split("\t")
+                       | if (.[0] | startswith("R"))
+                         then {path: .[1], status: "D"}, {path: .[2], status: "A"}
+                         else {path: .[1], status: .[0]} end]' \
+            > "$RUNNER_TEMP/files.json"
+          jq -n \
+            --arg repository "$GITHUB_REPOSITORY" \
+            --argjson run_id "$RUN_ID" \
+            --argjson run_attempt "$RUN_ATTEMPT" \
+            --arg base_sha "$BASE_SHA" \
+            --arg head_sha "$head_sha" \
+            --arg branch "$branch" \
+            --slurpfile files "$RUNNER_TEMP/files.json" \
+            --arg generated_at "$generated_at" \
+            '{repository: $repository, run_id: $run_id, run_attempt: $run_attempt,
+              base_sha: $base_sha, head_sha: $head_sha, branch: $branch,
+              files: $files[0], generated_at: $generated_at}' \
+            > "$RUNNER_TEMP/binding/data-lane-binding.json"
+          cat "$RUNNER_TEMP/binding/data-lane-binding.json"
+
+          # Opruimen: alleen takken die exact de datavorm hebben; de nieuwste
+          # vijf blijven staan. Een verwijderde tak sluit zijn open PR; dat is
+          # de bedoeling, want een nieuwere run vervangt hem. Mislukt het
+          # opruimen, dan is dat een waarschuwing: de nieuwe tak staat er al.
+          cleanup_old_branches() {
+            git ls-remote --heads origin 'refs/heads/data/refresh-*' \
+              | while read -r _ ref; do
+                  name=${ref#refs/heads/}
+                  if [[ $name =~ ^data/refresh-([0-9]{8})-([0-9]+)$ ]]; then
+                    echo "${BASH_REMATCH[1]} ${BASH_REMATCH[2]} ${name}"
+                  fi
+                done \
+              | sort -k1,1nr -k2,2nr \
+              | tail -n +6 \
+              | while read -r _ _ old; do
+                  if git push --quiet --no-verify origin --delete "refs/heads/${old}"; then
+                    echo "Opgeruimd: ${old}"
+                  else
+                    echo "::warning title=Opruimen::Kon ${old} niet verwijderen."
+                  fi
+                done
+          }
+          if ! cleanup_old_branches; then
+            echo "::warning title=Opruimen::Oude datatakken opruimen mislukte; volgende run probeert opnieuw."
+          fi
+
+          {
+            echo "### Datatak klaar"
+            echo ""
+            echo "- Tak: \`${branch}\`"
+            echo "- Commit: \`${head_sha}\` op basis \`${BASE_SHA}\`"
+            echo "- Bestanden: $(jq 'length' "$RUNNER_TEMP/files.json")"
+            echo "- Er is geen PR geopend; dat doet de Gateway."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: data-lane-binding
+          path: ${{ runner.temp }}/binding/data-lane-binding.json
+          retention-days: 3
+          if-no-files-found: error
+
+  # Rood als een bron faalde of een 'ok'-bron verouderd is. Houdt
+  # publish-branch niet tegen: aparte job, en publish-branch wacht er niet op.
+  source-health:
+    needs: refresh
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          name: data-patch
+          path: ${{ runner.temp }}/in
+
+      - name: Elke bron gezond
+        run: |
+          set -euo pipefail
+          f="$RUNNER_TEMP/in/refresh-status.json"
+          if ! jq -e '.sources | type == "array" and length > 0 and all(.[]; type == "object")' "$f" >/dev/null 2>&1; then
+            echo "::error title=Bronstatus::refresh-status.json ontbreekt of bevat geen bronnen."; exit 1
+          fi
+          now=$(date -u +%s)
+          max=$((26 * 3600))
+          bad=0
+          while IFS=$'\t' read -r id status retrieved; do
+            case "$status" in
+              ok)
+                if [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null); then
+                  age=$(( (now - t) / 3600 ))
+                  if [ $((now - t)) -gt "$max" ]; then
+                    echo "BRON ${id}: ok maar ${age} uur oud (grens 26 uur)"; bad=1
+                  else
+                    echo "Bron ${id}: ok, ${age} uur oud"
+                  fi
+                else
+                  echo "BRON ${id}: ok zonder leesbare retrievedAt"; bad=1
+                fi ;;
+              error)
+                echo "BRON ${id}: fetchStatus error"; bad=1 ;;
+              skipped_no_key|disabled|test_only)
+                echo "Bron ${id}: ${status} (geen fout)" ;;
+              *)
+                echo "BRON ${id}: onbekende fetchStatus"; bad=1 ;;
+            esac
+          done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "" | tostring)] | @tsv' "$f")
+          if [ "$bad" -ne 0 ]; then
+            echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
+          fi
+          exit "$bad"
+
+  # Kijkt naar wat LIVE staat, niet naar de repo: zo valt elke gebroken
+  # schakel op (ophalen, datatak, PR, CI, Gateway-merge, Render-uitrol).
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Live agenda niet ouder dan 48 uur
+        env:
+          STATUS_URL: https://mijn-publieke-agenda-voor-district.onrender.com/sources/refresh-status.json
+        run: |
+          set -euo pipefail
+          body="$RUNNER_TEMP/live-refresh-status.json"
+          if ! curl -fsS --max-time 30 -o "$body" "${STATUS_URL}?t=$(date +%s)"; then
+            echo "::error title=Live agenda ouder dan 48 uur::Live agenda ouder dan 48 uur: sources/refresh-status.json is niet op te halen."
+            exit 1
+          fi
+          if ! generated=$(jq -er '.generatedAt | strings' "$body" 2>/dev/null) \
+             || ! [[ $generated =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] \
+             || ! t=$(date -u -d "$generated" +%s 2>/dev/null); then
+            echo "::error title=Live agenda ouder dan 48 uur::Live agenda ouder dan 48 uur: sources/refresh-status.json ontbreekt of heeft geen leesbare generatedAt."
+            exit 1
+          fi
+          age=$(( $(date -u +%s) - t ))
+          echo "Live generatedAt=${generated}, $(( age / 3600 )) uur oud."
+          if [ "$age" -gt $((48 * 3600)) ]; then
+            echo "::error title=Live agenda ouder dan 48 uur::Live agenda ouder dan 48 uur: generatedAt ${generated} is $(( age / 3600 )) uur oud."
+            exit 1
+          fi

@@ -56,3 +56,204 @@ jobs:
             git --no-pager diff --stat
             exit 1
           fi
+
+  # data-only: een toekomstige verplichte controle (ruleset op main). De job
+  # draait altijd en wordt nooit overgeslagen via een if: op de job; de keuze
+  # valt binnen de stappen.
+  # - Kop data/refresh-*: elk gewijzigd pad staat in de padlijst van de
+  #   BASIScommit (een PR kan zijn eigen lijst dus nooit verruimen),
+  #   verwijderen alleen onder deletableUnder, en elke commit is van
+  #   github-actions[bot].
+  # - Elke andere PR, en een push naar main: codelaan, lege doorgang. Code
+  #   gaat alleen live met de toegangscode van de eigenaar, via de Gateway.
+  # Een spiegel, geen bewijs: een commit-e-mailadres kan iedereen met
+  # schrijfrechten zetten. Het bewijs is het artefact data-lane-binding van
+  # refresh.yml, dat de Gateway toetst.
+  data-only:
+    name: data-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Codelaan of databaan
+        id: lane
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+        run: |
+          set -euo pipefail
+          lane=code
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            case "$HEAD_REF" in
+              data/refresh-*) lane=data ;;
+            esac
+          fi
+          if [ "$lane" = "code" ]; then
+            echo "Codelaan: mergen vraagt de toegangscode van de eigenaar"
+            echo "lane=code" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! [[ $HEAD_REF =~ ^data/refresh-[0-9]{8}-[0-9]+$ ]]; then
+            echo "::error title=data-only::Datatak met een onbekende naam; verwacht data/refresh-<JJJJMMDD>-<run_id>."
+            exit 1
+          fi
+          if [ "$HEAD_REPO" != "$GITHUB_REPOSITORY" ]; then
+            echo "::error title=data-only::Een datatak moet uit deze repo komen, niet uit een fork."
+            exit 1
+          fi
+          if [ "$BASE_REF" != "$DEFAULT_BRANCH" ]; then
+            echo "::error title=data-only::Een datatak gaat alleen naar de standaardtak."
+            exit 1
+          fi
+          echo "Databaan: alleen data, alleen van github-actions[bot]."
+          echo "lane=data" >> "$GITHUB_OUTPUT"
+
+      - name: Basiscommit ophalen
+        if: steps.lane.outputs.lane == 'data'
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Alleen data, alleen van de bot
+        if: steps.lane.outputs.lane == 'data'
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BOT_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: |
+          set -euo pipefail
+          # >>> databaantoets (letterlijk dezelfde tekst in refresh.yml en ci.yml)
+          # Faalt dicht. $1 = padlijst (JSON), $2 = 'git diff --name-status -M0',
+          # $3 = 'git diff --raw -M0 --no-abbrev' van dezelfde wijziging.
+          # Elk pad moet volledig op een patroon passen (^(patroon)$), D alleen
+          # onder deletableUnder, een hernoeming (R) telt als D van het oude en A
+          # van het nieuwe pad, alleen gewone bestanden (100644), lijst niet leeg.
+          lane_fail() { printf 'AFGEWEZEN %s %s: %s\n' "$1" "$2" "$3"; }
+          lane_allowed() {
+            local re full
+            for re in "${lane_allowed_list[@]}"; do
+              full="^(${re})\$"
+              if [[ $1 =~ $full ]]; then return 0; fi
+            done
+            return 1
+          }
+          lane_deletable() {
+            local d
+            for d in ${lane_deletable_list[@]+"${lane_deletable_list[@]}"}; do
+              case "$1" in "$d"*) return 0 ;; esac
+            done
+            return 1
+          }
+          lane_check() {
+            local bad=0 n=0 m=0 rc full status p1 p2 extra line meta om nm
+            lane_allowed_list=() lane_deletable_list=()
+            if ! jq -e '.schemaVersion == 1
+                and (.allowed | type == "array" and length > 0
+                     and all(.[]; type == "string" and length > 0 and (contains("\n") | not)))
+                and (.deletableUnder | type == "array"
+                     and all(.[]; type == "string" and endswith("/") and (contains("\n") | not)))' "$1" >/dev/null; then
+              echo "::error title=Databaan::De padlijst heeft niet de vorm {schemaVersion:1, allowed:[...], deletableUnder:[...]}."
+              return 1
+            fi
+            while IFS= read -r line; do lane_allowed_list+=("$line"); done < <(jq -r '.allowed[]' "$1")
+            while IFS= read -r line; do lane_deletable_list+=("$line"); done < <(jq -r '.deletableUnder[]' "$1")
+            # Elk patroon moet compileren, ook als een eerder patroon al past.
+            for line in "${lane_allowed_list[@]}"; do
+              rc=0 full="^(${line})\$"
+              [[ x =~ $full ]] || rc=$?
+              if [ "$rc" -eq 2 ]; then lane_fail regex "$line" "ongeldig patroon in de padlijst"; bad=1; fi
+            done
+            if [ "$bad" -ne 0 ]; then
+              echo "::error title=Databaan::De padlijst bevat een ongeldig patroon."
+              return 1
+            fi
+            while IFS=$'\t' read -r status p1 p2 extra || [ -n "$status" ]; do
+              if [ -z "$status" ] && [ -z "$p1" ]; then continue; fi
+              n=$((n + 1))
+              case "$status" in
+                A|M)
+                  if [ -z "$p1" ] || [ -n "$p2" ] || ! lane_allowed "$p1"; then
+                    lane_fail "$status" "$p1" "pad staat niet in de datalijst"; bad=1
+                  fi ;;
+                D)
+                  if [ -z "$p1" ] || [ -n "$p2" ] || ! lane_allowed "$p1"; then
+                    lane_fail D "$p1" "pad staat niet in de datalijst"; bad=1
+                  elif ! lane_deletable "$p1"; then
+                    lane_fail D "$p1" "verwijderen mag alleen onder deletableUnder"; bad=1
+                  fi ;;
+                R[0-9]*)
+                  if [ -z "$p1" ] || [ -z "$p2" ] || [ -n "$extra" ]; then
+                    lane_fail "$status" "$p1" "onvolledige hernoeming"; bad=1
+                  else
+                    if ! lane_allowed "$p1" || ! lane_deletable "$p1"; then
+                      lane_fail "$status" "$p1" "oud pad mag niet verdwijnen"; bad=1
+                    fi
+                    if ! lane_allowed "$p2"; then
+                      lane_fail "$status" "$p2" "nieuw pad staat niet in de datalijst"; bad=1
+                    fi
+                  fi ;;
+                *)
+                  lane_fail "$status" "$p1" "status niet toegelaten in de databaan"; bad=1 ;;
+              esac
+            done < "$2"
+            while IFS= read -r line || [ -n "$line" ]; do
+              if [ -z "$line" ]; then continue; fi
+              m=$((m + 1))
+              meta=${line%%$'\t'*}
+              read -r om nm _ <<<"$meta"
+              case "$nm" in
+                100644|000000) ;;
+                *) lane_fail "modus-$nm" "${line#*$'\t'}" "alleen gewone bestanden (100644)"; bad=1 ;;
+              esac
+            done < "$3"
+            if [ "$n" -eq 0 ]; then
+              echo "::error title=Databaan::Lege wijzigingslijst: niets om te publiceren."; bad=1
+            fi
+            if [ "$m" -ne "$n" ]; then
+              echo "::error title=Databaan::De twee diff-lijsten verschillen in lengte (${n} tegen ${m})."; bad=1
+            fi
+            if [ "$bad" -ne 0 ]; then
+              echo "::error title=Databaan::Wijziging buiten de databaan; zie de regels die met AFGEWEZEN beginnen."
+            fi
+            return "$bad"
+          }
+          # <<< databaantoets
+
+          if ! [[ $PR_NUMBER =~ ^[0-9]+$ && $BASE_SHA =~ ^[0-9a-f]{40}$ && $HEAD_SHA =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=data-only::Onverwacht PR-nummer of onverwachte SHA."; exit 1
+          fi
+          git fetch --no-tags --quiet origin "+refs/pull/${PR_NUMBER}/head:refs/remotes/pr/head"
+          if [ "$(git rev-parse refs/remotes/pr/head)" != "$HEAD_SHA" ]; then
+            echo "::error title=data-only::De PR-kop bewoog tijdens deze run; de nieuwe push krijgt een eigen run."; exit 1
+          fi
+
+          # De padlijst uit de BASIScommit, nooit uit de PR zelf.
+          if ! git show "${BASE_SHA}:lib/data-lane-paths.json" > "$RUNNER_TEMP/paths.json"; then
+            echo "::error title=data-only::lib/data-lane-paths.json ontbreekt op de basis; de databaan bestaat daar nog niet."; exit 1
+          fi
+          git diff --name-status -M0 "${BASE_SHA}...${HEAD_SHA}" > "$RUNNER_TEMP/changes.txt"
+          git diff --raw -M0 --no-abbrev "${BASE_SHA}...${HEAD_SHA}" > "$RUNNER_TEMP/raw.txt"
+          bad=0
+          lane_check "$RUNNER_TEMP/paths.json" "$RUNNER_TEMP/changes.txt" "$RUNNER_TEMP/raw.txt" || bad=1
+
+          git log --format='%H%x09%ae%x09%ce' "${BASE_SHA}..${HEAD_SHA}" > "$RUNNER_TEMP/commits.txt"
+          if [ ! -s "$RUNNER_TEMP/commits.txt" ]; then
+            echo "::error title=data-only::Geen enkele commit tussen basis en kop."; bad=1
+          fi
+          while IFS=$'\t' read -r sha author committer; do
+            if [ "$author" != "$BOT_EMAIL" ] || [ "$committer" != "$BOT_EMAIL" ]; then
+              echo "AFGEWEZEN commit ${sha}: niet van github-actions[bot]"; bad=1
+            fi
+          done < "$RUNNER_TEMP/commits.txt"
+          if [ "$bad" -ne 0 ]; then
+            echo "::error title=data-only::Deze PR is geen zuivere databaan-PR; zie de regels die met AFGEWEZEN beginnen."
+            exit 1
+          fi
+          echo "Databaan in orde: $(wc -l < "$RUNNER_TEMP/changes.txt") pad(en), $(wc -l < "$RUNNER_TEMP/commits.txt") commit(s) van github-actions[bot]."
