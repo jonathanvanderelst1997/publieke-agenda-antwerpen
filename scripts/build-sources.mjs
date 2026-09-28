@@ -48,7 +48,8 @@ function contractSignature(item) {
 
 export function buildFeed({ status, documents }, handItems) {
   const itemsBySource = Object.fromEntries(documents.map((document) => [document.sourceId, { scope: document.scope, items: document.items }]));
-  const merged = mergeEvents(itemsBySource, handItems);
+  const suppressions = documents.flatMap((document) => Array.isArray(document.suppressions) ? document.suppressions : []);
+  const merged = mergeEvents(itemsBySource, handItems, suppressions);
   // Vangnet: twee feed-items die voor het eventcontract hetzelfde punt zijn, worden er één
   // (de bron met voorrang wint). Zo kan een dagelijkse refresh de build niet breken.
   const signatures = new Set();
@@ -68,6 +69,7 @@ export function buildFeed({ status, documents }, handItems) {
     .map((document) => {
       const entry = statusBySource.get(document.sourceId);
       const { items: sourceItems, ...meta } = document;
+      delete meta.suppressions;
       return {
         ...meta,
         label: SOURCE_DEFINITIONS[document.sourceId].label,
@@ -87,6 +89,7 @@ export function buildFeed({ status, documents }, handItems) {
       supersedes: merged.supersedes,
     },
     droppedDuplicates,
+    suppressed: merged.suppressed,
   };
 }
 
@@ -98,7 +101,7 @@ const isMain = process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpa
 if (isMain) {
   const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const sources = readSources(rootDir);
-  const { feed, droppedDuplicates } = buildFeed(sources, loadHandAgendaItems(rootDir));
+  const { feed, droppedDuplicates, suppressed } = buildFeed(sources, loadHandAgendaItems(rootDir));
   const file = path.join(rootDir, "site", "agenda-feed.js");
   const text = renderFeedScript(feed);
   if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== text) fs.writeFileSync(file, text, "utf8");
@@ -108,6 +111,7 @@ if (isMain) {
       items: feed.items.length,
       supersedes: feed.supersedes.length,
       droppedDuplicates,
+      suppressed: suppressed.length,
       classificationAsOf: feed.classificationAsOf,
     })
   );
