@@ -8,6 +8,8 @@
 //
 // Fouten:
 //   - geen antwoord, geen 200 of geen HTML: vorige items blijven, fetchStatus "error";
+//   - een body die halverwege wegvalt (body_read_failed) of groter is dan MAX_HTML_BYTES tekens
+//     (too_large): idem;
 //   - geen lijst "Koopzondagen in <jaar>" meer op de pagina (andere opmaak): errorCode "no_list",
 //     vorige items blijven;
 //   - een lijst die ineens (bijna) niets meer oplevert: de gewone krimpgrens (suspicious_drop).

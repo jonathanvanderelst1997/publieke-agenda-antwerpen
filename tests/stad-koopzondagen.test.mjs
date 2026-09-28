@@ -8,11 +8,11 @@ import path from "node:path";
 import test from "node:test";
 
 import { weekdayOfIso } from "../lib/html-text.mjs";
-import { INFO, KOOPZONDAGEN_URL, LOCATION, koopzondagTitle, parseKoopzondagLine, parseKoopzondagenHtml } from "../lib/koopzondagen.mjs";
+import { INFO, KOOPZONDAGEN_URL, LOCATION, POSTCODES, koopzondagTitle, parseKoopzondagLine, parseKoopzondagenHtml } from "../lib/koopzondagen.mjs";
 import { SOURCE_PRECEDENCE, mergeEvents } from "../lib/merge-events.mjs";
 import { FORBIDDEN_KEYS, shrinkGuardFor, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
-import { SOURCE_ID, run } from "../scripts/fetch-sources-koopzondagen.mjs";
+import { MAX_HTML_BYTES, SOURCE_ID, run } from "../scripts/fetch-sources-koopzondagen.mjs";
 
 const page = fs.readFileSync(new URL("./fixtures/koopzondagen-2026-09-28.article.html", import.meta.url), "utf8");
 const TODAY = "2026-09-28";
@@ -58,7 +58,7 @@ test("fixture: alleen komende koopzondagen, titel met context, vaste plaats in h
     assert.equal(weekdayOfIso(item.date), 0, `${item.date} is een zondag`);
     assert.deepEqual(
       [item.location, item.postcodes, item.inDistrict, item.timeSlot, item.timeText, item.sourceUrl, item.info, item.kind, item.theme],
-      [LOCATION, [], true, "Info", "", KOOPZONDAGEN_URL, INFO, "activity", "Activiteit"]
+      [LOCATION, ["2000", "2018"], true, "Info", "", KOOPZONDAGEN_URL, INFO, "activity", "Activiteit"]
     );
   }
   // Vroeger in het jaar komt de context van de lijst mee.
@@ -91,6 +91,11 @@ test("scripts en het contactblok worden nooit gelezen; een kop zonder lijst is e
 
   const onlyScript = parseKoopzondagenHtml(`<html><body>${RSC_SCRIPT}</body></html>`, { today: TODAY });
   assert.deepEqual([onlyScript.lists, onlyScript.items.length, onlyScript.issues], [0, 0, []]);
+  // Een ge-escapete harde spatie of een dubbelpunt na </strong> is dezelfde kop, geen andere opmaak.
+  for (const heading of ["<p><strong>Koopzondagen in 2026&nbsp;:</strong></p>", "<p><strong>Koopzondagen in 2026</strong>:&nbsp;</p>", "<p><strong>Koopzondagen in 2026:&nbsp;</strong></p>\n"]) {
+    const variant = parseKoopzondagenHtml(`${heading}<ul><li>4 oktober 2026</li></ul>`, { today: TODAY });
+    assert.deepEqual([variant.lists, variant.items.map((item) => item.date), variant.issues], [1, ["2026-10-04"], []], heading);
+  }
   const changed = parseKoopzondagenHtml("<p><strong>Koopzondagen in 2026:</strong></p><p>4 oktober 2026, 1 november 2026</p>", { today: TODAY });
   assert.deepEqual([changed.lists, changed.issues.map((issue) => issue.code)], [0, ["heading_without_list"]]);
 });
@@ -144,6 +149,7 @@ test("fetcher: storing, geen HTML of een andere opmaak wist niets", async () => 
     [html("{}", 200, "application/json"), "not_html"],
     [html("<html><body><h1>Koopzondagen</h1><p>Deze pagina is verhuisd.</p></body></html>"), "no_list"],
     [{ ...html(""), text: async () => { throw new TypeError("terminated"); } }, "body_read_failed"],
+    [html(`${page}${" ".repeat(MAX_HTML_BYTES)}`), "too_large"],
   ]) {
     const status = await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => response });
     assert.deepEqual([status[0].fetchStatus, status[0].errorCode, status[0].itemCount], ["error", code, 6], code);
@@ -200,4 +206,23 @@ test("voorrang: stad-markten > stad-koopzondagen > stad-uit; de koopzondag telt 
   assert.equal(items.length, 1);
   assert.deepEqual([items[0].sourceId, items[0].scope, items[0].inDistrict], [SOURCE_ID, "stad", true]);
   assert.deepEqual(items[0].sources.map((source) => source.sourceId), [SOURCE_ID, "stad-uit"]);
+});
+
+test("een koopzondag van een ander district of buiten district Antwerpen gaat nooit op in die van de stad", () => {
+  assert.deepEqual(POSTCODES, ["2000", "2018"]);
+  const koopzondag = { ...parseKoopzondagenHtml(page, { today: TODAY }).items[0], retrievedAt: NOW.toISOString() };
+  // Verzonnen items met dezelfde titel en datum en geen uur: zonder postcodes bij de stad zouden ze
+  // op dezelfde samenvoegsleutel vallen.
+  const deurne = { ...koopzondag, id: "deurne-koopzondag", externalId: "deurne-koopzondag", location: "Deurne", postcodes: ["2100"], inDistrict: false, sourceUrl: "https://www.antwerpen.be/nl/overzicht/deurne-koopzondag-oktober" };
+  const wilrijk = { ...koopzondag, id: "uit-wilrijk", externalId: "uit-wilrijk", location: "Wilrijk", postcodes: ["2610"], inDistrict: false, sourceUrl: "https://www.uitinvlaanderen.be/agenda/e/koopzondag-wilrijk/2" };
+  const { items } = mergeEvents({
+    "stad-districten": { scope: "stad", items: [deurne] },
+    [SOURCE_ID]: { scope: "stad", items: [koopzondag] },
+    "stad-uit": { scope: "stad", items: [wilrijk] },
+  });
+  const byId = new Map(items.map((item) => [item.id, item]));
+  assert.equal(items.length, 3);
+  assert.deepEqual([byId.get("deurne-koopzondag").inDistrict, byId.get("deurne-koopzondag").sources.length], [false, 1]);
+  assert.deepEqual([byId.get("uit-wilrijk").inDistrict, byId.get("uit-wilrijk").sources.length], [false, 1]);
+  assert.deepEqual([byId.get(koopzondag.id).inDistrict, byId.get(koopzondag.id).sources.map((source) => source.sourceId)], [true, [SOURCE_ID]]);
 });

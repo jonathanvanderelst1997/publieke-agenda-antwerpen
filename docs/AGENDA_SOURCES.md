@@ -156,12 +156,21 @@ een leeg kanaal) dan leeg. Daarom:
   een ander jaar, een andere weekdag of een dubbele datum: niet publiceren.
 - Titel "Koopzondag", met de context tussen haakjes ("Koopzondag (Allerheiligen)"); uur "Info"; plaats
   "Toeristisch centrum Antwerpen", zoals de pagina het gebied noemt. Die zone ligt volledig in district
-  Antwerpen maar loopt over meerdere postcodes: daarom geen postcodes en `inDistrict: true`. Groep `stad`.
+  Antwerpen, over de postcodes 2000 (kaaien, centrum, Eilandje) en 2018 (Pelikaanstraat, Quellinstraat,
+  Britselei): daarom `postcodes: ["2000", "2018"]` en `inDistrict: true`. Groep `stad`. Zonder postcodes
+  zou de samenvoeging een "Koopzondag" van een ander district (bijvoorbeeld Deurne, 2100) of een UiT-item
+  in Wilrijk met deze koopzondag samenvoegen, en er als hoofditem zelfs `inDistrict: true` van maken; een
+  UiT-item met alleen 2000 blijft nu een apart item (dubbel is beter dan een verkeerd district).
+- Infotekst, voor elke datum dezelfde en neutraal: "Koopzondag in het toeristische stadscentrum volgens
+  de lijst van stad Antwerpen. Openingsuren verschillen per winkel." Geen juridische uitleg over wie
+  wanneer open mag: die staat op de officiële pagina (die nieuwe regelgeving aankondigt).
 - Alleen komende koopzondagen (datum ≥ vandaag, Brusselse tijd). Na de laatste koopzondag van het jaar is
   0 items gezond: voorbije data tellen nooit als krimp.
-- Fouten: geen 200 of geen HTML → `error` met de HTTP-code of `not_html`; geen lijst meer op de pagina
-  (andere opmaak) → `error` met `no_list`. In beide gevallen blijven de vorige items staan. Een lijst die
-  ineens (bijna) niets meer oplevert, valt onder de gewone krimpgrens (`suspicious_drop`).
+- De kop verdraagt een harde spatie (letterlijk of als `&nbsp;`) en een dubbelpunt voor of na `</strong>`.
+- Fouten: geen 200 of geen HTML → `error` met de HTTP-code of `not_html`; een body die halverwege wegvalt
+  → `body_read_failed`; meer dan 2 MB (geteld in tekens, na het lezen) → `too_large`; geen lijst meer op
+  de pagina (andere opmaak) → `error` met `no_list`. In al die gevallen blijven de vorige items staan.
+  Een lijst die ineens (bijna) niets meer oplevert, valt onder de gewone krimpgrens (`suspicious_drop`).
 - Gemeten op 28-09-2026: 15 koopzondagen in 2026, waarvan 6 komende (4 oktober t/m 27 december).
 - Licentie: open data van stad Antwerpen (Vlaamse gratis open data licentie), met bronvermelding.
 
