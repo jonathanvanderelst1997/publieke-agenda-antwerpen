@@ -1,5 +1,5 @@
 import test from "node:test";import assert from "node:assert/strict";import fs from "node:fs";import os from "node:os";import path from "node:path";
-import {classifyGipodEvent,eventLabels,eventsFromGipod,gipodEventQueryUrl} from "../lib/gipod-events.mjs";
+import {classifyGipodEvent,eventLabels,eventsFromGipod,gipodEventQueryUrl,NEIGHBORHOOD_EVENT_WORD} from "../lib/gipod-events.mjs";
 import {run} from "../scripts/fetch-sources-gipod-events.mjs";import {validateSourceDocument} from "../lib/source-feed.mjs";
 const NOW=new Date("2026-09-29T00:00:00Z");
 const event=(id,overrides={})=>({id:`INNAME_PUNT.${id}-2610011200`,type:"Feature",geometry:{type:"Point",coordinates:[4.41,51.22]},properties:{GipodId:id,Description:"2000 Antwerpen, Teststraat : Buurtfeest Teststraat",Reference:"EV1",Type:"Evenement",PublicDomainOccupancyTypes:"Feest/kermis",Status:"Concreet gepland",Start:"2026-10-01T12:00:00Z",End:"2026-10-01T18:00:00Z",...overrides}});
@@ -49,4 +49,13 @@ test("fetcher weigert een next-link naar een andere host",async()=>{
   const status=await run({rootDir:root,clock:()=>NOW,fetch:fetchImpl,log:()=>{}});
   assert.equal(status[0].fetchStatus,"error");
   assert.equal(status[0].errorCode,"unexpected_pagination");
+});
+
+test("buurt-, wijk-, straat-, plein- en burenfeesten zijn expliciet beschermd",()=>{
+  const labels=["Buurtfeest Teststraat","Wijkfeest Kiel","Straatfeest Kammenstraat","Pleinfeest Sint-Jansplein","Burenfeest Zuid"];
+  for(const [index,label] of labels.entries()){
+    assert.equal(NEIGHBORHOOD_EVENT_WORD.test(label),true);
+    const parsed=classifyGipodEvent(event(String(300+index),{PublicDomainOccupancyTypes:"Andere",Description:`2000 Antwerpen, Teststraat : ${label}`}),NOW);
+    assert.equal(parsed.ok,true,label);
+  }
 });
