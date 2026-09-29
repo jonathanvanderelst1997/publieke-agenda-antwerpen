@@ -1747,7 +1747,7 @@ const agendaReconciliation = refreshEngine.reconcileAgendaItems(agendaSourceItem
 const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 // Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
-const renderedAgendaItems = agendaReconciliation.publicItems.filter((item) => onCanonicalHost || !isUitItem(item));
+const renderedAgendaItems = agendaReconciliation.publicItems.filter((item) => onCanonicalHost || !isUitItem(item)).map((item) => ({ ...item, eventType: window.PublicAgendaEventTypes?.classifyEventType(item) || "other" }));
 
 function isUitItem(item) {
   return item.sourceId === "stad-uit";
@@ -1769,6 +1769,8 @@ const initialEventId = requestedEventId();
 
 const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
 let enabledThemes = new Set(themeOrder);
+const eventTypeOrder = (window.PublicAgendaEventTypes?.types || []).map((type) => type.key);
+let enabledEventTypes = new Set(eventTypeOrder);
 // District en stad zijn twee aparte groepen. District staat standaard aan.
 const scopeOrder = ["district", "stad"];
 const scopeLabels = { district: "District Antwerpen", stad: "Stad Antwerpen" };
@@ -1793,6 +1795,11 @@ function stadPlaceOf(item) {
   if (item.inDistrict === true) return "in";
   if (item.inDistrict === false) return "out";
   return null;
+}
+
+function passesEventType(item) {
+  if (!["Activiteit", "Sport"].includes(item.theme)) return true;
+  return enabledEventTypes.has(item.eventType || "other");
 }
 
 function passesScope(item) {
@@ -2151,7 +2158,34 @@ function renderControls() {
     root.appendChild(button);
   });
 
+  renderEventTypeControls();
   renderScopeControls();
+}
+
+function renderEventTypeControls() {
+  const root = document.getElementById("event-type-controls");
+  if (!root) return;
+  root.innerHTML = "";
+  const candidates = renderedAgendaItems.filter((item) => ["Activiteit", "Sport"].includes(item.theme) && passesScope(item));
+  const counts = new Map(eventTypeOrder.map((key) => [key, candidates.filter((item) => (item.eventType || "other") === key).length]));
+  const present = eventTypeOrder.filter((key) => (counts.get(key) || 0) > 0);
+  const allActive = present.every((key) => enabledEventTypes.has(key));
+  const allButton = document.createElement("button");
+  allButton.type = "button";
+  allButton.className = allActive ? "active" : "";
+  allButton.setAttribute("aria-pressed", String(allActive));
+  allButton.textContent = "Alle soorten";
+  allButton.addEventListener("click", () => { enabledEventTypes = allActive ? new Set(eventTypeOrder.filter((key) => !present.includes(key))) : new Set(eventTypeOrder); render(); });
+  root.appendChild(allButton);
+  present.forEach((key) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = enabledEventTypes.has(key) ? "active" : "";
+    button.setAttribute("aria-pressed", String(enabledEventTypes.has(key)));
+    button.innerHTML = `${esc(window.PublicAgendaEventTypes?.labelFor(key) || key)} <span class="scope-count">${esc(counts.get(key) || 0)}</span>`;
+    button.addEventListener("click", () => { if (enabledEventTypes.has(key)) enabledEventTypes.delete(key); else enabledEventTypes.add(key); render(); });
+    root.appendChild(button);
+  });
 }
 
 // Aparte groep "District Antwerpen | Stad Antwerpen", met binnen Stad een deelkeuze
@@ -2234,7 +2268,7 @@ function eventTemplate(item) {
       </div>
       <div class="event-card">
         <button type="button" class="event-toggle" data-id="${id}" aria-expanded="${open ? "true" : "false"}" aria-controls="details-${id}">
-          <span class="theme-label">${esc(item.theme)}</span>
+          <span class="theme-label">${esc(item.theme)}${["Activiteit","Sport"].includes(item.theme) ? ` · ${esc(window.PublicAgendaEventTypes?.labelFor(item.eventType) || "Overig")}` : ""}</span>
           <strong>${esc(item.title)}</strong>
           <span class="chevron" aria-hidden="true">${open ? "^" : "v"}</span>
         </button>
@@ -2401,7 +2435,7 @@ function renderSourceStatus() {
 }
 
 function render() {
-  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item));
+  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item) && passesEventType(item));
   renderControls();
   renderCounts(visible);
   renderList(visible);
