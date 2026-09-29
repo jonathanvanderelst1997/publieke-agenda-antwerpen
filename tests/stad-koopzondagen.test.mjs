@@ -159,6 +159,25 @@ test("fetcher: storing, geen HTML of een andere opmaak wist niets", async () => 
   assert.deepEqual([offline[0].fetchStatus, offline[0].errorCode], ["error", "network_error"]);
 });
 
+test("fetcher: een afgebroken body krijgt precies één herkansing", async () => {
+  const kapot = { ...html(""), text: async () => { throw new TypeError("terminated"); } };
+  const root = makeRoot();
+  let calls = 0;
+  const status = await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => (++calls === 1 ? kapot : html(page)) });
+  assert.equal(calls, 2);
+  assert.equal(status[0].fetchStatus, "ok");
+  assert.equal(read(root).items.length, 6);
+
+  let tweeKeer = 0;
+  const opnieuw = await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => { tweeKeer += 1; return kapot; } });
+  assert.equal(tweeKeer, 2);
+  assert.deepEqual([opnieuw[0].fetchStatus, opnieuw[0].errorCode], ["error", "body_read_failed"]);
+
+  let eenKeer = 0;
+  await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => { eenKeer += 1; return html("", 503); } });
+  assert.equal(eenKeer, 1, "andere fouten krijgen geen herkansing");
+});
+
 test("fetcher: een lijst die ineens leeg is, is suspicious_drop; voorbije koopzondagen tellen nooit als krimp", async () => {
   const root = makeRoot();
   await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => html(page) });
