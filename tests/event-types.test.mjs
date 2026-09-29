@@ -8,3 +8,16 @@ test("typen",()=>{
   assert.equal(c(i("Koopzondag",{sourceId:"stad-koopzondagen"})),"shopping");assert.equal(c(i("Training",{theme:"Sport"})),"sport");
   assert.equal(labelFor("neighborhood"),"Buurt & straat");assert.ok(types.length>=10);
 });
+
+test("herkent vorming, welzijn, groen en manifestaties",()=>{
+  assert.equal(classifyEventType({title:"Workshop omgaan met piekeren"}),"learning");
+  assert.equal(classifyEventType({title:"Tabletcafé"}),"learning");
+  assert.equal(classifyEventType({title:"Praatcafé Dementie"}),"social");
+  assert.equal(classifyEventType({title:"Groeidag",info:"Vergroen mee je buurt"}),"green_action");
+  assert.equal(classifyEventType({title:"Klimaatmars door Antwerpen"}),"demonstration");
+});
+test("herkent cultuur en participatie breder zonder algemene woorden te gokken",()=>{
+  assert.equal(classifyEventType({title:"Vrijdagen van de Poëzie"}),"culture");
+  assert.equal(classifyEventType({title:"Kunstendag voor kinderen"}),"culture");
+  assert.equal(classifyEventType({title:"Vliegend College komt naar de wijken"}),"participation");
+});
