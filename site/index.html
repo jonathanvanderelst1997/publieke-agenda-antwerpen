@@ -50,6 +50,7 @@
     <link rel="stylesheet" href="/works-live.css" />
     <link rel="stylesheet" href="/public-space-live.css" />
     <link rel="stylesheet" href="/street-overview.css" />
+    <link rel="stylesheet" href="/week-pulse.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
@@ -71,6 +72,10 @@
 
       <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
       <div id="agenda-source-status" class="agenda-source-status" aria-label="Versheid per bron" hidden></div>
+
+      <section id="week-pulse" class="week-pulse" aria-label="Komende zeven dagen">
+        <p>Komende 7 dagen laden…</p>
+      </section>
 
       <section class="agenda-controls" aria-label="Agenda filteren">
         <div class="agenda-controls-group">
@@ -120,6 +125,7 @@
     <script src="/agenda-feed.js"></script>
     <script src="/event-types.js"></script>
     <script type="module" src="/street-overview.js"></script>
+    <script type="module" src="/week-pulse.js"></script>
     <script src="/agenda-refresh.js"></script>
     <script src="/agenda-ics.js"></script>
     <script src="/agenda.js"></script>
