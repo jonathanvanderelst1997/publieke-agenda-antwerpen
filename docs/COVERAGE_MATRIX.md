@@ -15,7 +15,7 @@ Deze matrix is de canonieke lijst van wat de publieke agenda wil dekken. Een ond
 | 7 | Parkeerverboden | Gekoppeld | A-Sign goedgekeurd/in effect, District ANTWERPEN. | History-baseline afwachten. |
 | 8 | Innames openbaar domein | Gekoppeld | IOD polygon/lijn, publieke statussen, exacte districtsgeometrie; veilige fasecontext. | History-baseline afwachten. |
 | 9 | Afsluitingen, omleidingen en werfzones | Gekoppeld | SGW lagen 47/48, status vergund, exacte districtsgeometrie. | History-baseline afwachten. |
-| 10 | Speelstraten | Deels | eBesluit-classificatie, 2026-goedkeuringen en PDF-bestandsnamen officieel bewezen. | Concrete straatlijsten pas publiceren zodra de echte publieke PDF-bijlagen uitleesbaar zijn. Geen straatnamen gokken. |
+| 10 | Speelstraten | Gekoppeld / operationeel, juridisch deels | eBesluit-classificatie en 2026-goedkeuringen zijn bewezen; daarnaast accepteert de GIPOD-evenementenbron alleen expliciete `Speelstraat`-records met concrete districtsstraat, exacte puntfilter en maximaal 14 dagen. | Eerstvolgende refresh moet bewijzen welke Antwerpse GIPOD-speelstraten actueel binnenkomen. De volledige juridische goedkeuringslijst uit eBesluit blijft fail-closed zolang de PDF-bijlagen niet uitleesbaar zijn. |
 | 11 | Evenementen / straatinname | Gekoppeld / conservatief | Activiteitenfeeds + IOD/SGW én `district-gipod-evenementen`: alleen GIPOD `Type=Evenement`, actuele/geplande status, expliciete evenementkenmerken en exact punt binnen District Antwerpen. | De GIPOD-selectie is bewust geen volledige evenementeninventaris: commerciële/markt/terrasachtige innames vallen weg en alleen 30 dagen vooruit wordt gelezen. |
 | 12 | Markten en foren | Gekoppeld | Vaste markten via GIPOD; eBesluit positieve foren/feestdagmarkten; bronbewuste annuleringen onderdrukken alleen `stad-markten`. | Volgende refresh bewijst actuele brondata. |
 | 13 | Aannemer / project / fase | Deels | IOD faseNaam/type_dossier/innameHinder; A-Sign Bedrijf/werf/fase als supplement via exact GIPOD-id. | `Bedrijf volgens A-Sign` is geen gegarandeerde juridische aannemer; geen volledige aannemerbron gevonden. |
@@ -30,7 +30,7 @@ De officiële wervenkaart is relevant en publiceert projectstatus/hinder. Indivi
 
 ### Speelstraten
 
-Voor 2026 zijn de officiële eBesluit-goedkeuringen en bijlagenamen bewezen, maar de bijlagebytes/document-id zijn via de huidige publieke routes niet bereikbaar. De besluittekst zegt expliciet dat de concrete lijst in de bijlage staat. Concrete speelstraten blijven daarom fail-closed tot de echte PDF veilig geparsed kan worden.
+Voor 2026 zijn de officiële eBesluit-goedkeuringen en bijlagenamen bewezen, maar de bijlagebytes/document-id zijn via de huidige publieke routes niet bereikbaar. De juridische volledige lijst blijft daarom fail-closed. Operationele speelstraten kunnen wel uit GIPOD komen, maar uitsluitend wanneer het record expliciet `Speelstraat` is, een concrete districtsstraat bevat, exact binnen de districtsgrens valt en maximaal 14 dagen duurt. GIPOD vervangt de eBesluit-bijlage dus niet; het levert een afzonderlijke actuele uitvoeringslaag.
 
 ### Mailsignalen
 

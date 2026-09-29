@@ -10,6 +10,7 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
+| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein | GIPOD `INNAME_PUNT`, alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
@@ -173,6 +174,19 @@ een leeg kanaal) dan leeg. Daarom:
   Een lijst die ineens (bijna) niets meer oplevert, valt onder de gewone krimpgrens (`suspicious_drop`).
 - Gemeten op 28-09-2026: 15 koopzondagen in 2026, waarvan 6 komende (4 oktober t/m 27 december).
 - Licentie: open data van stad Antwerpen (Vlaamse gratis open data licentie), met bronvermelding.
+
+## Speelstraten via GIPOD
+
+De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit. Een GIPOD-record telt alleen als speelstraat wanneer:
+
+- `Type = Evenement`;
+- `PublicDomainOccupancyTypes` expliciet `Speelstraat` bevat;
+- status `Concreet gepland` of `Lopende` is;
+- het GIPOD-punt exact binnen District Antwerpen valt;
+- de beschrijving een concrete locatie bevat met postcode 2000, 2018, 2020, 2030, 2050 of 2060 en een straatnaam;
+- de totale periode maximaal 14 dagen duurt.
+
+Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
 
 ## Attributie
 
