@@ -6,3 +6,23 @@ const resp=(text,status=200)=>({ok:status>=200&&status<300,status,text:async()=>
 test("eBesluit discovery blijft speelstraten fail-closed",async()=>{const d=await discoverCivicDecisions({fetch:fake,year:2026});assert.equal(d.complete,true);assert.equal(d.calendarItems.length,2);assert.equal(d.exceptions.length,1);assert.equal(d.playStreetAttachments.length,1)});
 test("fetcher schrijft bronitems en gevalideerde suppressies",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"ebesluit-"));await runEbesluit({rootDir:root,clock:()=>NOW,fetch:fake,log:()=>{}});const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-ebesluit.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-ebesluit"}),[]);assert.equal(doc.suppressions.length,1);assert.ok(doc.items.every(x=>!x.title.toLowerCase().includes("speelstraat")))});
 test("annulering onderdrukt alleen de bedoelde stad-markt",()=>{const base={externalId:"x",theme:"Activiteit",className:"activity",date:"2026-05-14",endDate:null,timeSlot:"08:00",timeText:"",postcodes:[],info:"",kind:"activity",retrievedAt:NOW.toISOString(),reviewRequired:false};const markt={...base,id:"markt-x",title:"Gemengde markt Dageraadplaats",location:"Dageraadplaats, 2018 Antwerpen",sourceUrl:"https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/x"},feest={...base,id:"district-kal-x",title:"Buurtfeest",location:"Dageraadplaats, 2018 Antwerpen",sourceUrl:"https://www.antwerpen.be/info/x"};const r=mergeEvents({"stad-markten":{scope:"stad",items:[markt]},"district-kalender":{scope:"district",items:[feest]}},[],[{targetSourceId:"stad-markten",date:"2026-05-14",location:"Dageraadplaats",decisionCode:"2026_DCAN_00002",sourceUrl:"https://ebesluit.antwerpen.be/zittingen/x/agendapunten/y"}]);assert.deepEqual(r.items.map(x=>x.id),["district-kal-x"]);assert.equal(r.suppressed[0].id,"markt-x")});
+
+test("eBesluit probeert een tijdelijke 503 precies één keer opnieuw",async()=>{
+  let calls=0;
+  const fetch503Once=async url=>{calls++;if(calls===1)return resp("",503);return fake(url)};
+  const result=await discoverCivicDecisions({fetch:fetch503Once,year:2026,retryDelayMs:0,sleepImpl:async()=>{}});
+  assert.equal(result.complete,true);
+  assert.ok(calls>1);
+});
+test("eBesluit blijft fail-closed na twee 503-antwoorden",async()=>{
+  let calls=0;
+  const always503=async()=>{calls++;return resp("",503)};
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_503");
+  assert.equal(calls,2);
+});
+test("eBesluit herhaalt een niet-tijdelijke 404 niet",async()=>{
+  let calls=0;
+  const always404=async()=>{calls++;return resp("",404)};
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_404");
+  assert.equal(calls,1);
+});
