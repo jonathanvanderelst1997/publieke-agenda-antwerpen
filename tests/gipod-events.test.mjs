@@ -24,3 +24,28 @@ test("speelstraat wordt alleen met concrete districtsstraat en maximaal 14 dagen
   assert.equal(classifyGipodEvent(event("109",{Description:"Speelstraat",PublicDomainOccupancyTypes:"Speelstraat"}),NOW).reason,"playstreet_missing_location");
   assert.equal(classifyGipodEvent(event("110",{Description:"2000 Antwerpen, Teststraat : Speelstraat",PublicDomainOccupancyTypes:"Speelstraat",Start:"2026-10-01T08:00:00Z",End:"2026-10-20T18:00:00Z"}),NOW).reason,"playstreet_duration");
 });
+
+test("fetcher volgt begrensde GIPOD-paginering op exact dezelfde collectie",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-pages-"));
+  const calls=[];
+  const fetchImpl=async url=>{
+    calls.push(String(url));
+    if(calls.length===1){
+      const next=new URL(String(url));
+      next.searchParams.set("cursor","page2");
+      return{ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[event("201")],links:[{rel:"next",href:next.href}]})};
+    }
+    return{ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[event("202")],links:[]})};
+  };
+  const status=await run({rootDir:root,clock:()=>NOW,fetch:fetchImpl,log:()=>{}});
+  assert.deepEqual([status[0].fetchStatus,status[0].itemCount],["ok",2]);
+  assert.equal(calls.length,2);
+});
+
+test("fetcher weigert een next-link naar een andere host",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-host-"));
+  const fetchImpl=async()=>({ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[event("203")],links:[{rel:"next",href:"https://evil.example/items?page=2"}]})});
+  const status=await run({rootDir:root,clock:()=>NOW,fetch:fetchImpl,log:()=>{}});
+  assert.equal(status[0].fetchStatus,"error");
+  assert.equal(status[0].errorCode,"unexpected_pagination");
+});
