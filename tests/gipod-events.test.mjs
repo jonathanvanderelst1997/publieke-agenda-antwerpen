@@ -9,3 +9,18 @@ test("punt buiten district valt weg",()=>assert.equal(classifyGipodEvent({...eve
 test("adresprefix wordt locatie",()=>assert.deepEqual(eventLabels("2000 Antwerpen, Teststraat : Buurtfeest Teststraat","1"),{title:"Buurtfeest Teststraat",location:"2000 Antwerpen, Teststraat"}));
 test("contactorganisaties lekken niet",()=>{const {items}=eventsFromGipod({features:[event("106",{ContactOrganisations:[{Email:"persoon@example.be"}]})]},{now:NOW});assert.equal(items.length,1);assert.equal(JSON.stringify(items).includes("@"),false);assert.equal(items[0].inDistrict,true)});
 test("fetcher schrijft geldig document en nul events is gezond",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-"));const reply=features=>({ok:true,json:async()=>({type:"FeatureCollection",features,links:[]})});const status=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([event("107")]),log:()=>{}});assert.deepEqual([status[0].fetchStatus,status[0].itemCount],["ok",1]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-gipod-evenementen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-gipod-evenementen"}),[]);const empty=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([]),log:()=>{}});assert.deepEqual([empty[0].fetchStatus,empty[0].itemCount],["ok",0])});
+
+test("speelstraat wordt alleen met concrete districtsstraat en maximaal 14 dagen aanvaard",()=>{
+  const ok=event("108",{Description:"2000 Antwerpen, Teststraat : Speelstraat",PublicDomainOccupancyTypes:"Speelstraat",Start:"2026-10-01T08:00:00Z",End:"2026-10-05T18:00:00Z"});
+  const parsed=classifyGipodEvent(ok,NOW);
+  assert.equal(parsed.ok,true);
+  assert.equal(parsed.playStreet,true);
+  const {items,counts}=eventsFromGipod({features:[ok]},{now:NOW});
+  assert.equal(items.length,1);
+  assert.equal(items[0].title,"Speelstraat · Teststraat");
+  assert.equal(items[0].location,"2000 Antwerpen, Teststraat");
+  assert.match(items[0].info,/Publieke speelstraat volgens GIPOD/);
+  assert.equal(counts.playStreets,1);
+  assert.equal(classifyGipodEvent(event("109",{Description:"Speelstraat",PublicDomainOccupancyTypes:"Speelstraat"}),NOW).reason,"playstreet_missing_location");
+  assert.equal(classifyGipodEvent(event("110",{Description:"2000 Antwerpen, Teststraat : Speelstraat",PublicDomainOccupancyTypes:"Speelstraat",Start:"2026-10-01T08:00:00Z",End:"2026-10-20T18:00:00Z"}),NOW).reason,"playstreet_duration");
+});
