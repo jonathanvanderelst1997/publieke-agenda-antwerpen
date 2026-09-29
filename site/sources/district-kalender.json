@@ -13,31 +13,11 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
-  "retrievedAt": "2026-09-28T11:36:32.611Z",
+  "retrievedAt": "2026-09-29T09:46:52.871Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "parser-1|6ab10ff1449474036f182d95|2026-09-21T11:08:09+00:00",
+  "contentVersion": "parser-1|6aba5629449474992340c150|2026-09-28T11:59:00+00:00",
   "items": [
-    {
-      "id": "district-kal-6a746a7ff4182b8edf63a75e-2026-09-03",
-      "externalId": "6a746a7ff4182b8edf63a75e",
-      "title": "Burgerbegroting: stem online en tijdens de finale",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-09-03",
-      "endDate": "2026-09-25",
-      "timeSlot": "Info",
-      "timeText": "online stemmen",
-      "location": "Horta, Hopland 2",
-      "postcodes": [
-        "2000"
-      ],
-      "info": "Alle inwoners van district Antwerpen vanaf 13 jaar kunnen online stemmen op hun favoriete ideeën op stem.burgerbegroting.be. Op zondag 27 september kan je live stemmen tijdens de finale. Beslis mee welke ideeën uitgevoerd worden. Kies één van de twee sessies: om 10 uur of 13.30 uur. Schrijf vooraf…",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
-      "reviewRequired": false
-    },
     {
       "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09",
       "externalId": "6a746a7ff4182b8edf63a766",
@@ -56,28 +36,7 @@
       "infoUrl": "https://nova.antwerpen.be/humans-of-antwerp",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
-      "reviewRequired": false
-    },
-    {
-      "id": "district-kal-6a746a7ff4182b8edf63a772-2026-09-22",
-      "externalId": "6a746a7ff4182b8edf63a772",
-      "title": "(G)ouder worden",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-09-22",
-      "endDate": null,
-      "timeSlot": "13:30",
-      "timeText": "13.30 tot 16 uur",
-      "location": "Het Stadsmagazijn, Keistraat 5/7",
-      "postcodes": [
-        "2000"
-      ],
-      "info": "Prof. Dr. Christel Geerts deelt inspirerende inzichten en praktische tips om gezond, actief en veerkrachtig ouder te worden. Prijs: GRATIS",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/gezond-ouder-worden-een-positieve-kijk-op-de-toekomst",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -100,51 +59,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/tabletcafe-voor-senioren",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
-      "reviewRequired": false
-    },
-    {
-      "id": "district-kal-6a04d45c9fb3aa7ae4213cab-2026-09-27",
-      "externalId": "6a04d45c9fb3aa7ae4213cab",
-      "title": "Lambermontmartre",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-09-27",
-      "endDate": null,
-      "timeSlot": "12:00",
-      "timeText": "12 uur",
-      "location": "Leopold de Waelplaats",
-      "postcodes": [
-        "2000"
-      ],
-      "info": "Gezellige schildersmarkt in openlucht voor schilders, tekenaars, fotografen en kunstliefhebbers. Prijs: GRATIS",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
-      "reviewRequired": false
-    },
-    {
-      "id": "district-kal-6a746a7ff4182b8edf63a764-2026-09-27",
-      "externalId": "6a746a7ff4182b8edf63a764",
-      "title": "Sinjor Circo",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-09-27",
-      "endDate": null,
-      "timeSlot": "13:00",
-      "timeText": "vanaf 13 uur",
-      "location": "verschillende locaties",
-      "postcodes": [
-        "2018",
-        "2020",
-        "2030",
-        "2060"
-      ],
-      "info": "Laat je verwonderen door spectaculaire acrobatie, hilarische slapstick en poëtische voorstellingen. Met doorlopend activiteiten en workshops. Prijs: GRATIS",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/sinjor-circo/programma-2026",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -165,7 +80,7 @@
       "infoUrl": "https://www.beerschot-atletiek.be/t-kiel-loopt/",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -185,7 +100,7 @@
       "info": "Het allereerste wielercriterium op Linkeroever! Koers mee of moedig de renners aan tijdens 3 jeugd-, 1 vrouwen- en 2 mannenreeksen. Volg de Ronde van Lombardije en het WK Gravel voor vrouwen op groot scherm en blijf nadien hangen voor de dj’s. Prijs: €15",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -206,7 +121,7 @@
       "infoUrl": "https://antwerpen.bibliotheek.be/permeke",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -229,7 +144,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/tabletcafe-voor-senioren",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -250,7 +165,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/cultuur/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -271,7 +186,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/griezelfeest-bij-co-nova-op-halloween",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -291,7 +206,7 @@
       "info": "Herdenk de Spaanse Furie die exact 450 jaar geleden plaatsvond op de Grote Markt. Bereid je voor op een unieke en meeslepende herdenking. Een éénmalig totaalspektakel boordevol verrassingen. Prijs: GRATIS",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -311,7 +226,7 @@
       "info": "Een voorstelling over verlangen naar verbinding en erbij horen. Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over wat het betekent om ergens bij te horen, over het gevoel van verbinding en het ontbreken daarvan. Prijs: GRATIS",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -332,7 +247,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/cultuur/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -353,7 +268,7 @@
       "infoUrl": "https://www.facebook.com/ParadeNoorderlicht",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     },
     {
@@ -376,7 +291,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/tabletcafe-voor-senioren",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-09-28T11:36:32.611Z",
+      "retrievedAt": "2026-09-29T09:46:52.871Z",
       "reviewRequired": false
     }
   ]

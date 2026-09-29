@@ -16,8 +16,8 @@
   ],
   "officialPublic": true,
   "method": "Brain Gateway mail-signalen, elk item herverifieerd op de officiële pagina",
-  "retrievedAt": null,
-  "fetchStatus": "disabled",
+  "retrievedAt": "2026-09-29T09:49:22.158Z",
+  "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": []

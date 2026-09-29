@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "antwerpen.be infopagina koopzondagen (HTML, lijst 'Koopzondagen in <jaar>'), alleen komende koopzondagen",
   "retrievedAt": "2026-09-28T22:29:25.188Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
