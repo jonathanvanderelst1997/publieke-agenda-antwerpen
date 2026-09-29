@@ -2,7 +2,7 @@
 // https://www.antwerpen.be/info/koopzondagen en schrijft site/sources/stad-koopzondagen.json.
 // Open data van de stad, met bronvermelding. Alleen komende koopzondagen worden weggeschreven.
 //
-// Eén GET per ronde, zonder herhaling: de lijst verandert een paar keer per jaar, een gemiste ronde
+// Eén GET per ronde (alleen bij een afgebroken body één herkansing): de lijst verandert een paar keer per jaar, een gemiste ronde
 // kost niets (de vorige items blijven 48 uur geldig). De ruwe HTML wordt nergens bewaard; het
 // contactblok onderaan de pagina wordt nooit gelezen (zie lib/koopzondagen.mjs).
 //
@@ -28,7 +28,18 @@ export const SOURCE_ID = "stad-koopzondagen";
 // De pagina weegt ongeveer 125 kB; alles boven 2 MB is geen infopagina meer.
 export const MAX_HTML_BYTES = 2_000_000;
 
+// Een body die halverwege wegvalt, krijgt één herkansing: op 29-09 viel dat één keer voor op de
+// GitHub-runner terwijl dezelfde GET daarna telkens lukte. Andere fouten krijgen er geen.
 async function getPage(fetchImpl) {
+  try {
+    return await getPageOnce(fetchImpl);
+  } catch (error) {
+    if (errorCodeOf(error) !== "body_read_failed") throw error;
+    return await getPageOnce(fetchImpl);
+  }
+}
+
+async function getPageOnce(fetchImpl) {
   const response = await fetchWithTimeout(fetchImpl, KOOPZONDAGEN_URL, {
     headers: { "user-agent": USER_AGENT, accept: "text/html" },
     redirect: "error",
