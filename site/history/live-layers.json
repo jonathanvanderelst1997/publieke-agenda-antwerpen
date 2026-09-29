@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-09-29T09:49:22.384Z",
+  "retentionDays": 90,
+  "baselineInitializedAt": "2026-09-29T09:49:22.384Z",
+  "layers": {
+    "works": {
+      "status": "error",
+      "lastAttemptAt": "2026-09-29T09:49:22.384Z",
+      "lastSuccessAt": null,
+      "errorCode": "street_axis_invalid",
+      "count": 0,
+      "digest": null,
+      "items": []
+    },
+    "publicSpace": {
+      "status": "error",
+      "lastAttemptAt": "2026-09-29T09:49:22.384Z",
+      "lastSuccessAt": null,
+      "errorCode": "street_axis_invalid",
+      "count": 0,
+      "digest": null,
+      "items": []
+    }
+  },
+  "changes": []
+}

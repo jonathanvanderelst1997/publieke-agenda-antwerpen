@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-ebesluit",
+  "scope": "district",
+  "publisher": "District Antwerpen / eBesluit Antwerpen",
+  "attribution": {
+    "text": "Bron: eBesluit Antwerpen",
+    "url": "https://ebesluit.antwerpen.be/"
+  },
+  "url": "https://ebesluit.antwerpen.be/",
+  "allowedHosts": [
+    "ebesluit.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "eBesluit Antwerpen: gepubliceerde districtsbesluiten voor foren en feestdagmarkten",
+  "retrievedAt": null,
+  "fetchStatus": "error",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [],
+  "suppressions": []
+}

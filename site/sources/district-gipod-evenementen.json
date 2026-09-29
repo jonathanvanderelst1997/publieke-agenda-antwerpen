@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-gipod-evenementen",
+  "scope": "district",
+  "publisher": "GIPOD / Digitaal Vlaanderen",
+  "attribution": {
+    "text": "Bron: GIPOD, Digitaal Vlaanderen (Modellicentie Gratis Hergebruik v1.0)",
+    "url": "https://geo.api.vlaanderen.be/GIPOD/ogc/features"
+  },
+  "url": "https://geo.api.vlaanderen.be/GIPOD/ogc/features",
+  "allowedHosts": [
+    "geo.api.vlaanderen.be"
+  ],
+  "officialPublic": true,
+  "method": "GIPOD INNAME_PUNT: conservatieve echte-evenementselectie, exact punt binnen District Antwerpen",
+  "retrievedAt": null,
+  "fetchStatus": "error",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": []
+}

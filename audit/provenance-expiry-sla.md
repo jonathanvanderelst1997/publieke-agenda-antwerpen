@@ -1,11 +1,11 @@
 # Bronprovenance- en verval-SLA-matrix
 
-Status: lokale audit, niet gepubliceerd. Classificatie op 2026-09-28; geverifieerde bronsnapshot 2026-09-28T11:36:33.870Z.
+Status: lokale audit, niet gepubliceerd. Classificatie op 2026-09-29; geverifieerde bronsnapshot 2026-09-29T09:49:22.383Z.
 
-- Bronitems: 204
+- Bronitems: 201
 - Fail-closed lokale kandidaat: 67
-- Classificaties: current=1, expired=117, future=66, review_required=20
-- SLA-statussen: blocked_review_required=16, expired_not_public=117, fresh_verified=67, stale_blocked=4
+- Classificaties: current=5, expired=114, future=62, review_required=20
+- SLA-statussen: blocked_review_required=16, expired_not_public=114, fresh_verified=67, stale_blocked=4
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -142,76 +142,73 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 129 | poetische-rimpelingen-2026-06-29-2026-09-19-64e62867 | 2026-09-19 | expired | citaat-op-straat | verified | - | - | expired_not_public | nee |
 | 130 | beweegdag-55-2026-09-19 | 2026-09-19 | expired | city-beweegdag | verified | - | - | expired_not_public | nee |
 | 131 | gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387 | 2026-09-20 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
-| 132 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 3 | 2026-09-19 | stale_blocked | nee |
-| 133 | district-kal-6a746a7ff4182b8edf63a75e-2026-09-03 | 2026-09-03 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 134 | district-kal-6a746a7ff4182b8edf63a766-2026-09-09 | 2026-09-09 | current | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 135 | district-kal-6a746a7ff4182b8edf63a772-2026-09-22 | 2026-09-22 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 136 | district-kal-6a746a7ff4182b8edf63a774-2026-09-25 | 2026-09-25 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 137 | district-kal-6a04d45c9fb3aa7ae4213cab-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 138 | district-kal-6a746a7ff4182b8edf63a764-2026-09-27 | 2026-09-27 | expired | district-kalender | verified | - | - | expired_not_public | nee |
-| 139 | markt-ma15-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 140 | markt-ma22-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 141 | markt-ma23-2026-09-29 | 2026-09-29 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 142 | stad-news-merksem-6a71e3e8d82fba3f307d2c83-2026-09-29 | 2026-09-29 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 143 | markt-ma13-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 144 | markt-ma25-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 145 | markt-ma6-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 146 | stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30 | 2026-09-30 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 147 | markt-ma19-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 148 | markt-ma31-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 149 | markt-ma8-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 150 | stad-news-wilrijk-648d2efc50afea0013656346-t0r0-2026-10-01 | 2026-10-01 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 151 | markt-ma2-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 152 | markt-ma18-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 153 | markt-ma3-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 154 | markt-ma9-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 155 | markt-ma5-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 156 | markt-ma14-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 157 | markt-ma20-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 158 | markt-ma27-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 159 | markt-ma4-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 160 | markt-ma24-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 161 | markt-ma10-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 162 | markt-ma26-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 163 | district-kal-6a746a7ff4182b8edf63a776-2026-10-04 | 2026-10-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 164 | koopzondag-2026-10-04 | 2026-10-04 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
-| 165 | stad-news-deurne-6a86d1d6a7e51177702c406b-2026-10-04 | 2026-10-04 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 166 | markt-ma1-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 167 | markt-ma7-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 168 | stad-news-wilrijk-648d2efc50afea0013656346-t0r1-2026-10-05 | 2026-10-05 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 169 | stad-news-wilrijk-648d2efc50afea0013656346-t0r2-2026-10-06 | 2026-10-06 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 170 | stad-news-merksem-6a7aff9ed82fbaaad21424f2-2026-10-07 | 2026-10-07 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 171 | district-news-547d6be7cca8a798038b457f-2026-10-07 | 2026-10-07 | future | district-nieuws | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 172 | stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-08 | 2026-10-08 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 173 | stad-news-hoboken-5daeb0c3f8412527a4787a4c-2026-10-09 | 2026-10-09 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 174 | district-kal-6a746a7ff4182b8edf63a777-2026-10-10 | 2026-10-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 175 | stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13 | 2026-10-13 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 176 | stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15 | 2026-10-15 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 177 | stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17 | 2026-10-17 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 178 | district-kal-6a746a7ff4182b8edf63a779-2026-10-18 | 2026-10-18 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 179 | stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22 | 2026-10-22 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 180 | district-kal-6a746a7ff4182b8edf63a774-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 181 | district-kal-6a746a7ff4182b8edf63a76b-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 182 | stad-news-hoboken-6718b2f31beefe7ae24580cd-2026-10-30 | 2026-10-30 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 183 | district-kal-6a746a7ff4182b8edf63a77b-2026-10-31 | 2026-10-31 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 184 | stad-news-merksem-6655c1fac846040011359f8b-2026-10-31 | 2026-10-31 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 185 | koopzondag-2026-11-01 | 2026-11-01 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
-| 186 | district-kal-6a746a7ff4182b8edf63a77d-2026-11-04 | 2026-11-04 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 187 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06 | 2026-11-06 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 188 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07 | 2026-11-07 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 189 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08 | 2026-11-08 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 190 | district-kal-6a746a7ff4182b8edf63a77e-2026-11-10 | 2026-11-10 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 191 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13 | 2026-11-13 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 192 | stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15 | 2026-11-15 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 193 | stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 194 | stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 195 | stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19 | 2026-11-19 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 196 | district-kal-6a746a7ff4182b8edf63a76b-2026-11-20 | 2026-11-20 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 197 | district-kal-6a746a7ff4182b8edf63a780-2026-11-26 | 2026-11-26 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 198 | district-kal-6a746a7ff4182b8edf63a774-2026-11-27 | 2026-11-27 | future | district-kalender | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 199 | koopzondag-2026-12-06 | 2026-12-06 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
-| 200 | stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10 | 2026-12-10 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 201 | stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11 | 2026-12-11 | future | stad-districten | verified | 2 | 2026-09-30 | fresh_verified | ja |
-| 202 | koopzondag-2026-12-13 | 2026-12-13 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
-| 203 | koopzondag-2026-12-20 | 2026-12-20 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
-| 204 | koopzondag-2026-12-27 | 2026-12-27 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 132 | lambermontmartre-2026-09-27 | 2026-09-27 | expired | city-district-calendar | verified | - | - | expired_not_public | nee |
+| 133 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 3 | 2026-09-19 | stale_blocked | nee |
+| 134 | district-kal-6a746a7ff4182b8edf63a766-2026-09-09 | 2026-09-09 | current | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 135 | district-kal-6a746a7ff4182b8edf63a774-2026-09-25 | 2026-09-25 | expired | district-kalender | verified | - | - | expired_not_public | nee |
+| 136 | markt-ma15-2026-09-29 | 2026-09-29 | current | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 137 | markt-ma22-2026-09-29 | 2026-09-29 | current | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 138 | markt-ma23-2026-09-29 | 2026-09-29 | current | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 139 | stad-news-merksem-6a71e3e8d82fba3f307d2c83-2026-09-29 | 2026-09-29 | current | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 140 | markt-ma13-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 141 | markt-ma25-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 142 | markt-ma6-2026-09-30 | 2026-09-30 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 143 | stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30 | 2026-09-30 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 144 | markt-ma19-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 145 | markt-ma31-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 146 | markt-ma8-2026-10-01 | 2026-10-01 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 147 | stad-news-wilrijk-648d2efc50afea0013656346-t0r0-2026-10-01 | 2026-10-01 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 148 | markt-ma2-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 149 | markt-ma18-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 150 | markt-ma3-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 151 | markt-ma9-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 152 | markt-ma5-2026-10-02 | 2026-10-02 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 153 | markt-ma14-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 154 | markt-ma20-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 155 | markt-ma27-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 156 | markt-ma4-2026-10-03 | 2026-10-03 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 157 | markt-ma24-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 158 | markt-ma10-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 159 | markt-ma26-2026-10-04 | 2026-10-04 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 160 | district-kal-6a746a7ff4182b8edf63a776-2026-10-04 | 2026-10-04 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 161 | koopzondag-2026-10-04 | 2026-10-04 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 162 | stad-news-deurne-6a86d1d6a7e51177702c406b-2026-10-04 | 2026-10-04 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 163 | markt-ma1-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 164 | markt-ma7-2026-10-05 | 2026-10-05 | future | stad-markten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 165 | stad-news-wilrijk-648d2efc50afea0013656346-t0r1-2026-10-05 | 2026-10-05 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 166 | stad-news-wilrijk-648d2efc50afea0013656346-t0r2-2026-10-06 | 2026-10-06 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 167 | stad-news-merksem-6a7aff9ed82fbaaad21424f2-2026-10-07 | 2026-10-07 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 168 | district-news-547d6be7cca8a798038b457f-2026-10-07 | 2026-10-07 | future | district-nieuws | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 169 | stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-08 | 2026-10-08 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 170 | stad-news-hoboken-5daeb0c3f8412527a4787a4c-2026-10-09 | 2026-10-09 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 171 | district-kal-6a746a7ff4182b8edf63a777-2026-10-10 | 2026-10-10 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 172 | stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13 | 2026-10-13 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 173 | stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15 | 2026-10-15 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 174 | stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17 | 2026-10-17 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 175 | district-kal-6a746a7ff4182b8edf63a779-2026-10-18 | 2026-10-18 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 176 | stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22 | 2026-10-22 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 177 | district-kal-6a746a7ff4182b8edf63a774-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 178 | district-kal-6a746a7ff4182b8edf63a76b-2026-10-23 | 2026-10-23 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 179 | stad-news-hoboken-6718b2f31beefe7ae24580cd-2026-10-30 | 2026-10-30 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 180 | district-kal-6a746a7ff4182b8edf63a77b-2026-10-31 | 2026-10-31 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 181 | stad-news-merksem-6655c1fac846040011359f8b-2026-10-31 | 2026-10-31 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 182 | koopzondag-2026-11-01 | 2026-11-01 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 183 | district-kal-6a746a7ff4182b8edf63a77d-2026-11-04 | 2026-11-04 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 184 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06 | 2026-11-06 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 185 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07 | 2026-11-07 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 186 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08 | 2026-11-08 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 187 | district-kal-6a746a7ff4182b8edf63a77e-2026-11-10 | 2026-11-10 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 188 | stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13 | 2026-11-13 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 189 | stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15 | 2026-11-15 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 190 | stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 191 | stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18 | 2026-11-18 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 192 | stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19 | 2026-11-19 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 193 | district-kal-6a746a7ff4182b8edf63a76b-2026-11-20 | 2026-11-20 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 194 | district-kal-6a746a7ff4182b8edf63a780-2026-11-26 | 2026-11-26 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 195 | district-kal-6a746a7ff4182b8edf63a774-2026-11-27 | 2026-11-27 | future | district-kalender | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 196 | koopzondag-2026-12-06 | 2026-12-06 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 197 | stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10 | 2026-12-10 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 198 | stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11 | 2026-12-11 | future | stad-districten | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 199 | koopzondag-2026-12-13 | 2026-12-13 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 200 | koopzondag-2026-12-20 | 2026-12-20 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |
+| 201 | koopzondag-2026-12-27 | 2026-12-27 | future | stad-koopzondagen | verified | 2 | 2026-10-01 | fresh_verified | ja |

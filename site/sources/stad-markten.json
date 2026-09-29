@@ -14,7 +14,7 @@
   ],
   "officialPublic": true,
   "method": "GIPOD OGC API Features (INNAME_PUNT, markten van stad Antwerpen), eerstvolgende marktdag per markt",
-  "retrievedAt": "2026-09-28T13:31:30.257Z",
+  "retrievedAt": "2026-09-29T09:49:16.650Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
@@ -36,7 +36,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351528-2609290600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -57,7 +57,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351563-2609290600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -78,7 +78,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351569-2609290600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -99,7 +99,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351519-2609300600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -120,7 +120,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351581-2609300600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -141,7 +141,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.20382503-2609300600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -162,7 +162,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351547-2610010600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -183,7 +183,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351592-2610010600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -204,7 +204,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351482-2610010600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -223,7 +223,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350279-2610020400",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -244,7 +244,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351544-2610020600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -265,7 +265,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350311-2610020600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -286,7 +286,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351490-2610020600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -307,7 +307,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350353-2610020930",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -328,7 +328,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351523-2610030600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -349,7 +349,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351561-2610030600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -370,7 +370,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351588-2610030600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -391,7 +391,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350337-2610030600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -412,7 +412,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351579-2610040600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -433,7 +433,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351512-2610040700",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -454,7 +454,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12351585-2610040700",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -475,7 +475,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350257-2610050600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -496,7 +496,7 @@
       "info": "Openbare markt van stad Antwerpen. Eerstvolgende marktdag volgens GIPOD; de markt komt geregeld terug.",
       "kind": "activity",
       "sourceUrl": "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.12350401-2610050600",
-      "retrievedAt": "2026-09-28T13:31:30.257Z",
+      "retrievedAt": "2026-09-29T09:49:16.650Z",
       "reviewRequired": false,
       "inDistrict": false
     }

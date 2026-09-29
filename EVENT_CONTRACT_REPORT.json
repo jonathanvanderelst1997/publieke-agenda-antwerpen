@@ -1,10 +1,10 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 204,
+    "events": 201,
     "errors": 0,
-    "warnings": 37,
-    "unconfirmedStart": 37
+    "warnings": 36,
+    "unconfirmedStart": 36
   },
   "errors": [],
   "warnings": [
@@ -90,107 +90,102 @@
     },
     {
       "code": "unconfirmed_start",
-      "index": 132,
-      "id": "district-kal-6a746a7ff4182b8edf63a75e-2026-09-03"
-    },
-    {
-      "code": "unconfirmed_start",
       "index": 133,
       "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09"
     },
     {
       "code": "unconfirmed_start",
-      "index": 145,
+      "index": 142,
       "id": "stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30"
     },
     {
       "code": "unconfirmed_start",
-      "index": 163,
+      "index": 160,
       "id": "koopzondag-2026-10-04"
     },
     {
       "code": "unconfirmed_start",
-      "index": 164,
+      "index": 161,
       "id": "stad-news-deurne-6a86d1d6a7e51177702c406b-2026-10-04"
     },
     {
       "code": "unconfirmed_start",
-      "index": 171,
+      "index": 168,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 174,
+      "index": 171,
       "id": "stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 176,
+      "index": 173,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 183,
+      "index": 180,
       "id": "stad-news-merksem-6655c1fac846040011359f8b-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 184,
+      "index": 181,
       "id": "koopzondag-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 186,
+      "index": 183,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 187,
+      "index": 184,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07"
     },
     {
       "code": "unconfirmed_start",
-      "index": 188,
+      "index": 185,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 190,
+      "index": 187,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 191,
+      "index": 188,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 193,
+      "index": 190,
       "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 198,
+      "index": 195,
       "id": "koopzondag-2026-12-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 200,
+      "index": 197,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11"
     },
     {
       "code": "unconfirmed_start",
-      "index": 201,
+      "index": 198,
       "id": "koopzondag-2026-12-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 202,
+      "index": 199,
       "id": "koopzondag-2026-12-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 203,
+      "index": 200,
       "id": "koopzondag-2026-12-27"
     }
   ]
