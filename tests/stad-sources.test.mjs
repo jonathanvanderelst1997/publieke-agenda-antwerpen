@@ -348,7 +348,7 @@ test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD 
 test("bronnen in het register en het contract: groep stad, vaste hosts en attributie", () => {
   assert.deepEqual(
     FETCHERS.map((fetcher) => fetcher.name),
-    ["district-kalender", "district-nieuws", "district-gipod-evenementen", "district-ebesluit", "stad-districten", "stad-markten", "stad-koopzondagen", "stad-uit", "mail"]
+    ["district-kalender", "district-nieuws", "district-vergaderingen", "district-gipod-evenementen", "district-ebesluit", "stad-districten", "stad-markten", "stad-koopzondagen", "stad-uit", "mail"]
   );
   const districten = sourceDocument("stad-districten", { fetchStatus: "ok" });
   assert.deepEqual([districten.scope, districten.allowedHosts], ["stad", ["www.antwerpen.be"]]);
