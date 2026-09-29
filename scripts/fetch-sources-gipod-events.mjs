@@ -5,17 +5,33 @@ import { FetchError,USER_AGENT,errorCodeOf,fetchWithTimeout,isMainModule,keepPre
 import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 export const SOURCE_ID="district-gipod-evenementen";
-async function getJson(fetchImpl,url){
+async function getPage(fetchImpl,url){
   const response=await fetchWithTimeout(fetchImpl,url,{headers:{"user-agent":USER_AGENT,accept:"application/geo+json, application/json"},redirect:"error"});
   if(!response.ok)throw new FetchError(`http_${response.status}`);
   let json;try{json=await response.json()}catch{throw new FetchError("invalid_json")}
-  if((json.links||[]).some(link=>link.rel==="next"))throw new FetchError("pagination_required");
+  if(json?.type!=="FeatureCollection"||!Array.isArray(json.features))throw new FetchError("invalid_payload");
   return json;
+}
+async function getJson(fetchImpl,initialUrl){
+  const start=new URL(initialUrl),features=[],seen=new Set();
+  let url=start.href;
+  for(let page=0;page<20&&url;page+=1){
+    const current=new URL(url);
+    if(current.origin!==start.origin||current.pathname!==start.pathname||seen.has(url))throw new FetchError("unexpected_pagination");
+    seen.add(url);
+    const json=await getPage(fetchImpl,url);
+    features.push(...json.features);
+    const next=(json.links||[]).filter(link=>link?.rel==="next"&&link?.href);
+    if(next.length>1)throw new FetchError("duplicate_next");
+    url=next[0]?.href||"";
+  }
+  if(url)throw new FetchError("pagination_limit");
+  return{type:"FeatureCollection",features,links:[]};
 }
 export async function run({fetch:fetchImpl=globalThis.fetch,clock=()=>new Date(),rootDir,dryRun=false,log=console.log}={}){
   const previous=readSourceDocument(rootDir,SOURCE_ID),now=clock(),retrievedAt=now.toISOString(),today=brusselsDate(now);
   let geojson;
-  try{geojson=await getJson(fetchImpl,gipodEventQueryUrl(now));if(!Array.isArray(geojson?.features))throw new FetchError("invalid_payload")}
+  try{geojson=await getJson(fetchImpl,gipodEventQueryUrl(now))}
   catch(error){const code=errorCodeOf(error);log(JSON.stringify({source:SOURCE_ID,fetchStatus:"error",errorCode:code}));return[keepPreviousOnError(rootDir,SOURCE_ID,previous,code,{dryRun})]}
   const parsed=eventsFromGipod(geojson,{now});geojson=null;
   const screened=screenItems(parsed.items.map(item=>({...item,retrievedAt})));
