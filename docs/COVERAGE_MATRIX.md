@@ -6,7 +6,7 @@ Deze matrix is de canonieke lijst van wat de publieke agenda wil dekken. Een ond
 
 | # | Domein | Stand | Bron / bewijs | Nog open |
 |---|---|---|---|---|
-| 1 | Activiteiten en sport | Deels / sterk | Districtskalender, districtsnieuws, nieuws van 9 andere districten en bronmerge op main. | Mail-dubbelcheck na eerstvolgende refresh bevestigen; UiT alleen optioneel met sleutel. |
+| 1 | Activiteiten en sport | Deels / sterk | Districtskalender, districtsnieuws, nieuws van 9 andere districten, gratis koopzondagenbron van stad Antwerpen en bronmerge op main. | Mail-dubbelcheck na eerstvolgende refresh bevestigen; UiT alleen optioneel met sleutel. |
 | 2 | Grote/langlopende werken uit mails | Deels | Werkenlaag bestaat; mailsignalen zijn privacyveilig en uploader werkt opnieuw. | Bewijzen dat de volgende agenda-refresh mailsignalen opnieuw als bron consumeert. |
 | 3 | GIPOD-werken | Gekoppeld | Live `INNAME_PUNT`, Werk/Grondwerk, status In uitvoering/Concreet gepland, officiële districtsgrens + exact snapshot. | Eerste history-baseline nog afwachten; Render-liveversie afzonderlijk bewijzen. |
 | 4 | Beheerders/operatoren | Gekoppeld / deels | GIPOD Owner wordt als opdrachtgever/beheerder gegroepeerd. | De Vlaamse Waterweg alleen automatisch toevoegen als een machineleesbare, geografisch filterbare werfbron bewezen is. |
@@ -16,7 +16,7 @@ Deze matrix is de canonieke lijst van wat de publieke agenda wil dekken. Een ond
 | 8 | Innames openbaar domein | Gekoppeld | IOD polygon/lijn, publieke statussen, exacte districtsgeometrie; veilige fasecontext. | History-baseline afwachten. |
 | 9 | Afsluitingen, omleidingen en werfzones | Gekoppeld | SGW lagen 47/48, status vergund, exacte districtsgeometrie. | History-baseline afwachten. |
 | 10 | Speelstraten | Deels | eBesluit-classificatie, 2026-goedkeuringen en PDF-bestandsnamen officieel bewezen. | Concrete straatlijsten pas publiceren zodra de echte publieke PDF-bijlagen uitleesbaar zijn. Geen straatnamen gokken. |
-| 11 | Evenementen / straatinname | Deels | Activiteitenfeeds + IOD/SGW voor publieke ruimte. | Geen aparte complete actuele event-innamebron bewezen. |
+| 11 | Evenementen / straatinname | Gekoppeld / conservatief | Activiteitenfeeds + IOD/SGW én `district-gipod-evenementen`: alleen GIPOD `Type=Evenement`, actuele/geplande status, expliciete evenementkenmerken en exact punt binnen District Antwerpen. | De GIPOD-selectie is bewust geen volledige evenementeninventaris: commerciële/markt/terrasachtige innames vallen weg en alleen 30 dagen vooruit wordt gelezen. |
 | 12 | Markten en foren | Gekoppeld | Vaste markten via GIPOD; eBesluit positieve foren/feestdagmarkten; bronbewuste annuleringen onderdrukken alleen `stad-markten`. | Volgende refresh bewijst actuele brondata. |
 | 13 | Aannemer / project / fase | Deels | IOD faseNaam/type_dossier/innameHinder; A-Sign Bedrijf/werf/fase als supplement via exact GIPOD-id. | `Bedrijf volgens A-Sign` is geen gegarandeerde juridische aannemer; geen volledige aannemerbron gevonden. |
 | 14 | Snapshots / wijzigingshistoriek | Gebouwd en gemergd | 90 dagen history, added/changed/removed, fail-closed, straatmetadata niet als operationele wijziging. | Eerste automatische baseline moet nog door de 05:17-refresh worden aangemaakt en gecontroleerd. |
@@ -38,8 +38,9 @@ De lokale mailronde produceert alleen privacyveilige publieke signalen. De compa
 
 ## Eerstvolgende controles
 
-1. Na de 05:17-refresh: history-baseline, mailbronstatus en datatak controleren.
+1. Na de 05:17-refresh: history-baseline, mailbronstatus, koopzondagenbron, GIPOD-evenementenbron en datatak controleren.
 2. Render-liveverificatie van de straatfiche en de live bronlagen.
 3. Speelstraatbijlage alleen vervolgen zodra een echte publieke PDF/document-id gevonden is.
 4. De Vlaamse Waterweg alleen automatiseren na bewezen geografische feed.
 5. Politieke-toolbridge pas openen nadat de politieke-tool-CI veilig als managed workflow is gebonden; geen tweede externe fetcher bouwen.
+6. Gateway PR #930 pas mergen nadat de generieke npm-auditblokker (`ip-address`) via de aparte securityroute is opgelost.
