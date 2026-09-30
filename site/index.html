@@ -50,6 +50,7 @@
     <link rel="stylesheet" href="/works-live.css" />
     <link rel="stylesheet" href="/public-space-live.css" />
     <link rel="stylesheet" href="/permits-live.css" />
+    <link rel="stylesheet" href="/terraces-live.css" />
     <link rel="stylesheet" href="/street-overview.css" />
     <link rel="stylesheet" href="/week-pulse.css" />
   </head>
@@ -125,6 +126,13 @@
         <div class="permits-live-list" data-permits-list></div><button type="button" class="permits-live-more" data-permits-more hidden>Toon meer dossiers</button>
       </section>
 
+      <section id="terraces-live" class="terraces-live" aria-label="Terrasvergunningen">
+        <div class="terraces-live-header"><div><span class="terraces-live-kicker">Terrassen</span><h2>Terrasvergunningen per straat</h2><p>Publieke inventaris uit A-Sign, met status letterlijk uit de bron en zonder ondernemingsnummer of vrije beschrijving.</p></div><strong data-terraces-count>Terrassen laden…</strong></div>
+        <p class="terraces-live-note" data-terraces-note>De terraslaag wordt geladen.</p>
+        <div class="terraces-live-controls"><input type="search" data-terraces-search placeholder="Zoek straat, terrastype of bronstatus" aria-label="Zoek in terrasvergunningen" /></div>
+        <div class="terraces-live-list" data-terraces-list></div><button type="button" class="terraces-live-more" data-terraces-more hidden>Toon meer terrassen</button>
+      </section>
+
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
@@ -132,6 +140,7 @@
     <script type="module" src="/public-space-live.js"></script>
     <script src="/agenda-feed.js"></script>
     <script type="module" src="/permits-live.js"></script>
+    <script type="module" src="/terraces-live.js"></script>
     <script src="/event-types.js"></script>
     <script type="module" src="/street-overview.js"></script>
     <script type="module" src="/week-pulse.js"></script>
