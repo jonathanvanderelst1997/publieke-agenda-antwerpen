@@ -24,6 +24,8 @@ import { sourceDocument } from "../lib/source-feed.mjs";
 export const SOURCE_ID = "stad-districten";
 export const ID_PREFIX = "stad-news-";
 export const CHANNEL_GAP_MS = 3_000;
+export const CHANNEL_PAGE_SIZE = 25;
+export const CHANNEL_MAX_PAGES = 8;
 // Een artikel dat in meer dan één districtskanaal staat, gaat over de hele stad.
 const CITY_WIDE_FALLBACK = Object.freeze({ location: "Stad Antwerpen, locatie via de officiële bron", postcodes: Object.freeze([]) });
 
@@ -34,21 +36,27 @@ export function channelIdPrefix(channelEntry) {
 const realSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function fetchChannel(fetchImpl, channelEntry) {
-  const response = await fetchWithTimeout(fetchImpl, channelApiUrl(channelEntry.channelId), {
-    headers: { "user-agent": USER_AGENT, accept: "application/json" },
-    redirect: "error",
-  });
-  if (!response.ok) throw new FetchError(`http_${response.status}`);
-  let body;
-  try {
-    body = await response.json();
-  } catch {
-    throw new FetchError("invalid_json");
+  const articles=[];
+  const seen=new Set();
+  for(let page=0;page<CHANNEL_MAX_PAGES;page+=1){
+    const response=await fetchWithTimeout(fetchImpl,channelApiUrl(channelEntry.channelId,{start:page*CHANNEL_PAGE_SIZE,limit:CHANNEL_PAGE_SIZE}),{
+      headers:{"user-agent":USER_AGENT,accept:"application/json"},
+      redirect:"error",
+    });
+    if(!response.ok)throw new FetchError(`http_${response.status}`);
+    let body;
+    try{body=await response.json()}catch{throw new FetchError("invalid_json")}
+    if(!Array.isArray(body?.data))throw new FetchError("invalid_payload");
+    if(page===0&&!body.data.length)throw new FetchError("no_articles");
+    for(const article of body.data){
+      const key=articleKey(article);
+      if(!key||seen.has(key))continue;
+      seen.add(key);
+      articles.push(article);
+    }
+    if(body.data.length<CHANNEL_PAGE_SIZE)return articles;
   }
-  if (!Array.isArray(body?.data)) throw new FetchError("invalid_payload");
-  // Een districtskanaal is nooit leeg; een lege lijst is een storing, geen nieuws.
-  if (!body.data.length) throw new FetchError("no_articles");
-  return body.data;
+  throw new FetchError("pagination_limit");
 }
 
 // Alleen de velden die de parser nodig heeft; personeelsvelden en afbeeldingen vallen hier al weg.
