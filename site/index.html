@@ -49,6 +49,7 @@
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/works-live.css" />
     <link rel="stylesheet" href="/public-space-live.css" />
+    <link rel="stylesheet" href="/permits-live.css" />
     <link rel="stylesheet" href="/street-overview.css" />
     <link rel="stylesheet" href="/week-pulse.css" />
   </head>
@@ -117,12 +118,20 @@
         <div class="public-space-list" data-space-list></div><button class="public-space-more" type="button" data-space-more hidden>Toon meer</button>
       </section>
 
+      <section id="permits-live" class="permits-live" aria-label="Omgevingsdossiers in behandeling">
+        <div class="permits-live-header"><div><span class="permits-live-kicker">Vergunningen</span><h2>Omgevingsdossiers in behandeling</h2><p>Actuele dossiers uit de publieke Antwerpse vergunningenlaag, privacyveilig gekoppeld aan straten.</p></div><div class="permits-live-summary" data-permits-count>Dossiers laden…</div></div>
+        <p class="permits-live-note" data-permits-note>De vergunningenlaag wordt geladen.</p>
+        <div class="permits-live-controls"><input type="search" data-permits-search placeholder="Zoek straat, dossiertype of dossiernummer" aria-label="Zoek in omgevingsdossiers" /></div>
+        <div class="permits-live-list" data-permits-list></div><button type="button" class="permits-live-more" data-permits-more hidden>Toon meer dossiers</button>
+      </section>
+
       <section id="agenda-list" class="agenda-list" aria-label="Kalender per datum"></section>
     </main>
 
     <script type="module" src="/works-live.js"></script>
     <script type="module" src="/public-space-live.js"></script>
     <script src="/agenda-feed.js"></script>
+    <script type="module" src="/permits-live.js"></script>
     <script src="/event-types.js"></script>
     <script type="module" src="/street-overview.js"></script>
     <script type="module" src="/week-pulse.js"></script>
