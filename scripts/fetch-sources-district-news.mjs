@@ -13,7 +13,13 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 
 export const SOURCE_ID = "district-nieuws";
-export const DISTRICT_NEWS_URL = `https://www.antwerpen.be/api/portaal/channel/${DISTRICT_NEWS_CHANNEL_ID}?contentType=10&start=0&limit=25`;
+export const DISTRICT_NEWS_PAGE_SIZE = 25;
+export const DISTRICT_NEWS_MAX_PAGES = 8;
+export function districtNewsUrl({start=0,limit=DISTRICT_NEWS_PAGE_SIZE}={}) {
+  const params=new URLSearchParams({contentType:"10",start:String(start),limit:String(limit)});
+  return `https://www.antwerpen.be/api/portaal/channel/${DISTRICT_NEWS_CHANNEL_ID}?${params}`;
+}
+export const DISTRICT_NEWS_URL = districtNewsUrl();
 
 export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
@@ -22,21 +28,34 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   const today = brusselsDate(now);
   let articles;
   try {
-    const response = await fetchWithTimeout(fetchImpl, DISTRICT_NEWS_URL, {
-      headers: { "user-agent": USER_AGENT, accept: "application/json" },
-      redirect: "error",
-    });
-    if (!response.ok) throw new FetchError(`http_${response.status}`);
-    let body;
-    try {
-      body = await response.json();
-    } catch {
-      throw new FetchError("invalid_json");
+    const collected=[];
+    const seen=new Set();
+    for(let page=0;page<DISTRICT_NEWS_MAX_PAGES;page+=1){
+      const response = await fetchWithTimeout(fetchImpl, districtNewsUrl({start:page*DISTRICT_NEWS_PAGE_SIZE}), {
+        headers: { "user-agent": USER_AGENT, accept: "application/json" },
+        redirect: "error",
+      });
+      if (!response.ok) throw new FetchError(`http_${response.status}`);
+      let body;
+      try {
+        body = await response.json();
+      } catch {
+        throw new FetchError("invalid_json");
+      }
+      if (!Array.isArray(body?.data)) throw new FetchError("invalid_payload");
+      if(page===0&&!body.data.length)throw new FetchError("no_articles");
+      for(const article of body.data){
+        const id=String(article?.id??article?.uuid??"");
+        if(!id||seen.has(id))continue;
+        seen.add(id);
+        collected.push(article);
+      }
+      if(body.data.length<DISTRICT_NEWS_PAGE_SIZE){
+        articles=collected;
+        break;
+      }
     }
-    if (!Array.isArray(body?.data)) throw new FetchError("invalid_payload");
-    // Het kanaal van een district is nooit leeg; een lege lijst is een storing, geen nieuws.
-    if (!body.data.length) throw new FetchError("no_articles");
-    articles = body.data;
+    if(!articles)throw new FetchError("pagination_limit");
   } catch (error) {
     const code = errorCodeOf(error);
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: code }));

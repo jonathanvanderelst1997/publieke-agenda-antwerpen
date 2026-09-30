@@ -1,0 +1,12 @@
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+import {DISTRICT_CHANNELS,channelApiUrl} from "../lib/district-channels.mjs";
+import {CHANNEL_PAGE_SIZE,run as runDistricts} from "../scripts/fetch-sources-stad-districten.mjs";
+const NOW=new Date("2026-09-30T00:00:00Z"),clock=()=>NOW,quiet=()=>{},noSleep=async()=>{};
+const json=(body,status=200)=>({ok:status>=200&&status<300,status,headers:{get:()=>null},json:async()=>body});
+const article=(id,title="Nieuws")=>({id,slug:`nieuws-${id.slice(-4)}`,title,publishedAt:"2026-09-20T08:00:00+00:00",publishUntil:"2027-12-31T22:00:00+00:00",snippets:[{type:"wysiwyg",body:{text:"<p>Gewoon nieuws.</p>"}}]});
+test("channelApiUrl ondersteunt vervolgpagina's",()=>{const id=DISTRICT_CHANNELS[0].channelId;assert.equal(channelApiUrl(id),`https://www.antwerpen.be/api/portaal/channel/${id}?contentType=10&start=0&limit=25`);assert.equal(new URL(channelApiUrl(id,{start:25,limit:25})).searchParams.get("start"),"25")});
+test("stad-districten haalt pagina twee op als pagina één vol is",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-pages-"));fs.mkdirSync(path.join(root,"site","sources"),{recursive:true});const target=DISTRICT_CHANNELS[0],requested=[],first=Array.from({length:CHANNEL_PAGE_SIZE},(_,i)=>article((i+1).toString(16).padStart(24,"0")));const fetch=async url=>{const u=new URL(String(url));requested.push(u.href);const entry=DISTRICT_CHANNELS.find(candidate=>u.pathname.endsWith(candidate.channelId));if(!entry)return json({},404);const start=Number(u.searchParams.get("start")||0);if(entry.key===target.key){if(start===0)return json({data:first});if(start===CHANNEL_PAGE_SIZE)return json({data:[article("ffffffffffffffffffffffff","Save the date")]});return json({data:[]})}const index=DISTRICT_CHANNELS.indexOf(entry);return json({data:[article((100+index).toString(16).padStart(24,"0"))]})};const[status]=await runDistricts({rootDir:root,clock,log:quiet,sleep:noSleep,fetch});assert.equal(status.fetchStatus,"ok");const calls=requested.filter(url=>new URL(url).pathname.endsWith(target.channelId));assert.equal(calls.length,2);assert.equal(new URL(calls[1]).searchParams.get("start"),String(CHANNEL_PAGE_SIZE))});
