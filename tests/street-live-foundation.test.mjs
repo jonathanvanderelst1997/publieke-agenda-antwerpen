@@ -30,3 +30,21 @@ test("straatasbron faalt gesloten als de pagineringslimiet bereikt wordt",async(
   ]})});
   await assert.rejects(()=>fetchStreetFeatures({fetchImpl,pageSize:1,maxPages:2}),error=>error?.code==="street_axis_pagination_limit");
 });
+
+test("straatasbron valt terug op lokale districtfilter als serverfilter leeg is",async()=>{
+  const whereSeen=[];
+  const fetchImpl=async url=>{
+    const parsed=new URL(String(url));
+    const where=parsed.searchParams.get("where");
+    whereSeen.push(where);
+    if(where!=="1=1")return{ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[]})};
+    return{ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[
+      {type:"Feature",properties:{DISTRICT:"Antwerpen",LSTRNMID:10,LSTRNM:"Fallbackstraat",RSTRNMID:10,RSTRNM:"Fallbackstraat",postcode:2000},geometry:{type:"LineString",coordinates:[[4.4,51.2],[4.401,51.2]]}},
+      {type:"Feature",properties:{DISTRICT:"Borgerhout",LSTRNMID:11,LSTRNM:"Andere straat",RSTRNMID:11,RSTRNM:"Andere straat",postcode:2140},geometry:{type:"LineString",coordinates:[[4.42,51.21],[4.421,51.21]]}}
+    ]})};
+  };
+  const rows=await fetchStreetFeatures({fetchImpl,pageSize:2000,maxPages:2});
+  assert.equal(rows.length,1);
+  assert.equal(rows[0].properties.LSTRNM,"Fallbackstraat");
+  assert.deepEqual(whereSeen,["DISTRICT IN ('ANTWERPEN','Antwerpen','antwerpen')","1=1"]);
+});
