@@ -71,34 +71,45 @@
         </aside>
       </header>
 
-      <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
-      <div id="agenda-source-status" class="agenda-source-status" aria-label="Versheid per bron" hidden></div>
-
-      <section id="week-pulse" class="week-pulse" aria-label="Volledige vooruitblik">
-        <p>Volledige vooruitblik laden…</p>
-      </section>
-
       <section class="agenda-controls" aria-label="Agenda filteren">
         <div class="agenda-controls-group">
-          <div class="agenda-controls-title">Thema's</div>
+          <label class="agenda-controls-title" for="agenda-street-jump">Straat</label>
+          <input id="agenda-street-jump" type="search" placeholder="Zoek een straat…" aria-label="Zoek een straat in de agenda" />
+          <small>Kies eerst je straat om werken, hinder en activiteiten samen te zien.</small>
+        </div>
+        <div class="agenda-controls-group">
+          <div class="agenda-controls-title">Wat wil je zien?</div>
           <div id="theme-controls" class="theme-controls"></div>
         </div>
-        <div class="agenda-controls-group">
-          <div class="agenda-controls-title">Soort activiteit</div>
-          <div id="event-type-controls" class="theme-controls" role="group" aria-label="Filter op soort activiteit"></div>
-        </div>
-        <div class="agenda-controls-group">
-          <div class="agenda-controls-title">District en stad</div>
-          <div id="scope-controls" class="theme-controls scope-controls" role="group" aria-label="District Antwerpen of Stad Antwerpen"></div>
-        </div>
+        <details class="agenda-more-filters">
+          <summary>Meer filters</summary>
+          <div class="agenda-controls-group">
+            <div class="agenda-controls-title">Soort activiteit</div>
+            <div id="event-type-controls" class="theme-controls" role="group" aria-label="Filter op soort activiteit"></div>
+          </div>
+          <div class="agenda-controls-group">
+            <div class="agenda-controls-title">District en stad</div>
+            <div id="scope-controls" class="theme-controls scope-controls" role="group" aria-label="District Antwerpen of Stad Antwerpen"></div>
+          </div>
+        </details>
       </section>
+
+      <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
+
+      <details class="agenda-technical-details">
+        <summary>Bronnen en volledige vooruitblik</summary>
+        <div id="agenda-source-status" class="agenda-source-status" aria-label="Versheid per bron" hidden></div>
+        <section id="week-pulse" class="week-pulse" aria-label="Volledige vooruitblik">
+          <p>Volledige vooruitblik laden…</p>
+        </section>
+      </details>
 
       <section id="street-overview" class="street-overview" aria-label="Alles per straat">
         <div class="street-overview-header">
           <div><span class="street-kicker">Per straat</span><h2>Alles wat er in een straat speelt</h2><p>Werken, hinder, parkeerverboden, innames, omleidingen, markten en activiteiten gebundeld op de officiële Antwerpse straatnaam.</p></div>
           <div class="street-summary" data-street-summary>Straatinformatie laden…</div>
         </div>
-        <div class="street-controls"><input type="search" data-street-search placeholder="Zoek een straat of item" aria-label="Zoek in straatfiches" /></div>
+        <div class="street-controls"><input id="street-overview-search" type="search" data-street-search placeholder="Zoek een straat of item" aria-label="Zoek in straatfiches" /></div>
         <p class="street-note" data-street-note>Officiële straatas wordt geladen…</p>
         <div class="street-list" data-street-list></div>
         <button type="button" class="street-more" data-street-more hidden>Toon meer straten</button>
