@@ -18,7 +18,7 @@
     const s=String(i.sourceId||""),v=text(i);
     if(s==="district-vergaderingen"||has(v,/\b(districtsraad|raadscommissie|gemeenteraad|openbare vergadering|openbare zitting)\b/))return"public_meeting";
     if(has(v,/\bspeelstraat\b/))return"playstreet";
-    if(has(v,/\b(buurtfeest|wijkfeest|straatfeest|pleinfeest|burenfeest|buurtbarbecue|straatbarbecue)\b/))return"neighborhood";
+    if(has(v,/\b(buurtfeest|wijkfeest|straatfeest|pleinfeest|burenfeest|buurt\s*barbecue|straat\s*barbecue|buurt\s*picknick|buren\s*picknick|straat\s*picknick)\b/))return"neighborhood";
     if(s==="stad-koopzondagen"||has(v,/\bkoopzondag\b/))return"shopping";
     if(has(v,/\b(rommelmarkt|vlooienmarkt|garageverkoop|garagesale|braderie|brocante|brocantemarkt)\b/))return"flea_braderie";
     if(has(v,/\b(stoet|optocht|processie|parade|carnaval(?:stoet)?)\b/))return"parade";
