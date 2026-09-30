@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";import fs from "node:fs";import os from "node:os";import path from "node:path";import test from "node:test";
-import{discoverCivicDecisions}from"../lib/ebesluit-discovery.mjs";import{mergeEvents}from"../lib/merge-events.mjs";import{validateSourceDocument}from"../lib/source-feed.mjs";import{run as runEbesluit}from"../scripts/fetch-sources-ebesluit.mjs";
+import{discoverCivicDecisions,searchKeyword}from"../lib/ebesluit-discovery.mjs";import{mergeEvents}from"../lib/merge-events.mjs";import{validateSourceDocument}from"../lib/source-feed.mjs";import{run as runEbesluit}from"../scripts/fetch-sources-ebesluit.mjs";
 const NOW=new Date("2026-09-28T06:00:00Z"),row=(id,m)=>`<a class="result-row" data-id="${id}" data-meeting-id="${m}" data-content-published="true"></a>`,search=[row("fair","m1"),row("market","m2"),row("play","m3")].join("");
 const fair=`Besluit 2026_DCAN_00001 - District Antwerpen - Kermissen 2026 - Goedkeuring districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 Dageraadplaats - Najaarsfoor: 3 oktober 2026 tot en met 18 oktober 2026; Artikel 2 Einde.`;const market=`Besluit 2026_DCAN_00002 - District Antwerpen - Openbare markten feestdagen 2026 - Goedkeuring districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 zondag 5 april 2026, Pasen: Falconplein; Artikel 2 donderdag 14 mei 2026, Hemelvaartsdag: Dageraadplaats; Artikel 3 Einde.`;const play=`Besluit 2026_DCAN_00003 - Binnengemeentelijke decentralisatie - Aanvragen speelstraten paasvakantie 2026 - Goedkeuring districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 goed volgens bijlage. Artikel 2 Einde. <a href="/files/speelstraten.pdf">speelstraten.pdf</a>`;
 const resp=(text,status=200)=>({ok:status>=200&&status<300,status,text:async()=>text}),fake=url=>{const u=new URL(String(url));if(u.pathname==="/zoeken")return Promise.resolve(resp(search));if(u.pathname.endsWith("/fair"))return Promise.resolve(resp(fair));if(u.pathname.endsWith("/market"))return Promise.resolve(resp(market));if(u.pathname.endsWith("/play"))return Promise.resolve(resp(play));return Promise.resolve(resp("",404))};
@@ -37,4 +37,11 @@ test("automatische eBesluitbron doorzoekt huidig en volgend jaar en dedupliceert
   assert.equal(doc.items.length,2);
   assert.equal(doc.suppressions.length,1);
   assert.match(doc.contentVersion,/^ebesluit-v2\|2026-2027\|/);
+});
+
+test("eBesluit splitst een gecapte jaarzoekopdracht in kwartalen",async()=>{
+  const seen=new Set();
+  const fetchImpl=async url=>{const u=new URL(String(url)),start=u.searchParams.get("meetingDateStart"),end=u.searchParams.get("meetingDateEnd"),page=Number(u.searchParams.get("page"));seen.add(`${start}|${end}`);if(start==="2026-01-01"&&end==="2026-12-31")return resp(Array.from({length:50},(_,i)=>row(`full-${page}-${i}`,`mf-${page}-${i}`)).join(""));return resp(row(`q-${start}`,`mq-${start}`));};
+  const result=await searchKeyword(fetchImpl,"markt",2026,{retryDelayMs:0,sleepImpl:async()=>{}});
+  assert.equal(result.coverage.complete,true);assert.equal(result.rows.length,4);assert.ok(seen.has("2026-01-01|2026-03-31"));assert.ok(seen.has("2026-10-01|2026-12-31"));
 });
