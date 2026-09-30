@@ -1781,7 +1781,7 @@ let enabledStadPlaces = new Set(stadPlaceOrder);
 const initialEventItem = renderedAgendaItems.find((item) => item.id === initialEventId);
 if (initialEventItem && scopeOf(initialEventItem) === "stad") enabledScopes.add("stad");
 let openId = initialEventItem ? initialEventId : "";
-let hasScrolledToToday = Boolean(openId);
+let hasScrolledToToday = true; // Keep the main street and theme controls in view on first load.
 
 function agendaNow() {
   return typeof window.PUBLIC_AGENDA_CLOCK === "function" ? window.PUBLIC_AGENDA_CLOCK() : new Date();
@@ -2442,13 +2442,26 @@ function renderSourceStatus() {
 }
 
 function render() {
-  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item) && passesEventType(item));
+  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item) && passesEventType(item) && (!window.PUBLIC_AGENDA_VIEW || window.PUBLIC_AGENDA_VIEW.matchesAgenda(item)));
+  window.PUBLIC_AGENDA_VISIBLE_ITEMS = visible;
   renderControls();
   renderCounts(visible);
   renderList(visible);
+  window.dispatchEvent(new CustomEvent("public-agenda:agenda-view", { detail: { count: visible.length } }));
 }
 
 render();
+
+window.addEventListener("public-agenda:view-change", render);
+window.addEventListener("public-agenda:reset-filters", () => {
+  enabledThemes = new Set(themeOrder); enabledEventTypes = new Set(eventTypeOrder);
+  enabledScopes = new Set(["district"]); enabledStadPlaces = new Set(stadPlaceOrder);
+  render();
+});
+if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {
+  const note = document.getElementById("agenda-refresh-note");
+  if (note) note.textContent += " De gezamenlijke straatfilter is tijdelijk niet beschikbaar; de gewone agenda blijft bruikbaar.";
+});
 
 if (openId) {
   window.setTimeout(() => document.getElementById(openId)?.scrollIntoView({ block: "center" }), 80);
