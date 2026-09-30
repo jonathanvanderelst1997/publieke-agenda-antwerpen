@@ -4,3 +4,10 @@ test("jaartabel levert raad en commissies",()=>{const p=parseDistrictMeetingPage
 test("weekdagfout wordt niet gegokt",()=>{const p=parseMeetingDates("dinsdag 12 oktober",2026);assert.deepEqual(p.dates,[]);assert.equal(p.issues[0].code,"weekday_mismatch")});
 test("ontbrekende planning faalt gesloten",()=>assert.equal(parseDistrictMeetingPage({snippets:[{type:"wysiwyg",body:{text:"<p>Geen planning</p>"}}]}).items.length,0));
 test("fetcher schrijft toekomstige vergaderdata",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-"));const s=await run({rootDir:root,clock:()=>new Date("2026-10-10T08:00:00Z"),fetch:async()=>response(page),log:()=>{}});assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",7]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-vergaderingen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-vergaderingen"}),[])});
+
+test("meerdere jaartabellen gebruiken elk hun eigen jaartal",()=>{
+  const parsed=parseDistrictMeetingPage({snippets:[{type:"wysiwyg",body:{text:"<p><strong>Data districtsraden en raadscommissies 2026</strong></p><table><tr><th>Data algemene raadscommissie</th><th>Data districtsraad</th></tr><tr><td>maandag 9 november</td><td>maandag 16 november</td></tr></table><p><strong>Data districtsraden en raadscommissies 2027</strong></p><table><tr><th>Data algemene raadscommissie</th><th>Data districtsraad</th></tr><tr><td>maandag 11 januari</td><td>maandag 18 januari</td></tr></table>"}}]});
+  assert.deepEqual(parsed.years,[2026,2027]);
+  assert.equal(parsed.year,2027);
+  assert.deepEqual(parsed.items.map(item=>item.date),["2026-11-09","2026-11-16","2027-01-11","2027-01-18"]);
+});
