@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-vergaderingen",
+  "scope": "district",
+  "publisher": "District Antwerpen",
+  "attribution": {
+    "text": "Bron: district Antwerpen – openbare zittingen en vergaderdata",
+    "url": "https://www.antwerpen.be/info/5c487af01ee32dff476bc9f3/districtsraad-antwerpen-zittingen-verslagen-en-besluiten"
+  },
+  "url": "https://www.antwerpen.be/info/5c487af01ee32dff476bc9f3/districtsraad-antwerpen-zittingen-verslagen-en-besluiten",
+  "allowedHosts": [
+    "www.antwerpen.be",
+    "ebesluit.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "antwerpen.be jaartabel met fail-closed fallback naar officiële eBesluit-maandkalender voor districtsraad/raadscommissies",
+  "retrievedAt": null,
+  "fetchStatus": "error",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": []
+}
