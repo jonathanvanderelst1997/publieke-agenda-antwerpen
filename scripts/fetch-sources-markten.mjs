@@ -1,8 +1,8 @@
 // Haalt de openbare markten van stad Antwerpen op uit GIPOD (Digitaal Vlaanderen, open data zonder
 // sleutel) en verrijkt ze met district en postcode uit de marktlijst van geodata.antwerpen.be.
-// Eén GIPOD-verzoek en, optioneel, één verzoek voor de marktlijst: faalt die tweede, dan gaan de markten
-// zonder postcode door (inDistrict komt altijd uit de coördinaten en de officiële districtsgrens).
-// Per markt alleen de eerstvolgende marktdag. Licentie: Modellicentie Gratis Hergebruik v1.0.
+// GIPOD wordt over het volledige jaarvenster gepagineerd; daarnaast is er optioneel één verzoek voor de
+// marktlijst. Faalt die tweede, dan gaan de markten zonder postcode door. Alle officieel bekende
+// marktdagen in het venster worden bewaard. Licentie: Modellicentie Gratis Hergebruik v1.0.
 // Schrijft site/sources/stad-markten.json.
 //
 //   node scripts/fetch-sources-markten.mjs [--dry-run]
@@ -10,12 +10,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
-import { gipodQueryUrl, marketListQueryUrl, marketsFromGipod, parseMarketList } from "../lib/gipod-markets.mjs";
+import { GIPOD_ITEMS_URL, gipodQueryUrl, marketListQueryUrl, marketsFromGipod, parseMarketList } from "../lib/gipod-markets.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { sourceDocument } from "../lib/source-feed.mjs";
+import { maxItemsFor, sourceDocument } from "../lib/source-feed.mjs";
 
 export const SOURCE_ID = "stad-markten";
 export const REQUEST_GAP_MS = 2_000;
+export const MAX_GIPOD_PAGES = 20;
 
 const realSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -29,6 +30,26 @@ async function getJson(fetchImpl, url, accept) {
   }
 }
 
+export async function fetchGipodMarkets(fetchImpl, now) {
+  const features = [], seen = new Set();
+  let url = gipodQueryUrl(now), pages = 0;
+  const expected = new URL(GIPOD_ITEMS_URL);
+  while (url && pages < MAX_GIPOD_PAGES) {
+    const current = new URL(url);
+    if (current.origin !== expected.origin || current.pathname !== expected.pathname || seen.has(url)) throw new FetchError("unexpected_pagination");
+    seen.add(url);
+    const data = await getJson(fetchImpl, url, "application/geo+json, application/json");
+    if (!Array.isArray(data?.features)) throw new FetchError("invalid_payload");
+    features.push(...data.features); pages += 1;
+    const next = (data.links ?? []).filter((link) => link?.rel === "next" && link?.href);
+    if (next.length > 1) throw new FetchError("duplicate_next");
+    url = next[0]?.href ?? "";
+  }
+  if (url) throw new FetchError("pagination_limit");
+  if (!features.length) throw new FetchError("no_markets");
+  return { type: "FeatureCollection", features, links: [], pages };
+}
+
 export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log, sleep = realSleep } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
   const now = clock();
@@ -36,10 +57,7 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   const today = brusselsDate(now);
   let geojson;
   try {
-    geojson = await getJson(fetchImpl, gipodQueryUrl(now), "application/geo+json, application/json");
-    if (!Array.isArray(geojson?.features)) throw new FetchError("invalid_payload");
-    // De stad heeft elke week markten; een leeg antwoord is een storing.
-    if (!geojson.features.length) throw new FetchError("no_markets");
+    geojson = await fetchGipodMarkets(fetchImpl, now);
   } catch (error) {
     const code = errorCodeOf(error);
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: code }));
@@ -60,12 +78,20 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   }
 
   const parsed = marketsFromGipod(geojson, { now, marketList });
+  const pages = geojson.pages;
   geojson = null;
   const screened = screenItems(parsed.items.map((item) => ({ ...item, retrievedAt })));
+  if (screened.items.length > maxItemsFor(SOURCE_ID)) {
+    const errorCode = "market_item_limit";
+    log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode, candidates: screened.items.length, pages }));
+    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, errorCode, { dryRun })];
+  }
   const counts = {
     source: SOURCE_ID,
     rows: parsed.counts.rows,
     markets: parsed.counts.markets,
+    marketSeries: parsed.counts.series,
+    pages,
     marketList: marketListStatus,
     conflicts: parsed.counts.conflicts,
     rejected: parsed.counts.rejected,

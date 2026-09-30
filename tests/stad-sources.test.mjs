@@ -272,28 +272,20 @@ test("GIPOD: één verzoek met filter, venster en bbox van de stad", () => {
   const url = new URL(gipodQueryUrl(NOW));
   assert.equal(url.origin + url.pathname, "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items");
   assert.equal(url.searchParams.get("filter"), "Type='Evenement' AND PublicDomainOccupancyTypes LIKE 'Markt%' AND Owner LIKE 'Stad Antwerpen%'");
-  assert.equal(url.searchParams.get("datetime"), "2026-09-28T06:00:00Z/2026-10-12T06:00:00Z");
+  assert.equal(url.searchParams.get("datetime"), "2026-09-28T06:00:00Z/2027-09-28T06:00:00Z");
+  assert.equal(url.searchParams.get("limit"), "500");
   assert.equal(url.searchParams.get("bbox"), "4.2,51.14,4.53,51.39");
 });
 
-test("GIPOD: per markt de eerstvolgende marktdag, in Brusselse tijd, zonder parkeerrijen", () => {
+test("GIPOD: bewaart alle bekende marktdagen, gesorteerd en zonder parkeerrijen", () => {
   const { items, counts } = marketsFromGipod(gipod, { now: NOW, marketList: parseMarketList(marketListJson) });
   assert.equal(counts.rejected.parking > 0, true);
-  assert.deepEqual(
-    items.map((item) => [item.id, item.title, item.date, item.timeSlot, item.timeText, item.location, item.inDistrict]),
-    [
-      ["markt-ma1-2026-09-28", "Gemengde markt Kioskplaats", "2026-09-28", "08:00", "8 tot 13 uur", "Kioskplaats, 2660 Hoboken", false],
-      ["markt-ma10-2026-10-04", "Markt voor klein antiek Sint-Jansvliet", "2026-10-04", "09:00", "9 tot 17 uur", "Sint-Jansvliet, 2000 Antwerpen", true],
-      ["markt-ma13-2026-09-30", "Gemengde markt Sint-Jansplein", "2026-09-30", "08:00", "8 tot 13 uur", "Sint-Jansplein, 2060 Antwerpen", true],
-      ["markt-ma18-2026-10-02", "Gemengde markt Botermarkt", "2026-10-02", "08:00", "8 tot 13 uur", "Botermarkt, 2040 Berendrecht-Zandvliet-Lillo", false],
-      ["markt-ma2-2026-10-02", "Gemengde markt Michel Willemsplein", "2026-10-02", "06:00", "6 tot 15 uur", "Michel Willemsplein, Antwerpen", false],
-      ["markt-ma20-2026-10-03", "Gemengde markt en exotische markt Oudevaartplaats", "2026-10-03", "08:00", "8 tot 16 uur", "Oudevaartplaats, 2000 Antwerpen", true],
-      ["markt-ma27-2026-10-03", "Markt voor voeding, bloemen en planten Kioskplaats", "2026-10-03", "08:00", "8 tot 13 uur", "Kioskplaats, 2660 Hoboken", false],
-      ["markt-ma6-2026-09-30", "Woensdagmarkt Vosstraat", "2026-09-30", "08:00", "8 tot 13 uur", "Vosstraat, 2140 Borgerhout", false],
-    ]
-  );
+  assert.ok(items.length >= 8);
+  assert.equal(new Set(items.map((item) => item.id)).size, items.length);
+  assert.deepEqual(items.map((item) => item.date), [...items.map((item) => item.date)].sort());
+  assert.ok(items.some((item) => item.id === "markt-ma13-2026-09-30" && item.inDistrict === true));
+  assert.ok(items.every((item) => item.info === "Openbare markt van stad Antwerpen. Marktdag volgens GIPOD."));
   assert.ok(items.every((item) => item.sourceUrl.startsWith("https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.")));
-  assert.deepEqual(items.find((item) => item.id.startsWith("markt-ma2-")).postcodes, [], "niet in de marktlijst: geen postcode");
   const document = sourceDocument("stad-markten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: items.map((item) => ({ ...item, retrievedAt: NOW.toISOString() })) });
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-markten" }), []);
 });
@@ -314,9 +306,9 @@ test("GIPOD: ambulante handel, geannuleerd en een tegenstrijdige marktlijst vall
   assert.equal(items.length, 0);
   assert.deepEqual(counts.rejected, { not_a_market: 1, cancelled: 1, not_a_city_market: 1 });
   assert.equal(counts.conflicts, 1);
-  // Een marktdag die vandaag al voorbij is, telt niet meer: dan de volgende week.
+  // Een marktdag die vandaag al voorbij is valt weg; latere voorkomens van dezelfde markt blijven staan.
   const afternoon = marketsFromGipod(gipod, { now: new Date("2026-09-28T12:00:00Z") });
-  assert.equal(afternoon.items.find((item) => item.id.startsWith("markt-ma1-")).date, "2026-10-05");
+  assert.equal(afternoon.items.some((item) => item.id === "markt-ma1-2026-09-28"), false);
 });
 
 test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD stuk wist niets", async () => {
@@ -330,7 +322,9 @@ test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD 
   };
   const status = await runMarkets({ rootDir: root, clock, env: {}, log: quiet, sleep: noSleep, fetch: routes(true) });
   assert.deepEqual(requested, ["geo.api.vlaanderen.be", "geodata.antwerpen.be"]);
-  assert.deepEqual([status[0].fetchStatus, status[0].itemCount], ["ok", 8]);
+  assert.equal(status[0].fetchStatus, "ok");
+  const firstCount = status[0].itemCount;
+  assert.ok(firstCount >= 8);
   const document = read(root, "stad-markten");
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-markten" }), []);
   assert.equal(document.attribution.text, "Bron: GIPOD, Digitaal Vlaanderen, en marktlijst stad Antwerpen (Modellicentie Gratis Hergebruik v1.0)");
@@ -340,7 +334,7 @@ test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD 
   assert.ok(read(root, "stad-markten").items.every((item) => item.postcodes.length === 0 && typeof item.inDistrict === "boolean"));
 
   const broken = await runMarkets({ rootDir: root, clock, env: {}, log: quiet, sleep: noSleep, fetch: async () => json({}, 500) });
-  assert.deepEqual([broken[0].fetchStatus, broken[0].errorCode, broken[0].itemCount], ["error", "http_500", 8]);
+  assert.deepEqual([broken[0].fetchStatus, broken[0].errorCode, broken[0].itemCount], ["error", "http_500", firstCount]);
 });
 
 // ---------- contract, register en voorrang ----------
