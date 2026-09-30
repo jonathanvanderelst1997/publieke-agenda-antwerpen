@@ -26,3 +26,15 @@ test("eBesluit herhaalt een niet-tijdelijke 404 niet",async()=>{
   await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_404");
   assert.equal(calls,1);
 });
+
+test("automatische eBesluitbron doorzoekt huidig en volgend jaar en dedupliceert",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"ebesluit-years-"));
+  const years=new Set();
+  const fetchYears=async url=>{const u=new URL(String(url));if(u.pathname==="/zoeken")years.add(u.searchParams.get("meetingDateStart")?.slice(0,4));return fake(url)};
+  await runEbesluit({rootDir:root,clock:()=>NOW,fetch:fetchYears,log:()=>{}});
+  assert.deepEqual([...years].sort(),["2026","2027"]);
+  const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-ebesluit.json"),"utf8"));
+  assert.equal(doc.items.length,2);
+  assert.equal(doc.suppressions.length,1);
+  assert.match(doc.contentVersion,/^ebesluit-v2\|2026-2027\|/);
+});

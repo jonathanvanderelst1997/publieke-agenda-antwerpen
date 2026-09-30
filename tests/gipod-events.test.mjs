@@ -3,7 +3,7 @@ import {classifyGipodEvent,eventLabels,eventsFromGipod,gipodEventQueryUrl,NEIGHB
 import {run} from "../scripts/fetch-sources-gipod-events.mjs";import {validateSourceDocument} from "../lib/source-feed.mjs";
 const NOW=new Date("2026-09-29T00:00:00Z");
 const event=(id,overrides={})=>({id:`INNAME_PUNT.${id}-2610011200`,type:"Feature",geometry:{type:"Point",coordinates:[4.41,51.22]},properties:{GipodId:id,Description:"2000 Antwerpen, Teststraat : Buurtfeest Teststraat",Reference:"EV1",Type:"Evenement",PublicDomainOccupancyTypes:"Feest/kermis",Status:"Concreet gepland",Start:"2026-10-01T12:00:00Z",End:"2026-10-01T18:00:00Z",...overrides}});
-test("query is begrensd",()=>{const u=new URL(gipodEventQueryUrl(NOW));assert.equal(u.searchParams.get("bbox"),"4.300791,51.175458,4.444331,51.313629");assert.equal(u.searchParams.get("filter"),"Type='Evenement' AND Status IN ('Concreet gepland','Lopende')");assert.equal(u.searchParams.get("datetime"),"2026-09-29T00:00:00Z/2026-10-29T00:00:00Z")});
+test("query is begrensd",()=>{const u=new URL(gipodEventQueryUrl(NOW));assert.equal(u.searchParams.get("bbox"),"4.300791,51.175458,4.444331,51.313629");assert.equal(u.searchParams.get("filter"),"Type='Evenement' AND Status IN ('Concreet gepland','Lopende')");assert.equal(u.searchParams.get("datetime"),"2026-09-29T00:00:00Z/2027-09-29T00:00:00Z")});
 test("allowlist is conservatief",()=>{assert.equal(classifyGipodEvent(event("100"),NOW).ok,true);assert.equal(classifyGipodEvent(event("101",{PublicDomainOccupancyTypes:"Markt"}),NOW).reason,"commercial_or_market");assert.equal(classifyGipodEvent(event("102",{PublicDomainOccupancyTypes:"Terras vast"}),NOW).reason,"commercial_or_market");assert.equal(classifyGipodEvent(event("103",{PublicDomainOccupancyTypes:"Andere",Description:"Parkeerplaatsen vrijhouden"}),NOW).reason,"not_explicit_event");assert.equal(classifyGipodEvent(event("104",{PublicDomainOccupancyTypes:"Andere",Description:"Carnavalstoet centrum"}),NOW).ok,true)});
 test("punt buiten district valt weg",()=>assert.equal(classifyGipodEvent({...event("105"),geometry:{type:"Point",coordinates:[4.5,51.2]}},NOW).reason,"outside_district"));
 test("adresprefix wordt locatie",()=>assert.deepEqual(eventLabels("2000 Antwerpen, Teststraat : Buurtfeest Teststraat","1"),{title:"Buurtfeest Teststraat",location:"2000 Antwerpen, Teststraat"}));
@@ -59,3 +59,5 @@ test("buurt-, wijk-, straat-, plein- en burenfeesten zijn expliciet beschermd",(
     assert.equal(parsed.ok,true,label);
   }
 });
+
+test("GIPOD-evenementen kijken standaard een volledig jaar vooruit",()=>{const u=new URL(gipodEventQueryUrl(NOW));assert.match(u.searchParams.get("datetime"),/^2026-09-29T00:00:00Z\/2027-09-29T00:00:00Z$/)});
