@@ -1,7 +1,7 @@
 import test from"node:test";import assert from"node:assert/strict";await import("../site/event-types.js");
 const{classifyEventType:c,labelFor,types}=globalThis.PublicAgendaEventTypes;const i=(title,fields={})=>({title,theme:"Activiteit",sourceId:"district-kalender",info:"",location:"",...fields});
 test("typen",()=>{
-  for(const x of["Buurtfeest Zuid","Wijkfeest Kiel","Straatfeest Kammenstraat","Pleinfeest Sint-Jansplein","Burenfeest Eilandje"])assert.equal(c(i(x)),"neighborhood");
+  for(const x of["Buurtfeest Zuid","Wijkfeest Kiel","Straatfeest Kammenstraat","Pleinfeest Sint-Jansplein","Burenfeest Eilandje","Buurtbarbecue Noord","Buurt barbecue Linkeroever","Straatbarbecue Zuid","Buurtpicknick Linkeroever","Buurt picknick Linkeroever","Burenpicknick Eilandje","Straatpicknick Noord"])assert.equal(c(i(x)),"neighborhood");
   assert.equal(c(i("Carnavalstoet")),"parade");assert.equal(c(i("Speelstraat Teststraat")),"playstreet");assert.equal(c(i("Rommelmarkt")),"flea_braderie");
   for(const x of["Openluchtconcert","Muziekfestival","Straattheater"])assert.equal(c(i(x)),"culture");
   assert.equal(c(i("Burgerbegroting infomoment")),"participation");assert.equal(c(i("Districtsraad",{sourceId:"district-vergaderingen"})),"public_meeting");

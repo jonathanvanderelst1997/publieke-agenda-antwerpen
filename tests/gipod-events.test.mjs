@@ -52,7 +52,7 @@ test("fetcher weigert een next-link naar een andere host",async()=>{
 });
 
 test("buurt-, wijk-, straat-, plein- en burenfeesten zijn expliciet beschermd",()=>{
-  const labels=["Buurtfeest Teststraat","Wijkfeest Kiel","Straatfeest Kammenstraat","Pleinfeest Sint-Jansplein","Burenfeest Zuid"];
+  const labels=["Buurtfeest Teststraat","Wijkfeest Kiel","Straatfeest Kammenstraat","Pleinfeest Sint-Jansplein","Burenfeest Zuid","Buurtbarbecue Teststraat","Buurt barbecue Teststraat","Straatbarbecue Kammenstraat","Buurtpicknick Linkeroever","Buurt picknick Linkeroever","Burenpicknick Zuid","Straatpicknick Noord"];
   for(const [index,label] of labels.entries()){
     assert.equal(NEIGHBORHOOD_EVENT_WORD.test(label),true);
     const parsed=classifyGipodEvent(event(String(300+index),{PublicDomainOccupancyTypes:"Andere",Description:`2000 Antwerpen, Teststraat : ${label}`}),NOW);
