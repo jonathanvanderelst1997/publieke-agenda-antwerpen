@@ -2,6 +2,14 @@ const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const isoDay=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||""))?String(value):"";
 const addDays=(day,count)=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+count);return d.toISOString().slice(0,10)};
 const overlaps=(start,end,from,to)=>Boolean(start&&start<=to&&(end||start)>=from);
+const maxDay=values=>values.filter(Boolean).sort().at(-1)||"";
+export function knownHorizon({agendaItems=[],works=[],publicSpace=[],fromDay}={}){
+  const from=isoDay(fromDay);if(!from)throw new Error("ongeldige startdatum");
+  const agendaUntil=maxDay(agendaItems.map(item=>isoDay(item.endDate)||isoDay(item.date)).filter(day=>day>=from));
+  const worksUntil=maxDay(works.map(item=>String(item.end||item.start||"").slice(0,10)).filter(day=>isoDay(day)&&day>=from));
+  const measuresUntil=maxDay(publicSpace.map(item=>String(item.end||item.start||"").slice(0,10)).filter(day=>isoDay(day)&&day>=from));
+  return{from,to:maxDay([from,agendaUntil,worksUntil,measuresUntil]),agendaUntil,worksUntil,measuresUntil};
+}
 const typeOf=item=>globalThis.PublicAgendaEventTypes?.classifyEventType?.(item)||"other";
 const labelFor=key=>globalThis.PublicAgendaEventTypes?.labelFor?.(key)||key;
 
@@ -32,10 +40,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     const dateFmt=new Intl.DateTimeFormat("nl-BE",{weekday:"short",day:"numeric",month:"short"});
     const fmt=day=>dateFmt.format(new Date(day+"T12:00:00Z"));
     function render(){
-      const from=brusselsToday(),to=addDays(from,6);
-      const pulse=buildWeekPulse({agendaItems:Array.isArray(window.PUBLIC_AGENDA_FEED?.items)?window.PUBLIC_AGENDA_FEED.items:[],works:state.works,publicSpace:state.publicSpace,fromDay:from,toDay:to});
+      const from=brusselsToday(),agendaItems=Array.isArray(window.PUBLIC_AGENDA_FEED?.items)?window.PUBLIC_AGENDA_FEED.items:[],horizon=knownHorizon({agendaItems,works:state.works,publicSpace:state.publicSpace,fromDay:from}),to=horizon.to;
+      const pulse=buildWeekPulse({agendaItems,works:state.works,publicSpace:state.publicSpace,fromDay:from,toDay:to});
       const types=Object.entries(pulse.agendaByType).filter(([,count])=>count>0).sort((a,b)=>b[1]-a[1]||labelFor(a[0]).localeCompare(labelFor(b[0]),"nl")).slice(0,8);
-      root.innerHTML=`<div class="week-pulse-head"><div><span>Komende 7 dagen</span><h2>${esc(fmt(from))} – ${esc(fmt(to))}</h2><p>Wat er gepland staat of start, rechtstreeks uit de gekoppelde bronnen.</p></div><small>Feitelijke tellingen; geen prioriteitsscore.</small></div>
+      const horizonBits=[horizon.agendaUntil&&`agenda t/m ${fmt(horizon.agendaUntil)}`,horizon.worksUntil&&`werken t/m ${fmt(horizon.worksUntil)}`,horizon.measuresUntil&&`maatregelen t/m ${fmt(horizon.measuresUntil)}`].filter(Boolean).join(" · ");
+      root.innerHTML=`<div class="week-pulse-head"><div><span>Volledige vooruitblik</span><h2>${esc(fmt(from))} – ${esc(fmt(to))}</h2><p>Alles wat de gekoppelde officiële bronnen nu al als lopend of toekomstig kennen.</p></div><small>Geen vaste 7-dagenlimiet. ${esc(horizonBits||"Nog geen toekomstige brondata.")}</small></div>
       <div class="week-pulse-stats">
         <a href="#agenda-list"><strong>${pulse.agendaCount}</strong><span>activiteiten / publieke momenten</span></a>
         <a href="#works-live"><strong>${pulse.workStarts}</strong><span>werken starten</span><small>${pulse.workEnds} eindigen</small></a>
@@ -43,7 +52,7 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
         <a href="#works-live"><strong>${pulse.severeHindranceWorks}</strong><span>werken met ernstige hinder</span></a>
       </div>
       <div class="week-pulse-types">${types.map(([type,count])=>`<span><strong>${count}</strong> ${esc(labelFor(type))}</span>`).join("")}</div>
-      ${pulse.upcoming.length?`<div class="week-pulse-list"><strong>Eerstvolgende</strong><ol>${pulse.upcoming.map(item=>`<li><time>${esc(fmt(item.date))}</time><span><b>${esc(item.title)}</b>${item.location?`<small>${esc(item.location)}</small>`:""}</span>${item.url?`<a href="${esc(item.url)}" target="_blank" rel="noreferrer">bron</a>`:""}</li>`).join("")}</ol></div>`:""}`;
+      ${pulse.upcoming.length?`<div class="week-pulse-list"><strong>Eerstvolgende 14 items</strong><ol>${pulse.upcoming.map(item=>`<li><time>${esc(fmt(item.date))}</time><span><b>${esc(item.title)}</b>${item.location?`<small>${esc(item.location)}</small>`:""}</span>${item.url?`<a href="${esc(item.url)}" target="_blank" rel="noreferrer">bron</a>`:""}</li>`).join("")}</ol></div>`:""}`;
     }
     window.addEventListener("public-agenda:street-layer",event=>{if(event.detail?.name==="works")state.works=event.detail.items||[];if(event.detail?.name==="publicSpace")state.publicSpace=event.detail.items||[];render()});
     render();
