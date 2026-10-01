@@ -8,6 +8,15 @@ import { fileURLToPath } from "node:url";
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
+import {
+  LIVE_HISTORY_ARCHIVE_BASELINE_FILE,
+  LIVE_HISTORY_ARCHIVE_DIR,
+  LIVE_HISTORY_ARCHIVE_INDEX_FILE,
+  historyArchiveEventsDigest,
+  validateHistoryArchiveBaseline,
+  validateHistoryArchiveDay,
+  validateHistoryArchiveIndex,
+} from "../lib/live-history-archive.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -69,6 +78,54 @@ if (fs.existsSync(historyFile)) {
     for (const finding of privacyFindings(history)) problems.push(`${LIVE_HISTORY_FILE}: privacy ${finding.code} op ${finding.path}`);
   } catch {
     problems.push(`${LIVE_HISTORY_FILE}: geen geldige JSON`);
+  }
+}
+
+const archiveDir = path.join(rootDir, LIVE_HISTORY_ARCHIVE_DIR);
+if (fs.existsSync(archiveDir)) {
+  const baselinePath = path.join(rootDir, LIVE_HISTORY_ARCHIVE_BASELINE_FILE);
+  const indexPath = path.join(rootDir, LIVE_HISTORY_ARCHIVE_INDEX_FILE);
+  let archiveIndex = null;
+  try {
+    const baseline = JSON.parse(fs.readFileSync(baselinePath, "utf8"));
+    for (const error of validateHistoryArchiveBaseline(baseline)) problems.push(`${LIVE_HISTORY_ARCHIVE_BASELINE_FILE}: ${error}`);
+    for (const finding of privacyFindings(baseline)) problems.push(`${LIVE_HISTORY_ARCHIVE_BASELINE_FILE}: privacy ${finding.code} op ${finding.path}`);
+  } catch {
+    problems.push(`${LIVE_HISTORY_ARCHIVE_BASELINE_FILE}: ontbreekt of is geen geldige JSON`);
+  }
+  try {
+    archiveIndex = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    for (const error of validateHistoryArchiveIndex(archiveIndex)) problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: ${error}`);
+  } catch {
+    problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: ontbreekt of is geen geldige JSON`);
+  }
+
+  const shardNames = fs.readdirSync(archiveDir).filter((name) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}\\.json$/.test(name)).sort();
+  const shards = new Map();
+  for (const name of shardNames) {
+    const relative = `${LIVE_HISTORY_ARCHIVE_DIR}/${name}`;
+    try {
+      const shard = JSON.parse(fs.readFileSync(path.join(archiveDir, name), "utf8"));
+      for (const error of validateHistoryArchiveDay(shard)) problems.push(`${relative}: ${error}`);
+      for (const finding of privacyFindings(shard)) problems.push(`${relative}: privacy ${finding.code} op ${finding.path}`);
+      shards.set(name.slice(0, 10), shard);
+    } catch {
+      problems.push(`${relative}: geen geldige JSON`);
+    }
+  }
+  if (archiveIndex?.days) {
+    for (const day of archiveIndex.days) {
+      const shard = shards.get(day.date);
+      if (!shard) {
+        problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: shard ${day.date} ontbreekt`);
+        continue;
+      }
+      if (day.count !== shard.events.length) problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: count ${day.date} wijkt af`);
+      if (day.digest !== historyArchiveEventsDigest(shard.events)) problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: digest ${day.date} wijkt af`);
+    }
+    for (const date of shards.keys()) {
+      if (!archiveIndex.days.some((day) => day.date === date)) problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: shard ${date} niet geïndexeerd`);
+    }
   }
 }
 

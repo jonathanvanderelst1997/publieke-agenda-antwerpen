@@ -4,6 +4,19 @@ import { fileURLToPath } from "node:url";
 
 import { brusselsDate } from "../lib/html-text.mjs";
 import { updateLiveHistory, validateLiveHistory } from "../lib/live-history.mjs";
+import {
+  LIVE_HISTORY_ARCHIVE_BASELINE_FILE,
+  LIVE_HISTORY_ARCHIVE_INDEX_FILE,
+  historyArchiveDay,
+  historyArchiveDayFile,
+  historyArchiveEventsForRun,
+  updateHistoryArchiveBaseline,
+  updateHistoryArchiveDay,
+  updateHistoryArchiveIndex,
+  validateHistoryArchiveBaseline,
+  validateHistoryArchiveDay,
+  validateHistoryArchiveIndex,
+} from "../lib/live-history-archive.mjs";
 import { applyPublicSpaceStreetResolution, applyWorkStreetResolution, buildStreetIndex } from "../lib/street-resolver.mjs";
 import { fetchStreetFeatures } from "../site/street-source.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
@@ -253,6 +266,37 @@ export async function refreshLiveHistory({
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(history, null, 2)}\n`, "utf8");
+
+  const archiveBaselineFile = path.join(rootDir, LIVE_HISTORY_ARCHIVE_BASELINE_FILE);
+  const archiveIndexFile = path.join(rootDir, LIVE_HISTORY_ARCHIVE_INDEX_FILE);
+  const archiveDayPath = historyArchiveDayFile(historyArchiveDay(observedAt));
+  const archiveDayFile = path.join(rootDir, archiveDayPath);
+  const readJsonIfPresent = (target) => fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : null;
+
+  const previousBaseline = readJsonIfPresent(archiveBaselineFile);
+  const previousIndex = readJsonIfPresent(archiveIndexFile);
+  const previousDay = readJsonIfPresent(archiveDayFile);
+  const baseline = updateHistoryArchiveBaseline(previousBaseline, history);
+  const dayDocument = updateHistoryArchiveDay(
+    previousDay,
+    observedAt,
+    historyArchiveEventsForRun(history, baseline)
+  );
+  const archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  const archiveErrors = [
+    ...validateHistoryArchiveBaseline(baseline),
+    ...validateHistoryArchiveDay(dayDocument),
+    ...validateHistoryArchiveIndex(archiveIndex),
+  ];
+  if (archiveErrors.length) throw new Error(`live historiekarchief ongeldig: ${archiveErrors[0]}`);
+
+  fs.mkdirSync(path.dirname(archiveBaselineFile), { recursive: true });
+  fs.writeFileSync(archiveBaselineFile, `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
+  fs.writeFileSync(archiveIndexFile, `${JSON.stringify(archiveIndex, null, 2)}\n`, "utf8");
+  if (dayDocument.events.length > 0 || previousDay) {
+    fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
+  }
+
   log(JSON.stringify({
     observedAt,
     worksStatus: history.layers.works.status,
@@ -260,6 +304,7 @@ export async function refreshLiveHistory({
     publicSpaceStatus: history.layers.publicSpace.status,
     publicSpaceCount: history.layers.publicSpace.count,
     changes: history.changes.filter((entry) => entry.observedAt === observedAt).length,
+    archivedChanges: dayDocument.events.length,
   }));
   return history;
 }
