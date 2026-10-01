@@ -63,6 +63,21 @@ een leeg kanaal) dan leeg. Daarom:
 - `mail-district` en `mail-stad` hebben bewust geen krimpgrens: haalt de Gateway een item terug (bijvoorbeeld
   omdat het toch privé bleek), dan moet het meteen van de site verdwijnen.
 
+## Tijdsbudget: een trage bron houdt de verversing niet tegen
+
+De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
+Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
+
+- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten (`budgetMs` in
+  `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
+  historiek daarna hoogstens 3 minuten (`LIVE_HISTORY_BUDGET_MS`);
+- na het budget faalt elk verzoek van die fetcher meteen (`FetchError("source_timeout")`); hij eindigt
+  via zijn gewone foutpad. De bron krijgt `fetchStatus: "error"` met `errorCode: "source_timeout"` en
+  haar vorige items en `retrievedAt` blijven staan. Een fetcher die niet meer aan de beurt komt omdat
+  het totaalbudget op is, krijgt `errorCode: "refresh_budget_exhausted"`, ook met zijn vorige data;
+- er verandert niets aan de versheids- en validatieregels: `validate:data --max-age-hours 26` en
+  `sources:health` beoordelen zo'n bron zoals elke andere bron in `error`.
+
 ## Groepen (scope)
 
 - **District Antwerpen**: postcodes 2000, 2018, 2020, 2030, 2050 en 2060. Standaard aan.
