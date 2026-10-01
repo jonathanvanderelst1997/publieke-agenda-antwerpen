@@ -123,6 +123,15 @@
       officialPublic: true,
       scope: "district",
     },
+    "city-gaston-buurtfeest": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      retrievedAt: "2026-10-01T21:00:00Z",
+      state: "verified",
+      note: "Officiële projectpagina: inhuldiging en gratis buurtfeest op 10 oktober 2026, 14 tot 17 uur.",
+      officialPublic: true,
+      scope: "district",
+    },
     "city-gaston-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
@@ -195,6 +204,10 @@
       sourceId: "slim-kammenstraat",
       classification: "expired",
       changes: { dateLabel: "26 juni tot en met 13 juli 2026" },
+    },
+    {
+      match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
+      sourceId: "city-gaston-buurtfeest",
     },
     {
       match: { title: "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat", theme: "Werken" },

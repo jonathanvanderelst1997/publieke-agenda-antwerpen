@@ -3,17 +3,17 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-10-01T11:42:02.039Z",
   "classificationAsOf": "2026-10-01",
-  "sourceCount": 848,
-  "count": 714,
-  "eventPageCount": 714,
+  "sourceCount": 849,
+  "count": 715,
+  "eventPageCount": 715,
   "classifications": {
     "expired": 114,
     "current": 2,
-    "future": 712,
+    "future": 713,
     "review_required": 20
   },
   "scopeCounts": {
-    "district": 53,
+    "district": 54,
     "stad": 661
   },
   "feedGeneratedAt": "2026-10-01T11:42:02.039Z",
@@ -96,13 +96,14 @@
       "state": "inactive"
     }
   ],
-  "digest": "530a8e5505ae69f18a8203b4404b1de64c19f45a92f5897a40ed046561c4664e",
+  "digest": "6129339050f5e82adabe9daac391c308476a42707db2f79e2e86220594b09e8c",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Humans of Antwerp",
     "VOLZET - Workshop | Omgaan met piekeren - interactieve lees- en reflectiesessie",
     "Gemengde markt Michel Willemsplein",

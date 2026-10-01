@@ -4,25 +4,25 @@
   "classificationAsOf": "2026-10-01",
   "verifiedSourceSnapshotAt": "2026-10-01T11:42:02.039Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
-  "sourceItemCount": 848,
-  "localCandidateCount": 714,
+  "sourceItemCount": 849,
+  "localCandidateCount": 715,
   "classifications": {
     "current": 2,
     "expired": 114,
-    "future": 712,
+    "future": 713,
     "review_required": 20
   },
   "slaStatuses": {
     "blocked_review_required": 16,
     "expired_not_public": 114,
-    "fresh_verified": 714,
+    "fresh_verified": 715,
     "stale_blocked": 4
   },
   "sourceKinds": {
     "historical_link_only": 81,
     "official_feed": 715,
     "official_organizer": 12,
-    "public_authority": 40
+    "public_authority": 41
   },
   "items": [
     {
@@ -3060,6 +3060,29 @@
       "publishEligible": false,
       "includedInLocalCandidate": false,
       "failClosed": true
+    },
+    {
+      "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+      "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
+      "theme": "Activiteit",
+      "eventDate": "2026-10-10",
+      "classification": "future",
+      "classificationAsOf": "2026-10-01",
+      "sourceId": "city-gaston-buurtfeest",
+      "sourcePublisher": "District Antwerpen",
+      "sourceKind": "public_authority",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-01T21:00:00Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": 3,
+      "recheckDueOn": "2026-10-04",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
     },
     {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-01",
-  "sourceItemCount": 848,
-  "sourceDigest": "aff975d746a5b66d5ca613ec9bb539a8b9559f3007a4e8d9881ce50fb2174fbb",
+  "sourceItemCount": 849,
+  "sourceDigest": "e4250edc479cd3906eda166c67bd04bcfd957ce20dcc249c83aa8bd11a9e80a0",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -432,6 +432,19 @@
       "canonicalSourceUrl": "https://www.antwerpen.be/info/6a422229d82fbac5fe0a2613/beweegdag-55-in-het-zuiderpershuis",
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-09-16T12:46:42Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+      "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
+      "eventDate": "2026-10-10",
+      "classification": "future",
+      "classificationAsOf": "2026-10-01",
+      "sourceId": "city-gaston-buurtfeest",
+      "sourcePublisher": "District Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-01T21:00:00Z",
       "verificationState": "verified"
     },
     {

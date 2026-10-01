@@ -1716,6 +1716,19 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
+    "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+    "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-10-10",
+    "dateLabel": "10 oktober 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 tot 17 uur",
+    "location": "Gaston Burssenslaan en Hanegraefstraat, 2050 Antwerpen",
+    "info": "Feestelijke opening van de vernieuwde straten. Gratis buurtfeest met officiële inhuldiging om 14 uur, mobiele muziekact van 14.30 tot 16.30 uur, glittertattoo van 14 tot 17 uur, wafels en drank.",
+    "link": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan"
+  },
+  {
     "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
     "title": "Poëtische Rimpelingen",
     "theme": "Activiteit",
