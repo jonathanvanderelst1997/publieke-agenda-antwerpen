@@ -13,53 +13,11 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be nieuwskanalen van 9 districten (tabel, Wanneer:, Datum:, Praktisch, activiteitentabel, één blok)",
-  "retrievedAt": "2026-09-29T09:48:49.917Z",
+  "retrievedAt": "2026-10-01T04:50:22.439Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
-    {
-      "id": "stad-news-merksem-6a71e3e8d82fba3f307d2c83-2026-09-29",
-      "externalId": "6a71e3e8d82fba3f307d2c83",
-      "title": "Seniorensportdag in Merksem",
-      "theme": "Sport",
-      "className": "sport",
-      "date": "2026-09-29",
-      "endDate": null,
-      "timeSlot": "09:00",
-      "timeText": "van 9 tot 15 uur",
-      "location": "District Merksem, locatie via de officiële bron",
-      "postcodes": [
-        "2170"
-      ],
-      "info": "Ontdek hoe fijn bewegen kan zijn. Op dinsdag 29 september geniet je in sporthal De Rode Loop van een gratis sportdag voor senioren. Doe mee, beweeg, ontspan en ontmoet andere Merksemse senioren. Je kiest zelf welke activiteiten je uitprobeert en doet mee op je eigen tempo.",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/6a71e3e8d82fba3f307d2c83/seniorensportdag-in-merksem",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
-      "reviewRequired": false,
-      "inDistrict": false
-    },
-    {
-      "id": "stad-news-deurne-6a4f695bf4182bb5535706d9-2026-09-30",
-      "externalId": "6a4f695bf4182bb5535706d9",
-      "title": "Seniorenklap: wandelen, ontmoeten en genieten in het Boekenbergpark",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-09-30",
-      "endDate": null,
-      "timeSlot": "Info",
-      "timeText": "",
-      "location": "District Deurne, locatie via de officiële bron",
-      "postcodes": [
-        "2100"
-      ],
-      "info": "Ben je een Deurnse senior en heb je zin in een gezellige voormiddag in goed gezelschap? Dan ben je van harte welkom op woensdag 30 september op de 'Seniorenklap' in het Boekenbergpark en de Unitas Tuinwijk, het ontmoetingsmoment voor Deurnse senioren. Op het programma staat een (gegidste) wandeling…",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/6a4f695bf4182bb5535706d9/seniorenklap-wandelen-ontmoeten-en-genieten-in-het-boekenbergpark",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
-      "reviewRequired": false,
-      "inDistrict": false
-    },
     {
       "id": "stad-news-wilrijk-648d2efc50afea0013656346-t0r0-2026-10-01",
       "externalId": "648d2efc50afea0013656346",
@@ -77,7 +35,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -98,7 +56,7 @@
       "info": "Op zondag 4 oktober staat het districtshuis van Deurne volledig in het teken van welzijn, verbinding en veerkracht. In het kader van de 10-daagse van de Geestelijke Gezondheid organiseert Namaste yoga i.s.m. district Deurne de gratis inspiratiedag 'k ZEN in Deurne voor iedereen die wil investeren…",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6a86d1d6a7e51177702c406b/k-zen-in-deurne-een-inspirerende-dag-rond-mentaal-welzijn",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -119,7 +77,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -140,7 +98,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -161,7 +119,7 @@
       "info": "Tijdens de 10-daagse van de Geestelijke Gezondheid ontdek je in Schouwburg Noord lokale initiatieven rond welzijn, een inspirerende lezing van Leen Dendievel en een uniek podiumconcert.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6a7aff9ed82fbaaad21424f2/welzijnsbeurs-55",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -182,7 +140,7 @@
       "info": "Aan de hand van De Verlieskoffer komen we tot een gesprek met elkaar.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -203,7 +161,7 @@
       "info": "Tijdens de 11e editie van Tournée Musicale, een muzikale kroegentocht, klinkt livemuziek in tal van cafés en cultuurplekken in het centrum.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5daeb0c3f8412527a4787a4c/tournee-musicale-muziek-op-elke-hoek-van-de-straat",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -224,7 +182,7 @@
       "info": "De laatste wielerwedstrijd van het seizoen is steevast de Nationale Sluitingsprijs Putte-Kapellen. Supporters kunnen de wielrenners ook in ons district aanmoedigen.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/63357141fca03f428619a8cc/nationale-sluitingsprijs-komt-door-berendrecht",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -245,7 +203,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -267,7 +225,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-borgerhout/borgerbouwers/groeidagen-in-borgerhout-gratis-geveltuintjes-tegelwippen-win-een-groeistraat-en-meer",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -288,7 +246,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -309,7 +267,7 @@
       "info": "Ook dit jaar verandert het binnenfort van Fort 8 in een huiveringwekkende belevenis tijdens Griezelfort. Voor je het doolhof betreedt, word je ondergedompeld in de juiste sfeer op een spectaculaire horrorshow.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6718b2f31beefe7ae24580cd/griezelfort-de-enige-speelhal-waar-jij-de-inzet-bent-12",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -330,7 +288,7 @@
       "info": "Op zaterdag 31 oktober wordt het fort van Merksem omgetoverd tot een griezelig hindernissenparcours voor jong en oud. Doe mee met de Halloween Survival Run en start de herfstvakantie griezelig en sportief!",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6655c1fac846040011359f8b/lopen-en-griezelen-tijdens-de-halloween-survival-run",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -351,7 +309,7 @@
       "info": "Theatervoorstelling en expo over wielerlegende Stan Ockers.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -372,7 +330,7 @@
       "info": "Theatervoorstelling en expo over wielerlegende Stan Ockers.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -393,7 +351,28 @@
       "info": "Theatervoorstelling en expo over wielerlegende Stan Ockers.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    },
+    {
+      "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08",
+      "externalId": "6ab3c7cb44947433802d848e",
+      "title": "Ontdek de pracht van Muisbroek tijdens de EkeRun!",
+      "theme": "Sport",
+      "className": "sport",
+      "date": "2026-11-08",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "District Ekeren, locatie via de officiële bron",
+      "postcodes": [
+        "2180"
+      ],
+      "info": "Wij zijn opnieuw klaar voor de EkeRun! Jij ook?",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-de-pracht-van-muisbroek-tijdens-de-ekerun",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -414,7 +393,7 @@
       "info": "Theatervoorstelling en expo over wielerlegende Stan Ockers.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -435,7 +414,7 @@
       "info": "Kunstendag voor kinderen.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -456,7 +435,7 @@
       "info": "Klaar voor actie en creativiteit in de herfstvakantie? Tijdens de Fun Games beleven kinderen van 8 tot 13 jaar een gratis namiddag vol speel- en sportplezier in sporthal De Rode Loop.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6a97c90144947476b56a9e02/plezier-verzekerd-op-de-fun-games",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -477,7 +456,28 @@
       "info": "Ben je 65-plus en heb je zin om iets nieuws te ontdekken? Maak tijdens Moktamee Senior kennis met Academie Ekeren en beleef een inspirerende voormiddag vol creativiteit, ontmoeting en plezier.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/6a75cdf1f4182ba23458859c/ontdek-jouw-artisieke-talent-tijdens-de-week-van-de-senior-met-moktamee-senior",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    },
+    {
+      "id": "stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18",
+      "externalId": "6abbb552340ee700472dd1df",
+      "title": "Creatieve senioren gezocht!",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-18",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "9 tot 12 uur, met aansluitend een toonmoment",
+      "location": "District Ekeren, locatie via de officiële bron",
+      "postcodes": [
+        "2180"
+      ],
+      "info": "Tijdens de week van de senior zoeken we creatieve senioren. Senioren die hun werk tentoon willen stellen, professioneel of niet. Iedereen is welkom. We moedigen ook iedere 65-plusser aan om zijn of haar talent te ontdekken. Lees dus zeker verder!",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/6abbb552340ee700472dd1df/creatieve-senioren-gezocht",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -498,7 +498,28 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    },
+    {
+      "id": "stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28",
+      "externalId": "654a17da22c9bd00182b3d04",
+      "title": "Feest voor de Sint",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-28",
+      "endDate": null,
+      "timeSlot": "14:00",
+      "timeText": "van 14 tot 16.30 uur",
+      "location": "District Hoboken, locatie via de officiële bron",
+      "postcodes": [
+        "2660"
+      ],
+      "info": "Sinterklaas meert met zijn stoomboot vol cadeautjes en zijn trouwe pieten aan bij het veer. Wacht hem vol spanning op in de Leo Bosschartlaan en trek vervolgens mee naar park Gravenhof voor een onvergetelijke Sinterklaasshow.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -519,7 +540,7 @@
       "info": "",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs-in-de-wilrijkse-bibliotheek",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -540,7 +561,7 @@
       "info": "Cultuur en animatie in Borgerhoutse winkelstraten.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/66d6eef576ce660545139265/najaar-2026-save-the-date",
-      "retrievedAt": "2026-09-29T09:48:49.917Z",
+      "retrievedAt": "2026-10-01T04:50:22.439Z",
       "reviewRequired": false,
       "inDistrict": false
     }
