@@ -17,6 +17,13 @@ import {
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
+import {
+  HISTORY_BACKFILL_DIR,
+  HISTORY_BACKFILL_INDEX_FILE,
+  historyBackfillDigest,
+  validateHistoryBackfillIndex,
+  validateHistoryBackfillShard,
+} from "../lib/history-backfill.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -126,6 +133,53 @@ if (fs.existsSync(archiveDir)) {
     for (const date of shards.keys()) {
       if (!archiveIndex.days.some((day) => day.date === date)) problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: shard ${date} niet geïndexeerd`);
     }
+  }
+}
+
+const backfillDir = path.join(rootDir, HISTORY_BACKFILL_DIR);
+if (fs.existsSync(backfillDir)) {
+  const indexPath = path.join(rootDir, HISTORY_BACKFILL_INDEX_FILE);
+  let index = null;
+  try {
+    index = JSON.parse(fs.readFileSync(indexPath, "utf8"));
+    for (const error of validateHistoryBackfillIndex(index)) problems.push(`${HISTORY_BACKFILL_INDEX_FILE}: ${error}`);
+    for (const finding of privacyFindings(index)) problems.push(`${HISTORY_BACKFILL_INDEX_FILE}: privacy ${finding.code} op ${finding.path}`);
+  } catch {
+    problems.push(`${HISTORY_BACKFILL_INDEX_FILE}: ontbreekt of is geen geldige JSON`);
+  }
+
+  const expected = new Map();
+  for (const source of index?.sources ?? []) {
+    for (const shard of source.shards ?? []) expected.set(shard.file, shard);
+  }
+  const actual = [];
+  const walk = (dir) => {
+    for (const name of fs.readdirSync(dir)) {
+      const absolute = path.join(dir, name);
+      if (fs.statSync(absolute).isDirectory()) walk(absolute);
+      else actual.push(path.relative(rootDir, absolute).split(path.sep).join("/"));
+    }
+  };
+  walk(backfillDir);
+  for (const file of actual.sort()) {
+    if (file === HISTORY_BACKFILL_INDEX_FILE) continue;
+    const entry = expected.get(file);
+    if (!entry) {
+      problems.push(`${file}: backfill shard niet geïndexeerd`);
+      continue;
+    }
+    try {
+      const shard = JSON.parse(fs.readFileSync(path.join(rootDir, file), "utf8"));
+      for (const error of validateHistoryBackfillShard(shard)) problems.push(`${file}: ${error}`);
+      for (const finding of privacyFindings(shard)) problems.push(`${file}: privacy ${finding.code} op ${finding.path}`);
+      if (entry.count !== shard.records.length) problems.push(`${file}: count wijkt af`);
+      if (entry.digest !== historyBackfillDigest(shard.records)) problems.push(`${file}: digest wijkt af`);
+    } catch {
+      problems.push(`${file}: geen geldige JSON`);
+    }
+  }
+  for (const file of expected.keys()) {
+    if (!actual.includes(file)) problems.push(`${file}: backfill shard ontbreekt`);
   }
 }
 

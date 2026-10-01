@@ -15,6 +15,8 @@ const POSITIVES = [
   "site/history/archive/baseline.json",
   "site/history/archive/index.json",
   "site/history/archive/2026-10-01.json",
+  "site/history/backfill/index.json",
+  "site/history/backfill/asign-parking/2019.json",
   "site/agenda-feed.js",
   "site/event/a-b/index.html",
   "audit/provenance-source-diff-latest.json",
@@ -33,6 +35,9 @@ const NEGATIVES = [
   "site/history/other.json",
   "site/history/archive/20261001.json",
   "site/history/archive/oud.json",
+  "site/history/backfill/asign-parking/19.json",
+  "site/history/backfill/asign-parking/2019.txt",
+  "site/history/backfill/andere/2019.json",
   "lib/data-lane-paths.json",
   "package.json",
   ".github/workflows/ci.yml",
@@ -44,7 +49,7 @@ const NEGATIVES = [
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 11);
+  assert.equal(spec.allowed.length, 13);
   assert.deepEqual(spec.deletableUnder, ["site/event/"]);
   for (const pattern of spec.allowed) {
     assert.ok(pattern.startsWith("^") && pattern.endsWith("$"), pattern);
