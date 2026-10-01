@@ -20,6 +20,7 @@ import {
   LIVE_HISTORY_ARCHIVE_DIR,
   LIVE_HISTORY_ARCHIVE_INDEX_FILE,
   historyArchiveEventsDigest,
+  isHistoryArchiveDayFileName,
   validateHistoryArchiveBaseline,
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
@@ -107,7 +108,7 @@ if (fs.existsSync(archiveDir)) {
     problems.push(`${LIVE_HISTORY_ARCHIVE_INDEX_FILE}: ontbreekt of is geen geldige JSON`);
   }
 
-  const shardNames = fs.readdirSync(archiveDir).filter((name) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}\\.json$/.test(name)).sort();
+  const shardNames = fs.readdirSync(archiveDir).filter(isHistoryArchiveDayFileName).sort();
   const shards = new Map();
   for (const name of shardNames) {
     const relative = `${LIVE_HISTORY_ARCHIVE_DIR}/${name}`;
