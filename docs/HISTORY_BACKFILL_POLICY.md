@@ -21,9 +21,20 @@ Elke backfillbron krijgt `sourceId`, `completeness` (`full`, `partial` of `unkno
 | A-Sign laag 21 | partial/onderzoek | metadata toont 2015-2019 | zelfde sleutel | geen expliciete volledigheidsclaim |
 | A-Sign IOD 22/23 | unknown | niet bewezen | `dossierNummer|faseId|innameId` | metadata-time-extent is N/A of niet betrouwbaar als actuele retentiegrens |
 | A-Sign SGW 47/48 | unknown | niet bewezen | `reference_id|phase_id` | datumvelden bestaan, volledige retentie niet bewezen |
-| GIPOD werken/hinder | unknown | niet bewezen | bron-feature-id | datumvelden bestaan; volledige retentie van beëindigde records niet bewezen |
+| GIPOD werken/hinder | partial/onderzoek | geen complete periode geclaimd | bron-feature-id | de publieke OGC-feed levert aantoonbaar ook oude records met status `Afgelopen`; dat bewijst individuele historische records, niet de volledigheid van een periode |
 | eBesluit / districtszittingen | partial/onderzoek | openbaar materiaal minstens vanaf 2019 | officiële zitting/agendapunt-id | exacte vroegste complete periode nog vast te stellen |
 | overige agenda-/mailbronnen | unknown | niet bewezen | bronafhankelijk | geen historische volledigheidsclaim in huidige integratie |
+
+## Eerste materializer
+
+`node scripts/backfill-asign-parking-history.mjs` voert standaard alleen een dry-run uit voor A-Sign laag 20. Schrijven vereist expliciet `node scripts/backfill-asign-parking-history.mjs --write`.
+
+De generator:
+- leest de eigen bewezen baseline uit `site/history/archive/index.json` en neemt alleen parkeerverboden op die vóór die baseline eindigden;
+- shardt op startjaar onder `site/history/backfill/asign-parking/YYYY.json`;
+- bewaart alleen dezelfde publieke velden als de live parkeerverboden en gebruikt dezelfde officiële straatas voor straatresolutie;
+- weigert records vóór 2019-09-16, onbekende historische statuswaarden, conflicterende duplicaten en wijzigingen aan een reeds geschreven shard;
+- draait bewust nog niet in de dagelijkse refresh: eerst moet een dry-run aantonen dat alle historische statuswaarden correct geclassificeerd zijn.
 
 ## Fail-closed
 
