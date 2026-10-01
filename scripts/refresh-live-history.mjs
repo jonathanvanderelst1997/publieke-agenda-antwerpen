@@ -121,7 +121,9 @@ async function districtGeometry(fetchImpl) {
   return features[0].geometry;
 }
 
-async function asignLayer(layer, { where, outFields, geometry = false, spatial = false }, fetchImpl) {
+export const ASIGN_DETAIL_BATCH_SIZE = 100;
+
+export async function asignLayer(layer, { where, outFields, geometry = false, spatial = false }, fetchImpl) {
   const query = new URL(`${ASIGN_BASE}/${layer}/query`);
   const base = { where, f: "json" };
   if (spatial) {
@@ -141,11 +143,11 @@ async function asignLayer(layer, { where, outFields, geometry = false, spatial =
     throw error;
   }
   const features = [];
-  for (let offset = 0; offset < ids.length; offset += 500) {
+  for (let offset = 0; offset < ids.length; offset += ASIGN_DETAIL_BATCH_SIZE) {
     const url = new URL(`${ASIGN_BASE}/${layer}/query`);
     url.search = new URLSearchParams({
       f: "json",
-      objectIds: ids.slice(offset, offset + 500).join(","),
+      objectIds: ids.slice(offset, offset + ASIGN_DETAIL_BATCH_SIZE).join(","),
       outFields,
       returnGeometry: String(geometry),
       outSR: "4326",
