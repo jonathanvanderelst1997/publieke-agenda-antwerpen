@@ -1,22 +1,22 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-01T10:23:09.088Z",
+  "candidateGeneratedAt": "2026-10-01T11:42:02.039Z",
   "classificationAsOf": "2026-10-01",
-  "sourceCount": 851,
-  "count": 717,
-  "eventPageCount": 717,
+  "sourceCount": 848,
+  "count": 714,
+  "eventPageCount": 714,
   "classifications": {
     "expired": 114,
-    "current": 5,
+    "current": 2,
     "future": 712,
     "review_required": 20
   },
   "scopeCounts": {
     "district": 53,
-    "stad": 664
+    "stad": 661
   },
-  "feedGeneratedAt": "2026-10-01T10:23:09.088Z",
+  "feedGeneratedAt": "2026-10-01T11:42:02.039Z",
   "feedSources": [
     {
       "sourceId": "district-ebesluit",
@@ -29,63 +29,63 @@
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:17:29.851Z",
+      "retrievedAt": "2026-10-01T11:40:56.976Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:17:17.411Z",
+      "retrievedAt": "2026-10-01T11:40:45.048Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:17:18.498Z",
+      "retrievedAt": "2026-10-01T11:40:46.116Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:17:19.729Z",
+      "retrievedAt": "2026-10-01T11:40:47.611Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:23:08.562Z",
+      "retrievedAt": "2026-10-01T11:42:01.529Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:23:08.562Z",
+      "retrievedAt": "2026-10-01T11:42:01.529Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:22:34.652Z",
+      "retrievedAt": "2026-10-01T11:41:28.285Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:23:06.938Z",
+      "retrievedAt": "2026-10-01T11:42:00.186Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-01T10:23:01.933Z",
+      "retrievedAt": "2026-10-01T11:41:55.209Z",
       "state": "fresh"
     },
     {
@@ -96,7 +96,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "9883ad1f7e961f462c2c0a48fff9447f854a323cf41e892769f10dfe07cfdbd2",
+  "digest": "530a8e5505ae69f18a8203b4404b1de64c19f45a92f5897a40ed046561c4664e",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -104,9 +104,6 @@
   },
   "titles": [
     "Humans of Antwerp",
-    "Gemengde markt Frederik van Eedenplein",
-    "Gemengde markt Ten Eeckhovelei",
-    "Gemengde markt Dageraadplaats",
     "VOLZET - Workshop | Omgaan met piekeren - interactieve lees- en reflectiesessie",
     "Gemengde markt Michel Willemsplein",
     "Gemengde markt Sint-Jansplein",
