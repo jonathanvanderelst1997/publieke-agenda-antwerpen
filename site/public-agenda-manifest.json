@@ -3,14 +3,14 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-10-01T11:42:02.039Z",
   "classificationAsOf": "2026-10-01",
-  "sourceCount": 848,
+  "sourceCount": 849,
   "count": 714,
   "eventPageCount": 714,
   "classifications": {
     "expired": 114,
     "current": 2,
     "future": 712,
-    "review_required": 20
+    "review_required": 21
   },
   "scopeCounts": {
     "district": 53,

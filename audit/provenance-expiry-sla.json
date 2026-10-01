@@ -4,22 +4,22 @@
   "classificationAsOf": "2026-10-01",
   "verifiedSourceSnapshotAt": "2026-10-01T11:42:02.039Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
-  "sourceItemCount": 848,
+  "sourceItemCount": 849,
   "localCandidateCount": 714,
   "classifications": {
     "current": 2,
     "expired": 114,
     "future": 712,
-    "review_required": 20
+    "review_required": 21
   },
   "slaStatuses": {
-    "blocked_review_required": 16,
+    "blocked_review_required": 17,
     "expired_not_public": 114,
     "fresh_verified": 714,
     "stale_blocked": 4
   },
   "sourceKinds": {
-    "historical_link_only": 81,
+    "historical_link_only": 82,
     "official_feed": 715,
     "official_organizer": 12,
     "public_authority": 40
@@ -3057,6 +3057,29 @@
       "maxAgeDays": null,
       "recheckDueOn": null,
       "slaStatus": "expired_not_public",
+      "publishEligible": false,
+      "includedInLocalCandidate": false,
+      "failClosed": true
+    },
+    {
+      "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+      "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
+      "theme": "Activiteit",
+      "eventDate": "2026-10-10",
+      "classification": "review_required",
+      "classificationAsOf": "2026-10-01",
+      "sourceId": "historical-stored-source",
+      "sourcePublisher": "Historische bronverwijzing",
+      "sourceKind": "historical_link_only",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": null,
+      "verificationState": "review_required",
+      "reviewReason": "unverified_source",
+      "maxAgeDays": 0,
+      "recheckDueOn": null,
+      "slaStatus": "blocked_review_required",
       "publishEligible": false,
       "includedInLocalCandidate": false,
       "failClosed": true

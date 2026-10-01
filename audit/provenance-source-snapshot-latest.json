@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-01",
-  "sourceItemCount": 848,
-  "sourceDigest": "aff975d746a5b66d5ca613ec9bb539a8b9559f3007a4e8d9881ce50fb2174fbb",
+  "sourceItemCount": 849,
+  "sourceDigest": "2e11b1d56959ca4f524be4656b644e832ce284a831c69f71e80557af154e6e64",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -433,6 +433,19 @@
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-09-16T12:46:42Z",
       "verificationState": "verified"
+    },
+    {
+      "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+      "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
+      "eventDate": "2026-10-10",
+      "classification": "review_required",
+      "classificationAsOf": "2026-10-01",
+      "sourceId": "historical-stored-source",
+      "sourcePublisher": "Historische bronverwijzing",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": null,
+      "verificationState": "review_required"
     },
     {
       "id": "cafe-kamyon-2026-07-12-2026-07-12-1eb9f801",

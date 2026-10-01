@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-01",
-  "sourceDigest": "aff975d746a5b66d5ca613ec9bb539a8b9559f3007a4e8d9881ce50fb2174fbb",
-  "matrixDigest": "aff975d746a5b66d5ca613ec9bb539a8b9559f3007a4e8d9881ce50fb2174fbb",
+  "sourceDigest": "2e11b1d56959ca4f524be4656b644e832ce284a831c69f71e80557af154e6e64",
+  "matrixDigest": "2e11b1d56959ca4f524be4656b644e832ce284a831c69f71e80557af154e6e64",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 848
+    "unchanged": 849
   },
   "actions": [
     {
@@ -210,6 +210,12 @@
       "action": "unchanged",
       "sourceDigest": "59ae99acf4dcad441eceb0be04c6c766a90b58d1827fcac78d389e50eaad333d",
       "matrixDigest": "59ae99acf4dcad441eceb0be04c6c766a90b58d1827fcac78d389e50eaad333d"
+    },
+    {
+      "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
+      "action": "unchanged",
+      "sourceDigest": "8b8468fc651e3310852ab087fd2642f9d4b4034d6304b981984de7ee845c2ab4",
+      "matrixDigest": "8b8468fc651e3310852ab087fd2642f9d4b4034d6304b981984de7ee845c2ab4"
     },
     {
       "id": "cafe-kamyon-2026-07-12-2026-07-12-1eb9f801",
