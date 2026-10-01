@@ -3,9 +3,9 @@
 Status: lokale audit, niet gepubliceerd. Classificatie op 2026-10-01; geverifieerde bronsnapshot 2026-10-01T11:42:02.039Z.
 
 - Bronitems: 849
-- Fail-closed lokale kandidaat: 714
-- Classificaties: current=2, expired=114, future=712, review_required=21
-- SLA-statussen: blocked_review_required=17, expired_not_public=114, fresh_verified=714, stale_blocked=4
+- Fail-closed lokale kandidaat: 715
+- Classificaties: current=2, expired=114, future=713, review_required=20
+- SLA-statussen: blocked_review_required=16, expired_not_public=114, fresh_verified=715, stale_blocked=4
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -143,7 +143,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 130 | beweegdag-55-2026-09-19 | 2026-09-19 | expired | city-beweegdag | verified | - | - | expired_not_public | nee |
 | 131 | gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387 | 2026-09-20 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 132 | lambermontmartre-2026-09-27 | 2026-09-27 | expired | city-district-calendar | verified | - | - | expired_not_public | nee |
-| 133 | buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10 | 2026-10-10 | review_required | historical-stored-source | review_required | 0 | - | blocked_review_required | nee |
+| 133 | buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10 | 2026-10-10 | future | city-gaston-buurtfeest | verified | 3 | 2026-10-04 | fresh_verified | ja |
 | 134 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 3 | 2026-09-19 | stale_blocked | nee |
 | 135 | district-kal-6a746a7ff4182b8edf63a766-2026-09-09 | 2026-09-09 | current | district-kalender | verified | 2 | 2026-10-03 | fresh_verified | ja |
 | 136 | district-kal-6a746a7ff4182b8edf63a774-2026-09-25 | 2026-09-25 | expired | district-kalender | verified | - | - | expired_not_public | nee |

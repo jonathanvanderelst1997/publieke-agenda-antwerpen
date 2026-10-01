@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-01",
-  "sourceDigest": "2e11b1d56959ca4f524be4656b644e832ce284a831c69f71e80557af154e6e64",
-  "matrixDigest": "2e11b1d56959ca4f524be4656b644e832ce284a831c69f71e80557af154e6e64",
+  "sourceDigest": "e4250edc479cd3906eda166c67bd04bcfd957ce20dcc249c83aa8bd11a9e80a0",
+  "matrixDigest": "e4250edc479cd3906eda166c67bd04bcfd957ce20dcc249c83aa8bd11a9e80a0",
   "counts": {
     "add": 0,
     "change": 0,
@@ -214,8 +214,8 @@
     {
       "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
       "action": "unchanged",
-      "sourceDigest": "8b8468fc651e3310852ab087fd2642f9d4b4034d6304b981984de7ee845c2ab4",
-      "matrixDigest": "8b8468fc651e3310852ab087fd2642f9d4b4034d6304b981984de7ee845c2ab4"
+      "sourceDigest": "787cc6db33db9a741df57a8a4d53180777317db6ff447cbd3a755ad1b4a1bd6b",
+      "matrixDigest": "787cc6db33db9a741df57a8a4d53180777317db6ff447cbd3a755ad1b4a1bd6b"
     },
     {
       "id": "cafe-kamyon-2026-07-12-2026-07-12-1eb9f801",
