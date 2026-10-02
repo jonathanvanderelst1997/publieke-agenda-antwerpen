@@ -15,7 +15,7 @@
   "officialPublic": true,
   "method": "antwerpen.be jaartabel met fail-closed fallback naar officiële eBesluit-maandkalender voor districtsraad/raadscommissies",
   "retrievedAt": "2026-10-01T11:40:47.611Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "meetings-ebesluit-v1|2026-10-01|13",
   "items": [
