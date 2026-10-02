@@ -10,7 +10,7 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
-| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein | GIPOD `INNAME_PUNT`, alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. |
+| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
@@ -19,6 +19,19 @@ automatische bron gaat voor.
 
 De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten hosts) staan in
 `lib/source-feed.mjs`, niet in de data. Een data-refresh kan dus geen nieuwe host of andere groep toevoegen.
+
+## Vooruitkijkhorizon
+
+Er is geen algemene limiet van 7 dagen. Elke gratis bron wordt zo ver vooruit gelezen als zij betrouwbaar en begrensd toelaat:
+
+- GIPOD-evenementen: 365 dagen.
+- GIPOD-markten: 365 dagen queryhorizon; per markt alleen de eerstvolgende nog geldige marktdag.
+- Districtskalender en districtsnieuws: alle concreet gedateerde toekomstige items binnen hun geldige publicatieperiode.
+- eBesluit en openbare vergaderingen: officiële zoek- en kalenderperiodes, zonder 7-dagenafkap.
+- Koopzondagen: alle nog komende data die in de officiële jaarlijsten staan.
+- UiT blijft optioneel en heeft, indien ooit geactiveerd, een afzonderlijke volumelimiet en coverage-indicatie.
+
+De site en straat-tijdlijn mogen dus alles tonen wat deze bronnen betrouwbaar kennen; niet bekende toekomstige data worden nooit afgeleid of gegokt.
 
 ## Stroom
 
@@ -142,7 +155,7 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 - Eén verzoek naar GIPOD:
   `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items` met
   `filter=Type='Evenement' AND PublicDomainOccupancyTypes LIKE 'Markt%' AND Owner LIKE 'Stad Antwerpen%'`
-  (`filter-lang=cql-text`), het venster nu tot 14 dagen later en de bbox van de stad.
+  (`filter-lang=cql-text`), het venster nu tot 365 dagen later en de bbox van de stad.
 - Optioneel een tweede verzoek, 2 seconden later: de marktlijst van de stad
   (`geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek3/MapServer/202`). Haar `id` is
   de GIPOD-`Reference` (MA1, MA5 …) en geeft district en postcode. Faalt ze, dan gaan de markten zonder
