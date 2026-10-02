@@ -5,27 +5,89 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry } from "../lib/fetch-util.mjs";
+import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
 import { refreshLiveHistory } from "./refresh-live-history.mjs";
 
+// Tijdsbudgetten. De job "refresh" in .github/workflows/refresh.yml stopt hard na 20 minuten en
+// heeft na het ophalen nog ongeveer een minuut nodig (build, check, validatie, patch). Een bron die
+// haar budget opgebruikt, krijgt fetchStatus "error" met errorCode "source_timeout" en houdt haar
+// vorige data; de andere bronnen gaan gewoon door. Zo eindigt `npm run refresh` altijd ruim binnen
+// de jobgrens, ook als een bron hangt.
+export const SOURCE_BUDGET_MS = 3 * 60_000; // standaard per fetcher (de snelste bronnen doen er seconden over)
+export const REFRESH_BUDGET_MS = 12 * 60_000; // alle fetchers samen
+export const LIVE_HISTORY_BUDGET_MS = 3 * 60_000; // live historiek (werken en publieke ruimte) na de fetchers
+// Na het budget krijgt een fetcher nog even om via zijn eigen foutpad af te ronden (zijn verzoeken
+// falen dan meteen); daarna gaat de verversing zonder hem verder.
+export const ABORT_GRACE_MS = 15_000;
+export const REFRESH_BUDGET_CODE = "refresh_budget_exhausted";
+
+function previousStatuses(rootDir, fetcher, code) {
+  return fetcher.sourceIds.map((sourceId) => {
+    const previous = readSourceDocument(rootDir, sourceId);
+    return statusEntry(sourceId, { fetchStatus: "error", retrievedAt: previous?.retrievedAt ?? null, itemCount: previous?.items?.length ?? 0, errorCode: code });
+  });
+}
+
+// Draait één fetcher binnen budgetMs. Geeft { result } of { error } terug, met timedOut als het budget op was.
+async function runWithinBudget(fetcher, args, budgetMs, graceMs) {
+  const controller = new AbortController();
+  const timers = [];
+  const wait = (ms) => new Promise((resolve) => timers.push(setTimeout(resolve, ms)));
+  timers.push(setTimeout(() => controller.abort(), budgetMs));
+  const run = (async () => {
+    const module = await fetcher.load();
+    return module.run({ ...args, fetch: deadlineFetch(args.fetch, controller.signal), signal: controller.signal });
+  })().then((result) => ({ result }), (error) => ({ error }));
+  try {
+    const outcome = await Promise.race([run, wait(budgetMs + graceMs).then(() => ({ hung: true }))]);
+    return { ...outcome, timedOut: controller.signal.aborted };
+  } finally {
+    controller.abort();
+    for (const timer of timers) clearTimeout(timer);
+  }
+}
+
 // `sleep` (optioneel) gaat naar fetchers die pauzeren tussen verzoeken; toetsen geven een lege pauze mee.
-export async function refreshAll({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, log = console.log, fetchers = FETCHERS, sleep } = {}) {
+export async function refreshAll({
+  fetch: fetchImpl = globalThis.fetch,
+  clock = () => new Date(),
+  rootDir,
+  env = process.env,
+  log = console.log,
+  fetchers = FETCHERS,
+  sleep,
+  sourceBudgetMs = SOURCE_BUDGET_MS,
+  refreshBudgetMs = REFRESH_BUDGET_MS,
+  graceMs = ABORT_GRACE_MS,
+  now = () => Date.now(),
+} = {}) {
   const statuses = [];
+  const startedAt = now();
   for (const fetcher of fetchers) {
-    try {
-      const module = await fetcher.load();
-      const result = await module.run({ fetch: fetchImpl, clock, rootDir, env, log, ...(sleep ? { sleep } : {}) });
-      statuses.push(...result);
-    } catch (error) {
-      const code = errorCodeOf(error) === "unexpected_error" ? "fetcher_crashed" : errorCodeOf(error);
-      log(JSON.stringify({ fetcher: fetcher.name, fetchStatus: "error", errorCode: code }));
-      for (const sourceId of fetcher.sourceIds) {
-        const previous = readSourceDocument(rootDir, sourceId);
-        statuses.push(statusEntry(sourceId, { fetchStatus: "error", retrievedAt: previous?.retrievedAt ?? null, itemCount: previous?.items?.length ?? 0, errorCode: code }));
-      }
+    const remaining = refreshBudgetMs - (now() - startedAt);
+    const budgetMs = Math.min(fetcher.budgetMs ?? sourceBudgetMs, remaining);
+    if (budgetMs <= 0) {
+      log(JSON.stringify({ fetcher: fetcher.name, fetchStatus: "error", errorCode: REFRESH_BUDGET_CODE }));
+      statuses.push(...previousStatuses(rootDir, fetcher, REFRESH_BUDGET_CODE));
+      continue;
+    }
+    const fetcherStartedAt = now();
+    const outcome = await runWithinBudget(fetcher, { fetch: fetchImpl, clock, rootDir, env, log, ...(sleep ? { sleep } : {}) }, budgetMs, graceMs);
+    const seconds = Math.round((now() - fetcherStartedAt) / 100) / 10;
+    if (outcome.result && !outcome.timedOut) {
+      log(JSON.stringify({ fetcher: fetcher.name, seconds }));
+      statuses.push(...outcome.result);
+    } else if (outcome.result) {
+      // Te laat klaar via het eigen foutpad: wat de fetcher nog binnenhaalde blijft, elke fout heet source_timeout.
+      log(JSON.stringify({ fetcher: fetcher.name, seconds, budgetSeconds: budgetMs / 1000, errorCode: SOURCE_TIMEOUT_CODE }));
+      statuses.push(...outcome.result.map((entry) => (entry.fetchStatus === "error" ? { ...entry, errorCode: SOURCE_TIMEOUT_CODE } : entry)));
+    } else {
+      const code = outcome.timedOut ? SOURCE_TIMEOUT_CODE : errorCodeOf(outcome.error) === "unexpected_error" ? "fetcher_crashed" : errorCodeOf(outcome.error);
+      log(JSON.stringify({ fetcher: fetcher.name, seconds, fetchStatus: "error", errorCode: code }));
+      statuses.push(...previousStatuses(rootDir, fetcher, code));
     }
   }
   const generated = clock();
@@ -50,7 +112,9 @@ if (isMainModule(import.meta.url)) {
       for (const entry of status.sources) {
         console.log(JSON.stringify({ sourceId: entry.sourceId, fetchStatus: entry.fetchStatus, itemCount: entry.itemCount, errorCode: entry.errorCode }));
       }
-      await refreshLiveHistory({ rootDir });
+      // Ook de live historiek krijgt een harde grens: een laag die niet op tijd antwoordt, telt als mislukt
+      // en houdt haar vorige stand (zie updateLiveHistory).
+      await refreshLiveHistory({ rootDir, fetch: deadlineFetch(globalThis.fetch, AbortSignal.timeout(LIVE_HISTORY_BUDGET_MS)) });
     })
     .catch((error) => {
       console.error(error?.message ?? String(error));
