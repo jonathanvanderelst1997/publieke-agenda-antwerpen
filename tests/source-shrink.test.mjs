@@ -1,5 +1,8 @@
 // Krimpgrens: een bron die wel antwoordt maar (bijna) niets meer oplevert, mag nooit bestaande data
 // wissen of een lege agenda publiceren. Nagebootst met de vastgelegde districtspagina en een nep-fetch.
+// Het vertrekpunt is vaste, verzonnen testdata (tests/fixtures/source-shrink/), niet de live brondata
+// in site/sources/: die verandert bij elke verversing, en een gewone schommeling (13 -> 12 items op
+// 2 oktober 2026) mocht de dataverversing niet meer rood maken.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -7,13 +10,13 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { suspiciousDrop } from "../lib/fetch-util.mjs";
+import { readSourceDocument, suspiciousDrop, upcomingCount } from "../lib/fetch-util.mjs";
 import { DISTRICT_API_URL } from "../scripts/fetch-sources-district.mjs";
 import { DISTRICT_NEWS_URL } from "../scripts/fetch-sources-district-news.mjs";
 import { refreshAll } from "../scripts/refresh-fetch.mjs";
 import { checkHealth } from "../scripts/sources-health.mjs";
 
-const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const fixtureDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "source-shrink");
 const fixturePage = JSON.parse(fs.readFileSync(new URL("./fixtures/district-page-content-by-uuid-5efb0477.json", import.meta.url), "utf8"));
 const NOW = new Date("2026-09-28T06:00:00Z");
 const clock = () => NOW;
@@ -44,9 +47,10 @@ function routes({ page = fixturePage, news = { data: [] } } = {}) {
 function makeRoot() {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "source-shrink-"));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
-  // Vertrekpunt: de huidige, vastgelegde brondata van deze branch.
+  // Vertrekpunt: vaste testdata. Kalender: 6 items, waarvan 1 voorbij en 1 lopend (5 komend op 28/09).
+  // Nieuws: 2 komende items.
   for (const name of ["district-kalender.json", "district-nieuws.json"]) {
-    fs.copyFileSync(path.join(repoRoot, "site", "sources", name), path.join(root, "site", "sources", name));
+    fs.copyFileSync(path.join(fixtureDir, name), path.join(root, "site", "sources", name));
   }
   return root;
 }
@@ -69,11 +73,23 @@ test("suspiciousDrop: 0 na >0, of meer dan de helft minder vanaf 4; voorbije ite
   assert.equal(suspiciousDrop([item("2026-09-01", "2026-10-05")], [], today)?.before, 1, "een lopend item telt mee");
 });
 
+test("vertrekpunt: vaste testdata, geldig en met komende items", () => {
+  const root = makeRoot();
+  // readSourceDocument geeft null bij een ongeldig document; dan zou de krimpgrens stil niets vergelijken.
+  const kalender = readSourceDocument(root, "district-kalender");
+  const nieuws = readSourceDocument(root, "district-nieuws");
+  assert.ok(kalender && nieuws, "beide fixtures zijn geldige brondocumenten");
+  assert.equal(kalender.items.length, 6);
+  assert.equal(upcomingCount(kalender.items, "2026-09-28"), 5, "boven de drempel van 4: ook de halveringsregel geldt");
+  assert.equal(upcomingCount(nieuws.items, "2026-09-28"), 2);
+  assert.equal(upcomingCount(kalender.items, "2027-01-15"), 0, "alles voorbij op de latere klok");
+});
+
 test("gewijzigde districtspagina en leeg nieuwskanaal: error, vorige data blijft, health faalt", async () => {
   const root = makeRoot();
   const kalenderBefore = read(root, "district-kalender");
   const nieuwsBefore = read(root, "district-nieuws");
-  assert.ok(kalenderBefore.items.length >= 13 && nieuwsBefore.items.length >= 1, "vertrekpunt heeft data");
+  assert.deepEqual([kalenderBefore.items.length, nieuwsBefore.items.length], [6, 2], "vertrekpunt heeft data");
 
   const logs = [];
   const status = await refreshAll({ rootDir: root, clock, env: {}, sleep: noSleep, fetch: routes({ page: changedPage(), news: { data: [] } }), log: (line) => logs.push(line) });
@@ -109,8 +125,11 @@ test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_dr
   const entry = status.sources.find((candidate) => candidate.sourceId === "district-nieuws");
   assert.deepEqual([entry.fetchStatus, entry.errorCode], ["error", "suspicious_drop"]);
   assert.deepEqual(read(root, "district-nieuws").items, nieuwsBefore.items);
-  // De ongewijzigde districtspagina blijft gewoon "ok".
-  assert.equal(status.sources.find((candidate) => candidate.sourceId === "district-kalender").fetchStatus, "ok");
+  // De ongewijzigde districtspagina blijft gewoon "ok": de parser haalt er genoeg komende items uit
+  // om niet als krimp te tellen. Een kapotte parser (0 of te weinig items) valt hier op.
+  const kalender = status.sources.find((candidate) => candidate.sourceId === "district-kalender");
+  assert.deepEqual([kalender.fetchStatus, kalender.errorCode], ["ok", null]);
+  assert.ok(kalender.itemCount > 0);
 });
 
 test("AGENDA_ALLOW_DROP laat een bewuste daling door; voorbije items tellen nooit als krimp", async () => {
@@ -156,7 +175,7 @@ test("sources:health vergelijkt met de vastgelegde versie: ook zonder grendel in
 
   const result = checkHealth({ rootDir: root, at, env: {}, baseline, baselineLabel: "HEAD" });
   assert.equal(result.exitCode, 1);
-  assert.match(result.lines.join("\n"), /district-kalender\tdrop\tkomend \d+ -> 0 t\.o\.v\. HEAD/);
+  assert.match(result.lines.join("\n"), /district-kalender\tdrop\tkomend 5 -> 0 t\.o\.v\. HEAD/);
 
   const allowed = checkHealth({ rootDir: root, at, env: { AGENDA_ALLOW_DROP: "district-kalender" }, baseline, baselineLabel: "HEAD" });
   assert.equal(allowed.exitCode, 0);
