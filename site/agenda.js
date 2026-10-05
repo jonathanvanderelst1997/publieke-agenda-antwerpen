@@ -1743,6 +1743,20 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/publiekeruimte"
   },
   {
+    "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
+    "title": "Herfstklaar: buren maken hun straat groener",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-10-23",
+    "endDate": "2026-10-25",
+    "dateLabel": "23, 24 en 25 oktober 2026",
+    "timeSlot": "Info",
+    "timeText": "uur en plaats per straat; overzicht via de officiële pagina",
+    "location": "verschillende straten in district Antwerpen",
+    "info": "Buren maken samen hun straat of buurt groener en klaar voor de herfst: plantjes zetten, snoeien, geveltuintjes, boomvakken en bloembakken opfleuren (vergroening met steun van het district). Afsluiten doe je samen met soep van het district.",
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober"
+  },
+  {
     "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
     "title": "Poëtische Rimpelingen",
     "theme": "Activiteit",
@@ -1775,8 +1789,10 @@ const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 // Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
 const uitgaan = window.PublicAgendaUitgaan || null;
-// Versheid: is de laatste geslaagde verversing ouder dan 48 uur, dan blijven items die alleen
-// daardoor als "verouderde bron" vielen nog STALE_GRACE_DAYS zichtbaar, duidelijk gemarkeerd.
+// Versheid: alleen als de laatste geslaagde verversing ouder is dan 48 uur (een achterstand),
+// blijven BRONITEMS (uit de automatische feed) die alleen daardoor als "verouderde bron" vielen nog
+// STALE_GRACE_DAYS zichtbaar, gemarkeerd met "Laatst bevestigd". Handmatige items hebben die
+// gratie niet nodig: ze blijven zichtbaar tot en met hun laatste dag (zie agenda-refresh.js).
 // Verlopen datums, bronconflicten en onbevestigde bronnen blijven altijd verborgen.
 const FRESH_LIMIT_HOURS = 48;
 const STALE_GRACE_DAYS = 14;
@@ -1785,7 +1801,7 @@ const agendaFreshness = uitgaan
   : { known: false, stale: false, ageHours: null, generatedAt: null };
 const graceAgendaItems = uitgaan
   ? agendaReconciliation.auditItems
-      .filter((item) => uitgaan.inStaleGrace(item, agendaNow().getTime(), STALE_GRACE_DAYS))
+      .filter((item) => uitgaan.inStaleGrace(item, agendaNow().getTime(), STALE_GRACE_DAYS, { backlog: agendaFreshness.stale }))
       .map((item) => ({ ...item, graceStale: true }))
   : [];
 const renderedAgendaItems = [...agendaReconciliation.publicItems, ...graceAgendaItems]
@@ -1898,9 +1914,13 @@ function formatInstant(iso) {
   }).format(new Date(value));
 }
 
+// De kalenderdag in Europe/Brussels, niet die van het toestel: een handmatig item is zichtbaar
+// tot en met zijn laatste dag in Brussel en verdwijnt om middernacht Brusselse tijd.
+// (Binnen de functie: todayIso() wordt al aangeroepen voordat een const hier zou bestaan.)
 function todayIso() {
-  const now = agendaNow();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+  const brusselsDay = new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels", year: "numeric", month: "2-digit", day: "2-digit" });
+  const parts = Object.fromEntries(brusselsDay.formatToParts(agendaNow()).map((part) => [part.type, part.value]));
+  return `${parts.year}-${parts.month}-${parts.day}`;
 }
 
 function addDaysIso(iso, days) {

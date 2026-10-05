@@ -114,6 +114,15 @@
       officialPublic: true,
       scope: "district",
     },
+    "city-herfstklaar-weekend": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      retrievedAt: "2026-10-05T19:40:00Z",
+      state: "verified",
+      note: "Officiële pagina van district Antwerpen (25 augustus 2026), op 5 oktober 2026 nagekeken: buren maken hun straat Herfstklaar op 23, 24 of 25 oktober en sluiten af met soep van het district. Geen vaste plaats of uur: elke straat organiseert zelf.",
+      officialPublic: true,
+      scope: "district",
+    },
     "city-osystraat-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
@@ -293,6 +302,10 @@
       sourceId: "city-herfstklaar",
     },
     {
+      match: { title: "Herfstklaar: buren maken hun straat groener", dates: ["2026-10-23"] },
+      sourceId: "city-herfstklaar-weekend",
+    },
+    {
       match: { title: "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2", dates: ["2026-08-03"] },
       sourceId: "city-osystraat-works",
       classification: "current",
@@ -426,6 +439,10 @@
     return dayDelta(asOf, date) <= 14 ? 3 : 7;
   }
 
+  function lastDayOf(item) {
+    return item.endDate && item.endDate > item.date ? item.endDate : item.date;
+  }
+
   function dateClassification(date, endDate, asOf) {
     const last = endDate && endDate > date ? endDate : date;
     if (last < asOf) return "expired";
@@ -488,10 +505,15 @@
 
     const sourceRetrievedAt = item.retrievedAt ?? source?.retrievedAt ?? previousRetrievedAt;
 
-    // Versheid: een feed-bron veroudert na maxAgeHours; een handmatige bron volgt de provenance-SLA.
+    // Versheid: een feed-bron veroudert na maxAgeHours. Een handmatig item dat op zijn datum
+    // geclassificeerd is, blijft zichtbaar tot en met zijn laatste dag (endDate, anders date) en
+    // verdwijnt de dag erna (besluit eigenaar, 5-10-2026: "als het evenement bezig is, de dag erna
+    // is het gedaan"); geen herbevestiging om de paar dagen. Alleen een handmatig item met een vaste
+    // classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA.
     let slaMaxAgeDays = null;
     let slaMaxAgeHours = null;
     let recheckDueOn = null;
+    let visibleThrough = null;
     if (["current", "future"].includes(classification)) {
       let stale;
       if (isFeed) {
@@ -499,6 +521,10 @@
         const dueAt = Date.parse(sourceRetrievedAt) + slaMaxAgeHours * HOUR_MS;
         recheckDueOn = brusselsDateOf(dueAt);
         stale = !Number.isFinite(dueAt) || Date.parse(now) > dueAt;
+      } else if (classificationBasis === "date") {
+        visibleThrough = lastDayOf(reconciled);
+        recheckDueOn = visibleThrough;
+        stale = false;
       } else {
         slaMaxAgeDays = maxAgeDaysFor(classification, reconciled.theme, reconciled.date, asOf);
         recheckDueOn = addDays(sourceRetrievedAt, slaMaxAgeDays);
@@ -531,6 +557,7 @@
       slaMaxAgeDays,
       slaMaxAgeHours,
       recheckDueOn,
+      visibleThrough,
     };
   }
 

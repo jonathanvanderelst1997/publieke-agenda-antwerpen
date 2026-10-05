@@ -3,17 +3,17 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-10-05T15:47:48.241Z",
   "classificationAsOf": "2026-10-05",
-  "sourceCount": 845,
-  "count": 666,
-  "eventPageCount": 666,
+  "sourceCount": 846,
+  "count": 669,
+  "eventPageCount": 669,
   "classifications": {
     "expired": 119,
     "current": 3,
-    "future": 663,
-    "review_required": 60
+    "future": 666,
+    "review_required": 58
   },
   "scopeCounts": {
-    "district": 17,
+    "district": 20,
     "stad": 649
   },
   "feedGeneratedAt": "2026-10-05T15:47:48.241Z",
@@ -96,14 +96,17 @@
       "state": "inactive"
     }
   ],
-  "digest": "26e06c5e399e7b07d42cff10b7665bf2c33f81ea35c2707878d8317b28429729",
+  "digest": "fe10efb814f974ccec7c0a79cb52dd38129d4369f13de7f43bb912049127c9df",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
+    "Herfstklaar: buren maken hun straat groener",
+    "Poëtische Rimpelingen",
     "Humans of Antwerp",
     "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter",
     "Gemengde markt Sint-Franciscusplein",

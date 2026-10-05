@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-05",
-  "sourceItemCount": 845,
-  "sourceDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
+  "sourceItemCount": 846,
+  "sourceDigest": "d64bd6780c202b72df7866fea467030f24c4f0c3069b0f5b95f87398a99488e7",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -451,7 +451,7 @@
       "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
       "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-05",
       "sourceId": "city-gaston-buurtfeest",
       "sourcePublisher": "District Antwerpen",
@@ -1641,6 +1641,19 @@
       "canonicalSourceUrl": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-09-16T12:46:42Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
+      "title": "Herfstklaar: buren maken hun straat groener",
+      "eventDate": "2026-10-23",
+      "classification": "future",
+      "classificationAsOf": "2026-10-05",
+      "sourceId": "city-herfstklaar-weekend",
+      "sourcePublisher": "District Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-05T19:40:00Z",
       "verificationState": "verified"
     },
     {
@@ -9954,7 +9967,7 @@
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "title": "Poëtische Rimpelingen",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-05",
       "sourceId": "citaat-op-straat",
       "sourcePublisher": "Citaat op Straat",

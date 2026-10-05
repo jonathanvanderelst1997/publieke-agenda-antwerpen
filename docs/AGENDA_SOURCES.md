@@ -105,8 +105,12 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 
 - Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
   `stale_source`) en toont de site in het rood "verouderd sinds …".
-- Handmatige bronnen volgen dezelfde vensters als de provenance-SLA: lopend of werken 2 dagen,
-  toekomstig binnen 14 dagen 3 dagen, verder weg 7 dagen.
+- Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
+  `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
+  vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
+  2 dagen.
+- "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
+  48 uur.
 - Per bron toont de site "ververst op …", "verouderd sinds …" of "nog niet actief".
 
 ## De andere districten (`stad-districten`)

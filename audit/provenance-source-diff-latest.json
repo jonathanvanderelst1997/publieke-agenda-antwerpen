@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-05",
-  "sourceDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
-  "matrixDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
+  "sourceDigest": "d64bd6780c202b72df7866fea467030f24c4f0c3069b0f5b95f87398a99488e7",
+  "matrixDigest": "d64bd6780c202b72df7866fea467030f24c4f0c3069b0f5b95f87398a99488e7",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 845
+    "unchanged": 846
   },
   "actions": [
     {
@@ -220,8 +220,8 @@
     {
       "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
       "action": "unchanged",
-      "sourceDigest": "c4587fd12c628293533cdeaf5a4435c76221f7f80e8aa0537b70c8563fd51737",
-      "matrixDigest": "c4587fd12c628293533cdeaf5a4435c76221f7f80e8aa0537b70c8563fd51737"
+      "sourceDigest": "9b63b7dacec6a126f6731136f635fd8960486f39e1b1b363cff6c4948c39604a",
+      "matrixDigest": "9b63b7dacec6a126f6731136f635fd8960486f39e1b1b363cff6c4948c39604a"
     },
     {
       "id": "cafe-kamyon-2026-07-12-2026-07-12-1eb9f801",
@@ -768,6 +768,12 @@
       "action": "unchanged",
       "sourceDigest": "c21c27944d20ea0169c390856b6f5646be0c9904977cdece90f53a594ab117d2",
       "matrixDigest": "c21c27944d20ea0169c390856b6f5646be0c9904977cdece90f53a594ab117d2"
+    },
+    {
+      "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
+      "action": "unchanged",
+      "sourceDigest": "aa29ae806e6d2bd2b73befb2d073772498a1aa03ce021db6249c5369dbf6eed1",
+      "matrixDigest": "aa29ae806e6d2bd2b73befb2d073772498a1aa03ce021db6249c5369dbf6eed1"
     },
     {
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",
@@ -4606,8 +4612,8 @@
     {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "action": "unchanged",
-      "sourceDigest": "0edbe739266df77af43ca41a5a9962f7599a19697507604ab7a6761ad209cc6f",
-      "matrixDigest": "0edbe739266df77af43ca41a5a9962f7599a19697507604ab7a6761ad209cc6f"
+      "sourceDigest": "be15ca0bc3ebf31245a2153e982299d3afacad3a7341511b0bc353f72c00d47e",
+      "matrixDigest": "be15ca0bc3ebf31245a2153e982299d3afacad3a7341511b0bc353f72c00d47e"
     },
     {
       "id": "reanimatielessen-2026-09-10",

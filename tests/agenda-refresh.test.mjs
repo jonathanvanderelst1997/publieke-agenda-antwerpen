@@ -121,3 +121,48 @@ test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {
   assert.deepEqual(manifest.classifications, JSON.parse(JSON.stringify(result.counts)));
   assert.equal(manifest.rollback.baseCommit, "36ea97332e1742d0ed1650a1226c2276733a34f3");
 });
+
+test("handmatig item: zichtbaar tot en met de einddatum, weg vanaf de dag erna, zonder herbevestiging", () => {
+  const item = items.find((candidate) => candidate.id === "herfstklaar-district-antwerpen-2026-10-23-2026-10-25");
+  assert.ok(item, "Herfstklaar-item ontbreekt");
+  const source = engine.config.sources["city-herfstklaar-weekend"];
+  assert.equal(source.state, "verified");
+  // Ruim na het bronmoment (vroeger: na 3 of 7 dagen verouderd), toch gewoon toekomstig en publiek.
+  for (const [asOf, expected] of [
+    ["2026-10-05", "future"],
+    ["2026-10-20", "future"],
+    ["2026-10-23", "current"],
+    ["2026-10-25", "current"],
+    ["2026-10-26", "expired"],
+  ]) {
+    const result = engine.reconcileAgendaItems([item], asOf, { now: `${asOf}T21:59:00Z` });
+    const [audit] = result.auditItems;
+    assert.equal(audit.classification, expected, asOf);
+    assert.equal(audit.reviewReason, null, asOf);
+    assert.equal(result.publicItems.length, expected === "expired" ? 0 : 1, asOf);
+    if (expected !== "expired") {
+      assert.equal(audit.visibleThrough, "2026-10-25");
+      assert.equal(audit.slaMaxAgeDays, null);
+    }
+  }
+});
+
+test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende werf uit een regel volgt nog de SLA", () => {
+  const single = items.find((candidate) => candidate.title === "Buurtfeest Gaston Burssenslaan en Hanegraefstraat");
+  assert.ok(single);
+  assert.equal(engine.reconcileAgendaItems([single], "2026-10-10").publicItems.length, 1);
+  assert.equal(engine.reconcileAgendaItems([single], "2026-10-11").auditItems[0].classification, "expired");
+
+  const works = find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29");
+  const due = addDays(engine.config.sources[works.sourceId].retrievedAt, 2);
+  const later = engine.reconcileAgendaItems([items.find((candidate) => candidate.id === works.id)], addDays(due, 1));
+  assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
+});
+
+test("Herfstklaar staat onder buurt & straat, met alleen wat de officiële pagina zegt", () => {
+  const item = items.find((candidate) => candidate.id === "herfstklaar-district-antwerpen-2026-10-23-2026-10-25");
+  assert.equal(item.link, engine.config.sources["city-herfstklaar-weekend"].url);
+  assert.equal(new URL(item.link).hostname, "www.antwerpen.be");
+  assert.equal(item.timeSlot, "Info");
+  assert.doesNotMatch(`${item.title} ${item.info} ${item.location}`, /@/);
+});

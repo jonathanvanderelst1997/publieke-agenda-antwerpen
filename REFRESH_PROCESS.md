@@ -13,7 +13,7 @@ Deze gepubliceerde release scheidt drie zaken:
 - `future`: een officiële bron bevestigt een latere datum;
 - `review_required`: bron, uur, locatie of actuele afronding is niet eenduidig bevestigd.
 
-Alleen `current` en `future` met bronstatus `verified` verschijnen in de publieke agenda. Verlopen punten blijven als rollback- en audithistoriek in de bestaande bron staan. Items met een bronconflict worden niet stil verwijderd en niet als actueel getoond.
+Alleen `current` en `future` met bronstatus `verified` verschijnen in de publieke agenda. Een handmatig item op datum is `current` of `future` tot en met zijn laatste dag (`endDate`, anders `date`, Europe/Brussels) en `expired` vanaf de dag erna; het hoeft niet om de paar dagen herbevestigd te worden. Verlopen punten blijven als rollback- en audithistoriek in de bestaande bron staan. Items met een bronconflict worden niet stil verwijderd en niet als actueel getoond.
 
 ## Herhalen
 
