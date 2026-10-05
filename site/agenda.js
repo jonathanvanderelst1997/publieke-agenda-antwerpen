@@ -1760,7 +1760,26 @@ const agendaReconciliation = refreshEngine.reconcileAgendaItems(agendaSourceItem
 const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 // Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
-const renderedAgendaItems = agendaReconciliation.publicItems.filter((item) => onCanonicalHost || !isUitItem(item)).map((item) => ({ ...item, eventType: window.PublicAgendaEventTypes?.classifyEventType(item) || "other" }));
+const uitgaan = window.PublicAgendaUitgaan || null;
+// Versheid: is de laatste geslaagde verversing ouder dan 48 uur, dan blijven items die alleen
+// daardoor als "verouderde bron" vielen nog STALE_GRACE_DAYS zichtbaar, duidelijk gemarkeerd.
+// Verlopen datums, bronconflicten en onbevestigde bronnen blijven altijd verborgen.
+const FRESH_LIMIT_HOURS = 48;
+const STALE_GRACE_DAYS = 14;
+const agendaFreshness = uitgaan
+  ? uitgaan.freshness(refreshEngine.config.generatedAt, agendaNow().getTime(), FRESH_LIMIT_HOURS)
+  : { known: false, stale: false, ageHours: null, generatedAt: null };
+const graceAgendaItems = uitgaan
+  ? agendaReconciliation.auditItems
+      .filter((item) => uitgaan.inStaleGrace(item, agendaNow().getTime(), STALE_GRACE_DAYS))
+      .map((item) => ({ ...item, graceStale: true }))
+  : [];
+const renderedAgendaItems = [...agendaReconciliation.publicItems, ...graceAgendaItems]
+  .filter((item) => onCanonicalHost || !isUitItem(item))
+  .map((item) => {
+    const eventType = window.PublicAgendaEventTypes?.classifyEventType(item) || "other";
+    return { ...item, eventType, category: uitgaan ? uitgaan.categoryOf({ ...item, eventType }) : "other" };
+  });
 
 function isUitItem(item) {
   return item.sourceId === "stad-uit";
@@ -1780,10 +1799,10 @@ function requestedEventId() {
 
 const initialEventId = requestedEventId();
 
-const themeOrder = ["Werken", "Oproep/deadline", "Sport", "Activiteit"];
-let enabledThemes = new Set(themeOrder);
-const eventTypeOrder = (window.PublicAgendaEventTypes?.types || []).map((type) => type.key);
-let enabledEventTypes = new Set(eventTypeOrder);
+// Zonder gemeenschappelijke filter (agenda-view.js nog niet geladen of niet beschikbaar) geldt de
+// standaardweergave "Uitgaan & evenementen".
+const defaultCategories = new Set(uitgaan ? uitgaan.defaultOn : []);
+let highlightTab = "";
 // District en stad zijn twee aparte groepen. District staat standaard aan.
 const scopeOrder = ["district", "stad"];
 const scopeLabels = { district: "District Antwerpen", stad: "Stad Antwerpen" };
@@ -1810,13 +1829,22 @@ function stadPlaceOf(item) {
   return null;
 }
 
-function passesEventType(item) {
-  if (!["Activiteit", "Sport"].includes(item.theme)) return true;
-  return enabledEventTypes.has(item.eventType || "other");
+function passesCategory(item) {
+  if (window.PUBLIC_AGENDA_VIEW) return window.PUBLIC_AGENDA_VIEW.matchesAgenda(item);
+  if (!uitgaan) return true;
+  if (initialEventItem && item.id === initialEventItem.id) return true;
+  return defaultCategories.has(item.category);
+}
+
+// Koopzondagen en weekmarkten publiceert alleen de stad; liggen ze in district Antwerpen, dan horen
+// ze ook bij de districtsweergave (anders zou "koopzondag standaard aan" nooit iets tonen).
+function stadServiceInDistrict(item) {
+  return scopeOf(item) === "stad" && item.inDistrict === true && ["shopping", "markets"].includes(item.category);
 }
 
 function passesScope(item) {
   const scope = scopeOf(item);
+  if (enabledScopes.has("district") && stadServiceInDistrict(item)) return true;
   if (!enabledScopes.has(scope)) return false;
   if (scope !== "stad") return true;
   const place = stadPlaceOf(item);
@@ -2138,74 +2166,7 @@ function worksOverviewTemplate(items) {
 }
 
 function renderControls() {
-  const root = document.getElementById("theme-controls");
-  root.innerHTML = "";
-
-  const allActive = themeOrder.every((theme) => enabledThemes.has(theme));
-  const allButton = document.createElement("button");
-  allButton.type = "button";
-  allButton.className = allActive ? "active" : "";
-  allButton.textContent = "Alle thema's";
-  allButton.setAttribute("aria-pressed", String(allActive));
-  allButton.addEventListener("click", () => {
-    enabledThemes = allActive ? new Set() : new Set(themeOrder);
-    render();
-  });
-  root.appendChild(allButton);
-
-  themeOrder.forEach((theme) => {
-    const sample = renderedAgendaItems.find((item) => item.theme === theme);
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = enabledThemes.has(theme) ? "active" : "";
-    button.setAttribute("aria-pressed", String(enabledThemes.has(theme)));
-    button.innerHTML = `<span class="theme-dot" aria-hidden="true" style="--accent: ${accentForClass(sample?.className || "activity")}"></span>${esc(theme)}`;
-    button.addEventListener("click", () => {
-      if (enabledThemes.has(theme)) {
-        enabledThemes.delete(theme);
-      } else {
-        enabledThemes.add(theme);
-      }
-      render();
-    });
-    root.appendChild(button);
-  });
-
-  renderEventTypeControls();
   renderScopeControls();
-}
-
-function renderEventTypeControls() {
-  const root = document.getElementById("event-type-controls");
-  if (!root) return;
-  root.innerHTML = "";
-  const candidates = renderedAgendaItems.filter((item) => ["Activiteit", "Sport"].includes(item.theme) && passesScope(item));
-  const counts = new Map(eventTypeOrder.map((key) => [key, candidates.filter((item) => (item.eventType || "other") === key).length]));
-  const present = eventTypeOrder.filter((key) => (counts.get(key) || 0) > 0);
-  const allActive = present.every((key) => enabledEventTypes.has(key));
-  const allButton = document.createElement("button");
-  allButton.type = "button";
-  allButton.className = allActive ? "active" : "";
-  allButton.setAttribute("aria-pressed", String(allActive));
-  allButton.textContent = "Alle soorten";
-  allButton.addEventListener("click", () => {
-    enabledEventTypes = allActive ? new Set(eventTypeOrder.filter((key) => !present.includes(key))) : new Set(eventTypeOrder);
-    render();
-  });
-  root.appendChild(allButton);
-  present.forEach((key) => {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = enabledEventTypes.has(key) ? "active" : "";
-    button.setAttribute("aria-pressed", String(enabledEventTypes.has(key)));
-    button.innerHTML = `${esc(window.PublicAgendaEventTypes?.labelFor(key) || key)} <span class="scope-count">${esc(counts.get(key) || 0)}</span>`;
-    button.addEventListener("click", () => {
-      if (enabledEventTypes.has(key)) enabledEventTypes.delete(key);
-      else enabledEventTypes.add(key);
-      render();
-    });
-    root.appendChild(button);
-  });
 }
 
 // Aparte groep "District Antwerpen | Stad Antwerpen", met binnen Stad een deelkeuze
@@ -2214,7 +2175,7 @@ function renderScopeControls() {
   const root = document.getElementById("scope-controls");
   if (!root) return;
   root.innerHTML = "";
-  const themed = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme));
+  const themed = renderedAgendaItems.filter(passesCategory);
   scopeOrder.forEach((scope) => {
     const count = themed.filter((item) => scopeOf(item) === scope).length;
     const button = document.createElement("button");
@@ -2277,25 +2238,29 @@ function sourceLinksTemplate(item) {
   return links.length ? `<ul class="event-sources" aria-label="Bronnen">${links.join("")}</ul>` : "";
 }
 
+function categoryInfo(item) {
+  return uitgaan ? uitgaan.categoryFor(item.category) : { key: "other", label: item.theme || "Agenda", emoji: "📅" };
+}
+
 function eventTemplate(item) {
   const open = openId === item.id;
   const id = esc(item.id);
   return `
-    <article class="event ${esc(item.className)} ${open ? "open" : ""}" id="${id}">
+    <article class="event ${esc(item.className)} cat-${esc(item.category || "other")} ${open ? "open" : ""}" id="${id}">
       <div class="time">
         <strong>${esc(item.timeSlot)}</strong>
         ${item.timeText ? `<span>${esc(item.timeText)}</span>` : ""}
       </div>
       <div class="event-card">
         <button type="button" class="event-toggle" data-id="${id}" aria-expanded="${open ? "true" : "false"}" aria-controls="details-${id}">
-          <span class="theme-label">${esc(item.theme)}${["Activiteit","Sport"].includes(item.theme) ? ` · ${esc(window.PublicAgendaEventTypes?.labelFor(item.eventType) || "Overig")}` : ""}</span>
+          <span class="theme-label"><span class="cat-emoji" aria-hidden="true">${esc(categoryInfo(item).emoji)}</span> ${esc(categoryInfo(item).label)}</span>
           <strong>${esc(item.title)}</strong>
           <span class="chevron" aria-hidden="true">${open ? "^" : "v"}</span>
         </button>
         <div class="meta">
           ${item.location ? `<span>${esc(item.location)}</span>` : ""}
           ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
-          <span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>
+          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : `<span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>`}
           <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
         <div class="details" id="details-${id}">
@@ -2316,16 +2281,110 @@ function eventTemplate(item) {
   `;
 }
 
+function openAgendaItem(id) {
+  openId = openId === id ? "" : id;
+  const nextUrl = new URL(window.location.href);
+  nextUrl.pathname = "/";
+  nextUrl.searchParams.delete("event");
+  if (openId) nextUrl.searchParams.set("event", openId);
+  nextUrl.hash = "";
+  try {
+    window.history.replaceState(null, "", nextUrl);
+  } catch {
+    /* Openklappen werkt ook zonder URL-wijziging. */
+  }
+  render();
+  document.getElementById(id)?.scrollIntoView({ block: openId ? "center" : "nearest" });
+}
+
+// Eén kaart voor alle gewone weekmarkten in plaats van honderden losse marktdagen.
+function marketsBundleTemplate(markets) {
+  if (!markets.length) return "";
+  const today = todayIso();
+  return `
+    <section class="markets-bundle cat-markets" aria-label="Wekelijkse markten">
+      <header>
+        <span class="markets-emoji" aria-hidden="true">🧺</span>
+        <div>
+          <h2>Wekelijkse markten</h2>
+          <p>${esc(markets.length)} vaste markten, gebundeld per plaats. De dagen komen uit GIPOD.</p>
+        </div>
+      </header>
+      <ul class="markets-grid">
+        ${markets
+          .map((market) => `
+            <li class="market-card">
+              <strong>${esc(market.title)}</strong>
+              <span class="market-days" aria-label="Marktdagen">${market.weekdays.map((day) => `<abbr>${esc(day)}</abbr>`).join("")}</span>
+              <span>${esc([market.timeText, market.nextDate ? (market.nextDate === today ? "vandaag" : `volgende ${formatShortDate(market.nextDate)}`) : ""].filter(Boolean).join(" · "))}</span>
+              ${market.inDistrict === true ? `<span class="market-here">in district Antwerpen</span>` : ""}
+            </li>`)
+          .join("")}
+      </ul>
+    </section>
+  `;
+}
+
+function formatShortDate(iso) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("nl-BE", { weekday: "short", day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
+}
+
+function formatConfirmedDate(instant) {
+  const iso = String(instant || "").slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
+  const [year, month, day] = iso.split("-").map(Number);
+  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
+}
+
+function emptyStateTemplate() {
+  return `
+    <div class="empty-state">
+      <span class="empty-emoji" aria-hidden="true">🗓️</span>
+      <h2>Geen evenementen gevonden</h2>
+      <p>Binnen je huidige keuze staat er niets gepland. Bekijk volgende week of toon alle soorten.</p>
+      <div class="empty-actions">
+        <button type="button" data-empty-next-week>Bekijk volgende week</button>
+        <button type="button" data-empty-all class="secondary">Toon alle soorten</button>
+      </div>
+    </div>
+  `;
+}
+
+function bindEmptyState(root) {
+  root.querySelectorAll("[data-empty-next-week]").forEach((button) =>
+    button.addEventListener("click", () => {
+      highlightTab = "next";
+      render();
+      document.getElementById("agenda-highlights")?.scrollIntoView({ block: "start" });
+    })
+  );
+  root.querySelectorAll("[data-empty-all]").forEach((button) =>
+    button.addEventListener("click", () => {
+      const showAll = document.querySelector("[data-view-all]");
+      if (showAll) showAll.click();
+      else {
+        defaultCategories.clear();
+        (uitgaan?.categories || []).forEach((category) => defaultCategories.add(category.key));
+        render();
+      }
+    })
+  );
+}
+
 function renderList(items) {
   const root = document.getElementById("agenda-list");
-  if (!items.length) {
-    root.innerHTML = `<p class="empty">Geen actuele agenda-items binnen deze filter.</p>`;
+  const today = todayIso();
+  const markets = uitgaan ? uitgaan.bundleWeeklyMarkets(items.filter((item) => item.category === "markets"), today) : [];
+  const works = items.filter((item) => item.theme === "Werken");
+  const calendarItems = items.filter((item) => item.theme !== "Werken" && item.category !== "markets");
+  if (!calendarItems.length && !works.length && !markets.length) {
+    root.innerHTML = emptyStateTemplate();
+    bindEmptyState(root);
     return;
   }
 
-  const works = items.filter((item) => item.theme === "Werken");
-  const calendarItems = items.filter((item) => item.theme !== "Werken");
-  const today = todayIso();
   const groups = byDate(calendarItems, today);
   if (!groups[today]) groups[today] = [];
   const schedule = Object.entries(groups)
@@ -2343,26 +2402,16 @@ function renderList(items) {
                   .sort((a, b) => a.timeSlot.localeCompare(b.timeSlot) || a.title.localeCompare(b.title))
                   .map(eventTemplate)
                   .join("")
-              : `<p class="empty today-empty">Geen publiek agenda-item vandaag.</p>`
+              : `<p class="empty today-empty">Vandaag staat er niets op de agenda binnen je keuze. Kijk hierboven wat er dit weekend en deze week te doen is.</p>`
           }
         </div>
       </section>
     `)
     .join("");
-  root.innerHTML = `${worksOverviewTemplate(works)}${schedule}`;
+  root.innerHTML = `${marketsBundleTemplate(markets)}${worksOverviewTemplate(works)}${schedule}`;
 
   root.querySelectorAll(".event-toggle").forEach((button) => {
-    button.addEventListener("click", () => {
-      const id = button.dataset.id;
-      openId = openId === id ? "" : id;
-      const nextUrl = new URL(window.location.href);
-      nextUrl.pathname = "/";
-      nextUrl.search = openId ? `?event=${encodeURIComponent(openId)}` : "";
-      nextUrl.hash = "";
-      window.history.replaceState(null, "", nextUrl);
-      render();
-      document.getElementById(id)?.scrollIntoView({ block: "nearest" });
-    });
+    button.addEventListener("click", () => openAgendaItem(button.dataset.id));
   });
   root.querySelectorAll(".event-calendar").forEach((button) => {
     button.addEventListener("click", () => {
@@ -2387,20 +2436,159 @@ function renderList(items) {
   }
 }
 
-function renderCounts(items) {
+// Bovenrij: de mooiste items van vandaag, dit weekend, deze week en volgende week.
+const HIGHLIGHT_TABS = [
+  ["today", "Vandaag"],
+  ["weekend", "Dit weekend"],
+  ["week", "Deze week"],
+  ["next", "Volgende week"],
+];
+
+function highlightWhen(item, range) {
+  const start = item.date < range.from ? range.from : item.date;
+  const day = formatShortDate(start);
+  const until = item.endDate && item.endDate > item.date ? ` · t/m ${formatShortDate(item.endDate)}` : "";
+  const time = /^\d{2}:\d{2}$/.test(String(item.timeSlot || "")) ? ` · ${item.timeSlot.replace(":", ".")} uur` : "";
+  return `${day}${time}${until}`;
+}
+
+function highlightCardTemplate(item, range) {
+  const info = categoryInfo(item);
+  const place = String(item.location || "").includes("locatie via de officiële bron") ? "" : item.location;
+  return `
+    <li>
+      <button type="button" class="hl-card cat-${esc(item.category || "other")}" data-hl-id="${esc(item.id)}">
+        <span class="hl-art" aria-hidden="true"><span class="hl-emoji">${esc(info.emoji)}</span></span>
+        <span class="hl-body">
+          <span class="hl-cat">${esc(info.label)}</span>
+          <strong class="hl-title">${esc(item.title)}</strong>
+          <span class="hl-when">${esc(highlightWhen(item, range))}</span>
+          ${place ? `<span class="hl-where">${esc(place)}</span>` : ""}
+          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : ""}
+        </span>
+      </button>
+    </li>
+  `;
+}
+
+function defaultHighlightTab(lists, today) {
+  const weekday = weekdayIndex(today);
+  if ([0, 5, 6].includes(weekday) && lists.weekend.length) return "weekend";
+  // Op een weekdag met weinig vandaag: meteen de hele week tonen, dat oogt minder leeg.
+  if (lists.today.length < 3 && lists.week.length > lists.today.length) return "week";
+  return ["today", "weekend", "week", "next"].find((key) => lists[key].length) || "week";
+}
+
+function renderHighlights(items) {
+  const root = document.getElementById("agenda-highlights");
+  if (!root) return;
+  if (!uitgaan) {
+    root.hidden = true;
+    return;
+  }
+  const today = todayIso();
+  const ranges = uitgaan.rangesFor(today);
+  const lists = Object.fromEntries(HIGHLIGHT_TABS.map(([key]) => [key, uitgaan.pickHighlights(items, ranges[key], 6)]));
+  if (!highlightTab || !lists[highlightTab]) highlightTab = defaultHighlightTab(lists, today);
+  const tabs = root.querySelector(".highlights-tabs");
+  const panel = root.querySelector(".highlights-panel");
+  tabs.innerHTML = HIGHLIGHT_TABS.map(
+    ([key, label]) =>
+      `<button type="button" role="tab" id="hl-tab-${key}" aria-controls="hl-panel" aria-selected="${key === highlightTab}" tabindex="${key === highlightTab ? "0" : "-1"}" data-hl-tab="${key}">${esc(label)}<span class="hl-tab-count">${esc(lists[key].length)}</span></button>`
+  ).join("");
+  panel.id = "hl-panel";
+  panel.setAttribute("aria-labelledby", `hl-tab-${highlightTab}`);
+  const list = lists[highlightTab];
+  const range = ranges[highlightTab];
+  if (list.length) {
+    panel.innerHTML = `<ul class="hl-grid">${list.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`;
+  } else {
+    const next = ["today", "weekend", "week", "next"].find((key) => key !== highlightTab && lists[key].length && (ranges[key].from >= range.from));
+    panel.innerHTML = `
+      <div class="hl-empty">
+        <span aria-hidden="true">🌤️</span>
+        <div>
+          <strong>Geen evenementen gevonden${highlightTab === "today" ? " voor vandaag" : highlightTab === "weekend" ? " dit weekend" : ""}</strong>
+          <p>${next ? "Er staat wel iets gepland iets later." : "Bekijk volgende week of zet hierboven meer soorten aan."}</p>
+        </div>
+        <button type="button" data-hl-tab="${next || "next"}">${next ? `Bekijk ${esc(HIGHLIGHT_TABS.find(([key]) => key === next)[1].toLowerCase())}` : "Bekijk volgende week"}</button>
+      </div>`;
+  }
+  root.querySelectorAll("[data-hl-tab]").forEach((button) =>
+    button.addEventListener("click", () => {
+      highlightTab = button.dataset.hlTab;
+      render();
+      document.getElementById(`hl-tab-${highlightTab}`)?.focus();
+    })
+  );
+  if (!tabs.dataset.keys) {
+    tabs.dataset.keys = "1";
+    tabs.addEventListener("keydown", onHighlightTabKey);
+  }
+  panel.querySelectorAll("[data-hl-id]").forEach((button) => button.addEventListener("click", () => openAgendaItem(button.dataset.hlId)));
+}
+
+// Pijltjestoetsen tussen de tabbladen, zoals een gewone tablist.
+function onHighlightTabKey(event) {
+  const keys = HIGHLIGHT_TABS.map(([key]) => key);
+  const index = keys.indexOf(highlightTab);
+  let next = -1;
+  if (event.key === "ArrowRight") next = (index + 1) % keys.length;
+  else if (event.key === "ArrowLeft") next = (index - 1 + keys.length) % keys.length;
+  else if (event.key === "Home") next = 0;
+  else if (event.key === "End") next = keys.length - 1;
+  if (next < 0) return;
+  event.preventDefault();
+  highlightTab = keys[next];
+  render();
+  document.getElementById(`hl-tab-${highlightTab}`)?.focus();
+}
+
+// Bovenaan: wanneer de agenda het laatst ververst is, en een vriendelijke melding als dat
+// langer dan 48 uur geleden is.
+function renderFreshness() {
+  const pill = document.getElementById("agenda-freshness");
+  const banner = document.getElementById("agenda-stale-banner");
+  const when = agendaFreshness.generatedAt ? formatInstant(agendaFreshness.generatedAt) : "";
+  if (pill) {
+    pill.className = `freshness-pill ${agendaFreshness.stale ? "is-stale" : "is-fresh"}`;
+    pill.textContent = when ? `${agendaFreshness.stale ? "Laatst bijgewerkt" : "Bijgewerkt"} op ${when}` : "Bijwerkmoment onbekend";
+  }
+  if (!banner) return;
+  if (!agendaFreshness.stale || !agendaFreshness.known) {
+    banner.hidden = true;
+    banner.textContent = "";
+    return;
+  }
+  const days = agendaFreshness.ageDays;
+  const ago = days >= 2 ? `${days} dagen geleden` : "meer dan 48 uur geleden";
+  banner.hidden = false;
+  banner.innerHTML = `
+    <span class="stale-emoji" aria-hidden="true">⏳</span>
+    <div>
+      <strong>De agenda wordt even niet ververst.</strong>
+      <p>De laatste update was op ${esc(when)} (${esc(ago)}). We tonen wat toen bevestigd was${
+        graceAgendaItems.length ? `; items met “Laatst bevestigd” check je best even bij de officiële bron` : ""
+      }. We werken eraan.</p>
+    </div>
+  `;
+}
+
+function renderCounts(items, categoryCounts) {
   document.getElementById("agenda-count-value").textContent = String(items.length);
-  const works = items.filter((item) => item.theme === "Werken").length;
-  const calls = items.filter((item) => item.theme === "Oproep/deadline").length;
-  const sport = items.filter((item) => item.theme === "Sport").length;
-  const activities = items.filter((item) => item.theme === "Activiteit").length;
+  const uitgaanCount = items.filter((item) => uitgaan?.categoryFor(item.category)?.on).length;
   const district = items.filter((item) => scopeOf(item) === "district").length;
   const stad = items.filter((item) => scopeOf(item) === "stad").length;
+  const extra = Object.entries(categoryCounts)
+    .filter(([key, count]) => count > 0 && !defaultCategories.has(key) && !items.some((item) => item.category === key))
+    .reduce((sum, [, count]) => sum + count, 0);
   document.getElementById("agenda-count-detail").textContent =
-    `${activities} activiteiten, ${sport} sport, ${calls} oproepen, ${works} werken. District ${district}, stad ${stad}.`;
+    `${uitgaanCount} om uit te gaan. District ${district}, stad ${stad}.${extra ? ` ${extra} andere punten met één klik.` : ""}`;
   const { expired, review_required: reviewRequired } = agendaReconciliation.counts;
   document.getElementById("agenda-refresh-note").textContent =
     `Officiële broncontrole ${formatSimpleDate(String(refreshEngine.config.retrievedAt).slice(0, 10))}: ` +
-    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict of verouderde bron worden niet als actueel getoond.`;
+    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict of verouderde bron worden niet als actueel getoond` +
+    (graceAgendaItems.length ? `; ${graceAgendaItems.length} daarvan blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt.` : ".");
   renderSourceStatus();
 }
 
@@ -2455,20 +2643,55 @@ function renderSourceStatus() {
 }
 
 function render() {
-  const visible = renderedAgendaItems.filter((item) => enabledThemes.has(item.theme) && passesScope(item) && passesEventType(item) && (!window.PUBLIC_AGENDA_VIEW || window.PUBLIC_AGENDA_VIEW.matchesAgenda(item)));
+  // Eerst gebied en straat; de soortkeuze komt daarna, zodat de knoppen kunnen tonen hoeveel er per soort is.
+  const inArea = renderedAgendaItems.filter((item) => passesScope(item) && (!window.PUBLIC_AGENDA_VIEW || window.PUBLIC_AGENDA_VIEW.matchesStreet(item)));
+  const visible = inArea.filter(passesCategory);
+  const categoryCounts = {};
+  for (const item of inArea) if (item.category !== "markets") categoryCounts[item.category] = (categoryCounts[item.category] || 0) + 1;
+  if (uitgaan) categoryCounts.markets = uitgaan.bundleWeeklyMarkets(inArea.filter((item) => item.category === "markets"), todayIso()).length;
   window.PUBLIC_AGENDA_VISIBLE_ITEMS = visible;
   renderControls();
-  renderCounts(visible);
+  renderCounts(visible, categoryCounts);
+  renderFreshness();
+  renderHighlights(visible);
   renderList(visible);
-  window.dispatchEvent(new CustomEvent("public-agenda:agenda-view", { detail: { count: visible.length } }));
+  window.dispatchEvent(new CustomEvent("public-agenda:agenda-view", { detail: { count: visible.length, categoryCounts } }));
+}
+
+// Donker of licht: volgt het toestel tot de bezoeker zelf kiest; de keuze blijft in deze browser.
+function setupThemeToggle() {
+  const button = document.getElementById("theme-toggle");
+  if (!button) return;
+  const media = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  const current = () => document.documentElement.dataset.theme || (media?.matches ? "dark" : "light");
+  const paint = () => {
+    const dark = current() === "dark";
+    button.setAttribute("aria-pressed", String(dark));
+    button.setAttribute("aria-label", dark ? "Schakel naar lichte weergave" : "Schakel naar donkere weergave");
+    button.querySelector("[data-theme-icon]").textContent = dark ? "☀️" : "🌙";
+    button.querySelector("[data-theme-label]").textContent = dark ? "Licht" : "Donker";
+  };
+  button.addEventListener("click", () => {
+    const next = current() === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try {
+      window.localStorage.setItem("agenda-thema", next);
+    } catch {
+      /* Zonder opslag geldt de keuze alleen voor dit bezoek. */
+    }
+    paint();
+  });
+  media?.addEventListener?.("change", paint);
+  paint();
 }
 
 render();
+setupThemeToggle();
 
 window.addEventListener("public-agenda:view-change", render);
 window.addEventListener("public-agenda:reset-filters", () => {
-  enabledThemes = new Set(themeOrder); enabledEventTypes = new Set(eventTypeOrder);
   enabledScopes = new Set(["district"]); enabledStadPlaces = new Set(stadPlaceOrder);
+  highlightTab = "";
   render();
 });
 if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {

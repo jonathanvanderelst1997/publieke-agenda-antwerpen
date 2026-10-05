@@ -6,7 +6,7 @@
     {key:"parade",label:"Stoet & processie"},{key:"demonstration",label:"Manifestatie & betoging"},
     {key:"sport",label:"Sport"},{key:"learning",label:"Workshop & vorming"},
     {key:"social",label:"Ontmoeting & welzijn"},{key:"green_action",label:"Groen & buurtactie"},
-    {key:"culture",label:"Cultuur & festival"},{key:"participation",label:"Participatie & info"},
+    {key:"culture",label:"Cultuur & festival"},{key:"participation",label:"Participatie & info"},{key:"administrative",label:"Administratief & bevraging"},
     {key:"public_meeting",label:"Openbare raad/commissie"},{key:"shopping",label:"Koopzondag"},
     {key:"family",label:"Familie & feest"},{key:"commemoration",label:"Herdenking & viering"},
     {key:"other",label:"Overig"}
@@ -19,6 +19,9 @@
     if(s==="district-vergaderingen"||has(v,/\b(districtsraad|raadscommissie|gemeenteraad|openbare vergadering|openbare zitting)\b/))return"public_meeting";
     if(has(v,/\bspeelstraat\b/))return"playstreet";
     if(has(v,/\b(buurtfeest|wijkfeest|straatfeest|pleinfeest|burenfeest|buurt\s*barbecue|straat\s*barbecue|buurt\s*picknick|buren\s*picknick|straat\s*picknick)\b/))return"neighborhood";
+    // Bevragingen, enquêtes, meldingen en inspraakperiodes zijn geen uitgaansmoment: eigen soort,
+    // standaard verborgen. Een buurtfeest dat een bevraging vermeldt, blijft hierboven een buurtfeest.
+    if(has(v,/\b(bevraging|bevragingen|enquete|enquetes|vragenlijst|online inspraak|inspraakperiode|openbaar onderzoek|meldpunt|melding|meldingen|geef je mening|digitale inspraak)\b/))return"administrative";
     if(s==="stad-koopzondagen"||has(v,/\bkoopzondag\b/))return"shopping";
     if(has(v,/\b(rommelmarkt|vlooienmarkt|garageverkoop|garagesale|braderie|brocante|brocantemarkt)\b/))return"flea_braderie";
     if(has(v,/\b(stoet|optocht|processie|parade|carnaval(?:stoet)?)\b/))return"parade";

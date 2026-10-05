@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { createAgendaView, sameStreet, streetId, agendaTheme, VIEW_THEMES, settleSources } from "../site/agenda-view.js";
+import { createAgendaView, sameStreet, streetId, agendaTheme, VIEW_THEMES, DEFAULT_THEMES, settleSources } from "../site/agenda-view.js";
 const a = { id:"1", name:"Nationalestraat", postcode:"2000" };
 const b = { id:"2", name:"Lange Nationalestraat", postcode:"2000" };
 const item = { streets:[a], title:"Werk" };
@@ -56,10 +56,11 @@ test("neighborhood and playstreet events retain explicit toggles", () => {
 });
 test("markets, meetings and works are not hidden inside general activities", () => {
   assert.equal(agendaTheme({ sourceId:"stad-markten" }), "markets");
-  assert.equal(agendaTheme({ eventType:"flea_braderie" }), "markets");
+  // Rommelmarkten zijn uitgaan (standaard aan); alleen de gewone weekmarkten zitten onder "markets".
+  assert.equal(agendaTheme({ eventType:"flea_braderie" }), "flea");
   assert.equal(agendaTheme({ sourceId:"district-vergaderingen" }), "meetings");
   assert.equal(agendaTheme({ theme:"Werken" }), "works");
-  assert.equal(agendaTheme({ theme:"Sport" }), "activities");
+  assert.equal(agendaTheme({ theme:"Sport" }), "sport");
 });
 test("reset can restore all themes without mutating input records", () => {
   const copy = JSON.stringify(item); const view = createAgendaView();
@@ -82,4 +83,16 @@ test("public-space Promise failures are settled per source, never array.catch", 
   assert.ok(code.includes("const settled=await settleSources(jobs);"));
   const rows = await settleSources([["good",Promise.resolve([1])],["bad",Promise.reject(new Error("offline"))]]);
   assert.deepEqual(rows[0],["good",[1]]); assert.equal(rows[1][1].message,"offline");
+});
+test("standaard uitgaan & evenementen; raad, werken, weekmarkten en lagen met één klik", () => {
+  const view = createAgendaView({ defaultThemes: DEFAULT_THEMES });
+  assert.equal(view.matchesAgenda({ title:"Buurtfeest", eventType:"neighborhood" }), true);
+  assert.equal(view.matchesAgenda({ title:"Districtsraad", sourceId:"district-vergaderingen" }), false);
+  assert.equal(view.matchesAgenda({ title:"Gemengde markt", sourceId:"stad-markten" }), false);
+  assert.equal(view.matchesAgenda({ title:"Werk", theme:"Werken" }), false);
+  assert.equal(view.matchesAgenda({ title:"Bevraging schoolstraat" }), false);
+  for (const layer of ["works", "publicSpace", "permits", "terraces"]) assert.equal(view.enabled(layer), false);
+  view.setThemes([...DEFAULT_THEMES, "meetings"]);
+  assert.equal(view.matchesAgenda({ title:"Districtsraad", sourceId:"district-vergaderingen" }), true);
+  assert.ok(VIEW_THEMES.length > DEFAULT_THEMES.length);
 });
