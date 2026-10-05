@@ -1,6 +1,8 @@
 // Eén regel per bron uit site/sources/refresh-status.json. Exitcode 1 als een bron op "error" staat
-// (ook bij errorCode suspicious_drop), verouderd is (ophaalmoment + maxAgeHours ligt vóór het moment
-// van controle), of als een bronbestand veel minder komende items heeft dan de vastgelegde versie.
+// met een blijvende fout (ook errorCode suspicious_drop), verouderd is (ophaalmoment + maxAgeHours ligt
+// vóór het moment van controle), of als een bronbestand veel minder komende items heeft dan de
+// vastgelegde versie. Een TIJDELIJKE fout (5xx, 429, time-out) met vorige data binnen maxAgeHours is
+// "stale": een waarschuwing, geen fout (sourceHealthOf in lib/fetch-util.mjs).
 //
 // Het controlemoment is nu; met --at <ISO> kan een ander moment gekozen worden.
 // De krimpcontrole vergelijkt met `git show <ref>:site/sources/<bron>.json`, standaard HEAD
@@ -13,7 +15,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { dropAllowed, isMainModule, suspiciousDrop } from "../lib/fetch-util.mjs";
+import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
 
@@ -48,14 +50,8 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
 
   let unhealthy = 0;
   for (const entry of status.sources) {
-    const inactive = ["skipped_no_key", "disabled", "test_only"].includes(entry.fetchStatus);
-    const retrievedMs = Date.parse(entry.retrievedAt ?? "");
-    const stale = !inactive && (!Number.isFinite(retrievedMs) || at > retrievedMs + entry.maxAgeHours * 3_600_000);
-    let health = "ok";
-    if (entry.fetchStatus === "error") health = "error";
-    else if (stale) health = "stale";
-    else if (inactive) health = "inactive";
-    if (health === "error" || health === "stale") unhealthy += 1;
+    const health = sourceHealthOf(entry, at);
+    if (health === "error" || health === "expired") unhealthy += 1;
     const coverage = entry.capped ? `capped=t/m ${entry.coverageUntil ?? "-"}` : "";
     lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
   }
