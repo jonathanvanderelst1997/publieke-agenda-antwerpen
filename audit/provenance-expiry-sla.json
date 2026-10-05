@@ -4,10 +4,10 @@
   "classificationAsOf": "2026-10-05",
   "verifiedSourceSnapshotAt": "2026-10-05T15:47:48.241Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
-  "sourceItemCount": 844,
-  "localCandidateCount": 665,
+  "sourceItemCount": 845,
+  "localCandidateCount": 666,
   "classifications": {
-    "current": 2,
+    "current": 3,
     "expired": 119,
     "future": 663,
     "review_required": 60
@@ -15,14 +15,14 @@
   "slaStatuses": {
     "blocked_review_required": 16,
     "expired_not_public": 119,
-    "fresh_verified": 665,
+    "fresh_verified": 666,
     "stale_blocked": 44
   },
   "sourceKinds": {
     "historical_link_only": 81,
     "official_feed": 710,
     "official_organizer": 12,
-    "public_authority": 41
+    "public_authority": 42
   },
   "items": [
     {
@@ -3083,6 +3083,29 @@
       "publishEligible": false,
       "includedInLocalCandidate": false,
       "failClosed": true
+    },
+    {
+      "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01",
+      "title": "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
+      "theme": "Oproep/deadline",
+      "eventDate": "2026-10-05",
+      "classification": "current",
+      "classificationAsOf": "2026-10-05",
+      "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
+      "sourcePublisher": "District Antwerpen, team Publieke Ruimte",
+      "sourceKind": "public_authority",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.antwerpen.be/publiekeruimte",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-05T12:00:00Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": 2,
+      "recheckDueOn": "2026-10-07",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
     },
     {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",

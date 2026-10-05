@@ -6,7 +6,7 @@
     {key:"parade",label:"Stoet & processie"},{key:"demonstration",label:"Manifestatie & betoging"},
     {key:"sport",label:"Sport"},{key:"learning",label:"Workshop & vorming"},
     {key:"social",label:"Ontmoeting & welzijn"},{key:"green_action",label:"Groen & buurtactie"},
-    {key:"culture",label:"Cultuur & festival"},{key:"participation",label:"Participatie & info"},{key:"administrative",label:"Administratief & bevraging"},
+    {key:"culture",label:"Cultuur & festival"},{key:"participation",label:"Participatie & info"},{key:"administrative",label:"Inspraak & bevraging"},
     {key:"public_meeting",label:"Openbare raad/commissie"},{key:"shopping",label:"Koopzondag"},
     {key:"family",label:"Familie & feest"},{key:"commemoration",label:"Herdenking & viering"},
     {key:"other",label:"Overig"}

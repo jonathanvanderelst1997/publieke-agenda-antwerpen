@@ -132,6 +132,15 @@
       officialPublic: true,
       scope: "district",
     },
+    "publiekeruimte-schoolstraat-vanhoenacker": {
+      publisher: "District Antwerpen, team Publieke Ruimte",
+      url: "https://www.antwerpen.be/publiekeruimte",
+      retrievedAt: "2026-10-05T12:00:00Z",
+      state: "verified",
+      note: "Publieke aankondiging van team Publieke Ruimte district Antwerpen (5 oktober 2026): bevraging over de proefperiode van de schoolstraat aan basisschool K'do, Jan Vanhoenackerstraat; enquête open tot en met 1 november 2026. Verdere info op de officiële pagina publieke ruimte van district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+    },
     "city-gaston-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
@@ -208,6 +217,10 @@
     {
       match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
       sourceId: "city-gaston-buurtfeest",
+    },
+    {
+      match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },
+      sourceId: "publiekeruimte-schoolstraat-vanhoenacker",
     },
     {
       match: { title: "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat", theme: "Werken" },

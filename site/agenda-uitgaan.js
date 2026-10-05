@@ -17,8 +17,10 @@
     { key: "flea", label: "Rommelmarkt & braderie", emoji: "🛍️", on: true, weight: 4 },
     { key: "shopping", label: "Koopzondag", emoji: "🛒", on: true, weight: 2 },
     { key: "meetings", label: "Raad & commissies", emoji: "🏛️", on: false, weight: 0 },
-    { key: "info", label: "Info, vorming & inspraak", emoji: "💬", on: false, weight: 1 },
-    { key: "admin", label: "Administratief & bevraging", emoji: "📋", on: false, weight: 0 },
+    { key: "info", label: "Infomomenten & vorming", emoji: "💬", on: false, weight: 1 },
+    // "Inspraak": bevragingen, enquêtes, inspraakperiodes en meldingen zonder vast moment (zoals een
+    // bevraging over een schoolstraat). Standaard uit, met één klik aan.
+    { key: "admin", label: "Inspraak & bevraging", emoji: "🗳️", on: false, weight: 0 },
     { key: "calls", label: "Oproepen & deadlines", emoji: "📣", on: false, weight: 0 },
     { key: "works", label: "Werken & hinder", emoji: "🚧", on: false, weight: 0 },
     { key: "markets", label: "Wekelijkse markten", emoji: "🧺", on: false, weight: 0 },

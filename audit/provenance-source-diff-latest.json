@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-05",
-  "sourceDigest": "28fad598f92c282f79c887666538b98c2d297ceb714fd050efaa9ad061dc1585",
-  "matrixDigest": "28fad598f92c282f79c887666538b98c2d297ceb714fd050efaa9ad061dc1585",
+  "sourceDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
+  "matrixDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 844
+    "unchanged": 845
   },
   "actions": [
     {
@@ -204,6 +204,12 @@
       "action": "unchanged",
       "sourceDigest": "e1693530c81b797afc57780695d30bee7af10d856ac8a8a286e8824fa4fd1e72",
       "matrixDigest": "e1693530c81b797afc57780695d30bee7af10d856ac8a8a286e8824fa4fd1e72"
+    },
+    {
+      "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01",
+      "action": "unchanged",
+      "sourceDigest": "c98facdeb6b233a15800dd1cf4b8fed39ba2a61d249fb69fdb438331235a4800",
+      "matrixDigest": "c98facdeb6b233a15800dd1cf4b8fed39ba2a61d249fb69fdb438331235a4800"
     },
     {
       "id": "beweegdag-55-2026-09-19",

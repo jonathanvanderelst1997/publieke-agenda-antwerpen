@@ -47,7 +47,7 @@ if(root){
     note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(fail.length?` Tijdelijk niet gelezen: ${fail.join(", ")}.`:"");
     render();root.classList.remove("loading");
   }
-  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;if(window.PUBLIC_AGENDA_VIEW?.selected&&window.PUBLIC_AGENDA_VIEW.enabled("publicSpace"))load();if(state.ready)render()});
+  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;if((window.PUBLIC_AGENDA_VIEW?.selected||window.PUBLIC_AGENDA_VIEW?.area?.wijk)&&window.PUBLIC_AGENDA_VIEW.enabled("publicSpace"))load();if(state.ready)render()});
   [search,kind].forEach(c=>c?.addEventListener("input",()=>{state.shown=60;render()}));more?.addEventListener("click",()=>{state.shown+=60;render()});
   if("IntersectionObserver"in window){const o=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){o.disconnect();load()}},{rootMargin:"600px"});o.observe(root)}else load()
 }

@@ -118,3 +118,17 @@ test("de site laadt de module vóór agenda.js en houdt de straatfilter bovenaan
   assert.match(css, /prefers-color-scheme: dark/);
   assert.match(css, /:root\[data-theme="dark"\]/);
 });
+
+test("bevraging schoolstraat staat onder de optie inspraak (standaard uit, één klik aan)", async () => {
+  assert.equal(U.categoryFor("admin").label, "Inspraak & bevraging");
+  assert.ok(!U.defaultOn.includes("admin"));
+  const { loadExpandedAgendaItems, loadRefreshEngine } = await import("../scripts/agenda-source.mjs");
+  const root = new URL("..", import.meta.url).pathname;
+  const engine = loadRefreshEngine(root);
+  const result = engine.reconcileAgendaItems(loadExpandedAgendaItems(root), "2026-10-05", { now: "2026-10-05T12:00:00Z" });
+  const school = result.publicItems.find((i) => i.title === "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat");
+  assert.ok(school, "gepubliceerd");
+  assert.equal(school.classification, "current");
+  assert.equal(U.categoryOf(school), "admin");
+  assert.doesNotMatch(JSON.stringify(school), /@/);
+});

@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-05",
-  "sourceItemCount": 844,
-  "sourceDigest": "28fad598f92c282f79c887666538b98c2d297ceb714fd050efaa9ad061dc1585",
+  "sourceItemCount": 845,
+  "sourceDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -419,6 +419,19 @@
       "canonicalSourceUrl": "https://www.antwerpen.be/info/664e0139bc28fd07a114a7e6/swingen-en-dansen-op-het-bal-van-de-bevrijding",
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-08-13T13:24:19Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01",
+      "title": "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
+      "eventDate": "2026-10-05",
+      "classification": "current",
+      "classificationAsOf": "2026-10-05",
+      "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
+      "sourcePublisher": "District Antwerpen, team Publieke Ruimte",
+      "canonicalSourceUrl": "https://www.antwerpen.be/publiekeruimte",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-05T12:00:00Z",
       "verificationState": "verified"
     },
     {
