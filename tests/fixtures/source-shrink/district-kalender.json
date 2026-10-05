@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-kalender",
+  "scope": "district",
+  "publisher": "District Antwerpen",
+  "attribution": {
+    "text": "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)",
+    "url": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  "url": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+  "allowedHosts": [
+    "www.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
+  "retrievedAt": "2026-09-27T05:17:00.000Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": "parser-test|testversie|2026-09-27T05:00:00+00:00",
+  "items": [
+    {
+      "id": "district-kal-fffffffffffffffffffffff1-2026-09-01",
+      "externalId": "fffffffffffffffffffffff1",
+      "title": "Testactiviteit 1",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-09-01",
+      "endDate": null,
+      "timeSlot": "14:00",
+      "timeText": "14 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 1 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-fffffffffffffffffffffff2-2026-09-20",
+      "externalId": "fffffffffffffffffffffff2",
+      "title": "Testactiviteit 2",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-09-20",
+      "endDate": "2026-10-10",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 2 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-fffffffffffffffffffffff3-2026-10-03",
+      "externalId": "fffffffffffffffffffffff3",
+      "title": "Testactiviteit 3",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-03",
+      "endDate": null,
+      "timeSlot": "10:00",
+      "timeText": "10 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 3 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-fffffffffffffffffffffff4-2026-10-17",
+      "externalId": "fffffffffffffffffffffff4",
+      "title": "Testactiviteit 4",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-17",
+      "endDate": null,
+      "timeSlot": "19:30",
+      "timeText": "19.30 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 4 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-fffffffffffffffffffffff5-2026-11-07",
+      "externalId": "fffffffffffffffffffffff5",
+      "title": "Testactiviteit 5",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-07",
+      "endDate": null,
+      "timeSlot": "15:00",
+      "timeText": "15 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 5 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-fffffffffffffffffffffff6-2026-12-12",
+      "externalId": "fffffffffffffffffffffff6",
+      "title": "Testactiviteit 6",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-12",
+      "endDate": null,
+      "timeSlot": "11:00",
+      "timeText": "11 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Verzonnen testactiviteit 6 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    }
+  ]
+}

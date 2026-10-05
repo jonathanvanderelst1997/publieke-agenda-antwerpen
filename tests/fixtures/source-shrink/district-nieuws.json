@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-nieuws",
+  "scope": "district",
+  "publisher": "District Antwerpen",
+  "attribution": {
+    "text": "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)",
+    "url": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  "url": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1",
+  "allowedHosts": [
+    "www.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "antwerpen.be nieuwskanaal district Antwerpen (tabel, Wanneer:, Datum:, Praktisch)",
+  "retrievedAt": "2026-09-27T05:17:00.000Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [
+    {
+      "id": "district-news-eeeeeeeeeeeeeeeeeeeeeee1-2026-10-08",
+      "externalId": "eeeeeeeeeeeeeeeeeeeeeee1",
+      "title": "Testbericht 1",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-08",
+      "endDate": null,
+      "timeSlot": "20:00",
+      "timeText": "20 - 22 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [],
+      "info": "Verzonnen testbericht 1 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/eeeeeeeeeeeeeeeeeeeeeee1/testbericht-1",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-news-eeeeeeeeeeeeeeeeeeeeeee2-2026-11-12",
+      "externalId": "eeeeeeeeeeeeeeeeeeeeeee2",
+      "title": "Testbericht 2",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-12",
+      "endDate": null,
+      "timeSlot": "20:00",
+      "timeText": "20 - 22 uur",
+      "location": "Testzaal, Voorbeeldstraat 1",
+      "postcodes": [],
+      "info": "Verzonnen testbericht 2 voor de krimptoetsen.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/eeeeeeeeeeeeeeeeeeeeeee2/testbericht-2",
+      "retrievedAt": "2026-09-27T05:17:00.000Z",
+      "reviewRequired": false
+    }
+  ]
+}
