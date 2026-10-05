@@ -20,9 +20,9 @@
   },
   "sourceKinds": {
     "historical_link_only": 81,
-    "official_feed": 710,
+    "official_feed": 711,
     "official_organizer": 12,
-    "public_authority": 43
+    "public_authority": 42
   },
   "items": [
     {
@@ -3242,30 +3242,6 @@
       "failClosed": false
     },
     {
-      "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
-      "title": "Herfstklaar: buren maken hun straat groener",
-      "theme": "Activiteit",
-      "eventDate": "2026-10-23",
-      "classification": "future",
-      "classificationAsOf": "2026-10-05",
-      "sourceId": "city-herfstklaar-weekend",
-      "sourcePublisher": "District Antwerpen",
-      "sourceKind": "public_authority",
-      "scope": "district",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
-      "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-05T19:40:00Z",
-      "verificationState": "verified",
-      "reviewReason": null,
-      "maxAgeDays": null,
-      "recheckDueOn": "2026-10-25",
-      "visibleThrough": "2026-10-25",
-      "slaStatus": "fresh_verified",
-      "publishEligible": true,
-      "includedInLocalCandidate": true,
-      "failClosed": false
-    },
-    {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "title": "Poëtische Rimpelingen",
       "theme": "Activiteit",
@@ -3686,7 +3662,7 @@
       "scope": "district",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/547d6be7cca8a798038b457f/vliegend-college-komt-naar-de-wijken",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-05T15:46:03.083Z",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
       "verificationState": "verified",
       "reviewReason": null,
       "maxAgeDays": 2,
@@ -5402,6 +5378,30 @@
       "failClosed": false
     },
     {
+      "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",
+      "title": "Maak je straat Herfstklaar op 23, 24 of 25 oktober",
+      "theme": "Activiteit",
+      "eventDate": "2026-10-23",
+      "classification": "future",
+      "classificationAsOf": "2026-10-05",
+      "sourceId": "district-nieuws",
+      "sourcePublisher": "District Antwerpen",
+      "sourceKind": "official_feed",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6304b9240106af48e55ac9eb/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": 2,
+      "recheckDueOn": "2026-10-07",
+      "visibleThrough": null,
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
+    },
+    {
       "id": "markt-ma14-2026-10-24",
       "title": "Gemengde markt Wim Saerensplein",
       "theme": "Activiteit",
@@ -5702,7 +5702,7 @@
       "scope": "district",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/6abb81ba449474ad1921c0a9/infosessie-phishing",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-05T15:46:03.083Z",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
       "verificationState": "verified",
       "reviewReason": null,
       "maxAgeDays": 2,

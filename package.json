@@ -22,7 +22,8 @@
     "refresh:fetch": "node scripts/refresh-fetch.mjs",
     "geo:refresh": "node scripts/geocode-locations.mjs",
     "geo:wijken": "node scripts/build-wijken.mjs",
-    "refresh": "npm run refresh:fetch && npm run build:sources && npm run geo:refresh && npm run build:all",
+    "refresh:manual": "node scripts/check-manual-sources.mjs",
+    "refresh": "npm run refresh:fetch && npm run build:sources && npm run refresh:manual && npm run geo:refresh && npm run build:all",
     "validate:data": "node scripts/validate-data.mjs",
     "sources:health": "node scripts/sources-health.mjs",
     "check:data-lane": "node scripts/check-data-lane.mjs"

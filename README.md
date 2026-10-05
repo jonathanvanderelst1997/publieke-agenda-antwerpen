@@ -69,8 +69,17 @@ staat het erop; de dag erna is het gedaan.
 - Uitzondering: een item waarvan een regel de classificatie vastzet (een lopende werf met fasen zonder harde
   einddatum, `classification: "current"`) volgt nog de provenance-SLA van 2 dagen, omdat daar geen einddatum is
   om op te vertrouwen.
-- Wie een handmatig item vroeger wil weghalen (afgelast, verplaatst), past de regel of het item aan; de
-  bronstatus `review_required` haalt het meteen van de site.
+- Handmatige items zijn alleen een **overbrugging** tot een automatische bron het punt oppikt. Elk zichtbaar
+  handmatig item heeft een officiële bron-URL. Die wordt **bij elke verversing automatisch nagekeken**
+  (`npm run refresh:manual`, `scripts/check-manual-sources.mjs`, uitkomst in `site/sources/manual-check.json`):
+  - is de pagina nog bereikbaar, en staan de datum ("10 oktober") en de kernwoorden van de bron er nog op?
+  - `gewijzigd` of `weg` (404/410): het item gaat van de site en wordt gemeld, rood in de job `source-health`
+    en in `brain_status` van de Gateway;
+  - `onbereikbaar` (5xx, time-out): het item blijft en er komt een waarschuwing;
+  - `niet_controleerbaar`: de bron-URL noemt het item niet woordelijk; dat wordt gemeld tot er een betere
+    officiële pagina is.
+
+  Niemand hoeft een handmatig item met de hand te herbevestigen.
 - Donker en licht volgen het toestel; de knop in de kop onthoudt een eigen keuze in deze browser.
 
 ## Weergave: in jouw buurt (kaart en wijken)

@@ -114,15 +114,6 @@
       officialPublic: true,
       scope: "district",
     },
-    "city-herfstklaar-weekend": {
-      publisher: "District Antwerpen",
-      url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
-      retrievedAt: "2026-10-05T19:40:00Z",
-      state: "verified",
-      note: "Officiële pagina van district Antwerpen (25 augustus 2026), op 5 oktober 2026 nagekeken: buren maken hun straat Herfstklaar op 23, 24 of 25 oktober en sluiten af met soep van het district. Geen vaste plaats of uur: elke straat organiseert zelf.",
-      officialPublic: true,
-      scope: "district",
-    },
     "city-osystraat-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
@@ -140,6 +131,7 @@
       note: "Officiële projectpagina: inhuldiging en gratis buurtfeest op 10 oktober 2026, 14 tot 17 uur.",
       officialPublic: true,
       scope: "district",
+      check: { mustContain: ["buurtfeest", "inhuldiging"] },
     },
     "publiekeruimte-schoolstraat-vanhoenacker": {
       publisher: "District Antwerpen, team Publieke Ruimte",
@@ -149,6 +141,10 @@
       note: "Publieke aankondiging van team Publieke Ruimte district Antwerpen (5 oktober 2026): bevraging over de proefperiode van de schoolstraat aan basisschool K'do, Jan Vanhoenackerstraat; enquête open tot en met 1 november 2026. Verdere info op de officiële pagina publieke ruimte van district Antwerpen.",
       officialPublic: true,
       scope: "district",
+      // De bron-URL stuurt door naar het algemene overzicht "openbare werken" en noemt de bevraging
+      // niet: automatisch niet te bevestigen. Wordt als "niet_controleerbaar" gemeld tot er een
+      // officiële pagina is die de bevraging zelf noemt.
+      check: false,
     },
     "city-gaston-works": {
       publisher: "District Antwerpen",
@@ -302,10 +298,6 @@
       sourceId: "city-herfstklaar",
     },
     {
-      match: { title: "Herfstklaar: buren maken hun straat groener", dates: ["2026-10-23"] },
-      sourceId: "city-herfstklaar-weekend",
-    },
-    {
       match: { title: "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2", dates: ["2026-08-03"] },
       sourceId: "city-osystraat-works",
       classification: "current",
@@ -392,6 +384,9 @@
     };
   }
 
+  // Uitkomst van de automatische controle van handmatige bronnen, per sourceId (zie lib/manual-check.mjs).
+  const manualChecks = feed?.manualCheck?.sources && typeof feed.manualCheck.sources === "object" ? feed.manualCheck.sources : {};
+
   const config = {
     schemaVersion: 1,
     classificationAsOf: window.PUBLIC_AGENDA_FEED?.classificationAsOf ?? "2026-09-16",
@@ -403,6 +398,7 @@
     },
     sources,
     rules,
+    manualCheck: feed?.manualCheck ?? null,
   };
 
   const DAY_MS = 24 * 60 * 60 * 1000;
@@ -502,6 +498,18 @@
       classification = "review_required";
       reviewReason = isFeed ? "unverified_feed_item" : "unverified_source";
     }
+    // De automatische controle van de bron van een handmatig item (scripts/check-manual-sources.mjs):
+    // is de pagina weg of staan datum of kernwoorden er niet meer op, dan gaat het item van de site.
+    const manualCheck = !isFeed && rule?.sourceId ? manualChecks[rule.sourceId] ?? null : null;
+    if (
+      !options.ignoreManualCheck
+      && ["current", "future"].includes(classification)
+      && manualCheck
+      && ["gewijzigd", "weg"].includes(manualCheck.status)
+    ) {
+      classification = "review_required";
+      reviewReason = manualCheck.status === "weg" ? "manual_source_gone" : "manual_source_changed";
+    }
 
     const sourceRetrievedAt = item.retrievedAt ?? source?.retrievedAt ?? previousRetrievedAt;
 
@@ -558,6 +566,7 @@
       slaMaxAgeHours,
       recheckDueOn,
       visibleThrough,
+      manualCheckStatus: manualCheck?.status ?? null,
     };
   }
 
@@ -591,7 +600,7 @@
 
   function reconcileAgendaItems(items, asOf = config.classificationAsOf, options = {}) {
     const now = options.now || defaultNow(asOf);
-    const auditItems = items.map((item) => classifyAgendaItem(item, asOf, { now }));
+    const auditItems = items.map((item) => classifyAgendaItem(item, asOf, { now, ignoreManualCheck: options.ignoreManualCheck === true }));
     const publicItems = auditItems.filter(
       (item) => ["current", "future"].includes(item.classification) && item.verificationState === "verified"
     );

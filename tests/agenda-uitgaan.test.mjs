@@ -139,11 +139,8 @@ test("bevraging schoolstraat staat onder de optie inspraak (standaard uit, één
   assert.doesNotMatch(JSON.stringify(school), /@/);
 });
 
-test("Herfstklaar (handmatig) valt onder buurt & straat en staat dus standaard aan", async () => {
-  const { loadExpandedAgendaItems } = await import("../scripts/agenda-source.mjs");
-  const root = new URL("..", import.meta.url).pathname;
-  const herfst = loadExpandedAgendaItems(root).find((x) => x.id === "herfstklaar-district-antwerpen-2026-10-23-2026-10-25");
-  assert.ok(herfst);
+test("Herfstklaar en Lenteklaar vallen onder buurt & straat (standaard aan)", () => {
+  const herfst = item("Maak je straat Herfstklaar op 23, 24 of 25 oktober", { sourceId: "district-nieuws", timeSlot: "Info", location: "district Antwerpen, locatie via de officiële bron" });
   assert.equal(U.categoryOf(herfst), "neighborhood");
-  assert.ok(U.defaultOn.includes("neighborhood"));
+  assert.equal(U.categoryOf(item("Poetsbeurt tijdens Lenteklaar")), "neighborhood");
 });

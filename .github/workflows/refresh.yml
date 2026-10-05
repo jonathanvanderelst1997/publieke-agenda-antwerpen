@@ -131,6 +131,8 @@ jobs:
           git diff --cached --name-status -M0 > "$out/changes.txt"
           git diff --cached --binary > "$out/data.patch"
           cp site/sources/refresh-status.json "$out/refresh-status.json"
+          # De automatische controle van handmatige items (scripts/check-manual-sources.mjs).
+          if [ -f site/sources/manual-check.json ]; then cp site/sources/manual-check.json "$out/manual-check.json"; fi
           if [ ! -s "$out/changes.txt" ]; then
             # Hoort niet te gebeuren: generatedAt verandert elke run.
             echo "::notice title=Geen wijziging::De verversing leverde geen enkele wijziging; er komt geen datatak."
@@ -439,8 +441,25 @@ jobs:
                 echo "BRON ${id}: onbekende fetchStatus"; bad=1 ;;
             esac
           done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "" | tostring)] | @tsv' "$f")
+          # Handmatige items: hun officiële bron wordt bij elke verversing nagekeken. Gewijzigd of
+          # weg: het item is van de site gehaald en dat is een melding (rood). Onbereikbaar of niet
+          # controleerbaar: een waarschuwing.
+          m="$RUNNER_TEMP/in/manual-check.json"
+          if [ -f "$m" ]; then
+            while IFS=$'\t' read -r id status since; do
+              case "$status" in
+                ok) echo "Handmatig ${id}: bron bevestigt het item" ;;
+                gewijzigd|weg)
+                  echo "BRON handmatig ${id}: ${status} sinds ${since}; item van de site gehaald"; bad=1 ;;
+                onbereikbaar|niet_controleerbaar)
+                  echo "Handmatig ${id}: ${status} sinds ${since}"
+                  echo "::warning title=Handmatig item::${id}: ${status}" ;;
+                *) echo "BRON handmatig ${id}: onbekende status"; bad=1 ;;
+              esac
+            done < <(jq -r '.sources[]? | [(.sourceId // "?" | tostring), (.status // "?" | tostring), (.since // "-" | tostring)] | @tsv' "$m")
+          fi
           if [ "$bad" -ne 0 ]; then
-            echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
+            echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd, of de bron van een handmatig item veranderde; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
           fi
           exit "$bad"
 

@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-05",
-  "sourceDigest": "d64bd6780c202b72df7866fea467030f24c4f0c3069b0f5b95f87398a99488e7",
-  "matrixDigest": "d64bd6780c202b72df7866fea467030f24c4f0c3069b0f5b95f87398a99488e7",
+  "sourceDigest": "bf10ba3cf541340819bd9d6ddab8745ee69635f1b00cbeb08fdb4ec4ceff3259",
+  "matrixDigest": "bf10ba3cf541340819bd9d6ddab8745ee69635f1b00cbeb08fdb4ec4ceff3259",
   "counts": {
     "add": 0,
     "change": 0,
@@ -328,14 +328,20 @@
     {
       "id": "district-news-547d6be7cca8a798038b457f-2026-10-07",
       "action": "unchanged",
-      "sourceDigest": "c2432f345534e697aff7e9229557d3a8221d6e196d495d3f74c7c774e31aa786",
-      "matrixDigest": "c2432f345534e697aff7e9229557d3a8221d6e196d495d3f74c7c774e31aa786"
+      "sourceDigest": "47d8db7e929b3dd73ae1e507fde9fc5364c54812680b0fc71b5cb16165f1e5a6",
+      "matrixDigest": "47d8db7e929b3dd73ae1e507fde9fc5364c54812680b0fc71b5cb16165f1e5a6"
+    },
+    {
+      "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",
+      "action": "unchanged",
+      "sourceDigest": "27df3f1a8a727a326f1967f6d1909b0af684b7aeea169f7070f88e06512050f4",
+      "matrixDigest": "27df3f1a8a727a326f1967f6d1909b0af684b7aeea169f7070f88e06512050f4"
     },
     {
       "id": "district-news-6abb81ba449474ad1921c0a9-2026-10-27",
       "action": "unchanged",
-      "sourceDigest": "f82517219bb39bd659bb34a0136d1e805fd4623206fc01904398cdbcf5687d18",
-      "matrixDigest": "f82517219bb39bd659bb34a0136d1e805fd4623206fc01904398cdbcf5687d18"
+      "sourceDigest": "29b8e977083fb1284a73c1433c2a16bbebfd3dd351fec5748240c991e8d5e82b",
+      "matrixDigest": "29b8e977083fb1284a73c1433c2a16bbebfd3dd351fec5748240c991e8d5e82b"
     },
     {
       "id": "district-vergadering-ebesluit-25-0722-0530-1252",
@@ -768,12 +774,6 @@
       "action": "unchanged",
       "sourceDigest": "c21c27944d20ea0169c390856b6f5646be0c9904977cdece90f53a594ab117d2",
       "matrixDigest": "c21c27944d20ea0169c390856b6f5646be0c9904977cdece90f53a594ab117d2"
-    },
-    {
-      "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
-      "action": "unchanged",
-      "sourceDigest": "aa29ae806e6d2bd2b73befb2d073772498a1aa03ce021db6249c5369dbf6eed1",
-      "matrixDigest": "aa29ae806e6d2bd2b73befb2d073772498a1aa03ce021db6249c5369dbf6eed1"
     },
     {
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",

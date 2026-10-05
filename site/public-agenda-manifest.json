@@ -43,7 +43,7 @@
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:46:03.083Z",
+      "retrievedAt": "2026-10-05T21:58:10.802Z",
       "state": "fresh"
     },
     {
@@ -96,7 +96,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "fe10efb814f974ccec7c0a79cb52dd38129d4369f13de7f43bb912049127c9df",
+  "digest": "f000e571ef8f05b10293287ebcb4e4bc6eefbb941d8676f36a826ff1bce2b3da",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -105,7 +105,6 @@
   "titles": [
     "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
-    "Herfstklaar: buren maken hun straat groener",
     "Poëtische Rimpelingen",
     "Humans of Antwerp",
     "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter",
@@ -185,6 +184,7 @@
     "Tabletcafé",
     "Gemengde markt Desguinlei",
     "Vrijdagen van de Poëzie",
+    "Maak je straat Herfstklaar op 23, 24 of 25 oktober",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",

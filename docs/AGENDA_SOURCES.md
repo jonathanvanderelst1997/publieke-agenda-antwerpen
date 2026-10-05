@@ -113,6 +113,33 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
   48 uur.
 - Per bron toont de site "ververst op …", "verouderd sinds …" of "nog niet actief".
 
+## Datum in de titel (`district-nieuws`)
+
+Buurtacties zoals Herfstklaar staan als nieuwsartikel in het kanaal van district Antwerpen, zonder tabel
+of "Wanneer:"-regel. De datum staat alleen in de titel: "Maak je straat Herfstklaar op 23, 24 of 25
+oktober". Daarom leest `district-nieuws` (optie `titleDates`) als **laatste redmiddel** een expliciete dag
+of lijst dagen met maand na "op" in de titel. Dat gebeurt alleen als tabel, tekstregel en blok niets
+geven.
+
+- Opeenvolgende dagen worden één periode (23 t/m 25 oktober). "of" en "en" tellen allebei.
+- Nooit voor inschrijvingen, aanvragen, deadlines, bevragingen ("tot", "voor <datum>", "uiterlijk",
+  "inschrijven", "aanvraag", "bevraging") of werken (`WORKS_TITLE`).
+- Altijd alleen datums tussen de artikeldatum en `publishUntil`.
+- Plaats: "district Antwerpen, locatie via de officiële bron"; uur: "Info".
+- Gemeten op 5-10-2026: van 113 artikels leverde dit precies één nieuw item op (Herfstklaar). Herfstklaar,
+  Lenteklaar en dergelijke vallen onder "Buurt & straat".
+
+Zo komen Herfstklaar en dergelijke vanzelf binnen; een handmatig item is dan niet nodig.
+
+## Handmatige items: automatische controle van hun bron
+
+Zie de README ("Handmatige items: zichtbaar tot en met de einddatum"). `scripts/check-manual-sources.mjs`
+draait in `npm run refresh`, na `build:sources`. Het kijkt de bron-URL na van elk zichtbaar handmatig item:
+hoogstens 3 doorverwijzingen (alleen https), 1 seconde tussen de pagina's, zonder cookies. De
+controlewoorden zijn de begindatum van elk item, plus `check.mustContain` van de bron in
+`site/agenda-refresh.js`. `check: false` betekent: niet woordelijk te bevestigen. Het script laat de
+verversing nooit vallen; lukt het niet, dan blijft het vorige `manual-check.json` staan.
+
 ## De andere districten (`stad-districten`)
 
 - Kanalen: Berchem, Berendrecht-Zandvliet-Lillo, Borgerhout, Borsbeek (district sinds 2025), Deurne,

@@ -1743,20 +1743,6 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/publiekeruimte"
   },
   {
-    "id": "herfstklaar-district-antwerpen-2026-10-23-2026-10-25",
-    "title": "Herfstklaar: buren maken hun straat groener",
-    "theme": "Activiteit",
-    "className": "activity",
-    "date": "2026-10-23",
-    "endDate": "2026-10-25",
-    "dateLabel": "23, 24 en 25 oktober 2026",
-    "timeSlot": "Info",
-    "timeText": "uur en plaats per straat; overzicht via de officiële pagina",
-    "location": "verschillende straten in district Antwerpen",
-    "info": "Buren maken samen hun straat of buurt groener en klaar voor de herfst: plantjes zetten, snoeien, geveltuintjes, boomvakken en bloembakken opfleuren (vergroening met steun van het district). Afsluiten doe je samen met soep van het district.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober"
-  },
-  {
     "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
     "title": "Poëtische Rimpelingen",
     "theme": "Activiteit",
