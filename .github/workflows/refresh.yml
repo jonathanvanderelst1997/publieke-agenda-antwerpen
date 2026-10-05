@@ -473,3 +473,50 @@ jobs:
             echo "::error title=Live agenda ouder dan 48 uur::Live agenda ouder dan 48 uur: generatedAt ${generated} is $(( age / 3600 )) uur oud."
             exit 1
           fi
+
+  # Zichtbaar alarm: faalt de verversing, de datatak of de live versheid bij een
+  # geplande run, dan komt er één open issue bij (of een reactie op het bestaande).
+  # Zo valt een stille agenda op zonder dat iemand de Actions-pagina moet openen.
+  # Alleen publieke runinfo; geen data, geen geheimen. Sluiten doet de eigenaar.
+  alarm:
+    needs: [refresh, publish-branch, source-health, freshness]
+    if: >-
+      always() && github.event_name == 'schedule' &&
+      (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.freshness.result == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - name: Alarm-issue openen of aanvullen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          R_REFRESH: ${{ needs.refresh.result }}
+          R_PUBLISH: ${{ needs.publish-branch.result }}
+          R_HEALTH: ${{ needs.source-health.result }}
+          R_FRESH: ${{ needs.freshness.result }}
+        run: |
+          set -euo pipefail
+          title="Alarm: agendaverversing of live versheid faalt"
+          when=$(TZ=Europe/Brussels date '+%Y-%m-%d %H:%M')
+          body=$(printf '%s\n' \
+            "Geplande run van ${when} (Brussel) faalde: ${RUN_URL}" \
+            "" \
+            "- verversen: ${R_REFRESH}" \
+            "- datatak: ${R_PUBLISH}" \
+            "- bronstatus: ${R_HEALTH}" \
+            "- live niet ouder dan 48 uur: ${R_FRESH}" \
+            "" \
+            "De site blijft bruikbaar: bezoekers zien een vriendelijke melding en de laatst bevestigde items." \
+            "Sluit dit issue zodra een run weer groen is.")
+          num=$(gh issue list --state open --search "\"${title}\" in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "$body"
+            echo "::error title=Agenda-alarm::Verversing faalt; reactie op issue #${num}."
+          else
+            gh issue create --title "$title" --body "$body"
+            echo "::error title=Agenda-alarm::Verversing faalt; nieuw alarm-issue geopend."
+          fi

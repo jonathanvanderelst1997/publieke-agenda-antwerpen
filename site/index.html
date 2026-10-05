@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
       name="description"
-      content="Mijn publieke agenda voor District Antwerpen met activiteiten, sportmomenten en openbare werken."
+      content="Mijn publieke agenda voor District Antwerpen: feesten, cultuur, sport, buurtactiviteiten en rommelmarkten, met de officiële bron erbij."
     />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#f6f3ee" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#141821" media="(prefers-color-scheme: dark)" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="nl_BE" />
     <meta property="og:title" content="Mijn publieke agenda voor District Antwerpen" />
     <meta
       property="og:description"
-      content="Bekijk actuele activiteiten, sportmomenten en openbare werken in District Antwerpen."
+      content="Wat is er te doen in District Antwerpen? Vandaag, dit weekend en deze week: feesten, cultuur, sport en buurtactiviteiten."
     />
     <meta property="og:url" content="https://mijn-publieke-agenda-voor-district.onrender.com/" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="Mijn publieke agenda voor District Antwerpen" />
     <meta
       name="twitter:description"
-      content="Bekijk actuele activiteiten, sportmomenten en openbare werken in District Antwerpen."
+      content="Wat is er te doen in District Antwerpen? Vandaag, dit weekend en deze week: feesten, cultuur, sport en buurtactiviteiten."
     />
     <link rel="canonical" href="https://mijn-publieke-agenda-voor-district.onrender.com/" />
     <script>
@@ -45,6 +48,15 @@
         "description": "Actuele activiteiten, sportmomenten en openbare werken in District Antwerpen."
       }
     </script>
+    <script>
+      // Donker/licht: een eerder gekozen stand meteen toepassen, zonder flits. Zonder keuze volgt de site het toestel.
+      try {
+        const savedTheme = window.localStorage.getItem("agenda-thema");
+        if (savedTheme === "dark" || savedTheme === "light") document.documentElement.dataset.theme = savedTheme;
+      } catch {
+        /* Zonder opslag volgt de site gewoon het toestel. */
+      }
+    </script>
     <title>Mijn publieke agenda voor District Antwerpen</title>
     <link rel="stylesheet" href="/styles.css" />
     <link rel="stylesheet" href="/works-live.css" />
@@ -53,17 +65,25 @@
     <link rel="stylesheet" href="/terraces-live.css" />
     <link rel="stylesheet" href="/street-overview.css" />
     <link rel="stylesheet" href="/week-pulse.css" />
+    <link rel="stylesheet" href="/agenda-uitgaan.css" />
   </head>
   <body>
     <a class="skip-link" href="#main-content">Ga naar de agenda</a>
     <main id="main-content" class="agenda-page">
       <header class="agenda-header">
-        <div>
+        <div class="hero-text">
+          <p class="hero-kicker"><span aria-hidden="true">✨</span> Uitgaan &amp; evenementen</p>
           <h1>Mijn publieke agenda voor District Antwerpen</h1>
           <p>
-            Activiteiten, sportmomenten en werken overzichtelijk per datum en uur. Klik op een onderwerp voor details en
-            de publieke bron.
+            Feesten, cultuur, sport, buurtactiviteiten en rommelmarkten in jouw district. Klik op een activiteit voor
+            details en de officiële bron.
           </p>
+          <div class="hero-meta">
+            <p id="agenda-freshness" class="freshness-pill" aria-live="polite">Versheid controleren…</p>
+            <button type="button" id="theme-toggle" class="theme-toggle" aria-pressed="false">
+              <span aria-hidden="true" data-theme-icon>🌙</span> <span data-theme-label>Donker</span>
+            </button>
+          </div>
         </div>
         <aside class="agenda-count" aria-label="Aantal agenda-items">
           <span id="agenda-count-value">0</span>
@@ -72,6 +92,8 @@
         </aside>
       </header>
 
+      <div id="agenda-stale-banner" class="stale-banner" role="status" hidden></div>
+
       <section class="agenda-controls" aria-label="Agenda filteren">
         <div class="agenda-controls-group">
           <label class="agenda-controls-title" for="agenda-street-jump">Straat</label>
@@ -79,20 +101,17 @@
           <small>Kies eerst je straat om werken, hinder en activiteiten samen te zien.</small>
         </div>
         <div class="agenda-controls-group">
-          <div class="agenda-controls-title">Wat wil je zien?</div>
-          <div id="theme-controls" class="theme-controls"></div>
+          <div class="agenda-controls-title">District en stad</div>
+          <div id="scope-controls" class="theme-controls scope-controls" role="group" aria-label="District Antwerpen of Stad Antwerpen"></div>
         </div>
-        <details class="agenda-more-filters">
-          <summary>Meer filters</summary>
-          <div class="agenda-controls-group">
-            <div class="agenda-controls-title">Soort activiteit</div>
-            <div id="event-type-controls" class="theme-controls" role="group" aria-label="Filter op soort activiteit"></div>
-          </div>
-          <div class="agenda-controls-group">
-            <div class="agenda-controls-title">District en stad</div>
-            <div id="scope-controls" class="theme-controls scope-controls" role="group" aria-label="District Antwerpen of Stad Antwerpen"></div>
-          </div>
-        </details>
+      </section>
+
+      <section id="agenda-highlights" class="highlights" aria-labelledby="highlights-title">
+        <div class="highlights-head">
+          <h2 id="highlights-title">Uitgelicht</h2>
+          <div class="highlights-tabs" role="tablist" aria-label="Kies een periode"></div>
+        </div>
+        <div class="highlights-panel" role="tabpanel" aria-labelledby="highlights-title"></div>
       </section>
 
       <p id="agenda-refresh-note" class="agenda-refresh-note" aria-live="polite"></p>
@@ -153,6 +172,7 @@
     <script type="module" src="/permits-live.js"></script>
     <script type="module" src="/terraces-live.js"></script>
     <script src="/event-types.js"></script>
+    <script src="/agenda-uitgaan.js"></script>
     <script type="module" src="/street-overview.js"></script>
     <script type="module" src="/week-pulse.js"></script>
     <script src="/agenda-refresh.js"></script>

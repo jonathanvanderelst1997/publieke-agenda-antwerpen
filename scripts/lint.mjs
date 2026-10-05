@@ -10,6 +10,7 @@ const javascriptFiles = [
   "site/agenda-feed.js",
   "site/agenda-refresh.js",
   "site/agenda.js",
+  "site/agenda-uitgaan.js",
   "lib/data-lane.mjs",
   "lib/district-channels.mjs",
   "lib/district-news-parser.mjs",
