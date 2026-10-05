@@ -46,9 +46,9 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
 
 - Standaard aan: feest & festival, buurt & straat (met buurtfeesten en speelstraten), cultuur, familie & kinderen,
   stoet & processie, sport, rommelmarkt & braderie en koopzondag.
-- Standaard uit, met één klik aan: raad & commissies, info/vorming/inspraak, administratief & bevraging
-  (bevragingen, enquêtes, meldingen, inspraak zonder concreet moment), oproepen & deadlines, werken & hinder,
-  wekelijkse markten, overig, parkeren & verkeer en vergunningen & terrassen.
+- Standaard uit, met één klik aan: raad & commissies, infomomenten & vorming, inspraak & bevraging
+  (bevragingen, enquêtes, meldingen, inspraak zonder concreet moment, zoals de bevraging over een schoolstraat),
+  oproepen & deadlines, werken & hinder, wekelijkse markten, overig, parkeren & verkeer en vergunningen & terrassen.
 - De gewone weekmarkten staan als één gebundelde kaart (markt, dagen, uren), niet als losse marktdagen.
 - Bovenaan: de straatfilter, dan een bovenrij "Vandaag / Dit weekend / Deze week / Volgende week" met de mooiste
   items. Wie een straat kiest zonder zelf soorten te kiezen, ziet alles in die straat (ook werken en hinder).
@@ -57,6 +57,24 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
   "Laatst bevestigd …". Verlopen datums en bronconflicten blijven verborgen. Het manifest en de eventpagina's
   veranderen hierdoor niet.
 - Donker en licht volgen het toestel; de knop in de kop onthoudt een eigen keuze in deze browser.
+
+## Weergave: in jouw buurt (kaart en wijken)
+
+Onder de bovenrij staat "In jouw buurt" (`site/neighborhood-map.js`, `site/neighborhood-core.js`):
+
+- Een keuzelijst met de 24 officiële wijken van district Antwerpen (`site/geo/wijken.geo.json`, vereenvoudigde
+  kopie van de wijkindeling van stad Antwerpen, met bron en licentie in het bestand; opnieuw ophalen met
+  `npm run geo:wijken`). Een wijk kiezen of erop tikken filtert de hele pagina: agenda, werken en hinder,
+  parkeren en vergunningen. Zonder eigen soortkeuze staat dan alles van die buurt aan, net als bij een straat.
+- Met een gekozen straat verschijnt een straal: alleen deze straat, + 250 m, + 500 m of + 1 km.
+- De kaart (Leaflet via cdnjs, met SRI, en OpenStreetMap-tegels) laadt pas als ze in beeld komt. Markers hebben de
+  kleur en het emoji van hun soort; werken staan er als stippen bij als "Werken & hinder" aanstaat.
+- Coördinaten van agendapunten komen uit `site/geo/locaties.json`, bij het verversen gemaakt door
+  `npm run geo:refresh` (Geolocation-API van Digitaal Vlaanderen). Een punt telt alleen als de straatnaam
+  (en het huisnummer) letterlijk in de locatietekst staat. Plaatsen zonder straat ("Bib Permeke",
+  "Toeristisch centrum") krijgen geen gegokte marker: ze staan in de lijst "Zonder vaste plek" onder de kaart
+  en vallen bij een wijkfilter weg.
+- In de URL: `?wijk=ANT09` en `&straal=500` (samen met `straat=`), zodat een buurtlink te delen is.
 
 ## Latere uitbreiding: UiTdatabank
 

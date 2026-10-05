@@ -1,0 +1,299 @@
+{
+ "schemaVersion": 1,
+ "source": {
+  "text": "Coördinaten: Geolocation-API van Digitaal Vlaanderen (Basisregisters Vlaanderen, Modellicentie Gratis Hergebruik v1.0)",
+  "url": "https://geo.api.vlaanderen.be/geolocation/v4/Location"
+ },
+ "entries": {
+  "bist 2610 wilrijk": {
+   "point": [
+    4.395,
+    51.17049
+   ],
+   "precision": "straat",
+   "street": "Bist",
+   "postcode": "2610",
+   "checkedOn": "2026-10-05"
+  },
+  "co nova schijfstraat 105": {
+   "point": [
+    4.37308,
+    51.19068
+   ],
+   "precision": "adres",
+   "street": "Schijfstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-10-05"
+  },
+  "dageraadplaats 2018 antwerpen": {
+   "point": [
+    4.42971,
+    51.20709
+   ],
+   "precision": "straat",
+   "street": "Dageraadplaats",
+   "postcode": "2018",
+   "checkedOn": "2026-10-05"
+  },
+  "de villegasstraat 2600 berchem": {
+   "point": [
+    4.42369,
+    51.19625
+   ],
+   "precision": "straat",
+   "street": "De Villegasstraat",
+   "postcode": "2600",
+   "checkedOn": "2026-10-05"
+  },
+  "desguinlei 2020 antwerpen": {
+   "point": [
+    4.39973,
+    51.19506
+   ],
+   "precision": "straat",
+   "street": "Desguinlei",
+   "postcode": "2018",
+   "checkedOn": "2026-10-05"
+  },
+  "falconplein 2000 antwerpen": {
+   "point": [
+    4.40516,
+    51.22666
+   ],
+   "precision": "straat",
+   "street": "Falconplein",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "frederik van eedenplein 2050 antwerpen": {
+   "point": [
+    4.38631,
+    51.22317
+   ],
+   "precision": "straat",
+   "street": "Frederik van Eedenplein",
+   "postcode": "2050",
+   "checkedOn": "2026-10-05"
+  },
+  "gaston burssenslaan en hanegraefstraat 2050 antwerpen": {
+   "point": [
+    4.38227,
+    51.21863
+   ],
+   "precision": "straat",
+   "street": "Gaston Burssenslaan",
+   "postcode": "2050",
+   "checkedOn": "2026-10-05"
+  },
+  "grote markt": {
+   "point": [
+    4.39989,
+    51.22107
+   ],
+   "precision": "straat",
+   "street": "Grote Markt",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "het oude badhuis stuivenbergplein 38": {
+   "point": [
+    4.43234,
+    51.22708
+   ],
+   "precision": "adres",
+   "street": "Stuivenbergplein",
+   "postcode": "2060",
+   "checkedOn": "2026-10-05"
+  },
+  "het stadsmagazijn keistraat 5 7 2000 antwerpen": {
+   "point": [
+    4.40209,
+    51.22536
+   ],
+   "precision": "adres",
+   "street": "Keistraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "jan vanhoenackerstraat 2000 antwerpen": {
+   "point": [
+    4.38363,
+    51.20545
+   ],
+   "precision": "straat",
+   "street": "Jan Vanhoenackerstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "kioskplaats 2660 hoboken": {
+   "point": [
+    4.35035,
+    51.17555
+   ],
+   "precision": "straat",
+   "street": "Kioskplaats",
+   "postcode": "2660",
+   "checkedOn": "2026-10-05"
+  },
+  "kristus koningplein 2180 ekeren": {
+   "point": [
+    4.41954,
+    51.27835
+   ],
+   "precision": "straat",
+   "street": "Kristus-Koningplein",
+   "postcode": "2180",
+   "checkedOn": "2026-10-05"
+  },
+  "laar borgerhout 2140 borgerhout": {
+   "point": [
+    4.43434,
+    51.21683
+   ],
+   "precision": "straat",
+   "street": "Laar",
+   "postcode": "2140",
+   "checkedOn": "2026-10-05"
+  },
+  "letterenhuis minderbroedersstraat 22": {
+   "point": [
+    4.40476,
+    51.22279
+   ],
+   "precision": "adres",
+   "street": "Minderbroedersstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "michel willemsplein antwerpen": {
+   "point": [
+    4.37472,
+    51.18037
+   ],
+   "precision": "straat",
+   "street": "Michel Willemsplein",
+   "postcode": "2610",
+   "checkedOn": "2026-10-05"
+  },
+  "oudevaartplaats 2000 antwerpen": {
+   "point": [
+    4.40911,
+    51.21395
+   ],
+   "precision": "straat",
+   "street": "Oudevaartplaats",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "oudevaartplaats blauwtorenplein 2000 antwerpen": {
+   "point": [
+    4.40911,
+    51.21395
+   ],
+   "precision": "straat",
+   "street": "Oudevaartplaats",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "poisson pilote beatrijslaan 32": {
+   "point": [
+    4.38573,
+    51.21884
+   ],
+   "precision": "adres",
+   "street": "Beatrijslaan",
+   "postcode": "2050",
+   "checkedOn": "2026-10-05"
+  },
+  "rooiplein 2600 berchem": {
+   "point": [
+    4.43516,
+    51.18497
+   ],
+   "precision": "straat",
+   "street": "Rooiplein",
+   "postcode": "2600",
+   "checkedOn": "2026-10-05"
+  },
+  "sint franciscusplein 2170 merksem": {
+   "point": [
+    4.44666,
+    51.24641
+   ],
+   "precision": "straat",
+   "street": "Sint-Franciscusplein",
+   "postcode": "2170",
+   "checkedOn": "2026-10-05"
+  },
+  "sint jansplein 2060 antwerpen": {
+   "point": [
+    4.41789,
+    51.22622
+   ],
+   "precision": "straat",
+   "street": "Sint-Jansplein",
+   "postcode": "2060",
+   "checkedOn": "2026-10-05"
+  },
+  "sint jansvliet 2000 antwerpen": {
+   "point": [
+    4.39604,
+    51.21846
+   ],
+   "precision": "straat",
+   "street": "Sint-Jansvliet",
+   "postcode": "2000",
+   "checkedOn": "2026-10-05"
+  },
+  "vosstraat 2140 borgerhout": {
+   "point": [
+    4.45157,
+    51.19471
+   ],
+   "precision": "straat",
+   "street": "Vosstraat",
+   "postcode": "2140",
+   "checkedOn": "2026-10-05"
+  },
+  "wim saerensplein 2100 deurne": {
+   "point": [
+    4.47742,
+    51.22854
+   ],
+   "precision": "straat",
+   "street": "Wim Saerensplein",
+   "postcode": "2100",
+   "checkedOn": "2026-10-05"
+  },
+  "zillebekelaan 2600 berchem": {
+   "point": [
+    4.4434,
+    51.19465
+   ],
+   "precision": "straat",
+   "street": "Zillebekelaan",
+   "postcode": "2600",
+   "checkedOn": "2026-10-05"
+  }
+ },
+ "misses": {
+  "2000 2020 2050 antwerpen": "2026-10-05",
+  "2060 antwerpen": "2026-10-05",
+  "arenaplein 2100 deurne": "2026-10-05",
+  "bib permeke": "2026-10-05",
+  "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-05",
+  "co nova schrijfstraat 105": "2026-10-05",
+  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-05",
+  "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district ekeren locatie via de officiele bron": "2026-10-05",
+  "district hoboken locatie via de officiele bron": "2026-10-05",
+  "district merksem locatie via de officiele bron": "2026-10-05",
+  "district wilrijk locatie via de officiele bron": "2026-10-05",
+  "districtshuis antwerpen zaal benoit": "2026-10-05",
+  "harmoniepark 1": "2026-10-05",
+  "provinciehuis antwerpen": "2026-10-05",
+  "regatta": "2026-10-05",
+  "ten eeckhovelei 2100 deurne": "2026-10-05",
+  "toeristisch centrum antwerpen": "2026-10-05"
+ }
+}

@@ -203,6 +203,27 @@ De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit.
 
 Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
 
+## Buurtkaart: wijken en coördinaten (geen agendabron)
+
+- `site/geo/wijken.geo.json`: de 67 wijken van stad Antwerpen uit de laag `wijken_omgevingsinformatie`
+  (geodata.antwerpen.be, `P_Portal/portal_publiek2/MapServer/97`), door de server vereenvoudigd
+  (`maxAllowableOffset` 0,00005°) en afgerond op 5 decimalen (±88 KB). De site gebruikt de 24 wijken van
+  district Antwerpen (`ANT01`–`ANT25`). Open data van stad Antwerpen, gratis hergebruik met bronvermelding.
+  Handmatig te vernieuwen met `npm run geo:wijken`; niet in de dagelijkse ronde.
+- `site/geo/locaties.json`: punt per locatietekst van een komend agendapunt, gemaakt door
+  `npm run geo:refresh` (onderdeel van `npm run refresh`, na `build:sources`). Bron: Geolocation-API van
+  Digitaal Vlaanderen (Basisregisters Vlaanderen, Modellicentie Gratis Hergebruik v1.0).
+  - Alleen de publieke locatietekst gaat naar de API, hoogstens 150 verzoeken en 2 minuten per ronde.
+  - Aanvaard wordt alleen een adres of straat in een postcode van de stad, waarvan de straatnaam en het
+    huisnummer letterlijk in de locatietekst staan. Zonder postcodecontrole (straat over twee postcodes)
+    alleen als de straatnaam in het antwoord onder één postcode voorkomt.
+  - Niet gevonden: in `misses`, na 14 dagen opnieuw geprobeerd. Locaties van voorbije items vallen weg.
+  - Faalt de API, dan blijft het vorige bestand staan en faalt de ronde niet.
+  - `npm run validate:data` controleert vorm, punten binnen de stad en de privacyscan; het pad staat in
+    `lib/data-lane-paths.json`.
+- In de browser wordt nooit gegeocodeerd. Werken gebruiken hun eigen GIPOD-punt; items zonder punt maar met een
+  officiële straat (parkeren, vergunningen) vallen in een wijk via de straatas.
+
 ## Attributie
 
 - District: "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)".

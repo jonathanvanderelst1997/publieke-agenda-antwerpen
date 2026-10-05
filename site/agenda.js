@@ -1729,6 +1729,20 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan"
   },
   {
+    "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01",
+    "title": "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
+    "theme": "Oproep/deadline",
+    "className": "call",
+    "date": "2026-10-05",
+    "endDate": "2026-11-01",
+    "dateLabel": "5 oktober tot en met 1 november 2026",
+    "timeSlot": "Deadline",
+    "timeText": "enquête invullen tot en met 1 november 2026",
+    "location": "Jan Vanhoenackerstraat, 2000 Antwerpen",
+    "info": "De schoolstraat aan basisschool K'do in de Jan Vanhoenackerstraat loopt als proef. Team Publieke Ruimte van district Antwerpen vraagt buurtbewoners, ouders en school hoe ze de proefperiode ervaren. De enquête staat open tot en met 1 november 2026; meer info via www.antwerpen.be/publiekeruimte.",
+    "link": "https://www.antwerpen.be/publiekeruimte"
+  },
+  {
     "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
     "title": "Poëtische Rimpelingen",
     "theme": "Activiteit",

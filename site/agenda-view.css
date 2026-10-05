@@ -12,7 +12,8 @@ body.agenda-focused { background:#f5f7f8; color:#172e36; font-family:Inter,ui-sa
 .agenda-focused .agenda-count small { font-size:.78rem; max-width:170px; line-height:1.4; }
 .agenda-focused button, .agenda-focused input, .agenda-focused select, .agenda-focused summary { font-family:inherit; }
 .agenda-focused button, .agenda-focused summary, .agenda-focused input, .agenda-focused select { touch-action:manipulation; }
-.agenda-focused .agenda-controls { display:block; padding:24px; margin:20px 0 22px; background:#fff; border:1px solid #d8e1e5; border-radius:18px; box-shadow:0 8px 28px #19384308; }
+/* Niet kleverig: met alle soorten is het filterblok ±600 px hoog en bedekte het op desktop de kaart en de agenda. */
+.agenda-focused .agenda-controls { position:static; display:block; padding:24px; margin:20px 0 22px; background:#fff; border:1px solid #d8e1e5; border-radius:18px; box-shadow:0 8px 28px #19384308; }
 .view-search-row { display:flex; align-items:flex-end; gap:14px; }
 .view-search { flex:1; min-width:0; }
 .view-search label { display:block; font-size:1.03rem; line-height:1.5; font-weight:680; margin-bottom:8px; color:#153942; }

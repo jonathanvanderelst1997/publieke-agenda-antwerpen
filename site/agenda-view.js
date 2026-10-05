@@ -23,22 +23,37 @@ export function sameStreet(a, b) {
 export function agendaTheme(item) {
   return item?.category || UITGAAN.categoryOf(item || {});
 }
+export const RADII = Object.freeze([0, 250, 500, 1000]);
 export function createAgendaView({ resolveAddress = () => [], defaultThemes = VIEW_THEMES.map(([key]) => key) } = {}) {
   let query = "", selected = null;
+  // Buurt: een wijk (code uit site/geo/wijken.geojson) en/of een straal rond de gekozen straat.
+  // De kaart (neighborhood-map.js) levert de matcher; zolang die er niet is, filtert de wijk nog niet.
+  let area = { wijk: "", radius: 0 }, areaMatcher = null;
   const allowed = new Set(VIEW_THEMES.map(([key]) => key));
   let themes = new Set(defaultThemes.filter(key => allowed.has(key)));
+  const refsOf = item => Array.isArray(item?.streets) && item.streets.length ? item.streets : resolveAddress(item?.location || item?.address || "");
   return {
     get query() { return query; },
     get selected() { return selected; },
     get themes() { return new Set(themes); },
+    get area() { return { ...area }; },
+    get areaReady() { return Boolean(areaMatcher); },
+    get areaLabel() { return area.wijk ? (areaMatcher?.labelFor?.(area.wijk) || area.wijk) : ""; },
     setStreet(text, street = null) { query = String(text || "").trim(); selected = query && street?.name ? { ...street } : null; },
     setThemes(values) { themes = new Set((values || []).filter(key => allowed.has(key))); },
+    setArea({ wijk = area.wijk, radius = area.radius } = {}) {
+      area = { wijk: /^[A-Z]{3}\d{2}$/.test(String(wijk || "")) ? String(wijk) : "", radius: RADII.includes(Number(radius)) ? Number(radius) : 0 };
+    },
+    setAreaMatcher(matcher) { areaMatcher = matcher && typeof matcher.inWijk === "function" ? matcher : null; },
     enabled(key) { return themes.has(key === "terraces" ? "permits" : key); },
     matchesStreet(item) {
+      if (area.wijk && areaMatcher && !areaMatcher.inWijk(item, area.wijk, refsOf(item))) return false;
       if (!query) return true;
       if (!selected) return false; // Partial names and unknown locations never become guessed matches.
-      const refs = Array.isArray(item?.streets) && item.streets.length ? item.streets : resolveAddress(item?.location || item?.address || "");
-      return Array.isArray(refs) && refs.some(ref => sameStreet(ref, selected));
+      const refs = refsOf(item);
+      if (Array.isArray(refs) && refs.some(ref => sameStreet(ref, selected))) return true;
+      // Straat + straal: ook wat binnen de straal van die straat ligt (alleen items met een echt punt).
+      return Boolean(area.radius > 0 && areaMatcher?.nearStreet?.(item, selected, area.radius));
     },
     matches(item, theme) { return this.enabled(theme) && this.matchesStreet(item); },
     matchesAgenda(item) { return this.matches(item, agendaTheme(item)); }
@@ -70,6 +85,7 @@ export async function mountAgendaView() {
   pendingKey = url.searchParams.get("straat") || "";
   if (!pendingKey) pendingText = url.searchParams.get("straatzoek") || "";
   // customized: de bezoeker koos zelf soorten (of de link deed dat); dan raakt een straatkeuze ze niet aan.
+  view.setArea({ wijk: url.searchParams.get("wijk") || "", radius: Number(url.searchParams.get("straal")) || 0 });
   let customized = url.searchParams.has("themas");
   if (customized) view.setThemes(url.searchParams.get("themas").split(","));
   // An explicit event deep link wins over a carried-over filter.
@@ -175,7 +191,10 @@ export async function mountAgendaView() {
       button.classList.toggle("view-chip-empty", count === 0);
     }
     for (const { drawer, theme } of drawers) drawer.hidden = theme ? !view.enabled(theme) : view.themes.size === 0;
-    resultTitle.textContent = view.selected ? `Alles in ${view.selected.name}` : "Volledige agenda";
+    const radius = view.area.radius, radiusText = radius >= 1000 ? `${radius / 1000} km` : `${radius} m`;
+    resultTitle.textContent = view.selected
+      ? `Alles in ${view.selected.name}${radius ? ` en ${radiusText} rond` : ""}${view.area.wijk ? ` · wijk ${view.areaLabel}` : ""}`
+      : view.area.wijk ? `Alles in de wijk ${view.areaLabel}` : "Volledige agenda";
     hint.textContent = !view.query
       ? (sourceFailed ? "Straatbron tijdelijk niet beschikbaar. Je kunt wel op thema filteren; alleen reeds brongekoppelde straten zijn te kiezen." : "Kies een officiële straat of bekijk alle straten. De thema’s gelden ook voor de overzichten hieronder.")
       : view.selected ? `${labelOf(view.selected)} · alleen betrouwbaar gekoppelde locaties.${customized ? "" : " Werken, verkeer en vergunningen in deze straat staan nu ook aan."}`
@@ -186,7 +205,9 @@ export async function mountAgendaView() {
   function changed() {
     updateChrome();
     const next = new URL(window.location.href);
-    for (const key of ["straat", "straatzoek", "themas"]) next.searchParams.delete(key);
+    for (const key of ["straat", "straatzoek", "themas", "wijk", "straal"]) next.searchParams.delete(key);
+    if (view.area.wijk) next.searchParams.set("wijk", view.area.wijk);
+    if (view.area.radius && view.selected) next.searchParams.set("straal", String(view.area.radius));
     if (view.selected) next.searchParams.set("straat", streetId(view.selected));
     else if (view.query) next.searchParams.set("straatzoek", search.value || view.query);
     const defaults = new Set(DEFAULT_THEMES), current = view.themes;
@@ -197,18 +218,19 @@ export async function mountAgendaView() {
   search.addEventListener("input", () => { pendingKey = ""; resolveInput(); });
   search.addEventListener("change", () => { pendingKey = ""; resolveInput(); });
   panel.querySelector(".view-reset").addEventListener("click", () => {
-    pendingKey = ""; search.value = ""; view.setStreet(""); customized = false; view.setThemes(DEFAULT_THEMES);
+    pendingKey = ""; search.value = ""; view.setStreet(""); view.setArea({ wijk: "", radius: 0 }); customized = false; view.setThemes(DEFAULT_THEMES);
     for (const input of document.querySelectorAll("[data-street-search],[data-works-search],[data-works-owner],[data-works-status],[data-space-search],[data-space-kind],[data-permits-search],[data-terraces-search]")) { input.value = ""; input.dispatchEvent(new Event("input", { bubbles: true })); }
     window.dispatchEvent(new CustomEvent("public-agenda:reset-filters")); changed(); search.focus();
   });
-  panel.querySelector("[data-view-default]").addEventListener("click", () => { customized = false; view.setThemes(view.selected ? VIEW_THEMES.map(([key]) => key) : DEFAULT_THEMES); changed(); });
+  panel.querySelector("[data-view-default]").addEventListener("click", () => { customized = false; view.setThemes(view.selected || view.area.wijk ? VIEW_THEMES.map(([key]) => key) : DEFAULT_THEMES); changed(); });
   panel.querySelector("[data-view-all]").addEventListener("click", () => { customized = true; view.setThemes(VIEW_THEMES.map(([key]) => key)); changed(); });
   panel.querySelector("[data-view-none]").addEventListener("click", () => { customized = true; view.setThemes([]); changed(); });
   // Een straat kiezen zonder eigen soortkeuze toont alles in die straat (ook werken en hinder);
   // de straat wissen keert terug naar uitgaan & evenementen.
   let hadStreet = false;
   function followStreet() {
-    const hasStreet = Boolean(view.selected);
+    // Een straat of een wijk kiezen zonder eigen soortkeuze toont alles in die buurt.
+    const hasStreet = Boolean(view.selected || view.area.wijk);
     if (!customized && hasStreet !== hadStreet) view.setThemes(hasStreet ? VIEW_THEMES.map(([key]) => key) : DEFAULT_THEMES);
     hadStreet = hasStreet;
   }
@@ -217,14 +239,21 @@ export async function mountAgendaView() {
     if (event.detail?.categoryCounts) { counts = { ...event.detail.categoryCounts }; updateChrome(); }
     resultNote.textContent = `${count} agenda-items binnen je keuze, per dag gerangschikt.`;
   });
+  // De buurtkaart kiest een wijk of straal; de URL en alle lijsten volgen via changed().
+  window.addEventListener("public-agenda:area-change", event => {
+    view.setArea(event.detail || {}); followStreet(); changed();
+  });
+  window.addEventListener("public-agenda:area-ready", () => changed());
   window.addEventListener("public-agenda:street-layer", event => {
     addRefs((event.detail?.items || []).flatMap(item => item.streets || [])); changed();
   });
   search.value = pendingText; if (pendingKey) view.setStreet(pendingKey); else view.setStreet(pendingText);
-  updateChrome(); changed();
+  followStreet(); updateChrome(); changed();
+  // De buurtkaart (wijken, kaart, straal) komt na de soorten en de bovenrij; faalt ze, dan blijft de rest werken.
+  import("./neighborhood-map.js").then(({ mountNeighborhoodMap }) => mountNeighborhoodMap(view)).catch(() => {});
   try {
-    const [{ loadStreetIndex }, { resolveAddressStreet }] = await Promise.all([import("./street-source.js"), import("./street-core.js")]);
-    resolver = resolveAddressStreet; index = await loadStreetIndex();
+    const [{ loadStreetIndex }, { resolveAddressStreets }] = await Promise.all([import("./street-source.js"), import("./street-core.js")]);
+    resolver = resolveAddressStreets; index = await loadStreetIndex();
     addRefs([...index.byName.values()].flat()); changed();
   } catch {
     sourceFailed = true;

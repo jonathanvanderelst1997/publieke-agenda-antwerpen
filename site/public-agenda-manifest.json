@@ -3,17 +3,17 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-10-05T15:47:48.241Z",
   "classificationAsOf": "2026-10-05",
-  "sourceCount": 844,
-  "count": 665,
-  "eventPageCount": 665,
+  "sourceCount": 845,
+  "count": 666,
+  "eventPageCount": 666,
   "classifications": {
     "expired": 119,
-    "current": 2,
+    "current": 3,
     "future": 663,
     "review_required": 60
   },
   "scopeCounts": {
-    "district": 16,
+    "district": 17,
     "stad": 649
   },
   "feedGeneratedAt": "2026-10-05T15:47:48.241Z",
@@ -96,13 +96,14 @@
       "state": "inactive"
     }
   ],
-  "digest": "853129a27cd166d88ec73b767a6ec10661a7a81659fa5117eb42595f6025c2e0",
+  "digest": "26e06c5e399e7b07d42cff10b7665bf2c33f81ea35c2707878d8317b28429729",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
     "Humans of Antwerp",
     "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter",
     "Gemengde markt Sint-Franciscusplein",

@@ -89,6 +89,20 @@ if (fs.existsSync(historyFile)) {
   }
 }
 
+// Buurtkaart: punten van agendalocaties (scripts/geocode-locations.mjs).
+const geoFile = path.join(rootDir, "site", "geo", "locaties.json");
+if (fs.existsSync(geoFile)) {
+  // Pas laden als het bestand er is: lib/geocode.mjs gebruikt de gedeelde normalisatie uit site/.
+  const { validateGeoCache } = await import("../lib/geocode.mjs");
+  try {
+    const geo = JSON.parse(fs.readFileSync(geoFile, "utf8"));
+    for (const error of validateGeoCache(geo)) problems.push(`site/geo/locaties.json: ${error}`);
+    for (const finding of privacyFindings(geo)) problems.push(`site/geo/locaties.json: privacy ${finding.code} op ${finding.path}`);
+  } catch {
+    problems.push("site/geo/locaties.json: geen geldige JSON");
+  }
+}
+
 const archiveDir = path.join(rootDir, LIVE_HISTORY_ARCHIVE_DIR);
 if (fs.existsSync(archiveDir)) {
   const baselinePath = path.join(rootDir, LIVE_HISTORY_ARCHIVE_BASELINE_FILE);

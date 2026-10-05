@@ -20,7 +20,9 @@
     "check": "npm run build:sources && npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot && npm run lint && npm test && npm run audit:events && npm run test:deep-links && npm run test:individual-ics && npm run test:site-quality && npm run test:render-headers",
     "build:all": "npm run build:sources && npm run build && npm run build:provenance-sla && npm run build:provenance-snapshot",
     "refresh:fetch": "node scripts/refresh-fetch.mjs",
-    "refresh": "npm run refresh:fetch && npm run build:all",
+    "geo:refresh": "node scripts/geocode-locations.mjs",
+    "geo:wijken": "node scripts/build-wijken.mjs",
+    "refresh": "npm run refresh:fetch && npm run build:sources && npm run geo:refresh && npm run build:all",
     "validate:data": "node scripts/validate-data.mjs",
     "sources:health": "node scripts/sources-health.mjs",
     "check:data-lane": "node scripts/check-data-lane.mjs"
