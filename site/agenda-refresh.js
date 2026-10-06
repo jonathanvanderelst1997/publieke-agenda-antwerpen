@@ -126,7 +126,7 @@
     "city-gaston-buurtfeest": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
-      retrievedAt: "2026-10-01T21:00:00Z",
+      retrievedAt: "2026-10-06T07:00:00Z",
       state: "verified",
       note: "Officiële projectpagina: inhuldiging en gratis buurtfeest op 10 oktober 2026, 14 tot 17 uur.",
       officialPublic: true,
