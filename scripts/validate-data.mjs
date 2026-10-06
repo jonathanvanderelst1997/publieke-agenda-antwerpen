@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs";
+import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 import {
@@ -52,6 +53,10 @@ if (!fs.existsSync(sourcesDir)) {
     for (const finding of privacyFindings(json)) problems.push(`${name}: privacy ${finding.code} op ${finding.path}`);
     if (name === MANUAL_CHECK_FILE) {
       for (const error of validateManualCheck(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === KAART_UITLEG_FILE) {
+      for (const error of validateKaartUitleg(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === "refresh-status.json") {

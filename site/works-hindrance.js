@@ -18,7 +18,7 @@ export function collectHindrance(features=[]){
     if(!ids.length)continue;
     const consequences=String(p.Consequences||"").split(";").map(clean).filter(Boolean);
     for(const gipodId of ids){
-      const current=byWork.get(gipodId)||{gipodId,severe:false,consequences:new Set(),start:"",end:"",hindranceIds:new Set(),sourceUrls:new Set()};
+      const current=byWork.get(gipodId)||{gipodId,severe:false,consequences:new Set(),start:"",end:"",hindranceIds:new Set(),sourceUrls:new Set(),phases:new Map()};
       current.severe=current.severe||p.SevereHindrance===true;
       for(const consequence of consequences)current.consequences.add(consequence);
       current.start=earlier(current.start,p.HindranceStart||"");
@@ -26,10 +26,13 @@ export function collectHindrance(features=[]){
       const hindranceId=Number(p.HindranceGipodId);
       if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
       if(typeof p.HindranceURI==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.HindranceURI))current.sourceUrls.add(p.HindranceURI);
+      // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt.
+      const description=clean(p.HindranceDescription).slice(0,160);
+      if(description){const key=`${description}|${p.HindranceStart||""}|${p.HindranceEnd||""}`;const phase=current.phases.get(key)||{description,start:p.HindranceStart||"",end:p.HindranceEnd||"",consequences:new Set()};for(const consequence of consequences)phase.consequences.add(consequence);current.phases.set(key,phase)}
       byWork.set(gipodId,current);
     }
   }
-  return new Map([...byWork].map(([id,item])=>[id,{...item,consequences:[...item.consequences].sort((a,b)=>a.localeCompare(b,"nl")),hindranceIds:[...item.hindranceIds],sourceUrls:[...item.sourceUrls]}]));
+  return new Map([...byWork].map(([id,item])=>[id,{...item,consequences:[...item.consequences].sort((a,b)=>a.localeCompare(b,"nl")),hindranceIds:[...item.hindranceIds],sourceUrls:[...item.sourceUrls],phases:[...item.phases.values()].map(phase=>({...phase,consequences:[...phase.consequences].sort((a,b)=>a.localeCompare(b,"nl"))})).sort((a,b)=>String(a.start).localeCompare(String(b.start))||a.description.localeCompare(b.description,"nl"))}]));
 }
 export function attachHindrance(items=[],features=[],sourceLoaded=true){
   const byWork=collectHindrance(features);
