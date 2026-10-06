@@ -1,49 +1,49 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-05T15:47:48.241Z",
-  "classificationAsOf": "2026-10-05",
-  "sourceCount": 845,
-  "count": 667,
-  "eventPageCount": 667,
+  "candidateGeneratedAt": "2026-10-06T10:16:04.149Z",
+  "classificationAsOf": "2026-10-06",
+  "sourceCount": 847,
+  "count": 669,
+  "eventPageCount": 669,
   "classifications": {
     "expired": 119,
-    "current": 3,
-    "future": 664,
+    "current": 6,
+    "future": 663,
     "review_required": 59
   },
   "scopeCounts": {
     "district": 18,
-    "stad": 649
+    "stad": 651
   },
-  "feedGeneratedAt": "2026-10-05T15:47:48.241Z",
+  "feedGeneratedAt": "2026-10-06T10:16:04.149Z",
   "feedSources": [
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:46:16.554Z",
+      "retrievedAt": "2026-10-06T10:14:07.101Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:46:09.424Z",
+      "retrievedAt": "2026-10-06T10:13:59.245Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:46:01.743Z",
+      "retrievedAt": "2026-10-06T10:13:51.316Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:46:03.083Z",
+      "retrievedAt": "2026-10-06T10:13:52.301Z",
       "state": "fresh"
     },
     {
@@ -57,35 +57,35 @@
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:47:47.997Z",
+      "retrievedAt": "2026-10-06T10:16:03.930Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:47:47.997Z",
+      "retrievedAt": "2026-10-06T10:16:03.930Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:47:14.988Z",
+      "retrievedAt": "2026-10-06T10:15:30.737Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:47:47.449Z",
+      "retrievedAt": "2026-10-06T10:16:03.233Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-05T15:47:42.326Z",
+      "retrievedAt": "2026-10-06T10:15:58.092Z",
       "state": "fresh"
     },
     {
@@ -96,7 +96,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "fdf36caa32230a121b302d793f29c165bc7984076df416efac32563ddf15d3c7",
+  "digest": "887115f20240a6ea96d328ece2a19adcc608dad64bfc0165014edcf2cf3647ce",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -106,7 +106,6 @@
     "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
     "Humans of Antwerp",
-    "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
@@ -769,6 +768,9 @@
     "Gemengde markt Arenaplein",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
-    "Gemengde markt Bist"
+    "Gemengde markt Bist",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Kristus-Koningplein",
+    "Woensdagmarkt Vosstraat"
   ]
 }
