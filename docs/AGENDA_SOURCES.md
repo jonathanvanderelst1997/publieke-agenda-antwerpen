@@ -63,6 +63,24 @@ een leeg kanaal) dan leeg. Daarom:
 - `mail-district` en `mail-stad` hebben bewust geen krimpgrens: haalt de Gateway een item terug (bijvoorbeeld
   omdat het toch privé bleek), dan moet het meteen van de site verdwijnen.
 
+## Tijdelijk onbereikbaar: "stale", geen fout
+
+Antwoordt een bron tijdelijk niet, dan blijven haar vorige items en `retrievedAt` staan, net als bij
+elke fout (`fetchStatus: "error"` met de `errorCode`). Tijdelijk betekent: `http_5xx`, `http_429`,
+`timeout`, `network_error`, `source_timeout`, `refresh_budget_exhausted` of `body_read_failed`, ook
+als `channel_<code>`. Een voorbeeld is de 503 van de districtsraad (`district-vergaderingen`) vanaf
+de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noemt zo'n bron:
+
+- **`stale`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt. Dat is een waarschuwing:
+  `npm run sources:health` en de job `source-health` blijven groen, de andere bronnen worden gewoon
+  ververst, en de site toont "(bron tijdelijk onbereikbaar; vorige gegevens blijven staan)";
+- **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
+  blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
+
+De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
+de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
+en 5 seconden).
+
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
 De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.

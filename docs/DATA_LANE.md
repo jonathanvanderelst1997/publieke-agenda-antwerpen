@@ -11,7 +11,10 @@ merget, en welke stappen de eigenaar zet, in welke volgorde.
 ## De stroom
 
 ```
-refresh.yml (05:17 Brussel)
+Gateway-datalaan: workflow_dispatch om 05:17 en 13:17 (inhaal) Brussel
+  (de cron van GitHub blijft als terugval)
+refresh.yml
+  job al-vers          alleen bij de cron: live agenda < 20 uur oud -> refresh overslaan
   job refresh          leesrechten; draait de code van main:
                        npm run refresh, npm run check,
                        npm run validate:data -- --max-age-hours 26,
@@ -22,7 +25,9 @@ refresh.yml (05:17 Brussel)
                        één commit van github-actions[bot],
                        duwen naar data/refresh-<JJJJMMDD>-<run_id>
                        -> artefact data-lane-binding
-  job source-health    rood als een bron faalde; houdt publish-branch niet tegen
+  job source-health    rood als een bron blijvend faalde of te oud is; een tijdelijke
+                       fout (5xx, 429, time-out) met vorige data < maxAgeHours is
+                       "stale": een waarschuwing; houdt publish-branch niet tegen
   job freshness        rood als de LIVE agenda ouder is dan 48 uur
         |
         v
@@ -35,9 +40,13 @@ Gateway-databaan (komt in een latere Gateway-PR)
 Render rolt main uit
 ```
 
-1. **refresh.yml** (`Agenda Data Refresh`) draait om 05:17 Brusselse tijd
-   (verversen en versheid) en om 13:17 (alleen versheid). Met de hand kan het
-   ook, zie verder.
+1. **refresh.yml** (`Agenda Data Refresh`) wordt gestart door de Gateway-datalaan
+   via workflow_dispatch om 05:17 Brusselse tijd. Om 13:17 volgt een inhaalbeurt,
+   alleen als er sinds 05:17 nog geen verse data is. De cron van GitHub
+   (05:17 verversen en versheid, 13:17 alleen versheid) startte in oktober 2026
+   5 tot 8 uur te laat (#35). Hij blijft als terugval staan, maar de job
+   **al-vers** slaat de verversing over als de live agenda nog geen 20 uur oud
+   is. Het kan ook met de hand, zie verder.
 2. De job **refresh** haalt de bronnen op en bouwt alles opnieuw, met alleen
    leesrechten en zonder bewaarde inloggegevens. Hij schrijft niets naar de
    repo. Hij levert een patch af.

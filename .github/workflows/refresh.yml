@@ -45,8 +45,47 @@ concurrency:
 jobs:
   # Draait de code van main met alleen leesrechten en zonder bewaarde
   # inloggegevens. Levert een patch af, schrijft zelf niets naar de repo.
+  # De cron van GitHub startte 5 tot 8 uur te laat (#35). De Gateway start deze
+  # workflow daarom zelf om 05:17 en 13:17 (Brussel) via workflow_dispatch. De
+  # cron blijft als terugval, maar slaat de verversing over als de live agenda
+  # nog geen 20 uur oud is: dan was de Gateway (of een chat) al sneller. Faalt het
+  # lezen van de live agenda, dan ververst hij wel (liever een run te veel).
+  al-vers:
+    if: github.event_name == 'schedule' && github.event.schedule == '17 5 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    outputs:
+      fresh: ${{ steps.live.outputs.fresh }}
+    steps:
+      - name: Live agenda jonger dan 20 uur?
+        id: live
+        env:
+          STATUS_URL: https://mijn-publieke-agenda-voor-district.onrender.com/sources/refresh-status.json
+        run: |
+          set -uo pipefail
+          fresh=false
+          body="$RUNNER_TEMP/live.json"
+          if curl -fsS --max-time 30 -o "$body" "${STATUS_URL}?t=$(date +%s)" \
+             && generated=$(jq -er '.generatedAt | strings' "$body" 2>/dev/null) \
+             && [[ $generated =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] \
+             && t=$(date -u -d "$generated" +%s 2>/dev/null); then
+            age=$(( $(date -u +%s) - t ))
+            echo "Live generatedAt=${generated}, $(( age / 3600 )) uur oud."
+            if [ "$age" -ge 0 ] && [ "$age" -lt $((20 * 3600)) ]; then fresh=true; fi
+          else
+            echo "Live agenda niet te lezen; de geplande verversing gaat door."
+          fi
+          if [ "$fresh" = true ]; then
+            echo "::notice title=Al vers::De live agenda is nog geen 20 uur oud; de late cron slaat de verversing over."
+          fi
+          echo "fresh=${fresh}" >> "$GITHUB_OUTPUT"
+
   refresh:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 5 * * *'
+    needs: al-vers
+    if: >-
+      !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event.schedule == '17 5 * * *' && needs.al-vers.outputs.fresh != 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -418,7 +457,11 @@ jobs:
           now=$(date -u +%s)
           max=$((26 * 3600))
           bad=0
-          while IFS=$'\t' read -r id status retrieved; do
+          while IFS=$'\t' read -r id status retrieved code maxage; do
+            # Lege velden staan als "-" in de lijst: een tab telt als witruimte, en
+            # dan zou read twee lege velden samenvoegen.
+            [[ $maxage =~ ^[0-9]+$ ]] || maxage=48
+            [ "$code" = "-" ] && code=""
             case "$status" in
               ok)
                 if [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null); then
@@ -432,13 +475,25 @@ jobs:
                   echo "BRON ${id}: ok zonder leesbare retrievedAt"; bad=1
                 fi ;;
               error)
-                echo "BRON ${id}: fetchStatus error"; bad=1 ;;
+                # Tijdelijk (5xx, 429, time-out, netwerk) met vorige data binnen
+                # maxAgeHours: "stale", een waarschuwing. Zo maakt één bron met
+                # een 503 de verversing niet rood; zie sourceHealthOf in
+                # lib/fetch-util.mjs. Blijvend of te oud: een fout.
+                code=${code#channel_}
+                if [[ $code =~ ^http_(5[0-9][0-9]|429)$ || $code =~ ^(timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$ ]] \
+                   && [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null) \
+                   && [ $((now - t)) -le $((maxage * 3600)) ]; then
+                  echo "Bron ${id}: stale (${code}); vorige data van $(( (now - t) / 3600 )) uur geleden blijft staan"
+                  echo "::warning title=Bron stale::${id}: tijdelijk onbereikbaar (${code}); vorige data blijft staan tot ze ${maxage} uur oud is."
+                else
+                  echo "BRON ${id}: fetchStatus error (${code:-geen code})"; bad=1
+                fi ;;
               skipped_no_key|disabled|test_only)
                 echo "Bron ${id}: ${status} (geen fout)" ;;
               *)
                 echo "BRON ${id}: onbekende fetchStatus"; bad=1 ;;
             esac
-          done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "" | tostring)] | @tsv' "$f")
+          done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "-" | tostring), (.errorCode // "-" | tostring), (.maxAgeHours // 48 | tostring)] | @tsv' "$f")
           if [ "$bad" -ne 0 ]; then
             echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
           fi
