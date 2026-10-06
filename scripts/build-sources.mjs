@@ -10,7 +10,7 @@ import { dutchDateLabel } from "../lib/html-text.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../lib/manual-check.mjs";
 import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
-import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-refresh.mjs";
+import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 
 export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet met de hand wijzigen.";
