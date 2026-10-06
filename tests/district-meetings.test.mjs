@@ -50,3 +50,46 @@ test("tijdelijk of blijvend: alleen 5xx, 429, time-out en netwerk zijn tijdelijk
   assert.equal(sourceHealthOf({fetchStatus:"ok",retrievedAt:"2026-10-02T10:00:00Z",maxAgeHours:48},at),"expired");
   assert.equal(sourceHealthOf({fetchStatus:"skipped_no_key",retrievedAt:null,maxAgeHours:48},at),"inactive");
 });
+
+// 6-10-2026: "Raad & commissies" telde 0 items. De pagina op antwerpen.be gaf op de runners sinds
+// 2-10 een 503, en de fetcher hield dan meteen de vorige gegevens (van 1-10) zonder eBesluit te
+// proberen. Na 48 uur waren alle vergaderingen een verouderde bron en verdwenen ze van de site.
+await import("../site/event-types.js");
+await import("../site/agenda-uitgaan.js");
+const oktoberHtml=`<section><a href="/zittingen/26.0000.0000.0012">raadscommissie Antwerpen ma 12/10/2026 - 20:00 Testzaal</a><a href="/zittingen/26.0000.0000.0019">districtsraad Antwerpen ma 19/10/2026 - 20:00 Testzaal</a></section>`;
+const novemberHtml=`<section><a href="/zittingen/26.0000.0000.0109">raadscommissie Antwerpen ma 09/11/2026 - 20:00 Testzaal</a></section>`;
+const decemberHtml=`<section><a href="/zittingen/26.0000.0000.0214">districtsraad Antwerpen ma 14/12/2026 - 20:00 Testzaal</a></section>`;
+const maandHtml=url=>String(url).includes("month=10")?oktoberHtml:String(url).includes("month=11")?novemberHtml:String(url).includes("month=12")?decemberHtml:"<section></section>";
+const leesDocument=root=>JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-vergaderingen.json"),"utf8"));
+
+test("pagina van antwerpen.be geeft 503: de vergaderingen komen uit eBesluit en tellen als Raad & commissies",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-pagina-503-"));
+  const fetch=async url=>String(url).includes("page-content-by-uuid")?{ok:false,status:503,json:async()=>({}),text:async()=>""}:{ok:true,status:200,text:async()=>maandHtml(url)};
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch,log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",4]);
+  const doc=leesDocument(root);
+  assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-vergaderingen"}),[]);
+  assert.deepEqual(doc.items.slice(0,2).map(item=>[item.title,item.date,item.timeSlot]),[["Raadscommissie Antwerpen","2026-10-12","20:00"],["Districtsraad Antwerpen","2026-10-19","20:00"]]);
+  for(const item of doc.items)assert.equal(globalThis.PublicAgendaUitgaan.categoryOf({...item,sourceId:"district-vergaderingen"}),"meetings",item.title);
+});
+
+test("een latere maand blijft falen: die maand houdt haar vorige gegevens, de bron blijft ok",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-maand-"));
+  const geenPlanning=response(noScheduleEbesluit);
+  await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch:async url=>String(url).includes("page-content-by-uuid")?geenPlanning:{ok:true,status:200,text:async()=>maandHtml(url)},log:()=>{},sleep:async()=>{}});
+  const vorige=leesDocument(root).items.find(item=>item.date==="2026-12-14");
+  assert.ok(vorige,"december stond er de eerste keer");
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-07T08:00:00Z"),fetch:async url=>{if(String(url).includes("page-content-by-uuid"))return geenPlanning;if(String(url).includes("month=12"))return{ok:false,status:503,text:async()=>""};return{ok:true,status:200,text:async()=>maandHtml(url)}},log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",4]);
+  const doc=leesDocument(root);
+  const december=doc.items.find(item=>item.date==="2026-12-14");
+  assert.equal(december.retrievedAt,vorige.retrievedAt,"de oude maand claimt geen nieuwe versheid");
+  assert.equal(doc.items.find(item=>item.date==="2026-10-12").retrievedAt,"2026-10-07T08:00:00.000Z");
+  assert.match(doc.contentVersion,/vorige:2026-12/);
+});
+
+test("de eerste maand faalt: dan wel de vorige gegevens en een fout, zoals voordien",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-eerste-"));
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch:async url=>String(url).includes("page-content-by-uuid")?response(noScheduleEbesluit):String(url).includes("month=10")?{ok:false,status:503,text:async()=>""}:{ok:true,status:200,text:async()=>maandHtml(url)},log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].errorCode],["error","http_503"]);
+});
