@@ -2631,7 +2631,12 @@ function renderSourceStatus() {
         if (entry.state === "inactive") status = `<span class="source-inactive">nog niet actief</span>`;
         else if (entry.state === "stale") status = `<span class="source-stale">verouderd sinds ${esc(formatInstant(entry.staleSince))}</span>`;
         else status = `<span class="source-fresh">ververst op ${esc(formatInstant(entry.retrievedAt))}</span>`;
-        const failed = entry.fetchStatus === "error" && entry.state !== "inactive" ? ` <span class="source-stale">(laatste ophaalpoging mislukt)</span>` : "";
+        // Een tijdelijke fout (5xx, time-out) met vorige gegevens heet "stale": de bron is even
+        // onbereikbaar en haar vorige items blijven staan tot ze 48 uur oud zijn.
+        const transient = /^(?:channel_)?(?:http_(?:5\d\d|429)|timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$/.test(String(entry.errorCode ?? ""));
+        const failed = entry.fetchStatus === "error" && entry.state !== "inactive"
+          ? ` <span class="source-stale">(${transient && entry.state !== "stale" ? "bron tijdelijk onbereikbaar; vorige gegevens blijven staan" : "laatste ophaalpoging mislukt"})</span>`
+          : "";
         // Een bron die afkapt (UiT), zegt tot wanneer ze volledig is en hoeveel er in totaal was.
         const coverage = entry.coverage?.capped
           ? `<br><span class="source-capped">${
