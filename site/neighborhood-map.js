@@ -35,6 +35,12 @@ const MAX_WORK_MARKERS = 600;
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const radiusLabel = (r) => (r >= 1000 ? `${r / 1000} km` : `${r} m`);
 
+// Een agendapunt openen: in het plekoverzicht als dat er is, anders in de klassieke agendalijst.
+function openItem(id) {
+  if (typeof window.PUBLIC_AGENDA_OPEN === "function") window.PUBLIC_AGENDA_OPEN(id);
+  else if (typeof window.openAgendaItem === "function") window.openAgendaItem(id);
+}
+
 async function getJson(url) {
   const response = await fetch(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`HTTP ${response.status}`);
@@ -207,7 +213,7 @@ export async function mountNeighborhoodMap(view) {
       const button = event.target.closest?.("[data-open-id]");
       if (!button) return;
       event.preventDefault();
-      if (typeof window.openAgendaItem === "function") window.openAgendaItem(button.dataset.openId);
+      openItem(button.dataset.openId);
     });
     lastFocus = "";
     drawAll();
@@ -236,9 +242,11 @@ export async function mountNeighborhoodMap(view) {
       return;
     }
     const feature = wijken.find((f) => f.properties.code === view.area.wijk);
-    if (feature) {
-      const b = bboxOf(feature.geometry);
-      map.fitBounds([[b[1], b[0]], [b[3], b[2]]], options);
+    // De gekozen plek uit de zoekbalk (straat zonder live straatas, of een postcode) brengt haar eigen kader mee.
+    const box = feature ? bboxOf(feature.geometry) : view.place?.box;
+    if (Array.isArray(box) && box.length === 4 && box.every(Number.isFinite)) {
+      const pad = feature ? 0 : 0.0015;
+      map.fitBounds([[box[1] - pad, box[0] - pad * 1.6], [box[3] + pad, box[2] + pad * 1.6]], options);
     } else {
       // Hele district: inzoomen op wat er te zien is, anders het district zonder de haven.
       const markers = markerLayer ? markerLayer.getLayers() : [];
@@ -261,7 +269,7 @@ export async function mountNeighborhoodMap(view) {
     const unique = [...seen.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
     const rows = unique.slice(0, 6).map((item) => {
       const cat = categoryOf(item);
-      return `<li><span aria-hidden="true">${esc(cat.emoji)}</span> <strong>${esc(item.title)}</strong><br><small>${esc(item.dateLabel || item.date)}${item.timeText ? ` · ${esc(item.timeText)}` : ""}</small><br><button type="button" class="buurt-open" data-open-id="${esc(item.id)}">Bekijk in de agenda</button></li>`;
+      return `<li><span aria-hidden="true">${esc(cat.emoji)}</span> <strong>${esc(item.title)}</strong><br><small>${esc(item.dateLabel || item.date)}${item.timeText ? ` · ${esc(item.timeText)}` : ""}</small><br><button type="button" class="buurt-open" data-open-id="${esc(item.id)}">Toon in het overzicht</button></li>`;
     });
     const more = unique.length > 6 ? `<li><small>en nog ${unique.length - 6} …</small></li>` : "";
     const place = items[0]?.location ? `<p class="buurt-pop-place">📍 ${esc(items[0].location)}</p>` : "";
@@ -304,7 +312,7 @@ export async function mountNeighborhoodMap(view) {
   }
   noGeo.addEventListener("click", (event) => {
     const button = event.target.closest?.("[data-open-id]");
-    if (button && typeof window.openAgendaItem === "function") window.openAgendaItem(button.dataset.openId);
+    if (button) openItem(button.dataset.openId);
   });
   function drawWorks() {
     if (!workLayer) return 0;
@@ -334,9 +342,9 @@ export async function mountNeighborhoodMap(view) {
     const counts = drawAgenda();
     const works = drawWorks();
     drawStreet();
-    const focusKey = `${view.selected ? `${view.selected.id}|${view.selected.name}` : ""}|${view.area.wijk}|${view.area.radius}|${Boolean(matcher?.segmentsFor && view.selected && matcher.segmentsFor(view.selected).length)}`;
+    const focusKey = `${view.selected ? `${view.selected.id}|${view.selected.name}` : ""}|${view.area.wijk}|${view.area.postcode || ""}|${view.place?.key || ""}|${view.area.radius}|${Boolean(matcher?.segmentsFor && view.selected && matcher.segmentsFor(view.selected).length)}`;
     if (map && focusKey !== lastFocus) { focusArea(lastFocus !== ""); lastFocus = focusKey; }
-    const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : "district Antwerpen";
+    const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : view.area.postcode ? `postcode ${view.area.postcode}` : "district Antwerpen";
     const parts = [`${counts.mapped} agendapunt${counts.mapped === 1 ? "" : "en"} op de kaart in ${where}`];
     if (view.enabled("works")) parts.push(window.PUBLIC_AGENDA_LIVE_STREETS?.works ? `${works} werken en hinder` : "werken en hinder worden geladen…");
     if (counts.without) parts.push(`${counts.without} zonder vaste plek`);
