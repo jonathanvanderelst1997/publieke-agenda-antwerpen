@@ -4,16 +4,16 @@
   "candidateGeneratedAt": "2026-10-05T15:47:48.241Z",
   "classificationAsOf": "2026-10-05",
   "sourceCount": 845,
-  "count": 666,
-  "eventPageCount": 666,
+  "count": 667,
+  "eventPageCount": 667,
   "classifications": {
     "expired": 119,
     "current": 3,
-    "future": 663,
-    "review_required": 60
+    "future": 664,
+    "review_required": 59
   },
   "scopeCounts": {
-    "district": 17,
+    "district": 18,
     "stad": 649
   },
   "feedGeneratedAt": "2026-10-05T15:47:48.241Z",
@@ -96,13 +96,14 @@
       "state": "inactive"
     }
   ],
-  "digest": "26e06c5e399e7b07d42cff10b7665bf2c33f81ea35c2707878d8317b28429729",
+  "digest": "fdf36caa32230a121b302d793f29c165bc7984076df416efac32563ddf15d3c7",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
     "Humans of Antwerp",
     "VOLZET - Infosessie | Puberbabbel - begrijp je puber beter",

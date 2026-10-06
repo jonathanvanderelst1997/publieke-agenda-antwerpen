@@ -3,9 +3,9 @@
 Status: lokale audit, niet gepubliceerd. Classificatie op 2026-10-05; geverifieerde bronsnapshot 2026-10-05T15:47:48.241Z.
 
 - Bronitems: 845
-- Fail-closed lokale kandidaat: 666
-- Classificaties: current=3, expired=119, future=663, review_required=60
-- SLA-statussen: blocked_review_required=16, expired_not_public=119, fresh_verified=666, stale_blocked=44
+- Fail-closed lokale kandidaat: 667
+- Classificaties: current=3, expired=119, future=664, review_required=59
+- SLA-statussen: blocked_review_required=16, expired_not_public=119, fresh_verified=667, stale_blocked=43
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -143,7 +143,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 130 | beweegdag-55-2026-09-19 | 2026-09-19 | expired | city-beweegdag | verified | - | - | expired_not_public | nee |
 | 131 | gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387 | 2026-09-20 | review_required | archery-organizer-social | review_required | 0 | 2026-08-13 | blocked_review_required | nee |
 | 132 | lambermontmartre-2026-09-27 | 2026-09-27 | expired | city-district-calendar | verified | - | - | expired_not_public | nee |
-| 133 | buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10 | 2026-10-10 | review_required | city-gaston-buurtfeest | verified | 3 | 2026-10-04 | stale_blocked | nee |
+| 133 | buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10 | 2026-10-10 | future | city-gaston-buurtfeest | verified | 3 | 2026-10-09 | fresh_verified | ja |
 | 134 | bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01 | 2026-10-05 | current | publiekeruimte-schoolstraat-vanhoenacker | verified | 2 | 2026-10-07 | fresh_verified | ja |
 | 135 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 3 | 2026-09-19 | stale_blocked | nee |
 | 136 | ebesluit-2026-dcan-00002-2026-04-05-018b14f7 | 2026-04-05 | expired | district-ebesluit | verified | - | - | expired_not_public | nee |

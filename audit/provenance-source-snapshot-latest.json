@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-05",
   "sourceItemCount": 845,
-  "sourceDigest": "1c9fca29930300ddeb7c280916185c6f11804c580caa4c3f22c8e5dd4ab6e01f",
+  "sourceDigest": "efb9196299b22a168166470d2c47ebf8a1240e1fa0140364e74bfe7c1c2e25c6",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -451,13 +451,13 @@
       "id": "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10",
       "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-05",
       "sourceId": "city-gaston-buurtfeest",
       "sourcePublisher": "District Antwerpen",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-01T21:00:00Z",
+      "sourceRetrievedAt": "2026-10-06T07:00:00Z",
       "verificationState": "verified"
     },
     {
