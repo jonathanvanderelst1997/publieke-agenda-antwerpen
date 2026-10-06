@@ -46,7 +46,8 @@ jobs:
   # Draait de code van main met alleen leesrechten en zonder bewaarde
   # inloggegevens. Levert een patch af, schrijft zelf niets naar de repo.
   # De cron van GitHub startte 5 tot 8 uur te laat (#35). De Gateway start deze
-  # workflow daarom zelf om 05:17 en 13:17 (Brussel) via workflow_dispatch. De
+  # workflow daarom zelf elke ochtend vanaf 05:17 (Brussel) via workflow_dispatch
+  # (ochtendverversing in src/publieke-agenda/datalaan.ts van de Gateway). De
   # cron blijft als terugval, maar slaat de verversing over als de live agenda
   # nog geen 20 uur oud is: dan was de Gateway (of een chat) al sneller. Faalt het
   # lezen van de live agenda, dan ververst hij wel (liever een run te veel).
@@ -192,9 +193,16 @@ jobs:
   # Het enige deel met schrijfrechten. Voert geen repocode uit: geen npm,
   # geen node, geen scripts uit de repo. Het past de patch toe, toetst de
   # datalijst opnieuw in bash en duwt één commit naar een nieuwe tak.
+  #
+  # !cancelled() is nodig: zonder statusfunctie in de if slaat GitHub een job
+  # over zodra een job verderop in de keten (al-vers) overgeslagen is, ook als
+  # refresh zelf slaagde. Zo maakte elke workflow_dispatch van de Gateway na
+  # #113 geen datatak meer (run 37449498793: refresh groen, publish-branch skipped).
   publish-branch:
     needs: refresh
-    if: needs.refresh.outputs.changed == 'true'
+    if: >-
+      !cancelled() && needs.refresh.result == 'success' &&
+      needs.refresh.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -439,6 +447,8 @@ jobs:
   # publish-branch niet tegen: aparte job, en publish-branch wacht er niet op.
   source-health:
     needs: refresh
+    # Zelfde reden als bij publish-branch: al-vers is bij een dispatch overgeslagen.
+    if: "!cancelled() && needs.refresh.result == 'success'"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
