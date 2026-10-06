@@ -5,18 +5,18 @@
   "verifiedSourceSnapshotAt": "2026-10-05T15:47:48.241Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
   "sourceItemCount": 845,
-  "localCandidateCount": 666,
+  "localCandidateCount": 667,
   "classifications": {
     "current": 3,
     "expired": 119,
-    "future": 663,
-    "review_required": 60
+    "future": 664,
+    "review_required": 59
   },
   "slaStatuses": {
     "blocked_review_required": 16,
     "expired_not_public": 119,
-    "fresh_verified": 666,
-    "stale_blocked": 44
+    "fresh_verified": 667,
+    "stale_blocked": 43
   },
   "sourceKinds": {
     "historical_link_only": 81,
@@ -3066,7 +3066,7 @@
       "title": "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
       "theme": "Activiteit",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-05",
       "sourceId": "city-gaston-buurtfeest",
       "sourcePublisher": "District Antwerpen",
@@ -3074,15 +3074,15 @@
       "scope": "district",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-01T21:00:00Z",
+      "sourceRetrievedAt": "2026-10-06T07:00:00Z",
       "verificationState": "verified",
-      "reviewReason": "stale_source",
+      "reviewReason": null,
       "maxAgeDays": 3,
-      "recheckDueOn": "2026-10-04",
-      "slaStatus": "stale_blocked",
-      "publishEligible": false,
-      "includedInLocalCandidate": false,
-      "failClosed": true
+      "recheckDueOn": "2026-10-09",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
     },
     {
       "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01",
