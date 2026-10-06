@@ -21,6 +21,7 @@ import { applyPublicSpaceStreetResolution, applyWorkStreetResolution, buildStree
 import { fetchStreetFeatures } from "../site/street-source.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { worksExactSnapshot } from "../site/works-snapshot.js";
+import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 
@@ -95,6 +96,7 @@ async function gipodCollection(collection, params, fetchImpl) {
 async function streetIndex(fetchImpl) {
   const features = await fetchStreetFeatures({ fetchImpl });
   const index = buildStreetIndex(features);
+  index.features = features; // ook nodig voor de kaartjes (lib/kaart-uitleg-refresh.mjs)
   if (!index.segments.length) {
     const error = new Error("straatas leeg");
     error.code = "street_axis_empty";
@@ -208,13 +210,13 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       }, fetchImpl),
       asignLayer(22, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,faseStartDatum,faseEindDatum",
+        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
         geometry: true,
         spatial: true,
       }, fetchImpl),
       asignLayer(23, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,faseStartDatum,faseEindDatum",
+        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
         geometry: true,
         spatial: true,
       }, fetchImpl),
@@ -242,7 +244,7 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       sgwFeatures: sgw,
       districtGeometry: district,
     });
-    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets) };
+    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "public_space_fetch_failed") };
   }
@@ -298,6 +300,8 @@ export async function refreshLiveHistory({
   if (dayDocument.events.length > 0 || previousDay) {
     fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
   }
+
+  await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
 
   log(JSON.stringify({
     observedAt,

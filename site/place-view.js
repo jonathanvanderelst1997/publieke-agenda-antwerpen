@@ -6,8 +6,9 @@ import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntry, permitEntry, summarize,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
 } from "./place-core.js";
+import { kaartSvg } from "./kaart-uitleg.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 
@@ -40,6 +41,7 @@ async function getJson(url) {
 
 function kindInfo(entry) {
   if (entry.source === "works") return { label: "Werken", emoji: "🚧", cat: "works" };
+  if (entry.source === "publicSpace" && entry.item?.kind === "event") return { label: "Evenement op straat", emoji: "🚦", cat: "publicSpace" };
   if (entry.source === "publicSpace") return { label: entry.item?.kind === "parking" ? "Parkeerverbod" : "Verkeer & inname", emoji: entry.item?.kind === "parking" ? "🅿️" : "🚦", cat: "publicSpace" };
   if (entry.source === "permits" || entry.source === "terraces") return { label: entry.source === "terraces" ? "Terras" : "Vergunning", emoji: "📄", cat: "permits" };
   const cat = window.PublicAgendaUitgaan?.categoryFor?.(entry.theme) || { key: "other", label: "Agenda", emoji: "📌" };
@@ -214,6 +216,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     .then(({ loadStreetIndex }) => loadStreetIndex())
     .then((live) => { liveIndex = live; announce(); })
     .catch(() => { /* De statische straatlijst volstaat voor zoeken en koppelen. */ });
+  // Uitleg uit de dataverversing (huisnummers, gekoppeld evenement, parcourslijn). Zonder dit
+  // bestand maken de kaartjes hun uitleg uit de live lagen alleen.
+  // Pas laden zodra een live laag er is: zonder werken of innames is het niet nodig.
+  let kaartUitleg = null, kaartUitlegGevraagd = false;
+  const vraagKaartUitleg = () => {
+    if (kaartUitlegGevraagd) return;
+    kaartUitlegGevraagd = true;
+    getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; announce(); }).catch(() => {});
+  };
+  const wijkVan = (straat) => {
+    const place = index?.places.find((p) => p.type === "straat" && p.name === straat);
+    return (place?.wijken?.[0] && index.byKey.get(`wijk:${place.wijken[0]}`)?.label) || "";
+  };
 
   // ---- plek kiezen ----
   function streetRef(place) { return { id: place.id, name: place.name, postcode: place.postcode }; }
@@ -468,12 +483,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // ---- entries verzamelen ----
   function collect() {
     const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
+    if (Array.isArray(live.works) || Array.isArray(live.publicSpace)) vraagKaartUitleg();
     const agenda = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
     const pick = (rows, theme) => (view.enabled(theme) && Array.isArray(rows) ? rows.filter((row) => view.matches(row, theme)) : []);
     const entries = [
       ...agenda,
-      ...pick(live.works, "works").map(workEntry),
-      ...pick(live.publicSpace, "publicSpace").map(publicSpaceEntry),
+      ...pick(live.works, "works").map((work) => workEntry(work, { vandaag: brusselsToday(), uitleg: kaartUitleg })),
+      ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan }),
       ...pick(live.permits, "permits").map((row) => permitEntry(row)),
       ...pick(live.terraces, "terraces").map((row) => permitEntry(row, "terraces")),
     ];
@@ -546,7 +562,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           <span class="pv-row-main">
             <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}</span>
             <strong class="pv-row-title">${esc(entry.title)}</strong>
-            ${entry.location ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
+            ${entry.summary ? `<span class="pv-row-summary">${esc(entry.summary)}</span>` : ""}
+            ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
           </span>
@@ -554,17 +571,35 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </button>
         <div class="pv-detail" id="pv-d-${uid}" ${open ? "" : "hidden"}>
           ${progress}
-          ${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
+          ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
-          </dl>
+          </dl>`}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
+  }
+  // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
+  // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.
+  function uitlegTemplate(entry) {
+    const u = entry.uitleg;
+    const straten = entry.straten || [];
+    const lange = straten.length > 3;
+    const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b])) : "";
+    return `
+          <dl class="pv-uitleg">
+            ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
+            ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
+            ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
+          </dl>
+          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""}
+          ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
+          ${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}`;
   }
   function sectionTemplate(key, title, entries, options, note = "") {
     if (!entries.length) return "";

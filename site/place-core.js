@@ -4,6 +4,8 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
+import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
   2018: "Antwerpen (Zuid, Zurenborg, Brederode)",
@@ -354,7 +356,59 @@ export function agendaEntry(item, theme = item?.category || "other") {
     sourceUrl: safeUrl(item?.sourceUrl) || safeUrl(item?.link), status: "", item,
   };
 }
-export function workEntry(work) {
+// Feiten uit de verversing (site/sources/kaart-uitleg.json) aanvullen met de live laag: live is
+// verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
+function samenWerk(live, bewaard) {
+  if (!bewaard) return live;
+  return {
+    ...live,
+    soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "",
+    fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
+    huisnummers: live.huisnummers || bewaard.huisnummers || "", huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaard.huisnummerBron || "",
+  };
+}
+export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
+  ? `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items?f=html&filter-lang=cql2-text&filter=GipodId%3D${Number(gipodId)}` : "");
+export const iodBronUrl = (dossier) => (/^[A-Z0-9-]{4,40}$/.test(String(dossier || ""))
+  ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=dossierNummer,faseNaam,faseStartDatum,faseEindDatum,innameTypeNaam,innameBeschrijving,innameHinder,type_dossier&returnGeometry=false&f=html` : "");
+
+// Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js).
+export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
+  const base = workEntryBasis(work);
+  if (!vandaag) return base;
+  const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
+  return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
+}
+// Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen.
+// `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).
+export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan } = {}) {
+  const first = rows[0] || {};
+  const live = evenementFeiten(alle);
+  const bewaard = uitleg?.evenementen?.[live.dossier] || null;
+  const feiten = bewaard ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten } : live;
+  const k = evenementKaartje(feiten, { vandaag, gekoppeld: bewaard?.gekoppeld || null, wijkVan });
+  return {
+    uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "werken",
+    title: k.titel, summary: k.samenvatting, start: dayOf(live.start), end: live.eind && live.eind > live.start ? dayOf(live.eind) : "", openEnd: false, time: "", timeText: "",
+    location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: "",
+    sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
+    straten: feiten.straten, kaart: bewaard?.kaart || [],
+  };
+}
+const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).filter((s) => s?.name).map((s) => [`${s.id}|${s.name}|${s.postcode}`, s])).values()];
+// Live innames: evenementendossiers bundelen, de rest (parkeerverboden, werfzones) apart laten.
+export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan } = {}) {
+  if (!vandaag) return rows.map(publicSpaceEntry);
+  const perDossier = bundelInnames(alle);
+  const out = [];
+  for (const [dossier, groep] of bundelInnames(rows)) {
+    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan }));
+    else out.push(...groep.map(publicSpaceEntry));
+  }
+  out.push(...rows.filter((r) => r?.kind !== "iod").map(publicSpaceEntry));
+  return out;
+}
+function workEntryBasis(work) {
   const consequences = work?.hindrance?.consequences || [];
   return {
     uid: `works:${work?.gipodId}`, id: `gipod-${work?.gipodId}`, source: "works", theme: "works", group: "werken",

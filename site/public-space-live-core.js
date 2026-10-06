@@ -68,6 +68,7 @@ function iodItems(features,district,streetIndex){
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
+    phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,
     sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})()
   }));
 }
