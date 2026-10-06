@@ -42,7 +42,12 @@ test("elke bewezen bron heeft een geldige HTTPS-provenance en expliciete vervald
   for (const item of matrix.items.filter((candidate) => candidate.verificationState === "verified")) {
     assert.match(item.canonicalSourceUrl, /^https:\/\//);
     assert.ok(item.sourceRetrievedAt);
-    if (["current", "future"].includes(item.classification)) {
+    if (["current", "future"].includes(item.classification) && item.visibleThrough) {
+      // Handmatig item op datum: geen herbevestiging, zichtbaar tot en met de laatste dag.
+      assert.equal(item.maxAgeDays, null);
+      assert.equal(item.recheckDueOn, item.visibleThrough);
+      assert.ok(item.visibleThrough >= item.classificationAsOf, item.id);
+    } else if (["current", "future"].includes(item.classification)) {
       assert.ok(item.maxAgeDays > 0);
       assert.match(item.recheckDueOn, /^\d{4}-\d{2}-\d{2}$/);
       assert.equal(new Date(`${item.recheckDueOn}T00:00:00Z`).toISOString().slice(0, 10), item.recheckDueOn);

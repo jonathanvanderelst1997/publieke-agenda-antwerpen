@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-05",
-  "sourceDigest": "efb9196299b22a168166470d2c47ebf8a1240e1fa0140364e74bfe7c1c2e25c6",
-  "matrixDigest": "efb9196299b22a168166470d2c47ebf8a1240e1fa0140364e74bfe7c1c2e25c6",
+  "sourceDigest": "5ca4976186f1c6147c5b7d49b6073a72dd1082e598960950331cf957d7849708",
+  "matrixDigest": "5ca4976186f1c6147c5b7d49b6073a72dd1082e598960950331cf957d7849708",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 845
+    "unchanged": 846
   },
   "actions": [
     {
@@ -328,14 +328,20 @@
     {
       "id": "district-news-547d6be7cca8a798038b457f-2026-10-07",
       "action": "unchanged",
-      "sourceDigest": "c2432f345534e697aff7e9229557d3a8221d6e196d495d3f74c7c774e31aa786",
-      "matrixDigest": "c2432f345534e697aff7e9229557d3a8221d6e196d495d3f74c7c774e31aa786"
+      "sourceDigest": "47d8db7e929b3dd73ae1e507fde9fc5364c54812680b0fc71b5cb16165f1e5a6",
+      "matrixDigest": "47d8db7e929b3dd73ae1e507fde9fc5364c54812680b0fc71b5cb16165f1e5a6"
+    },
+    {
+      "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",
+      "action": "unchanged",
+      "sourceDigest": "27df3f1a8a727a326f1967f6d1909b0af684b7aeea169f7070f88e06512050f4",
+      "matrixDigest": "27df3f1a8a727a326f1967f6d1909b0af684b7aeea169f7070f88e06512050f4"
     },
     {
       "id": "district-news-6abb81ba449474ad1921c0a9-2026-10-27",
       "action": "unchanged",
-      "sourceDigest": "f82517219bb39bd659bb34a0136d1e805fd4623206fc01904398cdbcf5687d18",
-      "matrixDigest": "f82517219bb39bd659bb34a0136d1e805fd4623206fc01904398cdbcf5687d18"
+      "sourceDigest": "29b8e977083fb1284a73c1433c2a16bbebfd3dd351fec5748240c991e8d5e82b",
+      "matrixDigest": "29b8e977083fb1284a73c1433c2a16bbebfd3dd351fec5748240c991e8d5e82b"
     },
     {
       "id": "district-vergadering-ebesluit-25-0722-0530-1252",
@@ -4606,8 +4612,8 @@
     {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "action": "unchanged",
-      "sourceDigest": "0edbe739266df77af43ca41a5a9962f7599a19697507604ab7a6761ad209cc6f",
-      "matrixDigest": "0edbe739266df77af43ca41a5a9962f7599a19697507604ab7a6761ad209cc6f"
+      "sourceDigest": "be15ca0bc3ebf31245a2153e982299d3afacad3a7341511b0bc353f72c00d47e",
+      "matrixDigest": "be15ca0bc3ebf31245a2153e982299d3afacad3a7341511b0bc353f72c00d47e"
     },
     {
       "id": "reanimatielessen-2026-09-10",

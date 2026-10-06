@@ -135,18 +135,21 @@ test("een bron die langer dan 48 uur niet ververst is, wordt verborgen en als ve
   assert.equal(freshness.maxAgeHours, 48);
 });
 
-test("een handmatige bron volgt dezelfde SLA-vensters als de provenance-matrix", () => {
+test("een handmatig item op datum loopt tot en met zijn laatste dag, zonder herbevestigingsvenster", () => {
   const engine = engineWith(null);
   const hand = { id: "beweegdag-55-2026-09-19", title: "Beweegdag 55+", theme: "Sport", className: "sport", date: "2026-09-19", timeSlot: "09:00", timeText: "", location: "Zuidpark", info: "", link: "" };
-  // Bron opgehaald 2026-09-16; toekomstig binnen 14 dagen: 3 dagen geldig, tot en met 2026-09-19.
-  assert.equal(engine.classifyAgendaItem(hand, "2026-09-18").classification, "future");
-  assert.equal(engine.classifyAgendaItem(hand, "2026-09-18").recheckDueOn, "2026-09-19");
-  // Op de dag zelf is het item lopend: 2 dagen geldig vanaf 2026-09-16, dus verouderd.
+  // Bron opgehaald 2026-09-16. Vroeger: na 3 dagen (toekomstig) of 2 dagen (lopend) verouderd.
+  const before = engine.classifyAgendaItem(hand, "2026-09-18");
+  assert.equal(before.classification, "future");
+  assert.equal(before.visibleThrough, "2026-09-19");
+  assert.equal(before.recheckDueOn, "2026-09-19");
+  // Op de dag zelf: lopend en zichtbaar, ook al is de bron drie dagen oud.
   const sameDay = engine.classifyAgendaItem(hand, "2026-09-19");
-  assert.equal(sameDay.classification, "review_required");
-  assert.equal(sameDay.reviewReason, "stale_source");
-  assert.equal(sameDay.slaMaxAgeDays, 2);
-  assert.equal(sameDay.recheckDueOn, "2026-09-18");
+  assert.equal(sameDay.classification, "current");
+  assert.equal(sameDay.reviewReason, null);
+  assert.equal(sameDay.slaMaxAgeDays, null);
+  // De dag erna: weg.
+  assert.equal(engine.classifyAgendaItem(hand, "2026-09-20").classification, "expired");
 });
 
 test("classificatie met endDate: lopend tussen begin en einde, verlopen na het einde", () => {

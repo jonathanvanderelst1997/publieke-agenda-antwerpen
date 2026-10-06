@@ -29,7 +29,7 @@
     if(i.theme==="Sport"||has(v,/\b(sport|wedstrijd|criterium|stratenloop|loopwedstrijd|fietstocht|wieler|voetbal|basketbal|tennis|zwem)\b/))return"sport";
     if(has(v,/\b(workshop|vorming|cursus|infosessie|tabletcafe|tabletcafé)\b/))return"learning";
     if(has(v,/\b(praatcafe|praatcafé|seniorenklap|dementiecafe|dementiecafé|ontmoetingsmoment|koffieklets)\b/))return"social";
-    if(has(v,/\b(vergroen(?:ing)?|groeidag|plantactie|boomplant(?:actie)?|opruimactie|zwerfvuilactie|buurtgroen)\b/))return"green_action";
+    if(has(v,/\b(vergroen(?:ing)?|herfstklaar|lenteklaar|zomerklaar|winterklaar|groeidag|plantactie|boomplant(?:actie)?|opruimactie|zwerfvuilactie|buurtgroen)\b/))return"green_action";
     if(has(v,/\b(participatie|inspraak|infomoment|infoavond|wijkoverleg|bewonersvergadering|hoorzitting|burgerbegroting|buurtmoment|vliegend college)\b/))return"participation";
     if(has(v,/\b(herdenking|herdenkings|plechtigheid|viering)\b/))return"commemoration";
     if(has(v,/\b(sinterklaas|halloween|familiedag|familiefeest|kinderfeest|paasfeest|kerstfeest|winterfeest|bingo)\b/))return"family";

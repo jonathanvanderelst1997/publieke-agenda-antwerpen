@@ -121,3 +121,37 @@ test("manifest bewaart bronmoment, classificaties en rollbackbasis", () => {
   assert.deepEqual(manifest.classifications, JSON.parse(JSON.stringify(result.counts)));
   assert.equal(manifest.rollback.baseCommit, "36ea97332e1742d0ed1650a1226c2276733a34f3");
 });
+
+test("handmatig item: zichtbaar tot en met de einddatum, weg vanaf de dag erna, zonder herbevestiging", () => {
+  const item = items.find((candidate) => candidate.id === "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01");
+  assert.ok(item, "schoolstraatbevraging ontbreekt");
+  // Bron bevestigd op 5 oktober; vroeger na 2 dagen ("lopend") verouderd, nu tot en met 1 november.
+  for (const [asOf, expected] of [
+    ["2026-10-05", "current"],
+    ["2026-10-20", "current"],
+    ["2026-11-01", "current"],
+    ["2026-11-02", "expired"],
+  ]) {
+    const result = engine.reconcileAgendaItems([item], asOf, { now: `${asOf}T21:59:00Z` });
+    const [audit] = result.auditItems;
+    assert.equal(audit.classification, expected, asOf);
+    assert.equal(audit.reviewReason, null, asOf);
+    assert.equal(result.publicItems.length, expected === "expired" ? 0 : 1, asOf);
+    if (expected !== "expired") {
+      assert.equal(audit.visibleThrough, "2026-11-01");
+      assert.equal(audit.slaMaxAgeDays, null);
+    }
+  }
+});
+
+test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende werf uit een regel volgt nog de SLA", () => {
+  const single = items.find((candidate) => candidate.title === "Buurtfeest Gaston Burssenslaan en Hanegraefstraat");
+  assert.ok(single);
+  assert.equal(engine.reconcileAgendaItems([single], "2026-10-10").publicItems.length, 1);
+  assert.equal(engine.reconcileAgendaItems([single], "2026-10-11").auditItems[0].classification, "expired");
+
+  const works = find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29");
+  const due = addDays(engine.config.sources[works.sourceId].retrievedAt, 2);
+  const later = engine.reconcileAgendaItems([items.find((candidate) => candidate.id === works.id)], addDays(due, 1));
+  assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
+});

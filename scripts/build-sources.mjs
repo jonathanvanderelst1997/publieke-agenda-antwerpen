@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { normalized, parseEventTimes } from "../lib/event-contract.mjs";
 import { dutchDateLabel } from "../lib/html-text.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
+import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../lib/manual-check.mjs";
 import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 
@@ -15,9 +16,10 @@ export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet 
 
 export function readSources(rootDir) {
   const sourcesDir = path.join(rootDir, "site", "sources");
-  if (!fs.existsSync(sourcesDir)) return { status: null, documents: [] };
+  if (!fs.existsSync(sourcesDir)) return { status: null, documents: [], manualCheck: null };
   const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json")).sort();
   let status = null;
+  let manualCheck = null;
   const documents = [];
   const problems = [];
   for (const name of names) {
@@ -34,19 +36,24 @@ export function readSources(rootDir) {
       status = json;
       continue;
     }
+    if (name === MANUAL_CHECK_FILE) {
+      for (const error of validateManualCheck(json)) problems.push(`${name}: ${error}`);
+      manualCheck = json;
+      continue;
+    }
     const expectedSourceId = name.replace(/\.json$/, "");
     for (const error of validateSourceDocument(json, { expectedSourceId })) problems.push(`${name}: ${error}`);
     documents.push(json);
   }
   if (problems.length) throw new Error(`Ongeldige brondata:\n${problems.slice(0, 20).join("\n")}`);
-  return { status, documents };
+  return { status, documents, manualCheck };
 }
 
 function contractSignature(item) {
   return [normalized(item.title), item.date, parseEventTimes(item.timeSlot, item.timeText).startTime || "unknown", normalized(item.location)].join("|");
 }
 
-export function buildFeed({ status, documents }, handItems) {
+export function buildFeed({ status, documents, manualCheck = null }, handItems) {
   const itemsBySource = Object.fromEntries(documents.map((document) => [document.sourceId, { scope: document.scope, items: document.items }]));
   const suppressions = documents.flatMap((document) => Array.isArray(document.suppressions) ? document.suppressions : []);
   const merged = mergeEvents(itemsBySource, handItems, suppressions);
@@ -87,6 +94,7 @@ export function buildFeed({ status, documents }, handItems) {
       sources,
       items,
       supersedes: merged.supersedes,
+      ...(manualCheck ? { manualCheck: manualCheckForFeed(manualCheck) } : {}),
     },
     droppedDuplicates,
     suppressed: merged.suppressed,

@@ -96,8 +96,13 @@ test("versheid: ouder dan 48 uur is verouderd", () => {
 
 test("bij verouderde data blijven alleen bevestigde, niet-verlopen items zichtbaar binnen de marge", () => {
   const now = Date.parse("2026-10-05T10:00:00Z");
-  const base = { reviewReason: "stale_source", verificationState: "verified", sourceRetrievedAt: "2026-10-02T08:55:00Z" };
+  const base = { feed: true, reviewReason: "stale_source", verificationState: "verified", sourceRetrievedAt: "2026-10-02T08:55:00Z" };
   assert.equal(U.inStaleGrace(base, now), true);
+  assert.equal(U.inStaleGrace(base, now, 14, { backlog: true }), true);
+  // Geen achterstand: geen "Laatst bevestigd", ook niet voor een bronitem (zoals de README zegt).
+  assert.equal(U.inStaleGrace(base, now, 14, { backlog: false }), false);
+  // Handmatige items krijgen nooit de 14-dagengratie: ze lopen tot en met hun laatste dag.
+  assert.equal(U.inStaleGrace({ ...base, feed: undefined }, now), false);
   assert.equal(U.inStaleGrace({ ...base, reviewReason: "rule" }, now), false);
   assert.equal(U.inStaleGrace({ ...base, reviewReason: null }, now), false);
   assert.equal(U.inStaleGrace({ ...base, verificationState: "review_required" }, now), false);
@@ -113,6 +118,7 @@ test("de site laadt de module vóór agenda.js en houdt de straatfilter bovenaan
   assert.match(index, /name="color-scheme" content="light dark"/);
   const agenda = fs.readFileSync(new URL("../site/agenda.js", import.meta.url), "utf8");
   assert.match(agenda, /auditItems[\s\S]*inStaleGrace/);
+  assert.match(agenda, /inStaleGrace\(.*backlog: agendaFreshness\.stale/);
   assert.match(agenda, /FRESH_LIMIT_HOURS = 48/);
   const css = fs.readFileSync(new URL("../site/agenda-uitgaan.css", import.meta.url), "utf8");
   assert.match(css, /prefers-color-scheme: dark/);
@@ -131,4 +137,10 @@ test("bevraging schoolstraat staat onder de optie inspraak (standaard uit, één
   assert.equal(school.classification, "current");
   assert.equal(U.categoryOf(school), "admin");
   assert.doesNotMatch(JSON.stringify(school), /@/);
+});
+
+test("Herfstklaar en Lenteklaar vallen onder buurt & straat (standaard aan)", () => {
+  const herfst = item("Maak je straat Herfstklaar op 23, 24 of 25 oktober", { sourceId: "district-nieuws", timeSlot: "Info", location: "district Antwerpen, locatie via de officiële bron" });
+  assert.equal(U.categoryOf(herfst), "neighborhood");
+  assert.equal(U.categoryOf(item("Poetsbeurt tijdens Lenteklaar")), "neighborhood");
 });

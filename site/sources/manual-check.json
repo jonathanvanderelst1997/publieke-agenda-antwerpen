@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "2026-10-05T22:00:38.121Z",
+  "sources": [
+    {
+      "sourceId": "citaat-op-straat",
+      "url": "https://www.citaatopstraat.be/",
+      "status": "ok",
+      "httpStatus": 200,
+      "missing": [],
+      "items": [
+        "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
+      ],
+      "since": null
+    },
+    {
+      "sourceId": "city-gaston-buurtfeest",
+      "url": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      "status": "ok",
+      "httpStatus": 200,
+      "missing": [],
+      "items": [
+        "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10"
+      ],
+      "since": null
+    },
+    {
+      "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
+      "url": "https://www.antwerpen.be/publiekeruimte",
+      "status": "niet_controleerbaar",
+      "httpStatus": 200,
+      "missing": [],
+      "items": [
+        "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01"
+      ],
+      "since": "2026-10-05T22:00:38.121Z"
+    }
+  ]
+}

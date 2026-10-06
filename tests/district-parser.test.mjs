@@ -263,3 +263,39 @@ test("districtsnieuws: twee Praktisch-blokken op dezelfde dag met een ander uur 
   assert.equal(result.reason, "ambiguous");
   assert.equal(result.items.length, 0);
 });
+
+// ---------- datum in de titel: de structurele bron voor Herfstklaar en buurtfeesten ----------
+
+const herfstklaarArticle = {
+  id: "0123456789abcdef0123abcd",
+  slug: "maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+  title: "Maak je straat Herfstklaar op 23, 24 of 25 oktober",
+  publishedAt: "2026-08-25T12:00:00+00:00",
+  publishUntil: "2026-10-25T12:00:00+00:00",
+  snippets: [{ type: "wysiwyg", body: { text: "<p>Plantjes zetten, snoeien of een regenton in je straat? Afsluiten doe je samen met een heerlijke soep van het district.</p><p>Inschrijven kon tot 4 september.</p>" } }],
+};
+
+test("district-nieuws: een expliciete dag in de titel geeft een periode, alleen met titleDates", () => {
+  const without = parseDistrictNewsArticle(herfstklaarArticle, { today: "2026-10-05" });
+  assert.equal(without.items.length, 0, "zonder titleDates blijft het oude gedrag");
+  const result = parseDistrictNewsArticle(herfstklaarArticle, { today: "2026-10-05", titleDates: true });
+  assert.equal(result.items.length, 1, JSON.stringify(result));
+  const [item] = result.items;
+  assert.deepEqual([item.date, item.endDate, item.timeSlot], ["2026-10-23", "2026-10-25", "Info"]);
+  assert.equal(item.location, "district Antwerpen, locatie via de officiële bron");
+  assert.equal(item.title, "Maak je straat Herfstklaar op 23, 24 of 25 oktober");
+  assert.match(item.sourceUrl, /^https:\/\/www\.antwerpen\.be\//);
+});
+
+test("district-nieuws: geen titeldatum voor deadlines, werken of buiten het publicatievenster", () => {
+  const parse = (title, extra = {}) => parseDistrictNewsArticle({ ...herfstklaarArticle, title, snippets: [], ...extra }, { today: "2026-10-05", titleDates: true }).items.length;
+  assert.equal(parse("Buurtfeest en inhuldiging op 10 oktober"), 1);
+  assert.equal(parse("Inschrijven voor Herfstklaar kan tot op 25 september"), 0);
+  assert.equal(parse("Dien je aanvraag in voor 4 november"), 0);
+  assert.equal(parse("Heraanleg Fictiefstraat start op 12 oktober"), 0);
+  assert.equal(parse("Bevraging schoolstraat op 20 oktober"), 0);
+  assert.equal(parse("Kerstmarkt op 20 december"), 0, "na publishUntil (25 oktober)");
+  // Een gewone "Wanneer:"-regel gaat altijd voor op de titel.
+  const withLine = parseDistrictNewsArticle({ ...herfstklaarArticle, title: "Feest op 10 oktober", snippets: [{ type: "wysiwyg", body: { text: "<p>Wanneer: zondag 11 oktober 2026</p><p>Waar: Plein 1, 2000 Antwerpen</p>" } }] }, { today: "2026-10-05", titleDates: true });
+  assert.deepEqual(withLine.items.map((x) => x.date), ["2026-10-11"]);
+});

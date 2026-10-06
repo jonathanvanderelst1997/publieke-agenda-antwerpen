@@ -52,10 +52,34 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
 - De gewone weekmarkten staan als één gebundelde kaart (markt, dagen, uren), niet als losse marktdagen.
 - Bovenaan: de straatfilter, dan een bovenrij "Vandaag / Dit weekend / Deze week / Volgende week" met de mooiste
   items. Wie een straat kiest zonder zelf soorten te kiezen, ziet alles in die straat (ook werken en hinder).
-- Versheid: de kop toont "bijgewerkt op …". Is de laatste verversing ouder dan 48 uur, dan verschijnt een
-  vriendelijke banner en blijven items die alleen door de ouderdom van de bron vielen nog 14 dagen zichtbaar met
-  "Laatst bevestigd …". Verlopen datums en bronconflicten blijven verborgen. Het manifest en de eventpagina's
-  veranderen hierdoor niet.
+- Versheid: de kop toont "bijgewerkt op …". Is de laatste verversing ouder dan 48 uur (een achterstand), dan
+  verschijnt een vriendelijke banner en blijven **bronitems** (uit de automatische bronnen) die alleen door de
+  ouderdom van hun bron vielen nog 14 dagen zichtbaar met "Laatst bevestigd …". Zonder achterstand is er geen
+  "Laatst bevestigd", en handmatige items krijgen die gratie nooit (zie hieronder). Verlopen datums en
+  bronconflicten blijven verborgen. Het manifest en de eventpagina's veranderen hierdoor niet.
+
+## Handmatige items: zichtbaar tot en met de einddatum
+
+Een handmatig item (`site/agenda.js`, met een geverifieerde bron in `site/agenda-refresh.js`) blijft zichtbaar
+tot en met zijn laatste dag (`endDate`, anders `date`) en verdwijnt de dag erna. "Vandaag" is de kalenderdag in
+`Europe/Brussels`, ook in de browser. Er is geen herbevestiging om de paar dagen meer: als het evenement bezig is,
+staat het erop; de dag erna is het gedaan.
+
+- Een handmatig item heet in de audit `visibleThrough` (= `recheckDueOn`) met die laatste dag.
+- Uitzondering: een item waarvan een regel de classificatie vastzet (een lopende werf met fasen zonder harde
+  einddatum, `classification: "current"`) volgt nog de provenance-SLA van 2 dagen, omdat daar geen einddatum is
+  om op te vertrouwen.
+- Handmatige items zijn alleen een **overbrugging** tot een automatische bron het punt oppikt. Elk zichtbaar
+  handmatig item heeft een officiële bron-URL. Die wordt **bij elke verversing automatisch nagekeken**
+  (`npm run refresh:manual`, `scripts/check-manual-sources.mjs`, uitkomst in `site/sources/manual-check.json`):
+  - is de pagina nog bereikbaar, en staan de datum ("10 oktober") en de kernwoorden van de bron er nog op?
+  - `gewijzigd` of `weg` (404/410): het item gaat van de site en wordt gemeld, rood in de job `source-health`
+    en in `brain_status` van de Gateway;
+  - `onbereikbaar` (5xx, time-out): het item blijft en er komt een waarschuwing;
+  - `niet_controleerbaar`: de bron-URL noemt het item niet woordelijk; dat wordt gemeld tot er een betere
+    officiële pagina is.
+
+  Niemand hoeft een handmatig item met de hand te herbevestigen.
 - Donker en licht volgen het toestel; de knop in de kop onthoudt een eigen keuze in deze browser.
 
 ## Weergave: in jouw buurt (kaart en wijken)

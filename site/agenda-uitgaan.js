@@ -180,10 +180,14 @@
     return { known: true, stale: ageHours > limitHours, ageHours, ageDays: Math.floor(ageHours / 24), generatedAt: new Date(t).toISOString() };
   }
 
-  // Een item dat alleen verborgen werd omdat de bron niet tijdig opnieuw opgehaald werd, mag
-  // binnen graceDays na de laatste bevestiging zichtbaar blijven, duidelijk gemarkeerd. Een
-  // verlopen datum, bronconflict of onbevestigde bron blijft verborgen.
-  function inStaleGrace(item, nowMs, graceDays = 14) {
+  // Alleen bij een achterstand (de laatste verversing is ouder dan 48 uur, `backlog`): een
+  // BRONITEM (uit de automatische feed) dat alleen verborgen werd omdat zijn bron niet tijdig
+  // opnieuw opgehaald werd, mag binnen graceDays na de laatste bevestiging zichtbaar blijven,
+  // gemarkeerd met "Laatst bevestigd". Handmatige items vallen hier nooit onder: die blijven
+  // zichtbaar tot en met hun laatste dag. Een verlopen datum, bronconflict of onbevestigde bron
+  // blijft verborgen.
+  function inStaleGrace(item, nowMs, graceDays = 14, { backlog = true } = {}) {
+    if (!backlog || item?.feed !== true) return false;
     if (item?.reviewReason !== "stale_source" || item?.verificationState !== "verified") return false;
     const confirmed = Date.parse(String(item.sourceRetrievedAt || ""));
     return Number.isFinite(confirmed) && Number.isFinite(nowMs) && nowMs - confirmed <= graceDays * DAY_MS;

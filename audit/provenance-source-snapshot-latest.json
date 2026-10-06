@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-05",
-  "sourceItemCount": 845,
-  "sourceDigest": "efb9196299b22a168166470d2c47ebf8a1240e1fa0140364e74bfe7c1c2e25c6",
+  "sourceItemCount": 846,
+  "sourceDigest": "5ca4976186f1c6147c5b7d49b6073a72dd1082e598960950331cf957d7849708",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -691,7 +691,20 @@
       "sourcePublisher": "District Antwerpen",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/547d6be7cca8a798038b457f/vliegend-college-komt-naar-de-wijken",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-05T15:46:03.083Z",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",
+      "title": "Maak je straat Herfstklaar op 23, 24 of 25 oktober",
+      "eventDate": "2026-10-23",
+      "classification": "future",
+      "classificationAsOf": "2026-10-05",
+      "sourceId": "district-nieuws",
+      "sourcePublisher": "District Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/info/6304b9240106af48e55ac9eb/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
       "verificationState": "verified"
     },
     {
@@ -704,7 +717,7 @@
       "sourcePublisher": "District Antwerpen",
       "canonicalSourceUrl": "https://www.antwerpen.be/info/6abb81ba449474ad1921c0a9/infosessie-phishing",
       "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-10-05T15:46:03.083Z",
+      "sourceRetrievedAt": "2026-10-05T21:58:10.802Z",
       "verificationState": "verified"
     },
     {
@@ -9954,7 +9967,7 @@
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "title": "Poëtische Rimpelingen",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-05",
       "sourceId": "citaat-op-straat",
       "sourcePublisher": "Citaat op Straat",
