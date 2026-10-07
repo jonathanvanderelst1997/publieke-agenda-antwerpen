@@ -1,91 +1,91 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-06T12:13:40.668Z",
-  "classificationAsOf": "2026-10-06",
-  "sourceCount": 845,
-  "count": 707,
-  "eventPageCount": 707,
+  "candidateGeneratedAt": "2026-10-07T03:23:19.120Z",
+  "classificationAsOf": "2026-10-07",
+  "sourceCount": 848,
+  "count": 710,
+  "eventPageCount": 710,
   "classifications": {
     "expired": 119,
-    "current": 3,
-    "future": 704,
+    "current": 7,
+    "future": 703,
     "review_required": 19
   },
   "scopeCounts": {
     "district": 59,
-    "stad": 648
+    "stad": 651
   },
-  "feedGeneratedAt": "2026-10-06T12:13:40.668Z",
+  "feedGeneratedAt": "2026-10-07T03:23:19.120Z",
   "feedSources": [
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:11:38.703Z",
+      "retrievedAt": "2026-10-07T03:21:44.908Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:11:28.127Z",
+      "retrievedAt": "2026-10-07T03:21:37.388Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:11:15.209Z",
+      "retrievedAt": "2026-10-07T03:21:25.785Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:11:16.118Z",
+      "retrievedAt": "2026-10-07T03:21:26.449Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:11:17.188Z",
+      "retrievedAt": "2026-10-07T03:21:27.330Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:13:40.069Z",
+      "retrievedAt": "2026-10-07T03:23:18.787Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:13:40.069Z",
+      "retrievedAt": "2026-10-07T03:23:18.787Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:13:06.254Z",
+      "retrievedAt": "2026-10-07T03:22:46.699Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:13:38.538Z",
+      "retrievedAt": "2026-10-07T03:23:17.835Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-06T12:13:33.372Z",
+      "retrievedAt": "2026-10-07T03:23:13.089Z",
       "state": "fresh"
     },
     {
@@ -96,7 +96,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "ef28c9d95757f222581f4dbd4b87f41d4a8644bab569d8e2d1acbf5d570deb17",
+  "digest": "c64dda88bb7370b235053095f99b251561a7af966478e7fcdf95ea7b2dc9b9c6",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -107,7 +107,6 @@
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
     "Poëtische Rimpelingen",
     "Humans of Antwerp",
-    "VOLZET - Infosessie | Verbindende communicatie - mijn gezin in interactie",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
@@ -180,6 +179,7 @@
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
+    "Digitaal sterker met gratis infosessies",
     "Tabletcafé",
     "Gemengde markt Desguinlei",
     "Vrijdagen van de Poëzie",
@@ -267,6 +267,7 @@
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
+    "Digitaal sterker met gratis infosessies",
     "Gemengde markt Desguinlei",
     "Stanneke",
     "Gemengde markt Wim Saerensplein",
@@ -300,6 +301,7 @@
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
+    "Digitaal sterker met gratis infosessies",
     "Gemengde markt Desguinlei",
     "Vrijdagen van de Poëzie",
     "Gemengde markt Wim Saerensplein",
@@ -408,6 +410,7 @@
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
+    "Digitaal sterker met gratis infosessies",
     "Gemengde markt Desguinlei",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
