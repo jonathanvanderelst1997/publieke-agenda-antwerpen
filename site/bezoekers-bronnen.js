@@ -24,6 +24,7 @@ export function bezoekersLinks(e={}) {
   }else if(e.source==="publicSpace"&&item.gipodId){
     add(hinderkaart(item.gipodId),"Bekijk de hinder op de officiële kaart");
   }else if(e.source==="agenda"){
+    if(item.sourceId==="stad-markten")add("https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen","Marktdag, uren en locatie op Antwerpen.be");
     if(item.registrationVerified===true&&distinctPage(item.registrationUrl))
       add(item.registrationUrl,"Inschrijven via bevestigde aanmeldpagina");
     if(e.url&&!rawData(e.url))add(e.url,distinctPage(e.url)?
