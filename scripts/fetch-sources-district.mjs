@@ -11,6 +11,7 @@ import { DISTRICT_PAGE_UUID, parseDistrictPage } from "../lib/district-parser.mj
 import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
+import {enrichActions} from "../lib/automatic-event-action.mjs";
 
 export const SOURCE_ID = "district-kalender";
 export const DISTRICT_API_URL = `https://www.antwerpen.be/api/portaal/content/page-content-by-uuid/${DISTRICT_PAGE_UUID}`;
@@ -89,6 +90,8 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     items = previous.items.map((item) => ({ ...item, retrievedAt }));
     counts.restamped = true;
   }
+  // Iedere dagelijkse bronronde herverifieert officiële eventdetails, zonder extra persoonsgegevens.
+  if (!dryRun) items = screenItems(await enrichActions(items,{fetchImpl,log})).items;
   // Blokken maar (bijna) geen items meer, bijvoorbeeld na een andere datumopmaak: nooit wegschrijven.
   const shrink = guardShrink({ rootDir, sourceId: SOURCE_ID, previous, items, today, env, log, counts });
   if (shrink) return [shrink];

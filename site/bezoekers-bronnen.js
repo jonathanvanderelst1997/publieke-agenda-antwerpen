@@ -59,7 +59,12 @@ export function bezoekersLinks(e={}) {
     add(hinderkaart(item.gipodId),"Bekijk de hinder op de officiële kaart");
   }else if(e.source==="agenda"){
     if(item.sourceId==="stad-markten")add("https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen","Marktdag, uren en locatie op Antwerpen.be");
-    const speciaal = specialeActie(item);
+    const autoChecked=item.actionChecked===true;
+    if(autoChecked&&item.actionKind==="ticket"&&item.actionCode==="CID-STA-"+String(item.date||"").replaceAll("-",""))
+      add("https://cid.recreatex.be/Tickets/Detail.aspx?code="+item.actionCode+"&language=NL&smallmenu=1","Tickets bestellen op officieel bevestigde pagina");
+    if(autoChecked&&item.actionKind==="email_district")
+      out.push({url:"mailto:district.antwerpen@antwerpen.be?subject="+encodeURIComponent("Inschrijving "+String(item.title||"evenement")+" "+String(item.date||"")),label:"Inschrijven per e-mail bij district Antwerpen",type:"main"});
+    const speciaal=autoChecked?null:specialeActie(item);
     if(speciaal?.actie?.startsWith("mailto:district.antwerpen@antwerpen.be?subject="))
       out.push({url:speciaal.actie,label:speciaal.actieLabel,type:"main"});
     else if(speciaal?.actie)add(speciaal.actie,speciaal.actieLabel);
@@ -92,7 +97,16 @@ export function bezoekersHint(e={}) {
   if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
     "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
   if(e.source==="publicSpace"&&!item.gipodId)return "A-Sign publiceert hier een stedelijk dossier. Een afzonderlijke publieke evenementenpagina is niet bevestigd.";
-  if(e.source==="agenda")return specialeActie(item)?.hint||"";
+  if(e.source==="agenda"){
+    if(item.actionChecked===true){
+      if(item.actionKind==="ticket")return "Tickets voor deze datum officieel bevestigd.";
+      if(item.actionKind==="email_district")return "Inschrijving via het district officieel bevestigd.";
+      if(item.actionKind==="onsite")return "Tickets ter plaatse aan de infostand. Geen online inschrijving bevestigd.";
+      if(item.actionKind==="no_ticket")return "Geen ticket nodig volgens de organisator.";
+      return "Officiële evenementpagina nagekeken; geen specifieke online inschrijving bevestigd.";
+    }
+    return specialeActie(item)?.hint||"";
+  }
   return "";
 }
 export function leesbaarUur(entry={}, {multi=false,running=false}={}) {
