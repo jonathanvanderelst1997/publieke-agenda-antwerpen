@@ -136,3 +136,34 @@ test("25 straten: verslag van publieke evenementendata, domeinen en ontbrekende 
     totalEventsInFeed:feed.items.length, streets:audit }));
   assert.equal(audit.length, 25);
 });
+
+
+test("alle feeditems: rapporteer echte bestemmingen, homepagefouten en datumzekerheid", () => {
+  const txt=readFileSync(new URL("../site/agenda-feed.js",import.meta.url),"utf8");
+  const box={window:{}}; vm.runInNewContext(txt,box,{timeout:4000});
+  const items=box.window.PUBLIC_AGENDA_FEED?.items||[];
+  const stat={total:items.length,withHttps:0,noLink:0,technicalLinks:0,homepageLinks:0,verifiedRegistrationUrls:0,unverifiedRegistrationUrls:0,unknownHours:0,byCategory:{},topDomains:{}};
+  for(const item of items){
+    const theme=item.category||globalThis.PublicAgendaUitgaan.categoryOf(item);
+    stat.byCategory[theme]=(stat.byCategory[theme]||0)+1;
+    const target=String(item.link||item.sourceUrl||"").trim();
+    let u;try{u=new URL(target)}catch{}
+    if(!u||u.protocol!=="https:")stat.noLink++;
+    else{
+      stat.withHttps++;
+      stat.topDomains[u.hostname]=(stat.topDomains[u.hostname]||0)+1;
+      if(u.pathname==="/"&&!u.search)stat.homepageLinks++;
+      if(/^(?:geo\.api\.vlaanderen\.be|geodata\.antwerpen\.be|gipod\.api\.vlaanderen\.be)$/.test(u.hostname))stat.technicalLinks++;
+    }
+    if(item.registrationUrl) {
+      if(item.registrationVerified===true)stat.verifiedRegistrationUrls++;
+      else stat.unverifiedRegistrationUrls++;
+    }
+    if(!/^\d{2}:\d{2}$/.test(String(item.timeSlot||""))
+       && !/^(hele dag|all day)$/i.test(String(item.timeSlot||"")))stat.unknownHours++;
+  }
+  stat.topDomains=Object.fromEntries(Object.entries(stat.topDomains).sort((a,b)=>b[1]-a[1]).slice(0,15));
+  console.log("QA_717_LINKS="+JSON.stringify(stat));
+  assert.equal(stat.total,items.length);
+  assert.equal(stat.total,stat.withHttps+stat.noLink);
+});
