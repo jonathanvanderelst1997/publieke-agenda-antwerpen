@@ -40,7 +40,11 @@ test("classificeert verlopen, lopende en toekomstige punten deterministisch", ()
     const last = item.endDate && item.endDate > item.date ? item.endDate : item.date;
     const byDate = last < asOf ? "expired" : item.date <= asOf ? "current" : "future";
     if (item.classification === "review_required") {
-      assert.ok(["stale_source", "unverified_source", "unverified_feed_item", "works_without_rule"].includes(item.reviewReason), item.id);
+      assert.ok(["stale_source", "unverified_source", "unverified_feed_item", "works_without_rule",
+        "manual_source_changed", "manual_source_gone"].includes(item.reviewReason), item.id);
+      if (item.reviewReason === "manual_source_changed" || item.reviewReason === "manual_source_gone") {
+        assert.ok(!result.publicItems.some((candidate) => candidate.id === item.id), item.id);
+      }
       if (item.reviewReason !== "works_without_rule") {
         assert.notEqual(byDate, "expired", `${item.id}: een verlopen item hoort expired te zijn, niet review_required`);
       }
