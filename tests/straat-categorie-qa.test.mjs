@@ -3,6 +3,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import vm from "node:vm";
 import { buildPlaceIndex, searchPlaces, otherDistrictFor } from "../site/place-core.js";
 import { createAgendaView, DEFAULT_THEMES, VIEW_THEMES } from "../site/agenda-view.js";
 import { wijkFeatures, bboxOf } from "../site/neighborhood-core.js";
@@ -79,4 +80,59 @@ test("categorieën worden begrijpelijk onderscheiden, ook de beleidsmatige verbo
     const category = categoriseer({ title, location: "Antwerpen", timeSlot: "14:00" });
     assert.equal(category, expected, title);
   }
+});
+
+
+const EXTRA_25 = Object.freeze([
+  ["Falconplein","2000"],["Cadixstraat","2000"],["Frankrijklei","2000"],
+  ["Amsterdamstraat","2000"],["Ernest Van Dijckkaai","2000"],
+  ["Belgiëlei","2018"],["Anselmostraat","2018"],["Draakstraat","2018"],["Desguinlei","2018"],
+  ["Abdijstraat","2020"],["Jan De Voslei","2020"],["Camille Huysmanslaan","2020"],["Beukenlaan","2020"],
+  ["Groenendaallaan","2030"],["Havanastraat","2030"],["Bostonstraat","2030"],["Ekersesteenweg","2030"],
+  ["Blancefloerlaan","2050"],["Gloriantlaan","2050"],["Halewijnlaan","2050"],["Hanegraefstraat","2050"],
+  ["De Coninckplein","2060"],["Carnotstraat","2060"],["Dambruggestraat","2060"],["Handelstraat","2060"],
+]);
+
+test("25 NIEUWE straten: officiële naam, postcode, zoekresultaat en strikt straatfilter", () => {
+  assert.equal(EXTRA_25.length, 25);
+  assert.equal(new Set(EXTRA_25.map(([naam]) => naam)).size, 25);
+  const postcodeCount = {};
+  for (const [name, postcode] of EXTRA_25) {
+    postcodeCount[postcode] = (postcodeCount[postcode] || 0) + 1;
+    const direct = streets.filter(s => s[1] === name && s[2] === postcode);
+    assert.equal(direct.length, 1, name + " " + postcode + " officiële registratie");
+    const matches = searchPlaces(index, name + " " + postcode, { limit: 20 });
+    const found = matches.find(r => r.place.name === name && String(r.place.postcode) === postcode);
+    assert.ok(found, name + " " + postcode + " niet vindbaar in suggesties");
+    const view = createAgendaView();
+    view.setStreet(name, { id: String(direct[0][0]), name, postcode });
+    assert.ok(view.matchesStreet({ streets: [{ id: String(direct[0][0]), name, postcode }] }),
+      name + " geselecteerde straat sluit zichzelf uit");
+    assert.equal(view.matchesStreet({ streets: [{ id: "niet-dezelfde", name: "Andere straat", postcode }] }), false);
+  }
+  assert.deepEqual(Object.keys(postcodeCount).sort(), ["2000","2018","2020","2030","2050","2060"]);
+  console.log("QA25_VERIFIED=" + JSON.stringify({ total:25, postcodes:postcodeCount }));
+});
+
+test("25 straten: verslag van publieke evenementendata, domeinen en ontbrekende publiekslinks", () => {
+  const text = readFileSync(new URL("../site/agenda-feed.js", import.meta.url), "utf8");
+  const ctx = { window: {} };
+  // De publieke feed bevat geen code van externe websites; vm draait uitsluitend het gegenereerde projectbestand.
+  vm.runInNewContext(text, ctx, { timeout: 4000 });
+  const feed = ctx.window.PUBLIC_AGENDA_FEED;
+  assert.ok(feed && Array.isArray(feed.items), "gebouwde agenda-feed bestaat");
+  const audit = [];
+  for (const [name, postcode] of EXTRA_25) {
+    const matched = feed.items.filter(item => String(item.location || "").toLocaleLowerCase("nl-BE")
+      .includes(name.toLocaleLowerCase("nl-BE")));
+    const categories = [...new Set(matched.map(item => item.category || globalThis.PublicAgendaUitgaan.categoryOf(item)))].sort();
+    const links = matched.map(item => String(item.link || item.sourceUrl || "").trim());
+    const withHttps = links.filter(link => /^https:\/\/[^/ ]+/.test(link)).length;
+    const generic = links.filter(link => /^https:\/\/[^/ ]+\/?(?:\?.*)?$/.test(link)).length;
+    audit.push({ name, postcode, events:matched.length, categories, httpsLinks:withHttps,
+      withoutDirectPage:links.length - withHttps, genericHomepages:generic });
+  }
+  console.log("QA25_AGENDA_LINK_AUDIT=" + JSON.stringify({ generatedAt:feed.generatedAt,
+    totalEventsInFeed:feed.items.length, streets:audit }));
+  assert.equal(audit.length, 25);
 });
