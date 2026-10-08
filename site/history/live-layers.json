@@ -1,13 +1,13 @@
 {
   "schemaVersion": 1,
-  "observedAt": "2026-10-08T15:13:52.800Z",
+  "observedAt": "2026-10-08T15:53:23.631Z",
   "retentionDays": 90,
   "baselineInitializedAt": "2026-09-29T09:49:22.384Z",
   "layers": {
     "works": {
       "status": "ok",
-      "lastAttemptAt": "2026-10-08T15:13:52.800Z",
-      "lastSuccessAt": "2026-10-08T15:13:52.800Z",
+      "lastAttemptAt": "2026-10-08T15:53:23.631Z",
+      "lastSuccessAt": "2026-10-08T15:53:23.631Z",
       "errorCode": null,
       "count": 1207,
       "digest": "5f34463b5acf2e6f7d991de0d50ea261472b87f647ee0bc915f8f4eea67070ec",
@@ -31924,8 +31924,8 @@
     },
     "publicSpace": {
       "status": "ok",
-      "lastAttemptAt": "2026-10-08T15:13:52.800Z",
-      "lastSuccessAt": "2026-10-08T15:13:52.800Z",
+      "lastAttemptAt": "2026-10-08T15:53:23.631Z",
+      "lastSuccessAt": "2026-10-08T15:53:23.631Z",
       "errorCode": null,
       "count": 6687,
       "digest": "c447879a48130a771d27345a3f85353cf2214d9fdba12ca750607561481d14fc",

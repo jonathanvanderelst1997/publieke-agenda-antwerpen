@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-08T15:13:52.798Z",
+  "candidateGeneratedAt": "2026-10-08T15:53:23.630Z",
   "classificationAsOf": "2026-10-08",
   "sourceCount": 849,
   "count": 710,
@@ -16,76 +16,76 @@
     "district": 57,
     "stad": 653
   },
-  "feedGeneratedAt": "2026-10-08T15:13:52.798Z",
+  "feedGeneratedAt": "2026-10-08T15:53:23.630Z",
   "feedSources": [
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:12:20.963Z",
+      "retrievedAt": "2026-10-08T15:51:52.124Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:12:11.883Z",
+      "retrievedAt": "2026-10-08T15:51:44.152Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:11:59.890Z",
+      "retrievedAt": "2026-10-08T15:51:34.303Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:12:01.386Z",
+      "retrievedAt": "2026-10-08T15:51:35.029Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:13:52.561Z",
+      "retrievedAt": "2026-10-08T15:53:23.438Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:13:52.561Z",
+      "retrievedAt": "2026-10-08T15:53:23.438Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:13:18.321Z",
+      "retrievedAt": "2026-10-08T15:52:49.652Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:13:51.193Z",
+      "retrievedAt": "2026-10-08T15:53:22.326Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T15:13:45.718Z",
+      "retrievedAt": "2026-10-08T15:53:16.373Z",
       "state": "fresh"
     },
     {

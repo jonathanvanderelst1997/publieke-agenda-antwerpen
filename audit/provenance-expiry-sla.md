@@ -1,6 +1,6 @@
 # Bronprovenance- en verval-SLA-matrix
 
-Status: lokale audit, niet gepubliceerd. Classificatie op 2026-10-08; geverifieerde bronsnapshot 2026-10-08T15:13:52.798Z.
+Status: lokale audit, niet gepubliceerd. Classificatie op 2026-10-08; geverifieerde bronsnapshot 2026-10-08T15:53:23.630Z.
 
 - Bronitems: 849
 - Fail-closed lokale kandidaat: 710

@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
-  "retrievedAt": "2026-10-08T15:11:56.982Z",
+  "retrievedAt": "2026-10-08T15:51:30.673Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": "parser-1|6ac394cf3325126a475dccbb|2026-10-05T12:16:18+00:00",
@@ -36,7 +36,7 @@
       "infoUrl": "https://nova.antwerpen.be/humans-of-antwerp",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -56,7 +56,7 @@
       "info": "Het allereerste wielercriterium op Linkeroever! Koers mee of moedig de renners aan tijdens 3 jeugd-, 1 vrouwen- en 2 mannenreeksen. Volg de Ronde van Lombardije en het WK Gravel voor vrouwen op groot scherm en blijf nadien hangen voor de dj’s. Prijs: €15",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -77,7 +77,7 @@
       "infoUrl": "https://antwerpen.bibliotheek.be/permeke",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -103,7 +103,7 @@
       "actionKind": "email_district",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -128,7 +128,7 @@
       "actionCode": "CID-STA-20261023",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -152,7 +152,7 @@
       "actionKind": "onsite",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -174,7 +174,7 @@
       "actionAttempted": true,
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -194,7 +194,7 @@
       "info": "Een voorstelling over verlangen naar verbinding en erbij horen. Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over wat het betekent om ergens bij te horen, over het gevoel van verbinding en het ontbreken daarvan. Prijs: GRATIS",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -219,7 +219,7 @@
       "actionCode": "CID-STA-20261120",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -240,7 +240,7 @@
       "infoUrl": "https://www.facebook.com/ParadeNoorderlicht",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     },
     {
@@ -266,7 +266,7 @@
       "actionKind": "email_district",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-08T15:11:56.982Z",
+      "retrievedAt": "2026-10-08T15:51:30.673Z",
       "reviewRequired": false
     }
   ]
