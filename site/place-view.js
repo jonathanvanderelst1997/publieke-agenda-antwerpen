@@ -649,7 +649,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
     html.push(marketsTemplate(entries, today));
-    html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Vergunningen in behandeling`, permits, { today, context: "permit" }));
+    html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }));
     const body = html.filter(Boolean).join("");
     results.innerHTML = body || emptyTemplate(today);
   }
