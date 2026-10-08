@@ -1,6 +1,40 @@
 export const INZAGE = "https://omgevingsloketinzage.omgeving.vlaanderen.be/";
 export const INZAGE_UITLEG = "https://www.vlaanderen.be/omgevingsvergunning/inzageloket";
 export const GEOPUNT = "https://www.geopunt.be/?app=hinder-in-kaart";
+
+// Alleen activiteiten waarvoor een officiële projectpagina, officiële ticketshop
+// of uitdrukkelijke inschrijfinstructie met identieke titel én datum bewezen is.
+const BEVESTIGDE_ACTIES = Object.freeze({
+  "2026-10-23|Vrijdagen van de Poëzie": Object.freeze({
+    info:"https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
+    actie:"https://cid.recreatex.be/Tickets/Detail.aspx?code=CID-STA-20261023&language=NL&smallmenu=1",
+    actieLabel:"Tickets voor 23 oktober — officiële ticketshop",
+    hint:"23 oktober, 15–16 uur, districtshuis Harmonie. Tickets €5 of €0 met VT-statuut.",
+  }),
+  "2026-11-20|Vrijdagen van de Poëzie": Object.freeze({
+    info:"https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
+    actie:"https://cid.recreatex.be/Tickets/Detail.aspx?code=CID-STA-20261120&language=NL&smallmenu=1",
+    actieLabel:"Tickets voor 20 november — officiële ticketshop",
+    hint:"20 november, 15–16 uur, districtshuis Harmonie. Tickets €5 of €0 met VT-statuut.",
+  }),
+  "2026-11-10|Verlangen naar verbinding": Object.freeze({
+    info:"https://www.antwerpen.be/info/68e7c5577c39f40ba84cf2b2/voorstelling-verlangen-naar-verbinding-op-10-november",
+    actie:"mailto:district.antwerpen@antwerpen.be?subject=Inschrijving%20Verlangen%20naar%20verbinding%2010%20november%202026",
+    actieLabel:"Inschrijven per e-mail bij district Antwerpen",
+    hint:"10 november, 14–15 uur, Het Oude Badhuis. Gratis, vooraf inschrijven per e-mail bij het district.",
+  }),
+  "2026-10-31|Halloween": Object.freeze({
+    info:"https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/griezelfeest-bij-co-nova-op-halloween",
+    hint:"CO Nova, 14–20 uur. Gratis tickets voor de voorstellingen zijn aan de infostand ter plaatse verkrijgbaar.",
+  }),
+  "2026-11-04|FURIE!": Object.freeze({
+    info:"https://pers.districtantwerpen.be/furie-maakt-van-450-jaar-spaanse-furie-een-uniek-totaalspektakel",
+    hint:"4 november, 19–20.30 uur op de Grote Markt: gratis stadspektakel, geen ticket nodig.",
+  }),
+});
+const specialeActie = item => item?.sourceId === "district-kalender"
+  ? BEVESTIGDE_ACTIES[`${item.date||""}|${item.title||""}`]||null : null;
+
 export const safeHttps = value => {
   try { const u=new URL(String(value||""));return u.protocol==="https:"&&!u.username&&!u.password?u.href:""; }
   catch { return ""; }
@@ -25,10 +59,23 @@ export function bezoekersLinks(e={}) {
     add(hinderkaart(item.gipodId),"Bekijk de hinder op de officiële kaart");
   }else if(e.source==="agenda"){
     if(item.sourceId==="stad-markten")add("https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen","Marktdag, uren en locatie op Antwerpen.be");
+    const speciaal = specialeActie(item);
+    if(speciaal?.actie?.startsWith("mailto:district.antwerpen@antwerpen.be?subject="))
+      out.push({url:speciaal.actie,label:speciaal.actieLabel,type:"main"});
+    else if(speciaal?.actie)add(speciaal.actie,speciaal.actieLabel);
     if(item.registrationVerified===true&&distinctPage(item.registrationUrl))
       add(item.registrationUrl,"Inschrijven via bevestigde aanmeldpagina");
-    if(e.url&&!rawData(e.url))add(e.url,distinctPage(e.url)?
-      "Officiële evenementinfo en eventuele inschrijving":"Website van de organisator (algemene pagina)");
+    if(speciaal?.info)add(speciaal.info,"Concrete informatie over dit evenement");
+    if(e.url&&!rawData(e.url)){
+      const label = item.sourceId==="district-kalender"
+        ? "Districtskalender met meerdere activiteiten"
+        : item.sourceId==="district-vergaderingen"
+          ? "Vergaderagenda en stukken op eBesluit"
+          : item.sourceId==="stad-koopzondagen"
+            ? "Officieel overzicht van koopzondagen"
+            : distinctPage(e.url) ? "Lees de officiële informatie" : "Algemene website van de organisator";
+      add(e.url,label,"source");
+    }
   }
   if(e.sourceUrl&&!out.some(x=>x.url===safeHttps(e.sourceUrl)))
     add(e.sourceUrl,rawData(e.sourceUrl)?"Technische databron (geen infopagina)":"Officiële bronpagina","source");
@@ -45,6 +92,7 @@ export function bezoekersHint(e={}) {
   if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
     "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
   if(e.source==="publicSpace"&&!item.gipodId)return "A-Sign publiceert hier een stedelijk dossier. Een afzonderlijke publieke evenementenpagina is niet bevestigd.";
+  if(e.source==="agenda")return specialeActie(item)?.hint||"";
   return "";
 }
 export function leesbaarUur(entry={}, {multi=false,running=false}={}) {
