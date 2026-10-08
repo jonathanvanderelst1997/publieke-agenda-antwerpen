@@ -64,7 +64,7 @@ export function bezoekersLinks(e={}) {
       add("https://cid.recreatex.be/Tickets/Detail.aspx?code="+item.actionCode+"&language=NL&smallmenu=1","Tickets bestellen op officieel bevestigde pagina");
     if(autoChecked&&item.actionKind==="email_district")
       out.push({url:"mailto:district.antwerpen@antwerpen.be?subject="+encodeURIComponent("Inschrijving "+String(item.title||"evenement")+" "+String(item.date||"")),label:"Inschrijven per e-mail bij district Antwerpen",type:"main"});
-    const speciaal=autoChecked?null:specialeActie(item);
+    const speciaal=autoChecked||item.actionAttempted===true?null:specialeActie(item);
     if(speciaal?.actie?.startsWith("mailto:district.antwerpen@antwerpen.be?subject="))
       out.push({url:speciaal.actie,label:speciaal.actieLabel,type:"main"});
     else if(speciaal?.actie)add(speciaal.actie,speciaal.actieLabel);
@@ -73,7 +73,7 @@ export function bezoekersLinks(e={}) {
     if(speciaal?.info)add(speciaal.info,"Concrete informatie over dit evenement");
     if(e.url&&!rawData(e.url)){
       const label = item.sourceId==="district-kalender"
-        ? "Districtskalender met meerdere activiteiten"
+        ? /wat-beleef-je-in-district-antwerpen/i.test(String(e.url)) ? "Districtskalender met meerdere activiteiten" : "Officiële informatie over dit evenement"
         : item.sourceId==="district-vergaderingen"
           ? "Vergaderagenda en stukken op eBesluit"
           : item.sourceId==="stad-koopzondagen"
@@ -105,7 +105,7 @@ export function bezoekersHint(e={}) {
       if(item.actionKind==="no_ticket")return "Geen ticket nodig volgens de organisator.";
       return "Officiële evenementpagina nagekeken; geen specifieke online inschrijving bevestigd.";
     }
-    return specialeActie(item)?.hint||"";
+    return item.actionAttempted===true ? "De actuele inschrijfwijze is niet bevestigd. Kijk bij de officiële evenementinformatie." : specialeActie(item)?.hint||"";
   }
   return "";
 }
