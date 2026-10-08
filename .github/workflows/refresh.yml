@@ -45,8 +45,48 @@ concurrency:
 jobs:
   # Draait de code van main met alleen leesrechten en zonder bewaarde
   # inloggegevens. Levert een patch af, schrijft zelf niets naar de repo.
+  # De cron van GitHub startte 5 tot 8 uur te laat (#35). De Gateway start deze
+  # workflow daarom zelf elke ochtend vanaf 05:17 (Brussel) via workflow_dispatch
+  # (ochtendverversing in src/publieke-agenda/datalaan.ts van de Gateway). De
+  # cron blijft als terugval, maar slaat de verversing over als de live agenda
+  # nog geen 20 uur oud is: dan was de Gateway (of een chat) al sneller. Faalt het
+  # lezen van de live agenda, dan ververst hij wel (liever een run te veel).
+  al-vers:
+    if: github.event_name == 'schedule' && github.event.schedule == '17 5 * * *'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    permissions: {}
+    outputs:
+      fresh: ${{ steps.live.outputs.fresh }}
+    steps:
+      - name: Live agenda jonger dan 20 uur?
+        id: live
+        env:
+          STATUS_URL: https://mijn-publieke-agenda-voor-district.onrender.com/sources/refresh-status.json
+        run: |
+          set -uo pipefail
+          fresh=false
+          body="$RUNNER_TEMP/live.json"
+          if curl -fsS --max-time 30 -o "$body" "${STATUS_URL}?t=$(date +%s)" \
+             && generated=$(jq -er '.generatedAt | strings' "$body" 2>/dev/null) \
+             && [[ $generated =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] \
+             && t=$(date -u -d "$generated" +%s 2>/dev/null); then
+            age=$(( $(date -u +%s) - t ))
+            echo "Live generatedAt=${generated}, $(( age / 3600 )) uur oud."
+            if [ "$age" -ge 0 ] && [ "$age" -lt $((20 * 3600)) ]; then fresh=true; fi
+          else
+            echo "Live agenda niet te lezen; de geplande verversing gaat door."
+          fi
+          if [ "$fresh" = true ]; then
+            echo "::notice title=Al vers::De live agenda is nog geen 20 uur oud; de late cron slaat de verversing over."
+          fi
+          echo "fresh=${fresh}" >> "$GITHUB_OUTPUT"
+
   refresh:
-    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '17 5 * * *'
+    needs: al-vers
+    if: >-
+      !cancelled() && (github.event_name == 'workflow_dispatch' ||
+      (github.event.schedule == '17 5 * * *' && needs.al-vers.outputs.fresh != 'true'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -131,6 +171,8 @@ jobs:
           git diff --cached --name-status -M0 > "$out/changes.txt"
           git diff --cached --binary > "$out/data.patch"
           cp site/sources/refresh-status.json "$out/refresh-status.json"
+          # De automatische controle van handmatige items (scripts/check-manual-sources.mjs).
+          if [ -f site/sources/manual-check.json ]; then cp site/sources/manual-check.json "$out/manual-check.json"; fi
           if [ ! -s "$out/changes.txt" ]; then
             # Hoort niet te gebeuren: generatedAt verandert elke run.
             echo "::notice title=Geen wijziging::De verversing leverde geen enkele wijziging; er komt geen datatak."
@@ -151,9 +193,16 @@ jobs:
   # Het enige deel met schrijfrechten. Voert geen repocode uit: geen npm,
   # geen node, geen scripts uit de repo. Het past de patch toe, toetst de
   # datalijst opnieuw in bash en duwt één commit naar een nieuwe tak.
+  #
+  # !cancelled() is nodig: zonder statusfunctie in de if slaat GitHub een job
+  # over zodra een job verderop in de keten (al-vers) overgeslagen is, ook als
+  # refresh zelf slaagde. Zo maakte elke workflow_dispatch van de Gateway na
+  # #113 geen datatak meer (run 37449498793: refresh groen, publish-branch skipped).
   publish-branch:
     needs: refresh
-    if: needs.refresh.outputs.changed == 'true'
+    if: >-
+      !cancelled() && needs.refresh.result == 'success' &&
+      needs.refresh.outputs.changed == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
@@ -398,6 +447,8 @@ jobs:
   # publish-branch niet tegen: aparte job, en publish-branch wacht er niet op.
   source-health:
     needs: refresh
+    # Zelfde reden als bij publish-branch: al-vers is bij een dispatch overgeslagen.
+    if: "!cancelled() && needs.refresh.result == 'success'"
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -418,7 +469,11 @@ jobs:
           now=$(date -u +%s)
           max=$((26 * 3600))
           bad=0
-          while IFS=$'\t' read -r id status retrieved; do
+          while IFS=$'\t' read -r id status retrieved code maxage; do
+            # Lege velden staan als "-" in de lijst: een tab telt als witruimte, en
+            # dan zou read twee lege velden samenvoegen.
+            [[ $maxage =~ ^[0-9]+$ ]] || maxage=48
+            [ "$code" = "-" ] && code=""
             case "$status" in
               ok)
                 if [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null); then
@@ -432,15 +487,44 @@ jobs:
                   echo "BRON ${id}: ok zonder leesbare retrievedAt"; bad=1
                 fi ;;
               error)
-                echo "BRON ${id}: fetchStatus error"; bad=1 ;;
+                # Tijdelijk (5xx, 429, time-out, netwerk) met vorige data binnen
+                # maxAgeHours: "stale", een waarschuwing. Zo maakt één bron met
+                # een 503 de verversing niet rood; zie sourceHealthOf in
+                # lib/fetch-util.mjs. Blijvend of te oud: een fout.
+                code=${code#channel_}
+                if [[ $code =~ ^http_(5[0-9][0-9]|429)$ || $code =~ ^(timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$ ]] \
+                   && [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null) \
+                   && [ $((now - t)) -le $((maxage * 3600)) ]; then
+                  echo "Bron ${id}: stale (${code}); vorige data van $(( (now - t) / 3600 )) uur geleden blijft staan"
+                  echo "::warning title=Bron stale::${id}: tijdelijk onbereikbaar (${code}); vorige data blijft staan tot ze ${maxage} uur oud is."
+                else
+                  echo "BRON ${id}: fetchStatus error (${code:-geen code})"; bad=1
+                fi ;;
               skipped_no_key|disabled|test_only)
                 echo "Bron ${id}: ${status} (geen fout)" ;;
               *)
                 echo "BRON ${id}: onbekende fetchStatus"; bad=1 ;;
             esac
-          done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "" | tostring)] | @tsv' "$f")
+          done < <(jq -r '.sources[] | [(.sourceId // "?" | tostring), (.fetchStatus // "?" | tostring), (.retrievedAt // "-" | tostring), (.errorCode // "-" | tostring), (.maxAgeHours // 48 | tostring)] | @tsv' "$f")
+          # Handmatige items: hun officiële bron wordt bij elke verversing nagekeken. Gewijzigd of
+          # weg: het item is van de site gehaald en dat is een melding (rood). Onbereikbaar of niet
+          # controleerbaar: een waarschuwing.
+          m="$RUNNER_TEMP/in/manual-check.json"
+          if [ -f "$m" ]; then
+            while IFS=$'\t' read -r id status since; do
+              case "$status" in
+                ok) echo "Handmatig ${id}: bron bevestigt het item" ;;
+                gewijzigd|weg)
+                  echo "BRON handmatig ${id}: ${status} sinds ${since}; item van de site gehaald"; bad=1 ;;
+                onbereikbaar|niet_controleerbaar)
+                  echo "Handmatig ${id}: ${status} sinds ${since}"
+                  echo "::warning title=Handmatig item::${id}: ${status}" ;;
+                *) echo "BRON handmatig ${id}: onbekende status"; bad=1 ;;
+              esac
+            done < <(jq -r '.sources[]? | [(.sourceId // "?" | tostring), (.status // "?" | tostring), (.since // "-" | tostring)] | @tsv' "$m")
+          fi
           if [ "$bad" -ne 0 ]; then
-            echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
+            echo "::error title=Bronstatus::Minstens één bron faalde of is verouderd, of de bron van een handmatig item veranderde; zie de regels die met BRON beginnen. De data van de andere bronnen gaat wel door."
           fi
           exit "$bad"
 
@@ -472,4 +556,51 @@ jobs:
           if [ "$age" -gt $((48 * 3600)) ]; then
             echo "::error title=Live agenda ouder dan 48 uur::Live agenda ouder dan 48 uur: generatedAt ${generated} is $(( age / 3600 )) uur oud."
             exit 1
+          fi
+
+  # Zichtbaar alarm: faalt de verversing, de datatak of de live versheid bij een
+  # geplande run, dan komt er één open issue bij (of een reactie op het bestaande).
+  # Zo valt een stille agenda op zonder dat iemand de Actions-pagina moet openen.
+  # Alleen publieke runinfo; geen data, geen geheimen. Sluiten doet de eigenaar.
+  alarm:
+    needs: [refresh, publish-branch, source-health, freshness]
+    if: >-
+      always() && github.event_name == 'schedule' &&
+      (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.freshness.result == 'failure')
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - name: Alarm-issue openen of aanvullen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          R_REFRESH: ${{ needs.refresh.result }}
+          R_PUBLISH: ${{ needs.publish-branch.result }}
+          R_HEALTH: ${{ needs.source-health.result }}
+          R_FRESH: ${{ needs.freshness.result }}
+        run: |
+          set -euo pipefail
+          title="Alarm: agendaverversing of live versheid faalt"
+          when=$(TZ=Europe/Brussels date '+%Y-%m-%d %H:%M')
+          body=$(printf '%s\n' \
+            "Geplande run van ${when} (Brussel) faalde: ${RUN_URL}" \
+            "" \
+            "- verversen: ${R_REFRESH}" \
+            "- datatak: ${R_PUBLISH}" \
+            "- bronstatus: ${R_HEALTH}" \
+            "- live niet ouder dan 48 uur: ${R_FRESH}" \
+            "" \
+            "De site blijft bruikbaar: bezoekers zien een vriendelijke melding en de laatst bevestigde items." \
+            "Sluit dit issue zodra een run weer groen is.")
+          num=$(gh issue list --state open --search "\"${title}\" in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "$body"
+            echo "::error title=Agenda-alarm::Verversing faalt; reactie op issue #${num}."
+          else
+            gh issue create --title "$title" --body "$body"
+            echo "::error title=Agenda-alarm::Verversing faalt; nieuw alarm-issue geopend."
           fi

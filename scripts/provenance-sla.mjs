@@ -41,7 +41,11 @@ export function buildProvenanceSlaMatrix(items, engine) {
     // Het ophaalmoment per item gaat voor op dat van de bron.
     const sourceRetrievedAt = configuredSource ? item.retrievedAt ?? configuredSource.retrievedAt ?? null : null;
     // De engine past dezelfde vensters toe; neem zijn waarden over zodat kandidaat en SLA per constructie gelijk zijn.
-    const ttlDays = item.slaMaxAgeDays ?? (item.slaMaxAgeHours != null ? item.slaMaxAgeHours / 24 : maxAgeDays(item));
+    // Een handmatig item op datum heeft geen herbevestigingsvenster meer: het loopt tot en met
+    // visibleThrough (zijn laatste dag), en dat is dan ook zijn recheckDueOn.
+    const ttlDays = item.visibleThrough
+      ? null
+      : item.slaMaxAgeDays ?? (item.slaMaxAgeHours != null ? item.slaMaxAgeHours / 24 : maxAgeDays(item));
     const dueOn = item.recheckDueOn ?? (sourceRetrievedAt && ttlDays != null ? addDays(sourceRetrievedAt, ttlDays) : null);
     let policy = evaluateStalePolicy({
       classification: item.classification,
@@ -73,6 +77,7 @@ export function buildProvenanceSlaMatrix(items, engine) {
       reviewReason: item.reviewReason ?? null,
       maxAgeDays: ttlDays,
       recheckDueOn: dueOn,
+      visibleThrough: item.visibleThrough ?? null,
       slaStatus,
       publishEligible: eligible,
       includedInLocalCandidate: localCandidateIds.has(item.id),

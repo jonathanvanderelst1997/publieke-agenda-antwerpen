@@ -13,9 +13,9 @@
   ],
   "officialPublic": true,
   "method": "GIPOD INNAME_PUNT: conservatieve echte-evenementselectie, exact punt binnen District Antwerpen",
-  "retrievedAt": null,
-  "fetchStatus": "error",
+  "retrievedAt": "2026-10-08T15:51:44.152Z",
+  "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": null,
+  "contentVersion": "gipod-events-v1|2026-10-08",
   "items": []
 }

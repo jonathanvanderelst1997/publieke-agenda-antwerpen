@@ -76,6 +76,39 @@ een leeg kanaal) dan leeg. Daarom:
 - `mail-district` en `mail-stad` hebben bewust geen krimpgrens: haalt de Gateway een item terug (bijvoorbeeld
   omdat het toch privé bleek), dan moet het meteen van de site verdwijnen.
 
+## Tijdelijk onbereikbaar: "stale", geen fout
+
+Antwoordt een bron tijdelijk niet, dan blijven haar vorige items en `retrievedAt` staan, net als bij
+elke fout (`fetchStatus: "error"` met de `errorCode`). Tijdelijk betekent: `http_5xx`, `http_429`,
+`timeout`, `network_error`, `source_timeout`, `refresh_budget_exhausted` of `body_read_failed`, ook
+als `channel_<code>`. Een voorbeeld is de 503 van de districtsraad (`district-vergaderingen`) vanaf
+de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noemt zo'n bron:
+
+- **`stale`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt. Dat is een waarschuwing:
+  `npm run sources:health` en de job `source-health` blijven groen, de andere bronnen worden gewoon
+  ververst, en de site toont "(bron tijdelijk onbereikbaar; vorige gegevens blijven staan)";
+- **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
+  blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
+
+De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
+de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
+en 5 seconden).
+
+## Tijdsbudget: een trage bron houdt de verversing niet tegen
+
+De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
+Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
+
+- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten (`budgetMs` in
+  `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
+  historiek daarna hoogstens 3 minuten (`LIVE_HISTORY_BUDGET_MS`);
+- na het budget faalt elk verzoek van die fetcher meteen (`FetchError("source_timeout")`); hij eindigt
+  via zijn gewone foutpad. De bron krijgt `fetchStatus: "error"` met `errorCode: "source_timeout"` en
+  haar vorige items en `retrievedAt` blijven staan. Een fetcher die niet meer aan de beurt komt omdat
+  het totaalbudget op is, krijgt `errorCode: "refresh_budget_exhausted"`, ook met zijn vorige data;
+- er verandert niets aan de versheids- en validatieregels: `validate:data --max-age-hours 26` en
+  `sources:health` beoordelen zo'n bron zoals elke andere bron in `error`.
+
 ## Groepen (scope)
 
 - **District Antwerpen**: postcodes 2000, 2018, 2020, 2030, 2050 en 2060. Standaard aan.
@@ -103,9 +136,40 @@ een leeg kanaal) dan leeg. Daarom:
 
 - Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
   `stale_source`) en toont de site in het rood "verouderd sinds …".
-- Handmatige bronnen volgen dezelfde vensters als de provenance-SLA: lopend of werken 2 dagen,
-  toekomstig binnen 14 dagen 3 dagen, verder weg 7 dagen.
+- Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
+  `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
+  vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
+  2 dagen.
+- "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
+  48 uur.
 - Per bron toont de site "ververst op …", "verouderd sinds …" of "nog niet actief".
+
+## Datum in de titel (`district-nieuws`)
+
+Buurtacties zoals Herfstklaar staan als nieuwsartikel in het kanaal van district Antwerpen, zonder tabel
+of "Wanneer:"-regel. De datum staat alleen in de titel: "Maak je straat Herfstklaar op 23, 24 of 25
+oktober". Daarom leest `district-nieuws` (optie `titleDates`) als **laatste redmiddel** een expliciete dag
+of lijst dagen met maand na "op" in de titel. Dat gebeurt alleen als tabel, tekstregel en blok niets
+geven.
+
+- Opeenvolgende dagen worden één periode (23 t/m 25 oktober). "of" en "en" tellen allebei.
+- Nooit voor inschrijvingen, aanvragen, deadlines, bevragingen ("tot", "voor <datum>", "uiterlijk",
+  "inschrijven", "aanvraag", "bevraging") of werken (`WORKS_TITLE`).
+- Altijd alleen datums tussen de artikeldatum en `publishUntil`.
+- Plaats: "district Antwerpen, locatie via de officiële bron"; uur: "Info".
+- Gemeten op 5-10-2026: van 113 artikels leverde dit precies één nieuw item op (Herfstklaar). Herfstklaar,
+  Lenteklaar en dergelijke vallen onder "Buurt & straat".
+
+Zo komen Herfstklaar en dergelijke vanzelf binnen; een handmatig item is dan niet nodig.
+
+## Handmatige items: automatische controle van hun bron
+
+Zie de README ("Handmatige items: zichtbaar tot en met de einddatum"). `scripts/check-manual-sources.mjs`
+draait in `npm run refresh`, na `build:sources`. Het kijkt de bron-URL na van elk zichtbaar handmatig item:
+hoogstens 3 doorverwijzingen (alleen https), 1 seconde tussen de pagina's, zonder cookies. De
+controlewoorden zijn de begindatum van elk item, plus `check.mustContain` van de bron in
+`site/agenda-refresh.js`. `check: false` betekent: niet woordelijk te bevestigen. Het script laat de
+verversing nooit vallen; lukt het niet, dan blijft het vorige `manual-check.json` staan.
 
 ## De andere districten (`stad-districten`)
 
@@ -200,6 +264,27 @@ De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit.
 - de totale periode maximaal 14 dagen duurt.
 
 Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
+
+## Buurtkaart: wijken en coördinaten (geen agendabron)
+
+- `site/geo/wijken.geo.json`: de 67 wijken van stad Antwerpen uit de laag `wijken_omgevingsinformatie`
+  (geodata.antwerpen.be, `P_Portal/portal_publiek2/MapServer/97`), door de server vereenvoudigd
+  (`maxAllowableOffset` 0,00005°) en afgerond op 5 decimalen (±88 KB). De site gebruikt de 24 wijken van
+  district Antwerpen (`ANT01`–`ANT25`). Open data van stad Antwerpen, gratis hergebruik met bronvermelding.
+  Handmatig te vernieuwen met `npm run geo:wijken`; niet in de dagelijkse ronde.
+- `site/geo/locaties.json`: punt per locatietekst van een komend agendapunt, gemaakt door
+  `npm run geo:refresh` (onderdeel van `npm run refresh`, na `build:sources`). Bron: Geolocation-API van
+  Digitaal Vlaanderen (Basisregisters Vlaanderen, Modellicentie Gratis Hergebruik v1.0).
+  - Alleen de publieke locatietekst gaat naar de API, hoogstens 150 verzoeken en 2 minuten per ronde.
+  - Aanvaard wordt alleen een adres of straat in een postcode van de stad, waarvan de straatnaam en het
+    huisnummer letterlijk in de locatietekst staan. Zonder postcodecontrole (straat over twee postcodes)
+    alleen als de straatnaam in het antwoord onder één postcode voorkomt.
+  - Niet gevonden: in `misses`, na 14 dagen opnieuw geprobeerd. Locaties van voorbije items vallen weg.
+  - Faalt de API, dan blijft het vorige bestand staan en faalt de ronde niet.
+  - `npm run validate:data` controleert vorm, punten binnen de stad en de privacyscan; het pad staat in
+    `lib/data-lane-paths.json`.
+- In de browser wordt nooit gegeocodeerd. Werken gebruiken hun eigen GIPOD-punt; items zonder punt maar met een
+  officiële straat (parkeren, vergunningen) vallen in een wijk via de straatas.
 
 ## Attributie
 

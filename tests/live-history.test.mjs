@@ -52,6 +52,23 @@ test("eerste run is alleen baseline, niet duizenden added-events", () => {
   assert.deepEqual(validateLiveHistory(history), []);
 });
 
+test("eerste geslaagde laag na eerdere fout is baseline, geen added-ruis", () => {
+  const failed = updateLiveHistory(null, {
+    observedAt: T1,
+    worksResult: { ok: false, errorCode: "street_axis_invalid" },
+    publicSpaceResult: { ok: false, errorCode: "http_404" },
+  });
+  const recovered = updateLiveHistory(failed, {
+    observedAt: T2,
+    worksResult: { ok: true, items: [work()] },
+    publicSpaceResult: { ok: true, items: [space()] },
+  });
+  assert.equal(recovered.layers.works.lastSuccessAt, T2);
+  assert.equal(recovered.layers.publicSpace.lastSuccessAt, T2);
+  assert.equal(recovered.changes.filter((entry) => entry.observedAt === T2).length, 0);
+  assert.deepEqual(validateLiveHistory(recovered), []);
+});
+
 test("volgende run bewaart added, removed en changed", () => {
   const baseline = updateLiveHistory(null, {
     observedAt: T1,

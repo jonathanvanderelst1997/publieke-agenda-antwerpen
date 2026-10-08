@@ -123,6 +123,29 @@
       officialPublic: true,
       scope: "district",
     },
+    "city-gaston-buurtfeest": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
+      retrievedAt: "2026-10-06T07:00:00Z",
+      state: "verified",
+      note: "Officiële projectpagina: inhuldiging en gratis buurtfeest op 10 oktober 2026, 14 tot 17 uur.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["buurtfeest", "inhuldiging"] },
+    },
+    "publiekeruimte-schoolstraat-vanhoenacker": {
+      publisher: "District Antwerpen, team Publieke Ruimte",
+      url: "https://www.antwerpen.be/publiekeruimte",
+      retrievedAt: "2026-10-05T12:00:00Z",
+      state: "verified",
+      note: "Publieke aankondiging van team Publieke Ruimte district Antwerpen (5 oktober 2026): bevraging over de proefperiode van de schoolstraat aan basisschool K'do, Jan Vanhoenackerstraat; enquête open tot en met 1 november 2026. Verdere info op de officiële pagina publieke ruimte van district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+      // De bron-URL stuurt door naar het algemene overzicht "openbare werken" en noemt de bevraging
+      // niet: automatisch niet te bevestigen. Wordt als "niet_controleerbaar" gemeld tot er een
+      // officiële pagina is die de bevraging zelf noemt.
+      check: false,
+    },
     "city-gaston-works": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
@@ -195,6 +218,14 @@
       sourceId: "slim-kammenstraat",
       classification: "expired",
       changes: { dateLabel: "26 juni tot en met 13 juli 2026" },
+    },
+    {
+      match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
+      sourceId: "city-gaston-buurtfeest",
+    },
+    {
+      match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },
+      sourceId: "publiekeruimte-schoolstraat-vanhoenacker",
     },
     {
       match: { title: "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat", theme: "Werken" },
@@ -353,6 +384,9 @@
     };
   }
 
+  // Uitkomst van de automatische controle van handmatige bronnen, per sourceId (zie lib/manual-check.mjs).
+  const manualChecks = feed?.manualCheck?.sources && typeof feed.manualCheck.sources === "object" ? feed.manualCheck.sources : {};
+
   const config = {
     schemaVersion: 1,
     classificationAsOf: window.PUBLIC_AGENDA_FEED?.classificationAsOf ?? "2026-09-16",
@@ -364,6 +398,7 @@
     },
     sources,
     rules,
+    manualCheck: feed?.manualCheck ?? null,
   };
 
   const DAY_MS = 24 * 60 * 60 * 1000;
@@ -398,6 +433,10 @@
     if (classification === "review_required") return 0;
     if (classification === "current" || theme === "Werken") return 2;
     return dayDelta(asOf, date) <= 14 ? 3 : 7;
+  }
+
+  function lastDayOf(item) {
+    return item.endDate && item.endDate > item.date ? item.endDate : item.date;
   }
 
   function dateClassification(date, endDate, asOf) {
@@ -459,13 +498,30 @@
       classification = "review_required";
       reviewReason = isFeed ? "unverified_feed_item" : "unverified_source";
     }
+    // De automatische controle van de bron van een handmatig item (scripts/check-manual-sources.mjs):
+    // is de pagina weg of staan datum of kernwoorden er niet meer op, dan gaat het item van de site.
+    const manualCheck = !isFeed && rule?.sourceId ? manualChecks[rule.sourceId] ?? null : null;
+    if (
+      !options.ignoreManualCheck
+      && ["current", "future"].includes(classification)
+      && manualCheck
+      && ["gewijzigd", "weg"].includes(manualCheck.status)
+    ) {
+      classification = "review_required";
+      reviewReason = manualCheck.status === "weg" ? "manual_source_gone" : "manual_source_changed";
+    }
 
     const sourceRetrievedAt = item.retrievedAt ?? source?.retrievedAt ?? previousRetrievedAt;
 
-    // Versheid: een feed-bron veroudert na maxAgeHours; een handmatige bron volgt de provenance-SLA.
+    // Versheid: een feed-bron veroudert na maxAgeHours. Een handmatig item dat op zijn datum
+    // geclassificeerd is, blijft zichtbaar tot en met zijn laatste dag (endDate, anders date) en
+    // verdwijnt de dag erna (besluit eigenaar, 5-10-2026: "als het evenement bezig is, de dag erna
+    // is het gedaan"); geen herbevestiging om de paar dagen. Alleen een handmatig item met een vaste
+    // classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA.
     let slaMaxAgeDays = null;
     let slaMaxAgeHours = null;
     let recheckDueOn = null;
+    let visibleThrough = null;
     if (["current", "future"].includes(classification)) {
       let stale;
       if (isFeed) {
@@ -473,6 +529,10 @@
         const dueAt = Date.parse(sourceRetrievedAt) + slaMaxAgeHours * HOUR_MS;
         recheckDueOn = brusselsDateOf(dueAt);
         stale = !Number.isFinite(dueAt) || Date.parse(now) > dueAt;
+      } else if (classificationBasis === "date") {
+        visibleThrough = lastDayOf(reconciled);
+        recheckDueOn = visibleThrough;
+        stale = false;
       } else {
         slaMaxAgeDays = maxAgeDaysFor(classification, reconciled.theme, reconciled.date, asOf);
         recheckDueOn = addDays(sourceRetrievedAt, slaMaxAgeDays);
@@ -505,6 +565,8 @@
       slaMaxAgeDays,
       slaMaxAgeHours,
       recheckDueOn,
+      visibleThrough,
+      manualCheckStatus: manualCheck?.status ?? null,
     };
   }
 
@@ -538,7 +600,7 @@
 
   function reconcileAgendaItems(items, asOf = config.classificationAsOf, options = {}) {
     const now = options.now || defaultNow(asOf);
-    const auditItems = items.map((item) => classifyAgendaItem(item, asOf, { now }));
+    const auditItems = items.map((item) => classifyAgendaItem(item, asOf, { now, ignoreManualCheck: options.ignoreManualCheck === true }));
     const publicItems = auditItems.filter(
       (item) => ["current", "future"].includes(item.classification) && item.verificationState === "verified"
     );

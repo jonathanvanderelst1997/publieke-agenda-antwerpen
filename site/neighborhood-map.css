@@ -1,0 +1,147 @@
+/* Buurtkaart: wijkkeuze, kaart met markers per soort, straal rond je straat. Alleen presentatie. */
+.buurt {
+  margin: 4px 0 28px;
+  padding: 18px;
+  border: 1px solid var(--pa-line, #e3dcd2);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0%, var(--pa-bg-glow, #ffe9d6) 0, transparent 42%),
+    var(--pa-surface, #ffffff);
+  box-shadow: var(--pa-shadow, none);
+}
+.buurt-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px 20px;
+  margin-bottom: 14px;
+}
+.buurt-intro { min-width: 0; flex: 1 1 280px; }
+.buurt-kicker {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: var(--pa-accent, #b4361b);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.buurt-intro h2 {
+  margin: 0 0 4px;
+  font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+  letter-spacing: -0.03em;
+  color: var(--pa-ink-strong, #121821);
+}
+.buurt-intro p { margin: 0; color: var(--pa-muted, #4f5a68); font-size: 0.92rem; }
+.buurt-controls { display: grid; gap: 8px; flex: 0 1 340px; min-width: 0; }
+.buurt-label { font-size: 0.8rem; font-weight: 800; color: var(--pa-ink, #1b2330); }
+.buurt-select {
+  width: 100%;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--pa-line-strong, #c9bfb2);
+  border-radius: 14px;
+  background: var(--pa-surface-2, #fbf8f4);
+  color: var(--pa-ink, #1b2330);
+  font: inherit;
+  font-weight: 700;
+}
+.buurt-radius { display: flex; flex-wrap: wrap; gap: 6px; }
+.buurt-radius[hidden] { display: none; }
+.buurt-radius button {
+  min-height: 36px;
+  padding: 4px 12px;
+  border: 1px solid var(--pa-line-strong, #c9bfb2);
+  border-radius: 999px;
+  background: var(--pa-surface, #ffffff);
+  color: var(--pa-ink, #1b2330);
+  font: inherit;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.buurt-radius button[aria-pressed="true"] { background: var(--pa-ink-strong, #121821); border-color: var(--pa-ink-strong, #121821); color: var(--pa-bg, #f6f3ee); }
+.buurt-map-wrap { position: relative; isolation: isolate; z-index: 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--pa-line, #e3dcd2); }
+.buurt-map { height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); }
+.buurt-map-veil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 30% 30%, #ffffff55 0 12%, transparent 13%),
+    linear-gradient(135deg, #0f6b5c22, #b4361b22);
+}
+.buurt-map-veil[hidden] { display: none; }
+.buurt-map-veil button,
+.buurt-open {
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--pa-ink-strong, #121821);
+  color: var(--pa-bg, #f6f3ee);
+  font: inherit;
+  font-weight: 800;
+  cursor: pointer;
+}
+.buurt-open { min-height: 32px; padding: 4px 12px; margin-top: 4px; font-size: 0.8rem; }
+.buurt-status { margin: 10px 2px 0; color: var(--pa-muted, #4f5a68); font-size: 0.86rem; }
+.buurt-nogeo { margin-top: 8px; }
+.buurt-nogeo summary { cursor: pointer; font-weight: 700; color: var(--pa-ink, #1b2330); font-size: 0.9rem; }
+.buurt-nogeo ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.buurt-nogeo li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.buurt-nogeo li .buurt-open { background: transparent; color: var(--pa-ink, #1b2330); padding: 0; min-height: 28px; margin: 0; text-align: left; text-decoration: underline; text-underline-offset: 3px; }
+.buurt-nogeo small, .buurt-attrib { color: var(--pa-muted, #4f5a68); }
+.buurt-attrib { margin: 10px 2px 0; font-size: 0.74rem; }
+.buurt-attrib a { color: inherit; }
+
+/* Markers: een bolletje in de kleur van de soort, met het emoji van de soort. */
+.buurt-pin-wrap { background: transparent; border: 0; }
+.buurt-pin {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50% 50% 50% 6px;
+  transform: rotate(-45deg);
+  background: linear-gradient(135deg, var(--cat, #4b5563), var(--cat-2, var(--cat, #4b5563)));
+  border: 2px solid #ffffff;
+  box-shadow: 0 6px 14px #0000004d;
+}
+.buurt-pin > span { transform: rotate(45deg); font-size: 1.05rem; line-height: 1; }
+.buurt-pin b {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  transform: rotate(45deg);
+  min-width: 18px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: #121821;
+  color: #ffffff;
+  font-size: 0.68rem;
+  line-height: 18px;
+  text-align: center;
+}
+.buurt-pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.buurt-pop p { margin: 0 0 6px; }
+.buurt-pop-place { color: #4f5a68; font-size: 0.8rem; }
+.buurt-tip { font-weight: 700; }
+
+/* Donker thema: de tegels iets dimmen, de kaartrand volgt de site. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .buurt-map .leaflet-tile-pane { filter: brightness(0.78) contrast(1.08) saturate(0.85); }
+}
+:root[data-theme="dark"] .buurt-map .leaflet-tile-pane { filter: brightness(0.78) contrast(1.08) saturate(0.85); }
+
+@media (max-width: 640px) {
+  .buurt { padding: 14px; border-radius: 20px; margin-left: -2px; margin-right: -2px; }
+  .buurt-controls { flex-basis: 100%; }
+  .buurt-map { height: 300px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .buurt-pin { box-shadow: none; }
+}

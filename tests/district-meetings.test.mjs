@@ -16,4 +16,80 @@ test("meerdere jaartabellen gebruiken elk hun eigen jaartal",()=>{
 const calendarHtml=`<section><a href="/zittingen/26.1001.0001.0001">districtscollege Antwerpen ma 05/10/2026 - 13:30 Districtshuis Antwerpen - Zaal Christy</a><a href="/zittingen/26.1001.0001.0002">raadscommissie Antwerpen ma 12/10/2026 - 20:00 Provinciehuis Antwerpen</a><a href="/zittingen/26.1001.0001.0003">Bijzondere raadscommissie cultuur, evenementen en feestelijkheden, sport di 13/10/2026 - 20:00 Districtshuis Antwerpen - Zaal Benoit</a><a href="/zittingen/26.1001.0001.0004">districtsraad Antwerpen ma 19/10/2026 - 20:00 Provinciehuis Antwerpen</a></section>`;
 test("eBesluit-kalender laat alleen openbare vergaderingen van district Antwerpen door",()=>{const items=parseEbesluitMeetingCalendar(calendarHtml);assert.deepEqual(items.map(item=>[item.title,item.date,item.timeSlot]),[["Raadscommissie Antwerpen","2026-10-12","20:00"],["Bijzondere raadscommissie cultuur, evenementen en feestelijkheden, sport","2026-10-13","20:00"],["Districtsraad Antwerpen","2026-10-19","20:00"]])});
 test("eBesluit-maandurls gebruiken expliciet month/year",()=>assert.deepEqual(ebesluitMeetingMonthUrls(new Date("2026-09-30T08:00:00Z"),2),["https://ebesluit.antwerpen.be/zittingen/lijst?month=09&year=2026","https://ebesluit.antwerpen.be/zittingen/lijst?month=10&year=2026"]));
-test("fetcher valt terug op eBesluit wanneer de oude jaartabel verdwenen is",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-fallback-"));const noSchedule={currentVersion:"v2",updatedAt:"2026-09-30T08:00:00Z",snippets:[{type:"wysiwyg",body:{text:"<p>Geen planning</p>"}}]};const fetch=async url=>String(url).includes("page-content-by-uuid")?response(noSchedule):{ok:true,status:200,text:async()=>calendarHtml};const s=await run({rootDir:root,clock:()=>new Date("2026-09-30T08:00:00Z"),fetch,log:()=>{}});assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",3]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-vergaderingen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-vergaderingen"}),[]);assert.ok(doc.items.every(item=>item.sourceUrl.startsWith("https://ebesluit.antwerpen.be/")))});
+test("fetcher valt terug op eBesluit wanneer de oude jaartabel verdwenen is",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-fallback-"));const noSchedule={currentVersion:"v2",updatedAt:"2026-09-30T08:00:00Z",snippets:[{type:"wysiwyg",body:{text:"<p>Geen planning</p>"}}]};const fetch=async url=>String(url).includes("page-content-by-uuid")?response(noSchedule):{ok:true,status:200,text:async()=>calendarHtml};const s=await run({rootDir:root,clock:()=>new Date("2026-09-30T08:00:00Z"),fetch,log:()=>{},sleep:async()=>{}});assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",3]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-vergaderingen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-vergaderingen"}),[]);assert.ok(doc.items.every(item=>item.sourceUrl.startsWith("https://ebesluit.antwerpen.be/")))});
+
+import { sourceHealthOf, isTransientErrorCode } from "../lib/fetch-util.mjs";
+import { EBESLUIT_PAGE_GAP_MS, EBESLUIT_RETRY_DELAYS_MS } from "../lib/ebesluit-meetings.mjs";
+const noScheduleEbesluit={currentVersion:"v2",updatedAt:"2026-09-30T08:00:00Z",snippets:[{type:"wysiwyg",body:{text:"<p>Geen planning</p>"}}]};
+test("eBesluit: een 503 op één maandpagina wordt opnieuw geprobeerd, met pauzes tussen de pagina's",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-retry-"));
+  let failures=1;const waits=[];
+  const fetch=async url=>{if(String(url).includes("page-content-by-uuid"))return response(noScheduleEbesluit);if(String(url).includes("month=11")&&failures>0){failures-=1;return{ok:false,status:503,text:async()=>""}}return{ok:true,status:200,text:async()=>calendarHtml}};
+  const s=await run({rootDir:root,clock:()=>new Date("2026-09-30T08:00:00Z"),fetch,log:()=>{},sleep:async ms=>{waits.push(ms)}});
+  assert.equal(s[0].fetchStatus,"ok");
+  assert.ok(waits.includes(EBESLUIT_RETRY_DELAYS_MS[0]),"wacht voor de nieuwe poging");
+  assert.equal(waits.filter(ms=>ms===EBESLUIT_PAGE_GAP_MS).length,12,"pauze tussen de 13 maandpagina's");
+});
+test("eBesluit blijft 503 geven: vorige data blijft, de bron is stale en geen fout zolang ze binnen 48 uur valt",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-503-"));
+  const ok=await run({rootDir:root,clock:()=>new Date("2026-09-30T08:00:00Z"),fetch:async url=>String(url).includes("page-content-by-uuid")?response(noScheduleEbesluit):{ok:true,status:200,text:async()=>calendarHtml},log:()=>{},sleep:async()=>{}});
+  assert.equal(ok[0].itemCount,3);
+  let calls=0;
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-01T08:00:00Z"),fetch:async url=>{if(String(url).includes("page-content-by-uuid"))return response(noScheduleEbesluit);calls+=1;return{ok:false,status:503,text:async()=>""}},log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].errorCode,s[0].itemCount],["error","http_503",3]);
+  assert.equal(calls,1+EBESLUIT_RETRY_DELAYS_MS.length,"drie pogingen, dan opgeven");
+  const entry={...s[0],maxAgeHours:48};
+  assert.equal(sourceHealthOf(entry,Date.parse("2026-10-01T09:00:00Z")),"stale");
+  assert.equal(sourceHealthOf(entry,Date.parse("2026-10-02T09:00:00Z")),"error","vorige data ouder dan 48 uur: wel een fout");
+});
+test("tijdelijk of blijvend: alleen 5xx, 429, time-out en netwerk zijn tijdelijk",()=>{
+  for(const code of ["http_503","http_502","http_429","timeout","network_error","source_timeout","refresh_budget_exhausted","channel_http_503"])assert.equal(isTransientErrorCode(code),true,code);
+  for(const code of ["http_404","suspicious_drop","no_list","invalid_json","no_schedule",null])assert.equal(isTransientErrorCode(code),false,String(code));
+  const at=Date.parse("2026-10-05T12:00:00Z");
+  assert.equal(sourceHealthOf({fetchStatus:"error",errorCode:"suspicious_drop",retrievedAt:"2026-10-05T10:00:00Z",maxAgeHours:48},at),"error");
+  assert.equal(sourceHealthOf({fetchStatus:"ok",retrievedAt:"2026-10-02T10:00:00Z",maxAgeHours:48},at),"expired");
+  assert.equal(sourceHealthOf({fetchStatus:"skipped_no_key",retrievedAt:null,maxAgeHours:48},at),"inactive");
+});
+
+// 6-10-2026: "Raad & commissies" telde 0 items. De pagina op antwerpen.be gaf op de runners sinds
+// 2-10 een 503, en de fetcher hield dan meteen de vorige gegevens (van 1-10) zonder eBesluit te
+// proberen. Na 48 uur waren alle vergaderingen een verouderde bron en verdwenen ze van de site.
+await import("../site/event-types.js");
+await import("../site/agenda-uitgaan.js");
+const oktoberHtml=`<section><a href="/zittingen/26.0000.0000.0012">raadscommissie Antwerpen ma 12/10/2026 - 20:00 Testzaal</a><a href="/zittingen/26.0000.0000.0019">districtsraad Antwerpen ma 19/10/2026 - 20:00 Testzaal</a></section>`;
+const novemberHtml=`<section><a href="/zittingen/26.0000.0000.0109">raadscommissie Antwerpen ma 09/11/2026 - 20:00 Testzaal</a></section>`;
+const decemberHtml=`<section><a href="/zittingen/26.0000.0000.0214">districtsraad Antwerpen ma 14/12/2026 - 20:00 Testzaal</a></section>`;
+const maandHtml=url=>String(url).includes("month=10")?oktoberHtml:String(url).includes("month=11")?novemberHtml:String(url).includes("month=12")?decemberHtml:"<section></section>";
+const leesDocument=root=>JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-vergaderingen.json"),"utf8"));
+
+test("pagina van antwerpen.be geeft 503: de vergaderingen komen uit eBesluit en tellen als Raad & commissies",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-pagina-503-"));
+  const fetch=async url=>String(url).includes("page-content-by-uuid")?{ok:false,status:503,json:async()=>({}),text:async()=>""}:{ok:true,status:200,text:async()=>maandHtml(url)};
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch,log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",4]);
+  const doc=leesDocument(root);
+  assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-vergaderingen"}),[]);
+  assert.deepEqual(doc.items.slice(0,2).map(item=>[item.title,item.date,item.timeSlot]),[["Raadscommissie Antwerpen","2026-10-12","20:00"],["Districtsraad Antwerpen","2026-10-19","20:00"]]);
+  for(const item of doc.items)assert.equal(globalThis.PublicAgendaUitgaan.categoryOf({...item,sourceId:"district-vergaderingen"}),"meetings",item.title);
+});
+
+test("een latere maand blijft falen: die maand houdt haar vorige gegevens, de bron blijft ok",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-maand-"));
+  const geenPlanning=response(noScheduleEbesluit);
+  await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch:async url=>String(url).includes("page-content-by-uuid")?geenPlanning:{ok:true,status:200,text:async()=>maandHtml(url)},log:()=>{},sleep:async()=>{}});
+  const vorige=leesDocument(root).items.find(item=>item.date==="2026-12-14");
+  assert.ok(vorige,"december stond er de eerste keer");
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-07T08:00:00Z"),fetch:async url=>{if(String(url).includes("page-content-by-uuid"))return geenPlanning;if(String(url).includes("month=12"))return{ok:false,status:503,text:async()=>""};return{ok:true,status:200,text:async()=>maandHtml(url)}},log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].itemCount],["ok",4]);
+  const doc=leesDocument(root);
+  const december=doc.items.find(item=>item.date==="2026-12-14");
+  assert.equal(december.retrievedAt,vorige.retrievedAt,"de oude maand claimt geen nieuwe versheid");
+  assert.equal(doc.items.find(item=>item.date==="2026-10-12").retrievedAt,"2026-10-07T08:00:00.000Z");
+  assert.match(doc.contentVersion,/vorige:2026-12/);
+});
+
+test("de eerste maand faalt: dan wel de vorige gegevens en een fout, zoals voordien",async()=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-meetings-eerste-"));
+  const s=await run({rootDir:root,clock:()=>new Date("2026-10-06T08:00:00Z"),fetch:async url=>String(url).includes("page-content-by-uuid")?response(noScheduleEbesluit):String(url).includes("month=10")?{ok:false,status:503,text:async()=>""}:{ok:true,status:200,text:async()=>maandHtml(url)},log:()=>{},sleep:async()=>{}});
+  assert.deepEqual([s[0].fetchStatus,s[0].errorCode],["error","http_503"]);
+});

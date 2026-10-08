@@ -68,7 +68,8 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   let reviewRequired = 0;
   let droppedOutsideWindow = 0;
   for (const article of articles) {
-    const result = parseDistrictNewsArticle(article, { today });
+    // titleDates: een expliciete dag in de titel ("… op 23, 24 of 25 oktober"), als laatste redmiddel.
+    const result = parseDistrictNewsArticle(article, { today, titleDates: true });
     droppedOutsideWindow += result.dropped ?? 0;
     reviewRequired += result.reviewItems.length;
     if (result.reason) reasons[result.reason] = (reasons[result.reason] ?? 0) + 1;

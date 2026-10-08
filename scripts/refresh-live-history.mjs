@@ -4,10 +4,24 @@ import { fileURLToPath } from "node:url";
 
 import { brusselsDate } from "../lib/html-text.mjs";
 import { updateLiveHistory, validateLiveHistory } from "../lib/live-history.mjs";
+import {
+  LIVE_HISTORY_ARCHIVE_BASELINE_FILE,
+  LIVE_HISTORY_ARCHIVE_INDEX_FILE,
+  historyArchiveDay,
+  historyArchiveDayFile,
+  historyArchiveEventsForRun,
+  updateHistoryArchiveBaseline,
+  updateHistoryArchiveDay,
+  updateHistoryArchiveIndex,
+  validateHistoryArchiveBaseline,
+  validateHistoryArchiveDay,
+  validateHistoryArchiveIndex,
+} from "../lib/live-history-archive.mjs";
 import { applyPublicSpaceStreetResolution, applyWorkStreetResolution, buildStreetIndex } from "../lib/street-resolver.mjs";
 import { fetchStreetFeatures } from "../site/street-source.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { worksExactSnapshot } from "../site/works-snapshot.js";
+import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 
@@ -82,6 +96,7 @@ async function gipodCollection(collection, params, fetchImpl) {
 async function streetIndex(fetchImpl) {
   const features = await fetchStreetFeatures({ fetchImpl });
   const index = buildStreetIndex(features);
+  index.features = features; // ook nodig voor de kaartjes (lib/kaart-uitleg-refresh.mjs)
   if (!index.segments.length) {
     const error = new Error("straatas leeg");
     error.code = "street_axis_empty";
@@ -108,7 +123,9 @@ async function districtGeometry(fetchImpl) {
   return features[0].geometry;
 }
 
-async function asignLayer(layer, { where, outFields, geometry = false, spatial = false }, fetchImpl) {
+export const ASIGN_DETAIL_BATCH_SIZE = 100;
+
+export async function asignLayer(layer, { where, outFields, geometry = false, spatial = false }, fetchImpl) {
   const query = new URL(`${ASIGN_BASE}/${layer}/query`);
   const base = { where, f: "json" };
   if (spatial) {
@@ -128,11 +145,11 @@ async function asignLayer(layer, { where, outFields, geometry = false, spatial =
     throw error;
   }
   const features = [];
-  for (let offset = 0; offset < ids.length; offset += 500) {
+  for (let offset = 0; offset < ids.length; offset += ASIGN_DETAIL_BATCH_SIZE) {
     const url = new URL(`${ASIGN_BASE}/${layer}/query`);
     url.search = new URLSearchParams({
       f: "json",
-      objectIds: ids.slice(offset, offset + 500).join(","),
+      objectIds: ids.slice(offset, offset + ASIGN_DETAIL_BATCH_SIZE).join(","),
       outFields,
       returnGeometry: String(geometry),
       outSR: "4326",
@@ -193,13 +210,13 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       }, fetchImpl),
       asignLayer(22, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,faseStartDatum,faseEindDatum",
+        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
         geometry: true,
         spatial: true,
       }, fetchImpl),
       asignLayer(23, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,faseStartDatum,faseEindDatum",
+        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
         geometry: true,
         spatial: true,
       }, fetchImpl),
@@ -227,7 +244,7 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       sgwFeatures: sgw,
       districtGeometry: district,
     });
-    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets) };
+    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "public_space_fetch_failed") };
   }
@@ -253,6 +270,39 @@ export async function refreshLiveHistory({
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(history, null, 2)}\n`, "utf8");
+
+  const archiveBaselineFile = path.join(rootDir, LIVE_HISTORY_ARCHIVE_BASELINE_FILE);
+  const archiveIndexFile = path.join(rootDir, LIVE_HISTORY_ARCHIVE_INDEX_FILE);
+  const archiveDayPath = historyArchiveDayFile(historyArchiveDay(observedAt));
+  const archiveDayFile = path.join(rootDir, archiveDayPath);
+  const readJsonIfPresent = (target) => fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : null;
+
+  const previousBaseline = readJsonIfPresent(archiveBaselineFile);
+  const previousIndex = readJsonIfPresent(archiveIndexFile);
+  const previousDay = readJsonIfPresent(archiveDayFile);
+  const baseline = updateHistoryArchiveBaseline(previousBaseline, history);
+  const dayDocument = updateHistoryArchiveDay(
+    previousDay,
+    observedAt,
+    historyArchiveEventsForRun(history, baseline)
+  );
+  const archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  const archiveErrors = [
+    ...validateHistoryArchiveBaseline(baseline),
+    ...validateHistoryArchiveDay(dayDocument),
+    ...validateHistoryArchiveIndex(archiveIndex),
+  ];
+  if (archiveErrors.length) throw new Error(`live historiekarchief ongeldig: ${archiveErrors[0]}`);
+
+  fs.mkdirSync(path.dirname(archiveBaselineFile), { recursive: true });
+  fs.writeFileSync(archiveBaselineFile, `${JSON.stringify(baseline, null, 2)}\n`, "utf8");
+  fs.writeFileSync(archiveIndexFile, `${JSON.stringify(archiveIndex, null, 2)}\n`, "utf8");
+  if (dayDocument.events.length > 0 || previousDay) {
+    fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
+  }
+
+  await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
+
   log(JSON.stringify({
     observedAt,
     worksStatus: history.layers.works.status,
@@ -260,6 +310,7 @@ export async function refreshLiveHistory({
     publicSpaceStatus: history.layers.publicSpace.status,
     publicSpaceCount: history.layers.publicSpace.count,
     changes: history.changes.filter((entry) => entry.observedAt === observedAt).length,
+    archivedChanges: dayDocument.events.length,
   }));
   return history;
 }
