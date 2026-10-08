@@ -155,16 +155,6 @@
    "postcode": "2140",
    "checkedOn": "2026-10-05"
   },
-  "letterenhuis minderbroedersstraat 22": {
-   "point": [
-    4.40476,
-    51.22279
-   ],
-   "precision": "adres",
-   "street": "Minderbroedersstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-05"
-  },
   "michel willemsplein antwerpen": {
    "point": [
     4.37472,
