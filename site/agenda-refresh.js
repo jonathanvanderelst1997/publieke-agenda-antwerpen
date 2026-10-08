@@ -89,7 +89,8 @@
     "poetische-rimpelingen-regatta": {
       publisher: "Maand van de Voetganger / Voetgangersbeweging vzw",
       url: "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
-      retrievedAt: currentRetrievedAt,
+      // Deze fiche is pas op 08-10-2026 gecontroleerd, niet bij de ronde van 16-09.
+      retrievedAt: "2026-10-08T19:23:00Z",
       state: "verified",
       note: "Publieke activiteitenfiche: Regattawandeling zaterdag 10 oktober 2026 om 14 uur; samen met 2050 Literair, Citaat op Straat en district Antwerpen.",
       officialPublic: true,
