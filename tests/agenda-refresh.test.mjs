@@ -85,6 +85,12 @@ test("past officiële correcties voor locatie, tijd en bron toe", () => {
   assert.equal(poem.timeText, "14 tot 16.30 uur");
   assert.equal(poem.link, "https://www.citaatopstraat.be/");
 
+  const regatta = find("Poëtische Rimpelingen", "2026-10-10");
+  assert.equal(regatta.sourceId, "poetische-rimpelingen-regatta");
+  assert.equal(regatta.timeSlot, "14:00");
+  assert.equal(regatta.link, "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/");
+  assert.match(regatta.info, /5 euro/);
+
   const moveDay = find("Beweegdag 55+", "2026-09-19");
   assert.match(moveDay.location, /Zuiderpershuis/);
   assert.doesNotMatch(moveDay.info, /op Linkeroever/);
