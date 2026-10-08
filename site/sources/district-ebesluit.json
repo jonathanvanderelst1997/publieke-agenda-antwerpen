@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "eBesluit Antwerpen: gepubliceerde districtsbesluiten voor foren en feestdagmarkten",
   "retrievedAt": "2026-10-08T10:31:58.873Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-v2|2026-2027|3|6",
   "items": [
