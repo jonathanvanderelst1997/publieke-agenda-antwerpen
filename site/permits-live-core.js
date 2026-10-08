@@ -1,5 +1,6 @@
 import {geometryIntersectsDistrict} from "./public-space-live-core.js";
 import {resolveGeometryStreets} from "./street-core.js";
+import {herkenAanvraag,beslissingsdatumTekst} from "./permit-clarity.js";
 
 const clean=(value,max=160)=>String(value??"").replace(/\s+/g," ").trim().slice(0,max);
 const yes=value=>["1","true","ja","yes","y"].includes(clean(value,20).toLowerCase());
@@ -17,6 +18,9 @@ export function normalizePermit(row={}){
     dossier,
     project,
     dossierType:type,
+    // Vrije onderwerptekst en namen worden nooit uitgegeven; alleen een vaste categorie.
+    purpose:herkenAanvraag(row.AardAanvraag,row.Onderwerp),
+    decisionDateLabel:beslissingsdatumTekst(row.DatumBeslissing),
     decision:clean(row.Beslissing,80),
     decisionDate:clean(row.DatumBeslissing,20),
     complete:clean(row.Volledig,20),
