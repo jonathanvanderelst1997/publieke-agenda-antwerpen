@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be infopagina koopzondagen (HTML, lijst 'Koopzondagen in <jaar>'), alleen komende koopzondagen",
-  "retrievedAt": "2026-10-08T10:33:31.841Z",
+  "retrievedAt": "2026-10-08T15:13:51.193Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
@@ -36,7 +36,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. Openingsuren verschillen per winkel.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -58,7 +58,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. Openingsuren verschillen per winkel.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -80,7 +80,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. Openingsuren verschillen per winkel.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -102,7 +102,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. Openingsuren verschillen per winkel.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -124,7 +124,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. Openingsuren verschillen per winkel.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "reviewRequired": false,
       "inDistrict": true
     }

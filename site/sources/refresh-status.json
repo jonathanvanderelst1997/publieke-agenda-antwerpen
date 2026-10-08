@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-08T10:33:33.396Z",
+  "generatedAt": "2026-10-08T15:13:52.798Z",
   "classificationAsOf": "2026-10-08",
   "sources": [
     {
@@ -8,7 +8,7 @@
       "file": "sources/district-ebesluit.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:31:58.873Z",
+      "retrievedAt": "2026-10-08T15:12:20.963Z",
       "maxAgeHours": 48,
       "itemCount": 9,
       "errorCode": null
@@ -18,7 +18,7 @@
       "file": "sources/district-gipod-evenementen.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:31:49.996Z",
+      "retrievedAt": "2026-10-08T15:12:11.883Z",
       "maxAgeHours": 48,
       "itemCount": 0,
       "errorCode": null
@@ -28,7 +28,7 @@
       "file": "sources/district-kalender.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:31:38.452Z",
+      "retrievedAt": "2026-10-08T15:11:56.982Z",
       "maxAgeHours": 48,
       "itemCount": 11,
       "errorCode": null
@@ -38,7 +38,7 @@
       "file": "sources/district-nieuws.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:31:39.170Z",
+      "retrievedAt": "2026-10-08T15:11:59.890Z",
       "maxAgeHours": 48,
       "itemCount": 4,
       "errorCode": null
@@ -48,7 +48,7 @@
       "file": "sources/district-vergaderingen.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:31:40.170Z",
+      "retrievedAt": "2026-10-08T15:12:01.386Z",
       "maxAgeHours": 48,
       "itemCount": 39,
       "errorCode": null
@@ -58,27 +58,27 @@
       "file": "sources/mail-district.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:33:32.907Z",
+      "retrievedAt": "2026-10-08T15:13:52.561Z",
       "maxAgeHours": 48,
       "itemCount": 0,
-      "errorCode": null
+      "errorCode": "upstream_stale"
     },
     {
       "sourceId": "mail-stad",
       "file": "sources/mail-stad.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:33:32.907Z",
+      "retrievedAt": "2026-10-08T15:13:52.561Z",
       "maxAgeHours": 48,
       "itemCount": 0,
-      "errorCode": null
+      "errorCode": "upstream_stale"
     },
     {
       "sourceId": "stad-districten",
       "file": "sources/stad-districten.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:32:59.684Z",
+      "retrievedAt": "2026-10-08T15:13:18.321Z",
       "maxAgeHours": 48,
       "itemCount": 25,
       "errorCode": null
@@ -88,7 +88,7 @@
       "file": "sources/stad-koopzondagen.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:33:31.841Z",
+      "retrievedAt": "2026-10-08T15:13:51.193Z",
       "maxAgeHours": 48,
       "itemCount": 5,
       "errorCode": null
@@ -98,9 +98,9 @@
       "file": "sources/stad-markten.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-08T10:33:26.591Z",
+      "retrievedAt": "2026-10-08T15:13:45.718Z",
       "maxAgeHours": 48,
-      "itemCount": 633,
+      "itemCount": 630,
       "errorCode": null
     },
     {
