@@ -9,6 +9,9 @@ import {
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
+import { allesFilterActie } from "./filter-action-ux.js";
+import { duidelijkeKaart } from "./permit-clarity.js";
+import {bezoekersLinks,bezoekersHint,leesbaarUur} from "./bezoekers-bronnen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 
@@ -120,10 +123,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     <div class="pv-layout">
       <div class="pv-main">
         <div class="pv-head">
-          <div><h2 id="pv-title" tabindex="-1">Wat staat er op de agenda?</h2><p class="pv-sub"></p></div>
+          <div><h2 id="pv-title" tabindex="-1">Wat staat er op de agenda?</h2><p class="pv-sub" aria-live="polite" aria-atomic="true"></p></div>
         </div>
         <div class="pv-toolbar">
           <div class="pv-groups" role="group" aria-label="Soort tonen of verbergen"></div>
+          <p class="pv-group-scroll-hint">Veeg horizontaal om meer onderwerpen te zien.</p>
           <div class="pv-toolbar-row">
             <div class="pv-seg pv-modes" role="group" aria-label="Weergave"></div>
             <div class="pv-seg pv-periods" role="group" aria-label="Periode"></div>
@@ -337,7 +341,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       if (!suggestions.length && search.value.trim()) renderSuggestions();
       if (suggestions[active]) applyPlace(suggestions[active].place, { focusResults: true });
     } else if (event.key === "Escape") {
-      if (!listbox.hidden) closeSuggestions(); else if (search.value) { search.value = ""; clearBtn.hidden = true; }
+      if (!listbox.hidden) closeSuggestions(); else if (search.value) clearBtn.click();
     }
   });
   listbox.addEventListener("mousedown", (event) => event.preventDefault()); // focus blijft in het zoekveld
@@ -385,7 +389,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const on = state.groups.has(g.key), n = state.counts[g.key];
       return `<button type="button" class="pv-chip cat-${g.cat}${n === 0 ? " pv-chip-zero" : ""}" data-group="${g.key}" aria-pressed="${on}"><span aria-hidden="true">${g.emoji}</span> ${esc(g.label)}${Number.isFinite(n) ? ` <span class="pv-chip-n">${n}</span>` : ""}</button>`;
     });
-    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*" aria-pressed="${state.groups.size === KIND_GROUPS.length}">Alles</button>${chips.join("")}`;
+    const allesActie = allesFilterActie(state.groups.size, KIND_GROUPS.length, Boolean(state.place));
+    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*" aria-label="${esc(allesActie)}" aria-pressed="${state.groups.size === KIND_GROUPS.length}">${esc(allesActie)}</button>${chips.join("")}`;
     modesEl.innerHTML = MODES.map(([k, label]) => `<button type="button" data-mode="${k}" aria-pressed="${state.mode === k}">${label}</button>`).join("");
     periodsEl.hidden = state.mode !== "lijst";
     periodsEl.innerHTML = PERIODS.map(([k, label]) => `<button type="button" data-period="${k}" aria-pressed="${state.period === k}">${label}</button>`).join("");
@@ -530,7 +535,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     const planned = entry.start && entry.start > today;
     const running = multi && entry.start && entry.start <= today;
-    let when = entry.time ? entry.time.replace(":", ".") : multi ? (running ? "Loopt" : "Start") : entry.start ? "Hele dag" : "";
+    let when = leesbaarUur(entry,{multi,running});
     if (context === "running") when = entry.end ? `t/m ${shortDate(entry.end)}` : "Loopt";
     const badge = entry.group === "werken" || entry.source !== "agenda"
       ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
@@ -550,19 +555,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
     }
     const item = entry.item || {};
-    const links = [];
-    if (entry.url) links.push(`<a href="${esc(entry.url)}" target="_blank" rel="noopener noreferrer">Meer info <span aria-hidden="true">↗</span></a>`);
-    if (entry.sourceUrl && entry.sourceUrl !== entry.url) links.push(`<a href="${esc(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">Officiële bron <span aria-hidden="true">↗</span></a>`);
+    const duidelijk = duidelijkeKaart(entry,item);
+    const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
+    const bronHint = bezoekersHint(entry);
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
     return `
       <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}" data-uid="${esc(entry.uid)}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
-          <span class="pv-row-when">${esc(when)}</span>
+          <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
             <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}</span>
-            <strong class="pv-row-title">${esc(entry.title)}</strong>
-            ${entry.summary ? `<span class="pv-row-summary">${esc(entry.summary)}</span>` : ""}
+            <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
+            ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
@@ -571,6 +576,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </button>
         <div class="pv-detail" id="pv-d-${uid}" ${open ? "" : "hidden"}>
           ${progress}
+          ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
+          ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
           ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
@@ -579,6 +586,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
           </dl>`}
+          ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
@@ -615,7 +623,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const items = entries.filter((e) => e.theme === "markets").map((e) => e.item);
     const bundles = window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
     if (!bundles.length) return "";
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${m.timeText ? ` · ${esc(m.timeText)}` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}</li>`).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${m.timeText ? ` · ${esc(m.timeText)}` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
   function emptyTemplate(today) {
     const place = state.place;
@@ -641,7 +649,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
     html.push(marketsTemplate(entries, today));
-    html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Vergunningen in behandeling`, permits, { today, context: "permit" }));
+    html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }));
     const body = html.filter(Boolean).join("");
     results.innerHTML = body || emptyTemplate(today);
   }

@@ -396,12 +396,16 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, wijkVan } 
   if (f.parcours) gevolgen.push("straten op het parcours kunnen tijdelijk dicht zijn");
 
   const regels = [];
+  regels.push(["Thema / soort",f.soort ? `${f.soort} (afgeleid uit de beschrijving van het dossier)` : "Niet openbaar gemaakt; uit een parcours alleen volgt niet of dit een loopwedstrijd, wielerwedstrijd of ander evenement is."]);
+  regels.push(["Organisator","Niet openbaar gemaakt in A-Sign."]);
+  regels.push(["Waarom in deze agenda?",f.parcours ? "Stad Antwerpen registreert een toegelaten inname met parcours in het openbaar domein; dit is geen volledig evenementenprogramma." : "Stad Antwerpen registreert een toegelaten inname van openbaar domein."]);
   regels.push(["Wat", gekoppeld
     ? `${gekoppeld.titel}${gekoppeld.locatie ? ` (${gekoppeld.locatie})` : ""}. Gekoppeld via datum en straten aan de agenda.`
     : `${f.soort ? `${f.soort}, afgeleid uit de ${f.soortBron}. ` : ""}De stad gaf toelating voor een evenement op straat; naam en organisator staan niet in de publieke bron.`]);
   if (f.beschrijvingen.length) regels.push(["In het dossier", f.beschrijvingen.join(" · ")]);
-  regels.push(["Wanneer", `${datum}${gekoppeld?.tijd ? `, ${gekoppeld.tijd}` : " (uren niet gepubliceerd)"}${duur.tekst && duur.toestand !== "onbekend" ? ` · ${duur.tekst}` : ""}`]);
+  regels.push(["Wanneer", `${datum} (periode van de inname volgens A-Sign; niet noodzakelijk de evenementuren)${gekoppeld?.tijd ? ` · gekoppelde activiteit: ${gekoppeld.tijd}` : " · uren niet gepubliceerd"}${duur.tekst && duur.toestand !== "onbekend" ? ` · ${duur.tekst}` : ""}`]);
   if (f.fasen.some((x) => x !== "Evenement")) regels.push(["Opbouw en afbraak", f.fasen.map((x) => CODES[x] || x).join(", ")]);
+  if (f.parcours) regels.push(["Parcours", `${f.straten.length} betrokken straten volgens het dossier; dit bewijst niet dat ze allemaal tegelijkertijd afgesloten zijn.`]);
   if (gevolgen.length) regels.push(["Gevolgen", capital(gevolgen.join(" · "))]);
   const samenvatting = [
     gekoppeld ? `${gekoppeld.titel}.` : `${soort} met toelating van de stad${f.soort ? "" : "; het soort evenement staat niet in de bron"}.`,
