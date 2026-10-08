@@ -11,6 +11,7 @@ import {
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
+import {bezoekersLinks,bezoekersHint,leesbaarUur} from "./bezoekers-bronnen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 
@@ -534,7 +535,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     const planned = entry.start && entry.start > today;
     const running = multi && entry.start && entry.start <= today;
-    let when = entry.time ? entry.time.replace(":", ".") : multi ? (running ? "Loopt" : "Start") : entry.start ? "Hele dag" : "";
+    let when = leesbaarUur(entry,{multi,running});
     if (context === "running") when = entry.end ? `t/m ${shortDate(entry.end)}` : "Loopt";
     const badge = entry.group === "werken" || entry.source !== "agenda"
       ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
@@ -555,10 +556,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry,item);
-    const links = [];
-    if (duidelijk.inzageloket) links.push('<a href="https://omgevingsloketinzage.omgeving.vlaanderen.be/" target="_blank" rel="noopener noreferrer">Zoek dit dossier in het inzageloket (indien openbaar) ↗</a>');
-    if (entry.url) links.push(`<a href="${esc(entry.url)}" target="_blank" rel="noopener noreferrer">Meer info <span aria-hidden="true">↗</span></a>`);
-    if (entry.sourceUrl && entry.sourceUrl !== entry.url) links.push(`<a href="${esc(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">Officiële bron <span aria-hidden="true">↗</span></a>`);
+    const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
+    const bronHint = bezoekersHint(entry);
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
     return `
@@ -587,6 +586,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
           </dl>`}
+          ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
