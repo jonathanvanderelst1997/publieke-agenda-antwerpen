@@ -34,15 +34,31 @@ const dutchDay=iso=>{
   const x=String(iso||"").slice(0,10),z=x.match(/^\d{4}-(\d{2})-(\d{2})$/);
   return z&&+z[1]>=1&&+z[1]<=12?String(+z[2])+" "+maanden[+z[1]-1]:x;
 };
+// Beslissingsstatus alleen wanneer de officiële tekst dat ondubbelzinnig zegt.
+// 'Gunstig advies' alleen is NOOIT bewijs van een verleende vergunning.
+export function omgevingsStatus(item={}) {
+  const raw=fold(item.decision);
+  if(/\b(geweigerd|weigering|niet vergund|vergunning geweigerd)\b/.test(raw))
+    return {type:"geweigerd",label:"Aanvraag geweigerd volgens de gepubliceerde beslissing; werken niet toegestaan op basis van deze aanvraag."};
+  if(/\b(voorwaardelijk vergund|vergunning verleend|vergund|verleende vergunning)\b/.test(raw))
+    return {type:"vergund",label:"Vergunning verleend volgens de stadsbron; startdatum van de werken niet bevestigd."};
+  if(raw)return {type:"onduidelijk",label:"Een beslissing is vermeld, maar haar betekenis is niet eenduidig. Raadpleeg het Inzageloket."};
+  return {type:"aanvraag",label:"Omgevingsaanvraag in behandeling; geen verleende vergunning bevestigd."};
+}
 export function duidelijkeKaart(entry={},item={}){
-  if(entry.source==="permits")return {
-    titel:item.purpose||"Omgevingsaanvraag — doel niet bevestigd",
-    samenvatting:"Aanvraag in behandeling; geen toestemming voor uitvoering aangetoond.",
-    tijd:"Aanvraag",
-    toelichting:"Dit betreft een aanvraag, niet noodzakelijk een verleende vergunning. De aanvraagdatum en geplande start van werken ontbreken in deze stadsbron.",
-    regels:[["Waarvoor?",item.purpose||"Niet betrouwbaar te bepalen uit de beschikbare openbare gegevens"],...(item.decisionDateLabel?[["Beslissingsdatum",item.decisionDateLabel]]:[]),["Start van de werken","Niet gepubliceerd"]],
-    inzageloket:true,
-  };
+  if(entry.source==="permits"){
+    const stage=omgevingsStatus(item);
+    return {
+      titel:item.purpose||"Omgevingsaanvraag — doel niet bevestigd",
+      samenvatting:stage.label,
+      tijd:stage.type==="vergund"?"Vergund":stage.type==="geweigerd"?"Geweigerd":"Aanvraag",
+      toelichting:"Deze stadslaag gaat over aanvragen en besluiten, niet over feitelijk begonnen werken. De aanvraagdatum en de startdatum van de uitvoering zijn niet gepubliceerd. Kijk in het Inzageloket voor plannen en officiële termijnen.",
+      regels:[["Waarvoor?",item.purpose||"Niet betrouwbaar te bepalen uit de beschikbare openbare gegevens"],
+        ["Procedurestatus",stage.label],
+        ...(item.decisionDateLabel?[["Beslissingsdatum",item.decisionDateLabel]]:[]),
+        ["Start van de werken","Niet gepubliceerd"]],inzageloket:true,
+    };
+  }
   const onbekend=entry.source==="publicSpace"&&item.kind==="iod"&&(entry.uitleg?.ontbreekt||[]).some(v=>String(v).includes("naam van het evenement niet gepubliceerd"));
   if(onbekend){
     const n=Array.isArray(entry.straten)?entry.straten.length:0;
