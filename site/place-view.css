@@ -172,6 +172,9 @@
 .pv-detail dd { margin: 0; overflow-wrap: anywhere; }
 .pv-links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .pv-links a, .pv-ics { color: var(--pa-accent); font-weight: 700; font-size: .9rem; text-underline-offset: 3px; }
+.pv-links .pv-bron-bezoeker { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface-2); }
+.pv-links .pv-bron-technisch { font-size: .8rem; color: var(--pa-muted); font-weight: 500; }
+.pv-bron-hint { color: var(--pa-muted); font-size: .87rem; line-height: 1.5; }
 .pv-ics { border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface); padding: 8px 12px; cursor: pointer; min-height: 44px; }
 .pv-progress { margin: 14px 0 0; height: 8px; border-radius: 999px; background: var(--cat-soft, var(--pa-surface-2)); overflow: hidden; }
 .pv-progress span { display: block; height: 100%; background: var(--cat, var(--pa-accent)); border-radius: inherit; }
