@@ -9,6 +9,7 @@ import {
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
+import { duidelijkeKaart } from "./permit-clarity.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 
@@ -550,7 +551,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
     }
     const item = entry.item || {};
+    const duidelijk = duidelijkeKaart(entry,item);
     const links = [];
+    if (duidelijk.inzageloket) links.push('<a href="https://omgevingsloketinzage.omgeving.vlaanderen.be/" target="_blank" rel="noopener noreferrer">Zoek dit dossier in het inzageloket (indien openbaar) ↗</a>');
     if (entry.url) links.push(`<a href="${esc(entry.url)}" target="_blank" rel="noopener noreferrer">Meer info <span aria-hidden="true">↗</span></a>`);
     if (entry.sourceUrl && entry.sourceUrl !== entry.url) links.push(`<a href="${esc(entry.sourceUrl)}" target="_blank" rel="noopener noreferrer">Officiële bron <span aria-hidden="true">↗</span></a>`);
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
@@ -558,11 +561,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     return `
       <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}" data-uid="${esc(entry.uid)}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
-          <span class="pv-row-when">${esc(when)}</span>
+          <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
             <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}</span>
-            <strong class="pv-row-title">${esc(entry.title)}</strong>
-            ${entry.summary ? `<span class="pv-row-summary">${esc(entry.summary)}</span>` : ""}
+            <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
+            ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
@@ -571,6 +574,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </button>
         <div class="pv-detail" id="pv-d-${uid}" ${open ? "" : "hidden"}>
           ${progress}
+          ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
+          ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
           ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
