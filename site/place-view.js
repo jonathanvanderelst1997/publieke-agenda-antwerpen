@@ -12,6 +12,7 @@ import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur} from "./bezoekers-bronnen.js";
+import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 
@@ -535,7 +536,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     const planned = entry.start && entry.start > today;
     const running = multi && entry.start && entry.start <= today;
-    let when = leesbaarUur(entry,{multi,running});
+    const marktUur = entry.theme === "markets" ? publiekeMarktUur(entry.item) : null;
+    let when = marktUur ? marktUur.start.replace(":",".") : leesbaarUur(entry,{multi,running});
     if (context === "running") when = entry.end ? `t/m ${shortDate(entry.end)}` : "Loopt";
     const badge = entry.group === "werken" || entry.source !== "agenda"
       ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
@@ -580,13 +582,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
           ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
-            ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
+            ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
           </dl>`}
           ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
+          ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
@@ -622,8 +625,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function marketsTemplate(entries, today) {
     const items = entries.filter((e) => e.theme === "markets").map((e) => e.item);
     const bundles = window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
+    const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return "";
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${m.timeText ? ` · ${esc(m.timeText)}` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
   function emptyTemplate(today) {
     const place = state.place;
