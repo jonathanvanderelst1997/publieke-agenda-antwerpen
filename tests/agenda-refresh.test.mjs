@@ -165,4 +165,3 @@ test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende wer
   const later = engine.reconcileAgendaItems([items.find((candidate) => candidate.id === works.id)], addDays(due, 1));
   assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
 });
-

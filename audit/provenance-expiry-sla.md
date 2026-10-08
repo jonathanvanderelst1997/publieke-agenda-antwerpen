@@ -3,9 +3,9 @@
 Status: lokale audit, niet gepubliceerd. Classificatie op 2026-10-08; geverifieerde bronsnapshot 2026-10-08T15:53:23.630Z.
 
 - Bronitems: 849
-- Fail-closed lokale kandidaat: 710
-- Classificaties: current=3, expired=119, future=707, review_required=20
-- SLA-statussen: blocked_review_required=17, expired_not_public=119, fresh_verified=710, stale_blocked=3
+- Fail-closed lokale kandidaat: 711
+- Classificaties: current=3, expired=119, future=708, review_required=19
+- SLA-statussen: blocked_review_required=16, expired_not_public=119, fresh_verified=711, stale_blocked=3
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -145,7 +145,7 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 132 | lambermontmartre-2026-09-27 | 2026-09-27 | expired | city-district-calendar | verified | - | - | expired_not_public | nee |
 | 133 | buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10 | 2026-10-10 | future | city-gaston-buurtfeest | verified | - | 2026-10-10 | fresh_verified | ja |
 | 134 | bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01 | 2026-10-05 | current | publiekeruimte-schoolstraat-vanhoenacker | verified | - | 2026-11-01 | fresh_verified | ja |
-| 135 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | review_required | citaat-op-straat | verified | 0 | 2026-09-16 | blocked_review_required | nee |
+| 135 | poetische-rimpelingen-2026-06-29-2026-10-10-66473414 | 2026-10-10 | future | poetische-rimpelingen-regatta | verified | - | 2026-10-10 | fresh_verified | ja |
 | 136 | ebesluit-2026-dcan-00002-2026-04-05-018b14f7 | 2026-04-05 | expired | district-ebesluit | verified | - | - | expired_not_public | nee |
 | 137 | ebesluit-2026-dcan-00002-2026-04-05-7468f16e | 2026-04-05 | expired | district-ebesluit | verified | - | - | expired_not_public | nee |
 | 138 | ebesluit-2026-dcan-00002-2026-05-01-a9596129 | 2026-05-01 | expired | district-ebesluit | verified | - | - | expired_not_public | nee |
