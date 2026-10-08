@@ -166,22 +166,3 @@ test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende wer
   assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
 });
 
-
-test("TIJDELIJK: publieke gegenereerde-bestanden-diff uitlezen voor de ontbrekende PR-bestanden", async () => {
-  const {spawnSync} = await import("node:child_process");
-  const changed=[
-    "audit/provenance-expiry-sla.json",
-    "audit/provenance-expiry-sla.md",
-    "audit/provenance-source-diff-latest.json",
-    "audit/provenance-source-snapshot-latest.json",
-    "site/public-agenda-manifest.json",
-    "site/sitemap.xml"
-  ];
-  const patch=spawnSync("git",["diff","--no-color","--no-ext-diff","--unified=3","--",...changed],{
-    cwd:rootDir,encoding:"utf8",maxBuffer:1200000
-  });
-  const htmlPath=path.join(rootDir,"site/event/poetische-rimpelingen-2026-06-29-2026-10-10-66473414/index.html");
-  const html=fs.existsSync(htmlPath)?fs.readFileSync(htmlPath,"utf8"):"";
-  console.log("BRAIN_PR123_GENERATED_DIFF="+JSON.stringify({status:patch.status,diff:patch.stdout,html}));
-  assert.equal(patch.status,0,"publieke git diff lezen");
-});
