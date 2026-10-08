@@ -44990,6 +44990,514 @@
         "streetDistanceMeters": 2,
         "hindrance": null
       }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:19312466",
+      "type": "changed",
+      "fields": [
+        "end"
+      ],
+      "before": {
+        "end": "2026-10-08T16:00:00Z"
+      },
+      "after": {
+        "end": "2026-10-09T12:06:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:19833783",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:19833783",
+        "gipodId": 19833783,
+        "title": "R1 - R1 - OWR - afsluiting oprit Merksem - markeren en verplaatsen barriers - Antwerpen",
+        "status": "In uitvoering",
+        "start": "2026-10-07T21:30:00Z",
+        "end": "2027-04-08T03:00:00Z",
+        "owner": "AWV voor Lantis",
+        "ownerGroup": "AWV / Lantis",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Wegeniswerken"
+        ],
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": 149,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20116038",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-10-09T15:00:00Z",
+        "start": "2026-10-05T05:00:00Z"
+      },
+      "after": {
+        "end": "2026-10-20T15:00:00Z",
+        "start": "2026-10-09T05:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20635569",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-10-06T05:00:00Z",
+          "end": "2026-10-24T15:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-10-06T05:00:00Z",
+          "end": "2026-11-10T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20643381",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20643381",
+        "gipodId": 20643381,
+        "title": "2000 Antwerpen - Kasteelpleinstraat, Kronenburgstraat – Wegeniswerken plaatselijk structureel onderhoud",
+        "status": "Concreet gepland",
+        "start": "2026-11-03T23:00:00Z",
+        "end": "2026-11-06T23:00:00Z",
+        "owner": "Stad Antwerpen - Stadsontwikkeling",
+        "ownerGroup": "Stad Antwerpen",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "toplaag;herstel/onderhoud"
+        ],
+        "occupancyTypes": [
+          "Wegeniswerken"
+        ],
+        "streets": [
+          {
+            "id": "1471",
+            "name": "Kasteelpleinstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 0,
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-04T06:00:00Z",
+          "end": "2026-11-13T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20718750",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20718750",
+        "gipodId": 20718750,
+        "title": "Werk in openbaar domein",
+        "status": "Concreet gepland",
+        "start": "2026-10-31T05:00:00Z",
+        "end": "2026-11-15T16:00:00Z",
+        "owner": "Stad Antwerpen - Stadsontwikkeling",
+        "ownerGroup": "Stad Antwerpen",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Andere"
+        ],
+        "streets": [],
+        "streetResolution": "ambiguous",
+        "streetDistanceMeters": 2,
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-10-31T05:00:00Z",
+          "end": "2026-11-15T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20728354",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20728354",
+        "gipodId": 20728354,
+        "title": "Werk in openbaar domein",
+        "status": "Concreet gepland",
+        "start": "2026-11-02T06:00:00Z",
+        "end": "2027-03-31T15:00:00Z",
+        "owner": "Stad Antwerpen - Stadsontwikkeling",
+        "ownerGroup": "Stad Antwerpen",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Andere"
+        ],
+        "streets": [
+          {
+            "id": "2536",
+            "name": "Scheldeken",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 1,
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-02T06:00:00Z",
+          "end": "2027-03-31T15:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20782563",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start",
+        "status"
+      ],
+      "before": {
+        "end": "2026-10-14T22:00:00Z",
+        "start": "2026-10-07T22:00:00Z",
+        "status": "In uitvoering"
+      },
+      "after": {
+        "end": "2026-11-09T23:00:00Z",
+        "start": "2026-11-02T23:00:00Z",
+        "status": "Concreet gepland"
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811009",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811009",
+        "gipodId": 20811009,
+        "title": "2018 Antwerpen Lange Elzenstraat 4 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T12:48:00Z",
+        "end": "2026-10-08T17:18:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [],
+        "streetResolution": "ambiguous",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811010",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811010",
+        "gipodId": 20811010,
+        "title": "2018 Antwerpen Lange Elzenstraat 8 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T12:48:00Z",
+        "end": "2026-10-08T17:18:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1734",
+            "name": "Lange Elzenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 13,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811011",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811011",
+        "gipodId": 20811011,
+        "title": "2018 Antwerpen Lange Elzenstraat 10 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T12:48:00Z",
+        "end": "2026-10-08T17:18:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1734",
+            "name": "Lange Elzenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811014",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811014",
+        "gipodId": 20811014,
+        "title": "2018 Antwerpen Lange Elzenstraat 18 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T11:54:00Z",
+        "end": "2026-10-08T16:48:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1734",
+            "name": "Lange Elzenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 13,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811015",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811015",
+        "gipodId": 20811015,
+        "title": "2018 Antwerpen Lange Elzenstraat 120 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T12:48:00Z",
+        "end": "2026-10-08T16:54:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [],
+        "streetResolution": "ambiguous",
+        "streetDistanceMeters": 12,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811016",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811016",
+        "gipodId": 20811016,
+        "title": "2018 Antwerpen Lange Elzenstraat 34 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T11:54:00Z",
+        "end": "2026-10-08T14:24:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1734",
+            "name": "Lange Elzenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 13,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811637",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811637",
+        "gipodId": 20811637,
+        "title": "2018 Antwerpen Oudekerkstraat 20 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-04T08:36:00Z",
+        "end": "2026-11-04T13:06:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "2203",
+            "name": "Oudekerkstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 22,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20811952",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20811952",
+        "gipodId": 20811952,
+        "title": "2000 Antwerpen Nationalestraat 94 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-10-08T14:24:00Z",
+        "end": "2026-10-08T18:54:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "2102",
+            "name": "Nationalestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 16,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-08T14:49:38.800Z",
+      "layer": "works",
+      "id": "work:20812160",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20812160",
+        "gipodId": 20812160,
+        "title": "R1 - Herstellingen camera's - Antwerpen",
+        "status": "Concreet gepland",
+        "start": "2026-10-29T20:00:00Z",
+        "end": "2026-10-30T04:00:00Z",
+        "owner": "AWV voor Lantis",
+        "ownerGroup": "AWV / Lantis",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "mobiele werken"
+        ],
+        "occupancyTypes": [
+          "Andere"
+        ],
+        "streets": [
+          {
+            "id": "1505",
+            "name": "Kennedytunnel",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 0,
+        "hindrance": null
+      }
     }
   ]
 }
