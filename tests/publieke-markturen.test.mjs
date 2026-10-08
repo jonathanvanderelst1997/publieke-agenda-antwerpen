@@ -14,7 +14,7 @@ test("Oudevaartplaats zondag: 8–14 uur in zomertijd en 8–13 uur in wintertij
  assert.equal(publiekeMarktUur(market("Oudevaartplaats, 2000 Antwerpen","2026-10-11")).end,"14:00");
  assert.equal(publiekeMarktUur(market("Oudevaartplaats, 2000 Antwerpen","2026-10-25")).end,"13:00");
  assert.equal(publiekeMarktUur(market("Oudevaartplaats, 2000 Antwerpen","2026-11-01")).end,"13:00");
- assert.equal(publiekeMarktUur(market("Oudevaartplaats, 2000 Antwerpen","2026-10-17")).tekst,"8.00–16.00 uur");
+ assert.equal(publiekeMarktUur(market("Oudevaartplaats, 2000 Antwerpen","2026-10-17")).tekst,"08.00–16.00 uur");
 });
 test("zeven andere bevestigde locatie/weekdagcombinaties uit de stadsmarktengids",()=>{
  const checks=[
