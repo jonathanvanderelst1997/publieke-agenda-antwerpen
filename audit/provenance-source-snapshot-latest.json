@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-08",
   "sourceItemCount": 849,
-  "sourceDigest": "5c913e0ec913ae5ae401f7b7a2e0435c3b412ab2f279a9f38eb61e8ba0b94dc6",
+  "sourceDigest": "feb4a40ebefaf3b7c6399faea877ae547619dda71bdd93b79d45ed0047749ee5",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -9993,13 +9993,13 @@
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "title": "Poëtische Rimpelingen",
       "eventDate": "2026-10-10",
-      "classification": "review_required",
+      "classification": "future",
       "classificationAsOf": "2026-10-08",
-      "sourceId": "citaat-op-straat",
-      "sourcePublisher": "Citaat op Straat",
-      "canonicalSourceUrl": "https://www.citaatopstraat.be/",
-      "sourceHost": "www.citaatopstraat.be",
-      "sourceRetrievedAt": "2026-09-16T12:46:42Z",
+      "sourceId": "poetische-rimpelingen-regatta",
+      "sourcePublisher": "Maand van de Voetganger / Voetgangersbeweging vzw",
+      "canonicalSourceUrl": "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
+      "sourceHost": "maandvandevoetganger.be",
+      "sourceRetrievedAt": "2026-10-08T19:23:00Z",
       "verificationState": "verified"
     },
     {

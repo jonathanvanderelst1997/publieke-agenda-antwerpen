@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-08",
-  "sourceDigest": "5c913e0ec913ae5ae401f7b7a2e0435c3b412ab2f279a9f38eb61e8ba0b94dc6",
-  "matrixDigest": "5c913e0ec913ae5ae401f7b7a2e0435c3b412ab2f279a9f38eb61e8ba0b94dc6",
+  "sourceDigest": "feb4a40ebefaf3b7c6399faea877ae547619dda71bdd93b79d45ed0047749ee5",
+  "matrixDigest": "feb4a40ebefaf3b7c6399faea877ae547619dda71bdd93b79d45ed0047749ee5",
   "counts": {
     "add": 0,
     "change": 0,
@@ -4624,8 +4624,8 @@
     {
       "id": "poetische-rimpelingen-2026-06-29-2026-10-10-66473414",
       "action": "unchanged",
-      "sourceDigest": "d9be79793774526407d80bed47627e748357011d236ea3c971cafc073403c382",
-      "matrixDigest": "d9be79793774526407d80bed47627e748357011d236ea3c971cafc073403c382"
+      "sourceDigest": "64f01b59aa479384e4f8317762e10714512666559a45852b8693d579af9ae9cd",
+      "matrixDigest": "64f01b59aa479384e4f8317762e10714512666559a45852b8693d579af9ae9cd"
     },
     {
       "id": "reanimatielessen-2026-09-10",

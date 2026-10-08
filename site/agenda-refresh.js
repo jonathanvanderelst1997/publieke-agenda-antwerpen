@@ -82,9 +82,20 @@
       url: "https://www.citaatopstraat.be/",
       retrievedAt: currentRetrievedAt,
       state: "verified",
-      note: "Officiële organisatoragenda voor de wandelingen van 19 september en 10 oktober.",
+      note: "Organisatorbron voor de wandeling van 19 september.",
       officialPublic: true,
       scope: "district",
+    },
+    "poetische-rimpelingen-regatta": {
+      publisher: "Maand van de Voetganger / Voetgangersbeweging vzw",
+      url: "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
+      // Deze fiche is pas op 08-10-2026 gecontroleerd, niet bij de ronde van 16-09.
+      retrievedAt: "2026-10-08T19:23:00Z",
+      state: "verified",
+      note: "Publieke activiteitenfiche: Regattawandeling zaterdag 10 oktober 2026 om 14 uur; samen met 2050 Literair, Citaat op Straat en district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["Poëtische Rimpelingen", "10 oktober"] },
     },
     "city-beweegdag": {
       publisher: "District Antwerpen",
@@ -342,11 +353,12 @@
     },
     {
       match: { title: "Poëtische Rimpelingen", dates: ["2026-10-10"] },
-      sourceId: "citaat-op-straat",
+      sourceId: "poetische-rimpelingen-regatta",
       changes: {
-        timeText: "14 tot 16.30 uur; exacte vertrekplaats volgt bij de organisator",
+        timeText: "start om 14 uur; exacte vertrekplaats volgt bij de organisator",
         timeSlot: "14:00",
         location: "Regattawijk, Linkeroever",
+        info: "Regattawandeling met poëzie op zaterdag 10 oktober 2026 om 14 uur. Publieke kalender van Maand van de Voetganger, in samenwerking met 2050 Literair, Citaat op Straat en district Antwerpen. Deelname 5 euro; exacte vertrekplaats via de organisator.",
       },
     },
     {
