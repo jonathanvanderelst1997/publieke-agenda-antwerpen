@@ -1,17 +1,19 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-07T03:23:58.755Z",
+  "checkedAt": "2026-10-08T10:34:07.399Z",
   "sources": [
     {
       "sourceId": "citaat-op-straat",
       "url": "https://www.citaatopstraat.be/",
-      "status": "ok",
+      "status": "gewijzigd",
       "httpStatus": 200,
-      "missing": [],
+      "missing": [
+        "10 oktober"
+      ],
       "items": [
         "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
       ],
-      "since": null
+      "since": "2026-10-08T10:34:07.399Z"
     },
     {
       "sourceId": "city-gaston-buurtfeest",
