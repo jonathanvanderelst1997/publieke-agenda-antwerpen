@@ -9,6 +9,7 @@ import {
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
+import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
@@ -121,10 +122,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     <div class="pv-layout">
       <div class="pv-main">
         <div class="pv-head">
-          <div><h2 id="pv-title" tabindex="-1">Wat staat er op de agenda?</h2><p class="pv-sub"></p></div>
+          <div><h2 id="pv-title" tabindex="-1">Wat staat er op de agenda?</h2><p class="pv-sub" aria-live="polite" aria-atomic="true"></p></div>
         </div>
         <div class="pv-toolbar">
           <div class="pv-groups" role="group" aria-label="Soort tonen of verbergen"></div>
+          <p class="pv-group-scroll-hint">Veeg horizontaal om meer onderwerpen te zien.</p>
           <div class="pv-toolbar-row">
             <div class="pv-seg pv-modes" role="group" aria-label="Weergave"></div>
             <div class="pv-seg pv-periods" role="group" aria-label="Periode"></div>
@@ -338,7 +340,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       if (!suggestions.length && search.value.trim()) renderSuggestions();
       if (suggestions[active]) applyPlace(suggestions[active].place, { focusResults: true });
     } else if (event.key === "Escape") {
-      if (!listbox.hidden) closeSuggestions(); else if (search.value) { search.value = ""; clearBtn.hidden = true; }
+      if (!listbox.hidden) closeSuggestions(); else if (search.value) clearBtn.click();
     }
   });
   listbox.addEventListener("mousedown", (event) => event.preventDefault()); // focus blijft in het zoekveld
@@ -386,7 +388,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const on = state.groups.has(g.key), n = state.counts[g.key];
       return `<button type="button" class="pv-chip cat-${g.cat}${n === 0 ? " pv-chip-zero" : ""}" data-group="${g.key}" aria-pressed="${on}"><span aria-hidden="true">${g.emoji}</span> ${esc(g.label)}${Number.isFinite(n) ? ` <span class="pv-chip-n">${n}</span>` : ""}</button>`;
     });
-    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*" aria-pressed="${state.groups.size === KIND_GROUPS.length}">Alles</button>${chips.join("")}`;
+    const allesActie = allesFilterActie(state.groups.size, KIND_GROUPS.length, Boolean(state.place));
+    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*" aria-label="${esc(allesActie)}" aria-pressed="${state.groups.size === KIND_GROUPS.length}">${esc(allesActie)}</button>${chips.join("")}`;
     modesEl.innerHTML = MODES.map(([k, label]) => `<button type="button" data-mode="${k}" aria-pressed="${state.mode === k}">${label}</button>`).join("");
     periodsEl.hidden = state.mode !== "lijst";
     periodsEl.innerHTML = PERIODS.map(([k, label]) => `<button type="button" data-period="${k}" aria-pressed="${state.period === k}">${label}</button>`).join("");
