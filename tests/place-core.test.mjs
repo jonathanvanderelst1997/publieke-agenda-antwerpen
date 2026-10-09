@@ -6,6 +6,7 @@ import {
   foldText, parseQuery, editDistance, buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam,
   periodRange, monthWeeks, startOfWeek, layoutWeekBars, groupForList, overlaps, dayOf,
   agendaEntry, workEntry, publicSpaceEntry, summarize, KIND_GROUPS, DEFAULT_GROUPS, themesForGroups, groupsForThemes, groupOfTheme,
+  plekWaar, legeStaatTekst, voortgangTekst,
 } from "../site/place-core.js";
 import { createAgendaView, DEFAULT_THEMES, VIEW_THEMES } from "../site/agenda-view.js";
 import { buildStreetList } from "../scripts/build-straten.mjs";
@@ -187,4 +188,23 @@ test("plekfilter: postcode, straat en wijk via dezelfde filter voor alle lagen",
   assert.equal(view.matchesAgenda({ title: "Braderie", eventType: "flea_braderie", location: "Meir 1" }), false);
   view.setArea({ postcode: "9999" });
   assert.equal(view.area.postcode, ""); // alleen geldige postcodes
+});
+
+// Herstelplan O10: de lege staat en de voortgang in korte, kloppende zinnen.
+test("lege staat: geen lidwoord voor de straat, en 'gekozen soorten' alleen als de bewoner koos", () => {
+  const straat = { type: "straat", label: "Rozemiekepad" };
+  assert.equal(plekWaar(straat), "in Rozemiekepad");
+  assert.equal(plekWaar({ type: "wijk", label: "Zurenborg" }), "in de wijk Zurenborg");
+  assert.equal(plekWaar({ type: "postcode", code: "2060" }), "in postcode 2060");
+  assert.equal(plekWaar(null), "in district Antwerpen");
+  assert.equal(legeStaatTekst({ place: straat, gekozen: false, aantalSoorten: 6 }), "Er staat niets op de agenda voor deze straat.");
+  assert.equal(legeStaatTekst({ place: { type: "wijk" }, gekozen: false, aantalSoorten: 6 }), "Er staat niets op de agenda voor deze wijk.");
+  assert.equal(legeStaatTekst({ place: straat, gekozen: true, aantalSoorten: 2 }), "Binnen de gekozen soorten staat hier niets gepland.");
+  assert.equal(legeStaatTekst({ place: straat, gekozen: true, aantalSoorten: 0 }), "Je hebt alle soorten uitgezet.");
+});
+
+test("voortgang: de tweede duur is de lengte van de periode", () => {
+  assert.equal(voortgangTekst("2026-10-22", "2026-10-29", "2026-10-09"), "Start over 13 dagen · duurt 8 dagen");
+  assert.equal(voortgangTekst("2026-10-10", "2026-10-11", "2026-10-09"), "Start over 1 dag · duurt 2 dagen");
+  assert.equal(voortgangTekst("2026-10-07", "2026-10-14", "2026-10-09"), "Dag 3 van 8");
 });

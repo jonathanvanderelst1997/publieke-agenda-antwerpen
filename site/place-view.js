@@ -7,7 +7,9 @@ import {
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
+  plekWaar, legeStaatTekst, voortgangTekst,
 } from "./place-core.js";
+import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
@@ -518,13 +520,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       }
       state.counts[g.key] = n;
     }
-    // Live lagen: nog onderweg, of (eerlijk gemeld) niet bereikbaar.
-    const loading = [], failed = [];
-    const worksFailed = /niet geladen/i.test(document.querySelector("[data-works-count]")?.textContent || "");
-    const spaceNote = document.querySelector("[data-space-note]")?.textContent || "";
+    // Live lagen: nog onderweg, of (eerlijk gemeld) niet of maar half geladen. Elke live module zet
+    // per laag een mislukt-vlag in live.failed; ook een laag die deels laadde, telt als onvolledig.
+    const loading = [];
+    const mislukt = live.failed || {};
     const wants = view.hasPlace || view.wantsLiveLayers;
-    if (wants && view.enabled("works") && !loadedLayer(live.works)) (worksFailed ? failed : loading).push("werken");
-    if (wants && view.enabled("publicSpace") && !loadedLayer(live.publicSpace)) (/niet gelezen|niet geladen/i.test(spaceNote) && !loadedLayer(live.publicSpace) ? failed : loading).push("verkeersmaatregelen");
+    if (wants && view.enabled("works") && !loadedLayer(live.works) && !mislukt.works?.length) loading.push("werken");
+    if (wants && view.enabled("publicSpace") && !loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) loading.push("verkeersmaatregelen");
+    const failed = ontbrekendeOnderdelen(mislukt, (laag) => view.enabled(laag));
     return { entries, loading, failed };
   }
 
@@ -547,7 +550,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (multi && entry.end) {
       const total = Math.max(1, daysBetween(entry.start, entry.end) + 1);
       const done = Math.min(total, Math.max(0, daysBetween(entry.start, today) + 1));
-      progress = `<div class="pv-progress" aria-hidden="true"><span style="width:${Math.round((done / total) * 100)}%"></span></div><p class="pv-progress-text">${planned ? `Start over ${daysBetween(today, entry.start)} dag${daysBetween(today, entry.start) === 1 ? "" : "en"} · ${total} dagen` : `Dag ${done} van ${total}`}</p>`;
+      progress = `<div class="pv-progress" aria-hidden="true"><span style="width:${Math.round((done / total) * 100)}%"></span></div><p class="pv-progress-text">${esc(voortgangTekst(entry.start, entry.end, today))}</p>`;
     }
     let track = "";
     if (context === "week") {
@@ -631,7 +634,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
   function emptyTemplate(today) {
     const place = state.place;
-    const where = place ? (place.type === "straat" ? `in de ${esc(place.label)}` : place.type === "wijk" ? `in de wijk ${esc(place.label)}` : `in postcode ${esc(place.code)}`) : "in district Antwerpen";
+    const where = esc(plekWaar(place));
     const tips = [];
     if (place?.type === "straat") {
       if (state.radius < 500) tips.push(`<button type="button" class="pv-btn" data-radius-tip="500">Kijk ook 500 m rond de straat</button>`);
@@ -641,7 +644,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (state.mode === "lijst" && state.period !== "alles") tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-period-tip="alles">Toon ook wat later komt</button>`);
     if (state.groups.size < KIND_GROUPS.length) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-all-tip>Toon alle soorten</button>`);
     const period = state.mode === "lijst" ? (state.period === "alles" ? "" : ` in de komende ${PERIODS.find(([k]) => k === state.period)[1]}`) : "";
-    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3><p>${state.groups.size ? "Binnen de gekozen soorten staat hier niets gepland." : "Je hebt alle soorten uitgezet."} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
+    const uitleg = legeStaatTekst({ place, gekozen: state.customized, aantalSoorten: state.groups.size });
+    // Lege staat met een laag die niet laadde: eerst zeggen dat het overzicht onvolledig is.
+    const onvolledig = state.onvolledig ? `<p class="pv-empty-warn"><span aria-hidden="true">⚠️</span> ${esc(state.onvolledig)}</p>` : "";
+    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3>${onvolledig}<p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
   }
   function renderList(entries, today) {
     const { from, to } = periodRange(state.period, today);
@@ -745,7 +751,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const { entries, loading, failed } = collect();
     const summary = summarize(entries, today);
     state.layersPending = loading.includes("werken");
-    renderPlace(summary, loading.length ? `${loading.join(" en ")} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", failed.length ? `De live bron voor ${failed.join(" en ")} is nu niet bereikbaar; die ontbreken hieronder. Probeer het straks opnieuw.` : "");
+    state.onvolledig = onvolledigMelding(failed);
+    renderPlace(summary, loading.length ? `${loading.join(" en ")} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", state.onvolledig);
     renderToolbar();
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
@@ -755,7 +762,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       : "Zoek hierboven je straat of wijk om ook werken, verkeer en inspraak in je buurt te zien.";
     loadingEl.innerHTML = place ? "" : [
       loading.length ? `<span class="pv-spinner" aria-hidden="true"></span> ${esc(loading.join(" en "))} laden…` : "",
-      failed.length ? `De live bron voor ${esc(failed.join(" en "))} is nu niet bereikbaar.` : "",
+      state.onvolledig ? `<span class="pv-place-failed">${esc(state.onvolledig)}</span>` : "",
     ].filter(Boolean).join(" ");
     if (state.mode === "maand") renderMonth(entries, today);
     else if (state.mode === "week") renderWeek(entries, today);

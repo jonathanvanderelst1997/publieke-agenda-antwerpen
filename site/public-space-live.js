@@ -1,6 +1,8 @@
 import {collectPublicSpace,publicSpaceStats} from "./public-space-live-core.js";
 import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
+import {asignLayer} from "./asign-query.js";
+import {meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
 
 const root=document.getElementById("public-space-live");
 if(root){
@@ -11,16 +13,9 @@ if(root){
   const date=v=>v&&Number.isFinite(Date.parse(v))?fmt.format(new Date(v)):"";
   const range=i=>i.start&&i.end?`${date(i.start)} – ${date(i.end)}`:i.start?`vanaf ${date(i.start)}`:i.end?`tot ${date(i.end)}`:"timing niet ingevuld";
   const brusselsDate=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return`${o.year}-${o.month}-${o.day}`};
-  const BASE="https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer";
-  const BBOX="4.300791,51.175458,4.444331,51.313629";
   async function get(url){const r=await fetch(url,{headers:{Accept:"application/json"}});if(!r.ok)throw Error(`bron antwoordde met HTTP ${r.status}`);const j=await r.json();if(j?.error)throw Error(j.error.message||"ArcGIS-bronfout");return j}
-  function paramsFor(where,spatial=false){const p={where,f:"json"};if(spatial)Object.assign(p,{geometry:BBOX,geometryType:"esriGeometryEnvelope",inSR:"4326",spatialRel:"esriSpatialRelIntersects"});return p}
-  async function layer(layer,{where,outFields,geometry=false,spatial=false}){
-    const idsUrl=new URL(`${BASE}/${layer}/query`);idsUrl.search=new URLSearchParams({...paramsFor(where,spatial),returnIdsOnly:"true"});
-    const idsData=await get(idsUrl),ids=Array.isArray(idsData.objectIds)?idsData.objectIds:[];
-    if(ids.length>15000)throw Error(`laag ${layer} overschrijdt veiligheidslimiet`);
-    const all=[];for(let i=0;i<ids.length;i+=500){const u=new URL(`${BASE}/${layer}/query`);u.search=new URLSearchParams({f:"json",objectIds:ids.slice(i,i+500).join(","),outFields,returnGeometry:String(geometry),outSR:"4326"});const d=await get(u);if(!Array.isArray(d.features))throw Error(`laag ${layer} gaf geen features terug`);all.push(...d.features)}return all
-  }
+  // A-Sign via de gedeelde ophaler: korte blokken, hoogstens 4 verzoeken tegelijk voor alle lagen.
+  const layer=(nr,opties)=>asignLayer(nr,opties);
   async function district(){const u=new URL("https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/109/query");u.search=new URLSearchParams({where:"districtnaam='ANTWERPEN'",outFields:"districtcode,districtnaam,afkorting",outSR:"4326",f:"geojson"});const d=await get(u),fs=Array.isArray(d.features)?d.features:[];if(fs.length!==1)throw Error("officiële districtsgrens niet uniek gevonden");return fs[0].geometry}
   function filtered(){const q=String(search?.value||"").trim().toLowerCase(),k=kind?.value||"";return state.items.filter(i=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(i,"publicSpace")).filter(i=>{const c=[i.kindLabel,i.title,i.location,i.status,i.reference,i.detail,...(i.streets||[]).map(s=>s.name)].join(" ").toLowerCase();return(!q||c.includes(q))&&(!k||i.kind===k)})}
   function card(i){return`<article class="public-space-card"><header><div><span class="public-space-kind ${esc(i.kind)}">${esc(i.kindLabel)}</span><h3>${esc(i.title)}</h3></div><span class="public-space-status">${esc(i.status)}</span></header><p class="public-space-timing">${esc(range(i))}</p><dl>${i.location?`<div><dt>Locatie</dt><dd>${esc(i.location)}</dd></div>`:""}${i.streets?.length?`<div><dt>Straat</dt><dd>${esc(i.streets.map(s=>s.name).join(" · "))}</dd></div>`:""}${i.detail?`<div><dt>Detail</dt><dd>${esc(i.detail)}</dd></div>`:""}<div><dt>Referentie</dt><dd>${esc(i.reference||"Niet ingevuld")}</dd></div><div><dt>Bron</dt><dd>${esc(i.sourceLabel)}</dd></div></dl><footer><span>Alleen publiek bevestigde status</span><a href="${esc(i.sourceUrl)}" target="_blank" rel="noreferrer">Technische stadsbron (A-Sign)</a></footer></article>`}
@@ -39,12 +34,16 @@ if(root){
     ];
     const settled=await settleSources(jobs);
     const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
+    // Per bron eerlijk melden wat ontbreekt; een halve laag mag niet als volledig doorgaan.
+    let mislukt=mislukteOnderdelenPublicSpace(fail);
     const districtGeometry=v.district instanceof Error?null:v.district;
     const parking=v.parking instanceof Error?[]:v.parking,iod=[...(v.iod22 instanceof Error?[]:v.iod22),...(v.iod23 instanceof Error?[]:v.iod23)];
     const sgw=[...(v.sgw47 instanceof Error?[]:v.sgw47).map(feature=>({feature,kind:"Omleiding"})),...(v.sgw48 instanceof Error?[]:v.sgw48).map(feature=>({feature,kind:"Werfzone"}))];
-    const streetIndex=v.streets instanceof Error?null:v.streets;state.items=collectPublicSpace({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex});state.ready=true;window.PUBLIC_AGENDA_LIVE_STREETS=window.PUBLIC_AGENDA_LIVE_STREETS||{};window.PUBLIC_AGENDA_LIVE_STREETS.publicSpace=state.items;window.dispatchEvent(new CustomEvent("public-agenda:street-layer",{detail:{name:"publicSpace",items:state.items}}));
+    const streetIndex=v.streets instanceof Error?null:v.streets;
+    try{state.items=collectPublicSpace({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"])}
+    state.ready=true;meldLiveLaag("publicSpace",state.items,mislukt);
     const s=publicSpaceStats(state.items);meta.textContent=`${s.parking} parkeerverboden · ${s.iod} innames · ${s.sgw} werfzones/omleidingen`;
-    note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(fail.length?` Tijdelijk niet gelezen: ${fail.join(", ")}.`:"");
+    note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(mislukt.length?` ${onvolledigMelding(mislukt)}`:"");
     render();root.classList.remove("loading");
   }
   window.addEventListener("public-agenda:view-change",()=>{state.shown=60;if(window.PUBLIC_AGENDA_VIEW?.enabled("publicSpace")&&(window.PUBLIC_AGENDA_VIEW.hasPlace||window.PUBLIC_AGENDA_VIEW.wantsLiveLayers))load();if(state.ready)render()});

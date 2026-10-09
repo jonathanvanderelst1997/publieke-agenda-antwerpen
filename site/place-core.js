@@ -454,3 +454,26 @@ export function summarize(entries, today) {
   }
   return out;
 }
+
+// ---- lege staat en voortgang: korte, eerlijke zinnen ----
+// Waar: geen lidwoord voor een straatnaam ("in Rozemiekepad", niet "in de Rozemiekepad").
+export function plekWaar(place) {
+  if (!place) return "in district Antwerpen";
+  if (place.type === "straat") return `in ${place.label}`;
+  if (place.type === "wijk") return `in de wijk ${place.label}`;
+  return `in postcode ${place.code}`;
+}
+// Waarom leeg: alleen "de gekozen soorten" als de bewoner zelf soorten koos.
+export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 0 } = {}) {
+  if (!aantalSoorten) return "Je hebt alle soorten uitgezet.";
+  if (gekozen) return "Binnen de gekozen soorten staat hier niets gepland.";
+  const plek = place?.type === "straat" ? "deze straat" : place?.type === "wijk" ? "deze wijk" : place ? "deze postcode" : "";
+  return plek ? `Er staat niets op de agenda voor ${plek}.` : "Er staat nu niets op de agenda.";
+}
+// Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8".
+export function voortgangTekst(start, end, today) {
+  const totaal = Math.max(1, daysBetween(start, end) + 1);
+  const dagen = (n) => `${n} dag${n === 1 ? "" : "en"}`;
+  if (start > today) return `Start over ${dagen(daysBetween(today, start))} · duurt ${dagen(totaal)}`;
+  return `Dag ${Math.min(totaal, Math.max(0, daysBetween(start, today) + 1))} van ${totaal}`;
+}
