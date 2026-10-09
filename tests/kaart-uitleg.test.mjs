@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   NIET_GEPUBLICEERD, bruikbareBeschrijving, evenementFeiten, evenementKaartje, huisnummerBereik, huisnummersUitTekst,
-  koppelEvenement, resterendeDuur, soortWerk, stratenSamenvatting, werkFeiten, werkKaartje, kaartSvg, vereenvoudigLijnen,
+  koppelEvenement, resterendeDuur, soortEvenement, soortWerk, stratenSamenvatting, werkFeiten, werkKaartje, kaartSvg, vereenvoudigLijnen,
 } from "../site/kaart-uitleg.js";
 import { collectHindrance } from "../site/works-hindrance.js";
 import { normalizeIod } from "../site/public-space-core.js";
@@ -224,4 +224,19 @@ test("inhaakpunt: schrijft het bestand, en een mislukte laag houdt haar vorige f
   assert.deepEqual(validateKaartUitleg(JSON.parse(fs.readFileSync(file, "utf8"))), []);
   const tweede = await schrijfKaartUitleg({ rootDir, works: { ok: false, items: [] }, publicSpace: { ok: false }, fetch: geenNet, clock, log: stil });
   assert.deepEqual(Object.keys(tweede.werken), ["90000001"]);
+});
+
+// Herstelplan O1/4: het losse woord "markt" maakte van elke inname op een plein een "Markt".
+test("soort evenement: een plein met 'markt' in de naam is geen markt", () => {
+  for (const tekst of ["grote markt, verkoop", "Grote Markt", "Inname: Veemarkt", "Vrijdagmarkt - podium", "Parkeerverbod op Paardenmarkt"]) {
+    assert.equal(soortEvenement([tekst]), "", tekst);
+  }
+  for (const tekst of ["rommelmarkt", "Braderie Proefstraat", "verplaatsbare markt", "kerstmarkt op het plein"]) {
+    assert.equal(soortEvenement([tekst]), "Markt", tekst);
+  }
+  const feiten = evenementFeiten([
+    { kind: "iod", reference: "ET2026000001", dossierType: "ETL", innameType: "Inname", description: "theaterplein - drill", start: "2026-10-15T00:00:00.000Z", end: "2026-10-15T00:00:00.000Z", streets: [] },
+    { kind: "iod", reference: "ET2026000001", dossierType: "ETL", innameType: "Inname", description: "grote markt, verkoop", start: "2026-10-15T00:00:00.000Z", end: "2026-10-15T00:00:00.000Z", streets: [] },
+  ]);
+  assert.notEqual(feiten.soort, "Markt");
 });
