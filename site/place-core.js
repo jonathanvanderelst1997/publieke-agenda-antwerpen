@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -358,13 +358,15 @@ export function agendaEntry(item, theme = item?.category || "other") {
 }
 // Feiten uit de verversing (site/sources/kaart-uitleg.json) aanvullen met de live laag: live is
 // verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
+// Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet).
 function samenWerk(live, bewaard) {
   if (!bewaard) return live;
+  const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
   return {
     ...live,
     soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "",
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
-    huisnummers: live.huisnummers || bewaard.huisnummers || "", huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaard.huisnummerBron || "",
+    huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
   };
 }
 export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
@@ -378,6 +380,47 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   if (!vandaag) return base;
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
+}
+// Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
+// werfzones van Ringpark Zuid) wordt één kaart, met alle GIPOD-nummers erbij. Huisnummers in de
+// omschrijving tellen niet: twee aansluitingen naast elkaar zijn één kaart.
+export function werkEntries(works = [], opties = {}) {
+  const groepen = new Map();
+  for (const work of works) {
+    const entry = workEntry(work, opties);
+    const key = [entry.title, entry.start, entry.end, entry.status, cleanText(work?.owner), cleanText(work?.title).replace(/\d+\s?[a-z]?\b/gi, "#")].join("|");
+    groepen.set(key, [...(groepen.get(key) || []), entry]);
+  }
+  return [...groepen.values()].map((lijst) => {
+    if (lijst.length === 1) return lijst[0];
+    const [eerste] = lijst;
+    const ids = lijst.map((e) => e.item?.gipodId).filter(Boolean);
+    const regel = ["Aantal", `${lijst.length} dossiers in GIPOD met dezelfde soort, plek en periode`];
+    return { ...eerste, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel] } : eerste.uitleg };
+  });
+}
+// Het label naast de soort. Een werk waarvan de periode loopt maar dat GIPOD nog "concreet gepland"
+// noemt, krijgt "Periode loopt" en niet "Nu bezig": anders spreken label en status elkaar tegen.
+export function periodeBadge(entry = {}, today = "") {
+  if (entry.group !== "werken" && entry.source === "agenda") return null;
+  if (entry.start && entry.start > today) return { label: "Gepland", soort: "planned" };
+  const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
+  if (!multi || !entry.start) return null;
+  if (entry.source === "works" && !/^in uitvoering$/i.test(cleanText(entry.status))) return { label: "Periode loopt", soort: "period" };
+  return { label: "Nu bezig", soort: "now" };
+}
+// Korte datums voor de lijst: "1 jan", of "1 jan 2034" als de datum niet in het jaar van vandaag valt.
+const MAANDEN_KORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
+export function kortDatum(iso, today = "", { jaar = false } = {}) {
+  if (!isoDay(iso)) return "";
+  const metJaar = jaar || !today || iso.slice(0, 4) !== String(today).slice(0, 4);
+  return `${Number(iso.slice(8, 10))} ${MAANDEN_KORT[Number(iso.slice(5, 7)) - 1]}${metJaar ? ` ${iso.slice(0, 4)}` : ""}`;
+}
+// "8 dec 2025 → 1 jan 2034": beide met jaartal als ze in verschillende jaren vallen of de periode
+// langer is dan 300 dagen.
+export function kortBereik(start, end, today = "") {
+  const jaar = Boolean(start && end && (start.slice(0, 4) !== end.slice(0, 4) || daysBetween(start, end) > 300));
+  return `${kortDatum(start, today, { jaar })} → ${end ? kortDatum(end, today, { jaar }) : "…"}`;
 }
 // Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen.
 // `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).

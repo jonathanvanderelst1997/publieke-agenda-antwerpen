@@ -44,7 +44,7 @@ test("soort werk komt uit de bron, met de bron erbij", () => {
 
 test("werk zonder omschrijving: duidelijke titel, eerlijk over wat ontbreekt", () => {
   const k = werkKaartje(werk(), { vandaag: VANDAAG, feiten: werkFeiten(werk(), { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" }) });
-  assert.equal(k.titel, "Stelling (steiger) Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
+  assert.equal(k.titel, "Stelling (steiger) in de Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
   assert.ok(k.ontbreekt.includes(NIET_GEPUBLICEERD));
   assert.ok(!k.ontbreekt.some((t) => /huisnummers/.test(t)));
   const regels = Object.fromEntries(k.regels);
@@ -56,9 +56,9 @@ test("werk zonder omschrijving: duidelijke titel, eerlijk over wat ontbreekt", (
 });
 
 test("werk zonder hinder en huisnummers zegt dat ze niet gepubliceerd zijn", () => {
-  const w = werk({ hindrance: null, title: "2000 Antwerpen Voorbeeldstraat, Klantaansluiting elektriciteit", start: "2026-10-12T05:00:00Z", end: "2026-10-20T15:00:00Z" });
+  const w = werk({ hindrance: null, title: "2000 Antwerpen Voorbeeldstraat, vernieuwen waterleiding", start: "2026-10-12T05:00:00Z", end: "2026-10-20T15:00:00Z" });
   const k = werkKaartje(w, { vandaag: VANDAAG });
-  assert.equal(k.titel, "Nieuwe aansluiting op het net Voorbeeldstraat vanaf 12 oktober (start over 6 dagen)");
+  assert.equal(k.titel, "Werken aan de waterleiding in de Voorbeeldstraat vanaf 12 oktober (start over 6 dagen)");
   assert.ok(k.ontbreekt.includes("huisnummers niet gepubliceerd"));
   assert.ok(k.ontbreekt.includes("gevolgen voor het verkeer niet gepubliceerd"));
   assert.ok(!k.ontbreekt.includes(NIET_GEPUBLICEERD));
@@ -148,7 +148,7 @@ test("de site bundelt innames per dossier en geeft werken een duidelijke titel",
   const parking = publicSpaceEntries([{ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09", end: "2026-10-10" }], { vandaag: VANDAAG });
   assert.equal(parking[0].title, "Parkeerverbod: Verhuis");
   const w = workEntry(werk(), { vandaag: VANDAAG, uitleg: { werken: { 90000001: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } });
-  assert.equal(w.title, "Stelling (steiger) Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
+  assert.equal(w.title, "Stelling (steiger) in de Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
   assert.match(w.sourceUrl, /GipodId%3D90000001/);
   assert.equal(workEntry(werk()).title, "Werk in openbaar domein"); // zonder vandaag: ongewijzigd
 });

@@ -31,7 +31,23 @@ export function datumTekst(day, { jaar = false } = {}) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(day || "")) return "";
   return `${Number(day.slice(8, 10))} ${MAANDEN[Number(day.slice(5, 7)) - 1]}${jaar ? ` ${day.slice(0, 4)}` : ""}`;
 }
+// Een datum met jaartal als ze niet in het jaar van vandaag valt: "6 juli 2027", maar "30 november".
+// Zonder vandaag altijd met jaartal: dan weten we niet welk jaar de lezer vanzelf invult.
+export function datumBijVandaag(day, vandaag) {
+  const d = dagVan(day), v = dagVan(vandaag);
+  return datumTekst(d, { jaar: !v || d.slice(0, 4) !== v.slice(0, 4) });
+}
+// Een periode krijgt op beide data een jaartal als één datum niet in dit jaar valt of als ze langer
+// dan 300 dagen duurt: "8 december 2025 – 1 januari 2034", niet "8 december – 1 januari".
+export function periodeTekst(start, eind, vandaag) {
+  const s = dagVan(start), e = dagVan(eind), v = dagVan(vandaag);
+  const jaar = [s, e].filter(Boolean).some((d) => !v || d.slice(0, 4) !== v.slice(0, 4)) || (s && e && dagenTussen(s, e) > 300);
+  const d = (x) => datumTekst(x, { jaar: Boolean(jaar) });
+  return s && e ? (s === e ? d(s) : `${d(s)} – ${d(e)}`) : s ? `vanaf ${d(s)}` : e ? `tot ${d(e)}` : "";
+}
 const meervoud = (n, een, veel) => `${n} ${n === 1 ? een : veel}`;
+// Lange termijnen in jaren: "nog 2641 dagen" zegt een bewoner niets.
+const termijn = (n) => (n >= 730 ? `ruim ${Math.floor(n / 365)} jaar` : n >= 365 ? "ruim een jaar" : meervoud(n, "dag", "dagen"));
 
 // Hoe lang nog: "nog 38 dagen", "start over 6 dagen", of eerlijk "einddatum niet gepubliceerd".
 export function resterendeDuur({ start, eind, vandaag }) {
@@ -39,41 +55,50 @@ export function resterendeDuur({ start, eind, vandaag }) {
   if (!v) return { toestand: "onbekend", dagen: null, tekst: "" };
   if (s && s > v) {
     const n = dagenTussen(v, s);
-    return { toestand: "gepland", dagen: n, tekst: n === 1 ? "start morgen" : `start over ${n} dagen` };
+    return { toestand: "gepland", dagen: n, tekst: n === 1 ? "start morgen" : `start over ${termijn(n)}` };
   }
   if (!e) return { toestand: "onbekend", dagen: null, tekst: "einddatum niet gepubliceerd" };
   if (e < v) return { toestand: "voorbij", dagen: 0, tekst: "afgelopen" };
   const n = dagenTussen(v, e);
-  return { toestand: "bezig", dagen: n, tekst: n === 0 ? "laatste dag vandaag" : `nog ${meervoud(n, "dag", "dagen")}` };
+  return { toestand: "bezig", dagen: n, tekst: n === 0 ? "laatste dag vandaag" : `nog ${termijn(n)}` };
 }
 
 // ---------- soort werk ----------
 
 // Volgorde telt: het specifiekere woord eerst ("afbouw stelling" is een stelling, geen sloop).
+// Korte woorden staan tussen woordgrenzen, zodat een straatnaam niet meetelt: "Boomgaardstraat" is
+// geen groenwerk. "distributienet" zegt niet welk net (elektriciteit, gas, water of warmte), dus
+// dat woord alleen maakt nooit een elektriciteitswerk.
+const AANSLUITING = "Nieuwe aansluiting op het net";
+const NUTSWERK = "Werken aan nutsleidingen";
 const SOORTEN_WERK = [
-  [/riolering|riool|afvoerleiding|rioolaansluiting/i, "Rioleringswerken"],
+  [/riolering|\briool|afvoerleiding/i, "Rioleringswerken"],
   [/bemaling/i, "Bemaling (grondwater wegpompen)"],
+  [/warmtenet|warmteleiding|stadsverwarming/i, "Werken aan het warmtenet"],
   [/gasleiding|\bgas\b|aardgas/i, "Werken aan de gasleiding"],
-  [/drinkwater|waterleiding|water-link|\bwater\b/i, "Werken aan de waterleiding"],
+  [/drinkwater|waterleiding|\bwater\b/i, "Werken aan de waterleiding"],
   [/openbare verlichting|lichtmast|straatverlichting/i, "Werken aan de straatverlichting"],
-  [/klantaansluiting|huisaansluiting/i, "Nieuwe aansluiting op het net"],
-  [/elektriciteit|laagspanning|middenspanning|hoogspanning|distributienet/i, "Werken aan het elektriciteitsnet"],
-  [/glasvezel|telecom|telecommunicatie|kabelnet/i, "Telecom- of glasvezelwerken"],
-  [/nutsleiding|nutswerk|nutsvoorziening/i, "Werken aan nutsleidingen"],
+  [/verkeerslicht/i, "Werken aan de verkeerslichten"],
+  [/klantaansluiting|huisaansluiting/i, AANSLUITING],
+  [/elektriciteit|laagspanning|middenspanning|hoogspanning|\b\d+\s?kv\b/i, "Werken aan het elektriciteitsnet"],
+  [/glasvezel|telecom|kabelnet/i, "Telecomwerken (kabels of glasvezel)"],
+  [/nutsleiding|nutswerk|nutsvoorziening/i, NUTSWERK],
+  [/sondering|peilbui[sz]|bodemonderzoek|grondonderzoek|infiltratieproef/i, "Bodemonderzoek"],
+  [/\bboringen?\b/i, "Boringen in de grond"],
   [/heraanleg|herinrichting|wegenis|asfalt|bestrating|fietspad|voetpad|rijweg|kasseien/i, "Wegenwerken"],
   [/tijdelijke halte|tramhalte|bushalte|tramsporen|tramlijn|\bde lijn\b/i, "Werken aan tram of bus"],
-  [/stelling|steiger/i, "Stelling (steiger)"],
-  [/gevel/i, "Gevelwerken"],
-  [/dakwerk|\bdak\b/i, "Dakwerken"],
+  [/hoogtewerker/i, "Werk met een hoogtewerker"],
+  [/\bstelling|steiger/i, "Stelling (steiger)"],
+  [/\bgevel/i, "Gevelwerken"],
+  [/dakwerk|\bdak\b|\bdaken\b/i, "Dakwerken"],
   [/torenkraan|snelmontagekraan|mobiele kraan|\bkraan\b/i, "Bouwkraan"],
-  [/sloop|afbraak|afbreken/i, "Sloopwerken"],
+  [/\bsloop|afbraak|afbreken/i, "Sloopwerken"],
   [/ruwbouw|nieuwbouw|appartement|verbouwing|renovatie|bouwwerf|bouwproject/i, "Bouwwerf"],
-  [/verhuis|verhuislift/i, "Verhuis"],
-  [/container/i, "Container"],
-  [/sondering|boring|peilbuis|bodemonderzoek/i, "Bodemonderzoek"],
-  [/snoei|boom|groenaanleg|beplanting/i, "Groenwerken"],
+  [/\bverhuis/i, "Verhuis"],
+  [/\bcontainers?\b/i, "Container"],
+  [/\bsnoei|\bboom\b|\bbomen\b|groenaanleg|beplanting/i, "Groenwerken"],
 ];
-// GIPOD-types die zelf al een soort zijn (PublicDomainOccupancyTypes / GroundworkSpecification).
+// Eén soort uit vrije tekst: de eerste bron met een herkend woord wint.
 export function soortWerk(bronnen = []) {
   for (const { tekst, bron } of bronnen) {
     const t = clean(tekst, 500);
@@ -81,6 +106,100 @@ export function soortWerk(bronnen = []) {
     for (const [re, soort] of SOORTEN_WERK) if (re.test(t)) return { soort, bron };
   }
   return { soort: "", bron: "" };
+}
+
+// De soort inname van GIPOD (PublicDomainOccupancyTypes) is een vaste lijst. Een net heeft een korte
+// naam (voor "Werken aan elektriciteit en gas"), een eigen soort en een naam voor een aansluiting.
+const NETTEN = Object.freeze({
+  warmte: { kort: "warmtenet", soort: "Werken aan het warmtenet", aansluiting: "het warmtenet" },
+  gas: { kort: "gas", soort: "Werken aan de gasleiding", aansluiting: "het gasnet" },
+  leiding: { kort: "leidingen voor gas, olie of chemicaliën", soort: "Werken aan een leiding voor gas, olie of chemicaliën", aansluiting: "een leiding voor gas, olie of chemicaliën" },
+  elektriciteit: { kort: "elektriciteit", soort: "Werken aan het elektriciteitsnet", aansluiting: "het elektriciteitsnet" },
+  telecom: { kort: "telecom", soort: "Telecomwerken (kabels of glasvezel)", aansluiting: "het telecomnet" },
+  water: { kort: "water", soort: "Werken aan de waterleiding", aansluiting: "de waterleiding" },
+  riolering: { kort: "riolering", soort: "Rioleringswerken", aansluiting: "de riolering" },
+  verlichting: { kort: "straatverlichting", soort: "Werken aan de straatverlichting", aansluiting: "de straatverlichting" },
+});
+const INNAME_NET = Object.freeze({
+  thermisch: "warmte", "olie, gas, chemicaliën": "gas", elektriciteit: "elektriciteit", telecom: "telecom",
+  water: "water", riolering: "riolering", "openbare verlichting": "verlichting",
+});
+// Andere soorten inname, het specifiekste eerst.
+const INNAME_SOORT = [
+  ["hoogtewerker", "Werk met een hoogtewerker"],
+  ["stelling", "Stelling (steiger)"],
+  ["(werf)kraan", "Bouwkraan"],
+  ["(verhuis)lift/levering", "Verhuislift of levering"],
+  ["container", "Container"],
+  ["werfkeet", "Werfkeet"],
+  ["spoorwerken", "Spoorwerken"],
+  ["kunstwerk", "Werken aan een brug, tunnel of viaduct"],
+  ["wegeniswerken", "Wegenwerken"],
+  ["nutswerken", NUTSWERK],
+];
+// Woorden voor een net in vrije tekst ("Klantaansluiting elektriciteit"), als GIPOD geen soort inname geeft.
+const NET_WOORDEN = [
+  ["warmte", /warmtenet|warmteleiding/i],
+  ["gas", /\bgas\b|aardgas/i],
+  ["elektriciteit", /elektriciteit|laagspanning|middenspanning|hoogspanning/i],
+  ["telecom", /glasvezel|telecom/i],
+  ["water", /drinkwater|waterleiding/i],
+  ["verlichting", /openbare verlichting|straatverlichting/i],
+];
+const NET_VOLGORDE = Object.keys(NETTEN);
+const splitsTypes = (lijst = []) => uniek(lijst.flatMap((t) => String(t ?? "").split(";"))).map((t) => t.toLowerCase());
+const joinNl = (list) => (list.length > 1 ? `${list.slice(0, -1).join(", ")} en ${list.at(-1)}` : list[0] || "");
+// Leesbare namen van de soort inname, zoals GIPOD ze noemt (zonder "Andere").
+const INNAME_LEESBAAR = Object.freeze({
+  thermisch: "warmtenet", "olie, gas, chemicaliën": "gas, olie of chemicaliën", "openbare verlichting": "straatverlichting",
+  wegeniswerken: "wegenwerken", kunstwerk: "brug, tunnel of viaduct", nutswerken: "nutsleidingen", "(werf)kraan": "werfkraan",
+  "(verhuis)lift/levering": "verhuislift of levering",
+});
+export function innameLeesbaar(occupancyTypes = []) {
+  return splitsTypes(occupancyTypes).filter((t) => t !== "andere").map((t) => INNAME_LEESBAAR[t] || t);
+}
+// Welke netten de soort inname noemt. Een leiding voor "olie, gas, chemicaliën" van Fluvius is de
+// gasleiding; bij een andere beheerder zeggen we niet meer dan GIPOD zelf.
+function nettenUitInname(occupancyTypes, eigenaar) {
+  const keys = new Set();
+  for (const t of splitsTypes(occupancyTypes)) {
+    const k = INNAME_NET[t];
+    if (k) keys.add(k === "gas" && !/fluvius/i.test(eigenaar) ? "leiding" : k);
+  }
+  return NET_VOLGORDE.filter((k) => keys.has(k));
+}
+function nettenUitTekst(teksten) {
+  const t = teksten.map((x) => clean(x, 500)).join(" · ");
+  return NET_WOORDEN.filter(([, re]) => re.test(t)).map(([k]) => k);
+}
+const netSoort = (netten) => (netten.length === 1 ? NETTEN[netten[0]].soort : `Werken aan ${joinNl(netten.map((k) => NETTEN[k].kort))}`);
+const aansluitingSoort = (netten) => `Nieuwe aansluiting op ${joinNl(netten.map((k) => NETTEN[k].aansluiting))}`;
+
+// De soort van één werk, met de bron erbij. Eerst wat de beheerder schreef (omschrijving, fasen),
+// dan de vaste soort inname van GIPOD, en pas als laatste de soort grondwerk ("distributienet",
+// "klantaansluiting"): die zegt hoe er gegraven wordt, niet aan welk net.
+export function soortVanWerk({ omschrijving = "", fasen = [], occupancyTypes = [], workTypes = [], eigenaar = "" } = {}) {
+  const tekst = soortWerk([
+    { tekst: omschrijving, bron: "omschrijving van de beheerder" },
+    ...fasen.map((naam) => ({ tekst: naam, bron: "fasen van de hinder in GIPOD" })),
+  ]);
+  const inname = nettenUitInname(occupancyTypes, eigenaar);
+  const netten = inname.length ? inname : nettenUitTekst([omschrijving, ...fasen]);
+  const metInname = (bron) => (inname.length ? `${bron} en de soort inname in GIPOD` : bron);
+  if (tekst.soort === AANSLUITING && netten.length) return { soort: aansluitingSoort(netten), bron: metInname(tekst.bron) };
+  if (tekst.soort === NUTSWERK && inname.length) return { soort: netSoort(inname), bron: metInname(tekst.bron) };
+  if (tekst.soort) return tekst;
+  const types = splitsTypes(occupancyTypes);
+  const grondwerk = splitsTypes(workTypes);
+  if (inname.length) {
+    if (grondwerk.includes("klantaansluiting") && !grondwerk.some((t) => /distributienet|transportnet/.test(t))) return { soort: aansluitingSoort(inname), bron: "soort inname en soort grondwerk in GIPOD" };
+    // Wegen of een kunstwerk samen met leidingen: een grote werf, geen gewoon nutswerk.
+    if (types.some((t) => t === "wegeniswerken" || t === "kunstwerk")) return { soort: "Wegen- en nutswerken", bron: "soort inname in GIPOD" };
+    return { soort: netSoort(inname), bron: "soort inname in GIPOD" };
+  }
+  for (const [type, soort] of INNAME_SOORT) if (types.includes(type)) return { soort, bron: "soort inname in GIPOD" };
+  if (grondwerk.includes("klantaansluiting") && netten.length) return { soort: aansluitingSoort(netten), bron: "soort grondwerk in GIPOD" };
+  return soortWerk(grondwerk.map((t) => ({ tekst: t, bron: "soort grondwerk in GIPOD" })));
 }
 
 // ---------- gevolgen ----------
@@ -110,9 +229,12 @@ function rang(gevolg) {
   for (const [re, , r] of GEVOLGEN) if (re.test(g)) return r;
   return 99;
 }
+// Het zwaarste gevolg zoals GIPOD het schrijft ("Geen doorgang voor gemotoriseerd verkeer").
+function hoofdgevolgBron(gevolgen = []) {
+  return uniek(gevolgen).sort((a, b) => rang(a) - rang(b) || a.localeCompare(b, "nl"))[0] || "";
+}
 export function hoofdgevolg(gevolgen = []) {
-  const sorted = uniek(gevolgen).sort((a, b) => rang(a) - rang(b) || a.localeCompare(b, "nl"));
-  return sorted.length ? gevolgKort(sorted[0]) : "";
+  return gevolgKort(hoofdgevolgBron(gevolgen));
 }
 // Bus en tram: alleen als de bron het zelf noemt. Anders zeggen we niets over openbaar vervoer.
 const OV = /openbaar vervoer|de lijn|\btram|\bbus|halte/i;
@@ -130,14 +252,23 @@ export function huisnummerBereik(nummers = []) {
   const lo = nr(list[0])[0], hi = nr(list.at(-1))[0];
   return lo === hi ? `nr. ${list[0]}` : `nr. ${lo}–${hi}`;
 }
+// Een huisnummer bestaat niet als het 0 is, en "2001" na een straatnaam is een postcode of een
+// dossiercode, geen huisnummer: zulke nummers tonen we nooit (ook niet uit een oudere verversing).
+const echtNummer = (v) => { const n = Number(String(v).match(/^\d+/)?.[0]); return Number.isInteger(n) && n > 0 && n < 1000; };
+export function geldigeHuisnummers(tekst) {
+  const t = clean(tekst, 40);
+  const m = t.match(/^nr\. (\d+[a-z]?)(?:–(\d+[a-z]?))?$/i);
+  if (!m || !echtNummer(m[1]) || (m[2] && (!echtNummer(m[2]) || nr(m[2])[0] < nr(m[1])[0]))) return "";
+  return t;
+}
 // Huisnummers die de beheerder zelf in een tekst zette: "Kammenstraat 18 - 24", "Schilderstraat 1-25".
 export function huisnummersUitTekst(tekst, straat) {
   const t = clean(tekst, 400), s = clean(straat, 120);
   if (!t || !s) return "";
   const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const m = t.match(new RegExp(`${esc}\\s+(\\d+[a-z]?)(?:\\s*(?:-|–|tot|t\\/m)\\s*(\\d+[a-z]?))?`, "i"));
+  const m = t.match(new RegExp(`${esc}\\s+(\\d+[a-z]?)(?:\\s*(?:-|–|tot|t\\/m)\\s*(\\d+[a-z]?))?(?![\\d])`, "i"));
   if (!m) return "";
-  return m[2] ? `nr. ${m[1]}–${m[2]}` : `nr. ${m[1]}`;
+  return geldigeHuisnummers(m[2] ? `nr. ${m[1]}–${m[2]}` : `nr. ${m[1]}`);
 }
 
 // Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette.
@@ -153,32 +284,77 @@ function bruikbareOmschrijving(title) {
   return t;
 }
 
+// "in de Bermstraat", "in het Rozemiekepad", "op het Sint-Jansplein", "op de Vrijdagmarkt". Een naam
+// zonder herkenbaar einde krijgt geen lidwoord ("in Kipdorp"): liever kaal dan een fout lidwoord.
+const HET_NAAM = /(?:plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)$/i;
+const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel)$/i;
+const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk)$/i;
+const VASTE_NAAM = new Map([["meir", "op de"]]);
+export function opStraat(naam) {
+  const n = clean(naam, 120);
+  if (!n) return "";
+  const vast = VASTE_NAAM.get(n.toLowerCase());
+  if (vast) return `${vast} ${n}`;
+  const lidwoord = HET_NAAM.test(n) ? "het" : DE_NAAM.test(n) ? "de" : "";
+  return lidwoord ? `${OP_NAAM.test(n) ? "op" : "in"} ${lidwoord} ${n}` : `in ${n}`;
+}
+
+// Een aansluiting, een verhuis of een container hoort bij één adres, meestal van een privépersoon:
+// dan tonen we de straat, maar nooit het huisnummer.
+const EEN_ADRES = /^(?:Nieuwe aansluiting|Verhuis|Container)/;
+const STRAATWOORD = "\\p{L}[\\p{L}'.-]*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug)";
+// De tekst van de beheerder zoals GIPOD hem geeft, voor wie hem wil nalezen. Zonder huisnummers als
+// het om één adres gaat; leeg als er niets meer staat dan een adres of als er contactgegevens in staan.
+export function beheerderTekst(tekst, { zonderNummers = false, straten = [] } = {}) {
+  let t = clean(tekst, 300);
+  if (!t || CONTACT.test(t)) return "";
+  if (zonderNummers) t = t.replace(new RegExp(`(${STRAATWOORD})(?:\\s*[|,:-]?\\s*)\\d+\\s?[a-z]?\\b(?:\\s*(?:-|–|tem|t\\/m|tot)\\s*\\d+[a-z]?\\b)?`, "giu"), "$1").replace(/\s+/g, " ").trim();
+  let rest = ` ${t.toLowerCase()} `;
+  for (const s of straten) rest = rest.split(clean(s, 120).toLowerCase()).join(" ");
+  rest = rest.replace(/\b\d{4}\b/g, " ").replace(/\b(?:antwerpen|anterwerpen|antwerp)\b/g, " ").replace(new RegExp(STRAATWOORD, "gu"), " ").replace(/\d+[a-z]?/g, " ");
+  return rest.split(/[^\p{L}]+/u).some((w) => w.length > 2) ? t : "";
+}
+
 // Feiten over één werk, zonder klok. De verversing bewaart ze; de site vult aan met vandaag.
 export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } = {}) {
   const omschrijving = bruikbareOmschrijving(werk.title);
   const fasen = (werk.hindrance?.phases || [])
-    .map((f) => ({ naam: clean(f.description, 160), start: dagVan(f.start), eind: dagVan(f.end) }))
+    .map((f) => ({ naam: clean(f.description, 160), start: dagVan(f.start), eind: dagVan(f.end), gevolgen: uniek((f.consequences || []).map(gevolgKort)) }))
     .filter((f) => f.naam && !CONTACT.test(f.naam))
     .sort((a, b) => a.start.localeCompare(b.start) || a.naam.localeCompare(b.naam, "nl"));
-  const soort = soortWerk([
-    { tekst: omschrijving, bron: "omschrijving van de beheerder" },
-    ...fasen.map((f) => ({ tekst: f.naam, bron: "fasen van de hinder in GIPOD" })),
-    ...(werk.workTypes || []).map((t) => ({ tekst: t, bron: "soort grondwerk in GIPOD" })),
-    ...(werk.occupancyTypes || []).map((t) => ({ tekst: t, bron: "soort inname in GIPOD" })),
-  ]);
+  const soort = soortVanWerk({
+    omschrijving, fasen: fasen.map((f) => f.naam),
+    occupancyTypes: werk.occupancyTypes || [], workTypes: werk.workTypes || [], eigenaar: clean(werk.owner || werk.ownerGroup, 160),
+  });
   const straten = uniek((werk.streets || []).map((s) => s?.name));
   const eigenNummers = straten.length ? huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0]) : "";
+  const gevolgen = uniek(werk.hindrance?.consequences || []);
+  // De periode van het zwaarste gevolg: de fasen die het noemen, anders de hele hinder.
+  const hoofd = hoofdgevolgBron(gevolgen);
+  const metHoofd = (werk.hindrance?.phases || []).filter((p) => (p.consequences || []).some((c) => clean(c, 160) === hoofd));
+  const gevolgStart = metHoofd.map((p) => dagVan(p.start)).filter(Boolean).sort()[0] || dagVan(werk.hindrance?.start);
+  const gevolgEind = metHoofd.map((p) => dagVan(p.end)).filter(Boolean).sort().at(-1) || dagVan(werk.hindrance?.end);
+  // Geen straat op minder dan 35 m: de dichtste straatassen (site/street-core.js), als die er zijn.
+  const buren = (werk.streetNearby || []).map((s) => ({ naam: clean(s?.name, 120), afstand: Math.round(Number(s?.distanceMeters)) })).filter((s) => s.naam && Number.isFinite(s.afstand));
+  const nabij = straten.length || !buren.length ? null
+    : werk.streetResolution === "ambiguous" && buren.length >= 2 ? { kruispunt: true, straten: buren.slice(0, 2).map((s) => s.naam) }
+    : { kruispunt: false, straten: [buren[0].naam], afstand: buren[0].afstand };
   return {
     gipodId: Number(werk.gipodId) || null,
     soort: soort.soort,
     soortBron: soort.bron,
     omschrijving,
     fasen: uniekeFasen(fasen),
+    // Alleen bewaren wat iets zegt: het bestand van de verversing laadt in elke browser.
+    ...(innameLeesbaar(werk.occupancyTypes || []).length > 1 ? { inname: innameLeesbaar(werk.occupancyTypes) } : {}),
     opdrachtgever: clean(werk.owner, 160),
     straten,
-    huisnummers: eigenNummers || clean(huisnummers, 40),
-    huisnummerBron: eigenNummers ? "omschrijving van de beheerder" : huisnummers ? clean(huisnummerBron, 120) : "",
-    gevolgen: uniek(werk.hindrance?.consequences || []),
+    ...(nabij ? { nabij } : {}),
+    huisnummers: eigenNummers || geldigeHuisnummers(huisnummers),
+    huisnummerBron: eigenNummers ? "omschrijving van de beheerder" : geldigeHuisnummers(huisnummers) ? clean(huisnummerBron, 120) : "",
+    gevolgen,
+    // Alleen als het zwaarste gevolg een kortere periode heeft dan de hele hinder.
+    ...(gevolgStart !== dagVan(werk.hindrance?.start) || gevolgEind !== dagVan(werk.hindrance?.end) ? { gevolgStart, gevolgEind } : {}),
     ernstig: werk.hindrance?.severe === true,
     hinderStart: dagVan(werk.hindrance?.start),
     hinderEind: dagVan(werk.hindrance?.end),
@@ -192,47 +368,87 @@ function uniekeFasen(fasen) {
 
 const periode = (s, e) => (s && e ? (s === e ? datumTekst(s) : `${datumTekst(s)} – ${datumTekst(e)}`) : s ? `vanaf ${datumTekst(s)}` : e ? `tot ${datumTekst(e)}` : "");
 
+// Het zwaarste gevolg in de titel, met zijn eigen periode als die niet samenvalt met het werk:
+// "afgesloten voor auto's tot 30 november" bij een werk tot 6 juli 2027. Een gevolg dat al voorbij
+// is, staat niet meer in de titel. Geeft { tekst, eigen } terug; eigen = met een eigen periode.
+function gevolgInTitel(gevolg, { gs, ge, start, eind, vandaag, gepland }) {
+  if (!gevolg || !vandaag) return { tekst: gevolg, eigen: false };
+  const dt = (d) => datumBijVandaag(d, vandaag);
+  const korter = Boolean(ge && eind && ge < eind);
+  if (ge && ge < vandaag) return { tekst: "", eigen: false };
+  if (gs && gs > vandaag && !(gepland && gs <= start)) return { tekst: `${gevolg} ${korter ? periodeTekst(gs, ge, vandaag) : `vanaf ${dt(gs)}`}`, eigen: true };
+  if (korter) return { tekst: `${gevolg} tot ${dt(ge)}`, eigen: true };
+  return { tekst: gevolg, eigen: false };
+}
+
 // Titel, korte uitleg en details voor één werk.
 export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const f = feiten || werkFeiten(werk);
-  const start = dagVan(werk.start), eind = dagVan(werk.end);
+  const start = dagVan(werk.start), eind = dagVan(werk.end), v = dagVan(vandaag);
+  const dt = (d) => datumBijVandaag(d, v);
   const straat = f.straten[0] || "";
-  const plek = [straat, f.huisnummers].filter(Boolean).join(" ");
+  const eenAdres = EEN_ADRES.test(f.soort || "");
+  const nummers = eenAdres ? "" : geldigeHuisnummers(f.huisnummers);
+  const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
   const soort = f.soort || (werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
-  const gevolg = hoofdgevolg(f.gevolgen);
+  // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
+  // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
+  const waar = straat ? [opStraat(straat), nummers].filter(Boolean).join(" ")
+    : nabij?.kruispunt ? `bij het kruispunt van ${joinNl(nabij.straten)}`
+    : nabij ? `nabij ${opStraat(nabij.straten[0]).replace(/^(?:in|op) /, "")}` : "";
+  const plek = straat ? [straat, nummers].filter(Boolean).join(" ") : nabij ? joinNl(nabij.straten) : "";
   // De hinder kan vroeger stoppen dan het werk; voor "tot wanneer" telt het werk zelf.
   const duur = resterendeDuur({ start, eind, vandaag });
   let wanneer = "";
-  if (duur.toestand === "bezig") wanneer = ` tot ${datumTekst(eind)} (${duur.tekst})`;
-  else if (duur.toestand === "gepland") wanneer = ` vanaf ${datumTekst(start)} (${duur.tekst})`;
-  const titel = `${soort}${plek ? ` ${plek}` : ""}${gevolg ? `: ${gevolg}` : ""}${wanneer}`;
+  if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
+  else if (duur.toestand === "gepland") wanneer = `vanaf ${dt(start)} (${duur.tekst})`;
+  const gevolg = gevolgInTitel(hoofdgevolg(f.gevolgen), {
+    gs: f.gevolgStart || f.hinderStart || "", ge: f.gevolgEind || f.hinderEind || "", start, eind, vandaag: v, gepland: duur.toestand === "gepland",
+  });
+  const kop = [soort, waar].filter(Boolean).join(" ");
+  const titel = !gevolg.tekst ? [kop, wanneer].filter(Boolean).join(" ")
+    : gevolg.eigen ? `${kop}: ${gevolg.tekst}${wanneer ? `; werken ${wanneer}` : ""}`
+    : `${kop}: ${gevolg.tekst}${wanneer ? ` ${wanneer}` : ""}`;
 
   const ontbreekt = [];
   if (!f.omschrijving) ontbreekt.push(NIET_GEPUBLICEERD);
-  if (!f.huisnummers) ontbreekt.push("huisnummers niet gepubliceerd");
+  if (!nummers && !eenAdres) ontbreekt.push("huisnummers niet gepubliceerd");
   if (f.hinderBekend === false) ontbreekt.push("gevolgen voor het verkeer niet gepubliceerd");
   if (f.hinderBekend === null) ontbreekt.push("gevolgen voor het verkeer nu niet opgehaald");
   if (!eind) ontbreekt.push("einddatum niet gepubliceerd");
 
+  // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt).
+  const bronTekst = beheerderTekst(f.omschrijving, { zonderNummers: eenAdres, straten: f.straten });
+  const inname = (f.inname || []).length > 1 ? ` Volgens GIPOD: ${f.inname.join(" · ")}.` : "";
   const regels = [];
-  regels.push(["Wat", f.omschrijving
-    ? `${f.omschrijving}${f.soort && f.soortBron !== "omschrijving van de beheerder" ? ` (${f.soort.toLowerCase()}, volgens de ${f.soortBron})` : ""}`
-    : f.soort ? `${f.soort}, afgeleid uit de ${f.soortBron}. De beheerder publiceerde zelf geen omschrijving.` : `Niet bekend: ${NIET_GEPUBLICEERD}.`]);
-  if (f.fasen.length) regels.push(["Fasen", f.fasen.map((x) => `${x.naam}${x.start || x.eind ? ` (${periode(x.start, x.eind)})` : ""}`).join(" · ")]);
+  regels.push(["Wat", f.soort
+    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${inname}${f.omschrijving ? "" : " De beheerder publiceerde zelf geen omschrijving."}`
+    : bronTekst ? `De beheerder schrijft: “${bronTekst}”`
+    : f.omschrijving ? "Niet bekend: de beheerder gaf alleen een adres op." : `Niet bekend: ${NIET_GEPUBLICEERD}.`]);
+  if (f.fasen.length) regels.push(["Fasen", f.fasen.map((x) => `${x.naam}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
   regels.push(["Opdrachtgever", f.opdrachtgever || "niet gepubliceerd"]);
-  if (straat) regels.push(["Waar", f.huisnummers ? `${straat}, ${f.huisnummers}${f.huisnummerBron ? ` (${f.huisnummerBron})` : ""}` : `${f.straten.join(", ")} (huisnummers niet gepubliceerd)`]);
+  regels.push(["Waar", straat
+    ? nummers ? `${straat}, ${nummers}${f.huisnummerBron ? ` (${f.huisnummerBron})` : ""}` : `${f.straten.join(", ")} (${eenAdres ? "huisnummer weggelaten: het gaat om één adres" : "huisnummers niet gepubliceerd"})`
+    : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
+    : nabij ? `Niet langs een straat; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
+    : "Alleen als punt op de kaart van GIPOD; geen straat in de buurt gevonden"]);
   const ov = openbaarVervoer([...f.gevolgen, ...f.fasen.map((x) => x.naam), f.omschrijving]);
-  if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periode(f.hinderStart, f.hinderEind)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}`]);
+  if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}`]);
   else regels.push(["Gevolgen", f.hinderBekend === null ? "nu niet opgehaald" : "niet gepubliceerd in GIPOD"]);
   if (ov.length) regels.push(["Bus en tram", ov.join(" · ")]);
-  regels.push(["Duur", `${periode(start, eind) || "niet gepubliceerd"}${duur.tekst ? ` · ${duur.tekst}` : ""}`]);
+  regels.push(["Duur", `${periodeTekst(start, eind, v) || "niet gepubliceerd"}${duur.tekst ? ` · ${duur.tekst}` : ""}`]);
+  // De datums zeggen "bezig", GIPOD zegt nog "concreet gepland": zeg allebei, niet alleen "nu bezig".
+  const status = clean(werk.status, 60);
+  if (duur.toestand === "bezig" && status && !/^in uitvoering$/i.test(status)) {
+    regels.push(["Stand", `De geplande periode loopt${start ? ` sinds ${dt(start)}` : ""}, maar GIPOD meldt het werk nog als “${status.toLowerCase()}”, niet als “in uitvoering”.`]);
+  }
 
   const samenvatting = [
     f.omschrijving ? "" : f.soort ? `${f.soort} (afgeleid uit GIPOD).` : "Omschrijving niet gepubliceerd door de beheerder.",
     f.opdrachtgever ? `Opdrachtgever: ${f.opdrachtgever}.` : "",
     f.gevolgen.length ? `${capital(uniek(f.gevolgen).map(gevolgKort).join(", "))}.` : "",
   ].filter(Boolean).join(" ");
-  return { titel, samenvatting, regels, ontbreekt, duur, plek: plek || f.straten.join(", ") };
+  return { titel, samenvatting, regels, ontbreekt, duur, plek, bronTekst: f.soort ? bronTekst : "" };
 }
 const capital = (t) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : "");
 

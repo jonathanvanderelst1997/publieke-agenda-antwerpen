@@ -164,6 +164,8 @@
 .pv-badge { text-transform: none; letter-spacing: 0; font-size: .74rem; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
 .pv-badge-now { background: var(--pa-warn-soft); color: var(--pa-warn); border: 1px solid var(--pa-warn-line); }
 .pv-badge-planned { background: var(--cat-soft, var(--pa-surface-2)); color: var(--cat-ink, var(--pa-ink)); border: 1px dashed var(--cat, var(--pa-line-strong)); }
+/* De periode loopt, maar GIPOD noemt het werk nog niet "in uitvoering": rustiger dan "Nu bezig". */
+.pv-badge-period { background: var(--pa-surface-2); color: var(--pa-ink); border: 1px solid var(--pa-line-strong); }
 .pv-detail { padding: 0 16px 16px 16px; border-top: 1px dashed var(--pa-line); margin: 0 12px 0 16px; padding-left: 0; padding-right: 0; }
 .pv-detail p { margin: 12px 0 0; line-height: 1.55; color: var(--pa-ink); font-size: .94rem; }
 .pv-detail dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 12px 0 0; font-size: .9rem; }

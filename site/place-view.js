@@ -6,7 +6,8 @@ import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, summarize,
+  periodeBadge, kortDatum, kortBereik,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
@@ -494,7 +495,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const pick = (rows, theme) => (view.enabled(theme) && Array.isArray(rows) ? rows.filter((row) => view.matches(row, theme)) : []);
     const entries = [
       ...agenda,
-      ...pick(live.works, "works").map((work) => workEntry(work, { vandaag: brusselsToday(), uitleg: kaartUitleg })),
+      ...werkEntries(pick(live.works, "works"), { vandaag: brusselsToday(), uitleg: kaartUitleg }),
       ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan }),
       ...pick(live.permits, "permits").map((row) => permitEntry(row)),
       ...pick(live.terraces, "terraces").map((row) => permitEntry(row, "terraces")),
@@ -538,10 +539,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const running = multi && entry.start && entry.start <= today;
     const marktUur = entry.theme === "markets" ? publiekeMarktUur(entry.item) : null;
     let when = marktUur ? marktUur.start.replace(":",".") : leesbaarUur(entry,{multi,running});
-    if (context === "running") when = entry.end ? `t/m ${shortDate(entry.end)}` : "Loopt";
-    const badge = entry.group === "werken" || entry.source !== "agenda"
-      ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
-      : "";
+    if (context === "running") when = entry.end ? `t/m ${kortDatum(entry.end, today)}` : "Loopt";
+    // "Periode loopt" voor een werk dat GIPOD nog niet "in uitvoering" noemt (place-core.js).
+    const b = periodeBadge(entry, today);
+    const badge = b ? `<span class="pv-badge pv-badge-${b.soort}">${esc(b.label)}</span>` : "";
     const range = multi ? `${fullDate(entry.start)} – ${entry.end ? fullDate(entry.end) : "einde volgens de bron"}` : entry.start ? fullDate(entry.start) : "";
     let progress = "";
     if (multi && entry.end) {
@@ -571,7 +572,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
-            ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
+            ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
             ${track}
           </span>
           <span class="pv-row-chevron" aria-hidden="true"></span>
@@ -608,6 +609,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>
+          ${u.bronTekst ? `<details class="pv-streets pv-bron-tekst"><summary>Tekst van de beheerder in GIPOD</summary><p>${esc(u.bronTekst)}</p></details>` : ""}
           ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
           ${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}`;
