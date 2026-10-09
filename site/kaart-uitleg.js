@@ -313,7 +313,7 @@ export function innameSoort(type) {
   return "inname";
 }
 // Een huisnummer na een straatnaam ("beatrijslaan 34") kan een woning zijn: dat tonen we niet.
-export const zonderHuisnummer = (t) => clean(t, 200).replace(/(\p{L}{3,})\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
+export const zonderHuisnummer = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
 
 // Feiten over één evenementendossier (alle innames samen), zonder klok.
 export function evenementFeiten(rows = []) {

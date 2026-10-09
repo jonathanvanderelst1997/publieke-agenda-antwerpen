@@ -172,7 +172,7 @@ test("schets: jouw straat in een eigen kleur, ook net naast het parcours", async
   assert.doesNotMatch(kaartSvg(route, []), /ku-jouw/);
 });
 
-test("'Grote Markt' in een dossier maakt er geen markt van", () => {
+test("'Grote Markt' in een dossier maakt er geen markt van", async () => {
   assert.equal(soortEvenement(["Inname: grote markt, verkoop"]), "");
   assert.equal(soortEvenement(["Inname: verplaatsbare markt"]), "Markt");
   // De browser kent soms alleen de parcourslijn ("Wandelroute"); de verversing ook de inname ("Doop").
@@ -181,6 +181,11 @@ test("'Grote Markt' in een dossier maakt er geen markt van", () => {
   const e = evenementEntry(rows, { ...opties, uitleg });
   assert.equal(e.title, "Vermoedelijk een studentendoop");
   assert.ok(e.uitleg.beschrijvingen.includes("Parkeerverbod in Straat: proefstraat"));
+  // Alleen een nummer na een straatnaam valt weg, geen afstand of stopnummer.
+  const { zonderHuisnummer } = await import("../site/kaart-uitleg.js");
+  assert.equal(zonderHuisnummer("parkeerverbod beatrijslaan 34 - obouw"), "parkeerverbod beatrijslaan - obouw");
+  assert.equal(zonderHuisnummer("Kammenstraat 18 - 24"), "Kammenstraat");
+  assert.equal(zonderHuisnummer("Wandelen 5 km · stop 2 stadspark"), "Wandelen 5 km · stop 2 stadspark");
   // Een doopwandeling is een studentendoop, geen gewone wandeling.
   assert.equal(soortEvenement(["Parcours: Wandelroute van start naar eind", "Inname: Startlocatie Doop"]), "Studentendoop");
 });
