@@ -1,20 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-08T15:53:52.440Z",
+  "checkedAt": "2026-10-09T03:21:44.063Z",
   "sources": [
-    {
-      "sourceId": "citaat-op-straat",
-      "url": "https://www.citaatopstraat.be/",
-      "status": "gewijzigd",
-      "httpStatus": 200,
-      "missing": [
-        "10 oktober"
-      ],
-      "items": [
-        "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
-      ],
-      "since": "2026-10-08T10:34:07.399Z"
-    },
     {
       "sourceId": "city-gaston-buurtfeest",
       "url": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
@@ -23,6 +10,17 @@
       "missing": [],
       "items": [
         "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10"
+      ],
+      "since": null
+    },
+    {
+      "sourceId": "poetische-rimpelingen-regatta",
+      "url": "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
+      "status": "ok",
+      "httpStatus": 200,
+      "missing": [],
+      "items": [
+        "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
       ],
       "since": null
     },
