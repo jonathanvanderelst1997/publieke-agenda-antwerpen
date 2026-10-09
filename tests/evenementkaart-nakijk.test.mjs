@@ -122,6 +122,14 @@ test("3. de schets toont het hele parcours, niet de eerste 12 lijnen", async () 
   assert.deepEqual(validateKaartUitleg(document), []);
   assert.equal(document.evenementen.ET2099000040.kaart.length, 30);
   assert.equal(document.evenementen.ET2099000040.kaartDeel, false);
+  // Lijn (laag 23) én vlak (laag 22): de schets volgt de lijn, niet de rand van het vlak.
+  const lijn = [[4.40, 51.20], [4.401, 51.2005], [4.402, 51.201]];
+  const vlak = [[[4.3995, 51.1995], [4.4025, 51.1995], [4.4025, 51.2015], [4.3995, 51.2015], [4.3995, 51.1995]]];
+  const attrs = { ...iodFeatures[0].attributes, dossierNummer: "ET2099000043" };
+  const beide = await bouwKaartUitleg({ iodFeatures: [{ attributes: { ...attrs, innameId: "V" }, geometry: { rings: vlak } }, { attributes: { ...attrs, innameId: "L" }, geometry: { paths: [lijn] } }], district, clock: () => new Date("2026-10-06T05:00:00Z"), fetch: null });
+  assert.deepEqual(beide.document.evenementen.ET2099000043.kaart, [lijn]);
+  const alleenVlak = await bouwKaartUitleg({ iodFeatures: [{ attributes: { ...attrs, innameId: "V" }, geometry: { rings: vlak } }], district, clock: () => new Date("2026-10-06T05:00:00Z"), fetch: null });
+  assert.equal(alleenVlak.document.evenementen.ET2099000043.kaart.length, 1);
   // Een bestand van vóór deze markering met 12 lijnen kan afgekapt zijn: dan zegt het onderschrift "een deel".
   const rows = [rij("ET2099000040", "Evenement", "Parcours", "2026-10-13", "2026-10-13", ["Proefstraat"])];
   const oud = { evenementen: { ET2099000040: { straten: ["Proefstraat"], gekoppeld: null, kaart: lijnen.slice(0, 12) } } };
