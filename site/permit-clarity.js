@@ -155,9 +155,9 @@ const PUBLIEKE_OVERHEID=/^(?:de )?(?:vlaamse regering|deputatie)\b/;
 const LEEG=/dossier aangemaakt via het digitaal loket|gelieve een onderwerp in te vullen/;
 // Korte uitleg bij labels die zonder uitleg jargon zijn.
 const UITLEG={
-  "Regularisatie (achteraf vergunnen)":"Regularisatie: het werk is al uitgevoerd en de aanvraag vraagt er achteraf een vergunning voor.",
+  "Regularisatie (achteraf vergunnen)":"Bij een regularisatie vraagt de aanvrager achteraf een vergunning voor iets dat al gebouwd of veranderd is.",
   "Wijziging van een eerdere vergunning":"Er bestaat al een vergunning; deze aanvraag wil ze aanpassen.",
-  "Vergunning vernieuwen":"Een bestaande vergunning wordt vernieuwd of bijgewerkt.",
+  "Vergunning vernieuwen":"De aanvraag vraagt een bestaande vergunning te vernieuwen of bij te werken.",
 };
 export const ONBEKEND_TITEL="Omgevingsaanvraag (soort werk niet herkend)";
 export const LEEG_TITEL="Omgevingsaanvraag zonder omschrijving";
