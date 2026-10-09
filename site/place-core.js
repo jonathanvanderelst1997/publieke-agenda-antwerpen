@@ -5,6 +5,7 @@
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
 import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { aanvraagStand, aanvraagTitel, waarTekst } from "./permit-clarity.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -429,11 +430,21 @@ export function publicSpaceEntry(row) {
 }
 export function permitEntry(row, theme = "permits") {
   const terrace = String(row?.id || "").startsWith("terrace:");
+  // Een omgevingsaanvraag: de titel zegt in gewone taal wat er gebeurt, er is één statusregel en
+  // vanaf 3 straten een korte "Waar" (site/permit-clarity.js). Geen losse regel met nummer en overheid.
+  if (!terrace) {
+    return {
+      uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: "permits", theme: "permits", group: "vergunningen",
+      title: cleanText(aanvraagTitel(row)), start: "", end: "", openEnd: false, time: "", timeText: "",
+      location: waarTekst((row?.streets || []).map((s) => s?.name)).kort, status: aanvraagStand(row), info: "",
+      reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
+    };
+  }
   return {
-    uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: terrace ? "terraces" : "permits", theme: "permits", group: "vergunningen",
-    title: cleanText(terrace ? `Terras: ${row?.terraceType || "terraszone"}` : row?.dossierType || "Omgevingsdossier"),
+    uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: "terraces", theme: "permits", group: "vergunningen",
+    title: cleanText(`Terras: ${row?.terraceType || "terraszone"}`),
     start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || streetNames(row),
-    status: cleanText(terrace ? row?.status : row?.decision || "In behandeling"), info: cleanText([row?.dossier, row?.authority].filter(Boolean).join(" · ")),
+    status: cleanText(row?.status), info: cleanText([row?.dossier, row?.authority].filter(Boolean).join(" · ")),
     reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
   };
 }

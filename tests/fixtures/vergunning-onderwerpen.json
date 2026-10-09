@@ -1,0 +1,95 @@
+{
+  "uitleg": "Vijftien soorten onderwerpen zoals de stadslaag van omgevingsaanvragen ze geeft (test van 18 straten, oktober 2026). Herschreven zonder adressen, namen of echte dossiernummers. 'titel' is wat de kaart moet tonen; 'oud' is de categorie die main gaf (leeg: de kaart heette 'Omgevingsaanvraag — doel niet bevestigd').",
+  "aanvragen": [
+    {
+      "onderwerp": "slopen van 2 panden en bouwen van een gemengd gebouw met op het gelijkvloers een detailhandel en op de verdiepingen 6 woonentiteiten",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Sloop en nieuwbouw (6 woningen en een winkel)",
+      "oud": "Sloopwerken"
+    },
+    {
+      "onderwerp": "verbouwen van een gemengd gebouw en wijzigen van de gelijkvloerse functie naar dareca",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Functie wordt horeca · verbouwing of uitbreiding",
+      "oud": "Nieuwbouw"
+    },
+    {
+      "onderwerp": "slopen van 2 vrijstaande meergezinswoningen",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Sloop van 2 meergezinswoningen",
+      "oud": "Sloopwerken"
+    },
+    {
+      "onderwerp": "Actualisatie en hernieuwing van het project 'Renovatie Royerssluis'.",
+      "overheid": "Vlaamse Regering",
+      "titel": "Royerssluis: vergunning vernieuwen · renovatie van de sluis",
+      "oud": "Verbouwing of uitbreiding"
+    },
+    {
+      "onderwerp": "wijziging van de basisvergunning Oosterweelverbinding met referentie OMV_2000000001 en een wijziging van de IIOA-werffase; met deze projectinhoudversie wordt ingegaan op gevraagde wijzigingen door adviesinstanties",
+      "overheid": "Vlaamse Regering",
+      "titel": "Oosterweelverbinding: wijziging van een eerdere vergunning · tijdelijke constructie of werfzone",
+      "oud": ""
+    },
+    {
+      "onderwerp": "Werken Oosterweelknoop - Batch 5: SH - regulariseren van een tijdelijke fietsontsluiting, aanleggen van een tijdelijke fietsverbinding en van twee tijdelijke uitwijkhavens op het jaagpad; IIOA - wijzigen van lozing van afval- en bemalingswater, bemalingen, warmtepompen",
+      "overheid": "Vlaamse Regering",
+      "titel": "Oosterweelverbinding: regularisatie (achteraf vergunnen) · tijdelijke constructie of werfzone",
+      "oud": ""
+    },
+    {
+      "onderwerp": "wijzigen van de functie van handel naar reca en het wijzigen van de voorgevel op het gelijkvloers",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Functie wordt horeca · gevel aanpassen",
+      "oud": ""
+    },
+    {
+      "onderwerp": "wijzigen van de voorgevel, supprimeren van de reca-unit en het uitvoeren van interne wijzigingen ten opzichte van omgevingsvergunning OMV_2000000002 (SH) en het exploiteren van 1 warmtepomp (IIOA)",
+      "overheid": "",
+      "titel": "Wijziging van een eerdere vergunning: horeca verdwijnt · gevel aanpassen",
+      "oud": ""
+    },
+    {
+      "onderwerp": "plaatsen van een luifel, wijzigen van het buitenschrijnwerk en aanbrengen van zaakgebonden publiciteit",
+      "overheid": "",
+      "titel": "Luifel en publiciteit · ramen en deuren",
+      "oud": ""
+    },
+    {
+      "onderwerp": "wijzigen van de functie en het bouwvolume van het hoofdgebouw; het plaatsen van een tijdelijke tentconstructie met de functie restaurant, café en dancing; het exploiteren van de inrichting",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Functie van het gebouw verandert · verbouwing of uitbreiding · tijdelijke constructie of werfzone",
+      "oud": ""
+    },
+    {
+      "onderwerp": "verbouwen en uitbreiden van een pand met functie dancing, restaurant en café en het supprimeren van de woonfunctie",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Minder woningen · verbouwing of uitbreiding",
+      "oud": "Verbouwing of uitbreiding"
+    },
+    {
+      "onderwerp": "vermeerderen van het aantal wooneenheden van twee naar drie met functiewijziging en interne constructieve werken",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Meer woningen (van 2 naar 3) · functie van het gebouw verandert · verbouwing of uitbreiding",
+      "oud": "Functiewijziging"
+    },
+    {
+      "onderwerp": "plaatsen van een terrasoverkapping",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Terrasoverkapping",
+      "oud": ""
+    },
+    {
+      "onderwerp": "vellen van één boom",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Boom vellen",
+      "oud": ""
+    },
+    {
+      "onderwerp": "een verzoek tot bijstelling van bijzondere lozingsvoorwaarden voor het bedrijfsafvalwater dat ontstaat op Campus Groenenborger en dat geloosd wordt via een lozingspunt in de openbare riolering",
+      "overheid": "Deputatie",
+      "titel": "Campus Groenenborger (Universiteit Antwerpen): wijziging van een eerdere vergunning · afvalwater lozen",
+      "oud": ""
+    }
+  ]
+}

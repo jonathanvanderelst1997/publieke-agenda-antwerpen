@@ -1,6 +1,15 @@
 import {geometryIntersectsDistrict} from "./public-space-live-core.js";
 import {resolveGeometryStreets} from "./street-core.js";
-import {herkenAanvraag,beslissingsdatumTekst} from "./permit-clarity.js";
+import {aanvraagInhoud,beslissingsdatumTekst} from "./permit-clarity.js";
+
+const LAAG="https://geodata.antwerpen.be/arcgissql/rest/services/P_PiP/pip2_vergunningen/MapServer/5";
+// Technische link naar alleen dit dossier, zonder het vrije onderwerp en de naam van de aanvrager.
+export function vergunningBronUrl(dossier="",project=""){
+  const veld=/^[A-Za-z0-9_-]{4,40}$/.test(dossier)?["Dossiernummer",dossier]:/^[A-Za-z0-9_-]{4,40}$/.test(project)?["ProjectnummerOmgevingsloket",project]:null;
+  if(!veld)return LAAG;
+  const q=new URLSearchParams({where:`${veld[0]}='${veld[1]}'`,outFields:"Dossiernummer,DOSSIERTYPE,AardAanvraag,Beslissing,DatumBeslissing,Volledig,Ontvankelijk,ProjectnummerOmgevingsloket,behandelendeOverheid,beslissingsoverheid",returnGeometry:"false",f:"html"});
+  return `${LAAG}/query?${q}`;
+}
 
 const clean=(value,max=160)=>String(value??"").replace(/\s+/g," ").trim().slice(0,max);
 const yes=value=>["1","true","ja","yes","y"].includes(clean(value,20).toLowerCase());
@@ -13,13 +22,15 @@ export function normalizePermit(row={}){
   const type=clean(row.DOSSIERTYPE,80);
   if(!dossier&&!project)return null;
   if(yes(row.Ingetrokken)||yes(row.Stopgezet))return null;
+  // Vrije onderwerptekst en namen worden nooit uitgegeven; alleen vaste labels en aantallen.
+  const inhoud=aanvraagInhoud(row.AardAanvraag,row.Onderwerp,row.behandelendeOverheid);
   return{
     id:`permit:${dossier||project}`,
     dossier,
     project,
     dossierType:type,
-    // Vrije onderwerptekst en namen worden nooit uitgegeven; alleen een vaste categorie.
-    purpose:herkenAanvraag(row.AardAanvraag,row.Onderwerp),
+    purpose:inhoud.groep,
+    inhoud,
     decisionDateLabel:beslissingsdatumTekst(row.DatumBeslissing),
     decision:clean(row.Beslissing,80),
     decisionDate:clean(row.DatumBeslissing,20),
@@ -37,7 +48,7 @@ export function collectPermits({features=[],districtGeometry=null,streetIndex=nu
     const normalized=normalizePermit(attrs(feature));
     if(!normalized)continue;
     const street=streetIndex?resolveGeometryStreets(geom(feature),streetIndex,{maxDistanceMeters:24}):{streets:[],confidence:"unresolved",distanceMeters:null};
-    const item={...normalized,streets:street.streets,streetResolution:street.confidence,streetDistanceMeters:street.distanceMeters,sourceLabel:"Stad Antwerpen · omgevingsvergunningen in behandeling",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_PiP/pip2_vergunningen/MapServer/5"};
+    const item={...normalized,streets:street.streets,streetResolution:street.confidence,streetDistanceMeters:street.distanceMeters,sourceLabel:"Stad Antwerpen · omgevingsvergunningen in behandeling",sourceUrl:vergunningBronUrl(normalized.dossier,normalized.project)};
     const current=byId.get(item.id);
     if(!current){byId.set(item.id,item);continue}
     const streets=[...(current.streets||[]),...(item.streets||[])];

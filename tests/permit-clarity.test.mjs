@@ -24,10 +24,15 @@ test("beslissingsdatum alleen als een geldige bronwaarde bestaat",()=>{
   assert.equal(beslissingsdatumTekst("2026-02-30"),"");
   assert.equal(beslissingsdatumTekst(""),"");
 });
-test("115 straten is geen bewijs van gelijktijdige afsluiting of een bekende evenementnaam",()=>{
-  const entry={source:"publicSpace",start:"2026-10-13",straten:Array.from({length:115},(_,i)=>"Straat "+i),uitleg:{ontbreekt:["naam van het evenement niet gepubliceerd door de stad"]}};
-  const view=duidelijkeKaart(entry,{kind:"iod"});
-  assert.match(view.titel,/Naam evenement onbekend/);
-  assert.match(view.titel,/115 straten/);
-  assert.match(view.toelichting,/niet dat alle straten tegelijk afgesloten zijn/);
+// Een evenement op straat krijgt zijn titel en uitleg uit kaart-uitleg.js (evenementKaartje), dat ook
+// zegt dat 115 straten geen bewijs van een gelijktijdige afsluiting zijn. De oude tak hier (kind "iod")
+// werd nooit uitgevoerd, want het kaartje heeft kind "event"; die tak is weg, dus geen tweede titel.
+test("een evenementkaart houdt de titel uit kaart-uitleg.js; geen tweede, verzonnen titel",()=>{
+  const entry={source:"publicSpace",title:"Evenement met parcours door 115 straten, dinsdag 13 oktober",summary:"Evenement met toelating van de stad.",start:"2026-10-13",straten:Array.from({length:115},(_,i)=>"Straat "+i),uitleg:{ontbreekt:["naam van het evenement niet gepubliceerd door de stad"]}};
+  for(const kind of ["event","iod"]){
+    const view=duidelijkeKaart(entry,{kind});
+    assert.equal(view.titel,entry.title);
+    assert.equal(view.samenvatting,entry.summary);
+    assert.doesNotMatch(JSON.stringify(view),/Naam evenement onbekend|straatparcours/);
+  }
 });
