@@ -5,7 +5,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import { aanvraagInhoud, duidelijkeKaart, LABELTEKSTEN } from "../site/permit-clarity.js";
+import { duidelijkeKaart } from "../site/permit-clarity.js";
 import { normalizePermit, collectPermits } from "../site/permits-live-core.js";
 import { permitEntry } from "../site/place-core.js";
 import { buildStreetIndex } from "../site/street-core.js";
@@ -114,6 +114,8 @@ test("namen, telefoonnummers, adressen en rekeningnummers komen nergens door", a
 });
 
 test("elk label komt uit de vaste lijst, ook bij onderwerpen met persoonsgegevens", async () => {
+  // Dynamisch geladen, zodat de andere toetsen op een oudere versie apart blijven slagen of falen.
+  const { aanvraagInhoud, LABELTEKSTEN } = await import("../site/permit-clarity.js");
   const alle = [...(await fixture("vergunning-onderwerpen.json")).aanvragen, ...(await fixture("vergunning-privacy.json")).aanvragen];
   for (const a of alle) {
     const inhoud = aanvraagInhoud("Aanvraag omgevingsproject", a.onderwerp, a.overheid ?? "");
