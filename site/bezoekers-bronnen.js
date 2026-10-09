@@ -55,6 +55,14 @@ export function bezoekersLinks(e={}) {
     add(INZAGE_UITLEG,"Uitleg: zoeken op projectnummer of adres","help");
   }else if(e.source==="works"){
     add(hinderkaart(item.gipodId),"Bekijk werken en hinder op de officiële kaart");
+  }else if(e.source==="publicSpace"&&item.kind==="event"){
+    // Evenementkaart: de nagekeken officiële pagina of het gekoppelde agendapunt (site/kaart-uitleg.js).
+    for(const l of e.evenementLinks||[]){
+      const intern=/^\/event\/[a-z0-9][a-z0-9-]{2,200}\/$/.test(String(l?.url||""));
+      const href=intern?l.url:safeHttps(l?.url);
+      if(href&&!rawData(href)&&!out.some(x=>x.url===href))out.push({url:href,label:String(l.label||"Officiële info over dit evenement"),type:"main",uitleg:String(l.uitleg||"")});
+    }
+    if(e.sourceUrl)add(e.sourceUrl,"Technische gegevens van de stad (geen infopagina)","source");
   }else if(e.source==="publicSpace"&&item.gipodId){
     add(hinderkaart(item.gipodId),"Bekijk de hinder op de officiële kaart");
   }else if(e.source==="agenda"){
@@ -96,6 +104,8 @@ export function bezoekersHint(e={}) {
   }
   if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
     "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
+  // Een evenementkaart zegt zelf onderaan waar de gegevens vandaan komen.
+  if(e.source==="publicSpace"&&item.kind==="event")return "";
   if(e.source==="publicSpace"&&!item.gipodId)return "A-Sign publiceert hier een stedelijk dossier. Een afzonderlijke publieke evenementenpagina is niet bevestigd.";
   if(e.source==="agenda"){
     if(item.actionChecked===true){

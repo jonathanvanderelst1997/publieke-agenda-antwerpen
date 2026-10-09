@@ -45,7 +45,7 @@ async function getJson(url) {
 
 function kindInfo(entry) {
   if (entry.source === "works") return { label: "Werken", emoji: "🚧", cat: "works" };
-  if (entry.source === "publicSpace" && entry.item?.kind === "event") return { label: "Evenement op straat", emoji: "🚦", cat: "publicSpace" };
+  if (entry.source === "publicSpace" && entry.item?.kind === "event") return { label: "Evenement op straat", emoji: "🎉", cat: "festival" };
   if (entry.source === "publicSpace") return { label: entry.item?.kind === "parking" ? "Parkeerverbod" : "Verkeer & inname", emoji: entry.item?.kind === "parking" ? "🅿️" : "🚦", cat: "publicSpace" };
   if (entry.source === "permits" || entry.source === "terraces") return { label: entry.source === "terraces" ? "Terras" : "Vergunning", emoji: "📄", cat: "permits" };
   const cat = window.PublicAgendaUitgaan?.categoryFor?.(entry.theme) || { key: "other", label: "Agenda", emoji: "📌" };
@@ -224,11 +224,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // Uitleg uit de dataverversing (huisnummers, gekoppeld evenement, parcourslijn). Zonder dit
   // bestand maken de kaartjes hun uitleg uit de live lagen alleen.
   // Pas laden zodra een live laag er is: zonder werken of innames is het niet nodig.
-  let kaartUitleg = null, kaartUitlegGevraagd = false;
+  // Daarbij de met de hand nagekeken identiteit van evenementendossiers (naam, uren, officiële link).
+  let kaartUitleg = null, kaartUitlegGevraagd = false, evenementIdentiteit = null;
   const vraagKaartUitleg = () => {
     if (kaartUitlegGevraagd) return;
     kaartUitlegGevraagd = true;
     getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; announce(); }).catch(() => {});
+    getJson("/sources/evenement-identiteit.json").then((doc) => { evenementIdentiteit = doc; announce(); }).catch(() => {});
   };
   const wijkVan = (straat) => {
     const place = index?.places.find((p) => p.type === "straat" && p.name === straat);
@@ -259,6 +261,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
   }
   function announce() {
+    // A-Sign levert ook evenementen op straat: laden als "Evenementen" of "Werken & verkeer" aan staat.
+    view.wantsStreetEvents = state.groups.has("evenementen");
     writeUrl();
     window.dispatchEvent(new CustomEvent("public-agenda:view-change"));
     cancelAnimationFrame(frame);
@@ -465,6 +469,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
         ${tile(summary.werkenGepland, "werken gepland", "cat-works pv-stat-planned", "werken")}
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
+        ${tile(summary.vergunningen, summary.vergunningen === 1 ? "vergunning" : "vergunningen", "cat-permits", "vergunningen")}
       </ul>
       ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}
       ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}`;
@@ -487,35 +492,34 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   });
 
   // ---- entries verzamelen ----
+  // Eerst alle kaarten op de plek (ook van soorten die uit staan), zodat de chips kaarten tellen en
+  // geen ruwe records; daarna alleen de gekozen soorten tonen. Een evenementendossier is een evenement.
   function collect() {
     const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
     if (Array.isArray(live.works) || Array.isArray(live.publicSpace)) vraagKaartUitleg();
+    const vandaag = brusselsToday();
     const agenda = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
-    const pick = (rows, theme) => (view.enabled(theme) && Array.isArray(rows) ? rows.filter((row) => view.matches(row, theme)) : []);
-    const entries = [
-      ...agenda,
-      ...pick(live.works, "works").map((work) => workEntry(work, { vandaag: brusselsToday(), uitleg: kaartUitleg })),
-      ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan }),
-      ...pick(live.permits, "permits").map((row) => permitEntry(row)),
-      ...pick(live.terraces, "terraces").map((row) => permitEntry(row, "terraces")),
+    const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
+    const straat = state.place?.type === "straat" ? state.place.name : "";
+    const liveEntries = [
+      ...inPlace(live.works).map((work) => workEntry(work, { vandaag, uitleg: kaartUitleg })),
+      ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: evenementIdentiteit, agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat }),
+      ...inPlace(live.permits).map((row) => permitEntry(row)),
+      ...inPlace(live.terraces).map((row) => permitEntry(row, "terraces")),
     ];
-    // Chips: tellen binnen de plek, ook voor soorten die uit staan.
+    const entries = [...agenda, ...liveEntries.filter((entry) => state.groups.has(entry.group))];
+    // Chips: tellen binnen de plek, ook voor soorten die uit staan. agenda.js telt de agendapunten per
+    // soort; de live lagen tellen we hier per kaart (een dossier met 5 innames is 1 kaart).
     const cc = state.agendaCounts || {};
     const sumThemes = (themes) => themes.reduce((n, t) => n + (Number(cc[t]) || 0), 0);
-    const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)).length : 0);
+    const kaarten = (group) => new Set(liveEntries.filter((e) => e.group === group).map((e) => e.uid)).size;
     const loadedLayer = (rows) => Array.isArray(rows);
     state.counts = {};
     for (const g of KIND_GROUPS) {
-      // agenda.js telt per soort binnen de plek (ook als die soort uit staat); de live lagen tellen we hier.
       let n = sumThemes(g.themes.filter((t) => t !== "publicSpace" && t !== "permits"));
-      if (g.key === "werken") {
-        if (!loadedLayer(live.works) && !loadedLayer(live.publicSpace)) { state.counts[g.key] = view.hasPlace || n ? n || undefined : undefined; continue; }
-        n += inPlace(live.works) + inPlace(live.publicSpace);
-      }
-      if (g.key === "vergunningen") {
-        if (!loadedLayer(live.permits) && !loadedLayer(live.terraces)) { state.counts[g.key] = undefined; continue; }
-        n += inPlace(live.permits) + inPlace(live.terraces);
-      }
+      if (g.key === "werken" && !loadedLayer(live.works) && !loadedLayer(live.publicSpace)) { state.counts[g.key] = view.hasPlace || n ? n || undefined : undefined; continue; }
+      if (g.key === "vergunningen" && !loadedLayer(live.permits) && !loadedLayer(live.terraces)) { state.counts[g.key] = undefined; continue; }
+      n += kaarten(g.key);
       state.counts[g.key] = n;
     }
     // Live lagen: nog onderweg, of (eerlijk gemeld) niet bereikbaar.
@@ -524,7 +528,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const spaceNote = document.querySelector("[data-space-note]")?.textContent || "";
     const wants = view.hasPlace || view.wantsLiveLayers;
     if (wants && view.enabled("works") && !loadedLayer(live.works)) (worksFailed ? failed : loading).push("werken");
-    if (wants && view.enabled("publicSpace") && !loadedLayer(live.publicSpace)) (/niet gelezen|niet geladen/i.test(spaceNote) && !loadedLayer(live.publicSpace) ? failed : loading).push("verkeersmaatregelen");
+    if (wants && (view.enabled("publicSpace") || state.groups.has("evenementen")) && !loadedLayer(live.publicSpace)) (/niet gelezen|niet geladen/i.test(spaceNote) && !loadedLayer(live.publicSpace) ? failed : loading).push(view.enabled("publicSpace") ? "verkeersmaatregelen" : "evenementen op straat");
     return { entries, loading, failed };
   }
 
@@ -558,7 +562,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry,item);
-    const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
+    // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate); de technische blijft onderaan.
+    const alleLinks = bezoekersLinks(entry), kern = Boolean(entry.uitleg?.kern);
+    const links = alleLinks.filter((l) => !kern || l.type === "source").map(linkHtml);
     const bronHint = bezoekersHint(entry);
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
@@ -580,7 +586,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${progress}
           ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
           ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
-          ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
+          ${entry.uitleg ? uitlegTemplate(entry, alleLinks.filter((l) => l.type !== "source")) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}</dd></div>` : ""}
@@ -594,17 +600,43 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </div>
       </li>`;
   }
-  // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
-  // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.
-  function uitlegTemplate(entry) {
+  // Een link naar een pagina van deze site (/event/…) opent in hetzelfde tabblad.
+  function linkHtml(l) {
+    const extern = !/^\//.test(l.url);
+    return `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}"${extern ? ` target="_blank" rel="noopener noreferrer"` : ""}>${esc(l.label)}${extern ? ` <span aria-hidden="true">↗</span>` : ""}</a>`;
+  }
+  // Segmenten van de gekozen straat, voor de schets ("jouw straat" in een eigen kleur).
+  function gekozenSegmenten() {
+    const place = state.place;
+    if (place?.type !== "straat" || !liveIndex?.segments) return [];
+    return liveIndex.segments.filter((seg) => (seg.refs || []).some((r) => r.name === place.name && (!r.postcode || !place.postcode || r.postcode === place.postcode))).map((seg) => [seg.a, seg.b]);
+  }
+  // Uitleg in gewone taal (site/kaart-uitleg.js). Een evenementkaart begint met wat, wanneer, waar,
+  // jouw straat en wat je merkt, met de officiële link meteen daaronder; dan de details, de schets
+  // en één korte bronregel. Een werk houdt zijn regels, de straten ingeklapt en wat de bron niet zegt.
+  function uitlegTemplate(entry, bezoekerLinks = []) {
     const u = entry.uitleg;
     const straten = entry.straten || [];
     const lange = straten.length > 3;
-    const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b])) : "";
+    const gekozen = u.kern ? gekozenSegmenten() : [];
+    const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b]), { gekozen }) : "";
+    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : "";
+    if (u.kern) {
+      return `
+          <dl class="pv-kern">${u.kern.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}${dt === "Waar" ? alleStraten : ""}</dd></div>`).join("")}</dl>
+          ${bezoekerLinks.length ? `<div class="pv-links pv-links-top">${bezoekerLinks.map((l) => `${linkHtml(l)}${l.uitleg ? `<small class="pv-link-uitleg">${esc(l.uitleg)}</small>` : ""}`).join("")}</div>` : ""}
+          ${u.regels.length || entry.status ? `<dl class="pv-uitleg">
+            ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
+            ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
+          </dl>` : ""}
+          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood)${gekozen.length ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : ""}
+          ${u.beschrijvingen?.length ? `<details class="pv-streets"><summary>Wat er in het dossier staat (${u.beschrijvingen.length})</summary><p>${esc(u.beschrijvingen.join(" · "))}</p></details>` : ""}
+          ${u.voetnoot ? `<p class="pv-voetnoot">${esc(u.voetnoot)}</p>` : ""}`;
+    }
     return `
           <dl class="pv-uitleg">
             ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
-            ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${alleStraten}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>

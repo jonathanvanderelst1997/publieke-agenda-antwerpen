@@ -1796,6 +1796,9 @@ const renderedAgendaItems = [...agendaReconciliation.publicItems, ...graceAgenda
     const eventType = window.PublicAgendaEventTypes?.classifyEventType(item) || "other";
     return { ...item, eventType, category: uitgaan ? uitgaan.categoryOf({ ...item, eventType }) : "other" };
   });
+// Alle publieke agendapunten (los van filter en plek): de evenementkaart koppelt er een nieuw
+// stadsdossier aan als het op dezelfde dag in dezelfde straat staat (site/kaart-uitleg.js).
+window.PUBLIC_AGENDA_PUBLIC_ITEMS = renderedAgendaItems;
 
 function isUitItem(item) {
   return item.sourceId === "stad-uit";

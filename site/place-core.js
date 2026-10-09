@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, koppelEvenement, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -379,30 +379,44 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
 }
-// Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen.
+// Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen. Het is
+// een evenement (groep "evenementen"): het telt mee bij de evenementen en de chip "Evenementen" toont het.
 // `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).
-export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan } = {}) {
+// identiteit: site/sources/evenement-identiteit.json; agendaItems: de publieke agendapunten, voor
+// een dossier dat (nog) niet nagekeken is; straat: de gekozen straat ("jouw straat").
+export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, identiteit = null, agendaItems = [], straat = "" } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
-  const feiten = bewaard ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten } : live;
-  const k = evenementKaartje(feiten, { vandaag, gekoppeld: bewaard?.gekoppeld || null, wijkVan });
+  // Straten waar het parcours echt langs loopt: uit de verversing als die ze apart bewaarde, anders
+  // de bewaarde straten die ook bij een live parcoursdeel horen. Zonder verversing: niet bekend.
+  const parcoursLive = new Set(live.perSoort.parcours);
+  const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : bewaard?.straten?.length ? bewaard.straten.filter((s) => parcoursLive.has(s)) : null;
+  const feiten = bewaard
+    ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten, langs }
+    : { ...live, langs };
+  const id = identiteit?.dossiers?.[live.dossier] || null;
+  // Koppeling aan de agenda: eerst live (kent het agendapunt), anders wat de verversing bewaarde.
+  const gekoppeld = (Array.isArray(agendaItems) && agendaItems.length ? koppelEvenement(feiten, agendaItems) : null) || bewaard?.gekoppeld || null;
+  const k = evenementKaartje(feiten, { vandaag, gekoppeld, identiteit: id, straat, wijkVan });
+  const start = dayOf(k.dagen.start || live.start), end = k.dagen.eind && k.dagen.eind > k.dagen.start ? dayOf(k.dagen.eind) : "";
   return {
-    uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "werken",
-    title: k.titel, summary: k.samenvatting, start: dayOf(live.start), end: live.eind && live.eind > live.start ? dayOf(live.eind) : "", openEnd: false, time: "", timeText: "",
-    location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: "",
+    uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "evenementen",
+    title: k.titel, summary: k.samenvatting, start, end, openEnd: false, time: k.tijd, timeText: "",
+    location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: k.links[0]?.url || "",
+    innameStart: dayOf(live.start), innameEind: dayOf(live.eind),
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
-    straten: feiten.straten, kaart: bewaard?.kaart || [],
+    evenementLinks: k.links, straten: feiten.straten, kaart: bewaard?.kaart || [],
   };
 }
 const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).filter((s) => s?.name).map((s) => [`${s.id}|${s.name}|${s.postcode}`, s])).values()];
 // Live innames: evenementendossiers bundelen, de rest (parkeerverboden, werfzones) apart laten.
-export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan } = {}) {
+export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, identiteit = null, agendaItems = [], straat = "" } = {}) {
   if (!vandaag) return rows.map(publicSpaceEntry);
   const perDossier = bundelInnames(alle);
   const out = [];
   for (const [dossier, groep] of bundelInnames(rows)) {
-    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan }));
+    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, identiteit, agendaItems, straat }));
     else out.push(...groep.map(publicSpaceEntry));
   }
   out.push(...rows.filter((r) => r?.kind !== "iod").map(publicSpaceEntry));
