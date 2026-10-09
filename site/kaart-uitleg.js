@@ -437,7 +437,7 @@ function gevolgInTitel(gevolg, { gs, ge, start, eind, vandaag, gepland }) {
   const korter = Boolean(ge && eind && ge < eind);
   const veelKorter = korter && dagenTussen(ge, eind) >= WEEK;
   if (gs && gs > vandaag && !(gepland && gs <= start)) {
-    if (gs === eind && (!ge || ge === eind)) return { tekst: `${gevolg} op ${dt(gs)}, de laatste dag${gepland ? "" : " van de werken"}`, vorm: "laatste" };
+    if (gs === eind && (!ge || ge === eind)) return { tekst: `${gevolg} op ${dt(gs)}, de laatste dag van de werken`, vorm: "laatste" };
     return { tekst: `${gevolg} ${veelKorter ? vanTot(gs, ge, vandaag) : `vanaf ${dt(gs)}`}`, vorm: "eigen" };
   }
   if (veelKorter) return { tekst: `${gevolg} tot ${dt(ge)}`, vorm: "eigen" };

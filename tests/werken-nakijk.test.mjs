@@ -131,6 +131,9 @@ test("7. een eigen periode in gewone taal: \"op 12 oktober\", geen dubbele datum
   // Alleen op de laatste dag van het werk: die datum één keer.
   const laatste = kaart(werk({ start: "2026-01-05T05:00:00Z", end: "2027-01-04T16:00:00Z", hindrance: hinder([{ description: "Fase 9", start: "2027-01-04T05:00:00Z", end: "2027-01-04T16:00:00Z", consequences: ["Beperkte doorgang voor voetgangers"] }]) }));
   assert.equal(laatste.titel, "Werken in de Voorbeeldstraat: voetgangers beperkt op 4 januari 2027, de laatste dag van de werken (nog 87 dagen)");
+  // Ook bij een werk dat nog moet beginnen, met de startdatum erbij.
+  const laatsteGepland = kaart(werk({ start: "2026-10-20T05:00:00Z", end: "2026-10-25T16:00:00Z", hindrance: hinder([{ description: "Fase 2", start: "2026-10-25T05:00:00Z", end: "2026-10-25T16:00:00Z", consequences: ["Geen doorgang voor gemotoriseerd verkeer"] }]) }));
+  assert.equal(laatsteGepland.titel, "Werken in de Voorbeeldstraat: afgesloten voor auto's op 25 oktober, de laatste dag van de werken; werken vanaf 20 oktober (start over 11 dagen)");
   // Eén dag korter dan het werk: geen "tot 15 februari 2028; werken tot 16 februari 2028".
   const bijna = kaart(werk({ start: "2026-01-05T05:00:00Z", end: "2028-02-16T16:00:00Z", hindrance: hinder([{ description: "Fase 1", start: "2026-01-05T05:00:00Z", end: "2028-02-15T16:00:00Z", consequences: ["Vermindering van rijstroken"] }]) }));
   assert.equal(bijna.titel, "Werken in de Voorbeeldstraat: minder rijstroken tot 15 februari 2028 (nog ruim 16 maanden)");
