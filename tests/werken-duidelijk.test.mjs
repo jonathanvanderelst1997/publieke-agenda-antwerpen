@@ -75,7 +75,7 @@ test("soort: Fluvius zegt welk net, telecom en hoogtewerker vallen niet weg", ()
   assert.match(tweeNetten.titel, /^Werken aan gas, elektriciteit en straatverlichting in de Voorbeeldstraat/);
   assert.match(kaart(werk({ title: "Voorbeeldstraat - werken aan nutsleiding - 3m.", owner: "Voorbeeld Telecom", occupancyTypes: ["Telecom"], workTypes: ["distributienet"] })).titel, /^Telecomwerken \(kabels of glasvezel\) in de Voorbeeldstraat/);
   assert.match(kaart(werk({ title: "Werken in opdracht van een operator: Huisaansluiting", occupancyTypes: ["Telecom"], workTypes: ["klantaansluiting;(her)aanleg"] })).titel, /^Nieuwe aansluiting op het telecomnet /);
-  assert.match(kaart(werk({ title: "2018 | Antwerpen | Voorbeeldstraat | 91", occupancyTypes: ["Hoogtewerker;Nutswerken"] })).titel, /^Werk met een hoogtewerker in de Voorbeeldstraat/);
+  assert.match(kaart(werk({ title: "2018 | Antwerpen | Voorbeeldstraat | 91", occupancyTypes: ["Hoogtewerker;Nutswerken"] })).titel, /^Nutswerken met een hoogtewerker in de Voorbeeldstraat/);
   // Klantaansluiting met het net alleen in de tekst.
   assert.match(kaart(werk({ title: "2000 Antwerpen Voorbeeldstraat, Klantaansluiting elektriciteit" })).titel, /^Nieuwe aansluiting op het elektriciteitsnet /);
 });
@@ -122,7 +122,7 @@ test("titel: met \"in\" en het juiste lidwoord", () => {
 });
 
 test("plek: zonder eenduidige straat het kruispunt of de dichtste straat, en altijd een regel Waar", () => {
-  const kruispunt = kaart(werk({ streets: [], streetResolution: "ambiguous", streetNearby: [{ name: "Astraat", distanceMeters: 4 }, { name: "Beplein", distanceMeters: 7 }] }));
+  const kruispunt = kaart(werk({ streets: [], streetResolution: "ambiguous", streetNearby: [{ name: "Astraat", distanceMeters: 4 }, { name: "Beplein", distanceMeters: 7 }], streetsMeet: true }));
   assert.match(kruispunt.titel, / bij het kruispunt van Astraat en Beplein /);
   assert.match(regels(kruispunt).Waar, /^Bij het kruispunt van Astraat en Beplein/);
   const ver = kaart(werk({ streets: [], streetResolution: "unresolved", streetNearby: [{ name: "Ceelaan", distanceMeters: 61 }] }));
@@ -138,6 +138,7 @@ test("plek: zonder eenduidige straat het kruispunt of de dichtste straat, en alt
   assert.equal(op.streetNearby, undefined);
   assert.equal(hoek.streetResolution, "ambiguous");
   assert.deepEqual(hoek.streetNearby.map((s) => s.name).sort(), ["Astraat", "Beplein"]);
+  assert.equal(hoek.streetsMeet, true);
 });
 
 test("afsluiting: met haar eigen einddatum, niet die van het hele werk", () => {
@@ -153,7 +154,7 @@ test("afsluiting: met haar eigen einddatum, niet die van het hele werk", () => {
   assert.match(regels(lopend).Fasen, /Fase 1 \(1 oktober – 30 november\): afgesloten voor auto's, geen doorgang voor fietsers/);
   // Een afsluiting die nog moet komen, en een die al voorbij is.
   const komend = kaart(werk({ hindrance: hinder([{ description: "Fase 3", start: "2026-11-02T04:00:00Z", end: "2026-11-06T16:00:00Z", consequences: ["Geen doorgang voor gemotoriseerd verkeer"] }]) }));
-  assert.match(komend.titel, /: afgesloten voor auto's 2 november – 6 november; werken tot 20 november/);
+  assert.match(komend.titel, /: afgesloten voor auto's van 2 tot 6 november; werken tot 20 november/);
   const voorbij = kaart(werk({ hindrance: hinder([{ description: "Fase 1", start: "2026-09-01T04:00:00Z", end: "2026-09-20T16:00:00Z", consequences: ["Geen doorgang voor gemotoriseerd verkeer"] }]) }));
   assert.doesNotMatch(voorbij.titel, /afgesloten/);
 });
