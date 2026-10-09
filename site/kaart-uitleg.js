@@ -554,8 +554,11 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   // Eén korte bronregel in gewone taal, zonder codes.
   const dossier = f.dossier ? ` (dossier ${f.dossier})` : "";
   const bronnen = uniek((id?.bron || []).map(hostVan).filter((h) => h && !/geodata\.antwerpen\.be/.test(h)));
-  const voetnoot = bekend
-    ? `De stad gaf toelating voor dit evenement${dossier}. Wat het is, hebben we nagekeken${bronnen.length ? ` op ${joinNl(bronnen)}` : ""}${id.bijgewerkt ? ` (${datumTekst(id.bijgewerkt, { jaar: true })})` : ""}.`
+  const nagekeken = `${bronnen.length ? ` op ${joinNl(bronnen)}` : ""}${id?.bijgewerkt ? ` (${datumTekst(id.bijgewerkt, { jaar: true })})` : ""}`;
+  const voetnoot = bekend?.zekerheid === "zeker"
+    ? `De stad gaf toelating voor dit evenement${dossier}. Wat het is, hebben we nagekeken${nagekeken}.`
+    : bekend
+      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden steunt op wat we nagekeken hebben${nagekeken}.`
     : koppeling
       ? `De stad gaf toelating voor dit evenement${dossier}. De naam komt van het agendapunt op dezelfde dag in dezelfde straat.`
       : `De stad gaf toelating voor dit evenement${dossier}, maar zegt niet wie het organiseert of op welke uren.`;

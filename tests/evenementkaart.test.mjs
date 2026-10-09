@@ -94,6 +94,7 @@ test("13 oktober: een eerlijke 'vermoedelijk studentendoop' met de reden, zonder
   assert.match(k.Wanneer, /^Dinsdag 13 oktober; de uren zijn niet gepubliceerd\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
   assert.equal(e.time, "");
   assert.equal(e.uitleg.links.length, 0); // geen officiële pagina: dan ook geen knop
+  assert.match(e.uitleg.voetnoot, /zonder naam\. Het vermoeden steunt op wat we nagekeken hebben op stuvent\.be en antwerpen\.be/);
   assert.ok(e.uitleg.ontbreekt.includes("uren niet gepubliceerd"));
   const ook = IDENTITEIT.dossiers.ET2026004943;
   assert.equal(ook.zekerheid, "waarschijnlijk");
