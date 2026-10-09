@@ -74,13 +74,15 @@ async function routeSources(page, street, { evenement = null } = {}) {
   // Een verzonnen evenementendossier (A-Sign laag 23): een parcours over de gekozen straat.
   const fase = evenement && Date.parse(`${evenement.dag}T08:00:00Z`);
   const parcours = evenement && { attributes: { dossierNummer: evenement.dossier, faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parcours", innameBeschrijving: "", innameHinder: "True", faseStartDatum: fase, faseEindDatum: fase }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
+  // Desgewenst een parkeerverbod tijdens de afbraak, na de dag van het evenement, in dezelfde straat.
+  const afbraak = evenement?.afbraakTot && { attributes: { ...parcours.attributes, faseId: "F2", innameId: "I2", faseNaam: "Afbraak", innameTypeNaam: "Parkeerverbod in Straat", faseStartDatum: fase, faseEindDatum: Date.parse(`${evenement.afbraakTot}T08:00:00Z`) }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
     if (url.includes("/collections/INNAME_PUNT/")) return route.fulfill(json(work));
     if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
     if (url.includes("/MapServer/905/")) return route.fulfill(json(axis));
-    if (parcours && url.includes("/MapServer/23/query")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [1] } : { features: [parcours] }));
+    if (parcours && url.includes("/MapServer/23/query")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: afbraak ? [1, 2] : [1] } : { features: afbraak ? [parcours, afbraak] : [parcours] }));
     if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
     return route.abort();
   });
@@ -218,6 +220,23 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.deepEqual(labels.slice(0, 3), ["Wat", "Wanneer", "Waar"]);
     assert.ok(labels.includes("Jouw straat") && labels.includes("Wat merk je"));
     assert.doesNotMatch(await row.locator(".pv-detail").innerText(), /ETL|IOD|Niet in de bron/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("evenement op straat tijdens de afbraak: de kaart blijft staan, met 'Afbraak bezig'", async () => {
+    const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
+    // Het evenement was gisteren; het parkeerverbod van de afbraak loopt tot morgen.
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000078", dag: addDays(today, -1), afbraakTot: addDays(today, 1) }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen` });
+    const row = page.locator(".pv-row", { hasText: "Evenement op straat" }).first();
+    await row.waitFor({ timeout: 20000 });
+    assert.match(await row.locator(".pv-row-btn").innerText(), /Afbraak bezig/);
+    // In de sectie "Nu bezig", met het einde van de afbraak.
+    const sectie = page.locator(".pv-day", { has: row });
+    assert.match(await sectie.locator(".pv-day-title").innerText(), /Nu bezig/);
+    assert.match(await row.locator(".pv-row-when").innerText(), /^t\/m /);
+    await row.locator(".pv-row-btn").click();
+    assert.match(await row.locator(".pv-kern").innerText(), /Jouw straat krijgt een parkeerverbod van /);
     assert.deepEqual(errors, []);
     await context.close();
   });

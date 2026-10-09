@@ -135,7 +135,7 @@ test("parcours gekoppeld aan een bekend evenement via datum en straat", () => {
   const g = koppelEvenement(f, items);
   assert.deepEqual([g.titel, g.tijd], ["Voorbeeldloop", "9 tot 14 uur"]);
   const k = evenementKaartje(f, { vandaag: VANDAAG, gekoppeld: g });
-  assert.equal(k.titel, "Voorbeeldloop");
+  assert.equal(k.titel, "Vermoedelijk: Voorbeeldloop");
   assert.match(k.kern[0][1], /Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat/);
   assert.equal(k.samenvatting, "Dinsdag 13 oktober, 9 tot 14 uur.");
   assert.ok(!k.ontbreekt.some((t) => /naam|uren/.test(t)));

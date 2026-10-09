@@ -254,10 +254,33 @@ export function monthWeeks(monthIso) {
   return weeks;
 }
 
+// Een evenement op straat heeft twee periodes: de dag(en) van het evenement zelf (start/end, voor
+// de titel en de plaats in de lijst) en de innameperiode van opbouw tot afbraak (innameStart/
+// innameEind). Filter, overlap, balken en "nu bezig" volgen de innameperiode: tijdens de afbraak
+// staat er nog een parkeerverbod in de straat.
+export function periodeVan(entry) {
+  const start = entry?.start || "", end = entry?.end || "";
+  const ps = entry?.innameStart && (!start || entry.innameStart < start) ? entry.innameStart : start;
+  const pe = entry?.innameEind && entry.innameEind > (end || start) ? entry.innameEind : end;
+  return { start: ps, end: pe && pe !== ps ? pe : "" };
+}
+// Waar staat een evenement op straat op een dag: "gepland", "opbouw", "evenement", "afbraak" of
+// "voorbij". Leeg voor alles zonder innameperiode.
+export function evenementFase(entry, day) {
+  if (!entry?.innameStart || !day) return "";
+  const p = periodeVan(entry), es = entry.start || p.start, ee = entry.end || es;
+  if (day < p.start) return "gepland";
+  if (day > (p.end || p.start)) return "voorbij";
+  if (day < es) return "opbouw";
+  if (day > ee) return "afbraak";
+  return "evenement";
+}
+
 // Overlapt een item [start, end] met [from, to]? Een item zonder einde telt als één dag
 // (of als lopend tot het einde van het venster als openEnd gezet is).
 export function overlaps(entry, from, to) {
-  const start = entry.start, end = entry.end || (entry.openEnd ? to : start);
+  const { start, end: eind } = periodeVan(entry);
+  const end = eind || (entry.openEnd ? to : start);
   return Boolean(start) && start <= to && end >= from;
 }
 
@@ -268,10 +291,11 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
   const rows = entries
     .filter((entry) => overlaps(entry, weekStart, weekEnd))
     .map((entry) => {
-      const end = entry.end || (entry.openEnd ? weekEnd : entry.start);
-      const s = entry.start < weekStart ? weekStart : entry.start;
+      const p = periodeVan(entry);
+      const end = p.end || (entry.openEnd ? weekEnd : p.start);
+      const s = p.start < weekStart ? weekStart : p.start;
       const e = end > weekEnd ? weekEnd : end;
-      return { entry, col: daysBetween(weekStart, s), span: daysBetween(s, e) + 1, clippedStart: entry.start < weekStart, clippedEnd: end > weekEnd };
+      return { entry, col: daysBetween(weekStart, s), span: daysBetween(s, e) + 1, clippedStart: p.start < weekStart, clippedEnd: end > weekEnd };
     })
     .sort((a, b) => a.col - b.col || b.span - a.span || String(a.entry.title).localeCompare(String(b.entry.title), "nl"));
   const lanes = [];
@@ -290,21 +314,27 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
 }
 
 // Indeling van de lijst: wat nu loopt, en wat er per dag start of plaatsvindt binnen de periode.
+// Een evenement op straat staat bij "nu bezig" tijdens opbouw en afbraak, en anders op de dag van
+// het evenement; valt alleen de opbouw in de periode, dan op de eerste dag van de opbouw.
 export function groupForList(entries, { from, to, today }) {
   const running = [], days = new Map(), later = [];
   for (const entry of entries) {
+    const fase = evenementFase(entry, today);
+    if (fase === "opbouw" || fase === "afbraak") { running.push(entry); continue; }
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     if (multi && entry.start <= today && (entry.openEnd || entry.end >= today)) { running.push(entry); continue; }
     if (!entry.start) continue;
-    const end = entry.end || entry.start;
+    const p = periodeVan(entry);
+    const end = p.end || entry.end || entry.start;
     if (end < from) continue;
-    if (entry.start > to) { later.push(entry); continue; }
-    const day = entry.start < from ? from : entry.start;
+    const begin = entry.start > to && p.start <= to ? p.start : entry.start;
+    if (begin > to) { later.push(entry); continue; }
+    const day = begin < from ? from : begin;
     if (!days.has(day)) days.set(day, []);
     days.get(day).push(entry);
   }
   const byTitle = (a, b) => String(a.time || "99").localeCompare(String(b.time || "99")) || String(a.title).localeCompare(String(b.title), "nl");
-  running.sort((a, b) => String(a.end || "9999").localeCompare(String(b.end || "9999")) || byTitle(a, b));
+  running.sort((a, b) => String(periodeVan(a).end || "9999").localeCompare(String(periodeVan(b).end || "9999")) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
   return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
 }
@@ -379,6 +409,8 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
 }
+// Een oudere verversing bewaarde hoogstens zoveel lijnen van een parcours (de rest viel weg).
+const OUDE_KAART_MAX = 12;
 // Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen. Het is
 // een evenement (groep "evenementen"): het telt mee bij de evenementen en de chip "Evenementen" toont het.
 // `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).
@@ -409,13 +441,22 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
     : (agenda.length ? koppelEvenement(feiten, agenda) : null) || bewaard?.gekoppeld || null;
   const k = evenementKaartje(feiten, { vandaag, gekoppeld, identiteit: id, straat, wijkVan });
   const start = dayOf(k.dagen.start || live.start), end = k.dagen.eind && k.dagen.eind > k.dagen.start ? dayOf(k.dagen.eind) : "";
+  // Innameperiode op de gekozen plek (opbouw tot afbraak van de innames hier, zoals een parkeerverbod
+  // in jouw straat), anders van het hele dossier. Zie periodeVan() en evenementFase().
+  const hier = rows.map((r) => [dayOf(r?.start), dayOf(r?.end) || dayOf(r?.start)]).filter(([s]) => s);
+  const innameStart = hier.length ? hier.map(([s]) => s).sort()[0] : dayOf(live.start);
+  const innameEind = hier.length ? hier.map(([, e]) => e).sort().at(-1) : dayOf(live.eind);
+  // De schets is maar een deel van het parcours als de verversing dat zegt, of bij een bestand van
+  // vóór die markering dat op OUDE_KAART_MAX lijnen afgekapt kan zijn.
+  const kaart = bewaard?.kaart || [];
+  const kaartDeel = bewaard?.kaartDeel === true || (bewaard?.kaartDeel === undefined && kaart.length >= OUDE_KAART_MAX);
   return {
     uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "evenementen",
     title: k.titel, summary: k.samenvatting, start, end, openEnd: false, time: k.tijd, timeText: "",
     location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: k.links[0]?.url || "",
-    innameStart: dayOf(live.start), innameEind: dayOf(live.eind),
+    innameStart, innameEind,
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
-    evenementLinks: k.links, straten: feiten.straten, kaart: bewaard?.kaart || [],
+    evenementLinks: k.links, straten: feiten.straten, kaart, kaartDeel,
   };
 }
 const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).filter((s) => s?.name).map((s) => [`${s.id}|${s.name}|${s.postcode}`, s])).values()];

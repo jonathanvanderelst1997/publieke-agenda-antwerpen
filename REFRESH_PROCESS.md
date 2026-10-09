@@ -37,14 +37,17 @@ Het bestand wordt met de hand bijgewerkt, niet door de automatische verversing:
    - `reden`: waarom `waarschijnlijk` of `onbekend`, in één of twee zinnen;
    - `organisator`: alleen een organisatie, nooit een persoon; leeg als de bron er geen noemt;
    - `dagen` (de dag of dagen van het evenement zelf, niet de opbouw), `uren` en eventueel `urenNoot`;
-   - `waar`, `watMerkJe`: kort, in gewone taal, zonder huisnummers;
+   - `waar`, `watMerkJe`: kort, in gewone taal, zonder huisnummers, in de woorden van de bron. Bij `onbekend` alleen wat in het dossier staat ("Afsluitingen of parkeerverboden staan niet in het dossier."), geen "mogelijk" of "waarschijnlijk";
+   - nooit de status van de aanvraag ("nog niet toegestaan", "wordt geweigerd"): die komt live uit A-Sign, en de site toont alleen goedgekeurde dossiers;
    - `link`: een gewone https-pagina over dit evenement (geen query, geen databron); `linkLabel` als de pagina niet over dit ene evenement gaat (bv. de regels voor studentendopen); `linkUitleg` als de pagina meerdere activiteiten toont;
    - `bron`: de publieke pagina's waarop de identificatie steunt; `bijgewerkt`: de dag van de controle.
-4. Zet `bijgewerkt` bovenaan op de dag van de controle en draai `node scripts/validate-data.mjs` en `node --test tests/evenementkaart.test.mjs`. De validatie weigert links met een query, huisnummers na een straatnaam en `zeker` zonder naam; de privacyscan weigert @, telefoonnummers en IBAN.
+4. Zet `bijgewerkt` bovenaan op de dag van de controle en draai `node scripts/validate-data.mjs` en `node --test tests/evenementkaart.test.mjs`. De validatie weigert links met een query, huisnummers na een straatnaam, `zeker` zonder naam, de status van de aanvraag en een gissing bij `onbekend`; de privacyscan weigert @, telefoonnummers en IBAN.
 
-Staat een dossier niet in het bestand, dan zoekt de site zelf een gewoon agendapunt op dezelfde dag als het evenement (niet de opbouw) met een straat van het dossier in de locatie, en toont het als "gekoppeld aan agendapunt" met een link naar dat agendapunt. Markten, vergaderingen en innames van meer dan drie dagen worden nooit gekoppeld. Zonder koppeling zegt de kaart: "Evenement met toelating van de stad; de stad maakt niet bekend wat het is."
+Staat een dossier niet in het bestand, dan zoekt de site zelf een gewoon agendapunt op dezelfde dag als het evenement (niet de opbouw) met een straat van het dossier in de locatie, en toont het als "Vermoedelijk: <naam van het agendapunt>" (gekoppeld aan agendapunt), met de officiële pagina van het agendapunt en een link naar het agendapunt. Markten, vergaderingen en innames van meer dan drie dagen worden nooit gekoppeld. Zonder koppeling zegt de kaart: "Evenement met toelating van de stad; de stad maakt niet bekend wat het is."
 
-De verversing (`lib/kaart-uitleg-refresh.mjs`) bewaart per dossier ook `langs`: de straten waar het parcours echt langs loopt. Daarmee zegt de kaart "jouw straat ligt op het parcours" of "kruist het parcours".
+De verversing (`lib/kaart-uitleg-refresh.mjs`) bewaart per dossier ook `langs`: de straten waar het parcours echt langs loopt (ook een korte straat die het parcours grotendeels bedekt). Daarmee zegt de kaart "jouw straat ligt op het parcours" of "kruist het parcours". Zonder straatas laat de verversing `langs` weg, en zegt de kaart "op of naast het parcours". De schets (`kaart`) is het hele parcours, vereenvoudigd; `kaartDeel` zegt of er toch lijnen wegvielen.
+
+Een evenementkaart staat in de lijst op de dag van het evenement. Tijdens opbouw en afbraak van de innames op de gekozen plek (bijvoorbeeld een parkeerverbod in jouw straat) staat ze bij "Nu bezig", met "Opbouw bezig" of "Afbraak bezig".
 
 ## Rollback
 

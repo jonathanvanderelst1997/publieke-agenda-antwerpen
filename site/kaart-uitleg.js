@@ -320,6 +320,9 @@ export function evenementFeiten(rows = []) {
   const first = rows[0] || {};
   const onderdelen = [], fasen = new Map(), types = new Set();
   const perSoort = { parcours: new Set(), parkeerverbod: new Set(), verkeersvrij: new Set(), omleiding: new Set(), inname: new Set() };
+  // Per soort en per straat de dagen (alle fasen samen): "jouw straat krijgt een parkeerverbod van
+  // vrijdag 9 tot zondag 11 oktober". A-Sign publiceert alleen dagen, geen uren.
+  const perSoortDagen = { parcours: {}, parkeerverbod: {}, verkeersvrij: {}, omleiding: {}, inname: {} };
   let hinder = "";
   for (const r of rows) {
     const type = clean(r.innameType || r.title, 80);
@@ -333,7 +336,17 @@ export function evenementFeiten(rows = []) {
     }
     if (clean(r.hindrance, 10).toLowerCase() === "true") hinder = "True";
     else if (!hinder && r.hindrance) hinder = clean(r.hindrance, 10);
-    for (const s of r.streets || []) if (s?.name) perSoort[innameSoort(type)].add(clean(s.name, 120));
+    const soortInname = innameSoort(type), rs = dagVan(r.start), re = dagVan(r.end) || rs;
+    for (const s of r.streets || []) {
+      if (!s?.name) continue;
+      const naam = clean(s.name, 120);
+      perSoort[soortInname].add(naam);
+      if (!rs) continue;
+      const p = perSoortDagen[soortInname][naam] || { start: rs, eind: re };
+      if (rs < p.start) p.start = rs;
+      if (re > p.eind) p.eind = re;
+      perSoortDagen[soortInname][naam] = p;
+    }
     const b = bruikbareBeschrijving(r.description);
     if (b) onderdelen.push(`${type === "Parcours" ? "Parcours" : type || "Inname"}: ${zonderHuisnummer(b)}`);
   }
@@ -354,6 +367,7 @@ export function evenementFeiten(rows = []) {
     evenementDag: dag?.start ? { start: dag.start, eind: dag.eind || dag.start } : null,
     soorten: [...types].sort((a, b) => a.localeCompare(b, "nl")),
     perSoort: Object.fromEntries(Object.entries(perSoort).map(([k, v]) => [k, [...v].sort((a, b) => a.localeCompare(b, "nl"))])),
+    perSoortDagen,
     parcours: rows.filter((r) => clean(r.innameType || r.title, 80) === "Parcours").length,
     beschrijvingen,
     soort,
@@ -437,24 +451,30 @@ const zin = (t) => { const s = clean(t, 800); return s ? `${capital(s)}${/[.!?]$
 const hostVan = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const KALENDER = /wat-beleef-je-in-district-antwerpen/i;
 export const ZEKERHEDEN = Object.freeze(["zeker", "waarschijnlijk", "onbekend"]);
-const FASE_NAAM = Object.freeze({ Opbouw: "opbouw", Evenement: "dag van het evenement", Afbraak: "afbraak" });
 
-// Wat jouw straat met dit evenement te maken heeft. f.langs: straten waar het parcours echt langs
-// loopt (berekend in de verversing), of null als dat niet bekend is.
-export function jouwStraat(f, straat) {
+// Wat jouw straat met dit evenement te maken heeft, met de dagen van een parkeerverbod of een
+// verkeersvrije zone in jouw straat (ook tijdens opbouw en afbraak). f.langs: straten waar het
+// parcours echt langs loopt (berekend in de verversing), of null als dat niet bekend is. Waarvoor
+// een gewone inname dient, zegt de stad niet: dan zeggen we dat ook, zonder te gokken.
+export function jouwStraat(f, straat, vandaag = "") {
   const naam = clean(straat, 120).toLowerCase();
   if (!naam) return "";
   const heeft = (list) => (list || []).some((s) => clean(s, 120).toLowerCase() === naam);
+  const wanneer = (soort) => {
+    const d = Object.entries(f.perSoortDagen?.[soort] || {}).find(([s]) => clean(s, 120).toLowerCase() === naam)?.[1];
+    const t = d?.start ? dagenTekst(d.start, d.eind, vandaag) : "";
+    return !t ? "" : t.startsWith("van ") ? ` ${t}` : ` op ${t}`;
+  };
   const ps = f.perSoort || {};
   const delen = [];
-  if (heeft(ps.verkeersvrij)) delen.push("wordt verkeersvrij");
-  if (heeft(ps.parkeerverbod)) delen.push("krijgt een parkeerverbod");
+  if (heeft(ps.verkeersvrij)) delen.push(`wordt verkeersvrij${wanneer("verkeersvrij")}`);
+  if (heeft(ps.parkeerverbod)) delen.push(`krijgt een parkeerverbod${wanneer("parkeerverbod")}`);
   if (Array.isArray(f.langs) && heeft(f.langs)) delen.push("ligt op het parcours");
   else if (Array.isArray(f.langs) && heeft(ps.parcours)) delen.push("kruist het parcours of ligt er vlak naast");
   else if (heeft(ps.parcours)) delen.push("ligt op of naast het parcours");
   if (heeft(ps.omleiding)) delen.push("ligt op de omleiding");
-  if (!delen.length && heeft(ps.inname)) delen.push("heeft een inname voor dit evenement, zoals tenten, nadars of een stand");
-  if (!delen.length && heeft(f.straten)) delen.push("staat in het dossier van dit evenement, bijvoorbeeld voor een omleiding of een parkeerverbod");
+  if (!delen.length && heeft(ps.inname)) delen.push(`wordt gebruikt voor dit evenement${wanneer("inname")}; waarvoor precies, zegt de stad niet`);
+  if (!delen.length && heeft(f.straten)) delen.push("staat in het dossier van dit evenement; waarvoor, zegt de stad niet");
   return delen.length ? `Jouw straat ${joinNl(delen)}.` : "";
 }
 
@@ -497,8 +517,9 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
     titel = `Vermoedelijk ${clean(bekend.soort, 200)}`;
     wat = [`${titel}.`, zin(bekend.reden)].filter(Boolean).join(" ");
   } else if (koppeling) {
-    titel = koppeling.titel;
-    wat = `${koppeling.titel}${koppeling.locatie ? ` (${koppeling.locatie})` : ""}. Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat.`;
+    // Een koppeling op dag en straat blijft een vermoeden: zo staat het ook in de titel.
+    titel = `Vermoedelijk: ${koppeling.titel}`;
+    wat = `${titel}${koppeling.locatie ? ` (${koppeling.locatie})` : ""}. Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat.`;
   } else if (f.soort) {
     titel = `Vermoedelijk een ${f.soort.toLowerCase()}`;
     wat = `${titel}: dat staat in de omschrijving van het dossier. De stad maakt de naam niet bekend.`;
@@ -520,7 +541,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
 
   // WAAR en JOUW STRAAT
   const waar = clean(id?.waar, 400) || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
-  const jouw = jouwStraat(f, straat);
+  const jouw = jouwStraat(f, straat, vandaag);
 
   // WAT MERK JE
   const ps = f.perSoort || {};
@@ -529,8 +550,9 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
     ps.verkeersvrij?.length ? `verkeersvrij: ${stratenSamenvatting(ps.verkeersvrij, wijkVan)}` : "",
     ps.omleiding?.length ? `omleiding via ${stratenSamenvatting(ps.omleiding, wijkVan)}` : "",
   ].filter(Boolean);
+  // A-Sign geeft voor een parkeerverbod alleen dagen: de uren van het evenement gelden er niet voor.
   const merk = clean(id?.watMerkJe, 600) || (afgeleid.length
-    ? `${zin(joinNl(afgeleid))}${f.hinder === "True" ? " De stad verwacht hinder voor het verkeer." : ""}`
+    ? `${zin(joinNl(afgeleid))}${ps.parkeerverbod?.length ? " De uren van het parkeerverbod staan niet in het dossier." : ""}${f.hinder === "True" ? " De stad verwacht hinder voor het verkeer." : ""}`
     : f.parcours ? "Straten op het parcours kunnen tijdelijk dicht zijn; welke en hoe laat, maakt de stad niet bekend."
       : "Welke straten dicht gaan en wanneer, maakt de stad niet bekend.");
 
@@ -543,13 +565,14 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   const voegToe = (url, label, uitleg = "") => { if (url && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
   if (id?.link) voegToe(id.link, clean(id.linkLabel, 80) || "Officiële info over dit evenement", clean(id.linkUitleg, 160));
   for (const l of id?.extraLinks || []) voegToe(l.url, clean(l.label, 100));
+  // Bij een koppeling: de officiële pagina van het agendapunt én het agendapunt zelf.
+  if (koppeling?.bronUrl) voegToe(koppeling.bronUrl, KALENDER.test(koppeling.bronUrl) ? "Districtskalender (meerdere activiteiten)" : "Officiële info over dit evenement");
   if (gekoppeld?.agendaId) voegToe(`/event/${gekoppeld.agendaId}/`, `Agendapunt: ${clean(gekoppeld.titel, 100)}`);
-  if (koppeling?.bronUrl && !links.length) voegToe(koppeling.bronUrl, KALENDER.test(koppeling.bronUrl) ? "Districtskalender (meerdere activiteiten)" : "Officiële info over dit evenement");
 
-  // Details onder de kern.
+  // Details onder de kern. Opbouw en afbraak staan al bij "Wanneer", het aantal straten bij "Waar"
+  // (de knop "Toon alle N straten"): niet nog eens herhalen. De uitleg bij die stratenlijst:
   const regels = [];
-  if (fasenBuiten.length) regels.push(["Opbouw en afbraak", (f.fasePeriodes || []).map((p) => `${FASE_NAAM[p.naam] || p.naam.toLowerCase()}: ${periode(p.start, p.eind) || "datum niet gepubliceerd"}`).join(" · ")]);
-  if (f.straten.length > 3) regels.push(["Straten", `${f.straten.length} straten ${f.parcours ? "langs het parcours" : "in het dossier"} (berekend uit de kaart van de stad; niet allemaal tegelijk dicht)`]);
+  const stratenNoot = f.straten.length > 3 ? `${f.parcours ? "Straten langs het parcours" : "Straten in het dossier"}, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht.` : "";
 
   // Eén korte bronregel in gewone taal, zonder codes.
   const dossier = f.dossier ? ` (dossier ${f.dossier})` : "";
@@ -558,7 +581,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   const voetnoot = bekend?.zekerheid === "zeker"
     ? `De stad gaf toelating voor dit evenement${dossier}. Wat het is, hebben we nagekeken${nagekeken}.`
     : bekend
-      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden steunt op wat we nagekeken hebben${nagekeken}.`
+      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden steunt op het dossier en op wat we nagekeken hebben${nagekeken}.`
     : koppeling
       ? `De stad gaf toelating voor dit evenement${dossier}. De naam komt van het agendapunt op dezelfde dag in dezelfde straat.`
       : `De stad gaf toelating voor dit evenement${dossier}, maar zegt niet wie het organiseert of op welke uren.`;
@@ -574,7 +597,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
     jouw,
   ].filter(Boolean).join(" ");
   return {
-    titel, samenvatting, kern, regels, links, voetnoot, ontbreekt, duur, plek: straten, technisch: "",
+    titel, samenvatting, kern, regels, links, voetnoot, ontbreekt, duur, plek: straten, technisch: "", stratenNoot,
     beschrijvingen: f.beschrijvingen || [], tijd: eersteUur(uren),
     zekerheid: bekend?.zekerheid || (koppeling ? "gekoppeld" : "onbekend"), dagen: { start: dagen.start, eind: dagen.eind },
   };
@@ -596,6 +619,27 @@ export function vereenvoudigLijnen(lijnen = [], maxPunten = 40) {
   }
   return out;
 }
+// De schets van een heel parcours: alle lijnen, sterker vereenvoudigd in plaats van afgekapt, zodat
+// "jouw straat ligt op het parcours" en de schets elkaar niet tegenspreken. Elke lijn krijgt punten
+// naar haar lengte, binnen maxPunten samen. Alleen als er meer lijnen zijn dan het budget toelaat,
+// vallen de kortste weg en zegt `deel` dat de schets maar een deel toont.
+export const SCHETS_MAX_PUNTEN = 300;
+const lijnLengte = (l) => l.reduce((m, p, i) => (i ? m + Math.hypot(p[0] - l[i - 1][0], p[1] - l[i - 1][1]) : 0), 0);
+export function routeSchets(lijnen = [], { maxPunten = SCHETS_MAX_PUNTEN } = {}) {
+  const gezien = new Set(), alle = [];
+  for (const l of lijnen) {
+    if (!Array.isArray(l) || l.length < 2 || !l.every((p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]))) continue;
+    const k = JSON.stringify(l);
+    if (!gezien.has(k)) { gezien.add(k); alle.push(l); }
+  }
+  const maxLijnen = Math.max(1, Math.floor(maxPunten / 2));
+  const houd = alle.length > maxLijnen ? new Set([...alle].sort((a, b) => lijnLengte(b) - lijnLengte(a)).slice(0, maxLijnen)) : new Set(alle);
+  const gekozen = alle.filter((l) => houd.has(l));
+  const totaal = gekozen.reduce((n, l) => n + l.length, 0) || 1;
+  const uit = gekozen.flatMap((l) => vereenvoudigLijnen([l], Math.max(2, Math.floor((l.length / totaal) * maxPunten))));
+  return { lijnen: uit, deel: gekozen.length < alle.length };
+}
+
 const VERRUIM = 0.006; // ongeveer 400 tot 650 m rond het parcours
 // Een eenvoudige SVG-schets: het parcours over de straatassen in de buurt, en de gekozen straat
 // (segmenten [[x,y],[x,y]]) in een eigen kleur. Geen tegels, geen netwerk.

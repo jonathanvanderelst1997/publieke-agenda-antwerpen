@@ -29,7 +29,9 @@ test("naamloos parcours zegt eerlijk dat de stad niet bekendmaakt wat het is, zo
  assert.match(kern.Wat,/de stad maakt niet bekend wat het is/);
  assert.match(kern.Wanneer,/^Dinsdag 13 oktober; de uren zijn niet gepubliceerd/);
  assert.match(kern["Wat merk je"],/welke en hoe laat, maakt de stad niet bekend/);
- assert.match(x.regels.find(([label])=>label==="Straten")[1],/^115 straten langs het parcours \(berekend uit de kaart van de stad; niet allemaal tegelijk dicht\)$/);
+ // Het aantal straten staat bij "Waar" (knop "Toon alle 115 straten"); de uitleg staat in die lijst, niet in een extra regel.
+ assert.equal(x.regels.some(([label])=>label==="Straten"),false);
+ assert.equal(x.stratenNoot,"Straten langs het parcours, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht.");
  assert.doesNotMatch(JSON.stringify(x),/uit een parcours alleen volgt niet|volgens het dossier|ETL|IOD|Kijk bij de officiële bron hieronder/);
  assert.doesNotMatch(x.titel,/loopwedstrijd/i);
 });

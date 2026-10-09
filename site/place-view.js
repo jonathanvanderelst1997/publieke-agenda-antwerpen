@@ -7,6 +7,7 @@ import {
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
+  periodeVan, evenementFase,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
@@ -542,8 +543,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const running = multi && entry.start && entry.start <= today;
     const marktUur = entry.theme === "markets" ? publiekeMarktUur(entry.item) : null;
     let when = marktUur ? marktUur.start.replace(":",".") : leesbaarUur(entry,{multi,running});
-    if (context === "running") when = entry.end ? `t/m ${shortDate(entry.end)}` : "Loopt";
-    const badge = entry.group === "werken" || entry.source !== "agenda"
+    // Een evenement op straat: opbouw, de dag zelf of afbraak (periodeVan/evenementFase in place-core.js).
+    const periode = periodeVan(entry), fase = evenementFase(entry, today);
+    if (context === "running") when = (fase ? periode.end : entry.end) ? `t/m ${shortDate(fase ? periode.end : entry.end)}` : "Loopt";
+    const FASE_BADGE = { opbouw: ["Opbouw bezig", "now"], afbraak: ["Afbraak bezig", "now"], evenement: ["Vandaag", "now"], gepland: ["Gepland", "planned"] };
+    const badge = fase
+      ? (FASE_BADGE[fase] ? `<span class="pv-badge pv-badge-${FASE_BADGE[fase][1]}">${FASE_BADGE[fase][0]}</span>` : "")
+      : entry.group === "werken" || entry.source !== "agenda"
       ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
       : "";
     const range = multi ? `${fullDate(entry.start)} – ${entry.end ? fullDate(entry.end) : "einde volgens de bron"}` : entry.start ? fullDate(entry.start) : "";
@@ -555,8 +561,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     let track = "";
     if (context === "week") {
-      const end = entry.end || (entry.openEnd ? addDays(weekStart, 6) : entry.start);
-      const s = entry.start < weekStart ? 0 : daysBetween(weekStart, entry.start);
+      const end = periode.end || (entry.openEnd ? addDays(weekStart, 6) : periode.start);
+      const s = periode.start < weekStart ? 0 : daysBetween(weekStart, periode.start);
       const e = Math.min(6, daysBetween(weekStart, end));
       track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
     }
@@ -569,7 +575,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
     return `
-      <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}" data-uid="${esc(entry.uid)}">
+      <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}${entry.uitleg?.kern ? " pv-row-kern" : ""}" data-uid="${esc(entry.uid)}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
           <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
@@ -600,6 +606,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </div>
       </li>`;
   }
+  // Titel van een balk in de maand: bij een evenement op straat de dag zelf en de innameperiode.
+  function balkTitel(entry) {
+    const p = periodeVan(entry);
+    const eigen = `${entry.title} · ${shortDate(entry.start)}${entry.end && entry.end !== entry.start ? ` → ${shortDate(entry.end)}` : ""}`;
+    return entry.innameStart && p.end ? `${eigen} (opbouw tot afbraak: ${shortDate(p.start)} → ${shortDate(p.end)})` : eigen;
+  }
   // Een link naar een pagina van deze site (/event/…) opent in hetzelfde tabblad.
   function linkHtml(l) {
     const extern = !/^\//.test(l.url);
@@ -620,7 +632,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const lange = straten.length > 3;
     const gekozen = u.kern ? gekozenSegmenten() : [];
     const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b]), { gekozen }) : "";
-    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : "";
+    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${u.stratenNoot ? `<p class="pv-straten-noot">${esc(u.stratenNoot)}</p>` : ""}<p>${esc(straten.join(", "))}</p></details>` : "";
     if (u.kern) {
       return `
           <dl class="pv-kern">${u.kern.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}${dt === "Waar" ? alleStraten : ""}</dd></div>`).join("")}</dl>
@@ -629,7 +641,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
           </dl>` : ""}
-          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood)${kaart.includes('class="ku-jouw"') ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : ""}
+          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van ${entry.kaartDeel ? "een deel van het parcours" : "het parcours"} (rood)${kaart.includes('class="ku-jouw"') ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : ""}
           ${u.beschrijvingen?.length ? `<details class="pv-streets"><summary>Wat er in het dossier staat (${u.beschrijvingen.length})</summary><p>${esc(u.beschrijvingen.join(" · "))}</p></details>` : ""}
           ${u.voetnoot ? `<p class="pv-voetnoot">${esc(u.voetnoot)}</p>` : ""}`;
     }
@@ -714,7 +726,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const barHtml = bars.map((b) => {
         const k = kindInfo(b.entry);
         const multi = b.span > 1 || b.clippedStart || b.clippedEnd || (b.entry.end && b.entry.end > b.entry.start);
-        return `<span class="pv-bar cat-${esc(k.cat)}${multi ? " multi" : " single"}${b.clippedStart ? " cs" : ""}${b.clippedEnd ? " ce" : ""}" style="grid-column:${b.col + 1} / span ${b.span};grid-row:${b.lane + 2}" title="${esc(`${b.entry.title} · ${shortDate(b.entry.start)}${b.entry.end && b.entry.end !== b.entry.start ? ` → ${shortDate(b.entry.end)}` : ""}`)}" aria-hidden="true">${esc(b.entry.time ? `${b.entry.time.replace(":", ".")} ${b.entry.title}` : b.entry.title)}</span>`;
+        return `<span class="pv-bar cat-${esc(k.cat)}${multi ? " multi" : " single"}${b.clippedStart ? " cs" : ""}${b.clippedEnd ? " ce" : ""}" style="grid-column:${b.col + 1} / span ${b.span};grid-row:${b.lane + 2}" title="${esc(balkTitel(b.entry))}" aria-hidden="true">${esc(b.entry.time ? `${b.entry.time.replace(":", ".")} ${b.entry.title}` : b.entry.title)}</span>`;
       }).join("");
       const more = overflow.map((n, i) => (n ? `<span class="pv-cal-more" style="grid-column:${i + 1};grid-row:${maxLanes + 2}" aria-hidden="true">+${n}</span>` : "")).join("");
       return `<div class="pv-cal-week" style="--lanes:${Math.max(1, lanes) + (overflow.some(Boolean) ? 1 : 0)}">${days}${barHtml}${more}</div>`;

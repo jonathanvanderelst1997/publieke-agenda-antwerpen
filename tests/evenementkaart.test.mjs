@@ -48,7 +48,7 @@ test("18 oktober: de kaart zegt TREK Antwerp Marathon, met de uren van de race e
   assert.match(k.Wat, /^Loopwedstrijd: marathon, halve marathon en 10 km\. Organisator: Golazo\.$/);
   assert.match(k.Wanneer, /^Zondag 18 oktober, start marathon en 10 km om 9 uur, halve marathon om 14 uur/);
   assert.match(k.Wanneer, /verkeersvrij van 8 tot 18 uur\. Opbouw vanaf maandag 12 oktober en afbraak tot dinsdag 20 oktober\.$/);
-  assert.match(k.Waar, /Start aan de Rijnkaai/);
+  assert.match(k.Waar, /Start aan de Kattendijkbrug \(de 10 km start op de Orteliuskaai\)/);
   assert.equal(k["Jouw straat"], "Jouw straat ligt op of naast het parcours.");
   assert.match(k["Wat merk je"], /verkeersvrij van 8 tot 18 uur/);
   assert.deepEqual(e.uitleg.links[0], { url: "https://antwerpmarathon.com/nl/het-parcours/", label: "Officiële info over dit evenement", uitleg: "" });
@@ -67,9 +67,9 @@ test("10 oktober: Linkeroever Criterium, koersdag apart van opbouw en afbraak, f
   assert.equal(e.title, "Linkeroever Criterium");
   assert.equal(e.start, "2026-10-10");
   assert.equal(e.end, "");
-  assert.equal(e.uitleg.samenvatting, "Zaterdag 10 oktober, 11 tot 18.30 uur. Jouw straat krijgt een parkeerverbod en ligt op of naast het parcours.");
+  assert.equal(e.uitleg.samenvatting, "Zaterdag 10 oktober, 11 tot 18.30 uur. Jouw straat krijgt een parkeerverbod op zaterdag 10 oktober en ligt op of naast het parcours.");
   assert.equal(kern(e.uitleg).Wanneer, "Zaterdag 10 oktober, 11 tot 18.30 uur. Opbouw vanaf vrijdag 9 oktober en afbraak tot zondag 11 oktober.");
-  assert.equal(e.uitleg.regels.find(([l]) => l === "Opbouw en afbraak")[1], "opbouw: 9 oktober – 10 oktober · dag van het evenement: 10 oktober · afbraak: 11 oktober");
+  assert.equal(e.uitleg.regels.some(([l]) => l === "Opbouw en afbraak"), false); // staat al bij "Wanneer"
   assert.equal(e.uitleg.links[0].uitleg, "Op de districtskalender van district Antwerpen, bij 10 oktober.");
   // Geen uren van de koers achter de innameperiode ("9 oktober – 11 oktober 11 tot 18.30 uur").
   assert.doesNotMatch(`${e.title} ${e.summary}`, /11 oktober 11 tot/);
@@ -94,7 +94,7 @@ test("13 oktober: een eerlijke 'vermoedelijk studentendoop' met de reden, zonder
   assert.match(k.Wanneer, /^Dinsdag 13 oktober; de uren zijn niet gepubliceerd\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
   assert.equal(e.time, "");
   assert.equal(e.uitleg.links.length, 0); // geen officiële pagina: dan ook geen knop
-  assert.match(e.uitleg.voetnoot, /zonder naam\. Het vermoeden steunt op wat we nagekeken hebben op stuvent\.be en antwerpen\.be/);
+  assert.match(e.uitleg.voetnoot, /zonder naam\. Het vermoeden steunt op het dossier en op wat we nagekeken hebben op stuvent\.be en antwerpen\.be/);
   assert.ok(e.uitleg.ontbreekt.includes("uren niet gepubliceerd"));
   const ook = IDENTITEIT.dossiers.ET2026004943;
   assert.equal(ook.zekerheid, "waarschijnlijk");
@@ -119,10 +119,10 @@ test("nieuw dossier zonder fiche: gekoppeld aan een agendapunt op dezelfde dag e
     { id: "markt-voorbeeldplein", title: "Gemengde markt Voorbeeldplein", date: "2026-10-24", location: "Voorbeeldplein", category: "markets" },
   ];
   const e = evenementEntry(rows, { ...opties, agendaItems: agenda });
-  assert.equal(e.title, "Buurtloop Voorbeeldplein");
-  assert.match(kern(e.uitleg).Wat, /^Buurtloop Voorbeeldplein \(Voorbeeldplein\)\. Gekoppeld aan agendapunt/);
-  assert.equal(e.uitleg.links[0].url, "/event/buurtloop-voorbeeldplein-2026-10-24/");
-  assert.equal(bezoekersLinks(e)[0].url, "/event/buurtloop-voorbeeldplein-2026-10-24/");
+  assert.equal(e.title, "Vermoedelijk: Buurtloop Voorbeeldplein"); // een koppeling op dag en straat blijft een vermoeden
+  assert.match(kern(e.uitleg).Wat, /^Vermoedelijk: Buurtloop Voorbeeldplein \(Voorbeeldplein\)\. Gekoppeld aan agendapunt/);
+  assert.deepEqual(e.uitleg.links.map((l) => l.url), ["https://www.antwerpen.be/info/voorbeeld", "/event/buurtloop-voorbeeldplein-2026-10-24/"]);
+  assert.deepEqual(bezoekersLinks(e).filter((l) => l.type === "main").map((l) => l.url), ["https://www.antwerpen.be/info/voorbeeld", "/event/buurtloop-voorbeeldplein-2026-10-24/"]);
   assert.equal(e.time, "14:00");
   // Alleen de opbouwdag of een inname van weken koppelt niet.
   assert.equal(koppelEvenement(evenementFeiten(rows), [{ ...agenda[0], date: "2026-10-23" }]), null);

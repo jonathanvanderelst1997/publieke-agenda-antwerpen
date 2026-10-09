@@ -147,10 +147,13 @@
 .pv-row-where { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .pv-row-range:empty { display: none; }
 .pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
+/* Een open evenementkaart zegt wanneer en jouw straat al in de kern: de samenvatting niet herhalen. */
+.pv-row.open.pv-row-kern .pv-row-summary { display: none; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
 .pv-streets p { margin: 4px 0 0 !important; font-size: .86rem !important; color: var(--pa-muted) !important; }
+.pv-streets p.pv-straten-noot { color: var(--pa-ink) !important; }
 .pv-ontbreekt { font-size: .86rem !important; color: var(--pa-muted) !important; border-left: 3px solid var(--pa-line-strong); padding-left: 10px; }
 .pv-ontbreekt strong { color: var(--pa-ink); }
 .pv-technisch { font-size: .78rem !important; color: var(--pa-muted) !important; }
