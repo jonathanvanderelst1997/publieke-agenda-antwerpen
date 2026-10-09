@@ -86,9 +86,10 @@ test("10 oktober: Linkeroever Criterium, koersdag apart van opbouw en afbraak, f
   assert.doesNotMatch(JSON.stringify(e.uitleg), /beatrijslaan 34/i);
 });
 
-test("13 oktober: een eerlijke 'vermoedelijk studentendoop' met de reden, zonder verzonnen naam of uren", () => {
+test("13 oktober: een eerlijk vermoeden met de reden, zonder verzonnen naam of uren", () => {
   const e = evenementEntry(doop, { ...opties, straat: "Pieter Coeckelaan" });
-  assert.equal(e.title, "Vermoedelijk een studentendoop met een doopstoet naar Fort VI");
+  // Tweede identificatieronde: een doop is hier niet aangetoond, dus de titel zegt "studententocht".
+  assert.equal(e.title, "Vermoedelijk een studententocht te voet tussen Middelheim en Fort VI");
   const k = kern(e.uitleg);
   assert.match(k.Wat, /Fort VI, een officiële doopplaats, en 13 oktober valt in de doopperiode/);
   assert.match(k.Wanneer, /^Dinsdag 13 oktober; de uren zijn niet gepubliceerd\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
