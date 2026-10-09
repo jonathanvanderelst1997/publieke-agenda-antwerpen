@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, koppelEvenement, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, koppelEvenement, soortEvenement, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -391,8 +391,12 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // Straten waar het parcours echt langs loopt: alleen als de verversing ze apart bewaarde. Anders
   // zegt de kaart voorzichtig "op of naast het parcours".
   const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : null;
+  // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de
+  // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
+  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map(zonderHuisnummer)].filter(Boolean))];
+  const soort = soortEvenement(beschrijvingen) || live.soort || bewaard?.soort || "";
   const feiten = bewaard
-    ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten, langs }
+    ? { ...live, soort, soortBron: soort ? "omschrijvingen in het dossier" : "", beschrijvingen, straten: bewaard.straten?.length ? bewaard.straten : live.straten, langs }
     : { ...live, langs };
   const id = identiteit?.dossiers?.[live.dossier] || null;
   // Koppeling aan de agenda. Een nagekeken evenement linkt alleen naar het agendapunt met dezelfde
