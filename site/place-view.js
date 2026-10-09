@@ -629,7 +629,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
           </dl>` : ""}
-          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood)${gekozen.length ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : ""}
+          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood)${kaart.includes('class="ku-jouw"') ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : ""}
           ${u.beschrijvingen?.length ? `<details class="pv-streets"><summary>Wat er in het dossier staat (${u.beschrijvingen.length})</summary><p>${esc(u.beschrijvingen.join(" · "))}</p></details>` : ""}
           ${u.voetnoot ? `<p class="pv-voetnoot">${esc(u.voetnoot)}</p>` : ""}`;
     }

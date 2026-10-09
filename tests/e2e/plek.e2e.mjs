@@ -61,7 +61,7 @@ const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 864000
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const WORK_TITLE = "Proefwerk riolering (e2e)";
 
-async function routeSources(page, street) {
+async function routeSources(page, street, { evenement = null } = {}) {
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
   const [x1, y1, x2, y2] = row[4];
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];
@@ -71,24 +71,28 @@ async function routeSources(page, street) {
     features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: { GipodId: 999999901, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: "https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/999999901" } }],
   };
   const json = (body) => ({ status: 200, contentType: "application/json", body: typeof body === "string" ? body : JSON.stringify(body) });
+  // Een verzonnen evenementendossier (A-Sign laag 23): een parcours over de gekozen straat.
+  const fase = evenement && Date.parse(`${evenement.dag}T08:00:00Z`);
+  const parcours = evenement && { attributes: { dossierNummer: evenement.dossier, faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parcours", innameBeschrijving: "", innameHinder: "True", faseStartDatum: fase, faseEindDatum: fase }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
     if (url.includes("/collections/INNAME_PUNT/")) return route.fulfill(json(work));
     if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
     if (url.includes("/MapServer/905/")) return route.fulfill(json(axis));
+    if (parcours && url.includes("/MapServer/23/query")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [1] } : { features: [parcours] }));
     if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
     return route.abort();
   });
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, evenement = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await routeSources(page, street || pickStreet.fallback);
+  await routeSources(page, street || pickStreet.fallback, { evenement });
   await page.goto(`${baseUrl}/${query}`);
   await page.waitForSelector(".pv-chip");
   return { page, context, errors };
@@ -194,6 +198,27 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.click('[data-group="*"]');
     await page.locator(".pv-empty").waitFor();
     assert.ok(await page.locator(".pv-empty-tips button").count() >= 1);
+    await context.close();
+  });
+
+  await t.test("evenement op straat: telt als evenement, alleen 'Evenementen' toont het, kaart begint met wat en wanneer", async () => {
+    const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000077", dag: addDays(today, 5) }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
+    const row = page.locator(".pv-row", { hasText: "Evenement op straat" }).first();
+    await row.waitFor({ timeout: 20000 });
+    assert.match(await row.innerText(), /Evenement met toelating van de stad/);
+    // Chips en tegels tellen kaarten: het dossier is één evenement; de vijfde tegel is vergunningen.
+    await page.waitForFunction(() => document.querySelector('[data-group="evenementen"] .pv-chip-n'));
+    const chip = Number(await page.locator('[data-group="evenementen"] .pv-chip-n').innerText());
+    assert.equal(chip, await page.locator(".pv-results .pv-row").count());
+    assert.equal(await page.locator(".pv-stats .pv-stat").count(), 5);
+    assert.match(await page.locator(".pv-stats").innerText(), /vergunning/);
+    await row.locator(".pv-row-btn").click();
+    const labels = await row.locator(".pv-kern dt").evaluateAll((els) => els.map((el) => el.textContent));
+    assert.deepEqual(labels.slice(0, 3), ["Wat", "Wanneer", "Waar"]);
+    assert.ok(labels.includes("Jouw straat") && labels.includes("Wat merk je"));
+    assert.doesNotMatch(await row.locator(".pv-detail").innerText(), /ETL|IOD|Niet in de bron/);
+    assert.deepEqual(errors, []);
     await context.close();
   });
 

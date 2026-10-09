@@ -73,6 +73,14 @@ test("10 oktober: Linkeroever Criterium, koersdag apart van opbouw en afbraak, f
   assert.equal(e.uitleg.links[0].uitleg, "Op de districtskalender van district Antwerpen, bij 10 oktober.");
   // Geen uren van de koers achter de innameperiode ("9 oktober – 11 oktober 11 tot 18.30 uur").
   assert.doesNotMatch(`${e.title} ${e.summary}`, /11 oktober 11 tot/);
+  // Het agendapunt met dezelfde naam, niet het buurtfeest dat dezelfde dag langs het parcours staat.
+  const agenda = [
+    { id: "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10", title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", date: "2026-10-10", location: "Gaston Burssenslaan", category: "neighborhood" },
+    { id: "district-kal-6a746a7ff4182b8edf63a777-2026-10-10", title: "Linkeroever Criterium", date: "2026-10-10", location: "Poisson Pilote", category: "sport" },
+  ];
+  const metAgenda = evenementEntry(criterium, { ...opties, agendaItems: agenda });
+  assert.deepEqual(metAgenda.uitleg.links.map((l) => l.label), ["Officiële info over dit evenement", "Agendapunt: Linkeroever Criterium"]);
+  assert.equal(evenementEntry(doop, { ...opties, agendaItems: agenda }).uitleg.links.length, 0); // vermoedelijk: geen gegokt agendapunt
   // Een huisnummer uit een vrij veld van het dossier gaat niet mee.
   assert.ok(e.uitleg.beschrijvingen.includes("Parkeerverbod in Straat: parkeerverbod beatrijslaan"));
   assert.doesNotMatch(JSON.stringify(e.uitleg), /beatrijslaan 34/i);
@@ -155,9 +163,20 @@ test("plekoverzicht: vijfde tegel voor vergunningen, chips tellen kaarten, A-Sig
   assert.match(live, /v\?\.enabled\("publicSpace"\)\|\|v\?\.wantsStreetEvents/);
 });
 
+test("schets: jouw straat in een eigen kleur, ook net naast het parcours", async () => {
+  const { kaartSvg } = await import("../site/kaart-uitleg.js");
+  const route = [[[4.40, 51.20], [4.41, 51.20]]];
+  const naast = [[[4.412, 51.203], [4.413, 51.204]]]; // net buiten het kader van het parcours
+  assert.match(kaartSvg(route, [], { gekozen: naast }), /<g class="ku-jouw"><polyline/);
+  assert.doesNotMatch(kaartSvg(route, [], { gekozen: [[[4.5, 51.3], [4.51, 51.3]]] }), /ku-jouw/); // ver weg: niet
+  assert.doesNotMatch(kaartSvg(route, []), /ku-jouw/);
+});
+
 test("'Grote Markt' in een dossier maakt er geen markt van", () => {
   assert.equal(soortEvenement(["Inname: grote markt, verkoop"]), "");
   assert.equal(soortEvenement(["Inname: verplaatsbare markt"]), "Markt");
+  // Een doopwandeling is een studentendoop, geen gewone wandeling.
+  assert.equal(soortEvenement(["Parcours: Wandelroute van start naar eind", "Inname: Startlocatie Doop"]), "Studentendoop");
 });
 
 test("de kaart zonder jargon en zonder lappen 'niet in de bron'", () => {

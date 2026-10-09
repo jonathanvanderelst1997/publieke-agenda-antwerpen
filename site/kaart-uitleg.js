@@ -270,14 +270,15 @@ export function bruikbareBeschrijving(tekst) {
 }
 
 // "Grote Markt" is een plein, geen markt: alleen het losse woord "markt" telt (zoals "verplaatsbare markt").
+// "Doop" eerst: een doopstoet of doopwandeling is in de eerste plaats een studentendoop.
 const SOORTEN_EVENEMENT = [
+  [/doop/i, "Studentendoop"],
   [/\b\d+\s?(?:k|km)\b|loopwedstrijd|stratenloop|marathon|jogging|\brun\b|\bloop\b/i, "Loopwedstrijd"],
   [/wieler|koers|criterium|wielren/i, "Wielerwedstrijd"],
   [/fietstocht|fietstoer|fietsrit/i, "Fietstocht"],
   [/stoet|optocht|parade|processie|carnaval/i, "Stoet"],
   [/wandel/i, "Wandeling"],
   [/braderie|rommelmarkt|(?<!grote\s)\bmarkt\b/i, "Markt"],
-  [/doop/i, "Studentendoop"],
   [/straatfeest|buurtfeest|wijkfeest/i, "Buurtfeest"],
   [/\bstop\b|\w+stop\b/i, "Tocht met haltes"],
 ];
@@ -367,22 +368,29 @@ export function evenementFeiten(rows = []) {
 // koppeling voor een inname van weken (een werf of een markt die maanden staat).
 const GEEN_EVENEMENT = /\b(?:markets|meetings|admin|works|info|calls)\b|markt|raad|commissie|zitdag/i;
 export const MAX_KOPPEL_DAGEN = 3;
-export function koppelEvenement(feiten, agendaItems = []) {
+// Met { naam } (een nagekeken naam uit evenement-identiteit.json): alleen een agendapunt met die
+// naam op dezelfde dag, zodat de kaart naar het juiste agendapunt linkt en niet naar een buurman.
+const plat = (t) => clean(t, 200).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
   const dag = feiten?.evenementDag?.start ? feiten.evenementDag : { start: feiten?.start, eind: feiten?.eind || feiten?.start };
-  if (!dag.start || !feiten.straten?.length || dagenTussen(dag.start, dag.eind || dag.start) >= MAX_KOPPEL_DAGEN) return null;
+  if (!dag.start || dagenTussen(dag.start, dag.eind || dag.start) >= MAX_KOPPEL_DAGEN) return null;
+  const n = plat(naam);
+  if (!n && !feiten.straten?.length) return null;
   // Waar het evenement zelf staat (start, tenten, parkeerverbod) weegt zwaarder dan een straat die
   // het parcours alleen passeert; zonder zulke innames telt elke straat van het dossier.
   const ps = feiten.perSoort || {};
   // Alleen bij een groot dossier: daar loopt een parcours ook langs pleinen waar iets anders gebeurt.
   const plek = uniek([...(ps.inname || []), ...(ps.parkeerverbod || []), ...(ps.verkeersvrij || [])]);
-  const straten = (plek.length && feiten.straten.length > 10 ? plek : feiten.straten).map((s) => s.toLowerCase()).filter((s) => s.length >= 5);
+  const straten = (plek.length && (feiten.straten || []).length > 10 ? plek : feiten.straten || []).map((s) => s.toLowerCase()).filter((s) => s.length >= 5);
   let best = null;
   for (const item of agendaItems) {
     const d = dagVan(item?.date), e = dagVan(item?.endDate) || d;
     if (!d || d > (dag.eind || dag.start) || e < dag.start) continue;
     if (GEEN_EVENEMENT.test(`${item.category || ""} ${item.theme || ""} ${item.title || ""}`)) continue;
+    const t = plat(item.title);
+    if (n && !(t.length >= 6 && (t.includes(n) || n.includes(t)))) continue;
     const loc = ` ${clean(`${item.location || ""} ${item.title || ""}`, 400).toLowerCase()} `;
-    const score = straten.filter((s) => loc.includes(s)).length;
+    const score = n ? 1 : straten.filter((s) => loc.includes(s)).length;
     if (score && (!best || score > best.score)) best = { score, item };
   }
   if (!best) return null;
@@ -585,6 +593,7 @@ export function vereenvoudigLijnen(lijnen = [], maxPunten = 40) {
   }
   return out;
 }
+const VERRUIM = 0.006; // ongeveer 400 tot 650 m rond het parcours
 // Een eenvoudige SVG-schets: het parcours over de straatassen in de buurt, en de gekozen straat
 // (segmenten [[x,y],[x,y]]) in een eigen kleur. Geen tegels, geen netwerk.
 export function kaartSvg(lijnen = [], achtergrond = [], { breedte = 560, hoogte = 320, gekozen = [] } = {}) {
@@ -592,6 +601,9 @@ export function kaartSvg(lijnen = [], achtergrond = [], { breedte = 560, hoogte 
   if (!pts.length) return "";
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
   for (const [x, y] of pts) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
+  // Jouw straat mee in beeld, als ze dicht bij het parcours ligt (een omleiding, een zijstraat).
+  const dichtbij = gekozen.filter((seg) => seg.some(([x, y]) => x >= minX - VERRUIM && x <= maxX + VERRUIM && y >= minY - VERRUIM && y <= maxY + VERRUIM));
+  for (const [x, y] of dichtbij.flat()) { minX = Math.min(minX, x); maxX = Math.max(maxX, x); minY = Math.min(minY, y); maxY = Math.max(maxY, y); }
   const k = Math.cos(((minY + maxY) / 2) * Math.PI / 180);
   const padX = (maxX - minX) * 0.08 + 0.0008, padY = (maxY - minY) * 0.08 + 0.0005;
   minX -= padX; maxX += padX; minY -= padY; maxY += padY;

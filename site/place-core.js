@@ -388,16 +388,21 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
-  // Straten waar het parcours echt langs loopt: uit de verversing als die ze apart bewaarde, anders
-  // de bewaarde straten die ook bij een live parcoursdeel horen. Zonder verversing: niet bekend.
-  const parcoursLive = new Set(live.perSoort.parcours);
-  const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : bewaard?.straten?.length ? bewaard.straten.filter((s) => parcoursLive.has(s)) : null;
+  // Straten waar het parcours echt langs loopt: alleen als de verversing ze apart bewaarde. Anders
+  // zegt de kaart voorzichtig "op of naast het parcours".
+  const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : null;
   const feiten = bewaard
     ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten, langs }
     : { ...live, langs };
   const id = identiteit?.dossiers?.[live.dossier] || null;
-  // Koppeling aan de agenda: eerst live (kent het agendapunt), anders wat de verversing bewaarde.
-  const gekoppeld = (Array.isArray(agendaItems) && agendaItems.length ? koppelEvenement(feiten, agendaItems) : null) || bewaard?.gekoppeld || null;
+  // Koppeling aan de agenda. Een nagekeken evenement linkt alleen naar het agendapunt met dezelfde
+  // naam; een dossier zonder fiche koppelt op dag en straat: eerst live (kent het agendapunt), anders
+  // wat de verversing bewaarde.
+  const agenda = Array.isArray(agendaItems) ? agendaItems : [];
+  const bekend = id && id.zekerheid !== "onbekend";
+  const gekoppeld = bekend
+    ? (id.zekerheid === "zeker" && id.naam && agenda.length ? koppelEvenement(feiten, agenda, { naam: id.naam }) : null)
+    : (agenda.length ? koppelEvenement(feiten, agenda) : null) || bewaard?.gekoppeld || null;
   const k = evenementKaartje(feiten, { vandaag, gekoppeld, identiteit: id, straat, wijkVan });
   const start = dayOf(k.dagen.start || live.start), end = k.dagen.eind && k.dagen.eind > k.dagen.start ? dayOf(k.dagen.eind) : "";
   return {
