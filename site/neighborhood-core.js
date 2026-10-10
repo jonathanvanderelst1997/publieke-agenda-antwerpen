@@ -7,13 +7,21 @@ const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 
 // Sleutel van een locatietekst in site/geo/locaties.json. Hoofdletters, accenten, leestekens en
 // dubbele spaties tellen niet mee, zodat "Groenplaats" en "groenplaats " hetzelfde punt zijn.
+// Met een geheugen: de filter vraagt dezelfde straatnamen duizenden keren per tekenbeurt.
+const SLEUTELS = new Map();
 export function locationKey(value) {
-  return clean(value)
+  const tekst = typeof value === "string" ? value : String(value ?? "");
+  const bekend = SLEUTELS.get(tekst);
+  if (bekend !== undefined) return bekend;
+  const sleutel = clean(tekst)
     .toLowerCase()
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+  if (SLEUTELS.size > 50000) SLEUTELS.clear();
+  SLEUTELS.set(tekst, sleutel);
+  return sleutel;
 }
 
 export const RADIUS_OPTIONS = Object.freeze([0, 250, 500, 1000]);
@@ -148,23 +156,26 @@ export function vormBinnenStraal(vorm, segments, radius) {
   const k = vormKader(vorm);
   const r = straatRooster(segments, radius);
   if (!k || !r.ruim || k[0] > r.ruim[2] || k[2] < r.ruim[0] || k[1] > r.ruim[3] || k[3] < r.ruim[1]) return false;
-  const randen = [];
-  for (const ring of (vorm.vlakken || []).flat()) for (let i = 1; i < (ring || []).length; i++) randen.push([ring[i - 1], ring[i]]);
-  for (const lijn of vorm.lijnen || []) for (let i = 1; i < (lijn || []).length; i++) randen.push([lijn[i - 1], lijn[i]]);
-  for (const [a, b] of randen) {
-    if (!isXY(a) || !isXY(b)) continue;
+  // Elke rand van de vorm (ringen van de vlakken en de lijnen) tegen de stukken straat in de cellen
+  // eromheen; een rand buiten het ruime kader van de straat wordt overgeslagen.
+  const randBinnen = (a, b) => {
+    if (!isXY(a) || !isXY(b)) return false;
     const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
-    if (x0 > r.ruim[2] || x1 < r.ruim[0] || y0 > r.ruim[3] || y1 < r.ruim[1]) continue;
-    const gezien = new Set();
+    if (x0 > r.ruim[2] || x1 < r.ruim[0] || y0 > r.ruim[3] || y1 < r.ruim[1]) return false;
+    let gezien = null;
     for (let x = Math.floor(Math.max(x0, r.ruim[0]) / r.cw) - 1; x <= Math.floor(Math.min(x1, r.ruim[2]) / r.cw) + 1; x++) {
       for (let y = Math.floor(Math.max(y0, r.ruim[1]) / r.ch) - 1; y <= Math.floor(Math.min(y1, r.ruim[3]) / r.ch) + 1; y++) {
         for (const s of r.cellen.get(`${x}:${y}`) || []) {
-          if (gezien.has(s)) continue;
-          gezien.add(s);
+          if (gezien?.has(s)) continue;
+          (gezien ??= new Set()).add(s);
           if (segmentSegmentMeters(s.a, s.b, a, b) <= radius) return true;
         }
       }
     }
+    return false;
+  };
+  for (const lijn of [...(vorm.vlakken || []).flat(), ...(vorm.lijnen || [])]) {
+    for (let i = 1; i < (lijn || []).length; i++) if (randBinnen(lijn[i - 1], lijn[i])) return true;
   }
   // Een straat die helemaal binnen een groot vlak ligt (een werfzone over een plein), raakt geen rand.
   for (const vlak of vorm.vlakken || []) if (segments.some((s) => inRingen(s.a, vlak))) return true;

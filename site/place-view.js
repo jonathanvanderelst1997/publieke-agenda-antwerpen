@@ -7,9 +7,9 @@ import {
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, terrasEntries, summarize,
-  plekWaar, legeStaatTekst, voortgangTekst, evenementStraten,
+  plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter,
 } from "./place-core.js";
-import { bundelInnames, isEvenementDossier } from "./kaart-uitleg.js";
+import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
@@ -238,37 +238,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // Een evenementendossier: de straten van evenementStraten() (place-core.js), zowel die waar het
   // parcours door loopt als die het alleen kruist. Een werk: de straat van zijn punt plus die van de
   // werfzone. De filter (agenda-view.js), de kaart en het kaartje gebruiken zo dezelfde lijst.
-  let lijstBron = {}, lijstPerDossier = new Map(), rijenPerDossier = new Map();
-  function lijstVan(dossier) {
-    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
-    if (lijstBron.rijen !== live.publicSpace || lijstBron.uitleg !== kaartUitleg || lijstBron.index !== liveIndex || lijstBron.klaar !== kaartUitlegKlaar) {
-      lijstBron = { rijen: live.publicSpace, uitleg: kaartUitleg, index: liveIndex, klaar: kaartUitlegKlaar };
-      lijstPerDossier = new Map();
-      rijenPerDossier = bundelInnames(Array.isArray(live.publicSpace) ? live.publicSpace : []);
-    }
-    if (!lijstPerDossier.has(dossier)) {
-      // Zelf rekenen (zonder index: niet) pas als duidelijk is dat de verversing het dossier niet kent.
-      lijstPerDossier.set(dossier, evenementStraten(rijenPerDossier.get(dossier) || [], { bewaard: kaartUitleg?.evenementen?.[dossier] || null, index: kaartUitlegKlaar ? liveIndex : null }));
-    }
-    return lijstPerDossier.get(dossier);
-  }
-  // Straatnamen naar officiële straten (met postcode, voor de postcodefilter). Een naam die de rijen
-  // zelf al kennen, houdt hun postcode; anders elke straat met die naam in het district.
-  const naarRefs = (namen, eigen = []) => namen.flatMap((naam) => {
-    const k = locationKey(naam);
-    const bekend = eigen.filter((r) => locationKey(r?.name) === k);
-    return bekend.length ? bekend : refsByName.get(k) || [{ name: naam }];
+  // Eén lijst per dossier, met geheugen (maakStratenFilter in place-core.js).
+  const stratenFilter = maakStratenFilter({
+    bron: () => ({ rijen: (window.PUBLIC_AGENDA_LIVE_STREETS || {}).publicSpace, uitleg: kaartUitleg, index: liveIndex, klaar: kaartUitlegKlaar }),
+    refsVoorNaam: (sleutel) => refsByName.get(sleutel),
   });
+  const lijstVan = (dossier) => stratenFilter.lijstVan(dossier);
   view.setStreetLists?.((item) => {
-    if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) {
-      const lijst = lijstVan(item.reference);
-      const eigen = (rijenPerDossier.get(item.reference) || []).flatMap((r) => r?.streets || []);
-      return naarRefs([...lijst.langs, ...lijst.kruist], eigen);
-    }
+    if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) return stratenFilter.refsVan(item.reference, state.place?.type === "straat" ? state.place.name : "");
     const vlak = !item?.kind && item?.gipodId != null ? kaartUitleg?.werken?.[item.gipodId]?.vlakStraten : null;
     if (Array.isArray(vlak) && vlak.length) {
       const eigen = Array.isArray(item.streets) ? item.streets : [];
-      return [...eigen, ...naarRefs(vlak.filter((n) => !eigen.some((r) => locationKey(r?.name) === locationKey(n))))];
+      const al = new Set(eigen.map((r) => locationKey(r?.name)));
+      return [...eigen, ...stratenFilter.naarRefs(vlak.filter((n) => !al.has(locationKey(n))))];
     }
     return null;
   });
@@ -280,6 +262,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // ---- plek kiezen ----
   function streetRef(place) { return { id: place.id, name: place.name, postcode: place.postcode }; }
   function applyPlace(place, { focusResults = false } = {}) {
+    // Rekent de browser een stratenlijst zelf, dan hangt die af van de gekozen straat (filterRefsVan).
+    if ((state.place?.key || "") !== (place?.key || "")) view.resetRefs?.();
     state.place = place || null;
     view.setPlace(place ? { key: place.key, type: place.type, label: place.label, box: place.box } : null);
     if (place?.type === "straat") { view.setStreet(place.name, streetRef(place)); view.setArea({ wijk: "", postcode: "", radius: state.radius }); }
@@ -644,6 +628,16 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </div>
       </li>`;
   }
+  // De schets van een parcours, één keer per lijn en straatas: elke tekenbeurt bouwt alle kaartjes
+  // opnieuw (ook ingeklapt), en een schets legt duizenden straatstukken onder het parcours.
+  let schetsIndex = null, schetsAchtergrond = [], schetsen = new WeakMap();
+  function schetsVan(kaart) {
+    if (schetsIndex !== liveIndex) { schetsIndex = liveIndex; schetsAchtergrond = (liveIndex?.segments || []).map((s) => [s.a, s.b]); schetsen = new WeakMap(); }
+    if (!schetsen.has(kaart)) schetsen.set(kaart, kaartSvg(kaart, schetsAchtergrond));
+    return schetsen.get(kaart);
+  }
+  const kaartPerUid = new Map();
+  const schetsFiguur = (kaart) => { const svg = schetsVan(kaart); return svg ? `<figure class="pv-kaart">${svg}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""; };
   // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
   // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.
   function uitlegTemplate(entry) {
@@ -651,7 +645,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const straten = entry.straten || [];
     const kruist = entry.kruist || [];
     const lange = straten.length > 3;
-    const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b])) : "";
+    // De schets pas tekenen als het kaartje open is: dichte kaartjes met duizenden straatstukken
+    // maakten de lijst op een gsm seconden traag (zie het klikken op een rij hieronder).
+    if (entry.kaart?.length) kaartPerUid.set(entry.uid, entry.kaart);
+    const kaart = !entry.kaart?.length ? "" : state.open.has(entry.uid) ? schetsFiguur(entry.kaart) : `<figure class="pv-kaart" data-schets hidden></figure>`;
     return `
           <dl class="pv-uitleg">
             ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
@@ -660,7 +657,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>
-          ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""}
+          ${kaart}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
           ${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}`;
   }
@@ -761,6 +758,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const open = !state.open.has(uid);
       if (open) state.open.add(uid); else state.open.delete(uid);
       li.classList.toggle("open", open); row.setAttribute("aria-expanded", String(open)); detail.hidden = !open;
+      const leeg = open ? detail.querySelector("figure[data-schets]") : null;
+      if (leeg && kaartPerUid.has(uid)) leeg.outerHTML = schetsFiguur(kaartPerUid.get(uid));
       return;
     }
     const ics = event.target.closest("[data-ics]");

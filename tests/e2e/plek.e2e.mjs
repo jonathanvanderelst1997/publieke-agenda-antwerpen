@@ -112,9 +112,10 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   });
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [] } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [], kaartUitleg = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
+  if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -356,6 +357,33 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.click('.pv-place [data-radius="1000"]');
     await ver.first().waitFor({ timeout: 15000 });
     assert.match(await page.locator(".pv-sub").innerText(), /terrassen alleen in de straat zelf/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+  // Nakijkbevinding 4: per rij van een evenementendossier rekende de site alle straatnamen opnieuw uit.
+  // Een dossier met 200 innames en 200 straten in kaart-uitleg.json legde zo een gsm seconden stil.
+  await t.test("een groot evenementendossier: de filter rekent één lijst per dossier", async (st) => {
+    const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+    const [px1, py1, px2, py2] = straten.streets.find((r) => r[1] === "Peterseliestraat" && r[2] === "2000")[4];
+    const [mx, my] = [(px1 + px2) / 2, (py1 + py2) / 2], d = 0.00003;
+    const ms = (iso) => Date.parse(`${iso}T08:00:00Z`);
+    const dag = addDays(today, 5);
+    const innames = Array.from({ length: 200 }, (_, i) => ({ id: 991000 + i, feature: { attributes: { dossierNummer: "ET2099000009", faseId: "F1", innameId: `I${i}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parkeerverbod", innameHinder: "False", faseStartDatum: ms(dag), faseEindDatum: ms(dag) }, geometry: { rings: [[[mx - d, my - d], [mx + d, my - d], [mx + d, my + d], [mx - d, my + d], [mx - d, my - d]]] } } }));
+    const namen = straten.streets.filter((r) => r[2] === "2000").slice(0, 200).map((r) => r[1]);
+    const kaartUitleg = { schemaVersion: 1, generatedAt: `${today}T05:00:00Z`, vanaf: today, tot: addDays(today, 60), werken: {}, evenementen: { ET2099000009: { start: dag, eind: dag, soort: "", soortBron: "", beschrijvingen: [], straten: [...new Set([...namen, "Peterseliestraat"])], kruist: [], stratenTekst: "", gekoppeld: null, kaart: [] } } };
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, street: peterselie, asign: asignServer({ fixtures: { 22: innames } }), work: false, kaartUitleg, query: "?plek=Peterseliestraat" });
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).publicSpace), null, { timeout: 30000 });
+    await page.locator(".pv-results .pv-row", { hasText: "Evenement op straat" }).first().waitFor({ timeout: 60000 });
+    const duur = await page.evaluate(() => {
+      const view = window.PUBLIC_AGENDA_VIEW, rijen = window.PUBLIC_AGENDA_LIVE_STREETS.publicSpace;
+      view.resetRefs();
+      const t0 = performance.now();
+      const treffers = rijen.filter((r) => view.matchesStreet(r)).length;
+      return { ms: performance.now() - t0, treffers, rijen: rijen.length };
+    });
+    assert.equal(duur.treffers, 200, "alle innames van het dossier horen bij de straat");
+    st.diagnostic(`200 rijen filteren: ${Math.round(duur.ms)} ms`);
+    assert.ok(duur.ms < 1000, `200 rijen filteren duurde ${Math.round(duur.ms)} ms`);
     assert.deepEqual(errors, []);
     await context.close();
   });

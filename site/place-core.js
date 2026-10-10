@@ -6,6 +6,7 @@
 
 import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
+import { locationKey } from "./neighborhood-core.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -419,6 +420,20 @@ function samengevoegdeGeometrie(rijen) {
   for (const r of rijen) { vlakken.push(...(r?.parcours?.vlakken || [])); lijnen.push(...(r?.parcours?.lijnen || [])); }
   return vlakken.length || lijnen.length ? { vlakken, lijnen } : null;
 }
+// Eén straat tegen het parcours van een dossier, met geheugen per vorm, straatas en straat: elke
+// tekenbeurt vraagt het opnieuw, en een parcours telt soms 15.000 punten.
+const EEN_STRAAT = new WeakMap();
+function parcoursVoorStraat(rijen, naam, index) {
+  const parcoursRijen = rijen.filter((r) => isParcoursRij(r) && r?.parcours);
+  if (!parcoursRijen.length || !index || !naam) return null;
+  let perIndex = EEN_STRAAT.get(parcoursRijen[0].parcours);
+  if (!perIndex) { perIndex = new WeakMap(); EEN_STRAAT.set(parcoursRijen[0].parcours, perIndex); }
+  let perNaam = perIndex.get(index);
+  if (!perNaam) { perNaam = new Map(); perIndex.set(index, perNaam); }
+  const k = `${parcoursRijen.length}|${naam}`;
+  if (!perNaam.has(k)) perNaam.set(k, stratenVanParcours(samengevoegdeGeometrie(parcoursRijen), index, { alleen: new Set([naam]) }));
+  return perNaam.get(k);
+}
 // { langs, kruist, bron }. `langs`: straten waar het parcours door loopt of die een andere inname van
 // het dossier inneemt. `kruist`: straten die het parcours alleen kruisen of erop uitkomen.
 // Bron, in deze volgorde: de verversing (site/sources/kaart-uitleg.json); anders de browser zelf, op
@@ -450,12 +465,11 @@ export function evenementStraten(rijen = [], { bewaard = null, index = null } = 
 export function verfijnVoorStraat(lijst, straat, rijen = [], index = null) {
   if (lijst?.bron !== "verversing-oud" || !index || !straat) return lijst;
   const eigen = lijst.langs.find((n) => foldText(n) === foldText(straat));
-  const geometrie = eigen ? samengevoegdeGeometrie(rijen.filter(isParcoursRij)) : null;
-  if (!geometrie) return lijst;
+  if (!eigen) return lijst;
   // Een straat die een andere inname van het dossier inneemt, blijft "in je straat".
   if (rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === foldText(eigen)))) return lijst;
-  const p = stratenVanParcours(geometrie, index, { alleen: new Set([eigen]) });
-  if (!p.kruist.includes(eigen)) return lijst;
+  const p = parcoursVoorStraat(rijen, eigen, index);
+  if (!p?.kruist.includes(eigen)) return lijst;
   return { ...lijst, langs: lijst.langs.filter((n) => n !== eigen), kruist: sorteerNl([...lijst.kruist, eigen]) };
 }
 // Staat de gekozen straat in `langs` door het parcours zelf, of alleen door een andere inname van het
@@ -467,8 +481,81 @@ export function langsViaParcours(straat, rijen = [], index = null, heeftParcours
   const eigen = foldText(straat);
   const viaInname = rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === eigen));
   if (!viaInname) return true;
-  const geometrie = index ? samengevoegdeGeometrie(rijen.filter(isParcoursRij)) : null;
-  return Boolean(geometrie && stratenVanParcours(geometrie, index, { alleen: new Set([cleanText(straat)]) }).langs.length);
+  return Boolean(parcoursVoorStraat(rijen, cleanText(straat), index)?.langs.length);
+}
+// Raakt dit dossier deze ene straat? Zoals evenementStraten() in de browser (alleen straten die de
+// live laag bij het dossier zet; een andere inname telt als "langs"), maar alleen voor die straat:
+// snel genoeg voor de filter als de verversing het dossier nog niet kent. "langs", "kruist" of "".
+export function dossierRaaktStraat(rijen = [], straat = "", index = null) {
+  const eigen = foldText(straat);
+  const genoemd = (r) => (r?.streets || []).some((s) => foldText(s?.name) === eigen);
+  if (!eigen || !rijen.some(genoemd)) return "";
+  if (rijen.some((r) => !isParcoursRij(r) && genoemd(r))) return "langs";
+  const naam = rijen.flatMap((r) => r?.streets || []).find((s) => foldText(s?.name) === eigen)?.name || cleanText(straat);
+  const p = parcoursVoorStraat(rijen, naam, index);
+  if (!p) return "langs";
+  return p.langs.length ? "langs" : p.kruist.length ? "kruist" : "";
+}
+// De stratenlijsten van de evenementendossiers voor de filter (agenda-view.js) en de kaartjes, met
+// geheugen: één lijst per dossier, niet per rij (een evenement met 100 innames rekende anders 100 keer
+// dezelfde lijst uit, en dat maakte een gsm traag). `bron()` geeft { rijen, uitleg, index, klaar }: de
+// live innames, kaart-uitleg.json, de straatas en of dat bestand al geladen (of mislukt) is. Een nieuwe
+// bron wist het geheugen. `refsVoorNaam(sleutel)`: de officiële straten met die naam (postcode).
+// Kent de verversing een dossier niet, dan rekent de browser zelf; voor de filter dan alleen voor de
+// gekozen straat (dossierRaaktStraat), de volledige lijst pas als het kaartje getoond wordt.
+export function maakStratenFilter({ bron, refsVoorNaam = () => null, tel = null } = {}) {
+  let vorige = {}, rijenPerDossier = new Map(), lijsten = new Map(), refs = new Map(), eigen = new Map();
+  const vers = () => {
+    const b = bron() || {};
+    if (b.rijen !== vorige.rijen || b.uitleg !== vorige.uitleg || b.index !== vorige.index || b.klaar !== vorige.klaar) {
+      vorige = b; lijsten = new Map(); refs = new Map(); eigen = new Map();
+      rijenPerDossier = bundelInnames(Array.isArray(b.rijen) ? b.rijen : []);
+    }
+    return vorige;
+  };
+  const lijstVan = (dossier) => {
+    const b = vers();
+    if (!lijsten.has(dossier)) {
+      if (tel) tel.lijsten = (tel.lijsten || 0) + 1;
+      lijsten.set(dossier, evenementStraten(rijenPerDossier.get(dossier) || [], { bewaard: b.uitleg?.evenementen?.[dossier] || null, index: b.klaar ? b.index : null }));
+    }
+    return lijsten.get(dossier);
+  };
+  const zelfRekenen = (dossier, b) => !b.uitleg?.evenementen?.[dossier] && b.klaar && Boolean(b.index) && (rijenPerDossier.get(dossier) || []).some((r) => r?.parcours);
+  const eigenVan = (dossier) => {
+    if (!eigen.has(dossier)) {
+      const m = new Map();
+      for (const r of (rijenPerDossier.get(dossier) || []).flatMap((x) => x?.streets || [])) { const k = locationKey(r?.name); if (!k) continue; const l = m.get(k); if (!l) m.set(k, [r]); else if (!l.includes(r)) l.push(r); }
+      eigen.set(dossier, m);
+    }
+    return eigen.get(dossier);
+  };
+  // Straatnamen naar officiële straten: een naam die de rijen zelf kennen, houdt hun postcode.
+  const naarRefs = (namen, perNaam = new Map()) => namen.flatMap((naam) => { const k = locationKey(naam); return perNaam.get(k) || refsVoorNaam(k) || [{ name: naam }]; });
+  return {
+    lijstVan,
+    rijenVan: (dossier) => { vers(); return rijenPerDossier.get(dossier) || []; },
+    naarRefs,
+    // De straten van een dossier voor de filter, met `straat` de gekozen straat ("" voor een wijk).
+    refsVan(dossier, straat = "") {
+      const b = vers();
+      const zelf = !lijsten.has(dossier) && zelfRekenen(dossier, b);
+      const sleutel = zelf ? `${dossier}|${locationKey(straat)}` : dossier;
+      if (!refs.has(sleutel)) {
+        let namen;
+        if (!zelf) { const lijst = lijstVan(dossier); namen = [...lijst.langs, ...lijst.kruist]; }
+        else {
+          // De straten van de live laag; de gekozen straat alleen als het dossier haar echt raakt.
+          if (tel) tel.eenStraat = (tel.eenStraat || 0) + 1;
+          const rijen = rijenPerDossier.get(dossier) || [], k = locationKey(straat);
+          namen = [...new Set(rijen.flatMap((r) => (r?.streets || []).map((x) => x?.name)).filter((n) => n && locationKey(n) !== k))];
+          if (straat && dossierRaaktStraat(rijen, straat, b.index)) namen.push(straat);
+        }
+        refs.set(sleutel, naarRefs(namen, eigenVan(dossier)));
+      }
+      return refs.get(sleutel);
+    },
+  };
 }
 // "langs", "kruist" of "" voor de gekozen straat.
 export function straatRelatie(straat, lijst) {

@@ -11,7 +11,7 @@ import { createAgendaView } from "../site/agenda-view.js";
 import { createAreaMatcher } from "../site/neighborhood-map.js";
 import { collectPermits } from "../site/permits-live-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
-import { evenementEntry, jouwStraatTekst, langsViaParcours, permitEntry, vergunningWaar } from "../site/place-core.js";
+import { evenementEntry, jouwStraatTekst, langsViaParcours, maakStratenFilter, permitEntry, vergunningWaar } from "../site/place-core.js";
 import { stratenVanWerfzone } from "../lib/kaart-uitleg-refresh.mjs";
 
 const ECHT = JSON.parse(fs.readFileSync(new URL("./fixtures/parcours-echte-vormen.json", import.meta.url), "utf8"));
@@ -165,4 +165,35 @@ test("werfzone: alleen de straten waar de zone echt langs of over loopt, niet de
   const vlak = { type: "Polygon", coordinates: [[[0, -60], [120, -60], [120, 60], [0, 60], [0, -60]].map(([x, y]) => m(x, y))] };
   const plein = buildStreetIndex([asFeature("Proefplein", [m(20, 0), m(100, 0)], 2000, 1), asFeature("Proeftunnel", [m(-50, 20), m(200, 20)], 2000, 2)]);
   assert.deepEqual(stratenVanWerfzone(vlak.coordinates, plein), ["Proefplein"]);
+});
+
+// Bevinding 4: trager op een gsm. Per rij van een evenementendossier rekende de site alle straatnamen
+// opnieuw uit; zonder kaart-uitleg.json rekende ze voor elk dossier het hele parcours. Nu één lijst
+// per dossier, en zonder verversing voor de filter alleen de gekozen straat.
+test("stratenfilter: één lijst per dossier, en zonder verversing alleen de gekozen straat", () => {
+  const vlak = { rings: [[[-10, -10], [400, -10], [400, 10], [-10, 10], [-10, -10]].map(([x, y]) => m(x, y))] };
+  const index = buildStreetIndex([asFeature("Lange Weg", [m(0, 0), m(390, 0)], 2000, 1), asFeature("Dwarsweg", [m(200, -100), m(200, 100)], 2000, 2), asFeature("Naastweg", [m(0, 25), m(390, 25)], 2000, 3)]);
+  const basis = { kind: "iod", reference: "ET2099000006", dossierType: "ETL", phase: "Evenement", status: "aanvraag_goedgekeurd", start: "2026-10-20T06:00:00Z", end: "2026-10-20T16:00:00Z" };
+  const straten = ["Lange Weg", "Dwarsweg", "Naastweg"].map((name, i) => ({ id: String(i + 1), name, postcode: "2000" }));
+  const parcours = { ...basis, id: "iod:ET2099000006|F1|P", innameType: "Parcours", title: "Parcours", streets: straten, parcours: parcoursGeometrie([{ geometry: vlak }]) };
+  const innames = Array.from({ length: 100 }, (_, i) => ({ ...basis, id: `iod:ET2099000006|F1|I${i}`, innameType: "Parkeerverbod", title: "Parkeerverbod", streets: [straten[0]] }));
+  const rijen = [parcours, ...innames];
+  // Met de verversing: één lijst voor 101 rijen, telkens hetzelfde antwoord.
+  const tel = {};
+  const uitleg = { evenementen: { ET2099000006: { straten: ["Lange Weg"], kruist: ["Dwarsweg"] } } };
+  const filter = maakStratenFilter({ bron: () => ({ rijen, uitleg, index, klaar: true }), tel });
+  const eerste = filter.refsVan("ET2099000006", "Dwarsweg");
+  for (const r of rijen) assert.equal(filter.refsVan(r.reference, "Dwarsweg"), eerste);
+  assert.equal(tel.lijsten, 1);
+  assert.deepEqual(eerste.map((r) => r.name), ["Lange Weg", "Dwarsweg"]);
+  // Zonder verversing: alleen de gekozen straat wordt tegen het parcours gelegd, de volledige lijst niet.
+  const tel2 = {};
+  const zonder = maakStratenFilter({ bron: () => ({ rijen, uitleg: null, index, klaar: true }), tel: tel2 });
+  assert.ok(zonder.refsVan("ET2099000006", "Dwarsweg").some((r) => r.name === "Dwarsweg"), "de Dwarsweg kruist het parcours");
+  assert.ok(!zonder.refsVan("ET2099000006", "Naastweg").some((r) => r.name === "Naastweg"), "de Naastweg ligt 25 m naast het parcours: niet in de lijst");
+  for (const r of rijen) zonder.refsVan(r.reference, "Dwarsweg");
+  assert.equal(tel2.lijsten || 0, 0, "geen volledige lijst voor de filter");
+  assert.equal(tel2.eenStraat, 2, "één keer per gekozen straat");
+  // Het kaartje rekent wel de volledige lijst, en die zegt hetzelfde over de gekozen straat.
+  assert.deepEqual(zonder.lijstVan("ET2099000006").kruist, ["Dwarsweg"]);
 });
