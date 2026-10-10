@@ -557,7 +557,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
     }
     const item = entry.item || {};
-    const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "" });
+    const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
     const bronHint = bezoekersHint(entry);
@@ -568,8 +568,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
           <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
-            <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}</span>
+            <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}${duidelijk.badge ? `<span class="pv-badge pv-badge-now">${esc(duidelijk.badge)}</span>` : ""}</span>
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
+            ${duidelijk.melding ? `<span class="pv-row-alert">${esc(duidelijk.melding)}</span>` : ""}
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
@@ -623,7 +624,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!entries.length) return "";
     const all = state.expanded.has(key);
     const shown = all ? entries : entries.slice(0, SECTION_LIMIT);
-    return `<section class="pv-day" aria-label="${esc(title)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
+    // De titel kan een verborgen pictogram in HTML bevatten; de toegankelijke naam is alleen de tekst.
+    const naam = String(title).replace(/<span aria-hidden="true">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "").trim();
+    return `<section class="pv-day" aria-label="${esc(naam)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
   }
   function dayTitle(day, today) {
     const rel = day === today ? "Vandaag" : day === addDays(today, 1) ? "Morgen" : "";
@@ -654,8 +657,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const { from, to } = periodRange(state.period, today);
     const dated = entries.filter((e) => e.theme !== "markets" && e.group !== "vergunningen");
     const { running, days, later } = groupForList(dated, { from, to, today });
-    const permits = entries.filter((e) => e.group === "vergunningen");
+    // Een aanvraag in openbaar onderzoek (nagekeken in het Inzageloket) staat bovenaan: bewoners kunnen nu
+    // nog reageren. De andere aanvragen blijven onderaan.
+    const allePermits = entries.filter((e) => e.group === "vergunningen");
+    const inspraak = allePermits.filter((e) => e.item?.inzage?.onderzoek);
+    const permits = allePermits.filter((e) => !e.item?.inzage?.onderzoek);
     const html = [];
+    html.push(sectionTemplate("inspraak", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
     html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> Nu bezig`, running, { today, context: "running" }, `<p class="pv-day-note">Werken, maatregelen en activiteiten die vandaag lopen.</p>`));
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);

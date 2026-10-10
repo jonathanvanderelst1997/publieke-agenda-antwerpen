@@ -1,0 +1,20 @@
+{
+  "schema": "inzage-status/1",
+  "uitleg": "Verzonnen testdossiers (OMV_2099...). Vorm zoals site/sources/inzage-status.json.",
+  "dossiers": [
+    {
+      "project": "OMV_2099000001",
+      "gevonden": true,
+      "openbaarOnderzoek": { "van": "2026-09-21", "totEnMet": "2026-10-20" },
+      "nagekeken": "2026-10-09",
+      "bron": "handmatig"
+    },
+    {
+      "project": "OMV_2099000002",
+      "gevonden": true,
+      "openbaarOnderzoek": { "van": "2026-12-20", "totEnMet": "2027-01-18" },
+      "nagekeken": "2026-12-21",
+      "bron": "handmatig"
+    }
+  ]
+}

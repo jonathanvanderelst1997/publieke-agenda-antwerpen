@@ -2,12 +2,15 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import {bezoekersLinks,bezoekersHint,hinderkaart,leesbaarUur,safeHttps,INZAGE} from "../site/bezoekers-bronnen.js";
 import {readFile} from "node:fs/promises";
-test("vergunningen: publieksinzage boven ruwe kaart-API en helder zoeken",()=>{
+test("vergunningen: geen startpagina van het Inzageloket, wel een rechtstreekse link voor een nagekeken dossier",()=>{
  const e={source:"permits",item:{project:"OMV_2026080750"},sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_PiP/pip2_vergunningen/MapServer/5"};
  const links=bezoekersLinks(e);
- assert.equal(links[0].url,INZAGE);
- assert.match(bezoekersHint(e),/OMV_2026080750/);
+ assert.equal(links.some(x=>x.url===INZAGE),false);
+ assert.match(bezoekersHint(e),/Inzageloket toont alleen dossiers in openbaar onderzoek of met een beslissing/);
  assert.match(links.at(-1).label,/Technische/);
+ e.item.inzage={link:INZAGE+"2026080750"};
+ assert.equal(bezoekersLinks(e)[0].url,INZAGE+"2026080750");
+ assert.equal(bezoekersLinks(e).at(-1).type,"source");
 });
 test("werken: officieel GIPOD-ID opent de publiekskaart",()=>{
  assert.equal(hinderkaart(1143473),"https://www.geopunt.be/?app=hinder-in-kaart&gipodid=1143473");

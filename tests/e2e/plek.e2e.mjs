@@ -91,13 +91,15 @@ async function routeSources(page, street) {
   });
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, inzage = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await routeSources(page, street || pickStreet.fallback);
+  // Een vaste nagekeken stand in het Inzageloket voor de verzonnen aanvraag (site/inzage-status.js).
+  if (inzage) await page.route((url) => url.pathname === "/sources/inzage-status.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(inzage) }));
   await page.goto(`${baseUrl}/${query}`);
   await page.waitForSelector(".pv-chip");
   return { page, context, errors };
@@ -194,6 +196,36 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.doesNotMatch(tekst, /Procedurestatus|doel niet|Voorbeeld|0470|20990001 · College/);
     const technisch = await row.locator("a.pv-bron-technisch").getAttribute("href");
     assert.equal(new URL(technisch).searchParams.get("where"), "Dossiernummer='20990001'");
+    // Niet nagekeken in het Inzageloket: geen knop naar de startpagina, wel een eerlijke zin.
+    assert.equal(await row.locator('a[href^="https://omgevingsloketinzage."]').count(), 0);
+    assert.match(tekst, /Geen lopend openbaar onderzoek bekend voor dit dossier\. Het Inzageloket toont alleen dossiers in openbaar onderzoek of met een beslissing\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("openbaar onderzoek: bovenaan de lijst, de termijn in de dichte kaart en een rechtstreekse link", async () => {
+    const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const tot = addDays(today, 10);
+    const inzage = { schema: "inzage-status/1", uitleg: "e2e", dossiers: [{ project: "OMV_2099000001", gevonden: true, openbaarOnderzoek: { van: addDays(today, -19), totEnMet: tot }, nagekeken: addDays(today, -1), bron: "handmatig" }] };
+    const { page, context, errors } = await openPage(baseUrl, { street, inzage, query: `?plek=${plek}` });
+    const sectie = page.locator("section.pv-day", { hasText: "Openbaar onderzoek: bezwaar indienen kan nu" });
+    await sectie.waitFor({ timeout: 15000 });
+    // De eerste sectie van de lijst, vóór "Nu bezig" en de dagen.
+    assert.equal(await page.locator(".pv-results section.pv-day").first().getAttribute("aria-label"), "Openbaar onderzoek: bezwaar indienen kan nu");
+    const row = sectie.locator(".pv-row").first();
+    assert.equal(await row.locator(".pv-row-title").innerText(), PERMIT_TITLE);
+    const maanden = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+    const datum = `${Number(tot.slice(8))} ${maanden[Number(tot.slice(5, 7)) - 1]}${tot.slice(0, 4) === today.slice(0, 4) ? "" : ` ${tot.slice(0, 4)}`}`;
+    // Zichtbaar zonder openklappen.
+    assert.equal(await row.locator(".pv-row-alert").innerText(), `Openbaar onderzoek loopt tot en met ${datum}. Bezwaar indienen kan tot dan.`);
+    assert.ok(await row.locator(".pv-row-alert").isVisible());
+    assert.match(await row.locator(".pv-row-kind").innerText(), /Openbaar onderzoek/);
+    await row.locator(".pv-row-btn").click();
+    assert.equal(await row.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/2099000001"]').count(), 1);
+    assert.equal(await row.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/"]').count(), 0);
+    assert.doesNotMatch(await row.innerText(), /Geen lopend openbaar onderzoek/);
+    // Niet dubbel: de aanvraag staat niet nog eens onderaan bij de gewone aanvragen.
+    assert.equal(await page.locator(".pv-row", { hasText: PERMIT_TITLE }).count(), 1);
     assert.deepEqual(errors, []);
     await context.close();
   });

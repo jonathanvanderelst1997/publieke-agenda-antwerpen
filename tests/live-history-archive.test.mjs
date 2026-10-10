@@ -123,6 +123,7 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "scripts", "validate-data.mjs"), path.join(root, "scripts", "validate-data.mjs"));
       fs.mkdirSync(path.join(root, "site", "history", "archive"), { recursive: true });
       fs.copyFileSync(path.join(repoRoot, "site", "works-core.js"), path.join(root, "site", "works-core.js"));
+      fs.copyFileSync(path.join(repoRoot, "site", "inzage-status.js"), path.join(root, "site", "inzage-status.js"));
 
       const baseline = { schemaVersion: 1, layers: { works: { observedAt: T1, items: [{ id: "work:1" }] }, publicSpace: null } };
       const day = updateHistoryArchiveDay(null, T2, [event(T2, "work:2")]);

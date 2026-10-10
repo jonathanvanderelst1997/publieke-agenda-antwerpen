@@ -303,6 +303,10 @@ export async function refreshLiveHistory({
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
 
+  // Bewust geen stap voor het Inzageloket (omgevingsloketinzage.omgeving.vlaanderen.be): robots.txt verbiedt
+  // elke bot ("Disallow: /") en een Anubis-botcontrole staat voor elke pagina en voor de API. Die controle
+  // omzeilen doen we niet. site/sources/inzage-status.json wordt met de hand bijgehouden (site/inzage-status.js).
+
   log(JSON.stringify({
     observedAt,
     worksStatus: history.layers.works.status,
