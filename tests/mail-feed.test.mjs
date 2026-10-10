@@ -51,8 +51,9 @@ function fakeFetch(routes) {
   return { fetchImpl, calls };
 }
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "mail-feed-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -89,8 +90,8 @@ test("strikt schema: @, querystring, onbekende host, trackinghost, te veel items
   assert.equal(validateMailSignals(big, { byteLength: 64 * 1024 + 1 }).ok, false, "meer dan 64 KB");
 });
 
-test("200: elk item wordt op de officiële pagina herverifieerd en per groep weggeschreven", async () => {
-  const root = makeRoot();
+test("200: elk item wordt op de officiële pagina herverifieerd en per groep weggeschreven", async (t) => {
+  const root = makeRoot(t);
   const failing = "https://www.antwerpen.be/info/bbbbbbbbbbbbbbbbbbbbbbbb/andere-titel";
   const redirected = "https://burgerbegroting.be/finale";
   const body = payload([
@@ -132,8 +133,8 @@ test("200: elk item wordt op de officiële pagina herverifieerd en per groep weg
   assert.equal(city.items[0].location, "locatie via de officiële bron");
 });
 
-test("een redirect naar een niet-toegelaten host of zonder 200 wordt niet weggeschreven", async () => {
-  const root = makeRoot();
+test("een redirect naar een niet-toegelaten host of zonder 200 wordt niet weggeschreven", async (t) => {
+  const root = makeRoot(t);
   const body = payload([signal(DISTRICT_URL)]);
   const { fetchImpl } = fakeFetch({
     [ENDPOINT]: response(200, body),
@@ -144,14 +145,14 @@ test("een redirect naar een niet-toegelaten host of zonder 200 wordt niet wegges
   assert.equal(read(root, "mail-district").items.length, 0);
   assert.match(logs.join("\n"), /redirect_not_allowed/);
 
-  const gone = makeRoot();
+  const gone = makeRoot(t);
   const second = fakeFetch({ [ENDPOINT]: response(200, body), [DISTRICT_URL]: response(404, "weg") });
   await run({ rootDir: gone, env: { MAIL_SIGNALEN_URL: ENDPOINT }, fetch: second.fetchImpl, clock, log: () => {} });
   assert.equal(read(gone, "mail-district").items.length, 0);
 });
 
-test("404: bron uitgeschakeld, eerdere items blijven staan", async () => {
-  const root = makeRoot();
+test("404: bron uitgeschakeld, eerdere items blijven staan", async (t) => {
+  const root = makeRoot(t);
   const previous = sourceDocument("mail-district", {
     retrievedAt: "2026-09-27T06:00:00.000Z",
     fetchStatus: "ok",
@@ -187,8 +188,8 @@ test("404: bron uitgeschakeld, eerdere items blijven staan", async () => {
   assert.deepEqual(read(root, "mail-stad").items, []);
 });
 
-test("503 (nog geen snapshot): eerdere items blijven zolang hun datum niet voorbij is en de pagina ze bevestigt", async () => {
-  const root = makeRoot();
+test("503 (nog geen snapshot): eerdere items blijven zolang hun datum niet voorbij is en de pagina ze bevestigt", async (t) => {
+  const root = makeRoot(t);
   const keep = {
     id: `mail-${sha256Hex(DISTRICT_URL).slice(0, 16)}-2026-10-14`,
     externalId: sha256Hex(DISTRICT_URL).slice(0, 16),
@@ -232,8 +233,8 @@ test("503 (nog geen snapshot): eerdere items blijven zolang hun datum niet voorb
   assert.equal(read(root, "mail-district").items.length, 1);
 });
 
-test("netwerkfout of andere 5xx: fetchStatus error, eerdere items blijven", async () => {
-  const root = makeRoot();
+test("netwerkfout of andere 5xx: fetchStatus error, eerdere items blijven", async (t) => {
+  const root = makeRoot(t);
   const failing = async () => {
     throw new TypeError("fetch failed");
   };
@@ -274,8 +275,8 @@ test("herverificatie: uur en plaats alleen als ze op de pagina staan", () => {
   assert.equal(placeOnPage("Districtshuis Harmonie, Kerkstraat 12", text), false, "elk deel moet op de pagina staan");
 });
 
-test("een privé-plaats en -uur uit het signaal komen nooit op de site; privémarkering en algemene titel worden niet opgehaald", async () => {
-  const root = makeRoot();
+test("een privé-plaats en -uur uit het signaal komen nooit op de site; privémarkering en algemene titel worden niet opgehaald", async (t) => {
+  const root = makeRoot(t);
   const expoUrl = "https://www.antwerpen.be/info/cccccccccccccccccccccccc/opening-expo-verbeeld-verleden";
   const privateUrl = "https://www.antwerpen.be/info/dddddddddddddddddddddddd/uitnodiging";
   const shortUrl = "https://www.antwerpen.be/info/eeeeeeeeeeeeeeeeeeeeeeee/receptie";

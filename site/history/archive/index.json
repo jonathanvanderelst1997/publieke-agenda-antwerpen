@@ -6,44 +6,44 @@
     {
       "date": "2026-10-02",
       "file": "site/history/archive/2026-10-02.json",
-      "count": 1077,
-      "digest": "2f38dd5cc2e457f45789c2fde4c544ccd54c86e1626254864d5ca0eee9f1094f"
+      "count": 716,
+      "digest": "8b91fc6d08a6b172ea57f6649446189b8baba7e38e9db44c3996789ada65502f"
     },
     {
       "date": "2026-10-05",
       "file": "site/history/archive/2026-10-05.json",
-      "count": 1795,
-      "digest": "bef1d70158618d972bcc7f2a719c274f3f9abb1e1825bf1600764bd4b1d5b97d"
+      "count": 1102,
+      "digest": "0bd2b32cbcfaedccb8c8cd671f8f764da1c07ea6f12c992a850c5a8d84b35349"
     },
     {
       "date": "2026-10-06",
       "file": "site/history/archive/2026-10-06.json",
-      "count": 1228,
-      "digest": "d3de5e4531b9b9519458d00f5d279779e3e79b0722248036fbb8061a71859480"
+      "count": 741,
+      "digest": "2fd10eca01d41534c55f6c1d2780ed7808694ca65764c42484e1d332d48dc77d"
     },
     {
       "date": "2026-10-07",
       "file": "site/history/archive/2026-10-07.json",
-      "count": 357,
-      "digest": "c98c125440043587216ce65e45740d526ff6a8afbd5f366fe5e7a7a6c03f4eb7"
+      "count": 262,
+      "digest": "871aba0c5b159c26fff571deeab1371f973b5b8301cec4dc57a558ed0dd53495"
     },
     {
       "date": "2026-10-08",
       "file": "site/history/archive/2026-10-08.json",
-      "count": 1888,
-      "digest": "64ff540686d612b94bf2a4dbf168e4b10037fbfbdaea02f4965c7390781f9cd9"
+      "count": 1119,
+      "digest": "e2c25138509e3f8a889bd088c419e8899d73725931177bc8ec694e24afa9f25d"
     },
     {
       "date": "2026-10-09",
       "file": "site/history/archive/2026-10-09.json",
-      "count": 337,
-      "digest": "6f16a60552df6da9637c1071732cb43b50d1a6eb96aa5e323657538a8ef9a850"
+      "count": 218,
+      "digest": "d205fcb1fdc1fbd945de25fc585750d618953312c0243d397f9916f97fd98db6"
     },
     {
       "date": "2026-10-10",
       "file": "site/history/archive/2026-10-10.json",
-      "count": 1404,
-      "digest": "8927076e981a356781d851f7d3bc9dbf777372355b5de719cae84390ee718423"
+      "count": 842,
+      "digest": "230f46adad1e9ed580601bc11ad8c16377f8c7771625e0eb6f3859ce8d8a8103"
     }
   ]
 }

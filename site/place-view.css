@@ -65,7 +65,7 @@
 }
 .pv-place-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
 .pv-place-id { min-width: 0; }
-.pv-place-name { overflow-wrap: anywhere; }
+.pv-place-name { overflow-wrap: break-word; }
 .pv-stat-off button { opacity: .75; box-shadow: inset 4px 0 0 var(--pa-line-strong); }
 .pv-stat-off strong { color: var(--pa-muted); }
 .pv-place-kind { display: inline-block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--pa-accent); }
@@ -100,9 +100,14 @@
 /* ---- indeling ---- */
 .pv-layout { display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 .pv-head h2 { margin: 0; font-size: 1.35rem; letter-spacing: -0.02em; color: var(--pa-ink-strong); }
-.pv-head h2:focus { outline: 3px solid var(--pa-focus); outline-offset: 4px; border-radius: 4px; }
-.pv-sub { margin: 4px 0 0; color: var(--pa-muted); font-size: .93rem; }
-.pv-toolbar { margin: 14px 0 12px; display: grid; gap: 10px; }
+.pv-head h2:focus { outline: 3px solid var(--pa-focus); outline-offset: 2px; border-radius: 4px; }
+/* Na een muisklik krijgt de kop een rustige focus; met het toetsenbord blijft de volle rand. */
+.pv-head h2:focus:not(:focus-visible) { outline-width: 2px; outline-color: color-mix(in srgb, var(--pa-focus) 35%, transparent); }
+/* Na het kiezen van een plek springt de focus naar de kop: dan geen kader (place-view.js zet pv-stil, tot blur). */
+.pv-head h2.pv-stil:focus { outline: none; }
+.pv-sub { margin: 8px 0 0; color: var(--pa-muted); font-size: .93rem; }
+/* Eén kolom die nooit breder wordt dan de lijst (anders schuift de pagina opzij op een gsm). */
+.pv-toolbar { margin: 14px 0 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .pv-groups { display: flex; flex-wrap: wrap; gap: 6px; }
 .pv-group-scroll-hint { display: none; margin: 0; font-size: .85rem; line-height: 1.4; color: var(--pa-muted); }
 .pv-chip {
@@ -112,8 +117,11 @@
 .pv-chip[aria-pressed="true"] { border-style: solid; border-color: var(--cat, var(--pa-ink-strong)); background: var(--cat, var(--pa-ink-strong)); color: #fff; }
 .pv-chip-zero[aria-pressed="true"] { background: var(--cat-soft, var(--pa-surface-2)); color: var(--cat-ink, var(--pa-ink)); }
 .pv-chip-zero[aria-pressed="true"] .pv-chip-n { background: var(--pa-surface); color: var(--cat-ink, var(--pa-ink)); }
-.pv-chip-all[aria-pressed="true"] { background: var(--pa-ink-strong); border-color: var(--pa-ink-strong); color: var(--pa-surface); }
-.pv-chip-n { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 2px; border-radius: 999px; background: #ffffff33; font-size: .78rem; text-align: center; }
+/* "Alle onderwerpen tonen/verbergen" is een actie (geen aan/uit-knop): altijd dezelfde vorm. */
+.pv-chip.pv-chip-all { border-style: solid; border-color: var(--pa-ink-strong); background: var(--pa-surface); color: var(--pa-ink-strong); }
+/* Het getal op een gekozen chip: een donkere laag over de chipkleur, zodat wit erop minstens 4,5:1 haalt
+   (een witte laag gaf 3,6:1 bij Werken en 4,3:1 bij Vergunningen). Toets: tests/hertest-restpunten.test.mjs. */
+.pv-chip-n { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 2px; border-radius: 999px; background: #00000047; font-size: .78rem; text-align: center; }
 .pv-chip[aria-pressed="false"] .pv-chip-n { background: var(--pa-surface-2); color: var(--pa-muted); }
 .pv-toolbar-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pv-nav { display: inline-flex; align-items: center; gap: 4px; }
@@ -127,8 +135,13 @@
 
 /* ---- lijst ---- */
 .pv-day { margin: 0 0 18px; }
-.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
+.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; overflow-wrap: anywhere; }
 .pv-day-title::first-letter { text-transform: uppercase; }
+/* Alleen de tekst van een sectiekop krimpt (overflow-wrap: anywhere hierboven laat ze smaller worden dan
+   haar langste woord): het pictogram, "Vandaag" en het aantal houden hun breedte. Zo staat het aantal naast
+   een kop van twee regels, en breekt alleen een woord dat breder is dan de hele regel ("Omgevingsaanvragen"
+   bij tekst 200 % op een gsm), in plaats van de pagina opzij te duwen. */
+.pv-day-title > span { flex: none; }
 .pv-rel { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--pa-accent); color: var(--pa-accent-ink); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
 .pv-day-n { margin-left: auto; font-size: .78rem; font-weight: 700; color: var(--pa-muted); background: var(--pa-surface-2); border: 1px solid var(--pa-line); border-radius: 999px; padding: 1px 8px; }
 .pv-day-note { margin: -4px 0 8px; font-size: .84rem; color: var(--pa-muted); }
@@ -136,21 +149,33 @@
 .pv-row { border-radius: 16px; background: var(--pa-surface); border: 1px solid var(--pa-line); box-shadow: inset 4px 0 0 var(--cat, var(--pa-line-strong)); overflow: hidden; }
 .pv-row.open { box-shadow: inset 4px 0 0 var(--cat), var(--pa-shadow); }
 .pv-row-btn {
-  width: 100%; display: grid; grid-template-columns: 4.4em minmax(0, 1fr) 20px; gap: 10px; align-items: start;
+  width: 100%; display: grid; grid-template-columns: 5.2em minmax(0, 1fr) 20px; gap: 10px; align-items: start; border-radius: 15px;
   padding: 12px 12px 12px 16px; border: 0; background: transparent; text-align: left; color: var(--pa-ink); cursor: pointer; font: inherit;
 }
-.pv-row-when { font-weight: 800; font-size: .86rem; color: var(--cat-ink, var(--pa-ink)); padding-top: 2px; font-variant-numeric: tabular-nums; }
+.pv-row-when { min-width: 0; overflow-wrap: break-word; font-weight: 800; font-size: .86rem; color: var(--cat-ink, var(--pa-ink)); padding-top: 2px; font-variant-numeric: tabular-nums; }
 .pv-row-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .pv-row-kind { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: .76rem; font-weight: 700; color: var(--pa-muted); text-transform: uppercase; letter-spacing: .04em; }
-.pv-row-title { font-size: 1rem; line-height: 1.35; color: var(--pa-ink-strong); overflow-wrap: anywhere; }
-.pv-row-where, .pv-row-range { font-size: .87rem; color: var(--pa-muted); overflow-wrap: anywhere; }
+.pv-row-title { font-size: 1rem; line-height: 1.35; color: var(--pa-ink-strong); overflow-wrap: break-word; }
+.pv-row-where, .pv-row-range { font-size: .87rem; color: var(--pa-muted); overflow-wrap: break-word; }
 .pv-row-where { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .pv-row-range:empty { display: none; }
+/* Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal.
+   Een eigen regel, niet afgekapt (de plek hierboven mag na twee regels stoppen, deze zin niet). */
+.pv-row-jouw { font-size: .87rem; color: var(--pa-ink-strong); font-weight: 650; overflow-wrap: anywhere; }
 .pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
+/* Een open evenementkaart zegt wanneer en jouw straat al in de kern: de samenvatting niet herhalen. */
+.pv-row.open.pv-row-kern .pv-row-summary { display: none; }
+/* Openbaar onderzoek (site/inzage-status.js): de termijn staat in de dichte kaart, niet pas na openklappen. */
+.pv-row-alert { display: block; margin: 2px 0; padding: 4px 8px; border-left: 3px solid var(--pa-warn-line); border-radius: 4px; background: var(--pa-warn-soft); color: var(--pa-warn); font-size: .9rem; font-weight: 700; line-height: 1.4; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
 .pv-streets p { margin: 4px 0 0 !important; font-size: .86rem !important; color: var(--pa-muted) !important; }
+.pv-streets p.pv-straten-noot { color: var(--pa-ink) !important; }
+/* Wat er in het dossier staat: elke omschrijving op een eigen regel, het parcours vooraan. */
+.pv-dossier { margin: 0; padding-left: 1.1em; }
+.pv-dossier li + li { margin-top: 2px; }
+.pv-streets .pv-dossier { margin-top: 4px; font-size: .86rem; color: var(--pa-muted); }
 .pv-ontbreekt { font-size: .86rem !important; color: var(--pa-muted) !important; border-left: 3px solid var(--pa-line-strong); padding-left: 10px; }
 .pv-ontbreekt strong { color: var(--pa-ink); }
 .pv-technisch { font-size: .78rem !important; color: var(--pa-muted) !important; }
@@ -159,21 +184,52 @@
 .pv-kaart figcaption { font-size: .78rem; color: var(--pa-muted); margin-top: 4px; }
 .ku-straten polyline { fill: none; stroke: var(--pa-line-strong); stroke-width: 1; }
 .ku-route polyline { fill: none; stroke: #c0392b; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ku-jouw polyline { fill: none; stroke: #1d4ed8; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.pv-kaart svg.ku-kaart { width: 100%; max-height: 340px; }
+/* Evenementkaart: bovenaan wat, wanneer, waar, jouw straat en wat je merkt; labels boven de tekst. */
+.pv-detail .pv-kern { display: block; margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--cat-soft, var(--pa-surface-2)) 70%, var(--pa-surface)); border: 1px solid var(--pa-line); font-size: .94rem; }
+.pv-detail .pv-kern div { display: block; margin: 0 0 10px; }
+.pv-detail .pv-kern div:last-child { margin-bottom: 0; }
+.pv-detail .pv-kern dt { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--cat-ink, var(--pa-muted)); }
+.pv-detail .pv-kern dd { margin: 2px 0 0; line-height: 1.5; color: var(--pa-ink); overflow-wrap: break-word; }
+.pv-links-top { margin-top: 12px; }
+.pv-link-uitleg { flex-basis: 100%; margin-top: -4px; font-size: .82rem; color: var(--pa-muted); }
+.pv-voetnoot { font-size: .8rem !important; color: var(--pa-muted) !important; }
 .pv-row-chevron { width: 10px; height: 10px; margin-top: 6px; border-right: 2px solid var(--pa-muted); border-bottom: 2px solid var(--pa-muted); transform: rotate(45deg); transition: transform .15s; }
 .pv-row.open .pv-row-chevron { transform: rotate(-135deg); margin-top: 10px; }
 .pv-badge { text-transform: none; letter-spacing: 0; font-size: .74rem; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
 .pv-badge-now { background: var(--pa-warn-soft); color: var(--pa-warn); border: 1px solid var(--pa-warn-line); }
 .pv-badge-planned { background: var(--cat-soft, var(--pa-surface-2)); color: var(--cat-ink, var(--pa-ink)); border: 1px dashed var(--cat, var(--pa-line-strong)); }
+/* De periode loopt, maar GIPOD noemt het werk nog niet "in uitvoering": rustiger dan "Nu bezig". */
+.pv-badge-period { background: var(--pa-surface-2); color: var(--pa-ink); border: 1px solid var(--pa-line-strong); }
 .pv-detail { padding: 0 16px 16px 16px; border-top: 1px dashed var(--pa-line); margin: 0 12px 0 16px; padding-left: 0; padding-right: 0; }
 .pv-detail p { margin: 12px 0 0; line-height: 1.55; color: var(--pa-ink); font-size: .94rem; }
 .pv-detail dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 4px 14px; margin: 12px 0 0; font-size: .9rem; }
 .pv-detail dl div { display: contents; }
 .pv-detail dt { color: var(--pa-muted); font-weight: 700; }
-.pv-detail dd { margin: 0; overflow-wrap: anywhere; }
+.pv-detail dd { margin: 0; overflow-wrap: break-word; }
+/* Wat over de bron gaat (de organisator die niet openbaar is, het nummer en de codes): ingeklapt. */
+.pv-bron-dossier { margin: 12px 0 0; }
+.pv-bron-dossier > summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; list-style: none; }
+.pv-bron-dossier > summary::-webkit-details-marker { display: none; }
+.pv-bron-dossier > summary::before { content: "＋"; content: "＋" / ""; }
+.pv-bron-dossier[open] > summary::before { content: "－"; content: "－" / ""; }
+.pv-bron-dossier > .pv-uitleg { margin-top: 4px; }
+/* Ook de samenvatting onder de titel breekt geen woord midden in (wint van de regel bij .pv-row-summary). */
+.pv-row .pv-row-summary { overflow-wrap: break-word; }
+/* Open kaart met uitleg: de samenvatting en de periode onder de titel staan dan volledig in de regels
+   ("Wanneer"); niet herhalen. */
+.pv-row.open:has(.pv-uitleg-kaart) :is(.pv-row-summary, .pv-row-range) { display: none; }
+/* De bronzin is een kleine hint, geen lopende tekst (".pv-detail p" maakte ze even groot als de uitleg). */
+.pv-detail p.pv-bron-hint { font-size: .87rem; color: var(--pa-muted); }
 .pv-links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }
 .pv-links a, .pv-ics { color: var(--pa-accent); font-weight: 700; font-size: .9rem; text-underline-offset: 3px; }
 .pv-links .pv-bron-bezoeker { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface-2); }
 .pv-links .pv-bron-technisch { font-size: .8rem; color: var(--pa-muted); font-weight: 500; }
+/* Ruwe stadsgegevens: ingeklapt, zodat de eerste link een pagina voor bewoners is. */
+.pv-tech { margin-top: 8px; font-size: .85rem; color: var(--pa-muted); }
+.pv-tech summary { cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
+.pv-tech p { margin: 4px 0; }
 .pv-bron-hint { color: var(--pa-muted); font-size: .87rem; line-height: 1.5; }
 .pv-ics { border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface); padding: 8px 12px; cursor: pointer; min-height: 44px; }
 .pv-progress { margin: 14px 0 0; height: 8px; border-radius: 999px; background: var(--cat-soft, var(--pa-surface-2)); overflow: hidden; }
@@ -197,7 +253,8 @@
 .pv-empty-tips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
 
 /* ---- week ---- */
-.pv-week-head { display: grid; grid-template-columns: 4.4em minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
+/* De weekkop is kleiner gezet (.72rem): 5.2rem is daar even breed als de 5.2em van de tijdkolom (1rem). */
+.pv-week-head { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
 .pv-week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
 .pv-week-head b { text-align: center; font-weight: 700; line-height: 1.25; padding: 4px 0; }
 .pv-week-head b.today { color: var(--pa-accent); }
@@ -258,9 +315,11 @@
 
 /* Focus altijd zichtbaar. */
 .plek-ui :is(button, a, summary, input):focus-visible { outline: 3px solid var(--pa-focus); outline-offset: 2px; }
+/* Een kaart knipt haar inhoud af (overflow: hidden): de rand van de kaartknop staat daarom binnenin. */
+.plek-ui .pv-row-btn:focus-visible { outline-offset: -3px; }
 
 @media (min-width: 641px) {
-  .pv-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pv-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .pv-cal-week { grid-template-rows: 34px repeat(var(--lanes, 1), 20px) 16px; }
   .pv-bar { font-size: .72rem; font-weight: 700; line-height: 20px; padding: 0 6px; }
   .pv-bar.single { width: auto; height: auto; border-radius: 4px; justify-self: stretch; margin: 0 3px; background: var(--cat-soft); color: var(--cat-ink); }
@@ -274,16 +333,19 @@
 }
 @media (max-width: 640px) {
   .pv-place { padding: 16px 14px; border-radius: 18px; }
-  .pv-place-top { flex-wrap: nowrap; align-items: flex-start; }
-  .pv-place-actions { flex-direction: column; flex: none; gap: 6px; }
+  /* De straatnaam krijgt de volle breedte (geen woord dat midden in breekt); de knoppen staan eronder. */
+  .pv-place-top { flex-direction: column; align-items: flex-start; gap: 10px; }
+  .pv-place-actions { flex-direction: row; flex: none; gap: 6px; }
   .pv-place-actions .pv-btn { min-height: 44px; padding: 8px 12px; font-size: .84rem; }
-  .pv-radius { display: grid; grid-template-columns: auto 1fr 1fr 1fr; width: 100%; }
-  .pv-radius button { padding: 6px 2px; font-size: .78rem; white-space: nowrap; min-width: 0; }
-  .has-place .pv-aside { order: -1; }
+  /* De afstanden houden hun breedte (geen "+250 m+500 m" tegen elkaar); "Alleen de straat" mag over twee regels. */
+  .pv-radius { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); width: 100%; }
+  .pv-seg.pv-radius button { padding: 6px 4px; font-size: .78rem; white-space: nowrap; min-width: 0; }
+  .pv-seg.pv-radius button:first-child { white-space: normal; line-height: 1.15; }
   .has-place .pv-aside .buurt { padding: 12px; }
   .has-place .pv-aside .buurt-head { display: none; }
   .has-place .pv-aside .buurt-map { height: 230px; }
   .pv-stats { gap: 6px; }
+  .pv-stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .pv-stat button { flex-direction: row; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; }
   .pv-stat strong { font-size: 1.3rem; min-width: 1.1em; }
   .pv-stat span { font-size: .8rem; line-height: 1.2; }
@@ -293,14 +355,41 @@
   .pv-groups::-webkit-scrollbar { display: none; }
   .pv-group-scroll-hint { display: block; margin: 0 0 4px; }
   .pv-chip { flex: none; white-space: nowrap; }
-  .pv-row-btn { grid-template-columns: 3.6em minmax(0, 1fr) 16px; gap: 8px; padding-left: 14px; }
-  .pv-week-head { grid-template-columns: 3.6em minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
+  /* Week en maand: "Vandaag" schuift onder de pijlen als de rij te smal is. */
+  .pv-nav { flex-wrap: wrap; max-width: 100%; }
+  .pv-nav-label { min-width: 0; }
+  .pv-row-btn { grid-template-columns: 5.2em minmax(0, 1fr) 16px; gap: 8px; padding-left: 14px; }
+  .pv-week-head { grid-template-columns: 5.2rem minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
+}
+/* Smalle gsm, ook met grotere tekst: de tijd op een eigen regel boven de soort. Zo krijgt de titel de
+   volle breedte en breekt er geen woord midden in ("Omgevingsaanvraag", "elektriciteitsnet"). 27,5em is
+   440 px bij gewone tekst, en meer als de bezoeker in de browser een grotere standaardtekst kiest. */
+@media (max-width: 27.5em) {
+  .pv-row-btn { grid-template-columns: minmax(0, 1fr) 16px; row-gap: 4px; }
+  .pv-row-when { grid-column: 1; grid-row: 1; padding-top: 0; }
+  /* De titel loopt ook onder het pijltje door: dat staat alleen naast de tijd. */
+  .pv-row-main { grid-column: 1 / -1; grid-row: 2; }
+  .pv-row-chevron { grid-column: 2; grid-row: 1; }
+  /* De weekkop volgt: geen lege kolommen voor de tijd en het pijltje, de dagen boven de balkjes. */
+  .pv-week-head { grid-template-columns: minmax(0, 1fr); }
+  .pv-week-head > span:not(.pv-week-days) { display: none; }
+}
+/* Smal scherm: label boven de waarde, zodat de tekst de volle breedte krijgt (geen kolom van 110 px). */
+@media (max-width: 520px) {
+  .pv-detail dl { display: block; }
+  /* Iets krapper dan op desktop: zo blijft een open parcourskaart met alle uitleg zichtbaar korter. */
+  .pv-detail dl div { display: block; margin: 6px 0 0; }
+  .pv-detail dt { font-size: .76rem; line-height: 1.3; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+  .pv-detail dd { margin: 2px 0 0; }
+  .pv-uitleg dd { line-height: 1.45; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pv-spinner { animation: none; }
   .pv-row-chevron { transition: none; }
 }
 .pv-place-failed { color: var(--pa-warn); background: var(--pa-warn-soft); border: 1px solid var(--pa-warn-line); border-radius: 12px; padding: 8px 12px; }
+/* Een live laag laadde niet: dat staat ook in de lege staat, vóór de uitleg. */
+.pv-empty .pv-empty-warn { margin: 6px auto 10px; color: var(--pa-warn); background: var(--pa-warn-soft); border: 1px solid var(--pa-warn-line); border-radius: 12px; padding: 8px 12px; font-weight: 600; }
 .plek-ui .buurt-intro h2 { display: none; }
 .pv-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .pv-hero:has(.pv-suggestions:not([hidden])) .pv-quick { display: none; }

@@ -1,0 +1,9 @@
+{
+ "uitleg": "Publieke agenda's van organisaties (nooit van privépersonen) die de automatische parcoursherkenner bij elke verversing leest (lib/parcours-herkenning-refresh.mjs, stap organisatoren). Een agendapunt telt alleen met een datum én een plek (GEO, adres uit de geocodecache of een postcode). soort: ics (iCal), squarespace (?format=json van een Squarespace-agenda) of jsonld (schema.org Event op een pagina). pagina: de gewone pagina zonder query, die als bron in de fiche komt. tot (niet verplicht, JJJJ-MM-DD): een pagina over één evenement wordt na die dag niet meer gevraagd. Gezaaid uit de bronnen van de handmatige identificatie van 9 en 10 oktober 2026. Toevoegen: één regel, met een agenda die zelf datum en plek geeft.",
+ "feeds": [
+  { "id": "fabiant", "organisatie": "Fabiant (studentenvereniging biologie, UAntwerpen)", "soort": "squarespace", "url": "https://www.fabiantua.com/activiteiten?format=json", "pagina": "https://www.fabiantua.com/activiteiten" },
+  { "id": "psw", "organisatie": "PSW Antwerpen (studentenvereniging)", "soort": "ics", "url": "https://psw.be/agenda.ical", "pagina": "https://psw.be/" },
+  { "id": "aesculapia", "organisatie": "Aesculapia (studentenvereniging geneeskunde, UAntwerpen)", "soort": "ics", "url": "https://aesculapiavzw.com/events/?ical=1", "pagina": "https://aesculapiavzw.com/" },
+  { "id": "de-roma-bulbul", "organisatie": "De Roma", "soort": "jsonld", "url": "https://www.deroma.be/nl/event/when-the-bulbul-stopped-singing", "pagina": "https://www.deroma.be/nl/event/when-the-bulbul-stopped-singing", "tot": "2026-10-24" }
+ ]
+}

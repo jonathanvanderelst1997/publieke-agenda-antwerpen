@@ -10,9 +10,12 @@ import {
   historyArchiveDay,
   historyArchiveDayFile,
   historyArchiveEventsForRun,
+  isHistoryArchiveDayFileName,
+  scrubHistoryArchiveDay,
   updateHistoryArchiveBaseline,
   updateHistoryArchiveDay,
   updateHistoryArchiveIndex,
+  updateHistoryArchiveIndexDay,
   validateHistoryArchiveBaseline,
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
@@ -24,6 +27,8 @@ import { worksExactSnapshot } from "../site/works-snapshot.js";
 import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
+import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -243,6 +248,8 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       iodFeatures: [...iod22, ...iod23],
       sgwFeatures: sgw,
       districtGeometry: district,
+      // Officiële straatnamen, zodat "De 7 schakenpad" niet als huisnummer wegvalt (site/adres-privacy.js).
+      straatnamen: streets?.byName instanceof Map ? [...streets.byName.values()].flat().map((ref) => ref?.name).filter(Boolean) : null,
     });
     return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district };
   } catch (error) {
@@ -258,6 +265,21 @@ export async function refreshLiveHistory({
 } = {}) {
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
+  // Eerst de bestaande historiek opkuisen (geen huisnummers, alleen het district), ook oudere dagen
+  // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
+  // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
+  // wat er nog opgekuist moet worden. De log toont alleen aantallen en het soort fout, nooit een stuk
+  // van een bestand (de logs zijn publiek).
+  try {
+    const opkuis = opkuisHistoriekPrivacy({ rootDir, write: true, verwijderLeeg: false });
+    const nietGeschreven = Object.keys(opkuis.nietGeschreven).length;
+    const nogBevindingen = Object.values(opkuis.nogBevindingen).reduce((sum, aantal) => sum + aantal, 0);
+    if (opkuis.gewijzigd.length || nietGeschreven || nogBevindingen) {
+      log(JSON.stringify({ historiekOpkuis: { bestanden: opkuis.gewijzigd.length, nietGeschreven, nogBevindingen } }));
+    }
+  } catch (error) {
+    log(JSON.stringify({ historiekOpkuis: "niet gelukt", soort: error?.name || "Error" }));
+  }
   let previous = null;
   if (fs.existsSync(file)) {
     previous = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -265,7 +287,12 @@ export async function refreshLiveHistory({
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
   let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
-  const history = updateLiveHistory(previous, { observedAt, worksResult, publicSpaceResult });
+  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
+  // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
+  const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
+  const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
+  log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
+  const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
   const errors = validateLiveHistory(history);
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -277,19 +304,37 @@ export async function refreshLiveHistory({
   const archiveDayFile = path.join(rootDir, archiveDayPath);
   const readJsonIfPresent = (target) => fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : null;
 
-  const previousBaseline = readJsonIfPresent(archiveBaselineFile);
+  const previousBaseline = archiefBaselineVoorPubliek(readJsonIfPresent(archiveBaselineFile));
   const previousIndex = readJsonIfPresent(archiveIndexFile);
-  const previousDay = readJsonIfPresent(archiveDayFile);
+  const previousDay = archiefDagVoorPubliek(readJsonIfPresent(archiveDayFile));
   const baseline = updateHistoryArchiveBaseline(previousBaseline, history);
   const dayDocument = updateHistoryArchiveDay(
     previousDay,
     observedAt,
     historyArchiveEventsForRun(history, baseline)
   );
-  const archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  let archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  // Oudere dagen: parkeerverboden opkuisen (geen huisnummers, geen foute weekdagregel). Alleen een
+  // dag die echt verandert, wordt herschreven; daarna is dit bij elke verversing een no-op.
+  const archiveDir = path.dirname(archiveBaselineFile);
+  const olderDays = [];
+  for (const name of fs.existsSync(archiveDir) ? fs.readdirSync(archiveDir).sort() : []) {
+    const target = path.join(archiveDir, name);
+    if (!isHistoryArchiveDayFileName(name) || target === archiveDayFile) continue;
+    // Een kapotte oudere dag houdt de verversing niet tegen: de opkuis hierboven meldt hem al als
+    // aantal (nietGeschreven). De fout zelf komt nooit in de log: JSON.parse zet er een stuk van de
+    // inhoud in, en de logs zijn publiek.
+    let before;
+    try { before = readJsonIfPresent(target); } catch { continue; }
+    const after = scrubHistoryArchiveDay(before);
+    if (after === before) continue;
+    olderDays.push([target, after]);
+    archiveIndex = updateHistoryArchiveIndexDay(archiveIndex, after);
+  }
   const archiveErrors = [
     ...validateHistoryArchiveBaseline(baseline),
     ...validateHistoryArchiveDay(dayDocument),
+    ...olderDays.flatMap(([, document]) => validateHistoryArchiveDay(document)),
     ...validateHistoryArchiveIndex(archiveIndex),
   ];
   if (archiveErrors.length) throw new Error(`live historiekarchief ongeldig: ${archiveErrors[0]}`);
@@ -300,8 +345,13 @@ export async function refreshLiveHistory({
   if (dayDocument.events.length > 0 || previousDay) {
     fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
   }
+  for (const [target, document] of olderDays) fs.writeFileSync(target, `${JSON.stringify(document, null, 2)}\n`, "utf8");
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
+
+  // Bewust geen stap voor het Inzageloket (omgevingsloketinzage.omgeving.vlaanderen.be): robots.txt verbiedt
+  // elke bot ("Disallow: /") en een Anubis-botcontrole staat voor elke pagina en voor de API. Die controle
+  // omzeilen doen we niet. site/sources/inzage-status.json wordt met de hand bijgehouden (site/inzage-status.js).
 
   log(JSON.stringify({
     observedAt,

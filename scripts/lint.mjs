@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
+import { jsFouten, teControlerenJs } from "./js-controle.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const javascriptFiles = [
@@ -17,15 +17,25 @@ const javascriptFiles = [
   "scripts/geocode-locations.mjs",
   "scripts/build-wijken.mjs",
   "lib/data-lane.mjs",
+  "lib/evenement-herkenning-validatie.mjs",
+  "lib/parcours-herkenning.mjs",
+  "lib/parcours-herkenning-refresh.mjs",
+  "scripts/herken-parcours.mjs",
   "lib/district-channels.mjs",
   "lib/district-news-parser.mjs",
   "lib/district-parser.mjs",
+  "lib/ebesluit-evenementen.mjs",
   "lib/event-contract.mjs",
   "lib/fetch-util.mjs",
   "lib/gipod-markets.mjs",
   "lib/html-text.mjs",
   "lib/koopzondagen.mjs",
   "lib/mail-signals.mjs",
+  "lib/asign-foren.mjs",
+  "lib/schoolstraten.mjs",
+  "lib/district-projecten.mjs",
+  "lib/periode-tekst.mjs",
+  "lib/straatnamen.mjs",
   "lib/merge-events.mjs",
   "lib/postcodes.mjs",
   "lib/source-feed.mjs",
@@ -36,13 +46,18 @@ const javascriptFiles = [
   "scripts/build-provenance-snapshot.mjs",
   "scripts/build-sources.mjs",
   "scripts/check-data-lane.mjs",
+  "scripts/js-controle.mjs",
   "scripts/fetch-sources-district-news.mjs",
   "scripts/fetch-sources-district.mjs",
+  "scripts/fetch-sources-ebesluit-evenementen.mjs",
   "scripts/fetch-sources-koopzondagen.mjs",
   "scripts/fetch-sources-mail.mjs",
   "scripts/fetch-sources-markten.mjs",
   "scripts/fetch-sources-stad-districten.mjs",
   "scripts/fetch-sources-uit.mjs",
+  "scripts/fetch-sources-foren.mjs",
+  "scripts/fetch-sources-schoolstraten.mjs",
+  "scripts/fetch-sources-projecten.mjs",
   "scripts/load-agenda-source.mjs",
   "scripts/provenance-snapshot.mjs",
   "scripts/provenance-sla.mjs",
@@ -54,9 +69,12 @@ const javascriptFiles = [
   "tests/agenda-refresh.test.mjs",
   "tests/data-lane.test.mjs",
   "tests/district-parser.test.mjs",
+  "tests/ebesluit-evenementen.test.mjs",
   "tests/escape.test.mjs",
   "tests/mail-feed.test.mjs",
   "tests/merge-events.test.mjs",
+  "tests/parcours-herkenning.test.mjs",
+  "tests/helpers/parcours-herkenning-evaluatie.mjs",
   "tests/provenance-sla.test.mjs",
   "tests/provenance-snapshot.test.mjs",
   "tests/source-feed.test.mjs",
@@ -64,12 +82,16 @@ const javascriptFiles = [
   "tests/stad-sources.test.mjs",
   "tests/stale-policy.test.mjs",
   "tests/uit-fetcher.test.mjs",
+  "tests/periode-tekst.test.mjs",
+  "tests/asign-foren.test.mjs",
+  "tests/schoolstraten.test.mjs",
+  "tests/district-projecten.test.mjs",
+  "tests/foren-schoolstraten-projecten.test.mjs",
 ];
 
-for (const file of javascriptFiles) {
-  const check = spawnSync(process.execPath, ["--check", path.join(rootDir, file)], { encoding: "utf8" });
-  if (check.status !== 0) throw new Error(check.stderr || `${file} is geen geldige JavaScript.`);
-}
+// De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
+const [eersteFout] = jsFouten(rootDir, teControlerenJs(rootDir, javascriptFiles));
+if (eersteFout) throw new Error(eersteFout.fout);
 
 const engine = loadRefreshEngine(rootDir);
 const items = loadExpandedAgendaItems(rootDir);

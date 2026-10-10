@@ -8,8 +8,12 @@ import { fileURLToPath } from "node:url";
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs";
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
+import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
+import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
+import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
+import { EVENEMENT_BESLUITEN_FILE, validateEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
 import {
   HISTORY_BACKFILL_DIR,
   HISTORY_BACKFILL_INDEX_FILE,
@@ -27,6 +31,7 @@ import {
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
+import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -59,6 +64,23 @@ if (!fs.existsSync(sourcesDir)) {
       for (const error of validateKaartUitleg(json)) problems.push(`${name}: ${error}`);
       continue;
     }
+    if (name === EVENEMENT_IDENTITEIT_FILE) {
+      for (const error of validateEvenementIdentiteit(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === INZAGE_STATUS_FILE) {
+      for (const error of valideerInzageStatus(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    // De automatische parcoursherkenning (lib/parcours-herkenning-refresh.mjs).
+    if (name === HERKENNING_FILE) {
+      for (const error of validateHerkenning(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === PATRONEN_FILE) {
+      for (const error of validatePatronen(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
     if (name === "refresh-status.json") {
       for (const error of validateRefreshStatus(json)) problems.push(`${name}: ${error}`);
       const listed = (json.sources ?? []).map((entry) => entry.sourceId);
@@ -67,6 +89,11 @@ if (!fs.existsSync(sourcesDir)) {
           problems.push(`${name}: ${sourceId} ontbreekt`);
         }
       }
+      continue;
+    }
+    // De gelezen eBesluit-besluiten achter district-ebesluit-evenementen (lib/ebesluit-evenementen.mjs).
+    if (name === EVENEMENT_BESLUITEN_FILE) {
+      for (const error of validateEvenementBesluiten(json)) if (!error.startsWith("privacy:")) problems.push(`${name}: ${error}`);
       continue;
     }
     const sourceId = name.replace(/\.json$/, "");
@@ -160,6 +187,30 @@ if (fs.existsSync(archiveDir)) {
     }
   }
 }
+
+// Privacy van de historiek (lib/historiek-privacy.mjs): in elk bestand onder site/history alleen
+// district Antwerpen en geen huisnummer. De melding noemt het pad, nooit de waarde.
+const historyDir = path.join(rootDir, "site", "history");
+const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const target = path.join(dir, entry.name);
+  return entry.isDirectory() ? historyFiles(target) : entry.name.endsWith(".json") ? [target] : [];
+});
+let historyPrivacyFindings = 0;
+for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() : []) {
+  const relative = path.relative(rootDir, file).split(path.sep).join("/");
+  let document;
+  try {
+    document = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    continue; // ongeldige JSON meldt de controle hierboven of hieronder al
+  }
+  for (const finding of historiekPrivacyBevindingen(document)) {
+    problems.push(`${relative}: privacy ${finding.code} op ${finding.path}`);
+    historyPrivacyFindings += 1;
+  }
+}
+// De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
+if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
 const backfillDir = path.join(rootDir, HISTORY_BACKFILL_DIR);
 if (fs.existsSync(backfillDir)) {

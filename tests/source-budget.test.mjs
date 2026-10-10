@@ -18,8 +18,9 @@ const NOW = new Date("2026-10-02T04:00:00Z");
 const never = () => new Promise(() => {});
 const resp = (text, status = 200) => ({ ok: status >= 200 && status < 300, status, text: async () => text, json: async () => JSON.parse(text) });
 
-function makeRoot(sourceIds) {
+function makeRoot(t, sourceIds) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "source-budget-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   for (const id of sourceIds) fs.copyFileSync(path.join(repoRoot, "site", "sources", `${id}.json`), path.join(root, "site", "sources", `${id}.json`));
   return root;
@@ -60,8 +61,8 @@ test("deadlineFetch: binnen het budget verandert er niets, ook niet aan gewone f
   await assert.rejects(fetchWithTimeout(slow, "https://voorbeeld.test/traag", {}, 10), (error) => error.code === "timeout");
 });
 
-test("refreshAll: een hangende bron krijgt source_timeout met haar vorige data, de volgende bron loopt gewoon", async () => {
-  const root = makeRoot(["district-ebesluit", "district-kalender"]);
+test("refreshAll: een hangende bron krijgt source_timeout met haar vorige data, de volgende bron loopt gewoon", async (t) => {
+  const root = makeRoot(t, ["district-ebesluit", "district-kalender"]);
   const before = fs.readFileSync(path.join(root, "site", "sources", "district-ebesluit.json"), "utf8");
   const logs = [];
   const status = await refreshAll({
@@ -83,8 +84,8 @@ test("refreshAll: een hangende bron krijgt source_timeout met haar vorige data, 
   assert.ok(logs.some((line) => line.includes('"errorCode":"source_timeout"')));
 });
 
-test("refreshAll: een bron die na haar budget via het eigen foutpad eindigt, houdt vorige data en heet source_timeout", async () => {
-  const root = makeRoot(["district-kalender"]);
+test("refreshAll: een bron die na haar budget via het eigen foutpad eindigt, houdt vorige data en heet source_timeout", async (t) => {
+  const root = makeRoot(t, ["district-kalender"]);
   const previous = readSourceDocument(root, "district-kalender");
   const status = await refreshAll({
     rootDir: root,
@@ -113,8 +114,8 @@ test("refreshAll: een bron die na haar budget via het eigen foutpad eindigt, hou
   assert.deepEqual(readSourceDocument(root, "district-kalender").items, previous.items);
 });
 
-test("refreshAll: is het totaalbudget op, dan worden latere bronnen niet meer gestart en houden ze hun data", async () => {
-  const root = makeRoot(["district-kalender", "district-nieuws"]);
+test("refreshAll: is het totaalbudget op, dan worden latere bronnen niet meer gestart en houden ze hun data", async (context) => {
+  const root = makeRoot(context, ["district-kalender", "district-nieuws"]);
   let t = 0;
   let loaded = 0;
   const status = await refreshAll({
@@ -136,8 +137,8 @@ test("refreshAll: is het totaalbudget op, dan worden latere bronnen niet meer ge
   assert.equal(loaded, 0);
 });
 
-test("refreshAll: een eigen budget per fetcher gaat voor het standaardbudget", async () => {
-  const root = makeRoot(["district-kalender"]);
+test("refreshAll: een eigen budget per fetcher gaat voor het standaardbudget", async (t) => {
+  const root = makeRoot(t, ["district-kalender"]);
   const status = await refreshAll({
     rootDir: root,
     clock: () => NOW,

@@ -6,6 +6,7 @@ import test from "node:test";
 
 import { buildAsignParkingBackfill } from "../scripts/backfill-asign-parking-history.mjs";
 import { validateHistoryBackfillIndex, validateHistoryBackfillShard } from "../lib/history-backfill.mjs";
+import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
 
 const streetIndex = {
   segments: [{ a: [4.4, 51.2], b: [4.41, 51.21], refs: [{ id: "1", name: "Teststraat", postcode: "2000" }] }],
@@ -130,4 +131,29 @@ test("shard en index weigeren gemanipuleerde data", () => {
   };
   assert.deepEqual(validateHistoryBackfillShard(shard), []);
   assert.ok(validateHistoryBackfillShard({ ...shard, year: 2021 }).some((e) => e.includes("buiten shardjaar")));
+});
+
+// P4 (lib/historiek-privacy.mjs): de backfill volgt dezelfde regels als de live historiek. Verzonnen
+// adressen: een verbod in het district houdt alleen de straat, een verbod in 2100 valt weg.
+test("backfill: alleen het district en geen huisnummer", async (t) => {
+  const rootDir = fakeRoot(t);
+  const metAdres = (id, adres) => {
+    const rij = feature(id, "2019-10-01T08:00:00Z", "2019-10-02T18:00:00Z");
+    return { attributes: { ...rij.attributes, Adres: adres } };
+  };
+  const fetch = async (input) => {
+    const url = new URL(String(input));
+    const where = url.searchParams.get("where") || "";
+    if (url.searchParams.get("returnIdsOnly") === "true") {
+      return Response.json({ objectIds: where.includes("2019-09-16") && where.includes("2020-01-01") ? [1, 3] : [] });
+    }
+    const ids = (url.searchParams.get("objectIds") || "").split(",").filter(Boolean).map(Number);
+    return Response.json({ features: ids.map((id) => (id === 1 ? metAdres(1, "Teststraat 1, 2000 Antwerpen") : metAdres(3, "Teststraat 5, 2100 Antwerpen"))) });
+  };
+  const result = await buildAsignParkingBackfill({ rootDir, fetch, streetIndex, clock: () => new Date("2026-10-01T19:00:00Z"), write: true });
+  assert.equal(result.records, 1, "het verbod in 2100 valt weg");
+  const index = JSON.parse(fs.readFileSync(path.join(rootDir, "site/history/backfill/index.json"), "utf8"));
+  const shard = JSON.parse(fs.readFileSync(path.join(rootDir, index.sources[0].shards[0].file), "utf8"));
+  assert.deepEqual(shard.records.map((record) => [record.sourceRecordId, record.payload.location]), [["D1|L1", "Teststraat, 2000 Antwerpen"]]);
+  assert.deepEqual(historiekPrivacyBevindingen(shard), []);
 });

@@ -56,34 +56,50 @@ test("elke bewezen bron heeft een geldige HTTPS-provenance en expliciete vervald
   }
 });
 
-test("onzekere sportreeksen blijven geblokkeerd, ook nadat hun datum verstreken is", () => {
+test("onzekere sportreeksen zijn opgeruimd: wat overblijft is voorbij en niet publiceerbaar", () => {
+  // P10: de onbevestigde reeksdata (vanaf 10 augustus) staan niet meer in site/agenda.js. De oudere
+  // data van dezelfde reeksen zijn gewoon voorbij en blijven als geschiedenis staan.
   for (const title of ["Sportinitiaties met Jespo", "Gratis initiaties boogschieten"]) {
     const rows = matrix.items.filter((item) => item.title === title);
-    const uncertainRows = rows.filter((item) => item.verificationState === "review_required");
-    assert.ok(rows.length > 0);
-    assert.ok(rows.every((item) => !item.publishEligible));
-    assert.ok(uncertainRows.length > 0);
-    assert.ok(uncertainRows.every((item) => item.slaStatus === "blocked_review_required"));
+    assert.ok(rows.every((item) => !item.publishEligible), title);
+    assert.ok(rows.every((item) => item.eventDate < "2026-08-10"), title);
+    assert.ok(rows.every((item) => item.slaStatus !== "blocked_review_required"), title);
   }
 });
 
-test("de actuele wegenwerkfase is publiceerbaar zolang haar bron vers is, en daarna geblokkeerd", () => {
-  const row = matrix.items.find(
-    (item) => item.title === "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2"
-  );
-  assert.equal(row.sourceId, "city-osystraat-works");
-  const source = engine.config.sources[row.sourceId];
-  assert.equal(row.sourceRetrievedAt, source.retrievedAt);
-  const fresh = matrix.classificationAsOf <= addDays(source.retrievedAt, 2);
-  if (fresh) {
-    assert.equal(row.classification, "current");
-    assert.equal(row.slaStatus, "fresh_verified");
-    assert.equal(row.publishEligible, true);
-  } else {
-    assert.equal(row.classification, "review_required");
-    assert.equal(row.reviewReason, "stale_source");
-    assert.equal(row.slaStatus, "stale_blocked");
-    assert.equal(row.publishEligible, false);
+test("een lopende werf uit een regel is publiceerbaar zolang haar bron vers is, en daarna geblokkeerd", () => {
+  // Verzonnen werf en bron: er is geen echte handmatige werf meer, maar de regel moet blijven werken.
+  const werf = {
+    id: "proefwerf-verzonnenstraat-2026-09-01",
+    title: "Proefwerf Verzonnenstraat",
+    theme: "Werken",
+    className: "works",
+    date: "2026-09-01",
+    dateLabel: "1 september 2026 tot voorjaar 2027",
+    timeSlot: "Info",
+    timeText: "",
+    location: "Verzonnenstraat",
+    info: "Verzonnen werf voor de toets.",
+    link: "https://www.antwerpen.be/",
+  };
+  const asOf = engine.config.classificationAsOf;
+  for (const [ageDays, expected] of [[0, "fresh_verified"], [5, "stale_blocked"]]) {
+    const proef = loadRefreshEngine(rootDir);
+    proef.config.sources["proef-bron"] = {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/",
+      retrievedAt: `${addDays(asOf, -ageDays)}T07:00:00Z`,
+      state: "verified",
+      note: "Verzonnen bron voor de toets.",
+      officialPublic: true,
+      scope: "district",
+    };
+    proef.config.rules.unshift({ match: { title: werf.title, theme: "Werken" }, sourceId: "proef-bron", classification: "current" });
+    const [row] = buildProvenanceSlaMatrix([werf], proef).items;
+    assert.equal(row.sourceId, "proef-bron");
+    assert.equal(row.slaStatus, expected, `${ageDays} dagen oud`);
+    assert.equal(row.publishEligible, expected === "fresh_verified");
+    if (expected === "stale_blocked") assert.deepEqual([row.classification, row.reviewReason], ["review_required", "stale_source"]);
   }
 });
 

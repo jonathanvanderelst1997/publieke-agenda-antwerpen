@@ -7,10 +7,14 @@ import { fileURLToPath } from "node:url";
 
 import { normalized, parseEventTimes } from "../lib/event-contract.mjs";
 import { dutchDateLabel } from "../lib/html-text.mjs";
+import { EVENEMENT_BESLUITEN_FILE } from "../lib/ebesluit-evenementen.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../lib/manual-check.mjs";
 import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
+import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie.mjs";
+import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
+import { HERKENNING_FILE, PATRONEN_FILE } from "../lib/evenement-herkenning-validatie.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 
 export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet met de hand wijzigen.";
@@ -18,13 +22,20 @@ export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet 
 export function readSources(rootDir) {
   const sourcesDir = path.join(rootDir, "site", "sources");
   if (!fs.existsSync(sourcesDir)) return { status: null, documents: [], manualCheck: null };
-  // kaart-uitleg.json is geen agendabron maar uitleg bij de live lagen (lib/kaart-uitleg-refresh.mjs).
-  const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && name !== KAART_UITLEG_FILE).sort();
+  // kaart-uitleg.json, evenement-identiteit.json en de automatische herkenning (evenement-identiteit-auto.json,
+  // evenement-patronen.json) zijn geen agendabronnen maar uitleg bij de live lagen (lib/kaart-uitleg-refresh.mjs,
+  // de met de hand nagekeken identiteit van evenementendossiers en lib/parcours-herkenning-refresh.mjs);
+  // inzage-status.json is de nagekeken stand in het Inzageloket (site/inzage-status.js).
+  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE];
+  const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && !geenBron.includes(name)).sort();
   let status = null;
   let manualCheck = null;
   const documents = [];
   const problems = [];
   for (const name of names) {
+    // De gelezen eBesluit-besluiten zijn geen agendabron; hun agendapunten staan in
+    // district-ebesluit-evenementen.json (scripts/validate-data.mjs controleert het bestand).
+    if (name === EVENEMENT_BESLUITEN_FILE) continue;
     const file = path.join(sourcesDir, name);
     let json;
     try {
@@ -85,6 +96,10 @@ export function buildFeed({ status, documents, manualCheck = null }, handItems) 
         fetchStatus: entry?.fetchStatus ?? document.fetchStatus,
         errorCode: entry?.errorCode ?? null,
         itemCount: sourceItems.length,
+        // Eerlijke bronstatus (scripts/stale-policy.mjs): "leeg" en sinds wanneer, als de status ze kent.
+        ...(entry && "contentStatus" in entry
+          ? { upcomingCount: entry.upcomingCount ?? null, emptySince: entry.emptySince ?? null, contentStatus: entry.contentStatus }
+          : {}),
       };
     })
     .sort((a, b) => a.sourceId.localeCompare(b.sourceId));

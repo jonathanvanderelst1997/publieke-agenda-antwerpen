@@ -5,11 +5,12 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry } from "../lib/fetch-util.mjs";
+import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry, upcomingCount } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
 import { refreshLiveHistory } from "./refresh-live-history.mjs";
+import { contentStatusOf, nextEmptySince } from "./stale-policy.mjs";
 
 // Tijdsbudgetten. De job "refresh" in .github/workflows/refresh.yml stopt hard na 20 minuten en
 // heeft na het ophalen nog ongeveer een minuut nodig (build, check, validatie, patch). Een bron die
@@ -29,6 +30,41 @@ function previousStatuses(rootDir, fetcher, code) {
     const previous = readSourceDocument(rootDir, sourceId);
     return statusEntry(sourceId, { fetchStatus: "error", retrievedAt: previous?.retrievedAt ?? null, itemCount: previous?.items?.length ?? 0, errorCode: code });
   });
+}
+
+// Vorige bronstatus per sourceId (voor emptySince); leeg als er nog geen geldige is.
+function previousStatusBySource(rootDir) {
+  try {
+    const status = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", "refresh-status.json"), "utf8"));
+    return new Map((Array.isArray(status?.sources) ? status.sources : []).map((entry) => [entry?.sourceId, entry]));
+  } catch {
+    return new Map();
+  }
+}
+
+function readDocumentSafely(rootDir, sourceId) {
+  try {
+    return readSourceDocument(rootDir, sourceId);
+  } catch {
+    return null;
+  }
+}
+
+const INACTIVE_FETCH_STATUSES = ["skipped_no_key", "disabled", "test_only"];
+
+// Eerlijke bronstatus (scripts/stale-policy.mjs): hoeveel items er vandaag nog lopen of komen, sinds
+// wanneer dat er geen meer zijn, en "leeg" vanaf de derde dag op rij zonder. Een bron die uit staat,
+// krijgt geen velden. Lukt het tellen niet, dan blijft de status zoals de fetcher hem gaf: dit mag
+// de verversing nooit laten falen.
+export function withContentStatus(entry, { document, previous, today }) {
+  if (INACTIVE_FETCH_STATUSES.includes(entry.fetchStatus)) return entry;
+  try {
+    const upcoming = upcomingCount(Array.isArray(document?.items) ? document.items : [], today);
+    const emptySince = nextEmptySince({ previousEmptySince: previous?.emptySince ?? null, upcoming, today });
+    return { ...entry, upcomingCount: upcoming, emptySince, contentStatus: contentStatusOf({ emptySince, today }) };
+  } catch {
+    return entry;
+  }
 }
 
 // Draait één fetcher binnen budgetMs. Geeft { result } of { error } terug, met timedOut als het budget op was.
@@ -91,11 +127,16 @@ export async function refreshAll({
     }
   }
   const generated = clock();
+  const today = brusselsDate(generated);
+  const previous = previousStatusBySource(rootDir);
+  const counted = statuses.map((entry) =>
+    withContentStatus(entry, { document: readDocumentSafely(rootDir, entry.sourceId), previous: previous.get(entry.sourceId), today })
+  );
   const status = {
     schemaVersion: 1,
     generatedAt: generated.toISOString(),
-    classificationAsOf: brusselsDate(generated),
-    sources: statuses.sort((a, b) => a.sourceId.localeCompare(b.sourceId)),
+    classificationAsOf: today,
+    sources: counted.sort((a, b) => a.sourceId.localeCompare(b.sourceId)),
   };
   const errors = validateRefreshStatus(status);
   if (errors.length) throw new Error(`refresh-status is ongeldig: ${errors.slice(0, 3).join("; ")}`);

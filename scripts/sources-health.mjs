@@ -3,6 +3,9 @@
 // vóór het moment van controle), of als een bronbestand veel minder komende items heeft dan de
 // vastgelegde versie. Een TIJDELIJKE fout (5xx, 429, time-out) met vorige data binnen maxAgeHours is
 // "stale": een waarschuwing, geen fout (sourceHealthOf in lib/fetch-util.mjs).
+// Een bron die antwoordt maar al 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), is
+// "leeg": ook een waarschuwing (oranje), geen fout (contentStatusOf in scripts/stale-policy.mjs). Op een
+// GitHub-runner komt er per lege bron een ::warning bij.
 //
 // Het controlemoment is nu; met --at <ISO> kan een ander moment gekozen worden.
 // De krimpcontrole vergelijkt met `git show <ref>:site/sources/<bron>.json`, standaard HEAD
@@ -18,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
+import { contentStatusOf } from "./stale-policy.mjs";
 
 export function gitBaseline(rootDir, ref) {
   return (sourceId) => {
@@ -38,7 +42,7 @@ function readJson(file) {
   }
 }
 
-// Geeft { lines, unhealthy, exitCode } terug; schrijft niets.
+// Geeft { lines, warnings, unhealthy, exitCode } terug; schrijft niets.
 export function checkHealth({ rootDir, at = Date.now(), env = process.env, baseline = null, baselineLabel = "HEAD" }) {
   const lines = [];
   const file = path.join(rootDir, "site", "sources", "refresh-status.json");
@@ -49,11 +53,26 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   if (!Number.isFinite(at)) return { lines: ["sources-health\tongeldig --at"], unhealthy: 1, exitCode: 2 };
 
   let unhealthy = 0;
+  const warnings = [];
+  const asOfDay = brusselsDate(new Date(at));
   for (const entry of status.sources) {
-    const health = sourceHealthOf(entry, at);
+    const fetched = sourceHealthOf(entry, at);
+    const health = fetched === "ok" && contentStatusOf({ emptySince: entry.emptySince, today: asOfDay }) === "leeg" ? "leeg" : fetched;
     if (health === "error" || health === "expired") unhealthy += 1;
+    if (health === "leeg") {
+      const what = entry.itemCount ? `${entry.itemCount} items, allemaal voorbij` : "0 items";
+      warnings.push(`${entry.sourceId}: sinds ${entry.emptySince} niets komends (${what})`);
+    }
     const coverage = entry.capped ? `capped=t/m ${entry.coverageUntil ?? "-"}` : "";
-    lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
+    const content = Number.isInteger(entry.upcomingCount) ? [`upcoming=${entry.upcomingCount}`, entry.emptySince ? `emptySince=${entry.emptySince}` : ""] : [];
+    lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, ...content, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
+  }
+
+  // Automatische parcoursherkenning (lib/parcours-herkenning-refresh.mjs): alleen melden, telt niet als fout.
+  const herkenning = readJson(path.join(rootDir, "site", "sources", "evenement-identiteit-auto.json"));
+  if (herkenning?.samenvatting) {
+    const s = herkenning.samenvatting;
+    lines.push(["parcours-herkenning", `zeker=${s.zeker}`, `waarschijnlijk=${s.waarschijnlijk}`, `alleen-kaartzin=${s.alleenKaartzin}`, `met-handfiche=${s.metHandfiche}`, `generatedAt=${herkenning.generatedAt ?? "-"}`, ...(s.bronFouten?.length ? [`bronFouten=${s.bronFouten.length}`] : [])].join("\t"));
   }
 
   if (baseline) {
@@ -77,7 +96,14 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     }
     if (!compared) lines.push(`krimpcontrole\tniet beschikbaar\tgeen vastgelegde versie op ${baselineLabel}`);
   }
-  return { lines, unhealthy, exitCode: unhealthy ? 1 : 0 };
+
+  // Een bekende bron die nog niet in refresh-status.json staat (nieuw, vóór haar eerste ophaalronde):
+  // melden, niet als fout tellen. Zo kent sources:health elke bron uit lib/source-feed.mjs.
+  const listed = new Set(status.sources.map((entry) => entry.sourceId));
+  for (const sourceId of SOURCE_IDS) {
+    if (!listed.has(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
+  }
+  return { lines, warnings, unhealthy, exitCode: unhealthy ? 1 : 0 };
 }
 
 if (isMainModule(import.meta.url)) {
@@ -90,5 +116,7 @@ if (isMainModule(import.meta.url)) {
   const baseline = args.includes("--no-baseline") ? null : gitBaseline(rootDir, ref);
   const result = checkHealth({ rootDir, at, baseline, baselineLabel: ref });
   for (const line of result.lines) console.log(line);
+  // Oranje in de run van GitHub: een lege bron is een melding, geen fout.
+  if (process.env.GITHUB_ACTIONS === "true") for (const warning of result.warnings ?? []) console.log(`::warning title=Bron leeg::${warning}`);
   process.exitCode = result.exitCode;
 }

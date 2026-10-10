@@ -1,0 +1,412 @@
+{
+ "data": [
+  {
+   "creator": {
+    "firstName": "Verzonnen",
+    "lastName": "Maker",
+    "email": "maker@example.invalid"
+   },
+   "assignee": {
+    "firstName": "Verzonnen",
+    "lastName": "Toegewezene"
+   },
+   "lockOwner": {
+    "name": "Verzonnen Slot"
+   },
+   "id": "6a00000000000000000000a1",
+   "title": "Heraanleg Voorbeeldstraat en Proefstraat",
+   "slug": "heraanleg-voorbeeldstraat-en-proefstraat",
+   "tags": [
+    "2060 Antwerpen",
+    "District Antwerpen",
+    "wegenwerken"
+   ],
+   "publishUntil": "2028-12-31T23:00:00+00:00",
+   "snippets": [
+    {
+     "type": "media",
+     "body": {
+      "file": [
+       {
+        "src": "https://assets.example.invalid/beeld.png"
+       }
+      ]
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p>District Antwerpen vernieuwt de Voorbeeldstraat en de Proefstraat. Start&nbsp;werken: 9 maart 2026.</p>"
+     }
+    },
+    {
+     "type": "table",
+     "body": {
+      "title": "Timing &amp; fasering",
+      "data": {
+       "head": {
+        "cols": [
+         {
+          "content": ""
+         },
+         {
+          "content": "zone"
+         },
+         {
+          "content": "periode"
+         }
+        ]
+       },
+       "rows": [
+        {
+         "cols": [
+          {
+           "content": "fase 1"
+          },
+          {
+           "content": "Voorbeeldstraat"
+          },
+          {
+           "content": "9 maart - juli 2026"
+          }
+         ]
+        },
+        {
+         "cols": [
+          {
+           "content": "fase 2"
+          },
+          {
+           "content": "Proefstraat + Voorbeeldstraat van huisnummer 2 tot en met 40"
+          },
+          {
+           "content": "augustus 2026 - begin 2027"
+          }
+         ]
+        },
+        {
+         "cols": [
+          {
+           "content": "fase 3"
+          },
+          {
+           "content": "Proefplein"
+          },
+          {
+           "content": "begin 2027 - zomer 2027"
+          }
+         ]
+        },
+        {
+         "cols": [
+          {
+           "content": "fase 4"
+          },
+          {
+           "content": "Voorbeeldstraat"
+          },
+          {
+           "content": "20 april - mei 2027 + maart 2028"
+          }
+         ]
+        },
+        {
+         "cols": [
+          {
+           "content": "fase 5"
+          },
+          {
+           "content": "Achterstraat"
+          },
+          {
+           "content": "na de werken aan fase 4"
+          }
+         ]
+        }
+       ]
+      }
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<h3>Fase 2: Proefstraat</h3><p>Start: <strong>3 augustus 2026</strong>. Einde verwacht in het voorjaar van 2027.</p><p>Werfkeet: ter hoogte van Proefstraat 60.</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Infomoment 20 oktober 2026</strong></p><p>De buurt is welkom op een infomoment over de planning.</p><p>datum: dinsdag <strong>20 oktober</strong> 2026<br>tijdstip: doorlopend tussen 18u en 20u30, kom langs wanneer het jou past<br>locatie: Zaal De Proef - Proefstraat 18, 2060 Antwerpen</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Inspraakmoment 8 december 2022</strong></p><p>datum: donderdag 8 december 2022<br>tijdstip: van 17.00 uur tot 21.00 uur<br>locatie: Oude Zaal, Proefplein 2</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Werfbezoek</strong></p><p>Datum: zaterdag 7 november 2026.</p><p>Tijdstip: start om 10 uur.</p><p>Locatie: werfkeet, bel 0470 11 22 33 of mail werf@example.invalid</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Online bevraging</strong></p><p>De bevraging loopt van 1 oktober 2026 tot en met 15 november 2026.</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Samenstelling</strong></p><p>Verzonnen Voorzitter, Verzonnen Lid</p>"
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Meer info</strong></p><p>Verzonnen Werfleider: 0470 12 34 56</p><p><a href=\"mailto:werf@example.invalid\">werf@example.invalid</a></p>"
+     }
+    }
+   ]
+  },
+  {
+   "creator": {
+    "firstName": "Verzonnen",
+    "lastName": "Maker",
+    "email": "maker@example.invalid"
+   },
+   "assignee": {
+    "firstName": "Verzonnen",
+    "lastName": "Toegewezene"
+   },
+   "lockOwner": {
+    "name": "Verzonnen Slot"
+   },
+   "id": "6a00000000000000000000b2",
+   "title": "Districtsraad Antwerpen | samenstelling",
+   "slug": "districtsraad-antwerpen-samenstelling",
+   "tags": [
+    "politiek"
+   ],
+   "snippets": [
+    {
+     "type": "table",
+     "body": {
+      "title": "Districtsraadsleden",
+      "data": {
+       "head": {
+        "cols": [
+         {
+          "content": "naam"
+         },
+         {
+          "content": "fractie"
+         }
+        ]
+       },
+       "rows": [
+        {
+         "cols": [
+          {
+           "content": "Verzonnen Raadslid"
+          },
+          {
+           "content": "Partij X"
+          }
+         ]
+        }
+       ]
+      }
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Infomoment 21 oktober 2026</strong></p><p>datum: woensdag 21 oktober 2026</p><p>Rekening BE71 0961 2345 6769</p>"
+     }
+    }
+   ]
+  },
+  {
+   "creator": {
+    "firstName": "Verzonnen",
+    "lastName": "Maker",
+    "email": "maker@example.invalid"
+   },
+   "assignee": {
+    "firstName": "Verzonnen",
+    "lastName": "Toegewezene"
+   },
+   "lockOwner": {
+    "name": "Verzonnen Slot"
+   },
+   "id": "6a00000000000000000000c3",
+   "title": "Trouwen in district Antwerpen",
+   "slug": "trouwen-in-district-antwerpen",
+   "tags": [
+    "District Antwerpen"
+   ],
+   "snippets": [
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Infomoment</strong></p><p>datum: woensdag 21 oktober 2026</p>"
+     }
+    }
+   ]
+  },
+  {
+   "creator": {
+    "firstName": "Verzonnen",
+    "lastName": "Maker",
+    "email": "maker@example.invalid"
+   },
+   "assignee": {
+    "firstName": "Verzonnen",
+    "lastName": "Toegewezene"
+   },
+   "lockOwner": {
+    "name": "Verzonnen Slot"
+   },
+   "id": "6a00000000000000000000d4",
+   "title": "Schoolstraat Proefstraat",
+   "slug": "schoolstraat-proefstraat",
+   "tags": [
+    "2018 Antwerpen",
+    "school"
+   ],
+   "snippets": [
+    {
+     "type": "table",
+     "body": {
+      "title": "Tijdschema",
+      "data": {
+       "head": {
+        "cols": [
+         {
+          "content": ""
+         },
+         {
+          "content": "start afsluiten"
+         },
+         {
+          "content": "einde afsluiten"
+         }
+        ]
+       },
+       "rows": [
+        {
+         "cols": [
+          {
+           "content": "maandag"
+          },
+          {
+           "content": "8.10 tot 8.30 uur"
+          },
+          {
+           "content": "15.15 tot 15.35 uur"
+          }
+         ]
+        }
+       ]
+      }
+     }
+    },
+    {
+     "type": "wysiwyg",
+     "body": {
+      "title": "",
+      "text": "<p><strong>Bevraging proefopstelling</strong></p><p>Je kon je mening over de schoolstraat geven tot en met 10 maart 2024.</p>"
+     }
+    }
+   ]
+  },
+  {
+   "creator": {
+    "firstName": "Verzonnen",
+    "lastName": "Maker",
+    "email": "maker@example.invalid"
+   },
+   "assignee": {
+    "firstName": "Verzonnen",
+    "lastName": "Toegewezene"
+   },
+   "lockOwner": {
+    "name": "Verzonnen Slot"
+   },
+   "id": "6a00000000000000000000e5",
+   "title": "Vergroening Blokstraat",
+   "slug": "vergroening-blokstraat",
+   "tags": [
+    "2060 Antwerpen",
+    "Groen"
+   ],
+   "snippets": [
+    {
+     "type": "table",
+     "body": {
+      "title": "",
+      "data": {
+       "head": {
+        "cols": [
+         {
+          "content": ""
+         },
+         {
+          "content": "Periode"
+         },
+         {
+          "content": "Locatie"
+         }
+        ]
+       },
+       "rows": [
+        {
+         "cols": [
+          {
+           "content": "1A"
+          },
+          {
+           "content": "5 tot en met 12 oktober 2026"
+          },
+          {
+           "content": "Blokstraat van huisnummer 16 tot en met 38"
+          }
+         ]
+        },
+        {
+         "cols": [
+          {
+           "content": "1B"
+          },
+          {
+           "content": "als het weer het toelaat"
+          },
+          {
+           "content": "Blokstraat"
+          }
+         ]
+        }
+       ]
+      }
+     }
+    }
+   ]
+  }
+ ],
+ "meta": {
+  "more": false
+ }
+}

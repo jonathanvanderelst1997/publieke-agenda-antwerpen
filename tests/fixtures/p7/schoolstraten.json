@@ -1,0 +1,126 @@
+{
+ "displayFieldName": "SCHOOL",
+ "fields": [],
+ "features": [
+  {
+   "attributes": {
+    "OBJECTID": 1,
+    "SCHOOL": "Voorbeeldschool De Boom",
+    "STRAAT": "Voorbeeldstraat",
+    "DISTRICT": "ANTWERPEN",
+    "STATUS": "Definitief",
+    "INREGELING": "MA-DI-WOE-DO-VRIJ",
+    "AFSLUITING": "1 Slagboom",
+    "PROEFOPSTELLING_DATUM": 1567382400000,
+    "DEFINITIEF_DATUM": 1610668800000,
+    "GISID": "SCHOOLSTR901",
+    "Venstertijden_maandag": "8:00u-8:15u | 15:10u-15:25u",
+    "Venstertijden_dinsdag": "8:00u-8:15u | 15:10u-15:25u",
+    "Venstertijden_woensdag": "8:00u-8:15u | 11:50u-12:05u",
+    "Venstertijden_donderdag": "8:00u-8:15u | 15:10u-15:25u",
+    "Venstertijden_vrijdag": "8:00u-8:15u | 15:10u-15:25u",
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 2,
+    "SCHOOL": "Basisschool Het Blad",
+    "STRAAT": "Bladstraat",
+    "DISTRICT": "Antwerpen",
+    "STATUS": "Proefopstelling",
+    "INREGELING": "MA-DI-WOE-DO-VRIJ",
+    "AFSLUITING": "1 Slagboom",
+    "PROEFOPSTELLING_DATUM": 1793664000000,
+    "DEFINITIEF_DATUM": null,
+    "GISID": "SCHOOLSTR902",
+    "Venstertijden_maandag": "8:10-8:30 | 15:15-15:35",
+    "Venstertijden_dinsdag": "8:10-8:30 | 15:15-15:35",
+    "Venstertijden_woensdag": "8:10-8:30 | 12:00-12:20",
+    "Venstertijden_donderdag": "8:10-8:30 | 15:15-15:35",
+    "Venstertijden_vrijdag": "8:10-8:30 | 15:15-15:35",
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 3,
+    "SCHOOL": "School Elders",
+    "STRAAT": "Eldersstraat",
+    "DISTRICT": "BERCHEM",
+    "STATUS": "Definitief",
+    "INREGELING": "MA-DI-WOE-DO-VRIJ",
+    "AFSLUITING": "1 Slagboom",
+    "PROEFOPSTELLING_DATUM": 1578268800000,
+    "DEFINITIEF_DATUM": 1609891200000,
+    "GISID": "SCHOOLSTR903",
+    "Venstertijden_maandag": "8:00-8:30",
+    "Venstertijden_dinsdag": "8:00-8:30",
+    "Venstertijden_woensdag": "8:00-8:30",
+    "Venstertijden_donderdag": "8:00-8:30",
+    "Venstertijden_vrijdag": "8:00-8:30",
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 4,
+    "SCHOOL": "School Gestopt",
+    "STRAAT": "Stopstraat",
+    "DISTRICT": "ANTWERPEN",
+    "STATUS": "Stopgezet",
+    "INREGELING": "MA-DI-WOE-DO-VRIJ",
+    "AFSLUITING": "1 Slagboom",
+    "PROEFOPSTELLING_DATUM": 1641427200000,
+    "DEFINITIEF_DATUM": null,
+    "GISID": "SCHOOLSTR904",
+    "Venstertijden_maandag": "8:00-8:30",
+    "Venstertijden_dinsdag": "8:00-8:30",
+    "Venstertijden_woensdag": "8:00-8:30",
+    "Venstertijden_donderdag": "8:00-8:30",
+    "Venstertijden_vrijdag": "8:00-8:30",
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "OBJECTID": 5,
+    "SCHOOL": "Middenschool",
+    "STRAAT": "Middenstraat",
+    "DISTRICT": "ANTWERPEN",
+    "STATUS": "Definitief",
+    "INREGELING": "MA-DI-WOE-DO-VRIJ",
+    "AFSLUITING": "1 Slagboom",
+    "PROEFOPSTELLING_DATUM": null,
+    "DEFINITIEF_DATUM": 1799020800000,
+    "GISID": "SCHOOLSTR905",
+    "Venstertijden_maandag": "8:25u-8:50u",
+    "Venstertijden_dinsdag": "8:25u-8:50u",
+    "Venstertijden_woensdag": "8:25u-8:50u",
+    "Venstertijden_donderdag": "8:25u-8:50u",
+    "Venstertijden_vrijdag": "onbekend",
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  }
+ ]
+}

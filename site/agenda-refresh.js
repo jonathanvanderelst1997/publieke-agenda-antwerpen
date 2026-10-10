@@ -106,31 +106,12 @@
       officialPublic: true,
       scope: "district",
     },
-    "city-works-permit": {
-      publisher: "Stad Antwerpen",
-      url: "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
-      retrievedAt: currentRetrievedAt,
-      state: "verified",
-      note: "Actuele officiële fasering voor Balansstraat/Lange Elzenstraat en Halenstraat/Schijnpoortweg.",
-      officialPublic: true,
-      scope: "stad",
-      inDistrict: true,
-    },
     "city-herfstklaar": {
       publisher: "District Antwerpen",
       url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/beleef-je-buurt/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
       retrievedAt: currentRetrievedAt,
       state: "verified",
       note: "Actuele oproep: zonder materiaal of straatafsluiting kan een aanvraag nog tot 25 september 2026.",
-      officialPublic: true,
-      scope: "district",
-    },
-    "city-osystraat-works": {
-      publisher: "District Antwerpen",
-      url: "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
-      retrievedAt: currentRetrievedAt,
-      state: "verified",
-      note: "Actuele officiële fasering voor Van Maerlantstraat en Vondelstraat: fase 2 loopt sinds 3 augustus 2026 tot voorjaar 2027.",
       officialPublic: true,
       scope: "district",
     },
@@ -157,30 +138,12 @@
       // officiële pagina is die de bevraging zelf noemt.
       check: false,
     },
-    "city-gaston-works": {
-      publisher: "District Antwerpen",
-      url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
-      retrievedAt: releaseRetrievedAt,
-      state: "review_required",
-      note: "De pagina noemt een verwachte afronding begin september 2026, maar bevestigt geen feitelijke oplevering.",
-      officialPublic: true,
-      scope: "district",
-    },
     "slim-kammenstraat": {
       publisher: "Slim naar Antwerpen",
       url: "https://www.slimnaarantwerpen.be/en/works-events/kammenstraat-car-free-at-the-start-of-the-sales-period",
       retrievedAt: previousRetrievedAt,
       state: "verified",
       note: "Officiële bereikbaarheidspagina: maatregel eindigde op 13 juli 2026.",
-      officialPublic: true,
-      scope: "district",
-    },
-    "city-old-sport-newsletter": {
-      publisher: "District Antwerpen",
-      url: "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      retrievedAt: releaseRetrievedAt,
-      state: "review_required",
-      note: "De sportnieuwsbrief bevestigt de ingevoerde Jespo-herhalingen niet en vermeldt Red Star Run alleen op datum; de getraceerde nieuwsbrieflink is vervangen door de officiële districtskalender.",
       officialPublic: true,
       scope: "district",
     },
@@ -203,27 +166,9 @@
       scope: "stad",
       inDistrict: true,
     },
-    "archery-organizer-social": {
-      publisher: "Koninklijke Wipmaatschappij La Renaissance",
-      url: "https://www.facebook.com/Koninklijke.Wipmaatschappij.La.Renaissance",
-      retrievedAt: releaseRetrievedAt,
-      state: "review_required",
-      note: "De publieke organisatorpagina gaf in deze audit geen controleerbare reeksdata terug.",
-      officialPublic: true,
-      scope: "stad",
-    },
   };
 
   const rules = [
-    {
-      match: { title: "Fasewissel heraanleg Balansstraat en Lange Elzenstraat", theme: "Werken" },
-      sourceId: "city-works-permit",
-      classification: "current",
-      changes: {
-        dateLabel: "Fase 5 tot 15 augustus 2026; volgende fasen lopen door tot 31 december 2027",
-        location: "Balansstraat, Kielsevest, Desguinlei en Lange Elzenstraat",
-      },
-    },
     {
       match: { title: "Kammenstraat autovrij tijdens soldenperiode", theme: "Werken" },
       sourceId: "slim-kammenstraat",
@@ -239,22 +184,6 @@
       sourceId: "publiekeruimte-schoolstraat-vanhoenacker",
     },
     {
-      match: { title: "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat", theme: "Werken" },
-      sourceId: "city-gaston-works",
-      classification: "review_required",
-    },
-    {
-      match: { title: "Werken Halenstraat en Schijnpoortweg", theme: "Werken" },
-      sourceId: "city-works-permit",
-      classification: "current",
-      changes: { dateLabel: "Fase 1 tot 30 september 2026; volgende fasen lopen tot 30 april 2027" },
-    },
-    {
-      match: { title: "Sportinitiaties met Jespo", dateFrom: "2026-08-10" },
-      sourceId: "city-old-sport-newsletter",
-      classification: "review_required",
-    },
-    {
       match: { title: "3x3 basket", dateFrom: "2026-08-10" },
       sourceId: "city-3x3-summer-2026",
       changes: {
@@ -263,11 +192,6 @@
         location: "Kielpark, 2020 Antwerpen",
         info: "Gratis 3x3-basketmomenten voor jongeren van 12 tot 18 jaar in het Kielpark, elke woensdag van 15 tot 18 uur.",
       },
-    },
-    {
-      match: { title: "Gratis initiaties boogschieten", dateFrom: "2026-08-10" },
-      sourceId: "archery-organizer-social",
-      classification: "review_required",
     },
     {
       match: { title: "Antwerpen Danst", dateFrom: "2026-08-10", dateTo: "2026-08-27" },
@@ -307,11 +231,6 @@
     {
       match: { title: "Inschrijven Herfstklaar", dates: ["2026-09-25"] },
       sourceId: "city-herfstklaar",
-    },
-    {
-      match: { title: "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2", dates: ["2026-08-03"] },
-      sourceId: "city-osystraat-works",
-      classification: "current",
     },
     {
       match: { title: "Eilandje in beweging", dates: ["2026-08-29", "2026-08-30"] },
@@ -392,6 +311,9 @@
       attribution: feedSource.attribution,
       itemCount: feedSource.itemCount ?? 0,
       coverage: feedSource.coverage ?? null,
+      // "leeg": al 3 kalenderdagen op rij niets komends (scripts/stale-policy.mjs).
+      contentStatus: feedSource.contentStatus ?? null,
+      emptySince: feedSource.emptySince ?? null,
       feed: true,
     };
   }
@@ -592,6 +514,8 @@
         let state = "fresh";
         if (inactive && !(source.itemCount > 0)) state = "inactive";
         else if (!Number.isFinite(retrievedMs) || nowMs > dueMs) state = "stale";
+        // Vers opgehaald, maar al dagen niets komends: eerlijk "leeg" in plaats van "ververst".
+        else if (source.contentStatus === "leeg" && source.emptySince) state = "empty";
         return {
           sourceId,
           label: source.label,
@@ -605,6 +529,7 @@
           coverage: source.coverage ?? null,
           state,
           staleSince: state === "stale" && Number.isFinite(dueMs) ? new Date(dueMs).toISOString() : null,
+          emptySince: state === "empty" ? source.emptySince : null,
         };
       })
       .sort((a, b) => a.sourceId.localeCompare(b.sourceId));

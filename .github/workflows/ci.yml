@@ -257,3 +257,281 @@ jobs:
             exit 1
           fi
           echo "Databaan in orde: $(wc -l < "$RUNNER_TEMP/changes.txt") pad(en), $(wc -l < "$RUNNER_TEMP/commits.txt") commit(s) van github-actions[bot]."
+
+  # Proef voor Ubuntu 26.04. ubuntu-latest verhuist daarheen tussen 19 oktober
+  # en 19 november 2026. Daar zijn date (Rust-coreutils), jq (1.8) en bash (5.3)
+  # andere versies, en refresh.yml leunt op alle drie (date -u -d, jq, de
+  # databaantoets). Deze job draait de check en een droge verversing op 26.04
+  # (scripts/refresh-droog.mjs): de run-stappen van refresh.yml zelf, met lezen
+  # van het netwerk maar zonder schrijven (geen push, geen tak, geen issue).
+  # Vier jobs: proef (26.04), controle (24.04, alleen als de proef iets vond),
+  # oordeel (wat breekt alleen op 26.04) en alarm (een issue, alleen op main).
+  # continue-on-error: rood hier maakt de run niet rood, en de Gateway kijkt
+  # alleen naar 'check' en 'data-only'. Faalt het oordeel: docs/UBUNTU_2604.md.
+  # Net als check: nooit op een self-hosted runner (publieke repo, forks).
+  ubuntu-2604-proef:
+    name: ubuntu-26.04-proef
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    outputs:
+      breuken: ${{ steps.breuken.outputs.lijst }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      # Offline: versies van de image en vaste uitkomsten van date, jq, bash,
+      # sort/tail, base64 en sha256sum, plus de databaantoets uit refresh.yml.
+      - name: Gereedschap en vaste uitkomsten
+        id: gereedschap
+        run: node scripts/refresh-droog.mjs gereedschap
+
+      # De volgende stappen draaien ook als een vorige faalde: zo toont één run
+      # alles wat op 26.04 anders loopt.
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        id: npm-ci
+        if: ${{ !cancelled() }}
+        run: npm ci --ignore-scripts
+
+      - name: npm run check
+        id: check
+        if: ${{ !cancelled() }}
+        run: npm run check
+
+      - name: Gegenereerde bestanden staan in de commit
+        id: schoon
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::npm run check wijzigde bestanden die niet in de commit staan:"
+            git status --porcelain
+            git --no-pager diff --stat
+            exit 1
+          fi
+
+      # Bij een PR geen tweede keer alle bronnen ophalen (13 open drafts, elke
+      # push): alleen de rest van de keten met een verzonnen generatedAt. Na een
+      # merge op main haalt de proef wel alles op.
+      - name: Droge verversing (leest, schrijft niets)
+        id: verversing
+        if: ${{ !cancelled() }}
+        env:
+          DROOG_ZONDER_OPHALEN: ${{ github.event_name == 'pull_request' && '1' || '' }}
+        run: node scripts/refresh-droog.mjs verversing
+
+      - name: Breuken doorgeven
+        id: breuken
+        if: ${{ always() }}
+        env:
+          STAPPEN: ${{ toJSON(steps) }}
+        run: node scripts/refresh-droog.mjs breuken
+
+  # Controlegroep: dezelfde vaste uitkomsten en droge verversing op 24.04, maar
+  # alleen als de proef iets vond. Faalt iets op beide, dan ligt het aan de live
+  # data of de code en niet aan 26.04; zet dan niets vast.
+  ubuntu-2404-controle:
+    name: ubuntu-24.04-controle
+    needs: ubuntu-2604-proef
+    if: ${{ !cancelled() && needs.ubuntu-2604-proef.outputs.breuken != '[]' }}
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    outputs:
+      breuken: ${{ steps.breuken.outputs.lijst }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Gereedschap en vaste uitkomsten
+        id: gereedschap
+        run: node scripts/refresh-droog.mjs gereedschap
+
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        id: npm-ci
+        if: ${{ !cancelled() }}
+        run: npm ci --ignore-scripts
+
+      - name: npm run check
+        id: check
+        if: ${{ !cancelled() }}
+        run: npm run check
+
+      - name: Gegenereerde bestanden staan in de commit
+        id: schoon
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::npm run check wijzigde bestanden die niet in de commit staan:"
+            git status --porcelain
+            exit 1
+          fi
+
+      - name: Droge verversing (leest, schrijft niets)
+        id: verversing
+        if: ${{ !cancelled() }}
+        env:
+          DROOG_ZONDER_OPHALEN: ${{ github.event_name == 'pull_request' && '1' || '' }}
+        run: node scripts/refresh-droog.mjs verversing
+
+      - name: Breuken doorgeven
+        id: breuken
+        if: ${{ always() }}
+        env:
+          STAPPEN: ${{ toJSON(steps) }}
+        run: node scripts/refresh-droog.mjs breuken
+
+  # Wat breekt alleen op 26.04? Rood hier (continue-on-error) is het teken om
+  # docs/UBUNTU_2604.md te volgen; wat ook op 24.04 faalt, telt niet mee.
+  ubuntu-2604-oordeel:
+    name: ubuntu-26.04-oordeel
+    needs: [ubuntu-2604-proef, ubuntu-2404-controle]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      echt: ${{ steps.oordeel.outputs.echt }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: 26.04 tegen 24.04
+        id: oordeel
+        env:
+          PROEF: ${{ needs.ubuntu-2604-proef.outputs.breuken }}
+          CONTROLE: ${{ needs.ubuntu-2404-controle.outputs.breuken }}
+        run: node scripts/refresh-droog.mjs oordeel
+
+  # Zichtbaar alarm, zoals de job alarm in refresh.yml: breekt iets alleen op
+  # 26.04 (of is er geen oordeel) na een push naar main, dan één open issue (of
+  # een reactie op het bestaande). Niet bij een PR: forks krijgen nooit
+  # schrijfrechten, en een PR mag rood zijn. Geen checkout, geen code van de
+  # repo: alleen gh met het runtoken. Sluiten doet de eigenaar.
+  ubuntu-2604-alarm:
+    name: ubuntu-26.04-alarm
+    needs: ubuntu-2604-oordeel
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.ubuntu-2604-oordeel.outputs.echt != '0' }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - name: Issue openen of aanvullen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ECHT: ${{ needs.ubuntu-2604-oordeel.outputs.echt }}
+        run: |
+          set -euo pipefail
+          title="Ubuntu 26.04: de proef breekt"
+          aantal="${ECHT:-onbekend}"
+          body=$(printf '%s\n' \
+            "Na een push naar main: ${aantal} breuk(en) die alleen op Ubuntu 26.04 optreden: ${RUN_URL}" \
+            "" \
+            "ubuntu-latest verhuist tussen 19 oktober en 19 november 2026 naar 26.04." \
+            "Wat te doen staat in docs/UBUNTU_2604.md (eerst ubuntu-24.04 vastzetten, dan herstellen)." \
+            "Sluit dit issue zodra ubuntu-26.04-oordeel weer groen is.")
+          num=$(gh issue list --state open --search "\"${title}\" in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "$body"
+            echo "::error title=Ubuntu-proef::Breekt op 26.04; reactie op issue #${num}."
+          else
+            gh issue create --title "$title" --body "$body"
+            echo "::error title=Ubuntu-proef::Breekt op 26.04; nieuw issue geopend."
+          fi
+
+  # gitleaks (MIT, gratis, offline) in meldstand: de standaardregels voor
+  # sleutels en tokens plus eigen regels voor persoonsgegevens (.gitleaks.toml).
+  # Faalt nooit de run: --exit-code 0 in scripts/gitleaks-meld.mjs en
+  # continue-on-error hier. Het logboek en de samenvatting tonen alleen
+  # aantallen per regel en bestandsnamen; het rapport zelf blijft in
+  # RUNNER_TEMP en wordt niet opgeladen (dit is een publieke repo).
+  # De CLI en geen gitleaks-action: geen licentiesleutel, geen schrijfrechten.
+  gitleaks:
+    name: gitleaks (meldt)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      # Vaste versie, en de sha256 uit gitleaks_8.30.1_checksums.txt van de
+      # release. Een nieuwe versie: beide waarden samen aanpassen.
+      - name: gitleaks ophalen (vaste versie, sha256 nagekeken)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$dir"
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$dir/gitleaks.tar.gz" "$url"
+          echo "${GITLEAKS_SHA256}  $dir/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf "$dir/gitleaks.tar.gz" -C "$dir" gitleaks
+          "$dir/gitleaks" version
+          echo "GITLEAKS_BIN=$dir/gitleaks" >> "$GITHUB_ENV"
+
+      # De eigen regels op verzonnen voorbeelden (tests/fixtures/gitleaks/):
+      # elke regel vindt wat ze moet vinden, en de allowlists laten door wat
+      # publiek is.
+      - name: Eigen regels werken
+        run: node --test tests/gitleaks-meld.test.mjs
+
+      - name: Wat deze wijziging toevoegt
+        if: ${{ !cancelled() }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            range="${PR_BASE}..${PR_HEAD}"
+          else
+            range="${PUSH_BEFORE}..${PUSH_AFTER}"
+          fi
+          if ! [[ $range =~ ^[0-9a-f]{40}\.\.[0-9a-f]{40}$ ]] || [[ $range == 0000000000000000000000000000000000000000..* ]]; then
+            echo "Geen bruikbaar commitbereik; alleen de werkboom wordt gescand."
+            exit 0
+          fi
+          node scripts/gitleaks-meld.mjs commits "$range"
+
+      - name: Wat nu in de werkboom staat
+        if: ${{ !cancelled() }}
+        run: node scripts/gitleaks-meld.mjs boom

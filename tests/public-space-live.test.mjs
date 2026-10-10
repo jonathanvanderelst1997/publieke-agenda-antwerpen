@@ -26,3 +26,14 @@ test("SGW combines confirmed detour and workzone for one phase",()=>{
 test("stats",()=>{const items=collectPublicSpace({parkingFeatures:[{attributes:{Dossiernummer:"P",Locatienummer:"L",Status:"In effect",Startdatum:day,Einddatum:end}}]});assert.deepEqual(publicSpaceStats(items),{total:1,parking:1,iod:0,sgw:0})});
 
 test("IOD kaart toont alleen veilige structurele fasecontext",()=>{const attrs={dossierNummer:"D2",faseId:"F2",innameId:"I2",dossierStatus:"aanvraag_goedgekeurd",faseNaam:"Uitvoering",type_dossier:"WERF",innameTypeNaam:"Inname",innameHinder:"ja",innameBeschrijving:"vrije tekst",dossierBeheerder:"persoon",faseStartDatum:day,faseEindDatum:end};const geometry={rings:[[[4.2,51.2],[4.3,51.2],[4.3,51.3],[4.2,51.3],[4.2,51.2]]]};const [item]=collectPublicSpace({iodFeatures:[{attributes:attrs,geometry}],districtGeometry:district});assert.match(item.detail,/Fase Uitvoering/);assert.match(item.detail,/Dossiertype WERF/);assert.match(item.detail,/Hinder volgens IOD: ja/);assert.equal(item.detail.includes("vrije tekst"),false);assert.equal(item.detail.includes("persoon"),false)});
+
+// Herstelplan O1/4: een parkeerverbod is vaak een verhuis of container bij één woning; het
+// huisnummer is dan een privéadres. Toon de straat en de reden, nooit het huisnummer.
+test("parkeerverbod: straat en postcode, geen huisnummer, en de straat wordt nog gevonden",()=>{
+  const index={byName:new Map([["teststraat",[{id:"1",name:"Teststraat",postcode:"2000"}]]])};
+  const [item]=collectPublicSpace({parkingFeatures:[{attributes:{Dossiernummer:"P1",Locatienummer:"L1",Status:"Goedgekeurd",Adres:"Teststraat 26-28 2000 Antwerpen",Reden:"Verhuis",Startdatum:day,Einddatum:end}}],streetIndex:index});
+  assert.equal(item.location,"Teststraat, 2000 Antwerpen");
+  assert.equal(item.title,"Verhuis");
+  assert.deepEqual(item.streets.map(s=>s.name),["Teststraat"]);
+  assert.doesNotMatch(JSON.stringify(item),/26-28/);
+});
