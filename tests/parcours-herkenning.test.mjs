@@ -384,3 +384,28 @@ test("één slecht oud patroon bevriest de verversing niet: het valt weg, de res
   assert.ok(doc.samenvatting.bronFouten.some((f) => /^patroon ET2025000001: /.test(f)));
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+// ---------- integratie (claude/agenda-integratie) ----------
+// #155 haalde de optie minDeel uit stratenLangsLijn(), maar de telregel gebruikte ze nog. #144 roept die
+// functie bij elke verversing aan: een straat die maar één keer geraakt werd, gaf een ReferenceError en
+// dan schreef de herkenner niets ("niet bijgewerkt"). Verzonnen straten, vaste A-Sign-testdata.
+test("integratie: een straat die het parcours maar één keer raakt, laat de herkenning niet vallen", async (t) => {
+  const { stratenLangsLijn } = await import("../lib/kaart-uitleg-refresh.mjs");
+  const { buildStreetIndex } = await import("../site/street-core.js");
+  const straat = (naam, coords) => ({ attributes: { LSTRNM: naam, RSTRNM: naam, LSTRNMID: naam, RSTRNMID: naam, postcode: "2000" }, geometry: { paths: [coords] } });
+  // Los: één punt op de Proefdwarsstraat, de rest op de Proefstraat.
+  const los = buildStreetIndex([straat("Proefstraat", [[4.40, 51.20], [4.41, 51.20]]), straat("Proefdwarsstraat", [[4.4105, 51.199], [4.4105, 51.201]])]);
+  assert.deepEqual(stratenLangsLijn([[[4.4105, 51.2004], [4.4105, 51.2005]]], los), []);
+  assert.deepEqual(stratenLangsLijn([[[4.40, 51.20], [4.405, 51.20]]], los), ["Proefstraat"]);
+  // In de verversing: een stukje straatas precies op een hoekpunt van de lus in Brederode (twee lange
+  // stukken ernaast, dus één monster).
+  const dir = tijdelijkeRoot({ zonderHand: ["ET2026004615"] });
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const pad = F.asign.features.find((f) => f.attributes.dossierNummer === "ET2026004615" && f.geometry?.paths).geometry.paths[0];
+  const [x, y] = pad[1];
+  const logs = [];
+  const doc = await herkenParcours({ rootDir: dir, fetch: nepFetch(), clock: klok, log: (l) => logs.push(l), historiekBudgetMs: 1_000, streetFeatures: [straat("Proefstraat", [[x, y], [x + 0.000005, y]])] });
+  assert.ok(doc, logs.join("\n"));
+  assert.doesNotMatch(logs.join("\n"), /niet bijgewerkt/);
+  assert.ok(doc.dossiers.ET2026004615);
+});
