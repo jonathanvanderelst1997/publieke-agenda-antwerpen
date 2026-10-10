@@ -84,7 +84,7 @@ test("validate-data: een huisnummer in een agendapunt van de afgeleide bron is e
     schrijf([item()]);
     const goed = run();
     assert.equal(goed.stderr.split("\n").filter((l) => l.startsWith(`${SOURCE_ID}.json`)).length, 0, goed.stderr);
-    schrijf([item({ location: "Proefstraat 999", straten: ["Proefstraat 999"] })]);
+    schrijf([item({ location: "Proefstraat 999", straten: ["Proefstraat 999"] })]); // verzonnen straat en huisnummer
     const fout = run();
     const regels = fout.stderr.split("\n").filter((l) => l.startsWith(`${SOURCE_ID}.json`));
     assert.deepEqual(regels, [`${SOURCE_ID}.json: privacy huisnummer op items[0].location`, `${SOURCE_ID}.json: privacy huisnummer op items[0].straten[0]`]);
