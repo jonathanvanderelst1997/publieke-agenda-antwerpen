@@ -21,7 +21,7 @@ import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 import { sameStreet } from "./agenda-view.js";
-import { laadStraat, lagenUitStand, kaderRond, verschil, standZin } from "./straat-snapshot.js";
+import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, verschil, standZin } from "./straat-snapshot.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -131,6 +131,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     state.customized = true;
   }
   if (state.eventId) { state.groups = new Set(KIND_GROUPS.map((g) => g.key)); state.customized = true; state.period = "alles"; state.open.add(`agenda:${decodeURIComponent(state.eventId)}`); }
+  // Een gedeelde link naar een plek: de index van de straatbestanden al opvragen terwijl de stratenlijst
+  // laadt (één wachtbeurt minder voor de tegels). Zonder plek pas als er een straat gekozen wordt.
+  if (url.searchParams.get("plek") || url.searchParams.get("straat")) laadStraatIndex().catch(() => {});
   view.setThemes(themesForGroups([...state.groups]));
 
   // ---- opbouw van de pagina ----
