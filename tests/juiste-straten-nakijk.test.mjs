@@ -12,6 +12,7 @@ import { createAreaMatcher } from "../site/neighborhood-map.js";
 import { collectPermits } from "../site/permits-live-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { evenementEntry, jouwStraatTekst, langsViaParcours, permitEntry, vergunningWaar } from "../site/place-core.js";
+import { stratenVanWerfzone } from "../lib/kaart-uitleg-refresh.mjs";
 
 const ECHT = JSON.parse(fs.readFileSync(new URL("./fixtures/parcours-echte-vormen.json", import.meta.url), "utf8"));
 const asFeature = (naam, coordinates, postcode = 2000, id = 1) => ({ type: "Feature", properties: { DISTRICT: "ANTWERPEN", LSTRNMID: id, LSTRNM: naam, RSTRNMID: id, RSTRNM: naam, postcode }, geometry: { type: "LineString", coordinates } });
@@ -147,4 +148,21 @@ test("vergunning: geen tunnel bij 'Waar', en 'ook dicht bij' in plaats van 'gren
   const e = permitEntry({ id: "permit:OMV_2099000005", dossierType: "Omgevingsvergunning", streets: ["Lei", "Tunnelstraat", "Craeybeckxtunnel", "Kaai", "Plein"].map((name) => ({ name })) });
   assert.deepEqual(e.straten, ["Lei", "Tunnelstraat", "Kaai", "Plein"]);
   assert.doesNotMatch(e.location, /grenst|tunnel\b/i);
+});
+
+// Bevinding 8: werken kregen tot 38 straten via vlakStraten. De marge van 10 m rond de werfzone nam op
+// een kruispunt de zijstraten mee. Echte werfzone (GIPOD 19268266) met de echte straatassen errond.
+test("werfzone: alleen de straten waar de zone echt langs of over loopt, niet de zijstraten op een hoek", () => {
+  const W = JSON.parse(fs.readFileSync(new URL("./fixtures/werfzone-echt.json", import.meta.url), "utf8"));
+  const index = buildStreetIndex(W.assen.map((a, i) => ({ type: "Feature", properties: { DISTRICT: "ANTWERPEN", LSTRNMID: i + 1, LSTRNM: a.naam, RSTRNMID: i + 1, RSTRNM: a.rechts, postcode: a.postcode }, geometry: { type: "MultiLineString", coordinates: a.paden } })));
+  const straten = stratenVanWerfzone(W.rings, index);
+  // De omschrijving van de beheerder noemt de Isabella Brantstraat, de Constantia Teichmannplaats tot
+  // de Verdussenstraat en een doorsteek in de Peter Benoitstraat; de zone loopt ook langs de as van de
+  // Jozef De Bomstraat.
+  assert.deepEqual([...straten].sort(), ["Constantia Teichmannplaats", "Isabella Brantstraat", "Jozef De Bomstraat", "Peter Benoitstraat", "Verdussenstraat"]);
+  for (const zij of ["Gounodstraat", "Teichmannstraat"]) assert.ok(!straten.includes(zij), `${zij} raakt alleen een hoek van de zone`);
+  // Een tunnel onder de zone en een straatas binnen een grote zone (een plein).
+  const vlak = { type: "Polygon", coordinates: [[[0, -60], [120, -60], [120, 60], [0, 60], [0, -60]].map(([x, y]) => m(x, y))] };
+  const plein = buildStreetIndex([asFeature("Proefplein", [m(20, 0), m(100, 0)], 2000, 1), asFeature("Proeftunnel", [m(-50, 20), m(200, 20)], 2000, 2)]);
+  assert.deepEqual(stratenVanWerfzone(vlak.coordinates, plein), ["Proefplein"]);
 });
