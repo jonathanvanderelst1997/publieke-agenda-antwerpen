@@ -82,7 +82,10 @@ export function buildFeed({ status, documents, manualCheck = null }, handItems) 
       continue;
     }
     signatures.add(signature);
-    items.push({ ...item, dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
+    // De straten en fasen van een evenement op straat (district-asign-evenementen) blijven in het
+    // bronbestand; de site leest ze niet uit de feed, en de voorpagina laadt de feed bij elk bezoek.
+    const { straten: _straten, fasen: _fasen, ...feedItem } = item;
+    items.push({ ...feedItem, dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
   }
   const statusBySource = new Map((status?.sources ?? []).map((entry) => [entry.sourceId, entry]));
   const sources = documents

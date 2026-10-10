@@ -59,7 +59,10 @@ test("fixture: zeker, waarschijnlijk, onbekend-groot, onbekend-klein en geweiger
   assert.equal(per.ET2099000004, undefined, "onbekend en klein (één straat, geen naam of soort): niet in de districtslijst");
   assert.equal(per.ET2099000005, undefined, "geweigerd: geen agendapunt");
   assert.equal(per.ET2099000006, undefined, "afgelast: geen agendapunt");
-  assert.equal(per.ET2099000007.title, "Studentenactiviteit in de Feeststraat");
+  // Een soort uit de regels van de herkenning is een vermoeden, geen feit (nakijkronde P2, M2).
+  assert.equal(per.ET2099000007.title, "Vermoedelijk een studentenactiviteit in de Feeststraat");
+  assert.match(per.ET2099000007.info, /Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd\./);
+  assert.doesNotMatch(per.ET2099000007.info, /De soort staat in het dossier/);
   assert.deepEqual({ inLijst: tellers.inLijst, nietInLijst: tellers.nietInLijst, afgewezen: tellers.afgewezen, metNaam: tellers.metNaam, metSoort: tellers.metSoort, naamVolgt: tellers.naamVolgt }, { inLijst: 4, nietInLijst: 1, afgewezen: 2, metNaam: 2, metSoort: 1, naamVolgt: 1 });
   for (const item of items) {
     assert.equal(item.sourceUrl, "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22");
@@ -77,7 +80,9 @@ test("titel: handfiche, dan automatisch, dan het besluit, dan de soort, dan 'naa
   assert.equal(titelVan(f, { auto, besluit }).titel, "Autonaam Proeffeest");
   assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", naam: "Autonaam Proeffeest" }), besluit }).titel, "Vermoedelijk Autonaam Proeffeest");
   assert.equal(titelVan(f, { besluit }).titel, "Besluitnaam Proeffeest");
-  assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", soort: "een wielerwedstrijd" }) }).titel, "Wielerwedstrijd in de Proefstraat");
+  assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", soort: "een wielerwedstrijd" }) }).titel, "Vermoedelijk een wielerwedstrijd in de Proefstraat");
+  assert.equal(titelVan(f, { hand: fiche({ zekerheid: "zeker", soort: "een wielerwedstrijd" }) }).titel, "Wielerwedstrijd in de Proefstraat", "met de hand nagekeken: geen voorbehoud");
+  assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", soort: "een halloween-activiteit" }) }).titel, "Vermoedelijk een Halloween-activiteit in de Proefstraat");
   assert.equal(titelVan(f, {}).titel, "Evenement in de Proefstraat — naam volgt");
   assert.equal(titelVan(feit("ET2099000011", { beginStraat: "Testplein" }), {}).titel, "Evenement op het Testplein — naam volgt");
   // Een speelstraat via het trefwoord in het dossier, ook zonder fiche.
@@ -228,16 +233,17 @@ test("schrijfAsignEvenementen schrijft een geldig brondocument en laat bij een f
     }];
     const log = [];
     const auto = { dossiers: { ET2099000070: fiche({ zekerheid: "waarschijnlijk", soort: "een wielerwedstrijd", methode: "regels" }) } };
-    const doc = schrijfAsignEvenementen({ rootDir: root, dossiers, auto, vandaag: VANDAAG, generatedAt: RETRIEVED, log: (r) => log.push(r) });
+    const index = buildStreetIndex([{ properties: { DISTRICT: "ANTWERPEN", LSTRNMID: 2, LSTRNM: "Voorbeeldlaan", RSTRNMID: 2, RSTRNM: "Voorbeeldlaan", postcode: 2000 }, geometry: { type: "LineString", coordinates: [[4.406, 51.2], [4.406, 51.204]] } }]);
+    const doc = schrijfAsignEvenementen({ rootDir: root, dossiers, index, auto, vandaag: VANDAAG, generatedAt: RETRIEVED, log: (r) => log.push(r) });
     assert.ok(doc);
     const file = path.join(dir, "district-asign-evenementen.json");
     const geschreven = JSON.parse(fs.readFileSync(file, "utf8"));
     assert.deepEqual(validateSourceDocument(geschreven, { expectedSourceId: ASIGN_EVENEMENTEN_SOURCE_ID }), []);
-    assert.deepEqual(titels(geschreven.items), ["Wielerwedstrijd in de Voorbeeldlaan"]);
+    assert.deepEqual(titels(geschreven.items), ["Vermoedelijk een wielerwedstrijd in de Voorbeeldlaan"]);
     assert.deepEqual(geschreven.items[0].sameAs, ["district-kal-proef-2026-10-18"]);
     // Een fout (geen geldige dag): het vorige bestand blijft, de log zegt het.
     const voor = fs.readFileSync(file, "utf8");
-    assert.equal(schrijfAsignEvenementen({ rootDir: root, dossiers, auto, vandaag: "geen dag", generatedAt: RETRIEVED, log: (r) => log.push(r) }), null);
+    assert.equal(schrijfAsignEvenementen({ rootDir: root, dossiers, index, auto, vandaag: "geen dag", generatedAt: RETRIEVED, log: (r) => log.push(r) }), null);
     assert.equal(fs.readFileSync(file, "utf8"), voor);
     assert.match(log.at(-1), /niet bijgewerkt/);
   } finally {
@@ -276,7 +282,13 @@ test("twee dossiers bij hetzelfde evenement worden één agendapunt met de beste
 test("uren: de handfiche gaat voor op het besluit; zonder handfiche het besluit; anders de automatische fiche", () => {
   const besluit = { uren: { start: "09:00", einde: "17:00" }, dagen: ["2026-10-18"] };
   const hand = fiche({ zekerheid: "zeker", naam: "Proefmarathon", uren: "start om 9 uur, finish sluit om 18 uur" });
-  assert.deepEqual(urenVan({ hand, besluit, dag: "2026-10-18" }), { timeSlot: "Info", timeText: "start om 9 uur, finish sluit om 18 uur" });
+  // Geen eenduidige reeks in de handfiche: het beginuur uit het besluit, omdat de fiche dat uur zelf noemt
+  // (nakijkronde P2, L4); de tekst blijft die van de fiche.
+  assert.deepEqual(urenVan({ hand, besluit, dag: "2026-10-18" }), { timeSlot: "09:00", timeText: "start om 9 uur, finish sluit om 18 uur" });
+  const anderUur = fiche({ zekerheid: "zeker", naam: "Proefmarathon", uren: "start om 10 uur, finish sluit om 18 uur" });
+  assert.deepEqual(urenVan({ hand: anderUur, besluit, dag: "2026-10-18" }), { timeSlot: "Info", timeText: "start om 10 uur, finish sluit om 18 uur" }, "noemt de fiche een ander uur: geen beginuur");
+  const negentien = fiche({ zekerheid: "zeker", naam: "Proefmarathon", uren: "afsluiter om 19 uur" });
+  assert.equal(urenVan({ hand: negentien, besluit, dag: "2026-10-18" }).timeSlot, "Info", "19 uur is geen 9 uur");
   assert.deepEqual(urenVan({ besluit, dag: "2026-10-18" }), { timeSlot: "09:00", timeText: "9 tot 17 uur" });
   assert.deepEqual(urenVan({ besluit, dag: "2026-10-19" }), { timeSlot: "Info", timeText: "" }, "niet op een dag buiten het besluit");
   assert.deepEqual(urenVan({ auto: fiche({ zekerheid: "zeker", uren: "14 tot 16 uur" }), dag: "2026-10-18" }), { timeSlot: "14:00", timeText: "14 tot 16 uur" });
