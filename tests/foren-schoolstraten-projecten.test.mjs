@@ -7,6 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
+import { mergeEvents } from "../lib/merge-events.mjs";
 import { SOURCE_DEFINITIONS, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { loadHandAgendaItems, loadRefreshEngine } from "../scripts/agenda-source.mjs";
@@ -103,4 +104,16 @@ test("de handmatige heraanleg-items zijn vervangen door de projectbron; geen dod
   for (const rule of engine.config.rules.filter((candidate) => candidate.match.theme === "Werken" || /heraanleg/i.test(candidate.match.title ?? ""))) {
     assert.ok(hand.some((item) => item.title === rule.match.title), `regel zonder item: ${rule.match.title}`);
   }
+});
+
+test("twee fasen van één projectpagina die op dezelfde dag beginnen, blijven twee agendapunten", () => {
+  const page = "https://www.antwerpen.be/info/6a00000000000000000000a1/heraanleg-voorbeeldstraat-en-proefstraat";
+  const fase = (label, id) => ({ ...schoolstraat, id, title: `Heraanleg Voorbeeldstraat: ${label}`, date: "2026-08-10", endDate: "2026-10-31", sourceUrl: page, location: "Voorbeeldstraat, 2018 Antwerpen" });
+  const merged = mergeEvents({ "district-projecten": { scope: "district", items: [fase("fase 6a", "project-6a00000000000000000000a1-fase-6a-2026-08-10"), fase("fase 6b", "project-6a00000000000000000000a1-fase-6b-2026-08-10")] } });
+  assert.deepEqual(merged.items.map((item) => item.title), ["Heraanleg Voorbeeldstraat: fase 6a", "Heraanleg Voorbeeldstraat: fase 6b"]);
+  // Over bronnen heen voegt dezelfde detailpagina nog altijd samen (kalender en project).
+  const kalender = { ...fase("fase 6a", "district-kal-voorbeeld-2026-08-10"), title: "Start fase 6a in de Voorbeeldstraat" };
+  const across = mergeEvents({ "district-kalender": { scope: "district", items: [kalender] }, "district-projecten": { scope: "district", items: [fase("fase 6a", "project-6a00000000000000000000a1-fase-6a-2026-08-10")] } });
+  assert.equal(across.items.length, 1);
+  assert.deepEqual(across.items[0].sources.map((source) => source.sourceId), ["district-kalender", "district-projecten"]);
 });
