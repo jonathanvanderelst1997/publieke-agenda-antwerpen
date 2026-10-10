@@ -319,11 +319,12 @@ export function verdeelOverStraten(lagen, { extra = () => [], dossier = () => nu
   return perStraat;
 }
 
-const opId = (a, b) => String(a.id).localeCompare(String(b.id), "nl");
-// De inhoud van één straat, vast gesorteerd, met een korte hash van precies die inhoud. Straten staan één
-// keer in "straten" ([id, naam, postcode]); een item verwijst ernaar met hun plaats in die lijst
-// (straatItems in site/straat-snapshot.js zet ze terug). Bij een evenementendossier dat de verversing kent, houdt een rij
-// alleen deze straat: de andere straten staan in kaart-uitleg.json.
+// De inhoud van één straat, met een korte hash van precies die inhoud. De items staan in de volgorde van
+// de bron (zoals de live lagen ze sorteren): dan bundelt de plekpagina een parkeerverbod of terras met
+// dezelfde eerste rij als live, en blijft een opengeklapte kaart open als de live stand binnenkomt.
+// Straten staan één keer in "straten" ([id, naam, postcode]); een item verwijst ernaar met hun plaats in
+// die lijst (straatItems in site/straat-snapshot.js zet ze terug). Bij een evenementendossier dat de
+// verversing kent, houdt een rij alleen deze straat: de andere straten staan in kaart-uitleg.json.
 export function straatDocument(id, delen, { namen = [], ververst = "", bewaard = () => false, extraKaders = [] } = {}) {
   const tabel = [];
   const plekVan = new Map();
@@ -350,7 +351,7 @@ export function straatDocument(id, delen, { namen = [], ververst = "", bewaard =
       for (const veld of WEGGELATEN[naam] || []) delete rest[veld];
       if (isEvenementRij(rest) && bewaard(rest.reference)) rest.streets = (rest.streets || []).filter((ref) => straatSleutel(ref) === String(id));
       return rest;
-    }).sort(opId);
+    });
   }
   // Eerst de straat zelf in de tabel, dan in vaste volgorde de rest.
   for (const ref of namen) plek(ref);
@@ -369,7 +370,6 @@ export function straatDocument(id, delen, { namen = [], ververst = "", bewaard =
   const hash = kort(JSON.stringify(inhoud));
   return { schemaVersion: STRAAT_SCHEMA, ververst, inhoud: hash, ...inhoud };
 }
-
 
 // ---------- radar ----------
 
