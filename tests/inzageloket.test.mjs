@@ -166,3 +166,11 @@ test("de lijst met alle omgevingsdossiers heeft geen knop naar de startpagina va
   assert.doesNotMatch(bron, /href="https:\/\/omgevingsloketinzage\.omgeving\.vlaanderen\.be\/"/);
   assert.match(bron, /inzage-status\.json/);
 });
+
+test("de lijst met alle omgevingsdossiers onthoudt welke kaart open staat als ze opnieuw tekent", async () => {
+  // In de browser getoetst in tests/e2e/plek.e2e.mjs ("lijst met alle omgevingsdossiers"); CI draait die niet,
+  // dus hier ook op de bron: elke kaart draagt haar dossier, en render() neemt de open kaarten mee.
+  const bron = await readFile(new URL("../site/permits-live.js", import.meta.url), "utf8");
+  assert.match(bron, /<details class="permit-card" data-permit="\$\{esc\(item\.id\|\|""\)\}"\$\{open\?" open":""\}>/);
+  assert.match(bron, /querySelectorAll\("details\.permit-card\[open\]"\)/);
+});

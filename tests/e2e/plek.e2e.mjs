@@ -270,14 +270,16 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       await page.click(".pv-more > summary");
       const kaart = page.locator("#permits-live .permit-card", { hasText: PERMIT_TITLE }).first();
       await kaart.waitFor({ timeout: 15000 });
-      // Openklappen zoals een bewoner. Terwijl de andere lagen nog laden, kan de lijst opnieuw tekenen (en de
-      // kaart weer dichtklappen): dan opnieuw, tot de technische link onderaan de open kaart zichtbaar is.
+      // Openklappen zoals een bewoner: één klik, tot de technische link onderaan de open kaart zichtbaar is.
+      // Terwijl de andere lagen nog laden, kan de lijst opnieuw tekenen; de kaart moet dan open blijven.
       const onderaan = kaart.locator("details > summary", { hasText: "Technische stadsbron" });
-      for (let poging = 0; poging < 5 && !(await onderaan.isVisible()); poging += 1) {
-        if (!(await kaart.evaluate((el) => el.open))) await kaart.locator("summary").first().click();
-        await onderaan.waitFor({ state: "visible", timeout: 2000 }).catch(() => {});
-      }
+      await kaart.locator("summary").first().click();
+      await onderaan.waitFor({ state: "visible", timeout: 5000 });
       assert.ok(await onderaan.isVisible(), "de kaart klapt open");
+      // Tekent de lijst opnieuw (zoals wanneer de wijk klaar is met laden), dan blijft de kaart open.
+      await page.evaluate(() => window.dispatchEvent(new CustomEvent("public-agenda:view-change")));
+      assert.equal(await kaart.evaluate((el) => el.open), true, "de kaart blijft open als de lijst opnieuw tekent");
+      assert.ok(await onderaan.isVisible());
       const tekst = await kaart.innerText();
       assert.equal(await kaart.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/"]').count(), 0, "nooit de startpagina van het loket");
       if (inzage) {
