@@ -43,6 +43,7 @@ const STRATEN = [
   ["3", "Voorbeeldplein", "2000", [], [4.4, 51.2, 4.41, 51.21]],
   ["4", "Proefstraat", "2018", [], [4.41, 51.2, 4.42, 51.21]],
   ["5", "Meir", "2000", [], [4.4, 51.21, 4.41, 51.22]],
+  ["6", "Groenplaats", "2000", [], [4.4, 51.21, 4.41, 51.22]],
 ];
 const INDEX = straatIndex(STRATEN);
 const resp = (text, status = 200) => ({ ok: status >= 200 && status < 300, status, text: async () => text });
@@ -178,6 +179,8 @@ test("uren: vaste zinnen, en nooit uit opbouw of afbouw", () => {
   assert.deepEqual(urenUitTekst("De stoet vertrekt met kinderen en ouders om 14.00 uur aan het plein. Het einde is voorzien om 17.00 uur."), { start: "14:00", einde: "17:00" });
   assert.equal(urenUitTekst("De opbouw begint op 17 september 2026 om 08.00 uur en de afbraak eindigt om 20.00 uur."), null);
   assert.equal(urenUitTekst("Van 3 tot 5 oktober."), null, "een reeks dagen is geen uur");
+  assert.deepEqual(urenUitTekst("De deuren openen om 14.00 uur en het einde is voorzien om 23.30 uur. De meeste bezoekers komen tussen 19.00 uur en 20.00 uur."), { start: "14:00", einde: "23:30" }, "een publiekspiek is geen openingsuur");
+  assert.deepEqual(urenUitTekst("Het evenement loopt van 10.00 uur tot 18.00 uur."), { start: "10:00", einde: "18:00" });
 });
 
 test("opbouw en afbouw: met en zonder jaartal", () => {
@@ -219,13 +222,45 @@ test("plaats: huisnummers weg, district of niet", () => {
 test("privacy: het blok Samenstelling, een persoonsnaam, een IBAN en adressen raken nooit de uitvoer", () => {
   const delen = detailDelen(fixture("districtsfonds.html"));
   assert.ok(!JSON.stringify(delen).includes("Testpersoon"), "Samenstelling is weggeknipt vóór het lezen");
-  const detail = leesDetail(fixture("districtsfonds.html"), { soort: "districtsfonds", zitting: "2026-10-05" });
+  const detail = leesDetail(fixture("districtsfonds.html"), { soort: "districtsfonds", zitting: "2026-10-05", index: INDEX });
   assert.deepEqual([detail.naam, detail.organisator, detail.dagen, detail.plaats], ["Buurtfeest Proefstraat", null, ["2026-11-14"], "Proefstraat, 2018 Antwerpen"]);
   assert.deepEqual(detail.uren, { start: "14:00", einde: "18:00" });
   const tekst = JSON.stringify(detail);
   for (const verboden of ["Piet", "Proefpersoon", "Testpersoon", "Verzonnen", "Proefnaam", "BE00", "1234 5678", "Proefstraat 7", "0470", "EUR"]) {
     assert.ok(!tekst.includes(verboden), `${verboden} mag niet in de uitvoer`);
   }
+});
+
+test("privacy: een lijst locaties met ontwerpers en hun adres geeft alleen straten en postcodes", () => {
+  const detail = leesDetail(fixture("districtsfonds-locaties.html"), { soort: "districtsfonds", zitting: "2026-08-24", index: INDEX });
+  assert.equal(detail.organisator, "Atelier Créatif Proef vzw", "HTML-entiteiten worden gewone letters");
+  assert.equal(detail.naam, "Proefweek Juwelen 2026");
+  assert.deepEqual(detail.dagen, ["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04"]);
+  assert.equal(detail.plaats, "Meir, Proefstraat, Rijnkaai, Voorbeeldplein, 2000 en 2018 Antwerpen");
+  assert.deepEqual(detail.straten, ["Meir", "Proefstraat", "Rijnkaai", "Voorbeeldplein"]);
+  const tekst = JSON.stringify(detail);
+  for (const verboden of ["Gerda", "Verzonnen", "Lotte", "Fictief", "Proefhuis", "Proefgalerie", "Testschool", "51", "87", "GEHUURDE", ")"]) {
+    assert.ok(!tekst.includes(verboden), `${verboden} mag niet in de uitvoer`);
+  }
+});
+
+test("meerdaags evenement: 'van 11 tot 13 december' in Artikel 1, uren uit de programmaregel, opbouw en afbouw", () => {
+  const detail = leesDetail(fixture("meerdaags.html"), { soort: "evenement", zitting: "2026-11-20", index: INDEX });
+  assert.deepEqual(detail.dagen, ["2026-12-11", "2026-12-12", "2026-12-13"]);
+  assert.equal(detail.organisator, "Proefsport nv");
+  assert.equal(detail.plaats, "Groenplaats, Handschoenmarkt en Grote Markt");
+  assert.deepEqual(detail.uren, { start: "12:00", einde: "22:00" });
+  assert.deepEqual([detail.opbouw, detail.afbouw], ["2026-12-05", "2026-12-18"]);
+});
+
+test("Artikel 1: een plaats vóór de dag telt pas als laatste kandidaat; een naam met 'in' wordt geen plaats", () => {
+  const html = (zin) => `<h2>Besluit</h2><h3>Artikel 1</h3><div><p>${zin}</p></div>`;
+  const voor = leesDetail(html("Het college keurt de organisatie door Proefmuziek VZW, van het evenement Proefconcert in Merksem op 9 december 2026 goed."), { soort: "evenement", zitting: "2026-11-20", index: INDEX });
+  assert.deepEqual([voor.organisator, voor.plaats, voor.dagen], ["Proefmuziek VZW", "Merksem", ["2026-12-09"]]);
+  assert.equal(plaatsInDistrict(voor.plaats, INDEX).inDistrict, false);
+  const naamMetIn = leesDetail(html("Het college keurt de organisatie door Proefstad nv van het evenement Kerst in de Stad op 12 december 2026 op de Groenplaats goed."), { soort: "evenement", zitting: "2026-11-20", index: INDEX });
+  assert.deepEqual(naamMetIn.plaatsKandidaten, ["Groenplaats", "Stad"]);
+  assert.equal(naamMetIn.plaats, "Groenplaats");
 });
 
 test("validatie van evenement-besluiten.json: huisnummer, organisator zonder rechtsvorm, IBAN en onbekende sleutel", () => {
