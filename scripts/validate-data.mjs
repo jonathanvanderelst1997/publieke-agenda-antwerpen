@@ -31,6 +31,7 @@ import {
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
+import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -186,6 +187,30 @@ if (fs.existsSync(archiveDir)) {
     }
   }
 }
+
+// Privacy van de historiek (lib/historiek-privacy.mjs): in elk bestand onder site/history alleen
+// district Antwerpen en geen huisnummer. De melding noemt het pad, nooit de waarde.
+const historyDir = path.join(rootDir, "site", "history");
+const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const target = path.join(dir, entry.name);
+  return entry.isDirectory() ? historyFiles(target) : entry.name.endsWith(".json") ? [target] : [];
+});
+let historyPrivacyFindings = 0;
+for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() : []) {
+  const relative = path.relative(rootDir, file).split(path.sep).join("/");
+  let document;
+  try {
+    document = JSON.parse(fs.readFileSync(file, "utf8"));
+  } catch {
+    continue; // ongeldige JSON meldt de controle hierboven of hieronder al
+  }
+  for (const finding of historiekPrivacyBevindingen(document)) {
+    problems.push(`${relative}: privacy ${finding.code} op ${finding.path}`);
+    historyPrivacyFindings += 1;
+  }
+}
+// De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
+if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
 const backfillDir = path.join(rootDir, HISTORY_BACKFILL_DIR);
 if (fs.existsSync(backfillDir)) {

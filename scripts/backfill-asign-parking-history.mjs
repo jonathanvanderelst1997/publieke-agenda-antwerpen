@@ -13,6 +13,7 @@ import {
   validateHistoryBackfillShard,
 } from "../lib/history-backfill.mjs";
 import { applyPublicSpaceStreetResolution, buildStreetIndex } from "../lib/street-resolver.mjs";
+import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import { asignLayer } from "./refresh-live-history.mjs";
 import { normalizeParking, PUBLIC_PARKING_STATUSES } from "../site/public-space-core.js";
 import { fetchStreetFeatures } from "../site/street-source.js";
@@ -92,12 +93,14 @@ async function recordsForYear({ year, baselineDay, fetchImpl, streetIndex: index
   const records = new Map();
   for (const feature of features) {
     const { item, validFrom, validTo } = historicalParkingItem(feature, index, baselineDay);
+    // Zoals de live historiek (lib/historiek-privacy.mjs): alleen het district, geen huisnummer.
+    if (parkeerverbodInDistrict(item) === false) continue;
     const record = sourceHistoryRecord({
       sourceId: ASIGN_PARKING_BACKFILL_SOURCE_ID,
       sourceRecordId: item.id.slice("parking:".length),
       validFrom,
       validTo,
-      payload: item,
+      payload: itemVoorHistoriek(item),
     });
     const previous = records.get(record.sourceRecordId);
     if (previous && JSON.stringify(previous) !== JSON.stringify(record)) {
