@@ -2,6 +2,7 @@
 // Geen netwerk, geen DOM: dezelfde code draait in de browser (kaart en filter) en in Node
 // (geocodering bij het verversen en de toetsen).
 import { pointInGeometry } from "./works-core.js";
+import { segmentenInKader } from "./street-core.js";
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 
@@ -101,16 +102,36 @@ export const straatSleutel = (ref) => `${locationKey(ref?.name)}|${ref?.postcode
 export function stratenBinnenStraal(index, segments, radius) {
   const uit = new Set();
   if (!index?.segments || !segments?.length || !(radius > 0)) return uit;
-  const pad = radius / 70000, padX = radius / 45000; // graden: ruim genoeg op 51° NB
+  // Rooster van de gekozen straat (cellen van één straal groot): een kandidaat vergelijkt zich alleen
+  // met de stukken van de straat in de cellen rond hem. Een lange straat (de Leien, 250 stukken) bleef
+  // anders seconden rekenen.
+  const cw = radius / 69000, ch = radius / 110000; // graden per straal op 51° NB, iets ruimer: nooit te krap
+  const box = (s) => s.box || [Math.min(s.a[0], s.b[0]), Math.min(s.a[1], s.b[1]), Math.max(s.a[0], s.b[0]), Math.max(s.a[1], s.b[1])];
+  const rooster = new Map();
+  let kader = null;
   for (const s of segments) {
-    const box = [Math.min(s.a[0], s.b[0]) - padX, Math.min(s.a[1], s.b[1]) - pad, Math.max(s.a[0], s.b[0]) + padX, Math.max(s.a[1], s.b[1]) + pad];
-    for (const t of index.segments) {
-      const tb = t.box || [Math.min(t.a[0], t.b[0]), Math.min(t.a[1], t.b[1]), Math.max(t.a[0], t.b[0]), Math.max(t.a[1], t.b[1])];
-      if (tb[0] > box[2] || tb[2] < box[0] || tb[1] > box[3] || tb[3] < box[1]) continue;
-      if ((t.refs || []).every((ref) => uit.has(straatSleutel(ref)))) continue;
-      if (segmentSegmentMeters(s.a, s.b, t.a, t.b) > radius) continue;
-      for (const ref of t.refs || []) { uit.add(straatSleutel(ref)); uit.add(`${locationKey(ref?.name)}|`); }
+    const b = box(s);
+    kader = kader ? [Math.min(kader[0], b[0]), Math.min(kader[1], b[1]), Math.max(kader[2], b[2]), Math.max(kader[3], b[3])] : [...b];
+    for (let x = Math.floor(b[0] / cw); x <= Math.floor(b[2] / cw); x++) for (let y = Math.floor(b[1] / ch); y <= Math.floor(b[3] / ch); y++) {
+      const k = `${x}:${y}`; const l = rooster.get(k); if (l) l.push(s); else rooster.set(k, [s]);
     }
+  }
+  const kandidaten = index.grid ? segmentenInKader(index, kader, cw) : index.segments;
+  for (const t of kandidaten) {
+    if ((t.refs || []).every((ref) => uit.has(straatSleutel(ref)))) continue;
+    const b = box(t);
+    let binnen = false;
+    zoek: for (let x = Math.floor(b[0] / cw) - 1; x <= Math.floor(b[2] / cw) + 1; x++) for (let y = Math.floor(b[1] / ch) - 1; y <= Math.floor(b[3] / ch) + 1; y++) {
+      for (const s of rooster.get(`${x}:${y}`) || []) {
+        const sb = box(s);
+        // Eerst de kaders (met iets kleinere meters per graad: nooit te streng): liggen die al verder
+        // dan de straal, dan ook de stukken zelf.
+        if (Math.hypot(Math.max(0, sb[0] - b[2], b[0] - sb[2]) * 69000, Math.max(0, sb[1] - b[3], b[1] - sb[3]) * 110000) > radius) continue;
+        if (segmentSegmentMeters(s.a, s.b, t.a, t.b) <= radius) { binnen = true; break zoek; }
+      }
+    }
+    if (!binnen) continue;
+    for (const ref of t.refs || []) { uit.add(straatSleutel(ref)); uit.add(`${locationKey(ref?.name)}|`); }
   }
   return uit;
 }

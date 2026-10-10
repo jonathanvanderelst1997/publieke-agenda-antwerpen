@@ -16,7 +16,7 @@ import { evenementEntry, evenementStraten, permitEntry, straatRelatie, verfijnVo
 import { collectPermits } from "../site/permits-live-core.js";
 import { createAgendaView } from "../site/agenda-view.js";
 import { createAreaMatcher } from "../site/neighborhood-map.js";
-import { bouwKaartUitleg, validateKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
+import { bouwKaartUitleg, stratenVanWerfzone, validateKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 
 // Meter rond een vaste oorsprong naar lengte- en breedtegraad.
 const m = (x, y) => [4.4 + x / 69760, 51.2 + y / 110540];
@@ -137,6 +137,9 @@ test("verversing: parcours met 'kruist' apart, werk met de straten van zijn werf
   assert.deepEqual(e.straten, ["Langsstraat", "Leiweg"]);
   assert.deepEqual(e.kruist, ["Kruisstraat", "Zijstraat"]);
   assert.deepEqual(document.werken["90000009"].vlakStraten, ["Leiweg", "Kruisstraat"]);
+  // Een straatas zonder naam (komt voor in de stadslaag) geeft geen lege straat.
+  const metLeeg = buildStreetIndex([...ASSEN, as(7, " ", [[260, -5], [280, -5]])]);
+  assert.deepEqual(stratenVanWerfzone(zone.coordinates, metLeeg), ["Leiweg", "Kruisstraat"]);
   assert.deepEqual(validateKaartUitleg(document), []);
   assert.ok(validateKaartUitleg({ ...document, evenementen: { ET2099000001: { ...e, kruist: [12] } } }).some((x) => /kruist ongeldig/.test(x)));
   // De site neemt die straten over: bij "Waar" én in de filter.
