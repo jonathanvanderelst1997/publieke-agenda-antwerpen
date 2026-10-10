@@ -11,6 +11,7 @@ import {
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
+import { splitsOpOnderzoek } from "./inzage-status.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur} from "./bezoekers-bronnen.js";
 import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
@@ -659,10 +660,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const { running, days, later } = groupForList(dated, { from, to, today });
     // Een aanvraag waarvan het openbaar onderzoek vandaag loopt (termijn nagekeken in het Inzageloket) staat
     // bovenaan: bewoners kunnen nu nog reageren. Een termijn die nog moet beginnen, of een openbaar onderzoek
-    // zonder afgelezen einddatum, blijft bij de andere aanvragen, met de melding in de dichte kaart.
-    const allePermits = entries.filter((e) => e.group === "vergunningen");
-    const inspraak = allePermits.filter((e) => e.item?.inzage?.loopt === true);
-    const permits = allePermits.filter((e) => e.item?.inzage?.loopt !== true);
+    // zonder afgelezen einddatum, staat eerst bij de andere aanvragen, met de melding in de dichte kaart.
+    const { inspraak, overige: permits } = splitsOpOnderzoek(entries.filter((e) => e.group === "vergunningen"));
     const html = [];
     html.push(sectionTemplate("openbaar-onderzoek", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
     html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> Nu bezig`, running, { today, context: "running" }, `<p class="pv-day-note">Werken, maatregelen en activiteiten die vandaag lopen.</p>`));

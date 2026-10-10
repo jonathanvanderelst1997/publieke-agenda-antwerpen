@@ -121,6 +121,16 @@ test("de termijn begint later: geen badge en niet in de sectie 'bezwaar indienen
   assert.equal(kaart.badge, "");
 });
 
+test("plekpagina: alleen een lopende termijn in de sectie bovenaan; een andere melding eerst bij de aanvragen", async () => {
+  const { metInzage, splitsOpOnderzoek } = await inzage();
+  const doc = await json("./fixtures/inzage-status.json");
+  const items = metInzage([aanvraag({ project: "OMV_2099000009" }), aanvraag({ project: "OMV_2099000003" }), aanvraag(), aanvraag({ project: "OMV_2099000004" })], doc, "2026-10-10");
+  const entries = items.map((item) => ({ group: "vergunningen", item }));
+  const { inspraak, overige } = splitsOpOnderzoek(entries);
+  assert.deepEqual(inspraak.map((e) => e.item.project), ["OMV_2099000001"]);
+  assert.deepEqual(overige.map((e) => e.item.project), ["OMV_2099000003", "OMV_2099000004", "OMV_2099000009"]);
+});
+
 test("overzicht per straat: de termijn of de dag van het onderzoek staat vóór de stand van de aanvraag", async () => {
   const { metInzage } = await inzage();
   const doc = await json("./fixtures/inzage-status.json");

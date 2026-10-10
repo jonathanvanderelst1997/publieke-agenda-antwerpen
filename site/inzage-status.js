@@ -111,6 +111,16 @@ export function metInzage(items,doc,vandaag){
   });
 }
 
+// Plekpagina: een openbaar onderzoek dat vandaag loopt, krijgt een eigen sectie bovenaan ("bezwaar indienen
+// kan nu"). De andere aanvragen blijven samen, met eerst die met een melding over een openbaar onderzoek
+// (een termijn die later begint, of zonder einddatum). Verder blijft de volgorde zoals ze was.
+export function splitsOpOnderzoek(entries){
+  const lijst=Array.isArray(entries)?entries:[];
+  const loopt=e=>e?.item?.inzage?.loopt===true;
+  const overige=lijst.filter(e=>!loopt(e));
+  return {inspraak:lijst.filter(loopt),overige:[...overige.filter(e=>e?.item?.inzage),...overige.filter(e=>!e?.item?.inzage)]};
+}
+
 // De zin bovenaan de kaart. Een termijn alleen met beide datums uit het loket. Zonder termijn: alleen de dag
 // waarop het loket het openbaar onderzoek toonde, en waar de einddatum staat.
 export function onderzoekZin(inzage,vandaag){
