@@ -209,12 +209,13 @@ test("venster en validatie", () => {
   assert.ok(validateKaartUitleg({ schemaVersion: 1, generatedAt: "2026-10-06T05:00:00Z", vanaf: VANDAAG, tot: VANDAAG, werken: {}, evenementen: { ET2099000001: { start: "", eind: "", straten: [], beschrijvingen: [], kaart: [], gekoppeld: { titel: "x", bronUrl: "https://a.b/?q=1" } } } }).some((e) => /gekoppeld/.test(e)));
 });
 
-test("inhaakpunt: schrijft het bestand, en een mislukte laag houdt haar vorige feiten", async () => {
+test("inhaakpunt: schrijft het bestand, en een mislukte laag houdt haar vorige feiten", async (t) => {
   const fs = await import("node:fs");
   const os = await import("node:os");
   const path = await import("node:path");
   const { schrijfKaartUitleg, KAART_UITLEG_FILE } = await import("../lib/kaart-uitleg-refresh.mjs");
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "kaart-uitleg-"));
+  t.after(() => fs.rmSync(rootDir, { recursive: true, force: true }));
   const clock = () => new Date("2026-10-06T05:00:00Z");
   const geenNet = async () => { throw new Error("geen netwerk in toetsen"); };
   const stil = () => {};

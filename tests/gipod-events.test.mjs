@@ -8,7 +8,7 @@ test("allowlist is conservatief",()=>{assert.equal(classifyGipodEvent(event("100
 test("punt buiten district valt weg",()=>assert.equal(classifyGipodEvent({...event("105"),geometry:{type:"Point",coordinates:[4.5,51.2]}},NOW).reason,"outside_district"));
 test("adresprefix wordt locatie",()=>assert.deepEqual(eventLabels("2000 Antwerpen, Teststraat : Buurtfeest Teststraat","1"),{title:"Buurtfeest Teststraat",location:"2000 Antwerpen, Teststraat"}));
 test("contactorganisaties lekken niet",()=>{const {items}=eventsFromGipod({features:[event("106",{ContactOrganisations:[{Email:"persoon@example.be"}]})]},{now:NOW});assert.equal(items.length,1);assert.equal(JSON.stringify(items).includes("@"),false);assert.equal(items[0].inDistrict,true)});
-test("fetcher schrijft geldig document en nul events is gezond",async()=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-"));const reply=features=>({ok:true,json:async()=>({type:"FeatureCollection",features,links:[]})});const status=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([event("107")]),log:()=>{}});assert.deepEqual([status[0].fetchStatus,status[0].itemCount],["ok",1]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-gipod-evenementen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-gipod-evenementen"}),[]);const empty=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([]),log:()=>{}});assert.deepEqual([empty[0].fetchStatus,empty[0].itemCount],["ok",0])});
+test("fetcher schrijft geldig document en nul events is gezond",async(t)=>{const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-"));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));const reply=features=>({ok:true,json:async()=>({type:"FeatureCollection",features,links:[]})});const status=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([event("107")]),log:()=>{}});assert.deepEqual([status[0].fetchStatus,status[0].itemCount],["ok",1]);const doc=JSON.parse(fs.readFileSync(path.join(root,"site","sources","district-gipod-evenementen.json"),"utf8"));assert.deepEqual(validateSourceDocument(doc,{expectedSourceId:"district-gipod-evenementen"}),[]);const empty=await run({rootDir:root,clock:()=>NOW,fetch:async()=>reply([]),log:()=>{}});assert.deepEqual([empty[0].fetchStatus,empty[0].itemCount],["ok",0])});
 
 test("speelstraat wordt alleen met concrete districtsstraat en maximaal 14 dagen aanvaard",()=>{
   const ok=event("108",{Description:"2000 Antwerpen, Teststraat : Speelstraat",PublicDomainOccupancyTypes:"Speelstraat",Start:"2026-10-01T08:00:00Z",End:"2026-10-05T18:00:00Z"});
@@ -25,8 +25,8 @@ test("speelstraat wordt alleen met concrete districtsstraat en maximaal 14 dagen
   assert.equal(classifyGipodEvent(event("110",{Description:"2000 Antwerpen, Teststraat : Speelstraat",PublicDomainOccupancyTypes:"Speelstraat",Start:"2026-10-01T08:00:00Z",End:"2026-10-20T18:00:00Z"}),NOW).reason,"playstreet_duration");
 });
 
-test("fetcher volgt begrensde GIPOD-paginering op exact dezelfde collectie",async()=>{
-  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-pages-"));
+test("fetcher volgt begrensde GIPOD-paginering op exact dezelfde collectie",async(t)=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-pages-"));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
   const calls=[];
   const fetchImpl=async url=>{
     calls.push(String(url));
@@ -43,8 +43,8 @@ test("fetcher volgt begrensde GIPOD-paginering op exact dezelfde collectie",asyn
   assert.equal(new URL(calls[1]).searchParams.get("cursor"),"page2");
 });
 
-test("fetcher weigert een next-link naar een andere host",async()=>{
-  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-host-"));
+test("fetcher weigert een next-link naar een andere host",async(t)=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"gipod-events-host-"));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
   const fetchImpl=async()=>({ok:true,status:200,json:async()=>({type:"FeatureCollection",features:[event("203")],links:[{rel:"next",href:"https://evil.example/items?page=2"}]})});
   const status=await run({rootDir:root,clock:()=>NOW,fetch:fetchImpl,log:()=>{}});
   assert.equal(status[0].fetchStatus,"error");

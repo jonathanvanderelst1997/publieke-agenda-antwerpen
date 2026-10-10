@@ -48,8 +48,9 @@ function event(uuid, overrides = {}) {
 
 const uuid = (n) => `0000000${n}-aaaa-4bbb-8ccc-${String(n).padStart(12, "0")}`.slice(-36);
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "uit-fetcher-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -67,8 +68,8 @@ function fakeFetch(pages) {
 
 const collection = (members, totalItems = members.length) => ({ "@context": "http://www.w3.org/ns/hydra/context.jsonld", itemsPerPage: 250, totalItems, member: members });
 
-test("zonder sleutel: 'UiT uit: geen sleutel', exit zonder fout, bestand byte-identiek, status skipped_no_key", async () => {
-  const root = makeRoot();
+test("zonder sleutel: 'UiT uit: geen sleutel', exit zonder fout, bestand byte-identiek, status skipped_no_key", async (t) => {
+  const root = makeRoot(t);
   const logs = [];
   const neverFetch = async () => {
     throw new Error("zonder sleutel mag er geen verzoek vertrekken");
@@ -93,8 +94,8 @@ test("zonder sleutel: 'UiT uit: geen sleutel', exit zonder fout, bestand byte-id
   assert.equal(fs.readFileSync(file, "utf8"), before);
 });
 
-test("testomgeving (search-test): er wordt geteld maar niets naar site/ geschreven", async () => {
-  const root = makeRoot();
+test("testomgeving (search-test): er wordt geteld maar niets naar site/ geschreven", async (t) => {
+  const root = makeRoot(t);
   const { fetchImpl, calls } = fakeFetch(() => collection([event(uuid(1))]));
   const logs = [];
   const [status] = await run({
@@ -111,8 +112,8 @@ test("testomgeving (search-test): er wordt geteld maar niets naar site/ geschrev
   assert.doesNotMatch(logs.join("\n"), /synthetic-client/, "de sleutel komt nooit in de uitvoer");
 });
 
-test("alleen de whitelist wordt bewaard; subEvents krijgen elk een eigen id; noEventPage", async () => {
-  const root = makeRoot();
+test("alleen de whitelist wordt bewaard; subEvents krijgen elk een eigen id; noEventPage", async (t) => {
+  const root = makeRoot(t);
   const multiple = event(uuid(2), {
     calendarType: "multiple",
     subEvent: [
@@ -163,8 +164,8 @@ test("alleen de whitelist wordt bewaard; subEvents krijgen elk een eigen id; noE
   assert.equal(document.scope, "stad");
 });
 
-test("postcode en coördinaten die elkaar tegenspreken: niet weggeschreven", async () => {
-  const root = makeRoot();
+test("postcode en coördinaten die elkaar tegenspreken: niet weggeschreven", async (t) => {
+  const root = makeRoot(t);
   const conflict = event(uuid(6), {
     location: {
       name: { nl: "Verkeerde zaal" },
@@ -191,8 +192,8 @@ function spreadMembers(count) {
   });
 }
 
-test(`binnen de limiet (${ITEM_CAP}): alles, gesorteerd op begin, paginering tot totalItems, coverage niet afgekapt`, async () => {
-  const root = makeRoot();
+test(`binnen de limiet (${ITEM_CAP}): alles, gesorteerd op begin, paginering tot totalItems, coverage niet afgekapt`, async (t) => {
+  const root = makeRoot(t);
   const members = spreadMembers(600);
   const { fetchImpl, calls } = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
   const logs = [];
@@ -209,8 +210,8 @@ test(`binnen de limiet (${ITEM_CAP}): alles, gesorteerd op begin, paginering tot
   assert.match(logs.join("\n"), /"candidates":600/);
 });
 
-test("boven de limiet: afgekapt op een daggrens, nooit midden in een dag; dekking in bestand en status", async () => {
-  const root = makeRoot();
+test("boven de limiet: afgekapt op een daggrens, nooit midden in een dag; dekking in bestand en status", async (t) => {
+  const root = makeRoot(t);
   const members = spreadMembers(600);
   const { fetchImpl } = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
   const [status] = await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: fetchImpl, clock, log: () => {}, itemCap: 100 });
@@ -235,8 +236,8 @@ test("cutAtDayBoundary: lopende items en vandaag passen samen niet → geen voll
   assert.deepEqual(cutAtDayBoundary(items, 5, { today: "2026-09-28", until: "2026-10-28" }).capped, false);
 });
 
-test("krimpgrens: 0 treffers terwijl er komende items waren → error suspicious_drop, vorige data blijft", async () => {
-  const root = makeRoot();
+test("krimpgrens: 0 treffers terwijl er komende items waren → error suspicious_drop, vorige data blijft", async (t) => {
+  const root = makeRoot(t);
   const members = spreadMembers(40);
   const first = fakeFetch((start) => collection(members.slice(start, start + 250), members.length));
   await run({ rootDir: root, env: { UITDATABANK_CLIENT_ID: "c" }, fetch: first.fetchImpl, clock, log: () => {} });

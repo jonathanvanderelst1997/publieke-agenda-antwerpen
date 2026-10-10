@@ -57,14 +57,20 @@ test("sinds wanneer: blijft staan zolang de status gelijk blijft, ok wist het", 
   assert.ok(validateManualCheck({ schemaVersion: 1, checkedAt: "x", sources: [{ ...first, url: "https://a.be/?x=1", contact: "a@b.be" }] }).length >= 3);
 });
 
-function tempRoot() {
+// Alleen wat run(), readSources() en loadRefreshEngine() onder rootDir lezen of schrijven (ongeveer 2 MB).
+// Voorheen ging heel site/, scripts/ en lib/ mee (ongeveer 32 MB per map) en bleef de map staan: na een dag
+// toetsen stonden er honderden in /tmp en liep de schijf vol. De map verdwijnt nu na de toets, ook bij een fout.
+const TEMP_ROOT_FILES = ["site/agenda.js", "site/agenda-refresh.js", "site/agenda-feed.js", "site/sources"];
+
+function tempRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "manual-check-"));
-  for (const dir of ["site", "scripts", "lib"]) fs.cpSync(path.join(rootDir, dir), path.join(root, dir), { recursive: true });
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  for (const file of TEMP_ROOT_FILES) fs.cpSync(path.join(rootDir, file), path.join(root, file), { recursive: true });
   return root;
 }
 
-test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzing en raakt nooit de rest", async () => {
-  const root = tempRoot();
+test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzing en raakt nooit de rest", async (t) => {
+  const root = tempRoot(t);
   const asked = [];
   const fetch = async (url) => {
     asked.push(String(url));
@@ -81,12 +87,12 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
   assert.deepEqual(validateManualCheck(written), []);
 });
 
-test("gewijzigd of weg haalt het handmatige item van de site; onbereikbaar niet", () => {
+test("gewijzigd of weg haalt het handmatige item van de site; onbereikbaar niet", (t) => {
   const items = loadExpandedAgendaItems(rootDir).filter((item) => !item.feed);
   const feest = items.find((item) => item.id === "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10");
   assert.ok(feest);
   const engineWith = (status) => {
-    const root = tempRoot();
+    const root = tempRoot(t);
     const file = path.join(root, "site", "sources", "manual-check.json");
     fs.writeFileSync(file, JSON.stringify({ schemaVersion: 1, checkedAt: "2026-10-06T03:20:00Z", sources: [
       { sourceId: "city-gaston-buurtfeest", url: "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan", status, httpStatus: status === "weg" ? 404 : 200, missing: [], items: [feest.id], since: "2026-10-06T03:20:00Z" },

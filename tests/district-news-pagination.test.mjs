@@ -30,8 +30,8 @@ test("eerste URL blijft compatibel en vervolgpagina gebruikt start-offset",()=>{
   assert.equal(DISTRICT_NEWS_MAX_PAGES,8);
 });
 
-test("districtsnieuws haalt een tweede pagina als de eerste vol is",async()=>{
-  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-news-pages-"));
+test("districtsnieuws haalt een tweede pagina als de eerste vol is",async(t)=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-news-pages-"));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
   fs.mkdirSync(path.join(root,"site","sources"),{recursive:true});
   const requested=[];
   const first=Array.from({length:DISTRICT_NEWS_PAGE_SIZE},(_,index)=>article((index+1).toString(16).padStart(24,"0")));
@@ -48,8 +48,8 @@ test("districtsnieuws haalt een tweede pagina als de eerste vol is",async()=>{
   assert.equal(new URL(requested[1]).searchParams.get("start"),String(DISTRICT_NEWS_PAGE_SIZE));
 });
 
-test("acht volledig gevulde pagina's falen gesloten als pagination_limit",async()=>{
-  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-news-limit-"));
+test("acht volledig gevulde pagina's falen gesloten als pagination_limit",async(t)=>{
+  const root=fs.mkdtempSync(path.join(os.tmpdir(),"district-news-limit-"));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
   fs.mkdirSync(path.join(root,"site","sources"),{recursive:true});
   let calls=0;
   const fetch=async()=>{
