@@ -414,6 +414,14 @@ export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Nu
 export const iodBronUrl = (dossier) => (/^[A-Z0-9-]{4,40}$/.test(String(dossier || ""))
   ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=dossierNummer,faseNaam,faseStartDatum,faseEindDatum,innameTypeNaam,innameBeschrijving,innameHinder,type_dossier&returnGeometry=false&f=html` : "");
 
+// De identiteit van evenementendossiers: de met de hand nagekeken fiches (evenement-identiteit.json)
+// winnen altijd van de automatische herkenning (evenement-identiteit-auto.json, zie
+// lib/parcours-herkenning.mjs). Zonder fiche koppelt de kaart zelf live aan de agenda.
+export function identiteitSamen(hand = null, auto = null) {
+  if (!auto?.dossiers) return hand;
+  return { ...(hand || {}), dossiers: { ...auto.dossiers, ...(hand?.dossiers || {}) } };
+}
+
 // Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js).
 export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const base = workEntryBasis(work);

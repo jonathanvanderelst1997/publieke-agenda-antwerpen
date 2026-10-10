@@ -879,6 +879,14 @@ const zin = (t) => { const s = clean(t, 800); return s ? `${capital(s)}${/[.!?]$
 const hostVan = (url) => { try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; } };
 const KALENDER = /wat-beleef-je-in-district-antwerpen/i;
 export const ZEKERHEDEN = Object.freeze(["zeker", "waarschijnlijk", "onbekend"]);
+// Waarop een automatische fiche steunt (lib/parcours-herkenning.mjs, veld `methode`).
+export const AUTO_HERKOMST = Object.freeze({
+  kalender: "een agenda met dezelfde dag en plek",
+  gipod: "GIPOD (zelfde dag, het evenementvlak overlapt het parcours)",
+  organisator: "de agenda van de organisator (zelfde dag en plek)",
+  patroon: "dezelfde route als een vorige keer",
+  regels: "de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter",
+});
 
 // Wat jouw straat met dit evenement te maken heeft, met de dagen van een parkeerverbod of een
 // verkeersvrije zone in jouw straat (ook tijdens opbouw en afbraak). f.parcoursRelatie: "op",
@@ -1011,7 +1019,14 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   const dossier = f.dossier ? ` (dossier ${f.dossier})` : "";
   const bronnen = uniek((id?.bron || []).map(hostVan).filter((h) => h && !/geodata\.antwerpen\.be/.test(h)));
   const nagekeken = `${bronnen.length ? ` op ${joinNl(bronnen)}` : ""}${id?.bijgewerkt ? ` (${datumTekst(id.bijgewerkt, { jaar: true })})` : ""}`;
-  const voetnoot = bekend?.zekerheid === "zeker"
+  // Een automatische fiche (site/sources/evenement-identiteit-auto.json, met `methode`) zegt eerlijk
+  // dat niemand ze met de hand nakeek, en waarop ze steunt.
+  const herkomst = AUTO_HERKOMST[clean(id?.methode, 20)] || "";
+  const voetnoot = bekend?.zekerheid === "zeker" && herkomst
+    ? `De stad gaf toelating voor dit evenement${dossier}. De naam is automatisch gevonden in ${herkomst}${bronnen.length ? ` (${joinNl(bronnen)})` : ""}; niet met de hand nagekeken.`
+    : bekend && herkomst
+      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden is automatisch afgeleid uit ${herkomst}; niet met de hand nagekeken.`
+    : bekend?.zekerheid === "zeker"
     ? `De stad gaf toelating voor dit evenement${dossier}. Wat het is, hebben we nagekeken${nagekeken}.`
     : bekend
       ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden steunt op het dossier en op wat we nagekeken hebben${nagekeken}.`

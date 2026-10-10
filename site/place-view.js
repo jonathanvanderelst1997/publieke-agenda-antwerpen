@@ -8,7 +8,7 @@ import {
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase,
-  periodeBadge, kortDatum, kortBereik, lopendKop,
+  periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen,
 } from "./place-core.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -273,13 +273,15 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // bestand maken de kaartjes hun uitleg uit de live lagen alleen.
   // Pas laden zodra een live laag er is: zonder werken of innames is het niet nodig.
   // Daarbij de met de hand nagekeken identiteit van evenementendossiers (naam, uren, officiële link).
-  let kaartUitleg = null, kaartUitlegGevraagd = false, kaartUitlegKlaar = false, evenementIdentiteit = null;
+  // Daarnaast de automatische herkenning bij elke verversing; een handfiche wint altijd (identiteitSamen).
+  let kaartUitleg = null, kaartUitlegGevraagd = false, kaartUitlegKlaar = false, evenementIdentiteit = null, evenementAuto = null;
   const vraagKaartUitleg = () => {
     if (kaartUitlegGevraagd) return;
     kaartUitlegGevraagd = true;
     getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; }).catch(() => {})
       .finally(() => { kaartUitlegKlaar = true; view.resetRefs?.(); announce(); });
     getJson("/sources/evenement-identiteit.json").then((doc) => { evenementIdentiteit = doc; announce(); }).catch(() => {});
+    getJson("/sources/evenement-identiteit-auto.json").then((doc) => { evenementAuto = doc; announce(); }).catch(() => {});
   };
   // ---- één stratenlijst voor tonen én filteren ----
   // Een evenementendossier: de straten van evenementStraten() (place-core.js), zowel die waar het
@@ -574,7 +576,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
     const liveEntries = [
       ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg }),
-      ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: evenementIdentiteit, agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan }),
+      ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: identiteitSamen(evenementIdentiteit, evenementAuto), agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...terrasEntries(inPlace(live.terraces)),
     ];
