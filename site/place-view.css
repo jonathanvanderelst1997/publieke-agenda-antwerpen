@@ -103,6 +103,8 @@
 .pv-head h2:focus { outline: 3px solid var(--pa-focus); outline-offset: 2px; border-radius: 4px; }
 /* Na een muisklik krijgt de kop een rustige focus; met het toetsenbord blijft de volle rand. */
 .pv-head h2:focus:not(:focus-visible) { outline-width: 2px; outline-color: color-mix(in srgb, var(--pa-focus) 35%, transparent); }
+/* Na het kiezen van een plek springt de focus naar de kop: dan geen kader (place-view.js zet pv-stil, tot blur). */
+.pv-head h2.pv-stil:focus { outline: none; }
 .pv-sub { margin: 8px 0 0; color: var(--pa-muted); font-size: .93rem; }
 /* Eén kolom die nooit breder wordt dan de lijst (anders schuift de pagina opzij op een gsm). */
 .pv-toolbar { margin: 14px 0 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }

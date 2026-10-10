@@ -393,6 +393,23 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
+  // Hertest, restpunt 6: na het kiezen van een suggestie krijgt de kop de focus (voor schermlezers), maar
+  // zonder kader rond "Alles op deze plek". Een knop die je daarna met Tab bereikt, toont de focus wel.
+  await t.test("na het kiezen van een suggestie: focus op de kop, zonder kader", async () => {
+    const { page, context } = await openPlace(baseUrl);
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("2060");
+    await input.press("Enter");
+    await page.waitForFunction(() => document.activeElement?.id === "pv-title");
+    const kop = await page.evaluate(() => { const cs = getComputedStyle(document.querySelector("#pv-title")); return { stijl: cs.outlineStyle, breedte: parseFloat(cs.outlineWidth) }; });
+    assert.ok(kop.stijl === "none" || kop.breedte === 0, `kader rond de kop: ${kop.stijl} ${kop.breedte}px`);
+    await page.keyboard.press("Tab");
+    const volgende = await page.evaluate(() => { const e = document.activeElement; const cs = getComputedStyle(e); return { id: e.id, fv: e.matches(":focus-visible"), stijl: cs.outlineStyle, breedte: parseFloat(cs.outlineWidth) }; });
+    assert.notEqual(volgende.id, "pv-title");
+    assert.ok(volgende.fv && volgende.stijl !== "none" && volgende.breedte >= 2, `focus na Tab: ${JSON.stringify(volgende)}`);
+    await context.close();
+  });
+
   await t.test("axe: geen overtredingen op de plek met een open kaart", { skip: axePath ? false : "zet AXE_CORE_PATH naar axe.min.js" }, async () => {
     const { page, context, card } = await openPlace(baseUrl);
     await card.locator(".pv-row-btn").click();

@@ -141,3 +141,24 @@ test("5. Ekeren: de noot noemt 14.00 tot 17.00 uur uit de besluiten, met de besl
   assert.match(wanneer, /14\.00 tot 17\.00 uur/);
   assert.doesNotMatch(wanneer, /13\.30/);
 });
+
+// ---------- 6. kleine punten ----------
+test("6a. de tegel \"vergunningen\" telt geen terrassen mee; terrassen staan er apart bij", async () => {
+  const { permitEntry, terrasEntries, summarize } = await import("../site/place-core.js");
+  const aanvragen = [1, 2, 3].map((i) => permitEntry({ id: `permit:${i}`, dossier: `OMV_20260000${i}0`, streets: [{ name: "Proefstraat" }] }));
+  const terrassen = terrasEntries([1, 2].map((i) => ({ id: `terrace:${i}`, address: `Voorbeeldplein ${i}`, terraceType: "Terras", status: "vergund" })));
+  const som = summarize([...aanvragen, ...terrassen], "2026-10-10");
+  assert.equal(som.vergunningen, 3);
+  assert.equal(som.terrassen, 2);
+  const view = css("place-view.js");
+  assert.match(view, /summary\.terrassen \? ` \(\+ \$\{summary\.terrassen\} \$\{summary\.terrassen === 1 \? "terras" : "terrassen"\}\)`/);
+});
+
+test("6b. na het kiezen van een plek krijgt de kop de focus zonder kader (e2e: gsm-opmaak)", () => {
+  const view = css("place-view.js");
+  assert.match(view, /titleEl\.classList\.add\("pv-stil"\);\s*titleEl\.focus\(/);
+  assert.match(view, /addEventListener\("blur", \(\) => titleEl\.classList\.remove\("pv-stil"\)\)/);
+  assert.match(regel(".pv-head h2.pv-stil:focus").outline, /^none$/);
+  // De gewone focusrand van de kop (voor wie er anders komt) blijft.
+  assert.match(regel(".pv-head h2:focus").outline, /3px solid/);
+});

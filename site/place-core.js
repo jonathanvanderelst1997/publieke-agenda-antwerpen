@@ -996,8 +996,10 @@ export function terrasEntries(rows = []) {
 }
 
 // Tellen per soortgroep (voor de chips en de samenvatting bovenaan de plek).
+// Terrassen horen bij de groep "vergunningen" (één chip), maar de tegel telt ze apart: "12 vergunningen"
+// mocht geen 9 terrassen meetellen.
 export function summarize(entries, today) {
-  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0 };
+  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0, terrassen: 0 };
   const seen = new Set();
   for (const entry of entries) {
     const key = entry.source === "agenda" ? `${entry.group}|${entry.title}|${entry.location}` : entry.uid;
@@ -1007,7 +1009,8 @@ export function summarize(entries, today) {
     }
     if (seen.has(key)) continue; // een reeks (elke dinsdag) telt één keer
     seen.add(key);
-    if (entry.group in out) out[entry.group] += 1;
+    if (entry.group === "vergunningen" && entry.source === "terraces") out.terrassen += 1;
+    else if (entry.group in out) out[entry.group] += 1;
   }
   return out;
 }

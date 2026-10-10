@@ -189,6 +189,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     </div>`;
   const $ = (s) => section.querySelector(s);
   const placeBox = $(".pv-place"), titleEl = $("#pv-title"), subEl = $(".pv-sub"), groupsEl = $(".pv-groups"), modesEl = $(".pv-modes"), periodsEl = $(".pv-periods"), navEl = $(".pv-nav"), results = $(".pv-results"), loadingEl = $(".pv-loading"), aside = $(".pv-aside");
+  // Een stille focus (zonder kader) geldt alleen voor de sprong na het kiezen van een plek (applyPlace).
+  titleEl?.addEventListener("blur", () => titleEl.classList.remove("pv-stil"));
   controls.after(section);
 
   // Uitgelicht blijft de opener zonder plek; met een plek is het overzicht zelf de hoofdzaak.
@@ -330,6 +332,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     announce();
     if (focusResults) {
       section.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      // De focus springt naar de kop (schermlezers lezen dan de nieuwe plek voor), zonder kader rond
+      // "Alles op deze plek": dat zag eruit als een fout. Wie verder tabt, ziet de focus gewoon.
+      titleEl.classList.add("pv-stil");
       titleEl.focus({ preventScroll: true });
     }
   }
@@ -544,7 +549,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
         ${tile(summary.werkenGepland, "werken gepland", "cat-works pv-stat-planned", "werken")}
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
-        ${tile(summary.vergunningen, summary.vergunningen === 1 ? "vergunning" : "vergunningen", "cat-permits", "vergunningen")}
+        ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
       ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}`;
   }
