@@ -4,7 +4,8 @@
 # tokens; de eigen regels hieronder zoeken wat nooit op de agenda hoort:
 # een Belgisch rekeningnummer, een e-mailadres, een Belgisch gsm-nummer en een
 # huisnummer bij een straatnaam. Dezelfde soorten als privacyFindings in
-# lib/source-feed.mjs en de privacytoets van de Gateway.
+# lib/source-feed.mjs en de privacytoets van de Gateway. Een vijfde regel,
+# huisnummer-als-plek, is geen vondst: ze telt de adressen van evenementlocaties.
 #
 # Meldstand: CI faalt hier niet op (job gitleaks in .github/workflows/ci.yml,
 # --exit-code 0). Een vondst is een vraag, geen verbod: kijk of het om een
@@ -48,24 +49,58 @@ tags = ["privacy"]
 # Een straatnaam (Kerkstraat, De Keyserlei, Grote Markt, Turnhoutsebaan ...)
 # gevolgd door een huisnummer (12, 12A, 12 bus 3). Een straat zonder nummer is
 # geen vondst: de agenda toont straten, geen voordeuren.
+#
+# Het eerste alternatief vooraan (PLEK) is de locatie van een evenement: de naam
+# van de plek, een komma en meteen het adres ("Zaal Fictief, Straat 12") in het
+# veld location (JSON en JS), in de JSON-LD (Place.name) of onder "Waar" op de
+# eventpagina. De naam heeft geen cijfers, zodat er geen tweede adres in kan
+# schuilen. Zo'n vondst begint met dat voorvoegsel; de allowlist "Locatie van
+# een plek" laat ze hier door, en de regel huisnummer-als-plek telt ze apart.
+# Een adres vooraan ("Straat 12, 2060 Antwerpen") of ergens anders op dezelfde
+# regel (een beschrijving, een titel) blijft een vondst, ook in een
+# geminificeerd bestand van één regel.
 [[rules]]
 id = "huisnummer-bij-straat"
 description = "Huisnummer bij een straatnaam"
-regex = '''(?m)(?:^|[^\p{L}0-9])((?:\p{Lu}[\p{L}'-]*(?:straat|steenweg|laan|lei|plein|dreef|weg|kaai|kade|vest|markt|singel|baan|hof|dijk|pad|plaats|brug|poort|wal|rui|gracht|berg|veld|dam|plantsoen|park|ring)|(?:Straat|Steenweg|Laan|Lei|Plein|Dreef|Weg|Kaai|Kade|Vest|Markt|Singel|Baan|Hof|Dijk|Pad|Plaats|Brug|Poort|Wal|Rui|Gracht|Berg|Veld|Dam|Plantsoen|Park|Ring))[ \t]+[1-9][0-9]{0,3}(?:[ \t]?[A-Za-z])?(?:[ \t]*(?:bus|b)[ \t]*[0-9A-Za-z]{1,4})?)(?:[^0-9A-Za-z]|$)'''
+regex = '''(?m)(?:(?:"?location"?\s*:\s*"|"@type"\s*:\s*"Place"\s*,\s*"name"\s*:\s*"|<dt>Waar</dt><dd>)[^",<\n0-9]*[^\s",<\n0-9][^",<\n0-9]*,[ \t]*|^|[^\p{L}0-9])((?:\p{Lu}[\p{L}'-]*(?:straat|steenweg|laan|lei|plein|dreef|weg|kaai|kade|vest|markt|singel|baan|hof|dijk|pad|plaats|brug|poort|wal|rui|gracht|berg|veld|dam|plantsoen|park|ring)|(?:Straat|Steenweg|Laan|Lei|Plein|Dreef|Weg|Kaai|Kade|Vest|Markt|Singel|Baan|Hof|Dijk|Pad|Plaats|Brug|Poort|Wal|Rui|Gracht|Berg|Veld|Dam|Plantsoen|Park|Ring))[ \t]+[1-9][0-9]{0,3}(?:[ \t]?[A-Za-z])?(?:[ \t]*(?:bus|b)[ \t]*[0-9A-Za-z]{1,4})?)(?:[^0-9A-Za-z]|$)'''
 secretGroup = 1
 tags = ["privacy"]
+
+# Hetzelfde adres, maar alleen in de vorm "Naam, Straat 12" in een locatie
+# (het PLEK-alternatief hierboven). Geen vondst: scripts/gitleaks-meld.mjs telt
+# ze apart als "toegelaten als plek", zodat je ziet hoeveel er zijn.
+[[rules]]
+id = "huisnummer-als-plek"
+description = "Adres van een evenementlocatie, direct na de naam van de plek"
+regex = '''(?m)(?:"?location"?\s*:\s*"|"@type"\s*:\s*"Place"\s*,\s*"name"\s*:\s*"|<dt>Waar</dt><dd>)[^",<\n0-9]*[^\s",<\n0-9][^",<\n0-9]*,[ \t]*((?:\p{Lu}[\p{L}'-]*(?:straat|steenweg|laan|lei|plein|dreef|weg|kaai|kade|vest|markt|singel|baan|hof|dijk|pad|plaats|brug|poort|wal|rui|gracht|berg|veld|dam|plantsoen|park|ring)|(?:Straat|Steenweg|Laan|Lei|Plein|Dreef|Weg|Kaai|Kade|Vest|Markt|Singel|Baan|Hof|Dijk|Pad|Plaats|Brug|Poort|Wal|Rui|Gracht|Berg|Veld|Dam|Plantsoen|Park|Ring))[ \t]+[1-9][0-9]{0,3}(?:[ \t]?[A-Za-z])?(?:[ \t]*(?:bus|b)[ \t]*[0-9A-Za-z]{1,4})?)(?:[^0-9A-Za-z]|$)'''
+secretGroup = 1
+tags = ["plek"]
 
 # ---------- allowlists (alleen voor de eigen privacyregels) ----------
 # Een echte sleutel blijft overal een vondst van de standaardregels.
 
-# Toetsen en fixtures bevatten verzonnen voorbeelden; deze configuratie bevat
-# de lijsten hieronder.
+# De verzonnen voorbeelden voor deze regels en deze configuratie zelf.
 [[allowlists]]
-description = "Toetsen, fixtures en deze configuratie"
-targetRules = ["iban-be", "e-mailadres", "gsm-be", "huisnummer-bij-straat"]
+description = "Voorbeelden van gitleaks en deze configuratie"
+targetRules = ["iban-be", "e-mailadres", "gsm-be", "huisnummer-bij-straat", "huisnummer-als-plek"]
 paths = [
-  '''^tests/''',
+  '''^tests/fixtures/gitleaks/''',
   '''(?:^|/)\.gitleaks\.toml$''',
+]
+
+# Andere toetsen en fixtures: alleen een regel met een duidelijk merkteken van
+# verzonnen gegevens. De rest blijft een vondst, want in een fixture belandt
+# soms een echte opgehaalde pagina. scripts/gitleaks-meld.mjs telt vondsten
+# onder tests/ apart.
+[[allowlists]]
+description = "Toetsen: een regel die zegt dat het verzonnen is"
+targetRules = ["iban-be", "e-mailadres", "gsm-be", "huisnummer-bij-straat", "huisnummer-als-plek"]
+condition = "AND"
+paths = ['''^tests/''']
+regexTarget = "line"
+regexes = [
+  '''(?i)\b(?:verzonnen|voorbeeld|fictief|nergens|nep|fake|dummy|example)''',
+  '''(?i)\.invalid\b''',
 ]
 
 # Functionele adressen van publieke organisaties, adressen van GitHub zelf en
@@ -82,17 +117,15 @@ regexes = [
   '''\.(?:invalid|test|example)$''',
 ]
 
-# Een evenement op een publieke plek: "Naam, Straat 12" in het veld location
-# (JSON en JS), in de JSON-LD (Place.name) of onder "Waar" op de eventpagina.
-# Een adres zonder naam ervoor (zoals in site/history/) blijft een vondst.
+# Een evenement op een publieke plek: per vondst, niet per tekstregel. Alleen
+# een vondst die met het PLEK-voorvoegsel begint (zie huisnummer-bij-straat);
+# huisnummer-als-plek telt dezelfde adressen apart.
 [[allowlists]]
-description = "Evenementlocatie met de naam van de plek ervoor"
+description = "Locatie van een plek: Naam, Straat 12"
 targetRules = ["huisnummer-bij-straat"]
-regexTarget = "line"
+regexTarget = "match"
 regexes = [
-  '''"?location"?\s*:\s*"[^"]*[^\s",][^",]*,\s''',
-  '''"@type"\s*:\s*"Place"\s*,\s*"name"\s*:\s*"[^"]*[^\s",][^",]*,\s''',
-  '''<dt>Waar</dt><dd>[^<,]*[^\s<,][^<,]*,\s''',
+  '''^(?:"?location"?\s*:\s*"|"@type"\s*:\s*"Place"\s*,\s*"name"\s*:\s*"|<dt>Waar</dt><dd>)''',
 ]
 
 # Bekende publieke plekken die ook buiten een location-veld voorkomen (in een
@@ -109,9 +142,12 @@ regexes = [
 
 # Een Antwerpse postcode na een straatnaam is geen huisnummer
 # ("De Keyserlei 2018" om twee straten met dezelfde naam te onderscheiden).
+# Een jaartal ook niet: "Rotterdam 2025", "Kerstmarkt 2026". Het kost een echt
+# huisnummer van 1900 tot 2099 zonder letter of bus; dat is zeldzaam.
 [[allowlists]]
-description = "Postcode van Antwerpen, geen huisnummer"
+description = "Postcode van Antwerpen of jaartal, geen huisnummer"
 targetRules = ["huisnummer-bij-straat"]
 regexes = [
   ''' (?:2000|2018|2020|2030|2040|2050|2060|2100|2140|2170|2180|2600|2610|2660)$''',
+  '''[ \t](?:19|20)[0-9]{2}$''',
 ]

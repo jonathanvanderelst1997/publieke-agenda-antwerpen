@@ -17,10 +17,23 @@
 //     (generatedAt) zodat de rest van de keten toch iets te doen heeft. Zo zet een datatak-PR geen
 //     tweede verversing in gang.
 //
+//   node scripts/refresh-droog.mjs breuken
+//     Na de andere stappen in dezelfde job: zet de breuken (die gereedschap en verversing in
+//     $RUNNER_TEMP/droog-breuken.txt of DROOG_BREUKEN schreven, plus de stappen die faalden volgens
+//     STAPPEN = toJSON(steps)) als JSON-lijst in de output "lijst" van de stap.
+//
+//   node scripts/refresh-droog.mjs oordeel
+//     Vergelijkt de breuken van 26.04 (PROEF) met die van de controle op 24.04 (CONTROLE). Alleen
+//     wat op 26.04 breekt en op 24.04 niet, ligt aan 26.04 ("echt"). Wat op beide breekt, ligt aan
+//     de live data of de code, niet aan de overstap.
+//
 // Exitcode 1 bij een breuk: een stap die moet slagen faalt, of een uitkomst wijkt af. Een stap die
 // faalt door de toestand van de bronnen of de live site (bronstatus, versheid) is geen breuk.
+//
+// Op macOS geeft "gereedschap" BREUK: date, sort, base64 en sha256sum zijn daar BSD-versies of
+// ontbreken. Dat zegt niets over Ubuntu; draai het op Linux (of in een Ubuntu-container).
 import { spawn, spawnSync } from "node:child_process";
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -179,7 +192,7 @@ export const DATATAKKEN = [
 ];
 export const OPGERUIMD = ["data/refresh-20261006-9", "data/refresh-20261005-300", "data/refresh-20261001-36846807454"];
 
-function vasteControles(werkstroom) {
+export function vasteControles(werkstroom) {
   const publiceer = werkstroom.get("publish-branch")?.steps.find((s) => s.name === "Patch toepassen en de datalijst opnieuw toetsen");
   const lane = publiceer?.run ? databaantoets(publiceer.run) : null;
   const tak = (naam, i) => `${String(i).padStart(40, "0")}\trefs/heads/${naam}`;
@@ -253,6 +266,13 @@ done | sort -k1,1nr -k2,2nr | tail -n +6 | while read -r _ _ old; do echo "$old"
       naam: "base64 -w0 van de git-aanmelding",
       script: "printf 'x-access-token:%s' abc | base64 -w0",
       verwacht: ({ code, uitvoer }) => (code === 0 && uitvoer === Buffer.from("x-access-token:abc").toString("base64")) || "andere base64",
+    },
+    {
+      // De job gitleaks haalt gitleaks op met "echo '<sha>  <bestand>' | sha256sum -c -".
+      naam: "sha256sum -c - (gitleaks ophalen)",
+      script: 'printf "verzonnen inhoud\\n" > "$1/sum.txt"; echo "$2  $1/sum.txt" | sha256sum -c - && ! echo "$3  $1/sum.txt" | sha256sum -c - 2>/dev/null && echo ok',
+      args: ["$TMP", createHash("sha256").update("verzonnen inhoud\n").digest("hex"), "0".repeat(64)],
+      verwacht: ({ code, uitvoer }) => (code === 0 && /: OK\n/.test(uitvoer) && uitvoer.trim().endsWith("ok")) || "verwacht OK voor de juiste som en een fout voor een verkeerde",
     },
     {
       naam: "wc -l < bestand",
@@ -351,16 +371,39 @@ const VERSIES = [
   ["tail", "tail --version | head -n 1"],
   ["base64", "base64 --version | head -n 1"],
   ["wc", "wc --version | head -n 1"],
+  ["sha256sum", "sha256sum --version | head -n 1"],
+  ["tar", "tar --version | head -n 1"],
   ["git", "git --version"],
   ["curl", "curl --version | head -n 1"],
   ["node", "node --version; npm --version"],
 ];
+
+/** Een waarschuwing vooraf als dit niet op Linux draait: dan zegt BREUK niets over Ubuntu. */
+export function platformWaarschuwing(platform = process.platform) {
+  if (platform === "linux") return null;
+  const waar = platform === "darwin" ? "macOS (BSD-versies van date, sort en base64; geen sha256sum)" : platform;
+  return `Let op: dit draait op ${waar}, niet op Linux. Een BREUK hieronder zegt dan niets over Ubuntu 26.04; draai het op Linux of in een Ubuntu-container.`;
+}
+
+// Waar de breuken van een job staan: DROOG_BREUKEN, of in Actions een vast bestand in RUNNER_TEMP
+// (dat deelt elke stap van dezelfde job). Lokaal nergens.
+const breukenBestand = (env = process.env) =>
+  env.DROOG_BREUKEN || (env.GITHUB_ACTIONS === "true" && env.RUNNER_TEMP ? path.join(env.RUNNER_TEMP, "droog-breuken.txt") : null);
+
+/** Schrijft een breuk weg voor de stap "breuken", één per regel. */
+function bewaarBreuk(soort, wat) {
+  const bestand = breukenBestand();
+  if (!bestand) return;
+  fs.appendFileSync(bestand, `${soort}: ${String(wat).replace(/[\r\n]+/g, " ")}\n`);
+}
 
 async function gereedschap() {
   const werkstroom = leesWerkstroom(fs.readFileSync(path.join(rootDir, WERKSTROOM), "utf8"));
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "refresh-droog-"));
   const rijen = [];
   try {
+    const waarschuwing = platformWaarschuwing();
+    if (waarschuwing) console.log(waarschuwing);
     console.log("Gereedschap op deze image:");
     for (const [naam, script] of VERSIES) {
       const { uitvoer } = await bashUit(script);
@@ -376,7 +419,7 @@ async function gereedschap() {
       const oordeel = controle.verwacht(r);
       const ok = oordeel === true;
       const soort = ok ? "ok" : controle.soort === "cosmetisch" ? "let op" : "BREUK";
-      if (soort === "BREUK") breuken += 1;
+      if (soort === "BREUK") { breuken += 1; bewaarBreuk("gereedschap", controle.naam); }
       console.log(neutraal(`${soort.padEnd(6)} ${controle.naam}${ok ? "" : `: ${oordeel}; kreeg code ${r.code}, ${JSON.stringify(r.uitvoer.slice(0, 300))}`}`));
       rijen.push([soort, controle.naam, ok ? "" : String(oordeel)]);
     }
@@ -430,19 +473,40 @@ export function maakStubs(map, echteGit) {
   const lijst = DATATAKKEN.map((naam, i) => `${String(i).padStart(40, "0")}\trefs/heads/${naam}`).join("\\n");
   fs.writeFileSync(path.join(map, "git"), `#!/usr/bin/env bash
 # Droge verversing: wat naar het netwerk schrijft of de remote vraagt, wordt alleen gemeld.
-case "\${1:-}" in
+# Eerst de globale opties van git overslaan (-C pad, -c k=v, --git-dir pad, --bare ...), dan pas
+# het subcommando bekijken: anders gaat "git -C . push" langs de stub naar de echte remote.
+sub=""
+i=1
+while [ "$i" -le "$#" ]; do
+  a="\${!i}"
+  case "$a" in
+    -C|-c|--git-dir|--work-tree|--namespace|--config-env|--attr-source) i=$((i + 2)) ;;
+    -*) i=$((i + 1)) ;;
+    *) sub="$a"; break ;;
+  esac
+done
+case "$sub" in
   push) echo "DROOG: git $* (niet uitgevoerd)" >&2; exit 0 ;;
   ls-remote)
     case " $* " in
       *" --exit-code "*) echo "DROOG: git ls-remote --exit-code: tak bestaat niet" >&2; exit 2 ;;
     esac
     printf '${lijst}\\n'; exit 0 ;;
-  fetch|pull|clone) echo "DROOG: git $1 overgeslagen" >&2; exit 0 ;;
+  fetch|pull|clone) echo "DROOG: git $sub overgeslagen" >&2; exit 0 ;;
 esac
 exec "${echteGit}" "$@"
 `, { mode: 0o755 });
   fs.writeFileSync(path.join(map, "gh"), "#!/usr/bin/env bash\necho \"DROOG: gh $* (niet uitgevoerd)\" >&2\nexit 0\n", { mode: 0o755 });
 }
+
+// De git-instellingen van de droge run (GIT_CONFIG_GLOBAL). Een tweede slot naast de stub: gaat
+// een push er toch langs (een vorm die de stub niet kent), dan wijst de URL naar een schema dat
+// niet bestaat en faalt de push zonder het netwerk te raken.
+export const DROOG_GITCONFIG = [
+  '[url "droog-geen-push://"]',
+  ...["https://", "http://", "ssh://", "git://", "git@"].map((voor) => `\tpushInsteadOf = ${voor}`),
+  "",
+].join("\n");
 
 async function verversing() {
   const werkstroom = leesWerkstroom(fs.readFileSync(path.join(rootDir, WERKSTROOM), "utf8"));
@@ -451,8 +515,8 @@ async function verversing() {
   const echteGit = spawnSync("bash", ["-c", "command -v git"], { encoding: "utf8" }).stdout.trim();
   const stubs = path.join(tmp, "stubs");
   maakStubs(stubs, echteGit);
-  const leegConfig = path.join(tmp, "gitconfig");
-  fs.writeFileSync(leegConfig, "");
+  const droogConfig = path.join(tmp, "gitconfig");
+  fs.writeFileSync(droogConfig, DROOG_GITCONFIG);
   const baseSha = spawnSync(echteGit, ["rev-parse", "HEAD"], { cwd: rootDir, encoding: "utf8" }).stdout.trim();
   const context = { runId: /^[0-9]+$/.test(process.env.GITHUB_RUN_ID ?? "") ? process.env.GITHUB_RUN_ID : "1", baseSha };
   const artefacten = path.join(tmp, "artefacten");
@@ -460,7 +524,7 @@ async function verversing() {
   const rijen = [];
   let breuken = 0;
   const noteer = (soort, wat, toelichting = "") => {
-    if (soort === "BREUK") breuken += 1;
+    if (soort === "BREUK") { breuken += 1; bewaarBreuk("verversing", wat); }
     rijen.push([soort, wat, toelichting]);
     console.log(`${soort === "BREUK" ? "BREUK" : soort}: ${wat}${toelichting ? ` (${toelichting})` : ""}`);
   };
@@ -520,7 +584,7 @@ async function verversing() {
         const env = {
           ...process.env,
           PATH: `${stubs}${path.delimiter}${process.env.PATH}`,
-          GIT_CONFIG_GLOBAL: leegConfig,
+          GIT_CONFIG_GLOBAL: droogConfig,
           GIT_CONFIG_NOSYSTEM: "1",
           GITHUB_REF: "refs/heads/main",
           GITHUB_EVENT_NAME: "workflow_dispatch",
@@ -570,10 +634,168 @@ async function verversing() {
   return breuken ? 1 : 0;
 }
 
+// ---------- breuken doorgeven en het oordeel ----------
+
+/**
+ * De breuken van één job als lijst: de regels uit DROOG_BREUKEN, plus "stap: <id>" voor een stap
+ * die faalde zonder zelf iets te noteren (npm ci, npm run check, een script dat crashte).
+ */
+export function verzamelBreuken(regels, stappen) {
+  const lijst = [...new Set(String(regels ?? "").split("\n").map((r) => r.trim()).filter(Boolean))];
+  for (const [id, stap] of Object.entries(stappen ?? {})) {
+    if (stap?.outcome !== "failure") continue;
+    if (lijst.some((r) => r.startsWith(`${id}: `))) continue;
+    lijst.push(`stap: ${id}`);
+  }
+  return lijst;
+}
+
+function breukenStap(env = process.env) {
+  let regels = "";
+  const bestand = breukenBestand(env);
+  try { regels = bestand ? fs.readFileSync(bestand, "utf8") : ""; } catch { regels = ""; }
+  let stappen = {};
+  try { stappen = JSON.parse(env.STAPPEN || "{}"); } catch { stappen = {}; }
+  const lijst = verzamelBreuken(regels, stappen);
+  console.log(lijst.length ? `${lijst.length} breuk(en) in deze job:` : "Geen breuken in deze job.");
+  for (const r of lijst) console.log(neutraal(r));
+  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `lijst=${JSON.stringify(lijst)}\n`);
+  return 0;
+}
+
+const leesLijst = (tekst) => {
+  try {
+    const v = JSON.parse(tekst);
+    return Array.isArray(v) ? v.map(String) : null;
+  } catch {
+    return null;
+  }
+};
+
+/**
+ * Het oordeel over 26.04. proef en controle zijn de JSON-lijsten uit de stap "breuken" (of leeg
+ * als die job geen uitkomst gaf). De controle op 24.04 draait alleen als de proef iets vond.
+ * Geeft { echt, ookOp2404, zonderControle, onbekend }.
+ */
+export function oordeel({ proef, controle }) {
+  const p = leesLijst(proef ?? "");
+  if (!p) return { echt: [], ookOp2404: [], zonderControle: false, onbekend: true };
+  const c = leesLijst(controle ?? "");
+  if (!p.length) return { echt: [], ookOp2404: [], zonderControle: false, onbekend: false };
+  if (!c) return { echt: p, ookOp2404: [], zonderControle: true, onbekend: false };
+  const opControle = new Set(c);
+  return { echt: p.filter((b) => !opControle.has(b)), ookOp2404: p.filter((b) => opControle.has(b)), zonderControle: false, onbekend: false };
+}
+
+function oordeelStap(env = process.env) {
+  const o = oordeel({ proef: env.PROEF, controle: env.CONTROLE });
+  const rijen = [];
+  if (o.onbekend) {
+    console.log("::error title=Ubuntu-proef::Geen uitkomst van ubuntu-26.04-proef (de job startte niet of stopte vroeg). Bekijk die job.");
+    rijen.push(["onbekend", "ubuntu-26.04-proef", "geen uitkomst"]);
+  } else {
+    for (const b of o.echt) { console.log(neutraal(`BREUK op 26.04${o.zonderControle ? " (geen controle)" : ", niet op 24.04"}: ${b}`)); rijen.push(["BREUK", b, o.zonderControle ? "geen controle op 24.04" : "alleen op 26.04"]); }
+    for (const b of o.ookOp2404) { console.log(neutraal(`ook op 24.04 (ligt niet aan 26.04): ${b}`)); rijen.push(["ook op 24.04", b, "live data of code, niet de overstap"]); }
+    if (o.echt.length) console.log(`::error title=Ubuntu-proef::${o.echt.length} breuk(en) die alleen op 26.04 optreden. Zie docs/UBUNTU_2604.md.`);
+    else console.log(o.ookOp2404.length ? "Geen breuk door 26.04; wat faalt, faalt ook op 24.04." : "Geen breuk op 26.04.");
+  }
+  schrijfSamenvatting("Ubuntu-proef: oordeel (26.04 tegen 24.04)", rijen);
+  const echt = o.onbekend ? "onbekend" : String(o.echt.length);
+  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `echt=${echt}\n`);
+  return echt === "0" ? 0 : 1;
+}
+
+// ---------- runners: nooit self-hosted ----------
+
+// GitHub-gehoste labels: gratis voor een publieke repo, en een verse machine per job. Al de rest is
+// self-hosted (zoals de Mac van de eigenaar) of een eigen, betaalde runnergroep.
+export const GEHOST_LABEL = /^(?:ubuntu-slim|(?:ubuntu|windows|macos)-(?:latest|[0-9]+(?:\.[0-9]+)?)(?:-(?:arm|arm64|intel|large|xlarge))?)$/;
+
+const WAAROM = "deze repo is publiek: elke fork kan een PR openen, en die code zou dan op die machine draaien (bv. de Mac van de eigenaar)";
+
+const kaal = (waarde) => waarde.trim().replace(/^(["'])(.*)\1$/, "$2");
+const scalaire = (waarde) => {
+  const v = waarde.replace(/(^|\s)#.*$/, "").trim();
+  if (/^\[.*\]$/.test(v)) return v.slice(1, -1).split(",").map(kaal).filter(Boolean);
+  return v ? [kaal(v)] : [];
+};
+
+/** Waarden van matrix.<sleutel> in een jobblok: "sleutel: [a, b]", een lijst eronder, of include. */
+function matrixWaarden(blok, sleutel) {
+  const start = blok.findIndex((r) => /^\s+matrix:\s*$/.test(r));
+  if (start < 0) return null;
+  const waarden = [];
+  for (let i = start + 1; i < blok.length; i += 1) {
+    const m = blok[i].match(new RegExp(`^(\\s+)(?:- )?${sleutel}:\\s*(.*)$`));
+    if (!m) continue;
+    if (m[2].trim()) { waarden.push(...scalaire(m[2])); continue; }
+    for (let j = i + 1; j < blok.length && /^\s+- /.test(blok[j]) && blok[j].match(/^\s*/)[0].length > m[1].length; j += 1) {
+      waarden.push(...scalaire(blok[j].replace(/^\s+- /, "")));
+    }
+  }
+  return waarden.length ? waarden : null;
+}
+
+/**
+ * Fouten in de runners van een werkstroom: self-hosted, een eigen label of een runnergroep.
+ * GitHub-gehoste labels mogen allemaal (ubuntu-*, macos-*, windows-*), ook vastgezet
+ * (ubuntu-24.04) en via ${{ matrix.x }} als de matrix alleen zulke labels heeft.
+ */
+export function runnerFouten(tekst) {
+  const regels = tekst.split(/\r?\n/);
+  const fouten = [];
+  regels.forEach((r, i) => {
+    if (/self-hosted/.test(r.replace(/(^|\s)#.*$/, ""))) fouten.push(`regel ${i + 1}: self-hosted; ${WAAROM}`);
+  });
+  const start = regels.indexOf("jobs:");
+  if (start < 0) return fouten;
+  const jobs = [];
+  for (let i = start + 1; i < regels.length; i += 1) {
+    const kop = regels[i].match(/^ {2}([A-Za-z0-9_-]+):\s*$/);
+    if (kop) jobs.push({ naam: kop[1], van: i + 1 });
+    else if (/^\S/.test(regels[i])) break;
+  }
+  jobs.forEach((job, k) => {
+    const tot = k + 1 < jobs.length ? jobs[k + 1].van - 1 : regels.length;
+    const blok = regels.slice(job.van, tot);
+    const i = blok.findIndex((r) => /^ {4}runs-on:/.test(r));
+    if (i < 0) return; // een herbruikbare werkstroom (uses:) heeft geen runs-on
+    const waarde = blok[i].replace(/^ {4}runs-on:/, "");
+    let labels = scalaire(waarde);
+    if (!labels.length) {
+      // Blokvorm: group/labels of een lijst.
+      for (let j = i + 1; j < blok.length && /^ {6}/.test(blok[j]); j += 1) {
+        const r = blok[j].trim();
+        if (/^group:/.test(r)) fouten.push(`${job.naam}: runnergroep "${scalaire(r.slice(6)).join(",")}" (eigen runners); ${WAAROM}`);
+        else if (/^labels:/.test(r)) labels.push(...scalaire(r.slice(7)));
+        else if (/^- /.test(r)) labels.push(...scalaire(r.slice(2)));
+      }
+    }
+    const uit = [];
+    for (const label of labels) {
+      const expr = label.match(/^\$\{\{\s*matrix\.([A-Za-z0-9_-]+)\s*\}\}$/);
+      if (expr) {
+        const waarden = matrixWaarden(blok, expr[1]);
+        if (!waarden) fouten.push(`${job.naam}: runs-on ${label} niet na te gaan; zet de labels als lijst in strategy.matrix.${expr[1]}`);
+        else uit.push(...waarden);
+      } else if (/\$\{\{/.test(label)) {
+        fouten.push(`${job.naam}: runs-on ${label} niet na te gaan; gebruik een vast GitHub-label of matrix.<sleutel> met een lijst`);
+      } else uit.push(label);
+    }
+    for (const label of uit) {
+      if (label === "self-hosted") continue; // al gemeld hierboven
+      if (!GEHOST_LABEL.test(label)) fouten.push(`${job.naam}: label "${label}" is geen GitHub-gehoste runner (ubuntu-*, macos-*, windows-*); ${WAAROM}`);
+    }
+  });
+  return fouten;
+}
+
 export async function main(argv = process.argv.slice(2)) {
   if (argv[0] === "gereedschap" && argv.length === 1) return gereedschap();
   if (argv[0] === "verversing" && argv.length === 1) return verversing();
-  console.error("Gebruik: node scripts/refresh-droog.mjs gereedschap | verversing");
+  if (argv[0] === "breuken" && argv.length === 1) return breukenStap();
+  if (argv[0] === "oordeel" && argv.length === 1) return oordeelStap();
+  console.error("Gebruik: node scripts/refresh-droog.mjs gereedschap | verversing | breuken | oordeel");
   return 2;
 }
 

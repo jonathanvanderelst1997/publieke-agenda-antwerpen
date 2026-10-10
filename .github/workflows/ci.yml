@@ -264,8 +264,10 @@ jobs:
   # databaantoets). Deze job draait de check en een droge verversing op 26.04
   # (scripts/refresh-droog.mjs): de run-stappen van refresh.yml zelf, met lezen
   # van het netwerk maar zonder schrijven (geen push, geen tak, geen issue).
+  # Vier jobs: proef (26.04), controle (24.04, alleen als de proef iets vond),
+  # oordeel (wat breekt alleen op 26.04) en alarm (een issue, alleen op main).
   # continue-on-error: rood hier maakt de run niet rood, en de Gateway kijkt
-  # alleen naar 'check' en 'data-only'. Faalt hij: zie docs/UBUNTU_2604.md.
+  # alleen naar 'check' en 'data-only'. Faalt het oordeel: docs/UBUNTU_2604.md.
   # Net als check: nooit op een self-hosted runner (publieke repo, forks).
   ubuntu-2604-proef:
     name: ubuntu-26.04-proef
@@ -274,6 +276,8 @@ jobs:
     timeout-minutes: 25
     permissions:
       contents: read
+    outputs:
+      breuken: ${{ steps.breuken.outputs.lijst }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
@@ -284,21 +288,25 @@ jobs:
           node-version: 22
 
       # Offline: versies van de image en vaste uitkomsten van date, jq, bash,
-      # sort/tail en base64, plus de databaantoets uit refresh.yml.
+      # sort/tail, base64 en sha256sum, plus de databaantoets uit refresh.yml.
       - name: Gereedschap en vaste uitkomsten
+        id: gereedschap
         run: node scripts/refresh-droog.mjs gereedschap
 
       # De volgende stappen draaien ook als een vorige faalde: zo toont één run
       # alles wat op 26.04 anders loopt.
       - name: Afhankelijkheden (lockfile, zonder scripts)
+        id: npm-ci
         if: ${{ !cancelled() }}
         run: npm ci --ignore-scripts
 
       - name: npm run check
+        id: check
         if: ${{ !cancelled() }}
         run: npm run check
 
       - name: Gegenereerde bestanden staan in de commit
+        id: schoon
         if: ${{ !cancelled() }}
         run: |
           if [ -n "$(git status --porcelain)" ]; then
@@ -308,14 +316,153 @@ jobs:
             exit 1
           fi
 
-      # Bij een datatak-PR liep de verversing net: dan geen tweede keer de
-      # bronnen ophalen, alleen de rest van de keten met een verzonnen
-      # generatedAt.
+      # Bij een PR geen tweede keer alle bronnen ophalen (13 open drafts, elke
+      # push): alleen de rest van de keten met een verzonnen generatedAt. Na een
+      # merge op main haalt de proef wel alles op.
       - name: Droge verversing (leest, schrijft niets)
+        id: verversing
         if: ${{ !cancelled() }}
         env:
-          DROOG_ZONDER_OPHALEN: ${{ startsWith(github.head_ref, 'data/refresh-') && '1' || '' }}
+          DROOG_ZONDER_OPHALEN: ${{ github.event_name == 'pull_request' && '1' || '' }}
         run: node scripts/refresh-droog.mjs verversing
+
+      - name: Breuken doorgeven
+        id: breuken
+        if: ${{ always() }}
+        env:
+          STAPPEN: ${{ toJSON(steps) }}
+        run: node scripts/refresh-droog.mjs breuken
+
+  # Controlegroep: dezelfde vaste uitkomsten en droge verversing op 24.04, maar
+  # alleen als de proef iets vond. Faalt iets op beide, dan ligt het aan de live
+  # data of de code en niet aan 26.04; zet dan niets vast.
+  ubuntu-2404-controle:
+    name: ubuntu-24.04-controle
+    needs: ubuntu-2604-proef
+    if: ${{ !cancelled() && needs.ubuntu-2604-proef.outputs.breuken != '[]' }}
+    runs-on: ubuntu-24.04
+    continue-on-error: true
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    outputs:
+      breuken: ${{ steps.breuken.outputs.lijst }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: Gereedschap en vaste uitkomsten
+        id: gereedschap
+        run: node scripts/refresh-droog.mjs gereedschap
+
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        id: npm-ci
+        if: ${{ !cancelled() }}
+        run: npm ci --ignore-scripts
+
+      - name: npm run check
+        id: check
+        if: ${{ !cancelled() }}
+        run: npm run check
+
+      - name: Gegenereerde bestanden staan in de commit
+        id: schoon
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::npm run check wijzigde bestanden die niet in de commit staan:"
+            git status --porcelain
+            exit 1
+          fi
+
+      - name: Droge verversing (leest, schrijft niets)
+        id: verversing
+        if: ${{ !cancelled() }}
+        env:
+          DROOG_ZONDER_OPHALEN: ${{ github.event_name == 'pull_request' && '1' || '' }}
+        run: node scripts/refresh-droog.mjs verversing
+
+      - name: Breuken doorgeven
+        id: breuken
+        if: ${{ always() }}
+        env:
+          STAPPEN: ${{ toJSON(steps) }}
+        run: node scripts/refresh-droog.mjs breuken
+
+  # Wat breekt alleen op 26.04? Rood hier (continue-on-error) is het teken om
+  # docs/UBUNTU_2604.md te volgen; wat ook op 24.04 faalt, telt niet mee.
+  ubuntu-2604-oordeel:
+    name: ubuntu-26.04-oordeel
+    needs: [ubuntu-2604-proef, ubuntu-2404-controle]
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    outputs:
+      echt: ${{ steps.oordeel.outputs.echt }}
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      - name: 26.04 tegen 24.04
+        id: oordeel
+        env:
+          PROEF: ${{ needs.ubuntu-2604-proef.outputs.breuken }}
+          CONTROLE: ${{ needs.ubuntu-2404-controle.outputs.breuken }}
+        run: node scripts/refresh-droog.mjs oordeel
+
+  # Zichtbaar alarm, zoals de job alarm in refresh.yml: breekt iets alleen op
+  # 26.04 (of is er geen oordeel) na een push naar main, dan één open issue (of
+  # een reactie op het bestaande). Niet bij een PR: forks krijgen nooit
+  # schrijfrechten, en een PR mag rood zijn. Geen checkout, geen code van de
+  # repo: alleen gh met het runtoken. Sluiten doet de eigenaar.
+  ubuntu-2604-alarm:
+    name: ubuntu-26.04-alarm
+    needs: ubuntu-2604-oordeel
+    if: ${{ !cancelled() && github.event_name == 'push' && github.ref == 'refs/heads/main' && needs.ubuntu-2604-oordeel.outputs.echt != '0' }}
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 3
+    permissions:
+      issues: write
+    steps:
+      - name: Issue openen of aanvullen
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          ECHT: ${{ needs.ubuntu-2604-oordeel.outputs.echt }}
+        run: |
+          set -euo pipefail
+          title="Ubuntu 26.04: de proef breekt"
+          aantal="${ECHT:-onbekend}"
+          body=$(printf '%s\n' \
+            "Na een push naar main: ${aantal} breuk(en) die alleen op Ubuntu 26.04 optreden: ${RUN_URL}" \
+            "" \
+            "ubuntu-latest verhuist tussen 19 oktober en 19 november 2026 naar 26.04." \
+            "Wat te doen staat in docs/UBUNTU_2604.md (eerst ubuntu-24.04 vastzetten, dan herstellen)." \
+            "Sluit dit issue zodra ubuntu-26.04-oordeel weer groen is.")
+          num=$(gh issue list --state open --search "\"${title}\" in:title" --json number,title \
+            --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
+          if [ -n "$num" ]; then
+            gh issue comment "$num" --body "$body"
+            echo "::error title=Ubuntu-proef::Breekt op 26.04; reactie op issue #${num}."
+          else
+            gh issue create --title "$title" --body "$body"
+            echo "::error title=Ubuntu-proef::Breekt op 26.04; nieuw issue geopend."
+          fi
 
   # gitleaks (MIT, gratis, offline) in meldstand: de standaardregels voor
   # sleutels en tokens plus eigen regels voor persoonsgegevens (.gitleaks.toml).
