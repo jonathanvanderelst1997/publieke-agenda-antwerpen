@@ -131,10 +131,10 @@
 
 /* ---- lijst ---- */
 .pv-day { margin: 0 0 18px; }
-/* flex-wrap: bij grote tekst schuift het aantal onder een lange kop ("Omgevingsaanvragen en besluiten"). */
-.pv-day-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
+.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
 .pv-day-title::first-letter { text-transform: uppercase; }
-/* De kop mag smaller worden dan haar langste woord (tekst 200 % op een gsm): dan breekt dat woord, de pagina schuift niet opzij. */
+/* De kop loopt over meer regels naast het aantal, en mag smaller worden dan haar langste woord
+   ("Omgevingsaanvragen" bij tekst 200 % op een gsm): dan breekt dat woord, de pagina schuift niet opzij. */
 .pv-day-label { min-width: 0; overflow-wrap: break-word; }
 .pv-rel { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--pa-accent); color: var(--pa-accent-ink); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
 .pv-day-n { margin-left: auto; font-size: .78rem; font-weight: 700; color: var(--pa-muted); background: var(--pa-surface-2); border: 1px solid var(--pa-line); border-radius: 999px; padding: 1px 8px; }

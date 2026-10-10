@@ -81,8 +81,8 @@ test("op een gsm schuift de pagina niet opzij: werkbalk, weeknavigatie, straalkn
   assert.match(regel(gsm, ".pv-radius"), /grid-template-columns:\s*minmax\(0,\s*1fr\)\s+repeat\(3,\s*auto\)/);
   assert.match(regel(gsm, ".pv-seg.pv-radius button:first-child"), /white-space:\s*normal/);
   assert.doesNotMatch(gsm, /\.pv-radius\s*\{[^}]*auto 1fr 1fr 1fr/);
-  // Een sectiekop mag smaller worden dan haar langste woord (tekst 200 %); het aantal schuift eronder.
-  assert.match(regel(css, ".pv-day-title"), /flex-wrap:\s*wrap/);
+  // Een sectiekop mag smaller worden dan haar langste woord (tekst 200 %); het aantal blijft ernaast.
+  assert.doesNotMatch(regel(css, ".pv-day-title"), /flex-wrap:\s*wrap/);
   assert.match(regel(css, ".pv-day-label"), /min-width:\s*0[^}]*overflow-wrap:\s*break-word/);
   assert.match(js, /<h3 class="pv-day-title"><span class="pv-day-label">\$\{title\}<\/span>/);
 });
