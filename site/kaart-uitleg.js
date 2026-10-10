@@ -331,9 +331,9 @@ function bruikbareOmschrijving(title) {
 // "in de Bermstraat", "in het Rozemiekepad", "op het Sint-Jansplein", "op de Vrijdagmarkt". Een naam
 // zonder herkenbaar einde krijgt geen lidwoord ("in Kipdorp"): liever kaal dan een fout lidwoord.
 const HET_NAAM = /(?:plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)$/i;
-const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel)$/i;
-// Een "vliet" (Sint-Jansvliet) en de Singel zijn een plein of een ring: "op de".
-const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk|vliet|singel)$/i;
+const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|steeg|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|waag|berg|ring|tunnel)$/i;
+// Een "vliet" (Sint-Jansvliet), een "waag" (Oude Waag) en de Singel zijn een plein of een ring: "op de".
+const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk|vliet|waag|singel)$/i;
 // Namen zonder herkenbaar einde die iedereen in Antwerpen met een lidwoord zegt.
 const VASTE_NAAM = new Map([["meir", "op de"], ["wapper", "op de"], ["oudaan", "op de"]]);
 export function opStraat(naam) {
@@ -395,7 +395,7 @@ function heeftInhoud(t, straten = []) {
 const NET_CODES = /(?<![\p{L}\d])(?:E|G|OV|W|T|LS|MS|HS)(?![\p{L}\d])/gu;
 const SOORT_WOORDEN = /(?<!\p{L})(?:klantaansluiting(?:en)?|wegeniswerk(?:en)?|nutswerk(?:en)?|grondwerk(?:en)?)(?!\p{L})/giu;
 const STRAAT_EINDE = "(?:steenweg|straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel|plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)";
-const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z])?(?:\\s*[-/]\\s*\\d{1,4}[a-zA-Z]?)?";
+const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z])?(?:\\s*(?:-|/|en|tem|t\\/m|tot)\\s*\\d{1,4}[a-zA-Z]?)?";
 // Alleen een straatnaam (woorden met een hoofdletter, "van", "de" …) met eventueel een huisnummer:
 // "Brederodestraat | 39", "LONDENSTRAAT", "Pieter van Hobokenstraat 6". Niet "Betonherstel op trambaan".
 const STRAAT_WOORD = "(?:\\p{Lu}[\\p{L}'.-]*|van|de|der|den|het|ten|ter|la|le|du|des)";
@@ -404,9 +404,14 @@ const LEEG_STUK = [
   /^(?:nr\.?\s*)?\d{1,4}(?:\s?[a-z])?\.?$/i, // een nummer of een postcode
   /^(?:\d{4}\s+)?\(?(?:antwerpen|antwerp|anterwerpen)\)?$/i, // de gemeente
   /^\([\p{L}\s-]+\)$/u, // een gemeente tussen haakjes: "(Hoboken)"
+  /^\d{4}\s+[\p{L}-]+$/u, // postcode en gemeente: "2610 WILRIJK"
+  /^\p{Lu}[\p{Lu}'.-]+(?:\s+\p{Lu}[\p{Lu}'.-]+){0,3}\s+\d{1,4}[a-zA-Z]?$/u, // een straat in hoofdletters met nummer: "KIELSBROEK 5"
   /^\(?\s*(?:lengte:?\s*)?\d+(?:[.,]\d+)?\s?(?:m|km|m²|m2)\.?\s*\)?$/i, // een maat
-  /^(?:andere|werk in openbaar domein|rioleringswerk(?:en)?|werken (?:aan )?(?:de )?(?:distributie|nuts|drinkwater|water)leiding(?:en)?\)?)$/i,
+  /^(?:andere|werk in openbaar domein|rioleringswerk(?:en)?)$/i,
 ];
+// "werken distributieleiding)" en "werken aan nutsleiding" herhalen alleen de soort; wat er dan nog van
+// één woord overblijft ("tussen", een afgekapte straatnaam), is geen uitleg.
+const LEIDING_ZIN = /(?<!\p{L})werken (?:aan )?(?:de )?(?:distributie|nuts|drinkwater|water)leiding(?:en)?\)?/giu;
 const plat = (v) => v.normalize("NFD").replace(/[̀-ͯ]/g, "");
 const escRe = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
@@ -419,10 +424,14 @@ export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
   const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|_)/);
   const blijft = [];
   for (let i = 0; i < delen.length; i += 2) {
-    let stuk = delen[i].replace(/^\d{4}\s+\(?(?:antwerpen|antwerp)\)?(?!\p{L})[\s,:-]*/iu, "").trim();
+    // Vooraan: "2018 Antwerpen" of een volgnummer van de beheerder ("5204: Voorbeeldstraat 2A").
+    let stuk = delen[i].replace(/^(?:\d{4}\s+)?\(?(?:antwerpen|antwerp)\)?(?!\p{L})\s*:?\s*(?=\S)/iu, (m) => (/^\d|:/.test(m) ? "" : m)).replace(/^\d{3,5}\s*:\s*/, "").trim();
+    const voorLeiding = stuk;
+    stuk = stuk.replace(LEIDING_ZIN, " ");
+    const leiding = stuk !== voorLeiding;
     for (const re of kaartStraat) if (re.test(plat(stuk))) stuk = plat(stuk).replace(re, "");
-    stuk = stuk.replace(/\(\s*lengte:?\s*\d+\s?m\s*\)/gi, " ").replace(NET_CODES, " ").replace(SOORT_WOORDEN, " ").replace(/\s+/g, " ").replace(/^[\s,;:.-]+|[\s,;:-]+$/g, "").trim();
-    if (!stuk || ALLEEN_ADRES.test(stuk) || LEEG_STUK.some((re) => re.test(stuk))) continue;
+    stuk = stuk.replace(/\(\s*lengte:?\s*\d+\s?m\s*\)/gi, " ").replace(NET_CODES, " ").replace(SOORT_WOORDEN, " ").replace(/\s+/g, " ").replace(/^[\s,;:.-]+|[\s,;:-]+$/g, "").replace(/^(?:en|of)\s+/i, "").trim();
+    if (!stuk || (leiding && !/\s/.test(stuk)) || ALLEEN_ADRES.test(stuk) || LEEG_STUK.some((re) => re.test(stuk))) continue;
     blijft.push(`${blijft.length ? delen[i - 1] : ""}${stuk}`);
   }
   const uit = blijft.join("").trim();
@@ -540,8 +549,9 @@ function gevolgInTitel(gevolg, { gs, ge, start, eind, vandaag, gepland }) {
     // Begint samen met een gepland werk en loopt (bijna) even lang: "… vanaf 9 november (start over 30 dagen)".
     if (gepland && gs === start && !veelKorter) return { tekst: gevolg, vorm: "samen" };
     if (gs === eind && (!ge || ge === eind) && !(gepland && gs <= start)) return { tekst: `${gevolg} op ${dt(gs)}, de laatste dag van de werken`, vorm: "laatste" };
-    // Hinder vóór een gepland werk ("op 30 oktober; werken vanaf 9 november") of korter dan het werk.
-    const eigenEinde = veelKorter || (gepland && gs < start);
+    // Hinder vóór een gepland werk ("op 30 oktober; werken vanaf 9 november") of die vóór het einde van
+    // het werk stopt ("van 15 tot 16 oktober; werken vanaf 14 oktober"): met haar einddatum.
+    const eigenEinde = korter || (gepland && gs < start);
     return { tekst: `${gevolg} ${eigenEinde ? vanTot(gs, ge, vandaag) : `vanaf ${dt(gs)}`}`, vorm: "eigen" };
   }
   if (veelKorter) return { tekst: `${gevolg} tot ${dt(ge)}`, vorm: "eigen" };

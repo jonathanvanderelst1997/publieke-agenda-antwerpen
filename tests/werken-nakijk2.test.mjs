@@ -45,6 +45,9 @@ test("1. hinder vóór of bij de start van een gepland werk krijgt altijd haar b
   // Zoals 17022995: hinder vanaf de eerste dag, maar veel korter dan het werk.
   const kort = kaart(werk({ start: "2026-10-19T00:00:00Z", end: "2027-01-08T16:00:00Z", hindrance: hinder([fase("Fase 1", "2026-10-19T06:00:00Z", "2026-10-23T16:00:00Z", ["Geen doorgang voor gemotoriseerd verkeer"])]) }));
   assert.equal(kort.titel, "Werken in de Voorbeeldlaan: afgesloten voor auto's van 19 tot 23 oktober; werken vanaf 19 oktober (start over 9 dagen)");
+  // Zoals 19929983: twee dagen hinder in een werk van een week: niet "vanaf 15 oktober" alsof ze blijft duren.
+  const paar = kaart(werk({ start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z", hindrance: hinder([fase("Fase 1", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]) }));
+  assert.equal(paar.titel, "Werken in de Voorbeeldlaan: voetgangers beperkt van 15 tot 16 oktober; werken vanaf 14 oktober (start over 4 dagen)");
   // Hinder die samen met het werk start en (bijna) even lang loopt: één "vanaf", zoals voorheen.
   const samen = kaart(werk({ start: "2026-10-26T00:00:00Z", end: "2026-11-20T16:00:00Z", hindrance: hinder([fase("Fase 1", "2026-10-26T06:00:00Z", "2026-11-20T16:00:00Z", ["Geen doorgang voor gemotoriseerd verkeer"])]) }));
   assert.equal(samen.titel, "Werken in de Voorbeeldlaan: afgesloten voor auto's vanaf 26 oktober (start over 16 dagen)");
@@ -109,6 +112,12 @@ test("4. wat de beheerder over het project zegt, staat zichtbaar, zonder adres, 
   assert.equal(ku.projectTekst("2000 ANTWERPEN VOORBEELDLAAN E, G, OV, Wegeniswerken", { straten: ["Voorbeeldlaan"] }), "");
   assert.equal(ku.projectTekst("2018 Antwerpen: Voorbeeldlaan - Andere", { straten: ["Voorbeeldlaan"] }), "");
   assert.equal(ku.projectTekst("Anderestraat | 39", { straten: ["Voorbeeldlaan"] }), "");
+  assert.equal(ku.projectTekst("5204: Anderestraat 2A; 5206: Voorbeeldlaan 28; 5209: Derdestraat 27", { straten: ["Voorbeeldlaan"] }), "");
+  assert.equal(ku.projectTekst("2050 Antwerpen Anderelaan 0 werken distributieleiding)", { straten: ["Voorbeeldlaan"] }), "");
+  assert.equal(ku.projectTekst("2018 Antwerpen Voorbeeldlaan voorbeeldst werken distributieleiding)", { straten: ["Voorbeeldlaan"] }), "");
+  assert.equal(ku.projectTekst("2610 VOORBEELDGEM - VOORBEELDBROEK 5", { straten: ["Voorbeeldlaan"] }), "");
+  assert.equal(ku.projectTekst("2050 ANTWERPEN VOORBEELDLAAN E Klantaansluiting en nieuw distributienet in verkaveling (42m)", { straten: ["Voorbeeldlaan"] }), "nieuw distributienet in verkaveling (42m)");
+  assert.equal(ku.projectTekst("Voorbeeldlaan 103 en 105 - Twee koppelputten elektriciteit", { straten: ["Voorbeeldlaan"] }), "Twee koppelputten elektriciteit");
   assert.equal(ku.projectTekst("2018 Antwerpen - (Antwerpen) - Voorbeeldlaan 24. - werken aan nutsleiding - 13m.", { straten: ["Voorbeeldlaan"] }), "");
   // Herhaalt de tekst alleen de soort, dan geen regel ("Riolering" bij "Rioleringswerken").
   assert.doesNotMatch(regels(kaart(werk({ title: "Riolering" }))).Wat, /Volgens de beheerder/);
@@ -181,11 +190,13 @@ test("7. de kop boven wat loopt zegt niet \"Nu bezig\" als er een kaart met \"Pe
   assert.equal(pc.lopendKop([{ ...lopend, status: "In uitvoering" }], VANDAAG).titel, "Nu bezig");
 });
 
-test("8. lidwoorden: een plein, een vliet of de Singel is \"op de\"", () => {
+test("8. lidwoorden: een plein, een vliet, een waag of de Singel is \"op de\"; een steeg \"in de\"", () => {
   // "in Wapper", "in Oudaan", "in de Singel", "in de Sint-Jansvliet" uit de nakijkronde.
   assert.match(kaart(werk({ streets: [{ id: "9", name: "Wapper", postcode: "2000" }] })).titel, /^Werken op de Wapper /);
   assert.match(kaart(werk({ streets: [{ id: "9", name: "Sint-Jansvliet", postcode: "2000" }] })).titel, /^Werken op de Sint-Jansvliet /);
   assert.equal(ku.opStraat("Oudaan"), "op de Oudaan");
   assert.equal(ku.opStraat("Singel"), "op de Singel");
+  assert.equal(ku.opStraat("Oude Waag"), "op de Oude Waag");
+  assert.equal(ku.opStraat("Voorbeeldsteeg"), "in de Voorbeeldsteeg");
   assert.equal(ku.opStraat("Voorbeeldstraat"), "in de Voorbeeldstraat");
 });
