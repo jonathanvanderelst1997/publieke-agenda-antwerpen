@@ -108,3 +108,36 @@ test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los n
   assert.equal(ku.huisnummersUitTekst("Proefstraat 12, 3 dagen", "Proefstraat"), "nr. 12");
   assert.equal(ku.huisnummersUitTekst("Proefstraat 13, 2000 Antwerpen", "Proefstraat"), "nr. 13");
 });
+
+// ---------- 4. een evenement van vandaag staat bovenaan "Loopt nu" ----------
+test("4. in \"Loopt nu\" staan de evenementen van vandaag boven de lopende werven en werfzones", async () => {
+  const { groupForList, periodRange } = await import("../site/place-core.js");
+  const vandaag = "2026-10-10";
+  const werf = { uid: "werf", group: "werken", title: "Werf Proefstraat", start: "2026-09-01", end: "2026-10-10" };
+  const zone = { uid: "zone", group: "werken", title: "Werfzone Voorbeeldlaan", start: "2026-10-01", end: "2026-10-12" };
+  const koers = { uid: "koers", group: "evenementen", title: "Proefkoers", start: "2026-10-09", end: "2026-10-11", innameStart: "2026-10-08", innameEind: "2026-10-11" };
+  const foor = { uid: "foor", group: "evenementen", title: "Proeffoor", start: "2026-10-03", end: "2026-10-18" };
+  const opbouw = { uid: "opbouw", group: "evenementen", title: "Opbouw van een later feest", start: "2026-10-13", end: "2026-10-13", innameStart: "2026-10-08", innameEind: "2026-10-14" };
+  const { running } = groupForList([werf, zone, opbouw, foor, koers], { ...periodRange("alles", vandaag), today: vandaag });
+  assert.deepEqual(running.map((e) => e.uid), ["koers", "foor", "werf", "zone", "opbouw"]);
+});
+
+// ---------- 5. de uren van de Sinterklaasstoet in Ekeren (ET2026004916) ----------
+// Beide besluiten van het districtscollege van Ekeren (2024 en 2025) zeggen 14.00 tot 17.00 uur, niet
+// 13.30 uur. Voor 2026 is er nog geen besluit: de uren staan als noot bij een vermoeden, niet als feit.
+test("5. Ekeren: de noot noemt 14.00 tot 17.00 uur uit de besluiten, met de besluiten als bron", async () => {
+  const { evenementKaartje, evenementFeiten } = await import("../site/kaart-uitleg.js");
+  const doc = JSON.parse(fs.readFileSync(new URL("../site/sources/evenement-identiteit.json", import.meta.url), "utf8"));
+  const id = doc.dossiers.ET2026004916;
+  assert.ok(id, "de fiche ET2026004916 bestaat");
+  assert.equal(id.zekerheid, "waarschijnlijk");
+  assert.equal(id.uren, "", "voor 2026 is er nog geen besluit: geen uren als feit");
+  assert.match(id.urenNoot, /14\.00 tot 17\.00 uur/);
+  assert.doesNotMatch(JSON.stringify(id), /13\.30/);
+  assert.ok(id.bron.filter((b) => b.startsWith("https://ebesluit.antwerpen.be/zittingen/")).length >= 2, "de twee besluiten staan bij de bronnen");
+  const rij = { kind: "iod", reference: "ET2026004916", dossierType: "ETL", phase: "Evenement", innameType: "Parcours", start: "2026-11-28", end: "2026-11-28", streets: [{ name: "Proefstraat" }], status: "aanvraag_goedgekeurd" };
+  const k = evenementKaartje(evenementFeiten([rij]), { vandaag: "2026-10-10", identiteit: id });
+  const wanneer = Object.fromEntries(k.kern).Wanneer;
+  assert.match(wanneer, /14\.00 tot 17\.00 uur/);
+  assert.doesNotMatch(wanneer, /13\.30/);
+});

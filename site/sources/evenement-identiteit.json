@@ -188,11 +188,11 @@
   "ET2026004916": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een Sinterklaasstoet in Ekeren, van het Kristus-Koningplein naar Kasteel Veltwijck", "organisator": "",
    "reden": "Hetzelfde parcours was in 2024 en 2025 de Sinterklaasstoet van Ekeren (persberichten van de stad), en in 2023 heette een parkeerverbod op dit parcours in A-Sign 'Start Koets Sint'. Voor 2026 is er nog geen aankondiging.",
-   "dagen": ["2026-11-28"], "uren": "", "urenNoot": "In 2024 en 2025 vertrok de stoet om 13.30 uur.",
+   "dagen": ["2026-11-28"], "uren": "", "urenNoot": "In 2024 en 2025 liep de intrede van 14.00 tot 17.00 uur (besluiten van het districtscollege van Ekeren); voor 2026 is er nog geen besluit.",
    "waar": "Van het Kristus-Koningplein via de Dorpstraat, de Kloosterstraat, de Driehoekstraat en de Blarenstraat, dan via de Alfons Jeurissenstraat, de Zuster Nathaliestraat en de Joseph Hermansdreef naar Kasteel Veltwijck in Ekeren, ongeveer 1,6 km.",
    "watMerkJe": "Korte hinder waar de stoet passeert en een parkeerverbod op de dreef naar het kasteel. In district Antwerpen merk je er niets van.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
-   "bron": ["https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten", "https://pers.antwerpen.be/sint-komt-langs-in-antwerpse-districten-qw23bf", "https://www.polderke.com/de-sint-vergeet-ekerse-vriendjes-niet/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+   "bron": ["https://ebesluit.antwerpen.be/zittingen/24.0425.5541.7333/agendapunten/24.0916.1545.3310", "https://ebesluit.antwerpen.be/zittingen/25.0528.9717.3033/agendapunten/25.0909.1924.9569", "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten", "https://pers.antwerpen.be/sint-komt-langs-in-antwerpse-districten-qw23bf", "https://www.polderke.com/de-sint-vergeet-ekerse-vriendjes-niet/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-10"
   },
   "ET2026004943": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een welkomstritueel van een studentenvereniging (dril en tocht te voet)", "organisator": "",

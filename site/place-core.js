@@ -337,7 +337,10 @@ export function groupForList(entries, { from, to, today }) {
     days.get(day).push(entry);
   }
   const byTitle = (a, b) => String(a.time || "99").localeCompare(String(b.time || "99")) || String(a.title).localeCompare(String(b.title), "nl");
-  running.sort((a, b) => String(periodeVan(a).end || "9999").localeCompare(String(periodeVan(b).end || "9999")) || byTitle(a, b));
+  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak), staat bovenaan "Loopt nu":
+  // het zakt niet onder de lopende werven en werfzones. Daarna wat het eerst afloopt.
+  const vandaagEvenement = (e) => e.group === "evenementen" && (e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
+  running.sort((a, b) => Number(vandaagEvenement(b)) - Number(vandaagEvenement(a)) || String(periodeVan(a).end || "9999").localeCompare(String(periodeVan(b).end || "9999")) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
   return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
 }
