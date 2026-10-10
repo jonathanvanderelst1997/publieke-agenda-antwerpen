@@ -30,6 +30,46 @@ const WEEKDAYS_SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const QUICK_WIJKEN = ["ANT09", "ANT24", "ANT25", "ANT10", "ANT05", "ANT11", "ANT20"];
 const MODES = [["lijst", "Lijst"], ["week", "Week"], ["maand", "Maand"]];
 const SECTION_LIMIT = 12;
+// Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
+// Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
+// evenement op straat altijd "niet openbaar"; dat zegt de zin "Niet in de bron" al), het nummer en de codes.
+const BRONREGELS = new Set(["Organisator"]);
+// De regel die zegt wat de stratenlijst is ("N betrokken straten volgens het dossier; ..."). Bij een
+// lange lijst staat ze bij die lijst, in "Toon alle N straten": het aantal staat al bij "Waar".
+const STRATENREGEL = "Parcours";
+// Zoveel omschrijvingen uit het dossier staan minstens zichtbaar; elk parcours altijd.
+const DOSSIER_ZICHTBAAR = 3;
+const isParcours = (tekst) => /^Parcours:/i.test(String(tekst));
+const isParkeerverbod = (tekst) => /^Parkeerverbod/i.test(String(tekst));
+
+// Welke regels van de uitleg zichtbaar staan en wat ingeklapt staat. De omschrijvingen uit het dossier:
+// eerst het parcours (welk parcours, welke ronde), dan wat er nog gebeurt (een omleiding, een
+// servicepunt), en als laatste de parkeerverboden: die zijn talrijk, per straat, en staan ingeklapt.
+export function kaartIndeling(uitleg = {}, { reference = "", straten = 0 } = {}) {
+  const alle = uitleg.regels || [];
+  const bron = alle.filter(([dt]) => BRONREGELS.has(dt));
+  if (reference) bron.push(["Referentie", reference]);
+  const stratenNoot = straten > 3 ? alle.find(([dt]) => dt === STRATENREGEL)?.[1] || "" : "";
+  const lijst = uitleg.beschrijvingen || [];
+  const parcours = lijst.filter(isParcours);
+  const overige = lijst.filter((b) => !isParcours(b) && !isParkeerverbod(b));
+  const volgorde = [...parcours, ...overige, ...lijst.filter((b) => !isParcours(b) && isParkeerverbod(b))];
+  let n = Math.max(DOSSIER_ZICHTBAAR, parcours.length + Math.min(overige.length, 2));
+  // Geen knop "Toon nog 1": dan staat die ene ook gewoon zichtbaar.
+  if (volgorde.length <= n + 1) n = volgorde.length;
+  const dicht = volgorde.slice(n);
+  return {
+    regels: alle.filter(([dt]) => !BRONREGELS.has(dt) && !(stratenNoot && dt === STRATENREGEL)),
+    dossier: {
+      zichtbaar: volgorde.slice(0, n),
+      dicht,
+      knop: dicht.length && dicht.every(isParkeerverbod) ? `Toon de ${dicht.length} parkeerverboden uit het dossier` : `Toon nog ${dicht.length} omschrijvingen uit het dossier`,
+    },
+    stratenNoot,
+    bron,
+    technisch: uitleg.technisch || "",
+  };
+}
 
 const dayNum = (iso) => Number(iso.slice(8, 10));
 const monthOf = (iso) => Number(iso.slice(5, 7)) - 1;
@@ -112,8 +152,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   controls.replaceChildren(hero);
   controls.classList.add("pv-controls");
   controls.setAttribute("aria-label", "Zoek op plek");
-  Object.assign(search, { id: "agenda-street-jump", type: "search", placeholder: "Bv. Kammenstraat, Zurenborg of 2060" });
+  // Kort genoeg voor een gsm; het zichtbare label hierboven is de enige naam van het veld (geen aria-label).
+  Object.assign(search, { id: "agenda-street-jump", type: "search", placeholder: "Bv. Kammenstraat" });
   search.removeAttribute("list");
+  search.removeAttribute("aria-label");
   for (const [k, v] of Object.entries({ role: "combobox", "aria-autocomplete": "list", "aria-expanded": "false", "aria-controls": "pv-suggestions", "aria-describedby": "pv-search-help", autocomplete: "off", autocapitalize: "words", spellcheck: "false", enterkeyhint: "search" })) search.setAttribute(k, v);
   search.className = "pv-search-input";
   hero.querySelector(".pv-search-slot").replaceWith(search);
@@ -143,7 +185,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <div class="pv-loading" aria-live="polite"></div>
         <div class="pv-results"></div>
       </div>
-      <aside class="pv-aside" aria-label="Kaart"></aside>
+      <div class="pv-aside" role="region" aria-label="Kaart"></div>
     </div>`;
   const $ = (s) => section.querySelector(s);
   const placeBox = $(".pv-place"), titleEl = $("#pv-title"), subEl = $(".pv-sub"), groupsEl = $(".pv-groups"), modesEl = $(".pv-modes"), periodsEl = $(".pv-periods"), navEl = $(".pv-nav"), results = $(".pv-results"), loadingEl = $(".pv-loading"), aside = $(".pv-aside");
@@ -160,7 +202,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   const moreBody = more.querySelector(".pv-more-body");
   const scopeWrap = document.createElement("div");
   scopeWrap.className = "pv-more-scope";
-  for (const group of oldGroups) if (!group.querySelector("#agenda-street-jump") && !group.contains(search)) scopeWrap.append(group);
+  // Het oude straatveld en zijn label "Straat" verdwijnen: anders heeft het zoekveld twee labels.
+  for (const group of oldGroups) if (!group.querySelector('#agenda-street-jump, label[for="agenda-street-jump"]') && !group.contains(search)) scopeWrap.append(group);
   for (const group of scopeWrap.querySelectorAll("[hidden]")) if (group.classList.contains("agenda-controls-group")) group.remove();
   moreBody.append(scopeWrap);
   for (const id of ["street-overview", "works-live", "public-space-live", "permits-live", "terraces-live"]) {
@@ -423,7 +466,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       return `<button type="button" class="pv-chip cat-${g.cat}${n === 0 ? " pv-chip-zero" : ""}" data-group="${g.key}" aria-pressed="${on}"><span aria-hidden="true">${g.emoji}</span> ${esc(g.label)}${Number.isFinite(n) ? ` <span class="pv-chip-n">${n}</span>` : ""}</button>`;
     });
     const allesActie = allesFilterActie(state.groups.size, KIND_GROUPS.length, Boolean(state.place));
-    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*" aria-label="${esc(allesActie)}" aria-pressed="${state.groups.size === KIND_GROUPS.length}">${esc(allesActie)}</button>${chips.join("")}`;
+    // Een actieknop: de tekst zegt wat hij doet, dus geen aria-pressed (dat zou "ingedrukt" voorlezen).
+    groupsEl.innerHTML = `<button type="button" class="pv-chip pv-chip-all" data-group="*">${esc(allesActie)}</button>${chips.join("")}`;
     modesEl.innerHTML = MODES.map(([k, label]) => `<button type="button" data-mode="${k}" aria-pressed="${state.mode === k}">${label}</button>`).join("");
     periodsEl.hidden = state.mode !== "lijst";
     periodsEl.innerHTML = PERIODS.map(([k, label]) => `<button type="button" data-period="${k}" aria-pressed="${state.period === k}">${label}</button>`).join("");
@@ -687,9 +731,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     return kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van ${entry.kaartDeel ? "een deel van het parcours" : "het parcours"} (rood)${kaart.includes('class="ku-jouw"') ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : "";
   };
   // Uitleg in gewone taal (site/kaart-uitleg.js). Een evenementkaart begint met wat, wanneer, waar,
-  // jouw straat en wat je merkt, met de officiële link meteen daaronder; dan de details (ook de straten
-  // die het parcours alleen kruist), de schets en één korte bronregel. Een werk houdt zijn regels, de
-  // straten ingeklapt en wat de bron niet zegt.
+  // jouw straat en wat je merkt, met de officiële link meteen daaronder; dan de details: wat er in het
+  // dossier staat (het parcours vooraan, de parkeerverboden ingeklapt), de straten die het parcours
+  // alleen kruist, de schets en één korte bronregel. Een werk houdt zijn regels en de straten ingeklapt;
+  // alleen de organisator (niet openbaar), het nummer en de codes staan ingeklapt onder "Bron en dossier".
   function uitlegTemplate(entry, bezoekerLinks = []) {
     const u = entry.uitleg;
     const straten = entry.straten || [];
@@ -699,33 +744,42 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // maakten de lijst op een gsm seconden traag (zie het klikken op een rij hieronder).
     if (entry.kaart?.length) kaartPerUid.set(entry.uid, entry);
     const kaart = !entry.kaart?.length ? "" : state.open.has(entry.uid) ? schetsFiguur(entry) : `<figure class="pv-kaart" data-schets hidden></figure>`;
-    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${u.stratenNoot ? `<p class="pv-straten-noot">${esc(u.stratenNoot)}</p>` : ""}<p>${esc(straten.join(", "))}</p></details>` : "";
+    const { regels, dossier, stratenNoot, bron, technisch } = kaartIndeling(u, { reference: entry.reference, straten: straten.length });
+    const noot = u.stratenNoot || stratenNoot;
+    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${noot ? `<p class="pv-straten-noot">${esc(noot)}</p>` : ""}<p>${esc(straten.join(", "))}</p></details>` : "";
     const kruistRij = kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.join(", "))}</p></details>`}</dd></div>` : "";
+    // Eén omschrijving als gewone tekst; meer als lijst, met de rest ingeklapt (de rest telt er altijd 2 of meer).
+    const lijst = (items) => `<ul class="pv-dossier">${items.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>`;
+    const dossierHtml = () => (dossier.zichtbaar.length === 1 && !dossier.dicht.length ? esc(dossier.zichtbaar[0])
+      : `${lijst(dossier.zichtbaar)}${dossier.dicht.length ? `<details class="pv-streets"><summary>${esc(dossier.knop)}</summary>${lijst(dossier.dicht)}</details>` : ""}`);
+    const regel = ([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${dt === "In het dossier" && dossier.zichtbaar.length ? dossierHtml() : esc(dd)}</dd></div>`;
     if (u.kern) {
+      // Welk parcours het is en wat er nog gebeurt, staat zichtbaar (kaartIndeling); de kern zegt al wat,
+      // wanneer en waar.
+      const dossierRij = dossier.zichtbaar.length ? regel(["In het dossier", ""]) : "";
       return `
           <dl class="pv-kern">${u.kern.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}${dt === "Waar" ? alleStraten : ""}</dd></div>`).join("")}</dl>
           ${bezoekerLinks.length ? `<div class="pv-links pv-links-top">${bezoekerLinks.map((l) => `${linkHtml(l)}${l.uitleg ? `<small class="pv-link-uitleg">${esc(l.uitleg)}</small>` : ""}`).join("")}</div>` : ""}
-          ${u.regels.length || kruistRij || entry.status ? `<dl class="pv-uitleg">
-            ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
+          ${regels.length || dossierRij || kruistRij || entry.status ? `<dl class="pv-uitleg">
+            ${regels.map(regel).join("")}
+            ${dossierRij}
             ${kruistRij}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
           </dl>` : ""}
           ${kaart}
-          ${u.beschrijvingen?.length ? `<details class="pv-streets"><summary>Wat er in het dossier staat (${u.beschrijvingen.length})</summary><p>${esc(u.beschrijvingen.join(" · "))}</p></details>` : ""}
           ${u.voetnoot ? `<p class="pv-voetnoot">${esc(u.voetnoot)}</p>` : ""}`;
     }
     return `
-          <dl class="pv-uitleg">
-            ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
+          <dl class="pv-uitleg pv-uitleg-kaart">
+            ${regels.map(regel).join("")}
             ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${alleStraten}</dd></div>` : ""}
             ${kruistRij}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
-            ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>
           ${u.bronTekst ? `<details class="pv-streets pv-bron-tekst"><summary>Tekst van de beheerder in GIPOD</summary><p>${esc(u.bronTekst)}</p></details>` : ""}
           ${kaart}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
-          ${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}`;
+          ${bron.length || technisch ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}</details>` : ""}`;
   }
   function sectionTemplate(key, title, entries, options, note = "") {
     if (!entries.length) return "";

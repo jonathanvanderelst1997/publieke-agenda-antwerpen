@@ -241,7 +241,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await row.locator(".pv-row-btn").click();
     const tekst = await row.innerText();
     assert.equal(tekst.match(/volledig en ontvankelijk verklaard/g)?.length, 1, tekst);
-    assert.match(tekst, /Wie beslist/);
+    // Op een gsm staan de labels in hoofdletters boven de waarde (#149): innerText geeft "WIE BESLIST".
+    assert.match(tekst, /Wie beslist/i);
     assert.doesNotMatch(tekst, /Procedurestatus|doel niet|Voorbeeld|0470|20990001 · College/);
     const technisch = await row.locator("a.pv-bron-technisch").getAttribute("href");
     assert.equal(new URL(technisch).searchParams.get("where"), "Dossiernummer='20990001'");

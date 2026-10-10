@@ -100,9 +100,11 @@ test("werkkaart: jaartal, soort, eigen afsluitingsperiode, project zichtbaar, ge
     assert.equal(await rij.locator(".pv-row-range").innerText(), "5 jan 2026 → 6 jul 2027");
     await rij.locator(".pv-row-btn").click();
     const detail = rij.locator(".pv-detail");
-    assert.match(await detail.innerText(), /Stand\s+De geplande periode loopt sinds 5 januari, maar GIPOD meldt het werk nog als “concreet gepland”/);
+    // Op een gsm staan de labels in hoofdletters boven de waarde (#149): innerText geeft "STAND".
+    assert.match(await detail.innerText(), /Stand\s+De geplande periode loopt sinds 5 januari, maar GIPOD meldt het werk nog als “concreet gepland”/i);
     // Wat de beheerder over het project zegt, staat zichtbaar; zonder postcode en gemeente.
-    const uitleg = await detail.locator("dl.pv-uitleg").innerText();
+    // De eerste lijst: de uitleg zelf (onder "Bron en dossier" staat een tweede, #149).
+    const uitleg = await detail.locator("dl.pv-uitleg").first().innerText();
     assert.match(uitleg, /Volgens de beheerder: “Voorbeeldsite - Aanleg warmtenet staal DN300 lengte 1650m \(e2e\)”/);
     assert.doesNotMatch(uitleg, /2000 Antwerpen/);
     const ruw = detail.locator("details.pv-bron-tekst");
