@@ -74,6 +74,33 @@ test("privacy: geen personeelsvelden, namen, telefoon, e-mail, IBAN, huisnummers
   assert.equal(zonderHuisnummers("Werfkeet, bel 0470 11 22 33 of mail werf@example.invalid"), "Werfkeet");
 });
 
+test("huisnummers vallen ook weg zonder komma, bij -baan, -dorp en -aan, met een busnummer en in reeksen", () => {
+  for (const [input, expected] of [
+    ["Meir 24 2000 Antwerpen", "Meir 2000 Antwerpen"],
+    ["Voorbeeldplein 24-26, bus 3 2000 Antwerpen", "Voorbeeldplein 2000 Antwerpen"],
+    ["Kerk 1 2060 Antwerpen", "Kerk 2060 Antwerpen"],
+    ["Proefsebaan 135-137", "Proefsebaan"],
+    ["Proefdorp 12 tot 14", "Proefdorp"],
+    ["Oudaan 5-7", "Oudaan"],
+    ["Proefsteeg 3/5", "Proefsteeg"],
+    ["Proefgang 2A", "Proefgang"],
+    ["Zaal De Proef - Proefstraat 34 bus 2", "Zaal De Proef - Proefstraat"],
+    ["Proefstraatje 4B bus 12", "Proefstraatje"],
+    ["Voorbeeldplein 9 bus 1, 2000 Antwerpen", "Voorbeeldplein, 2000 Antwerpen"],
+    ["Wapper 9 bus 1, 2000 Antwerpen", "Wapper, 2000 Antwerpen"],
+  ]) {
+    assert.equal(zonderHuisnummers(input), expected, input);
+  }
+  // Geen adres, dan blijft alles staan: een buslijn, een fase, een datum, een duur.
+  for (const kept of ["Bereikbaar met bus 22", "Fase 2 en 3", "dinsdag 20 oktober 2026", "De werken duren 3 weken", "Proefsebaan tussen Kerkstraat en Proefstraat"]) {
+    assert.equal(zonderHuisnummers(kept), kept, kept);
+  }
+  // Een lange cel blijft snel (geen kwadratisch zoekwerk in de straatnaamregel).
+  const started = Date.now();
+  zonderHuisnummers(`${"Proefstraat ".repeat(800)}${"x".repeat(5000)}`);
+  assert.ok(Date.now() - started < 1000);
+});
+
 // ---------- fetcher ----------
 
 function makeRoot() {
