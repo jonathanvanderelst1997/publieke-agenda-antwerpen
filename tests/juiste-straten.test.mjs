@@ -77,7 +77,7 @@ test("één stratenlijst: verversing, anders de browser, en 'jouw straat' op het
   assert.deepEqual(kruist.straten, ["Langsstraat", "Leiweg"], "een kruisende straat telt niet als betrokken straat");
   assert.deepEqual(kruist.kruist, ["Kruisstraat", "Zijstraat"]);
   assert.match(kruist.title, /parcours door Langsstraat, Leiweg,/);
-  assert.match(evenementEntry(rows, { ...opties, straat: "Leiweg" }).jouwStraat, /^Ligt in je straat/);
+  assert.equal(evenementEntry(rows, { ...opties, straat: "Leiweg" }).jouwStraat, "Het parcours loopt door je straat");
   assert.equal(evenementEntry(rows, { ...opties, straat: "Verrestraat", straal: 500 }).jouwStraat, "Niet in je straat, wel binnen 500 m");
   assert.equal(evenementEntry(rows, opties).jouwStraat, "", "zonder gekozen straat geen regel");
 });
@@ -116,13 +116,13 @@ test("straal zonder punt: telt mee als zijn eigen vorm binnen de straal ligt", (
   assert.ok(!view.matchesStreet({ point: m(3000, 3000), streets: [{ name: "Langsstraat", postcode: "2000" }] }));
 });
 
-test("vergunning: de dichtste straat eerst, de andere als 'grenst ook aan'", () => {
+test("vergunning: de dichtste straat eerst, de andere als 'ook dicht bij'", () => {
   // Een perceel 6 m naast de Zijstraat en 13 m van de Leiweg (beide binnen 24 m).
   const perceel = { rings: [[[456, 13], [470, 13], [470, 40], [456, 40], [456, 13]].map(([x, y]) => m(x, y))] };
   const [permit] = collectPermits({ features: [{ attributes: { Dossiernummer: "OMV_2099000001", DOSSIERTYPE: "Omgevingsvergunning" }, geometry: perceel }], streetIndex: INDEX });
   assert.deepEqual(permit.streets.map((s) => s.name), ["Zijstraat", "Leiweg"]);
-  assert.equal(permitEntry(permit).location, "Zijstraat · grenst ook aan Leiweg");
-  assert.equal(vergunningWaar([{ name: "A" }, { name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }]), "A · grenst ook aan B, C en 2 andere straten");
+  assert.equal(permitEntry(permit).location, "Zijstraat · ook dicht bij Leiweg");
+  assert.equal(vergunningWaar([{ name: "A" }, { name: "B" }, { name: "C" }, { name: "D" }, { name: "E" }]), "A · ook dicht bij B, C en 2 andere straten");
   assert.equal(vergunningWaar([{ name: "A" }]), "A");
 });
 

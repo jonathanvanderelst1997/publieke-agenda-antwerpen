@@ -32,7 +32,7 @@ export function normalizePermit(row={}){
 }
 
 // De straten van een vergunning staan op afstand: de dichtste straat eerst (dat is meestal de straat
-// waaraan het perceel ligt), de andere daarna. place-core.js toont ze als "grenst ook aan".
+// waaraan het perceel ligt), de andere daarna. place-core.js toont ze als "ook dicht bij".
 const opAfstand=afstanden=>[...afstanden.values()].sort((a,b)=>a.distanceMeters-b.distanceMeters||a.ref.name.localeCompare(b.ref.name,"nl")).map(x=>x.ref);
 const sleutel=s=>[s.id,s.name,s.postcode].join("|");
 export function collectPermits({features=[],districtGeometry=null,streetIndex=null}={}){

@@ -619,7 +619,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
-            ${entry.jouwStraat ? `<span class="pv-row-where pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
+            ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
           </span>

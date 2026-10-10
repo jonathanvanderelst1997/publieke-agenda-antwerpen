@@ -146,8 +146,9 @@
 .pv-row-where, .pv-row-range { font-size: .87rem; color: var(--pa-muted); overflow-wrap: anywhere; }
 .pv-row-where { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .pv-row-range:empty { display: none; }
-/* Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal. */
-.pv-row-jouw { color: var(--pa-ink-strong); font-weight: 650; }
+/* Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal.
+   Een eigen regel, niet afgekapt (de plek hierboven mag na twee regels stoppen, deze zin niet). */
+.pv-row-jouw { font-size: .87rem; color: var(--pa-ink-strong); font-weight: 650; overflow-wrap: anywhere; }
 .pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }

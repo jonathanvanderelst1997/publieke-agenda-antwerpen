@@ -348,6 +348,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.click('.pv-place [data-radius="500"]');
     await parcours.first().waitFor({ timeout: 15000 });
     assert.match(await parcours.first().innerText(), /Niet in je straat, wel binnen 500 m/);
+    // Nakijkbevinding 6: de regel "jouw straat" is een eigen regel, nooit na twee regels afgekapt.
+    assert.equal(await parcours.first().locator(".pv-row-jouw").evaluate((el) => el.classList.contains("pv-row-where") || getComputedStyle(el).webkitLineClamp !== "none"), false);
     await vergunning.first().waitFor({ timeout: 15000 });
     const ver = page.locator('.pv-results .pv-row[data-uid="permits:permit:OMV_2099000002"]');
     assert.equal(await ver.count(), 0, "een vergunning 900 m verder telt niet mee in +500 m, ook al komt haar straat tot 200 m");

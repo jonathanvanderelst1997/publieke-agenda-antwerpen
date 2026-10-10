@@ -11,6 +11,7 @@ import { createAgendaView } from "../site/agenda-view.js";
 import { createAreaMatcher } from "../site/neighborhood-map.js";
 import { collectPermits } from "../site/permits-live-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
+import { evenementEntry, jouwStraatTekst, langsViaParcours, permitEntry, vergunningWaar } from "../site/place-core.js";
 
 const ECHT = JSON.parse(fs.readFileSync(new URL("./fixtures/parcours-echte-vormen.json", import.meta.url), "utf8"));
 const asFeature = (naam, coordinates, postcode = 2000, id = 1) => ({ type: "Feature", properties: { DISTRICT: "ANTWERPEN", LSTRNMID: id, LSTRNM: naam, RSTRNMID: id, RSTRNM: naam, postcode }, geometry: { type: "LineString", coordinates } });
@@ -101,4 +102,49 @@ test("live lagen geven elk item zijn eigen vorm mee (vergunning, parkeerverbod, 
   assert.equal(per.iod.vorm.vlakken.length, 1);
   assert.equal(per.iod.parcours, undefined, "alleen een parcours krijgt ook `parcours`");
   assert.equal(per.sgw.vorm.vlakken.length, 1);
+});
+
+// Bevinding 5: "Dit evenement neemt een deel van je straat in" rustte bij een evenement zonder parcours
+// alleen op de regel van 18 m rond een inname. Nu zegt de zin wat vaststaat: het parcours loopt door je
+// straat, of een inname ligt in je straat of tot 18 m ervan.
+test("jouw straat: de zin zegt waarom het evenement bij je straat staat", () => {
+  const zone = { id: "iod:ET2099000004|F1|I1", kind: "iod", reference: "ET2099000004", dossierType: "ETL", innameType: "Zone", title: "Zone", phase: "Evenement", status: "aanvraag_goedgekeurd", start: "2026-10-20T06:00:00Z", end: "2026-10-20T16:00:00Z", streets: [{ id: "7", name: "Buurstraat", postcode: "2000" }] };
+  const e = evenementEntry([zone], { vandaag: "2026-10-06", straat: "Buurstraat", wijkVan: () => "" });
+  assert.equal(e.jouwStraat, "Een zone van dit evenement ligt in of naast je straat");
+  assert.match(Object.fromEntries(e.uitleg.regels)["Jouw straat"], /tot 18 m van de straatas/);
+  assert.doesNotMatch(JSON.stringify(e.uitleg.regels), /neemt een deel van je straat in/);
+  assert.deepEqual(jouwStraatTekst("langs", { viaParcours: true }), { kort: "Het parcours loopt door je straat", lang: "Het parcours loopt door je straat." });
+  // Een straat die alleen via een parkeerverbod van het dossier in de lijst staat, terwijl het parcours
+  // haar niet volgt: de zin van de inname, niet "het parcours loopt door je straat".
+  const vlak = { rings: [[[-10, -10], [400, -10], [400, 10], [-10, 10], [-10, -10]].map(([x, y]) => m(x, y))] };
+  const index = buildStreetIndex([asFeature("Lange Weg", [m(0, 0), m(390, 0)], 2000, 1), asFeature("Zijweg", [m(200, 0), m(200, 200)], 2000, 2)]);
+  const parcours = { ...zone, id: "iod:ET2099000004|F1|I2", innameType: "Parcours", title: "Parcours", streets: [{ id: "1", name: "Lange Weg", postcode: "2000" }, { id: "2", name: "Zijweg", postcode: "2000" }], parcours: parcoursGeometrie([{ geometry: vlak }]) };
+  const parkeer = { ...zone, id: "iod:ET2099000004|F1|I3", innameType: "Parkeerverbod", title: "Parkeerverbod", streets: [{ id: "2", name: "Zijweg", postcode: "2000" }] };
+  assert.equal(langsViaParcours("Zijweg", [parcours, parkeer], index, true), false);
+  assert.equal(langsViaParcours("Lange Weg", [parcours, parkeer], index, true), true);
+  assert.equal(evenementEntry([parcours, parkeer], { vandaag: "2026-10-06", straat: "Zijweg", index, wijkVan: () => "" }).jouwStraat, "Een zone van dit evenement ligt in of naast je straat");
+  assert.equal(evenementEntry([parcours, parkeer], { vandaag: "2026-10-06", straat: "Lange Weg", index, wijkVan: () => "" }).jouwStraat, "Het parcours loopt door je straat");
+});
+
+// Bevinding 6: de regel "jouw straat" werd op een gsm na twee regels afgekapt (klasse .pv-row-where).
+test("jouw straat: een eigen regel zonder afkapping", () => {
+  const view = fs.readFileSync(new URL("../site/place-view.js", import.meta.url), "utf8");
+  const css = fs.readFileSync(new URL("../site/place-view.css", import.meta.url), "utf8");
+  const span = view.match(/<span class="([^"]*)">\$\{esc\(entry\.jouwStraat\)\}/);
+  assert.ok(span, "de regel staat in de rij");
+  assert.ok(!span[1].split(/\s+/).includes("pv-row-where"), "niet de afgekapte klasse van de plek");
+  const regel = css.match(/\.pv-row-jouw\s*\{([^}]*)\}/);
+  assert.ok(regel && !/line-clamp|overflow:\s*hidden/.test(regel[1]));
+  for (const tekst of ["Het parcours loopt door je straat", "Je straat kruist het parcours", "Niet in je straat, wel binnen 500 m"]) assert.ok(tekst.length <= 40, tekst);
+});
+
+// Bevinding 7: "grenst ook aan" noemde tunnels ("Waaslandtunnel · grenst ook aan Thonetlaan"), en is te
+// stellig voor "tot 24 m van het perceel".
+test("vergunning: geen tunnel bij 'Waar', en 'ook dicht bij' in plaats van 'grenst ook aan'", () => {
+  assert.equal(vergunningWaar([{ name: "Waaslandtunnel" }, { name: "Thonetlaan" }]), "Thonetlaan");
+  assert.equal(vergunningWaar([{ name: "Maria-Henriëttalei" }, { name: "Van Breestraat" }, { name: "Blauwtorentunnel" }]), "Maria-Henriëttalei · ook dicht bij Van Breestraat");
+  assert.equal(vergunningWaar([{ name: "Kennedytunnel" }]), "Kennedytunnel", "alleen een tunnel: dan toch die naam");
+  const e = permitEntry({ id: "permit:OMV_2099000005", dossierType: "Omgevingsvergunning", streets: ["Lei", "Tunnelstraat", "Craeybeckxtunnel", "Kaai", "Plein"].map((name) => ({ name })) });
+  assert.deepEqual(e.straten, ["Lei", "Tunnelstraat", "Kaai", "Plein"]);
+  assert.doesNotMatch(e.location, /grenst|tunnel\b/i);
 });

@@ -5,7 +5,7 @@
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
 import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
-import { stratenVanParcours } from "./parcours-straten.js";
+import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -400,7 +400,7 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   const k = evenementKaartje(feiten, { vandaag, gekoppeld: bewaard?.gekoppeld || null, wijkVan });
   // Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal?
   const relatie = straatRelatie(straat, stratenLijst);
-  const jouwStraat = jouwStraatTekst(relatie, { parcours: live.parcours > 0, straal });
+  const jouwStraat = jouwStraatTekst(relatie, { viaParcours: relatie === "langs" && langsViaParcours(straat, alle, index, live.parcours > 0), straal });
   if (jouwStraat) k.regels.unshift(["Jouw straat", jouwStraat.lang]);
   return {
     uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "werken",
@@ -458,6 +458,18 @@ export function verfijnVoorStraat(lijst, straat, rijen = [], index = null) {
   if (!p.kruist.includes(eigen)) return lijst;
   return { ...lijst, langs: lijst.langs.filter((n) => n !== eigen), kruist: sorteerNl([...lijst.kruist, eigen]) };
 }
+// Staat de gekozen straat in `langs` door het parcours zelf, of alleen door een andere inname van het
+// dossier (een parkeerverbod, een zone: die hangen aan elke straat tot 18 m van de inname)? Staat ze
+// er niet door een andere inname, dan door het parcours. Anders kijkt de browser het parcours voor
+// die ene straat na (snel). Zonder vorm van het parcours: de voorzichtige zin van de inname.
+export function langsViaParcours(straat, rijen = [], index = null, heeftParcours = false) {
+  if (!straat || !heeftParcours) return false;
+  const eigen = foldText(straat);
+  const viaInname = rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === eigen));
+  if (!viaInname) return true;
+  const geometrie = index ? samengevoegdeGeometrie(rijen.filter(isParcoursRij)) : null;
+  return Boolean(geometrie && stratenVanParcours(geometrie, index, { alleen: new Set([cleanText(straat)]) }).langs.length);
+}
 // "langs", "kruist" of "" voor de gekozen straat.
 export function straatRelatie(straat, lijst) {
   const eigen = foldText(straat);
@@ -467,10 +479,12 @@ export function straatRelatie(straat, lijst) {
   return "";
 }
 // Kort (in de lijst, zonder openklappen) en lang (in de details). Zonder gekozen straat: niets.
-export function jouwStraatTekst(relatie, { parcours = true, straal = 0 } = {}) {
-  if (relatie === "langs") return parcours
-    ? { kort: "Ligt in je straat: op het parcours of in een zone van het evenement", lang: "Het parcours of een zone van dit evenement ligt in je straat." }
-    : { kort: "Ligt in je straat", lang: "Dit evenement neemt een deel van je straat in." };
+// Een inname zonder parcours hangt aan elke straat tot 18 m ervan (site/street-core.js): daar zegt de
+// zin niet meer dan dat, en niet dat het evenement "een deel van je straat inneemt".
+export function jouwStraatTekst(relatie, { viaParcours = false, straal = 0 } = {}) {
+  if (relatie === "langs") return viaParcours
+    ? { kort: "Het parcours loopt door je straat", lang: "Het parcours loopt door je straat." }
+    : { kort: "Een zone van dit evenement ligt in of naast je straat", lang: "Een inname van dit evenement (zoals een parkeerverbod of een afgesloten zone) ligt in je straat of tot 18 m van de straatas." };
   if (relatie === "kruist") return { kort: "Je straat kruist het parcours", lang: "Je straat kruist het parcours of komt erop uit; het parcours loopt niet door je straat." };
   if (straal > 0) {
     const afstand = straal >= 1000 ? "1 km" : `${straal} m`;
@@ -675,7 +689,7 @@ export function permitEntry(row, theme = "permits") {
     title: cleanText(terrace ? terrasTitel(row?.terraceType) : row?.dossierType || "Omgevingsdossier"),
     ...(terrace ? { summary: terrasUitleg(row?.terraceType) } : {}),
     start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || (terrace ? streetNames(row) : vergunningWaar(row?.streets)),
-    ...(!terrace && (row?.streets || []).length > 2 ? { straten: [...new Set(row.streets.map((s) => s?.name).filter(Boolean))] } : {}),
+    ...(!terrace && vergunningStraten(row?.streets).length > 2 ? { straten: vergunningStraten(row?.streets) } : {}),
     status: terrace ? statusNl(row?.status) : cleanText(row?.decision || "In behandeling"),
     info: cleanText(terrace ? (row?.terraceType ? `Soort zone volgens de stad: ${row.terraceType}` : "") : [row?.dossier, row?.authority].filter(Boolean).join(" · ")),
     reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
@@ -683,13 +697,19 @@ export function permitEntry(row, theme = "permits") {
 }
 
 // "Waar" bij een vergunning: de dichtste straat (permits-live-core.js zet die eerst), de andere als
-// "grenst ook aan". Vroeger stonden alle straten binnen 24 m even zwaar naast elkaar.
-export function vergunningWaar(streets = []) {
+// "ook dicht bij": een straat tot 24 m van het perceel grenst er niet altijd aan. Een tunnel ligt
+// eronder, niet ernaast: die noemen we niet, tenzij er niets anders is.
+export function vergunningStraten(streets = []) {
   const namen = [...new Set((streets || []).map((s) => cleanText(s?.name)).filter(Boolean))];
+  const zonderTunnel = namen.filter((n) => !isTunnel(n));
+  return zonderTunnel.length ? zonderTunnel : namen;
+}
+export function vergunningWaar(streets = []) {
+  const namen = vergunningStraten(streets);
   if (namen.length <= 1) return namen[0] || "";
   const rest = namen.slice(1);
   const ook = rest.length <= 2 ? rest.join(" en ") : `${rest.slice(0, 2).join(", ")} en ${rest.length - 2} andere straten`;
-  return `${namen[0]} · grenst ook aan ${ook}`;
+  return `${namen[0]} · ook dicht bij ${ook}`;
 }
 
 // Terrassen: twee zones van dezelfde soort op hetzelfde adres zijn voor een bewoner één terras.
