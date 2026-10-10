@@ -272,7 +272,10 @@ nooit opgehaald is, meldt `npm run sources:health` als "nog niet opgehaald".
   één punt "Schoolstraat <straat>" over het lopende schooljaar (1 september tot 30 juni; in juli en
   augustus het volgende), met de venstertijden per weekdag. Thema "Werken", zodat de straatfiche het bij
   "Werken & verkeer" toont. Een proefopstelling krijgt een agendapunt op haar startdag, en een schoolstraat
-  die definitief wordt een agendapunt op die dag.
+  die definitief wordt een agendapunt op die dag. De foren vragen vlak ervoor aan dezelfde host
+  (geodata.antwerpen.be), dus de fetcher wacht eerst 1 s: hoogstens 1 verzoek per seconde per host.
+  Een datumveld dat geen geldige dag is (bv. een epoch buiten het bereik van `Date`), telt bij foren en
+  schoolstraten als leeg; de verversing crasht er niet op.
 - **Projecten** (`district-projecten`, `lib/district-projecten.mjs`): projectpagina's (heraanleg,
   vergroening, schoolstraten, speelterreinen …) uit het kanaal van district Antwerpen. Een blok
   "Inspraakmoment" of "Infomoment" met een regel `datum:` (plus `tijdstip:` en `locatie:`) wordt een
@@ -285,8 +288,10 @@ nooit opgehaald is, meldt `npm run sources:health` als "nog niet opgehaald".
     nummers van aannemers. `projectPage()` houdt alleen titel, tags, `publishUntil` en de tekst van tekst-
     en tabelblokken over; blokken "Meer info", "Contact" en "Samenstelling" worden overgeslagen, en de
     pagina's over de districtsraad, subsidies en reglementen zijn geen projecten. Plaatsen verliezen hun
-    huisnummers, telefoonnummers en e-mailadressen (`zonderHuisnummers`). Er komt geen vrije tekst van de
-    pagina in een item, buiten datum, uur, plaats, fase en zone.
+    huisnummers, telefoonnummers en e-mailadressen (`zonderHuisnummers`): ook "Meir 24 2000 Antwerpen"
+    (een nummer vlak voor een postcode), reeksen ("135-137"), busnummers ("34 bus 2") en straten op -baan,
+    -dorp, -aan, -gang, -steeg, -poort … Er komt geen vrije tekst van de pagina in een item, buiten datum,
+    uur, plaats, fase en zone.
 
 ## Speelstraten via GIPOD
 

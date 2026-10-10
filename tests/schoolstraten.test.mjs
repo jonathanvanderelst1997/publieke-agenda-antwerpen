@@ -9,12 +9,13 @@ import test from "node:test";
 import { SCHOOLSTRATEN_FIELDS, SCHOOLSTRATEN_LAYER_URL, parseVenstertijden, schooljaar, schoolstraatItems, schoolstratenQueryUrl, venstertijdenTekst } from "../lib/schoolstraten.mjs";
 import { privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
 import { buildStraatIndex } from "../lib/straatnamen.mjs";
-import { SOURCE_ID, run } from "../scripts/fetch-sources-schoolstraten.mjs";
+import { ARCGIS_PAUSE_MS, SOURCE_ID, run } from "../scripts/fetch-sources-schoolstraten.mjs";
 
 const fixture = JSON.parse(fs.readFileSync(new URL("./fixtures/p7/schoolstraten.json", import.meta.url), "utf8"));
 const TODAY = "2026-10-10";
 const streets = buildStraatIndex({ streets: [["1", "Voorbeeldstraat", "2018", [], []], ["2", "Bladstraat", "2060", [], []], ["3", "Middenstraat", "2000", [], []]] });
 const quiet = () => {};
+const noPause = async () => {};
 
 test("venstertijden: per weekdag gelezen, gelijke dagen samen", () => {
   assert.deepEqual(parseVenstertijden("8:00u-8:15u | 8:50u-9:05u"), [["8.00", "8.15"], ["8.50", "9.05"]]);
@@ -54,6 +55,15 @@ test("de straatfiche, de start van een proef en de dag dat ze definitief wordt; 
   assert.match(fiche.info, /Definitief sinds 15 januari 2021\.$/);
 });
 
+test("een datumveld buiten het bereik van Date laat de lijst niet crashen; de schoolstraat blijft", () => {
+  const base = fixture.features.find((feature) => feature.attributes.GISID === "SCHOOLSTR902").attributes;
+  const features = [{ attributes: { ...base, PROEFOPSTELLING_DATUM: 1e20, DEFINITIEF_DATUM: -1e20 } }];
+  const { items } = schoolstraatItems(features, { today: TODAY, streets });
+  // Zonder bruikbare startdag: alleen de straatfiche voor het schooljaar, geen agendapunt voor de start.
+  assert.deepEqual(items.map((item) => [item.id, item.date, item.endDate]), [["schoolstraat-schoolstr902-2026", "2026-09-01", "2027-06-30"]]);
+  assert.match(items[0].info, /Proefopstelling\.$/);
+});
+
 test("de personeelsvelden komen nooit in de uitvoer; alleen toegelaten velden worden opgevraagd", () => {
   const { items } = schoolstraatItems(fixture.features, { today: TODAY, streets });
   const text = JSON.stringify(items);
@@ -73,7 +83,7 @@ const clock = () => new Date("2026-10-10T03:21:00Z");
 
 test("fetcher: geldig brondocument; bij een fout blijft het vorige antwoord met de foutcode", async () => {
   const root = makeRoot();
-  const ok = await run({ rootDir: root, clock, log: quiet, fetch: async () => json(fixture) });
+  const ok = await run({ rootDir: root, clock, log: quiet, sleep: noPause, fetch: async () => json(fixture) });
   assert.equal(ok[0].fetchStatus, "ok");
   const before = read(root);
   assert.deepEqual(validateSourceDocument(before, { expectedSourceId: SOURCE_ID }), []);
@@ -82,8 +92,22 @@ test("fetcher: geldig brondocument; bij een fout blijft het vorige antwoord met 
     [async () => json({ features: [{ attributes: { DISTRICT: "BERCHEM" } }] }), "no_district_rows"],
     [async () => json({ features: fixture.features, exceededTransferLimit: true }), "too_many_rows"],
   ]) {
-    const status = await run({ rootDir: root, clock, log: quiet, fetch: fetchImpl });
+    const status = await run({ rootDir: root, clock, log: quiet, sleep: noPause, fetch: fetchImpl });
     assert.deepEqual([status[0].fetchStatus, status[0].errorCode], ["error", code]);
     assert.deepEqual(read(root).items, before.items);
   }
+});
+
+test("fetcher: eerst een pauze, want de foren vroegen net aan dezelfde host (hoogstens 1 verzoek per seconde)", async () => {
+  const events = [];
+  const status = await run({
+    rootDir: makeRoot(),
+    clock,
+    log: quiet,
+    sleep: async (ms) => { events.push(["pauze", ms]); },
+    fetch: async (url) => { events.push(["verzoek", new URL(url).host]); return json(fixture); },
+  });
+  assert.equal(status[0].fetchStatus, "ok");
+  assert.deepEqual(events, [["pauze", 1000], ["verzoek", "geodata.antwerpen.be"]]);
+  assert.ok(ARCGIS_PAUSE_MS >= 1000);
 });

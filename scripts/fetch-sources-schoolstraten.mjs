@@ -4,6 +4,8 @@
 // Open data van de stad; geen sleutel, geen AI.
 //
 // Eén GET per ronde. Fouten: de vorige items blijven staan en refresh-status.json meldt de fout.
+// De foren (vlak ervoor in lib/source-registry.mjs) vragen aan dezelfde host: daarom eerst een pauze
+// van ARCGIS_PAUSE_MS, zodat geodata.antwerpen.be hoogstens 1 verzoek per seconde van ons krijgt.
 //
 //   node scripts/fetch-sources-schoolstraten.mjs [--dry-run]
 import path from "node:path";
@@ -17,14 +19,18 @@ import { loadStraatIndex } from "../lib/straatnamen.mjs";
 import { getArcgisFeatures } from "./fetch-sources-foren.mjs";
 
 export const SOURCE_ID = "district-schoolstraten";
+export const ARCGIS_PAUSE_MS = 1_000;
 
-export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log } = {}) {
+const defaultSleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log, sleep = defaultSleep } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
   const now = clock();
   const retrievedAt = now.toISOString();
   const today = brusselsDate(now);
   let features;
   try {
+    await sleep(ARCGIS_PAUSE_MS);
     features = await getArcgisFeatures(fetchImpl, schoolstratenQueryUrl());
   } catch (error) {
     const code = errorCodeOf(error);

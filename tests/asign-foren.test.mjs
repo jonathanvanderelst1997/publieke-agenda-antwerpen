@@ -48,6 +48,19 @@ test("de periodetekst gaat voor op een foute einddatum (Winterkermis: einddatum 
   assert.deepEqual(twee.map((period) => [period.index, period.start, period.end]), [[1, "2026-03-07", "2026-03-29"], [2, "2026-10-10", "2026-10-25"]]);
 });
 
+test("een datumveld buiten het bereik van Date laat de foorlijst niet crashen; de periodetekst blijft gelden", () => {
+  const base = fixture.features.find((feature) => feature.attributes.id === "FO901").attributes;
+  const features = [
+    { attributes: { ...base, begindatum: 1e20, einddatum: -1e20 } },
+    // Geen periodetekst en geen bruikbare datumvelden: geen item, wel een melding.
+    { attributes: { ...base, id: "FO909", periode1: "", begindatum: 8.64e15 + 1, einddatum: Number.MAX_VALUE } },
+  ];
+  const { items, counts } = forenItems(features, { today: TODAY, streets });
+  assert.deepEqual(items.map((item) => [item.id, item.date, item.endDate]), [["foor-fo901-2026-10-03", "2026-10-03", "2026-10-18"]]);
+  assert.equal(counts.issues.geen_periode, 1);
+  assert.deepEqual(forenPerioden(forenRow({ attributes: { periode1: "", begindatum: 1e20, einddatum: 1e20 } }), { today: TODAY }), { periods: [], issues: [{ code: "geen_periode" }] });
+});
+
 test("de personeelsvelden en vrije tekst komen nooit in de uitvoer; alleen toegelaten velden worden opgevraagd", () => {
   const { items } = forenItems(fixture.features, { today: TODAY, streets });
   const text = JSON.stringify(items);
