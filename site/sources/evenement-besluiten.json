@@ -1,0 +1,1672 @@
+{
+  "schemaVersion": 1,
+  "bron": "https://ebesluit.antwerpen.be/",
+  "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
+  "leesversie": 2,
+  "generatedAt": "2026-10-10T21:36:17.412Z",
+  "venster": {
+    "van": "2026-08-11",
+    "tot": "2027-02-07"
+  },
+  "zoektermen": [
+    "Evenementen",
+    "muziekactiviteit",
+    "Districtsfonds",
+    "Intrede",
+    "Halloween",
+    "feestelijkheden"
+  ],
+  "samenvatting": {
+    "besluiten": 60,
+    "gelezen": 36,
+    "teLezen": 0,
+    "metDag": 35,
+    "inDistrict": 25,
+    "agendapunten": 23
+  },
+  "besluiten": [
+    {
+      "id": "26.0812.5579.6935",
+      "code": "2026_DCAN_00532",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-17",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerps-Afrikaans Feest",
+      "organisator": "Associatie België-Congo vzw",
+      "dagen": [
+        "2026-09-19"
+      ],
+      "uren": null,
+      "plaats": "Paleisstraat, 2018 Antwerpen",
+      "straten": [
+        "Paleisstraat"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0603.1493/agendapunten/26.0812.5579.6935"
+    },
+    {
+      "id": "26.0810.7419.9684",
+      "code": "2026_DCAN_00533",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-17",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Gouden Mijl Festival",
+      "organisator": "Timecircus vzw",
+      "dagen": [
+        "2026-09-25",
+        "2026-09-26",
+        "2026-09-27"
+      ],
+      "uren": null,
+      "plaats": "Kattendijkdok-Oostkaai, 2000 Antwerpen",
+      "straten": [
+        "Kattendijkdok-Oostkaai"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0603.1493/agendapunten/26.0810.7419.9684"
+    },
+    {
+      "id": "26.0812.7778.3978",
+      "code": "2026_DCAN_00534",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-17",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0603.1493/agendapunten/26.0812.7778.3978"
+    },
+    {
+      "id": "26.0811.6576.9074",
+      "code": "2026_DCAN_00535",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-17",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "MUSEUM VAN HEDENDAAGSE KUNST ANTWERPEN vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0603.1493/agendapunten/26.0811.6576.9074"
+    },
+    {
+      "id": "26.0812.4134.2274",
+      "code": "2026_DCAN_00536",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-17",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "MxM Sterk Merk VZW",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0603.1493/agendapunten/26.0812.4134.2274"
+    },
+    {
+      "id": "26.0810.7286.1250",
+      "code": "2026_CBS_06080",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Chaos in the City 2026",
+      "organisator": "CHAOS BV",
+      "dagen": [
+        "2026-09-05"
+      ],
+      "uren": {
+        "start": "14:00",
+        "einde": "23:30"
+      },
+      "plaats": "Leopold De Waelplaats",
+      "straten": [
+        "Leopold de Waelplaats"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-09-02",
+      "afbouw": "2026-09-07",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0810.7286.1250"
+    },
+    {
+      "id": "26.0803.2657.0210",
+      "code": "2026_CBS_06081",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Zone 5 2026",
+      "organisator": "LSRC BV",
+      "dagen": [
+        "2026-08-29"
+      ],
+      "uren": {
+        "start": "09:00",
+        "einde": "11:00"
+      },
+      "plaats": "kaaigedeelte aan Sint Andries Zuid en de omliggende straten",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": "2026-08-21",
+      "afbouw": "2026-09-02",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0803.2657.0210"
+    },
+    {
+      "id": "26.0708.4113.5781",
+      "code": "2026_CBS_06086",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerp 60",
+      "organisator": null,
+      "dagen": [
+        "2026-09-12"
+      ],
+      "uren": {
+        "start": "04:00",
+        "einde": "21:00"
+      },
+      "plaats": "stad Antwerpen",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": "2026-09-10",
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0708.4113.5781"
+    },
+    {
+      "id": "26.0717.2571.0476",
+      "code": "2026_CBS_06087",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Bal van de Bevrijding 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-09-04"
+      ],
+      "uren": {
+        "start": "18:00",
+        "einde": "23:30"
+      },
+      "plaats": "Groenplaats",
+      "straten": [
+        "Groenplaats"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-09-03",
+      "afbouw": "2026-09-05",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0717.2571.0476"
+    },
+    {
+      "id": "26.0715.7734.4609",
+      "code": "2026_CBS_06088",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Ekeren Zingt 2026",
+      "organisator": "C-koren Ekeren vzw",
+      "dagen": [
+        "2026-08-28"
+      ],
+      "uren": {
+        "start": "18:00",
+        "einde": "23:59"
+      },
+      "plaats": "Ekeren",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-08-27",
+      "afbouw": "2026-08-31",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0715.7734.4609"
+    },
+    {
+      "id": "26.0714.3436.8779",
+      "code": "2026_CBS_06089",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Gaudeamus vzw Left Over Augustus 2026",
+      "organisator": "Gaudeamus vzw",
+      "dagen": [
+        "2026-08-29"
+      ],
+      "uren": null,
+      "plaats": "omgeving van de Charles de Costerlaan",
+      "straten": [
+        "Charles de Costerlaan"
+      ],
+      "postcodes": [
+        "2050"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-08-28",
+      "afbouw": "2026-08-29",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0714.3436.8779"
+    },
+    {
+      "id": "26.0724.3820.6732",
+      "code": "2026_CBS_06090",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "MXM Sels Classic 2026",
+      "organisator": "Koninklijke Wielrijdersclub van Merksem vzw",
+      "dagen": [
+        "2026-08-30"
+      ],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": "2026-08-28",
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0724.3820.6732"
+    },
+    {
+      "id": "26.0724.8405.8146",
+      "code": "2026_CBS_06091",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Reuzenommegang Deurne 2026",
+      "organisator": "De Reuzen van Deurne vzw",
+      "dagen": [
+        "2026-09-05"
+      ],
+      "uren": {
+        "start": "12:00",
+        "einde": "18:00"
+      },
+      "plaats": "Deurne",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-05",
+      "afbouw": "2026-09-05",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2708.4566/agendapunten/26.0724.8405.8146"
+    },
+    {
+      "id": "26.0817.7218.8831",
+      "code": "2026_DCAN_00546",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-24",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.7218.8831"
+    },
+    {
+      "id": "26.0817.3397.8118",
+      "code": "2026_DCAN_00547",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-24",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerp Jewellery Week 2026",
+      "organisator": "GREATHOUSE ADVISORY bv",
+      "dagen": [
+        "2026-10-01",
+        "2026-10-02",
+        "2026-10-03",
+        "2026-10-04"
+      ],
+      "uren": null,
+      "plaats": "Bourlastraat, Cuylitsstraat, Drukkerijstraat, Grote Koraalberg, Kloosterstraat, Oude Koornmarkt en andere straten, 2000 en 2018 Antwerpen",
+      "straten": [
+        "Bourlastraat",
+        "Cuylitsstraat",
+        "Drukkerijstraat",
+        "Grote Koraalberg",
+        "Kloosterstraat",
+        "Oude Koornmarkt",
+        "Wijngaardstraat",
+        "Wolstraat"
+      ],
+      "postcodes": [
+        "2000",
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.3397.8118"
+    },
+    {
+      "id": "26.0817.0256.1639",
+      "code": "2026_DCAN_00548",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-24",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Rendierfeesten 2026",
+      "organisator": "Parole vzw",
+      "dagen": [
+        "2026-12-27"
+      ],
+      "uren": null,
+      "plaats": "Dageraadplaats, 2018 Antwerpen",
+      "straten": [
+        "Dageraadplaats"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
+    },
+    {
+      "id": "26.0818.9871.0844",
+      "code": "2026_DCAN_00549",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-24",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0818.9871.0844"
+    },
+    {
+      "id": "26.0820.7490.9978",
+      "code": "2026_CBS_06150",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-28",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "ZVA 2026 Weight Of Water",
+      "organisator": "Zomer Van Antwerpen vzw",
+      "dagen": [
+        "2026-08-24",
+        "2026-08-25",
+        "2026-08-26",
+        "2026-08-27"
+      ],
+      "uren": {
+        "start": "16:00",
+        "einde": "17:00"
+      },
+      "plaats": "Sint-Aldegondiskaai, 2000 Antwerpen",
+      "straten": [
+        "Sint-Aldegondiskaai"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": "data",
+      "vervangt": [
+        "2026_CBS_05611"
+      ],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.0715.2016/agendapunten/26.0820.7490.9978"
+    },
+    {
+      "id": "26.0824.5092.5527",
+      "code": "2026_CBS_06151",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-28",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Amelie Lens - Exhale",
+      "organisator": "Chaos bv",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Leopold de Waelplaats, 2000 Antwerpen",
+      "straten": [
+        "Leopold de Waelplaats"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": "andere",
+      "vervangt": [
+        "2026_CBS_04813"
+      ],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.0715.2016/agendapunten/26.0824.5092.5527"
+    },
+    {
+      "id": "26.0821.8282.5651",
+      "code": "2026_CBS_06152",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-28",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Studay",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": "Spoor Oost, 2140 Borgerhout",
+      "straten": [],
+      "postcodes": [
+        "2140"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.0715.2016/agendapunten/26.0821.8282.5651"
+    },
+    {
+      "id": "26.0811.0472.7120",
+      "code": "2026_CBS_06220",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-28",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Europees Kampioenschap 3x3 2026",
+      "organisator": "Sportizon nv",
+      "dagen": [
+        "2026-09-11",
+        "2026-09-12",
+        "2026-09-13"
+      ],
+      "uren": {
+        "start": "12:00",
+        "einde": "22:00"
+      },
+      "plaats": "Groenplaats, Handschoenmarkt, Grote Markt en Sint-Jansvliet",
+      "straten": [
+        "Groenplaats",
+        "Grote Markt",
+        "Handschoenmarkt",
+        "Sint-Jansvliet"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-09-05",
+      "afbouw": "2026-09-18",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.0715.2016/agendapunten/26.0811.0472.7120"
+    },
+    {
+      "id": "26.0727.5210.3538",
+      "code": "2026_CBS_06221",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-08-28",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Manu Chao Ultra Acústico 2026",
+      "organisator": "MVV - Muziek Voor Verbreding VZW",
+      "dagen": [
+        "2026-09-09"
+      ],
+      "uren": {
+        "start": "16:00",
+        "einde": "23:00"
+      },
+      "plaats": "Merksem",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-07",
+      "afbouw": "2026-09-11",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.0715.2016/agendapunten/26.0727.5210.3538"
+    },
+    {
+      "id": "26.0824.3924.1832",
+      "code": "2026_DCAN_00561",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-31",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Cézanne - Week van het Nederlands",
+      "organisator": "Nekka vzw",
+      "dagen": [
+        "2026-10-17"
+      ],
+      "uren": null,
+      "plaats": "Keistraat, 2000 Antwerpen",
+      "straten": [
+        "Keistraat"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0824.3924.1832"
+    },
+    {
+      "id": "26.0824.0216.6349",
+      "code": "2026_DCAN_00562",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-31",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0824.0216.6349"
+    },
+    {
+      "id": "26.0821.3353.9193",
+      "code": "2026_DCAN_00563",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-31",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "Out Of Sight vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0821.3353.9193"
+    },
+    {
+      "id": "26.0826.0131.8354",
+      "code": "2026_DCAN_00564",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-08-31",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0826.0131.8354"
+    },
+    {
+      "id": "26.0529.8160.2202",
+      "code": "2026_CBS_06366",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-04",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Walls Great Half 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-09-20"
+      ],
+      "uren": {
+        "start": "10:00",
+        "einde": "13:00"
+      },
+      "plaats": "Kastanjedreef",
+      "straten": [
+        "Kastanjedreef"
+      ],
+      "postcodes": [
+        "2050"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-09-17",
+      "afbouw": "2026-09-21",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.7127.8175/agendapunten/26.0529.8160.2202"
+    },
+    {
+      "id": "26.0903.2493.4379",
+      "code": "2026_DCAN_00579",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-07",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "VertelFestival",
+      "organisator": "E A R N E S T vzw",
+      "dagen": [
+        "2026-11-04"
+      ],
+      "uren": null,
+      "plaats": "Geelhandplaats, 2060 Antwerpen",
+      "straten": [
+        "Geelhandplaats"
+      ],
+      "postcodes": [
+        "2060"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0903.2493.4379"
+    },
+    {
+      "id": "26.0902.7669.4031",
+      "code": "2026_DCAN_00580",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-07",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Sikopi's Eddy cup",
+      "organisator": "Koninklijke Sint-Anna Korfbalpioniers vzw",
+      "dagen": [
+        "2026-10-10"
+      ],
+      "uren": null,
+      "plaats": "August Van Cauwelaertlaan, 2050 Antwerpen",
+      "straten": [
+        "August Van Cauwelaertlaan"
+      ],
+      "postcodes": [
+        "2050"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0902.7669.4031"
+    },
+    {
+      "id": "26.0831.4625.4972",
+      "code": "2026_DCAN_00581",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-07",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0831.4625.4972"
+    },
+    {
+      "id": "26.0902.4943.7833",
+      "code": "2026_DCAN_00582",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-07",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0902.4943.7833"
+    },
+    {
+      "id": "26.0828.8235.3172",
+      "code": "2026_DCME_00160",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Merksem",
+      "zitting": "2026-09-10",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Halloween Survival Run 2026",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/26.0407.0460.7516/agendapunten/26.0828.8235.3172"
+    },
+    {
+      "id": "26.0803.9898.9075",
+      "code": "2026_CBS_06540",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Autovrije Zondag 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-09-20"
+      ],
+      "uren": {
+        "start": "10:00",
+        "einde": "18:00"
+      },
+      "plaats": "binnenstad van Antwerpen",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": true,
+      "opbouw": "2026-09-18",
+      "afbouw": "2026-09-21",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0803.9898.9075"
+    },
+    {
+      "id": "26.0818.6860.7837",
+      "code": "2026_CBS_06541",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Jaarmarkt Hoboken 2026",
+      "organisator": "district Hoboken",
+      "dagen": [
+        "2026-09-19",
+        "2026-09-20"
+      ],
+      "uren": {
+        "start": "10:00",
+        "einde": "17:00"
+      },
+      "plaats": "centrum van Hoboken",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-18",
+      "afbouw": "2026-09-21",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0818.6860.7837"
+    },
+    {
+      "id": "26.0818.5262.4752",
+      "code": "2026_CBS_06542",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Kasteelfeesten 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-09-19"
+      ],
+      "uren": {
+        "start": "13:00",
+        "einde": "22:00"
+      },
+      "plaats": "Veltwijckpark in Ekeren",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-16",
+      "afbouw": "2026-09-19",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0818.5262.4752"
+    },
+    {
+      "id": "26.0806.3809.7289",
+      "code": "2026_CBS_06543",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Reuzenstoet Borgerhout 2026",
+      "organisator": "De Reuzen vzw",
+      "dagen": [
+        "2026-09-26"
+      ],
+      "uren": {
+        "start": "11:00",
+        "einde": null
+      },
+      "plaats": "Borgerhout",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-23",
+      "afbouw": "2026-09-30",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0806.3809.7289"
+    },
+    {
+      "id": "26.0811.6297.6611",
+      "code": "2026_CBS_06544",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Studay 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-09-24"
+      ],
+      "uren": {
+        "start": "13:30",
+        "einde": "23:00"
+      },
+      "plaats": "Spoor Oost",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-09-18",
+      "afbouw": "2026-09-28",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0811.6297.6611"
+    },
+    {
+      "id": "26.0803.1467.4917",
+      "code": "2026_CBS_06545",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-11",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Students on Stage 2026",
+      "organisator": "Unifac vzw",
+      "dagen": [
+        "2026-09-21"
+      ],
+      "uren": {
+        "start": "12:00",
+        "einde": "19:00"
+      },
+      "plaats": "Sint-Jansplein",
+      "straten": [
+        "Sint-Jansplein"
+      ],
+      "postcodes": [
+        "2060"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-09-20",
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2197.9561/agendapunten/26.0803.1467.4917"
+    },
+    {
+      "id": "26.0908.5490.7158",
+      "code": "2026_DCAN_00587",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-14",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Heropening Anselmostraat",
+      "organisator": "Winkeliersvereniging de Anselmostraat vzw",
+      "dagen": [
+        "2026-10-17"
+      ],
+      "uren": null,
+      "plaats": "Anselmostraat, Lange Lozanastraat, 2018 Antwerpen",
+      "straten": [
+        "Anselmostraat",
+        "Lange Lozanastraat"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.8956.3025/agendapunten/26.0908.5490.7158"
+    },
+    {
+      "id": "26.0908.1909.6576",
+      "code": "2026_DCAN_00599",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-14",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Nacht van de Jeugdbeweging",
+      "organisator": "Scouting Antwerpen - Zuid 6 + 16 vzw",
+      "dagen": [
+        "2026-10-23",
+        "2026-10-24"
+      ],
+      "uren": null,
+      "plaats": "August Leyweg, 2020 Antwerpen",
+      "straten": [
+        "August Leyweg"
+      ],
+      "postcodes": [
+        "2020"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.8956.3025/agendapunten/26.0908.1909.6576"
+    },
+    {
+      "id": "26.0908.3881.2343",
+      "code": "2026_DCAN_00600",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-14",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.8956.3025/agendapunten/26.0908.3881.2343"
+    },
+    {
+      "id": "26.0904.8796.1108",
+      "code": "2026_DCDE_00266",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Deurne",
+      "zitting": "2026-09-14",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Deurne Griezelt",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.1118.9388.8881/agendapunten/26.0904.8796.1108"
+    },
+    {
+      "id": "26.0910.3062.6018",
+      "code": "2026_CBS_06618",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-18",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Afterwork Reuzekesstoet",
+      "organisator": "Boelaer Handelaer vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Vosplein, 2140 Borgerhout",
+      "straten": [],
+      "postcodes": [
+        "2140"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.3197.4508/agendapunten/26.0910.3062.6018"
+    },
+    {
+      "id": "26.0910.7493.1635",
+      "code": "2026_CBS_06619",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-18",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Mariaburgse Feesten 2026",
+      "organisator": "Wijkwerking Mariaburg vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Van de Weyngaertplein, 2180 Ekeren",
+      "straten": [],
+      "postcodes": [
+        "2180"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.3197.4508/agendapunten/26.0910.7493.1635"
+    },
+    {
+      "id": "26.0915.9651.3659",
+      "code": "2026_DCAN_00606",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-21",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0915.9651.3659"
+    },
+    {
+      "id": "26.0911.9405.4945",
+      "code": "2026_DCAN_00607",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "To Be Antwerp - kunstroute",
+      "organisator": "To Be vzw",
+      "dagen": [
+        "2026-11-27",
+        "2026-11-28",
+        "2026-11-29"
+      ],
+      "uren": null,
+      "plaats": "2000 en 2018 Antwerpen",
+      "straten": [],
+      "postcodes": [
+        "2000",
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945"
+    },
+    {
+      "id": "26.0911.1397.5991",
+      "code": "2026_DCAN_00608",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "2060 United Feest!",
+      "organisator": "2026 United vzw",
+      "dagen": [
+        "2026-10-03"
+      ],
+      "uren": null,
+      "plaats": "Schoolplak, 2060 Antwerpen",
+      "straten": [
+        "Schoolplak"
+      ],
+      "postcodes": [
+        "2060"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.1397.5991"
+    },
+    {
+      "id": "26.0918.1193.3542",
+      "code": "2026_DRAN_00184",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtsraad Antwerpen",
+      "zitting": "2026-09-21",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Heropening Anselmostraat",
+      "organisator": "Winkeliersvereniging de Anselmostraat vzw",
+      "dagen": [
+        "2026-10-17"
+      ],
+      "uren": null,
+      "plaats": "Anselmostraat, Lange Lozanastraat, 2018 Antwerpen",
+      "straten": [
+        "Anselmostraat",
+        "Lange Lozanastraat"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0722.0739.2900/agendapunten/26.0918.1193.3542"
+    },
+    {
+      "id": "26.0812.6529.1272",
+      "code": "2026_CBS_06883",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-25",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Ecodroom 2026",
+      "organisator": "provincie Antwerpen",
+      "dagen": [
+        "2026-10-04"
+      ],
+      "uren": {
+        "start": "12:00",
+        "einde": "18:00"
+      },
+      "plaats": "Rivierenhof in Deurne",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": "2026-10-02",
+      "afbouw": "2026-10-05",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0812.6529.1272"
+    },
+    {
+      "id": "26.0827.5504.5947",
+      "code": "2026_CBS_06884",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-25",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerp Urban Walk 2026",
+      "organisator": null,
+      "dagen": [
+        "2026-10-04"
+      ],
+      "uren": null,
+      "plaats": "verschillende locaties in de binnenstad",
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": true,
+      "opbouw": "2026-10-02",
+      "afbouw": "2026-10-04",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0827.5504.5947"
+    },
+    {
+      "id": "26.0908.1145.7936",
+      "code": "2026_CBS_06885",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-09-25",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerp Marathon 2026",
+      "organisator": "Golazo Sport nv",
+      "dagen": [
+        "2026-10-18"
+      ],
+      "uren": {
+        "start": "09:00",
+        "einde": "17:00"
+      },
+      "plaats": "Rijnkaai",
+      "straten": [
+        "Rijnkaai"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": "2026-10-12",
+      "afbouw": "2026-10-21",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0908.1145.7936"
+    },
+    {
+      "id": "26.0925.6545.8937",
+      "code": "2026_DCAN_00625",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-09-28",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Antwerp Fashion Weekend",
+      "organisator": "Antwerp Retail Shopping Promotion vzw",
+      "dagen": [
+        "2026-10-03",
+        "2026-10-04"
+      ],
+      "uren": null,
+      "plaats": "Groenplaats, Kammenstraat, Nationalestraat, Steenhouwersvest, Theodoor Van Rijswijckplaats",
+      "straten": [
+        "Groenplaats",
+        "Kammenstraat",
+        "Nationalestraat",
+        "Steenhouwersvest",
+        "Theodoor Van Rijswijckplaats"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0828.3988/agendapunten/26.0925.6545.8937"
+    },
+    {
+      "id": "26.0921.4516.9761",
+      "code": "2026_CBS_06957",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-10-02",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Disco Anvers",
+      "organisator": "Jongerencentrum Bouckenborgh vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Gaston en Leopad, 2170 Merksem",
+      "straten": [],
+      "postcodes": [
+        "2170"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4351.6160/agendapunten/26.0921.4516.9761"
+    },
+    {
+      "id": "26.0921.9412.6181",
+      "code": "2026_CBS_06958",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-10-02",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Celebration Of Life",
+      "organisator": "TRX vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Noordersingel, 2140 Borgerhout",
+      "straten": [
+        "Noordersingel"
+      ],
+      "postcodes": [
+        "2140"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4351.6160/agendapunten/26.0921.9412.6181"
+    },
+    {
+      "id": "26.0925.1112.0562",
+      "code": "2026_DCAN_00637",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-05",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Heropening Anselmostraat",
+      "organisator": "Winkeliersvereniging de Anselmostraat vzw",
+      "dagen": [
+        "2026-10-17"
+      ],
+      "uren": null,
+      "plaats": "Anselmostraat, 2018 Antwerpen",
+      "straten": [
+        "Anselmostraat"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5468.3473/agendapunten/26.0925.1112.0562"
+    },
+    {
+      "id": "26.1001.0686.7028",
+      "code": "2026_DCAN_00655",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-12",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1001.0686.7028"
+    },
+    {
+      "id": "26.1001.9208.0507",
+      "code": "2026_DCAN_00656",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-12",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "Futsal Project Seefhoek vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1001.9208.0507"
+    },
+    {
+      "id": "26.1001.3299.5095",
+      "code": "2026_DCAN_00657",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-12",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1001.3299.5095"
+    },
+    {
+      "id": "26.1006.5148.4036",
+      "code": "2026_DCAN_00658",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-12",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1006.5148.4036"
+    },
+    {
+      "id": "26.1007.1202.3994",
+      "code": "2026_DCAN_00659",
+      "soort": "districtsfonds",
+      "status": "weigering",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-10-12",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "Zvezdoliki Ensemble vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1007.1202.3994"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 826,
+    "events": 871,
     "errors": 0,
-    "warnings": 38,
-    "unconfirmedStart": 38
+    "warnings": 83,
+    "unconfirmedStart": 83
   },
   "errors": [],
   "warnings": [
@@ -96,107 +96,332 @@
     {
       "code": "unconfirmed_start",
       "index": 120,
-      "id": "ebesluit-2026-dcan-00002-2026-05-24-2a68dbfb"
+      "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01"
     },
     {
       "code": "unconfirmed_start",
       "index": 121,
-      "id": "ebesluit-2026-dcan-00002-2026-05-24-bee7d76c"
+      "id": "ebesluit-2026-dcan-00002-2026-05-24-2a68dbfb"
     },
     {
       "code": "unconfirmed_start",
       "index": 122,
-      "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09"
+      "id": "ebesluit-2026-dcan-00002-2026-05-24-bee7d76c"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 123,
+      "id": "project-5d725f47b628f03ea317d3b8-fase-5-2026-08-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 124,
+      "id": "project-5ebcee18901c1f55f320daf0-fase-4b-2026-08-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 125,
+      "id": "project-608fe3749dc6b9660910da8b-fase-2-2026-08-03"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 126,
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6a-2026-08-10"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 127,
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6b-2026-08-10"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 128,
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-2-2026-09-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 129,
+      "id": "schoolstraat-schoolstr005-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 130,
+      "id": "schoolstraat-schoolstr007-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 131,
+      "id": "schoolstraat-schoolstr017-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 132,
+      "id": "schoolstraat-schoolstr018-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 133,
+      "id": "schoolstraat-schoolstr023-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 134,
+      "id": "schoolstraat-schoolstr024-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 135,
+      "id": "schoolstraat-schoolstr032-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 136,
+      "id": "schoolstraat-schoolstr033-2026"
     },
     {
       "code": "unconfirmed_start",
       "index": 137,
+      "id": "schoolstraat-schoolstr037-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 138,
+      "id": "schoolstraat-schoolstr050-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 139,
+      "id": "schoolstraat-schoolstr051-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 140,
+      "id": "schoolstraat-schoolstr054-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 141,
+      "id": "schoolstraat-schoolstr058-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 142,
+      "id": "schoolstraat-schoolstr060-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 143,
+      "id": "schoolstraat-schoolstr102-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 144,
+      "id": "schoolstraat-schoolstr103-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 145,
+      "id": "schoolstraat-schoolstr107-2026"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 146,
+      "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 147,
+      "id": "foor-fo45-2026-10-03"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 148,
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-1a-2026-10-05"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 150,
+      "id": "ebesluit-ev-2026-dcan-00580-2026-10-10"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 157,
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-1b-2026-10-12"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 161,
       "id": "stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 156,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17"
+      "index": 166,
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-2a-2026-10-14"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 181,
+      "id": "ebesluit-ev-2026-dcan-00561-2026-10-17"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 182,
+      "id": "ebesluit-ev-2026-dcan-00637-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
       "index": 183,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 192,
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 212,
       "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 215,
+      "index": 213,
+      "id": "ebesluit-ev-2026-dcan-00599-2026-10-23"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 245,
       "id": "stad-news-merksem-6655c1fac846040011359f8b-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 219,
+      "index": 249,
       "id": "koopzondag-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 238,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 243,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 247,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 248,
-      "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08"
+      "index": 259,
+      "id": "ebesluit-ev-2026-dcan-00579-2026-11-04"
     },
     {
       "code": "unconfirmed_start",
       "index": 269,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13"
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 277,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15"
+      "index": 274,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07"
     },
     {
       "code": "unconfirmed_start",
-      "index": 290,
+      "index": 278,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 279,
+      "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 300,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 308,
+      "id": "project-6abbbb7f332512009f4367fe-bevraging-2026-11-15"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 309,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 322,
       "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 291,
+      "index": 323,
       "id": "stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 362,
+      "index": 340,
+      "id": "foor-fo43-2026-11-21"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 363,
+      "id": "ebesluit-ev-2026-dcan-00607-2026-11-27"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 389,
+      "id": "foor-fo65-2026-12-04"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 397,
       "id": "koopzondag-2026-12-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 384,
-      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11"
+      "index": 419,
+      "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11"
     },
     {
       "code": "unconfirmed_start",
-      "index": 392,
+      "index": 427,
       "id": "koopzondag-2026-12-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 419,
+      "index": 454,
       "id": "koopzondag-2026-12-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 442,
+      "index": 477,
+      "id": "ebesluit-ev-2026-dcan-00548-2026-12-27"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 478,
       "id": "koopzondag-2026-12-27"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 494,
+      "id": "project-608fe3749dc6b9660910da8b-fase-3-2027-01-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 495,
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-3-2027-01-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 704,
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 705,
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 814,
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 863,
+      "id": "project-608fe3749dc6b9660910da8b-fase-4-2027-06-21"
     }
   ]
 }

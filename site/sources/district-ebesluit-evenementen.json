@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-ebesluit-evenementen",
+  "scope": "district",
+  "publisher": "Stad en district Antwerpen / eBesluit Antwerpen",
+  "attribution": {
+    "text": "Bron: eBesluit Antwerpen",
+    "url": "https://ebesluit.antwerpen.be/"
+  },
+  "url": "https://ebesluit.antwerpen.be/",
+  "allowedHosts": [
+    "ebesluit.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "eBesluit Antwerpen: goedgekeurde besluiten over evenementen, muziekactiviteiten en het Districtsfonds met een plaats in district Antwerpen, gelezen met vaste zinpatronen",
+  "retrievedAt": "2026-10-10T21:36:17.412Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": "ebesluit-evenementen-v2|2026-08-11|36|8",
+  "items": [
+    {
+      "id": "ebesluit-ev-2026-dcan-00580-2026-10-10",
+      "externalId": "2026_DCAN_00580",
+      "title": "Sikopi's Eddy cup",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-10",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "August Van Cauwelaertlaan, 2050 Antwerpen",
+      "postcodes": [
+        "2050"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 7 september). Organisatie: Koninklijke Sint-Anna Korfbalpioniers vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0902.7669.4031",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00561-2026-10-17",
+      "externalId": "2026_DCAN_00561",
+      "title": "Cézanne - Week van het Nederlands",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-17",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Keistraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 31 augustus). Organisatie: Nekka vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0824.3924.1832",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00637-2026-10-17",
+      "externalId": "2026_DCAN_00637",
+      "title": "Heropening Anselmostraat",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-17",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Anselmostraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 5 oktober). Organisatie: Winkeliersvereniging de Anselmostraat vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.5468.3473/agendapunten/26.0925.1112.0562",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-cbs-06885-2026-10-18",
+      "externalId": "2026_CBS_06885",
+      "title": "Antwerp Marathon 2026",
+      "theme": "Sport",
+      "className": "sport",
+      "date": "2026-10-18",
+      "endDate": null,
+      "timeSlot": "09:00",
+      "timeText": "09.00 tot 17.00 uur",
+      "location": "Rijnkaai, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Goedgekeurd door het college van burgemeester en schepenen (zitting van 25 september). Organisatie: Golazo Sport nv. Opbouw vanaf 12 oktober, afbouw tot 21 oktober.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0908.1145.7936",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00599-2026-10-23",
+      "externalId": "2026_DCAN_00599",
+      "title": "Nacht van de Jeugdbeweging",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-23",
+      "endDate": "2026-10-24",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "August Leyweg, 2020 Antwerpen",
+      "postcodes": [
+        "2020"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 14 september). Organisatie: Scouting Antwerpen - Zuid 6 + 16 vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.8956.3025/agendapunten/26.0908.1909.6576",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00579-2026-11-04",
+      "externalId": "2026_DCAN_00579",
+      "title": "VertelFestival",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-04",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Geelhandplaats, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 7 september). Organisatie: E A R N E S T vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0903.2493.4379",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00607-2026-11-27",
+      "externalId": "2026_DCAN_00607",
+      "title": "To Be Antwerp - kunstroute",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-27",
+      "endDate": "2026-11-29",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "2000 en 2018 Antwerpen",
+      "postcodes": [
+        "2000",
+        "2018"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 21 september). Organisatie: To Be vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "ebesluit-ev-2026-dcan-00548-2026-12-27",
+      "externalId": "2026_DCAN_00548",
+      "title": "Rendierfeesten 2026",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-27",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Dageraadplaats, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 24 augustus). Organisatie: Parole vzw.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    }
+  ]
+}
