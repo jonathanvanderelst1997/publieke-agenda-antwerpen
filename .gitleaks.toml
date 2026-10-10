@@ -1,0 +1,117 @@
+# gitleaks: geheimen en persoonsgegevens vinden voor ze publiek staan.
+#
+# Deze repo is publiek. De standaardregels van gitleaks zoeken sleutels en
+# tokens; de eigen regels hieronder zoeken wat nooit op de agenda hoort:
+# een Belgisch rekeningnummer, een e-mailadres, een Belgisch gsm-nummer en een
+# huisnummer bij een straatnaam. Dezelfde soorten als privacyFindings in
+# lib/source-feed.mjs en de privacytoets van de Gateway.
+#
+# Meldstand: CI faalt hier niet op (job gitleaks in .github/workflows/ci.yml,
+# --exit-code 0). Een vondst is een vraag, geen verbod: kijk of het om een
+# publieke plek gaat (zet die dan in de allowlist hieronder) of om een
+# privéadres (haal het dan uit de data).
+#
+# Lokaal: node scripts/gitleaks-meld.mjs boom
+# Die toont alleen aantallen per regel en bestandsnamen, nooit de inhoud.
+#
+# Let op: gitleaks gebruikt Go-regex (RE2). Geen lookbehind of lookahead; de
+# grens staat daarom buiten groep 1 (secretGroup = 1).
+
+title = "publieke-agenda-antwerpen: geheimen en persoonsgegevens"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "iban-be"
+description = "Belgisch rekeningnummer (IBAN)"
+regex = '''(?m)(?:^|[^0-9A-Za-z])([Bb][Ee][0-9]{2}(?: ?[0-9]{4}){3})(?:[^0-9A-Za-z]|$)'''
+secretGroup = 1
+keywords = ["be"]
+tags = ["privacy"]
+
+[[rules]]
+id = "e-mailadres"
+description = "E-mailadres"
+regex = '''([A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,})'''
+secretGroup = 1
+keywords = ["@"]
+tags = ["privacy"]
+
+[[rules]]
+id = "gsm-be"
+description = "Belgisch gsm-nummer"
+regex = '''(?m)(?:^|[^0-9A-Za-z+])((?:\+32|0032|0)[ ./-]?4[5-9][0-9](?:[ ./-]?[0-9]{2}){3})(?:[^0-9A-Za-z]|$)'''
+secretGroup = 1
+tags = ["privacy"]
+
+# Een straatnaam (Kerkstraat, De Keyserlei, Grote Markt, Turnhoutsebaan ...)
+# gevolgd door een huisnummer (12, 12A, 12 bus 3). Een straat zonder nummer is
+# geen vondst: de agenda toont straten, geen voordeuren.
+[[rules]]
+id = "huisnummer-bij-straat"
+description = "Huisnummer bij een straatnaam"
+regex = '''(?m)(?:^|[^\p{L}0-9])((?:\p{Lu}[\p{L}'-]*(?:straat|steenweg|laan|lei|plein|dreef|weg|kaai|kade|vest|markt|singel|baan|hof|dijk|pad|plaats|brug|poort|wal|rui|gracht|berg|veld|dam|plantsoen|park|ring)|(?:Straat|Steenweg|Laan|Lei|Plein|Dreef|Weg|Kaai|Kade|Vest|Markt|Singel|Baan|Hof|Dijk|Pad|Plaats|Brug|Poort|Wal|Rui|Gracht|Berg|Veld|Dam|Plantsoen|Park|Ring))[ \t]+[1-9][0-9]{0,3}(?:[ \t]?[A-Za-z])?(?:[ \t]*(?:bus|b)[ \t]*[0-9A-Za-z]{1,4})?)(?:[^0-9A-Za-z]|$)'''
+secretGroup = 1
+tags = ["privacy"]
+
+# ---------- allowlists (alleen voor de eigen privacyregels) ----------
+# Een echte sleutel blijft overal een vondst van de standaardregels.
+
+# Toetsen en fixtures bevatten verzonnen voorbeelden; deze configuratie bevat
+# de lijsten hieronder.
+[[allowlists]]
+description = "Toetsen, fixtures en deze configuratie"
+targetRules = ["iban-be", "e-mailadres", "gsm-be", "huisnummer-bij-straat"]
+paths = [
+  '''^tests/''',
+  '''(?:^|/)\.gitleaks\.toml$''',
+]
+
+# Functionele adressen van publieke organisaties, adressen van GitHub zelf en
+# voorbeelddomeinen. Geen adressen van personen: hoort een persoon erbij, haal
+# het dan uit de data in plaats van het hier toe te laten.
+[[allowlists]]
+description = "Publieke organisaties en voorbeelddomeinen (e-mail)"
+targetRules = ["e-mailadres"]
+regexes = [
+  '''^district\.[a-z-]+@antwerpen\.be$''',
+  '''@users\.noreply\.github\.com$''',
+  '''^(?:no-?reply|noreply)@''',
+  '''@(?:[a-z0-9-]+\.)*(?:example\.(?:com|org|net)|voorbeeld\.be)$''',
+  '''\.(?:invalid|test|example)$''',
+]
+
+# Een evenement op een publieke plek: "Naam, Straat 12" in het veld location
+# (JSON en JS), in de JSON-LD (Place.name) of onder "Waar" op de eventpagina.
+# Een adres zonder naam ervoor (zoals in site/history/) blijft een vondst.
+[[allowlists]]
+description = "Evenementlocatie met de naam van de plek ervoor"
+targetRules = ["huisnummer-bij-straat"]
+regexTarget = "line"
+regexes = [
+  '''"?location"?\s*:\s*"[^"]*[^\s",][^",]*,\s''',
+  '''"@type"\s*:\s*"Place"\s*,\s*"name"\s*:\s*"[^"]*[^\s",][^",]*,\s''',
+  '''<dt>Waar</dt><dd>[^<,]*[^\s<,][^<,]*,\s''',
+]
+
+# Bekende publieke plekken die ook buiten een location-veld voorkomen (in een
+# auditverslag of een codecommentaar). Alleen organisaties, nooit een woning.
+[[allowlists]]
+description = "Bekende publieke adressen"
+targetRules = ["huisnummer-bij-straat"]
+regexes = [
+  '''^Waalsekaai 14$''',               # Zuiderpershuis / Zuidpark
+  '''^Sint-Bernardsesteenweg 113$''',  # SCRATCH
+  '''^Sch(?:ij|rij)fstraat 105$''',    # CO Nova (de bron schrijft soms Schrijfstraat)
+  '''^Harmoniepark 1$''',              # park; evenementen van het district
+]
+
+# Een Antwerpse postcode na een straatnaam is geen huisnummer
+# ("De Keyserlei 2018" om twee straten met dezelfde naam te onderscheiden).
+[[allowlists]]
+description = "Postcode van Antwerpen, geen huisnummer"
+targetRules = ["huisnummer-bij-straat"]
+regexes = [
+  ''' (?:2000|2018|2020|2030|2040|2050|2060|2100|2140|2170|2180|2600|2610|2660)$''',
+]

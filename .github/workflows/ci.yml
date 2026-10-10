@@ -257,3 +257,75 @@ jobs:
             exit 1
           fi
           echo "Databaan in orde: $(wc -l < "$RUNNER_TEMP/changes.txt") pad(en), $(wc -l < "$RUNNER_TEMP/commits.txt") commit(s) van github-actions[bot]."
+
+  # gitleaks (MIT, gratis, offline) in meldstand: de standaardregels voor
+  # sleutels en tokens plus eigen regels voor persoonsgegevens (.gitleaks.toml).
+  # Faalt nooit de run: --exit-code 0 in scripts/gitleaks-meld.mjs en
+  # continue-on-error hier. Het logboek en de samenvatting tonen alleen
+  # aantallen per regel en bestandsnamen; het rapport zelf blijft in
+  # RUNNER_TEMP en wordt niet opgeladen (dit is een publieke repo).
+  # De CLI en geen gitleaks-action: geen licentiesleutel, geen schrijfrechten.
+  gitleaks:
+    name: gitleaks (meldt)
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      # Vaste versie, en de sha256 uit gitleaks_8.30.1_checksums.txt van de
+      # release. Een nieuwe versie: beide waarden samen aanpassen.
+      - name: gitleaks ophalen (vaste versie, sha256 nagekeken)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/gitleaks"
+          mkdir -p "$dir"
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSL --retry 3 -o "$dir/gitleaks.tar.gz" "$url"
+          echo "${GITLEAKS_SHA256}  $dir/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf "$dir/gitleaks.tar.gz" -C "$dir" gitleaks
+          "$dir/gitleaks" version
+          echo "GITLEAKS_BIN=$dir/gitleaks" >> "$GITHUB_ENV"
+
+      # De eigen regels op verzonnen voorbeelden (tests/fixtures/gitleaks/):
+      # elke regel vindt wat ze moet vinden, en de allowlists laten door wat
+      # publiek is.
+      - name: Eigen regels werken
+        run: node --test tests/gitleaks-meld.test.mjs
+
+      - name: Wat deze wijziging toevoegt
+        if: ${{ !cancelled() }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            range="${PR_BASE}..${PR_HEAD}"
+          else
+            range="${PUSH_BEFORE}..${PUSH_AFTER}"
+          fi
+          if ! [[ $range =~ ^[0-9a-f]{40}\.\.[0-9a-f]{40}$ ]] || [[ $range == 0000000000000000000000000000000000000000..* ]]; then
+            echo "Geen bruikbaar commitbereik; alleen de werkboom wordt gescand."
+            exit 0
+          fi
+          node scripts/gitleaks-meld.mjs commits "$range"
+
+      - name: Wat nu in de werkboom staat
+        if: ${{ !cancelled() }}
+        run: node scripts/gitleaks-meld.mjs boom

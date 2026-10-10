@@ -1,0 +1,27 @@
+# Verzonnen voorbeelden voor de eigen regels in .gitleaks.toml. Geen echte gegevens.
+# Vorm: <regel die moet vinden, of -> | <tekst>. tests/gitleaks-meld.test.mjs leest dit.
+iban-be | Stort het lidgeld op BE00 1234 5678 9012 voor vrijdag.
+iban-be | rekening be00123456789012
+- | Bestelnummer BE001234 is geen rekening.
+e-mailadres | Mail naar iemand.verzonnen@voorbeeld-vereniging.org voor meer uitleg.
+- | Algemeen adres van het district: district.antwerpen@antwerpen.be
+- | Bot: iemand@users.noreply.github.com
+- | Voorbeeld: naam@example.com
+gsm-be | Bel 0499 12 34 56 na 18 uur.
+gsm-be | Internationaal: +32 499 12 34 56
+gsm-be | Zonder spaties 0032499123456
+gsm-be | Met tekens 0499/12.34.56
+- | Vaste lijn 03 123 45 67
+- | Werkid 10499123456 is langer dan een gsm-nummer.
+huisnummer-bij-straat | Afspraak in de Verzonnenstraat 12 bus 3.
+huisnummer-bij-straat | Nergenslaan 7A, achteraan.
+huisnummer-bij-straat | Op de Grote Nergensmarkt 3 vanaf 10 uur.
+huisnummer-bij-straat | "location": "Verzonnenstraat 12 2060 Antwerpen",
+- | De Verzonnenstraat zonder nummer.
+- | Verzonnenstraat 12345 heeft vijf cijfers en is geen huisnummer.
+- | in een kleine straat 5 keer per jaar
+- | Twee straten met die naam: De Keyserlei 2018
+- | "location": "Zaal Fictief, Verzonnenstraat 12",
+- | <div><dt>Waar</dt><dd>Zaal Fictief, Verzonnenstraat 12</dd></div>
+- | {"@type":"Place","name":"Zaal Fictief, Verzonnenstraat 12"}
+- | Programma in het Zuiderpershuis, Waalsekaai 14.
