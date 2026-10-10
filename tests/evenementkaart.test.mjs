@@ -102,6 +102,22 @@ test("13 oktober: een eerlijk vermoeden met de reden, zonder verzonnen naam of u
   assert.match(ook.reden, /12 oktober valt in de doopperiode/);
 });
 
+test("tweede ronde: 'zeker' alleen met een bron die dag en route noemt; geen doop die niet aangetoond is", () => {
+  // 21 november: de agenda van de organisator noemt de dag, de uren en de route van de optocht.
+  const optocht = evenementEntry([rij("ET2025003100", "Evenement", "Parcours", "2026-11-21", "2026-11-21", ["Meir"])], opties);
+  assert.equal(optocht.title, "Optocht van de Nobele Orde van de Papegay (50 jaar)");
+  assert.equal(optocht.time, "15:00");
+  assert.deepEqual(optocht.uitleg.links.map((l) => l.url), ["https://ordonobilis.eu/agenda-investituur-2026/"]);
+  // 27 oktober naar Fort VI: een doop staat nergens, dus geen "studentendoop" in de titel.
+  const fort = evenementEntry([rij("ET2026004329", "Evenement", "Parcours", "2026-10-27", "2026-10-27", ["Pieter Coeckelaan"])], opties);
+  assert.equal(fort.title, "Vermoedelijk een studentenstoet te voet naar het Fort VI-domein");
+  assert.match(kern(fort.uitleg).Waar, /De looprichting staat niet in het dossier\./);
+  // Elk 'zeker' dossier steunt op een publieke bron buiten A-Sign.
+  for (const [id, d] of Object.entries(IDENTITEIT.dossiers)) {
+    if (d.zekerheid === "zeker") assert.ok(d.bron.some((b) => !/geodata\.antwerpen\.be/.test(b)), id);
+  }
+});
+
 test("onbekend: één korte eerlijke zin, geen gegokte soort", () => {
   const rows = [rij("ET2026005554", "Evenement", "Parcours", "2026-10-17", "2026-10-17", ["Kloosterstraat"])];
   const e = evenementEntry(rows, opties);
