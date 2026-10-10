@@ -10,6 +10,7 @@ import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs"
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
+import { EVENEMENT_BESLUITEN_FILE, validateEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
 import {
   HISTORY_BACKFILL_DIR,
   HISTORY_BACKFILL_INDEX_FILE,
@@ -67,6 +68,11 @@ if (!fs.existsSync(sourcesDir)) {
           problems.push(`${name}: ${sourceId} ontbreekt`);
         }
       }
+      continue;
+    }
+    // De gelezen eBesluit-besluiten achter district-ebesluit-evenementen (lib/ebesluit-evenementen.mjs).
+    if (name === EVENEMENT_BESLUITEN_FILE) {
+      for (const error of validateEvenementBesluiten(json)) if (!error.startsWith("privacy:")) problems.push(`${name}: ${error}`);
       continue;
     }
     const sourceId = name.replace(/\.json$/, "");
