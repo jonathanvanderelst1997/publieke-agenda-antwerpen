@@ -55,7 +55,8 @@ if(root){
     note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(mislukt.length?` ${onvolledigMelding(mislukt)}`:"");
     render();root.classList.remove("loading");
   }
-  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;if(window.PUBLIC_AGENDA_VIEW?.enabled("publicSpace")&&(window.PUBLIC_AGENDA_VIEW.hasPlace||window.PUBLIC_AGENDA_VIEW.wantsLiveLayers))load();if(state.ready)render()});
+  // Ook laden als alleen "Evenementen" aan staat: A-Sign kent de evenementen op straat (place-view.js).
+  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;const v=window.PUBLIC_AGENDA_VIEW;if((v?.enabled("publicSpace")||v?.wantsStreetEvents)&&(v.hasPlace||v.wantsLiveLayers))load();if(state.ready)render()});
   [search,kind].forEach(c=>c?.addEventListener("input",()=>{state.shown=60;render()}));more?.addEventListener("click",()=>{state.shown+=60;render()});
   if("IntersectionObserver"in window){const o=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){o.disconnect();load()}},{rootMargin:"600px"});o.observe(root)}else load()
 }

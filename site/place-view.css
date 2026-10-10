@@ -150,10 +150,13 @@
    Een eigen regel, niet afgekapt (de plek hierboven mag na twee regels stoppen, deze zin niet). */
 .pv-row-jouw { font-size: .87rem; color: var(--pa-ink-strong); font-weight: 650; overflow-wrap: anywhere; }
 .pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
+/* Een open evenementkaart zegt wanneer en jouw straat al in de kern: de samenvatting niet herhalen. */
+.pv-row.open.pv-row-kern .pv-row-summary { display: none; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
 .pv-streets p { margin: 4px 0 0 !important; font-size: .86rem !important; color: var(--pa-muted) !important; }
+.pv-streets p.pv-straten-noot { color: var(--pa-ink) !important; }
 .pv-ontbreekt { font-size: .86rem !important; color: var(--pa-muted) !important; border-left: 3px solid var(--pa-line-strong); padding-left: 10px; }
 .pv-ontbreekt strong { color: var(--pa-ink); }
 .pv-technisch { font-size: .78rem !important; color: var(--pa-muted) !important; }
@@ -162,6 +165,17 @@
 .pv-kaart figcaption { font-size: .78rem; color: var(--pa-muted); margin-top: 4px; }
 .ku-straten polyline { fill: none; stroke: var(--pa-line-strong); stroke-width: 1; }
 .ku-route polyline { fill: none; stroke: #c0392b; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.ku-jouw polyline { fill: none; stroke: #1d4ed8; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; opacity: .85; }
+.pv-kaart svg.ku-kaart { width: 100%; max-height: 340px; }
+/* Evenementkaart: bovenaan wat, wanneer, waar, jouw straat en wat je merkt; labels boven de tekst. */
+.pv-detail .pv-kern { display: block; margin: 12px 0 0; padding: 12px 14px; border-radius: 12px; background: color-mix(in srgb, var(--cat-soft, var(--pa-surface-2)) 70%, var(--pa-surface)); border: 1px solid var(--pa-line); font-size: .94rem; }
+.pv-detail .pv-kern div { display: block; margin: 0 0 10px; }
+.pv-detail .pv-kern div:last-child { margin-bottom: 0; }
+.pv-detail .pv-kern dt { font-size: .76rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--cat-ink, var(--pa-muted)); }
+.pv-detail .pv-kern dd { margin: 2px 0 0; line-height: 1.5; color: var(--pa-ink); overflow-wrap: break-word; }
+.pv-links-top { margin-top: 12px; }
+.pv-link-uitleg { flex-basis: 100%; margin-top: -4px; font-size: .82rem; color: var(--pa-muted); }
+.pv-voetnoot { font-size: .8rem !important; color: var(--pa-muted) !important; }
 .pv-row-chevron { width: 10px; height: 10px; margin-top: 6px; border-right: 2px solid var(--pa-muted); border-bottom: 2px solid var(--pa-muted); transform: rotate(45deg); transition: transform .15s; }
 .pv-row.open .pv-row-chevron { transform: rotate(-135deg); margin-top: 10px; }
 .pv-badge { text-transform: none; letter-spacing: 0; font-size: .74rem; font-weight: 800; padding: 1px 8px; border-radius: 999px; }
@@ -267,7 +281,7 @@
 .plek-ui :is(button, a, summary, input):focus-visible { outline: 3px solid var(--pa-focus); outline-offset: 2px; }
 
 @media (min-width: 641px) {
-  .pv-stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .pv-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
   .pv-cal-week { grid-template-rows: 34px repeat(var(--lanes, 1), 20px) 16px; }
   .pv-bar { font-size: .72rem; font-weight: 700; line-height: 20px; padding: 0 6px; }
   .pv-bar.single { width: auto; height: auto; border-radius: 4px; justify-self: stretch; margin: 0 3px; background: var(--cat-soft); color: var(--cat-ink); }
@@ -291,6 +305,7 @@
   .has-place .pv-aside .buurt-head { display: none; }
   .has-place .pv-aside .buurt-map { height: 230px; }
   .pv-stats { gap: 6px; }
+  .pv-stat:last-child:nth-child(odd) { grid-column: 1 / -1; }
   .pv-stat button { flex-direction: row; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; }
   .pv-stat strong { font-size: 1.3rem; min-width: 1.1em; }
   .pv-stat span { font-size: .8rem; line-height: 1.2; }

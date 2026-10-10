@@ -292,7 +292,9 @@ test("terrassen: geen \"niet actief\", de straat van het adres, en een titel in 
   const zones = pc.terrasEntries([{ ...t1, id: "terrace:A" }, { ...t1, id: "terrace:B" }, { ...t1, id: "terrace:C", address: "Proefstraat 9" }]);
   assert.equal(zones.length, 2);
   assert.equal(zones[0].info, "Soort zone volgens de stad: buiten kern · 2 zones op dit adres");
-  assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(pick\(live\.terraces, "terraces"\)\)/);
+  // Na de samenvoeging met de evenementkaart (#140) kiest collect() eerst alles op de plek en filtert
+  // daarna per groep (de chips tellen ook soorten die uit staan): inPlace in plaats van pick.
+  assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(inPlace\(live\.terraces\)\)/);
   // Ook de volledige lijsten onderaan gebruiken de titels in gewone taal, zonder fasenummer.
   assert.match(bron("site/terraces-live.js"), /<h3>\$\{esc\(terrasTitel\(item\.terraceType\)\)\}<\/h3>/);
   assert.match(bron("site/public-space-live.js"), /parkeerTitel\(i\.reason\?\?i\.title\)/);

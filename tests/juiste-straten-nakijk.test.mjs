@@ -112,8 +112,9 @@ test("jouw straat: de zin zegt waarom het evenement bij je straat staat", () => 
   const zone = { id: "iod:ET2099000004|F1|I1", kind: "iod", reference: "ET2099000004", dossierType: "ETL", innameType: "Zone", title: "Zone", phase: "Evenement", status: "aanvraag_goedgekeurd", start: "2026-10-20T06:00:00Z", end: "2026-10-20T16:00:00Z", streets: [{ id: "7", name: "Buurstraat", postcode: "2000" }] };
   const e = evenementEntry([zone], { vandaag: "2026-10-06", straat: "Buurstraat", wijkVan: () => "" });
   assert.equal(e.jouwStraat, "Een zone van dit evenement ligt in of naast je straat");
-  assert.match(Object.fromEntries(e.uitleg.regels)["Jouw straat"], /tot 18 m van de straatas/);
-  assert.doesNotMatch(JSON.stringify(e.uitleg.regels), /neemt een deel van je straat in/);
+  // Na de samenvoeging met de evenementkaart (#140) staat "Jouw straat" bovenaan in de kaart (kern).
+  assert.match(Object.fromEntries(e.uitleg.kern)["Jouw straat"], /tot 18 m van de straatas/);
+  assert.doesNotMatch(JSON.stringify(e.uitleg), /neemt een deel van je straat in/);
   assert.deepEqual(jouwStraatTekst("langs", { viaParcours: true }), { kort: "Het parcours loopt door je straat", lang: "Het parcours loopt door je straat." });
   // Een straat die alleen via een parkeerverbod van het dossier in de lijst staat, terwijl het parcours
   // haar niet volgt: de zin van de inname, niet "het parcours loopt door je straat".

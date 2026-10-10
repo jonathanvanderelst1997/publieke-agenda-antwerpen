@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, koppelEvenement, soortEvenement, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { locationKey } from "./neighborhood-core.js";
 
@@ -256,10 +256,33 @@ export function monthWeeks(monthIso) {
   return weeks;
 }
 
+// Een evenement op straat heeft twee periodes: de dag(en) van het evenement zelf (start/end, voor
+// de titel en de plaats in de lijst) en de innameperiode van opbouw tot afbraak (innameStart/
+// innameEind). Filter, overlap, balken en "nu bezig" volgen de innameperiode: tijdens de afbraak
+// staat er nog een parkeerverbod in de straat.
+export function periodeVan(entry) {
+  const start = entry?.start || "", end = entry?.end || "";
+  const ps = entry?.innameStart && (!start || entry.innameStart < start) ? entry.innameStart : start;
+  const pe = entry?.innameEind && entry.innameEind > (end || start) ? entry.innameEind : end;
+  return { start: ps, end: pe && pe !== ps ? pe : "" };
+}
+// Waar staat een evenement op straat op een dag: "gepland", "opbouw", "evenement", "afbraak" of
+// "voorbij". Leeg voor alles zonder innameperiode.
+export function evenementFase(entry, day) {
+  if (!entry?.innameStart || !day) return "";
+  const p = periodeVan(entry), es = entry.start || p.start, ee = entry.end || es;
+  if (day < p.start) return "gepland";
+  if (day > (p.end || p.start)) return "voorbij";
+  if (day < es) return "opbouw";
+  if (day > ee) return "afbraak";
+  return "evenement";
+}
+
 // Overlapt een item [start, end] met [from, to]? Een item zonder einde telt als één dag
 // (of als lopend tot het einde van het venster als openEnd gezet is).
 export function overlaps(entry, from, to) {
-  const start = entry.start, end = entry.end || (entry.openEnd ? to : start);
+  const { start, end: eind } = periodeVan(entry);
+  const end = eind || (entry.openEnd ? to : start);
   return Boolean(start) && start <= to && end >= from;
 }
 
@@ -270,10 +293,11 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
   const rows = entries
     .filter((entry) => overlaps(entry, weekStart, weekEnd))
     .map((entry) => {
-      const end = entry.end || (entry.openEnd ? weekEnd : entry.start);
-      const s = entry.start < weekStart ? weekStart : entry.start;
+      const p = periodeVan(entry);
+      const end = p.end || (entry.openEnd ? weekEnd : p.start);
+      const s = p.start < weekStart ? weekStart : p.start;
       const e = end > weekEnd ? weekEnd : end;
-      return { entry, col: daysBetween(weekStart, s), span: daysBetween(s, e) + 1, clippedStart: entry.start < weekStart, clippedEnd: end > weekEnd };
+      return { entry, col: daysBetween(weekStart, s), span: daysBetween(s, e) + 1, clippedStart: p.start < weekStart, clippedEnd: end > weekEnd };
     })
     .sort((a, b) => a.col - b.col || b.span - a.span || String(a.entry.title).localeCompare(String(b.entry.title), "nl"));
   const lanes = [];
@@ -292,21 +316,27 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
 }
 
 // Indeling van de lijst: wat nu loopt, en wat er per dag start of plaatsvindt binnen de periode.
+// Een evenement op straat staat bij "nu bezig" tijdens opbouw en afbraak, en anders op de dag van
+// het evenement; valt alleen de opbouw in de periode, dan op de eerste dag van de opbouw.
 export function groupForList(entries, { from, to, today }) {
   const running = [], days = new Map(), later = [];
   for (const entry of entries) {
+    const fase = evenementFase(entry, today);
+    if (fase === "opbouw" || fase === "afbraak") { running.push(entry); continue; }
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     if (multi && entry.start <= today && (entry.openEnd || entry.end >= today)) { running.push(entry); continue; }
     if (!entry.start) continue;
-    const end = entry.end || entry.start;
+    const p = periodeVan(entry);
+    const end = p.end || entry.end || entry.start;
     if (end < from) continue;
-    if (entry.start > to) { later.push(entry); continue; }
-    const day = entry.start < from ? from : entry.start;
+    const begin = entry.start > to && p.start <= to ? p.start : entry.start;
+    if (begin > to) { later.push(entry); continue; }
+    const day = begin < from ? from : begin;
     if (!days.has(day)) days.set(day, []);
     days.get(day).push(entry);
   }
   const byTitle = (a, b) => String(a.time || "99").localeCompare(String(b.time || "99")) || String(a.title).localeCompare(String(b.title), "nl");
-  running.sort((a, b) => String(a.end || "9999").localeCompare(String(b.end || "9999")) || byTitle(a, b));
+  running.sort((a, b) => String(periodeVan(a).end || "9999").localeCompare(String(periodeVan(b).end || "9999")) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
   return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
 }
@@ -388,27 +418,62 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
 }
-// Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen.
+// Een oudere verversing bewaarde hoogstens zoveel lijnen van een parcours (de rest viel weg).
+const OUDE_KAART_MAX = 12;
+// Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen. Het is
+// een evenement (groep "evenementen"): het telt mee bij de evenementen en de chip "Evenementen" toont het.
 // `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).
-// `lijst`: de stratenlijst van evenementStraten() (ook die van de filter); `straat`: de gekozen straat.
-export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0 } = {}) {
+// `lijst`: de stratenlijst van evenementStraten() (ook die van de filter); `straat`: de gekozen straat
+// ("jouw straat"); `straal`: de straal rond die straat. identiteit: site/sources/evenement-identiteit.json;
+// agendaItems: de publieke agendapunten, voor een dossier dat (nog) niet nagekeken is.
+export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [] } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
   const stratenLijst = verfijnVoorStraat(lijst || evenementStraten(alle, { bewaard, index }), straat, alle, index);
   const straten = stratenLijst.langs.length ? stratenLijst.langs : bewaard?.straten?.length ? bewaard.straten : live.straten;
-  const feiten = bewaard ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten } : { ...live, straten };
-  const k = evenementKaartje(feiten, { vandaag, gekoppeld: bewaard?.gekoppeld || null, wijkVan });
-  // Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal?
-  const relatie = straatRelatie(straat, stratenLijst);
-  const jouwStraat = jouwStraatTekst(relatie, { viaParcours: relatie === "langs" && langsViaParcours(straat, alle, index, live.parcours > 0), straal });
-  if (jouwStraat) k.regels.unshift(["Jouw straat", jouwStraat.lang]);
+  // Hoe het parcours de gekozen straat raakt, uit dezelfde berekening als de lijst en de filter
+  // (site/parcours-straten.js). `langs`: de straten waar het parcours zelf door loopt, als de
+  // verversing ze apart bewaarde; anders zegt de kaart voorzichtig "op of naast het parcours".
+  const parcoursRelatie = straat ? parcoursRelatieVoorStraat(straat, { lijst: stratenLijst, bewaard, rijen: alle, index }) : null;
+  const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : null;
+  // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de
+  // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
+  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map(zonderHuisnummer)].filter(Boolean))];
+  const soort = soortEvenement(beschrijvingen) || live.soort || bewaard?.soort || "";
+  const feiten = bewaard
+    ? { ...live, soort, soortBron: soort ? "omschrijvingen in het dossier" : "", beschrijvingen, straten, langs, parcoursRelatie }
+    : { ...live, straten, langs, parcoursRelatie };
+  const id = identiteit?.dossiers?.[live.dossier] || null;
+  // Koppeling aan de agenda. Een nagekeken evenement linkt alleen naar het agendapunt met dezelfde
+  // naam; een dossier zonder fiche koppelt op dag en straat: eerst live (kent het agendapunt), anders
+  // wat de verversing bewaarde.
+  const agenda = Array.isArray(agendaItems) ? agendaItems : [];
+  const bekend = id && id.zekerheid !== "onbekend";
+  const gekoppeld = bekend
+    ? (id.zekerheid === "zeker" && id.naam && agenda.length ? koppelEvenement(feiten, agenda, { naam: id.naam }) : null)
+    : (agenda.length ? koppelEvenement(feiten, agenda) : null) || bewaard?.gekoppeld || null;
+  const k = evenementKaartje(feiten, { vandaag, gekoppeld, identiteit: id, straat, wijkVan });
+  // Jouw straat: kort in de lijst (zonder openklappen), lang in de kaart (jouwStraat in kaart-uitleg.js).
+  const jouwStraat = jouwStraatVoorLijst(straat, { lijst: stratenLijst, parcoursRelatie, rijen: alle, straal });
+  vulJouwStraatAan(k, jouwStraat);
+  const start = dayOf(k.dagen.start || live.start), end = k.dagen.eind && k.dagen.eind > k.dagen.start ? dayOf(k.dagen.eind) : "";
+  // Innameperiode op de gekozen plek (opbouw tot afbraak van de innames hier, zoals een parkeerverbod
+  // in jouw straat), anders van het hele dossier. Zie periodeVan() en evenementFase().
+  const hier = rows.map((r) => [dayOf(r?.start), dayOf(r?.end) || dayOf(r?.start)]).filter(([s]) => s);
+  const innameStart = hier.length ? hier.map(([s]) => s).sort()[0] : dayOf(live.start);
+  const innameEind = hier.length ? hier.map(([, e]) => e).sort().at(-1) : dayOf(live.eind);
+  // De schets is maar een deel van het parcours als de verversing dat zegt, of bij een bestand van
+  // vóór die markering dat op OUDE_KAART_MAX lijnen afgekapt kan zijn.
+  const kaart = bewaard?.kaart || [];
+  const kaartDeel = bewaard?.kaartDeel === true || (bewaard?.kaartDeel === undefined && kaart.length >= OUDE_KAART_MAX);
   return {
-    uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "werken",
-    title: k.titel, summary: k.samenvatting, start: dayOf(live.start), end: live.eind && live.eind > live.start ? dayOf(live.eind) : "", openEnd: false, time: "", timeText: "",
-    location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: "",
+    uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "evenementen",
+    title: k.titel, summary: k.samenvatting, start, end, openEnd: false, time: k.tijd, timeText: "",
+    location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: k.links[0]?.url || "",
+    innameStart, innameEind,
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
-    straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart: bewaard?.kaart || [],
+    evenementLinks: k.links, straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart, kaartDeel,
   };
 }
 
@@ -573,24 +638,76 @@ export function jouwStraatTekst(relatie, { viaParcours = false, straal = 0 } = {
     ? { kort: "Het parcours loopt door je straat", lang: "Het parcours loopt door je straat." }
     : { kort: "Een zone van dit evenement ligt in of naast je straat", lang: "Een inname van dit evenement (zoals een parkeerverbod of een afgesloten zone) ligt in je straat of tot 18 m van de straatas." };
   if (relatie === "kruist") return { kort: "Je straat kruist het parcours", lang: "Je straat kruist het parcours of komt erop uit; het parcours loopt niet door je straat." };
+  // Zonder vorm van het parcours (of nog zonder straatas): niet meer zeggen dan "in of naast".
+  if (relatie === "naast") return { kort: "Het parcours ligt in of naast je straat", lang: "Het parcours ligt in of naast je straat." };
   if (straal > 0) {
     const afstand = straal >= 1000 ? "1 km" : `${straal} m`;
     return { kort: `Niet in je straat, wel binnen ${afstand}`, lang: `Niet in je straat: dit evenement ligt binnen ${afstand} van je straat.` };
   }
   return null;
 }
+// Hoe het parcours van een dossier de gekozen straat raakt: "op" (het parcours loopt erdoor),
+// "kruist" (kruist het of komt erop uit), "naast" (raakt het niet), "kruist-of-naast" (niet op het
+// parcours, maar kruisen of naast liggen is niet bekend), of null: onbekend. Eerst de verversing
+// (`langs` en `kruist`, uit site/parcours-straten.js), dan de browser voor die ene straat (snel), dan
+// een lijst die al op de vorm berekend is. Dezelfde berekening als de lijst en de filter.
+export function parcoursRelatieVoorStraat(straat, { lijst = null, bewaard = null, rijen = [], index = null } = {}) {
+  const eigen = foldText(straat);
+  if (!eigen) return null;
+  const heeft = (namen) => (namen || []).some((n) => foldText(n) === eigen);
+  if (Array.isArray(bewaard?.langs)) {
+    if (heeft(bewaard.langs)) return "op";
+    if (heeft(bewaard.kruist)) return "kruist";
+    if (Array.isArray(bewaard.kruist)) return "naast";
+  }
+  const naam = rijen.flatMap((r) => r?.streets || []).find((s) => foldText(s?.name) === eigen)?.name || cleanText(straat);
+  const p = parcoursVoorStraat(rijen, naam, index);
+  if (p) return p.langs.length ? "op" : p.kruist.length ? "kruist" : "naast";
+  if (Array.isArray(bewaard?.langs)) return "kruist-of-naast";
+  if (heeft(lijst?.kruist)) return "kruist";
+  return null;
+}
+// De korte regel "jouw straat" in de lijst, uit dezelfde feiten als de lange in de kaart: het parcours
+// loopt erdoor; anders een andere inname van het dossier in of naast de straat (een parkeerverbod, een
+// zone: die hangen aan elke straat tot 18 m ervan); anders kruist het parcours haar; anders staat ze
+// in de lijst zonder dat de vorm bekend is ("in of naast"); anders de straal.
+export function jouwStraatVoorLijst(straat, { lijst = null, parcoursRelatie = null, rijen = [], straal = 0 } = {}) {
+  const eigen = foldText(straat);
+  if (!eigen) return null;
+  if (parcoursRelatie === "op") return jouwStraatTekst("langs", { viaParcours: true });
+  if (rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === eigen))) return jouwStraatTekst("langs");
+  const relatie = straatRelatie(straat, lijst);
+  if (parcoursRelatie === "kruist" || relatie === "kruist") return jouwStraatTekst("kruist");
+  if (relatie === "langs") return jouwStraatTekst("naast");
+  return jouwStraatTekst("", { straal });
+}
+// De lange regel "Jouw straat" in de kaart komt uit jouwStraat() (kaart-uitleg.js), met de dagen van
+// een parkeerverbod of verkeersvrije zone. Twee aanvullingen: hangt de straat er alleen aan via een
+// andere inname (tot 18 m), dan zegt de kaart dat ook; en ligt het evenement alleen binnen de straal,
+// dan zegt de kaart dat in plaats van niets.
+const INNAME_18M = "Die inname ligt in je straat of tot 18 m van de straatas.";
+function vulJouwStraatAan(k, jouw) {
+  if (!jouw || !Array.isArray(k?.kern)) return;
+  const i = k.kern.findIndex(([dt]) => dt === "Jouw straat");
+  if (i >= 0) {
+    if (jouw.kort === jouwStraatTekst("langs").kort && !/parcours/.test(k.kern[i][1])) k.kern[i] = ["Jouw straat", `${k.kern[i][1]} ${INNAME_18M}`];
+    return;
+  }
+  const voor = k.kern.findIndex(([dt]) => dt === "Wat merk je");
+  k.kern.splice(voor >= 0 ? voor : k.kern.length, 0, ["Jouw straat", jouw.lang]);
+}
 const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).filter((s) => s?.name).map((s) => [`${s.id}|${s.name}|${s.postcode}`, s])).values()];
 // Live innames: evenementendossiers bundelen. Parkeerverboden en werfzones per dossier bundelen:
 // één rij per parkeerverbod (alle plaatsen van hetzelfde dossier en dezelfde uren samen) en één rij
 // per werfzone-dossier (alle fasen samen). `straat`: de gekozen straat, die komt eerst bij "Waar".
 // `lijstVan(dossier)`: de stratenlijst die de filter ook gebruikt (place-view.js); `straal`: de straal
-// rond de gekozen straat, voor de regel "jouw straat".
-export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "", straal = 0, index = null, lijstVan = null } = {}) {
+// rond de gekozen straat, voor de regel "jouw straat". identiteit en agendaItems: zie evenementEntry().
+export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "", straal = 0, index = null, lijstVan = null, identiteit = null, agendaItems = [] } = {}) {
   if (!vandaag) return rows.map(publicSpaceEntry);
   const perDossier = bundelInnames(alle);
   const out = [];
   for (const [dossier, groep] of bundelInnames(rows)) {
-    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, straat, straal, index, lijst: lijstVan ? lijstVan(dossier) : null }));
+    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, straat, straal, index, lijst: lijstVan ? lijstVan(dossier) : null, identiteit, agendaItems }));
     else out.push(...groep.map(publicSpaceEntry));
   }
   out.push(...bundelMaatregelen(rows.filter((r) => r?.kind !== "iod"), { alle, straat, vandaag }));

@@ -73,10 +73,11 @@ test("één stratenlijst: verversing, anders de browser, en 'jouw straat' op het
   const opties = { vandaag: "2026-10-06", index: INDEX, wijkVan: () => "" };
   const kruist = evenementEntry(rows, { ...opties, straat: "Kruisstraat" });
   assert.equal(kruist.jouwStraat, "Je straat kruist het parcours");
-  assert.deepEqual(kruist.uitleg.regels[0], ["Jouw straat", "Je straat kruist het parcours of komt erop uit; het parcours loopt niet door je straat."]);
+  // Na de samenvoeging met de evenementkaart (#140) staat "Jouw straat" bovenaan in de kaart (kern).
+  assert.equal(Object.fromEntries(kruist.uitleg.kern)["Jouw straat"], "Jouw straat kruist het parcours of komt erop uit.");
   assert.deepEqual(kruist.straten, ["Langsstraat", "Leiweg"], "een kruisende straat telt niet als betrokken straat");
   assert.deepEqual(kruist.kruist, ["Kruisstraat", "Zijstraat"]);
-  assert.match(kruist.title, /parcours door Langsstraat, Leiweg,/);
+  assert.match(Object.fromEntries(kruist.uitleg.kern).Waar, /^Parcours door Langsstraat, Leiweg \(/);
   assert.equal(evenementEntry(rows, { ...opties, straat: "Leiweg" }).jouwStraat, "Het parcours loopt door je straat");
   assert.equal(evenementEntry(rows, { ...opties, straat: "Verrestraat", straal: 500 }).jouwStraat, "Niet in je straat, wel binnen 500 m");
   assert.equal(evenementEntry(rows, opties).jouwStraat, "", "zonder gekozen straat geen regel");
