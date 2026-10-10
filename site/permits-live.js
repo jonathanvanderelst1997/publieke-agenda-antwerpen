@@ -24,11 +24,11 @@ if(root){
   const card=(item,open=false)=>{const d=duidelijkeKaart({source:"permits"},item);const waar=d.waar;return `<details class="permit-card" data-permit="${esc(item.id||"")}"${open?" open":""}><summary><span><strong>${esc(d.titel)}</strong>${waar.kort?` · ${esc(waar.kort)}`:""}${d.melding?`<br><strong class="permit-alert">${esc(d.melding)}</strong>`:""}</span><span>${esc(item.dossier||item.project)}</span></summary><p>${esc(d.samenvatting)}</p><dl>${d.regels.map(([dt,dd])=>`<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}${waar.ingeklapt?`<div><dt>Waar</dt><dd>${esc(waar.straten.join(", "))}</dd></div>`:""}</dl>${inzageTemplate(item)}<details><summary>Technische stadsbron (ArcGIS)</summary><a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">Ruwe brongegevens van dit dossier</a></details></details>`};
   function render(){const items=visible().sort((a,b)=>(b.inzage?1:0)-(a.inzage?1:0)),shown=items.slice(0,state.shown);count.textContent=`${items.length} omgevingsdossiers (aanvragen en beslissingen)`;const open=new Set([...list.querySelectorAll("details.permit-card[open]")].map(el=>el.dataset.permit).filter(Boolean));list.innerHTML=shown.map(item=>card(item,Boolean(item.id)&&open.has(item.id))).join("");more.hidden=shown.length>=items.length;more.textContent=`Toon meer dossiers (${Math.max(0,items.length-shown.length)})`}
   // Pas laden als het nodig is (vroeger bij elk bezoek, ook op de voorpagina waar de vergunningen uit staan):
-  // een gekozen wijk of postcode met vergunningen aan, een klik op de soorten, of de lijst komt in beeld.
-  // Bij één straat (view.straatSnel) vraagt de plekpagina zelf alleen het kader van die straat.
+  // zodra de soort "vergunningen" aan staat (het overzicht van het district of een wijk toont ze dan), of
+  // als de lijst in beeld komt. Bij één straat (view.straatSnel) vraagt de plekpagina zelf alleen het kader.
   let geladen=false;
   const laad=()=>{if(geladen)return;geladen=true;start()};
-  window.addEventListener("public-agenda:view-change",()=>{state.shown=30;const v=window.PUBLIC_AGENDA_VIEW;if(v?.enabled("permits")&&(v.hasPlace||v.wantsLiveLayers)&&!v.straatSnel)laad();if(state.ready)render()});
+  window.addEventListener("public-agenda:view-change",()=>{state.shown=30;const v=window.PUBLIC_AGENDA_VIEW;if(v?.enabled("permits")&&!v.straatSnel)laad();if(state.ready)render()});
   search?.addEventListener("input",()=>{state.shown=30;render()});more?.addEventListener("click",()=>{state.shown+=30;render()});
   // Nagekeken stand in het Inzageloket (site/sources/inzage-status.json). Ontbreekt dat bestand, dan zegt de
   // kaart gewoon niets over een openbaar onderzoek.

@@ -100,6 +100,9 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
 }
 
 async function routeSources(page, street, { asign = null, work: withWork = true, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
+  // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
+  // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
+  await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
   const [x1, y1, x2, y2] = row[4];
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];

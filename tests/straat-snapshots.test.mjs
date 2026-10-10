@@ -220,7 +220,7 @@ test("de voorpagina vraagt live-layers.json niet meer op, zonder no-store", () =
 test("bij één straat laden de lijsten van het hele district niet; de plekpagina vraagt alleen het kader", () => {
   const lees = (naam) => fs.readFileSync(path.join(repoRoot, "site", naam), "utf8");
   for (const naam of ["works-live.js", "public-space-live.js", "terraces-live.js", "permits-live.js"]) {
-    assert.match(lees(naam), /&&!v\.straatSnel\)/, `${naam} laadt het hele district niet voor één straat`);
+    assert.match(lees(naam), /&&!v\.straatSnel\)(?:load|laad)\(\)/, `${naam} laadt het hele district niet voor één straat`);
     assert.match(lees(naam), /laadAlsInBeeld\(root,/, `${naam} laadt pas als de lijst echt in beeld komt`);
   }
   // De vergunningen laadden vroeger bij elk bezoek, ook op de voorpagina.
