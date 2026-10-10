@@ -24,6 +24,7 @@ import { worksExactSnapshot } from "../site/works-snapshot.js";
 import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
+import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -265,7 +266,12 @@ export async function refreshLiveHistory({
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
   let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
-  const history = updateLiveHistory(previous, { observedAt, worksResult, publicSpaceResult });
+  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
+  // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
+  const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
+  const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
+  log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
+  const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
   const errors = validateLiveHistory(history);
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -277,9 +283,9 @@ export async function refreshLiveHistory({
   const archiveDayFile = path.join(rootDir, archiveDayPath);
   const readJsonIfPresent = (target) => fs.existsSync(target) ? JSON.parse(fs.readFileSync(target, "utf8")) : null;
 
-  const previousBaseline = readJsonIfPresent(archiveBaselineFile);
+  const previousBaseline = archiefBaselineVoorPubliek(readJsonIfPresent(archiveBaselineFile));
   const previousIndex = readJsonIfPresent(archiveIndexFile);
-  const previousDay = readJsonIfPresent(archiveDayFile);
+  const previousDay = archiefDagVoorPubliek(readJsonIfPresent(archiveDayFile));
   const baseline = updateHistoryArchiveBaseline(previousBaseline, history);
   const dayDocument = updateHistoryArchiveDay(
     previousDay,
