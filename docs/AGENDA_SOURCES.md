@@ -10,7 +10,7 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
-| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. |
+| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
@@ -142,7 +142,24 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
   2 dagen.
 - "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
   48 uur.
-- Per bron toont de site "ververst op …", "verouderd sinds …" of "nog niet actief".
+- Per bron toont de site "ververst op …", in het oranje "leeg sinds …", in het rood "verouderd sinds …" of
+  "nog niet actief".
+
+## Leeg: antwoordt wel, levert niets
+
+Een bron die 3 kalenderdagen op rij 0 items levert, of alleen items die voorbij zijn, krijgt
+`contentStatus: "leeg"` in `site/sources/refresh-status.json` (`scripts/stale-policy.mjs`). Dat is een
+waarschuwing (oranje), geen fout: de verversing blijft groen. De teller telt kalenderdagen vanaf de
+eerste verversing zonder komend item, geen verversingen: valt een ochtend uit, dan is een bron al na 2
+echte verversingen "leeg".
+
+- `scripts/refresh-fetch.mjs` schrijft per actieve bron `upcomingCount` (wat vandaag nog loopt of komt),
+  `emptySince` (de eerste dag van de huidige reeks dagen zonder komend item, overgenomen van de vorige
+  status) en `contentStatus` ("ok" of "leeg"). Komt er weer iets, dan valt `emptySince` weg.
+- `npm run sources:health` toont zo'n bron als `leeg` met `emptySince=…`, met exitcode 0; op een
+  GitHub-runner komt er een `::warning` "Bron leeg" bij.
+- De site toont bij de bron "leeg sinds …: geen komende items" in plaats van "ververst op …".
+- Een status van vóór deze velden blijft geldig; de teller begint bij de eerste verversing met deze code.
 
 ## Datum in de titel (`district-nieuws`)
 

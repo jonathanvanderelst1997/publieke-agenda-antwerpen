@@ -92,6 +92,10 @@ export function buildFeed({ status, documents, manualCheck = null }, handItems) 
         fetchStatus: entry?.fetchStatus ?? document.fetchStatus,
         errorCode: entry?.errorCode ?? null,
         itemCount: sourceItems.length,
+        // Eerlijke bronstatus (scripts/stale-policy.mjs): "leeg" en sinds wanneer, als de status ze kent.
+        ...(entry && "contentStatus" in entry
+          ? { upcomingCount: entry.upcomingCount ?? null, emptySince: entry.emptySince ?? null, contentStatus: entry.contentStatus }
+          : {}),
       };
     })
     .sort((a, b) => a.sourceId.localeCompare(b.sourceId));

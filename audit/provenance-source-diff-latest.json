@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-10",
-  "sourceDigest": "6f652ecfd72bf15c47c8f4ede2555d13ef1a02fabccfc3c79de020896e4a9dc6",
-  "matrixDigest": "6f652ecfd72bf15c47c8f4ede2555d13ef1a02fabccfc3c79de020896e4a9dc6",
+  "sourceDigest": "004aa389cad2949d720a5296a584f200e12090caa9bf8dba8bdd361e06e2957d",
+  "matrixDigest": "004aa389cad2949d720a5296a584f200e12090caa9bf8dba8bdd361e06e2957d",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 845
+    "unchanged": 826
   },
   "actions": [
     {
@@ -620,12 +620,6 @@
       "matrixDigest": "db737ba3fa9f4125aff551db8e99a4eacaa20d0784a12abb3c833fb165e01d08"
     },
     {
-      "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "df903c2ea460beb83ed6bfcacac15bf74494e653e316051365a4f51f43a58208",
-      "matrixDigest": "df903c2ea460beb83ed6bfcacac15bf74494e653e316051365a4f51f43a58208"
-    },
-    {
       "id": "feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7",
       "action": "unchanged",
       "sourceDigest": "00062ced4e29220d21e43cadbe72870ab89680283ad0f059f5c3a82682fc17c7",
@@ -726,48 +720,6 @@
       "action": "unchanged",
       "sourceDigest": "9051c288bf2dfa71caa56f1885ff38046f009192874fd014b762410d3028694a",
       "matrixDigest": "9051c288bf2dfa71caa56f1885ff38046f009192874fd014b762410d3028694a"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-16-d104f9ef",
-      "action": "unchanged",
-      "sourceDigest": "d60513002f928ab38ce1d3cd40ebc650b4f74f01d1464121f4157b591d83b861",
-      "matrixDigest": "d60513002f928ab38ce1d3cd40ebc650b4f74f01d1464121f4157b591d83b861"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-23-d104f9f0",
-      "action": "unchanged",
-      "sourceDigest": "997be467dc7ad08fcb7299e26c3d001499324bb50461b324ca9326fe98a64d6d",
-      "matrixDigest": "997be467dc7ad08fcb7299e26c3d001499324bb50461b324ca9326fe98a64d6d"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-08-30-d104f9f1",
-      "action": "unchanged",
-      "sourceDigest": "1d3b9a284259a9160da8b5fee45792f5821ac4d2abc584330c3e229d1dd14afb",
-      "matrixDigest": "1d3b9a284259a9160da8b5fee45792f5821ac4d2abc584330c3e229d1dd14afb"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-06-d104f9f2",
-      "action": "unchanged",
-      "sourceDigest": "d47d8081dee4d16838500c23c6431a26d4bcab5076c4ac02142b3ec3d32d5483",
-      "matrixDigest": "d47d8081dee4d16838500c23c6431a26d4bcab5076c4ac02142b3ec3d32d5483"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-13-4f9a4386",
-      "action": "unchanged",
-      "sourceDigest": "e33b02edaa1543cfe87c33c7548bceec175932a9f7dd9483863874cdf99efc7f",
-      "matrixDigest": "e33b02edaa1543cfe87c33c7548bceec175932a9f7dd9483863874cdf99efc7f"
-    },
-    {
-      "id": "gratis-initiaties-boogschieten-2026-07-05-2026-09-20-4f9a4387",
-      "action": "unchanged",
-      "sourceDigest": "15c9d721f03d3f0fd147f87f85d887d96d26fb660d37073f53cfb90f6d715aa6",
-      "matrixDigest": "15c9d721f03d3f0fd147f87f85d887d96d26fb660d37073f53cfb90f6d715aa6"
-    },
-    {
-      "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03",
-      "action": "unchanged",
-      "sourceDigest": "1c9f95e427e6f687a1f9536e083d69a975e841f7b2a6ebcb857145a38c213461",
-      "matrixDigest": "1c9f95e427e6f687a1f9536e083d69a975e841f7b2a6ebcb857145a38c213461"
     },
     {
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",
@@ -4580,12 +4532,6 @@
       "matrixDigest": "cd6d2ef4c0ca05735e5f8ec36062ac44a727b060c56b00950037715ec05a6cc4"
     },
     {
-      "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "f4e275c354836155a01cd84a9cbab844efdd7b1f35d658685bc27762dc598304",
-      "matrixDigest": "f4e275c354836155a01cd84a9cbab844efdd7b1f35d658685bc27762dc598304"
-    },
-    {
       "id": "openluchtzwemmen-2026-07-01",
       "action": "unchanged",
       "sourceDigest": "c49621ad679931ce26bd1e2810284cada40436013d4187f31060bea4f472211f",
@@ -4728,60 +4674,6 @@
       "action": "unchanged",
       "sourceDigest": "48fe15727fd4e4d9a41830744b6bef585d53910b77a96f6c5d3563c3d9024201",
       "matrixDigest": "48fe15727fd4e4d9a41830744b6bef585d53910b77a96f6c5d3563c3d9024201"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-11-4289dab3",
-      "action": "unchanged",
-      "sourceDigest": "85ad3b66081f81fddfc7c3dcaf4ac51059b2f574c66d5a9716eab60823ae9567",
-      "matrixDigest": "85ad3b66081f81fddfc7c3dcaf4ac51059b2f574c66d5a9716eab60823ae9567"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-12-a2c30a8",
-      "action": "unchanged",
-      "sourceDigest": "a011092669e76bb233ea6c493697233e69323a6ab8b41b2c1d56c3d0a5a40ba5",
-      "matrixDigest": "a011092669e76bb233ea6c493697233e69323a6ab8b41b2c1d56c3d0a5a40ba5"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-13-5fe05c08",
-      "action": "unchanged",
-      "sourceDigest": "77f2616b98f432d0e814ffb0d97b58ec0e0adb85052b6df079a829b1b7a57b29",
-      "matrixDigest": "77f2616b98f432d0e814ffb0d97b58ec0e0adb85052b6df079a829b1b7a57b29"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-18-4289dacb",
-      "action": "unchanged",
-      "sourceDigest": "f938d3baf0be88f84d73c25286a3d61cd005047df6bd588e5415117b12a0ca44",
-      "matrixDigest": "f938d3baf0be88f84d73c25286a3d61cd005047df6bd588e5415117b12a0ca44"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-19-a2c30c0",
-      "action": "unchanged",
-      "sourceDigest": "1d3f08f9e03263aca342044cdc1aff5612526d7dc29e202b6cf7aa407bdba253",
-      "matrixDigest": "1d3f08f9e03263aca342044cdc1aff5612526d7dc29e202b6cf7aa407bdba253"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-20-5fe05c20",
-      "action": "unchanged",
-      "sourceDigest": "2add1754bd70bd5029112107f8614ad822b55807c64e7ca0b607097b91690992",
-      "matrixDigest": "2add1754bd70bd5029112107f8614ad822b55807c64e7ca0b607097b91690992"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-25-4289dace",
-      "action": "unchanged",
-      "sourceDigest": "b4102e297359cac085ac05fab848ae88062c24ad3931b5ab115801d090273e63",
-      "matrixDigest": "b4102e297359cac085ac05fab848ae88062c24ad3931b5ab115801d090273e63"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-26-a2c30c3",
-      "action": "unchanged",
-      "sourceDigest": "fb01c514efdc0db76c460deee9914433a1feccd024dc02f12c6aa99c92b6b311",
-      "matrixDigest": "fb01c514efdc0db76c460deee9914433a1feccd024dc02f12c6aa99c92b6b311"
-    },
-    {
-      "id": "sportinitiaties-met-jespo-2026-07-01-2026-08-27-5fe05c23",
-      "action": "unchanged",
-      "sourceDigest": "9fbe3ca4bbe656ca1d97e298d3de19916affb68d8df816ba1bded266a73819da",
-      "matrixDigest": "9fbe3ca4bbe656ca1d97e298d3de19916affb68d8df816ba1bded266a73819da"
     },
     {
       "id": "stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13",
@@ -5004,12 +4896,6 @@
       "action": "unchanged",
       "sourceDigest": "f6c4eed3a577f060453bbc26a6161efe44132f795906232aee068cf1ec28617a",
       "matrixDigest": "f6c4eed3a577f060453bbc26a6161efe44132f795906232aee068cf1ec28617a"
-    },
-    {
-      "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "bfc5c5cf90b8f4626b31f13b219bf856142aa53c90e74b58ff798bc852e8bdb7",
-      "matrixDigest": "bfc5c5cf90b8f4626b31f13b219bf856142aa53c90e74b58ff798bc852e8bdb7"
     },
     {
       "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",

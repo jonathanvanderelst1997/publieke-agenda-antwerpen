@@ -255,6 +255,12 @@ a {
   font-weight: 850;
 }
 
+/* Bron antwoordt, maar levert al dagen niets komends: oranje, geen fout. */
+.source-empty {
+  color: var(--pa-warn, #7a4a05);
+  font-weight: 850;
+}
+
 .source-capped,
 .source-attribution {
   color: var(--muted);
