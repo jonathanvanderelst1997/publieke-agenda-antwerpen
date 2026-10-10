@@ -8,7 +8,7 @@ import test from "node:test";
 
 import {
   ASIGN_EVENEMENTEN_SOURCE_ID, DUBBEL_METER, MAX_DAGEN_APART, asignAgendapunten, asignEvenementenDocument, dossierFeiten, isDubbel,
-  koppelBesluiten, perioden, schrijfAsignEvenementen, titelVan,
+  koppelBesluiten, perioden, schrijfAsignEvenementen, titelVan, urenVan,
 } from "../lib/asign-evenementen-agenda.mjs";
 import { naamMetHuisnummer } from "../lib/ebesluit-evenementen.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
@@ -243,4 +243,42 @@ test("schrijfAsignEvenementen schrijft een geldig brondocument en laat bij een f
   } finally {
     fs.rmSync(root, { recursive: true, force: true });
   }
+});
+
+test("twee dossiers bij hetzelfde evenement worden één agendapunt met de beste titel; zonder evenementfase of met een fase van maanden geen agendapunt", () => {
+  const besluit = { id: "1.2.3.4.6", code: "2099_CBS_00002", soort: "evenement", status: "goedkeuring", orgaan: "College van burgemeester en schepenen", zitting: "2026-09-20", gepubliceerd: true, gelezen: true, naam: "Proefmarathon 2026", organisator: null, dagen: ["2026-10-18"], uren: null, plaats: "Proefkaai", straten: ["Proefkaai"], postcodes: ["2000"], inDistrict: true, opbouw: "2026-10-12", afbouw: "2026-10-21", wijziging: null, vervangt: [], bron: "https://ebesluit.antwerpen.be/zittingen/1.2/agendapunten/1.2.3.4.6" };
+  const fasen = [{ naam: "Opbouw", start: "2026-10-12", eind: "2026-10-18" }, { naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }, { naam: "Afbraak", start: "2026-10-18", eind: "2026-10-20" }];
+  // Het parcours (met handfiche) loopt over de Proefkaai; een tweede dossier die dag heeft dezelfde opbouw
+  // en afbouw maar ligt elders: het besluit past op zijn plaats al bij het parcours, dus niet bij dat tweede.
+  const parcours = feit("ET2099000080", { beginStraat: "Proefkaai", kernStraten: ["Proefkaai"], langs: ["Proefkaai", "Voorbeeldlaan"], fasen });
+  const zone = feit("ET2099000081", { beginStraat: "Testplein", kernStraten: ["Testplein"], langs: ["Testplein", "Dummykaai"], fasen });
+  const k = koppelBesluiten([parcours, zone], [besluit]);
+  assert.deepEqual([...k.keys()], ["ET2099000080"]);
+  // Een derde dossier met hetzelfde besluit op zijn plaats: samen met het parcours één agendapunt, met
+  // de naam uit de handfiche (die wint van het besluit).
+  const derde = feit("ET2099000082", { beginStraat: "Proefkaai", kernStraten: ["Proefkaai"], langs: ["Proefkaai", "Schetsstraat"], fasen });
+  const hand = { dossiers: { ET2099000082: fiche({ zekerheid: "zeker", naam: "Proefmarathon van de Stad" }) } };
+  const { items, tellers } = bouw({ feiten: [parcours, derde], hand, besluiten: [besluit] });
+  assert.deepEqual(titels(items), ["Proefmarathon van de Stad"]);
+  assert.equal(items[0].externalId, "ET2099000082");
+  assert.match(items[0].info, /Ook dossier ET2099000080\./);
+  assert.deepEqual(items[0].straten, ["Proefkaai", "Schetsstraat", "Voorbeeldlaan"]);
+  assert.equal(tellers.samengevoegd, 1);
+  // Alleen een opbouwfase (een plaatshouder): geen evenementdagen, geen agendapunt; ook geen naam uit een besluit.
+  const alleenOpbouw = feit("ET2099000083", { langs: ["Proefstraat", "Voorbeeldlaan"], fasen: [{ naam: "Opbouw", start: "2026-09-11", eind: "2027-09-11" }], dagen: ["2026-09-11", "2026-10-18"] });
+  const lang = feit("ET2099000084", { langs: ["Proefstraat", "Voorbeeldlaan"], fasen: [{ naam: "Evenement", start: "2026-09-01", eind: "2027-08-31" }], dagen: ["2026-10-18"] });
+  const geen = bouw({ feiten: [alleenOpbouw, lang], besluiten: [{ ...besluit, straten: ["Proefstraat"], plaats: "Proefstraat" }] });
+  assert.deepEqual(geen.items, []);
+  assert.equal(geen.tellers.geenEvenementfase, 2);
+  assert.equal(koppelBesluiten([alleenOpbouw, lang], [{ ...besluit, straten: ["Proefstraat"], plaats: "Proefstraat" }]).size, 0);
+});
+
+test("uren: de handfiche gaat voor op het besluit; zonder handfiche het besluit; anders de automatische fiche", () => {
+  const besluit = { uren: { start: "09:00", einde: "17:00" }, dagen: ["2026-10-18"] };
+  const hand = fiche({ zekerheid: "zeker", naam: "Proefmarathon", uren: "start om 9 uur, finish sluit om 18 uur" });
+  assert.deepEqual(urenVan({ hand, besluit, dag: "2026-10-18" }), { timeSlot: "Info", timeText: "start om 9 uur, finish sluit om 18 uur" });
+  assert.deepEqual(urenVan({ besluit, dag: "2026-10-18" }), { timeSlot: "09:00", timeText: "9 tot 17 uur" });
+  assert.deepEqual(urenVan({ besluit, dag: "2026-10-19" }), { timeSlot: "Info", timeText: "" }, "niet op een dag buiten het besluit");
+  assert.deepEqual(urenVan({ auto: fiche({ zekerheid: "zeker", uren: "14 tot 16 uur" }), dag: "2026-10-18" }), { timeSlot: "14:00", timeText: "14 tot 16 uur" });
+  assert.deepEqual(urenVan({ auto: fiche({ zekerheid: "onbekend", uren: "14 tot 16 uur" }), dag: "2026-10-18" }), { timeSlot: "Info", timeText: "" });
 });

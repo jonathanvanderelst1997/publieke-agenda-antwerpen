@@ -403,11 +403,17 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
   veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
   (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
-  voor op die uit A-Sign.
+  voor op die uit A-Sign. Een dossier zonder fase "Evenement" (alleen opbouw, of filmopnames met
+  "Opname periode …") of met een evenementfase van meer dan 62 dagen (een constructie of plaatshouder
+  van een jaar) is geen evenement en krijgt geen agendapunt.
 - **Titel**, in deze volgorde: de naam uit de handfiche; de automatische naam (bij "zeker" de naam, bij
   "waarschijnlijk" "Vermoedelijk <naam>"); de naam uit een gekoppeld besluit van eBesluit (zie hierboven);
   de soort ("Studentenactiviteit in de Kerkstraat"); anders "Evenement in de Kerkstraat — naam volgt".
-  Een tunnel is nooit "de straat" van een evenement.
+  Een tunnel is nooit "de straat" van een evenement. Uren in dezelfde volgorde: de handfiche, dan het
+  besluit (alleen op zijn dagen), dan de automatische fiche; een beginuur alleen bij een eenduidige reeks.
+- **Twee dossiers, één evenement:** dossiers op dezelfde dag met dezelfde titel, hetzelfde besluit of
+  hetzelfde punt uit de kalender worden één agendapunt; de beste titel wint (hand, zeker, besluit,
+  vermoeden, soort, naam volgt) en de tekst noemt het andere dossier.
 - **Straten:** `stratenVanParcours()` uit `site/parcours-straten.js` op de parcoursvormen en apart op de
   verkeersvrije zones, plus de straat waar het begint. Ze staan in het veld `straten` (hoogstens 60) en
   kort in de plaats ("Meir, Groenplaats, Schoenmarkt en 35 andere straten").
@@ -426,6 +432,13 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Geen koppeling met zichzelf:** de kaartjes op de kaart koppelen nooit aan een agendapunt dat alleen uit
   deze bron komt (`GEEN_KOPPELBRON` in `lib/kaart-uitleg-refresh.mjs`, `alleenUitDossiers()` in
   `site/place-core.js`): dat is geen tweede bron, en het kan van een buurdossier zijn.
+- Gemeten op 10 oktober 2026 (proefverversing in een wegwerpkopie): 323 dossiers in het district, 38
+  zonder echte evenementfase, 212 niet in de lijst (klein en zonder naam of soort), 73 in de lijst (9 met
+  naam, 52 met soort, 12 "naam volgt", 33 nog niet goedgekeurd), 74 agendapunten. 7 ervan worden één item
+  met een punt uit een andere bron: de districtskalender of het districtsnieuws (het Linkeroever
+  Criterium, Halloween bij CO Nova, FURIE!, Noorderlicht), eBesluit (de Heropening Anselmostraat en de
+  Marathon) of, via dezelfde pagina, het nieuws van een ander district (de EkeRun). De lijst gaat van 755 naar 822
+  items. De stap duurt een paar seconden bovenop de herkenning.
 - **Privacy:** de omschrijving van een inname gaat nooit letterlijk mee (alleen het trefwoord
   "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; alleen straatnamen van de
   straatas, nooit een huisnummer (`validate:data` scant titel, plaats, info, uur en straten van deze bron
