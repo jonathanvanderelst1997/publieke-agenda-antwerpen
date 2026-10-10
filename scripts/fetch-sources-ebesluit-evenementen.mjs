@@ -4,7 +4,8 @@
 //   - site/sources/evenement-besluiten.json: de gelezen besluiten (cache en invoer voor de koppelstap);
 //   - site/sources/district-ebesluit-evenementen.json: agendapunten met een plaats in het district.
 // Gratis en zonder AI (lib/ebesluit-evenementen.mjs). Hoogstens 1 verzoek per seconde naar eBesluit.
-// Een fout bij het zoeken houdt beide bestanden zoals ze waren (fetchStatus "error").
+// Een fout bij het zoeken houdt beide bestanden zoals ze waren (fetchStatus "error"). Eén besluit dat de
+// vorm- of privacycontrole niet haalt, wordt opgekuist of valt weg; de rest wordt gewoon geschreven.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -15,6 +16,7 @@ import {
   LEESVERSIE,
   agendapuntenUitBesluiten,
   besluitenDocument,
+  bruikbareBesluiten,
   ontdekEvenementBesluiten,
   validateEvenementBesluiten,
 } from "../lib/ebesluit-evenementen.mjs";
@@ -26,11 +28,12 @@ export const SOURCE_ID = EBESLUIT_EVENEMENTEN_SOURCE_ID;
 
 const besluitenPad = (rootDir) => path.join(rootDir, "site", "sources", EVENEMENT_BESLUITEN_FILE);
 
-// Het vorige bestand als cache, alleen als het geldig is en met dezelfde leesversie.
+// Het vorige bestand als cache, alleen als het geldig is (een ongeldig besluit valt eruit, de rest blijft).
 export function leesBesluiten(rootDir) {
   try {
     const doc = JSON.parse(fs.readFileSync(besluitenPad(rootDir), "utf8"));
-    return validateEvenementBesluiten(doc).length ? null : doc;
+    const kopie = { ...doc, besluiten: bruikbareBesluiten(doc?.besluiten).besluiten };
+    return validateEvenementBesluiten(kopie).length ? null : kopie;
   } catch {
     return null;
   }
@@ -66,15 +69,18 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     return [keepPreviousOnError(rootDir, SOURCE_ID, previous, code, { dryRun })];
   }
 
-  const besluiten = besluitenDocument({ generatedAt: retrievedAt, venster: result.venster, besluiten: result.besluiten });
+  // Eén besluit met een "@", een huisnummer of een vreemde vorm legt de bron niet weken stil: het wordt
+  // opgekuist (geen naam of plaats meer, dus geen agendapunt) of valt weg; de rest wordt geschreven.
+  const bruikbaar = bruikbareBesluiten(result.besluiten);
+  const besluiten = besluitenDocument({ generatedAt: retrievedAt, venster: result.venster, besluiten: bruikbaar.besluiten });
   const fouten = validateEvenementBesluiten(besluiten);
   if (fouten.length) {
-    // Liever de vorige stand dan een bestand dat de privacy- of vormcontrole niet haalt.
+    // Alleen een fout in het bestand zelf (niet in één besluit): liever de vorige stand.
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: "invalid_output", fouten: fouten.slice(0, 3) }));
     return [keepPreviousOnError(rootDir, SOURCE_ID, previous, "invalid_output", { dryRun })];
   }
   const screened = screenItems(agendapuntenUitBesluiten(besluiten.besluiten, { today, retrievedAt }));
-  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, detailFouten: result.detailFouten, items: screened.items.length, rejected: screened.rejected };
+  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, rejected: screened.rejected };
   if (dryRun) {
     log(JSON.stringify({ source: SOURCE_ID, dryRun: true, ...counts }));
     return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length })];
