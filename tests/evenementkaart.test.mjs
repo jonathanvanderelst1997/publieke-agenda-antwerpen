@@ -86,9 +86,10 @@ test("10 oktober: Linkeroever Criterium, koersdag apart van opbouw en afbraak, f
   assert.doesNotMatch(JSON.stringify(e.uitleg), /beatrijslaan 34/i);
 });
 
-test("13 oktober: een eerlijke 'vermoedelijk studentendoop' met de reden, zonder verzonnen naam of uren", () => {
+test("13 oktober: een eerlijk vermoeden met de reden, zonder verzonnen naam of uren", () => {
   const e = evenementEntry(doop, { ...opties, straat: "Pieter Coeckelaan" });
-  assert.equal(e.title, "Vermoedelijk een studentendoop met een doopstoet naar Fort VI");
+  // Tweede identificatieronde: een doop is hier niet aangetoond, dus de titel zegt "studententocht".
+  assert.equal(e.title, "Vermoedelijk een studententocht te voet tussen Middelheim en Fort VI");
   const k = kern(e.uitleg);
   assert.match(k.Wat, /Fort VI, een officiële doopplaats, en 13 oktober valt in de doopperiode/);
   assert.match(k.Wanneer, /^Dinsdag 13 oktober; de uren zijn niet gepubliceerd\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
@@ -99,6 +100,22 @@ test("13 oktober: een eerlijke 'vermoedelijk studentendoop' met de reden, zonder
   const ook = IDENTITEIT.dossiers.ET2026004943;
   assert.equal(ook.zekerheid, "waarschijnlijk");
   assert.match(ook.reden, /12 oktober valt in de doopperiode/);
+});
+
+test("tweede ronde: 'zeker' alleen met een bron die dag en route noemt; geen doop die niet aangetoond is", () => {
+  // 21 november: de agenda van de organisator noemt de dag, de uren en de route van de optocht.
+  const optocht = evenementEntry([rij("ET2025003100", "Evenement", "Parcours", "2026-11-21", "2026-11-21", ["Meir"])], opties);
+  assert.equal(optocht.title, "Optocht van de Nobele Orde van de Papegay (50 jaar)");
+  assert.equal(optocht.time, "15:00");
+  assert.deepEqual(optocht.uitleg.links.map((l) => l.url), ["https://ordonobilis.eu/agenda-investituur-2026/"]);
+  // 27 oktober naar Fort VI: een doop staat nergens, dus geen "studentendoop" in de titel.
+  const fort = evenementEntry([rij("ET2026004329", "Evenement", "Parcours", "2026-10-27", "2026-10-27", ["Pieter Coeckelaan"])], opties);
+  assert.equal(fort.title, "Vermoedelijk een studentenstoet te voet naar het Fort VI-domein");
+  assert.match(kern(fort.uitleg).Waar, /De looprichting staat niet in het dossier\./);
+  // Elk 'zeker' dossier steunt op een publieke bron buiten A-Sign.
+  for (const [id, d] of Object.entries(IDENTITEIT.dossiers)) {
+    if (d.zekerheid === "zeker") assert.ok(d.bron.some((b) => !/geodata\.antwerpen\.be/.test(b)), id);
+  }
 });
 
 test("onbekend: één korte eerlijke zin, geen gegokte soort", () => {
