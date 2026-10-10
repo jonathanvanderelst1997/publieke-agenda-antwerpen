@@ -62,6 +62,9 @@ const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-gren
 const WORK_TITLE = "Proefwerk riolering (e2e)";
 // De titel van een werk komt uit de kaartuitleg; de rij vinden we daarom op haar id.
 const WORK_ROW = '.pv-row[data-uid="works:999999901"]';
+// Een verzonnen omgevingsaanvraag met een naam en een telefoonnummer in het vrije onderwerp:
+// de kaart moet zeggen wat er gebeurt, zonder iets van dat onderwerp te tonen.
+const PERMIT_TITLE = "Sloop en nieuwbouw (6 woningen en een winkel)";
 
 // Een nagebootste A-Sign-server: veel ids zoals in het echt (laag 20 had op 9/10 5.781 ids), een
 // 404 voor een URL boven 2.000 tekens zoals de stadsserver, en telling van gelijktijdige verzoeken.
@@ -89,7 +92,7 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
   return { stats, handle };
 }
 
-async function routeSources(page, street, { asign = null, work: withWork = true, assen = [], vergunningen = [], evenement = null } = {}) {
+async function routeSources(page, street, { asign = null, work: withWork = true, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
   const [x1, y1, x2, y2] = row[4];
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];
@@ -97,6 +100,11 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const work = {
     type: "FeatureCollection", links: [],
     features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: { GipodId: 999999901, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: "https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/999999901" } }],
+  };
+  const d = 0.0002;
+  const permit = {
+    attributes: { Dossiernummer: "20990001", DOSSIERTYPE: "OMV2019_AANVRAAG", AardAanvraag: "Aanvraag omgevingsproject", Onderwerp: "slopen van 2 panden en bouwen van een gemengd gebouw met een detailhandel en 6 woonentiteiten, aanvrager Jan Voorbeeld 0470 12 34 56", Volledig: "ja", Ontvankelijk: "ja", Ingetrokken: "nee", Stopgezet: "nee", ProjectnummerOmgevingsloket: "OMV_2099000001", behandelendeOverheid: "College van burgemeester en schepenen" },
+    geometry: { rings: [[[mid[0] - d, mid[1] - d], [mid[0] + d, mid[1] - d], [mid[0] + d, mid[1] + d], [mid[0] - d, mid[1] + d], [mid[0] - d, mid[1] - d]]] },
   };
   const json = (body) => ({ status: 200, contentType: "application/json", body: typeof body === "string" ? body : JSON.stringify(body) });
   // Een verzonnen evenementendossier (A-Sign laag 23): een parcours over de gekozen straat.
@@ -113,12 +121,14 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
     if (asign && url.includes("/P_ASign/")) return asign.handle(route, url);
     if (vergunningen.length && url.includes("/pip2_vergunningen/")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: vergunningen.map((_, i) => i + 1) } : { features: vergunningen }));
     if (parcours && url.includes("/MapServer/23/query")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: afbraak ? [1, 2] : [1] } : { features: afbraak ? [parcours, afbraak] : [parcours] }));
+    // Standaard één verzonnen aanvraag in de gekozen straat; `aanvraag: false` voor een lege straat.
+    if (url.includes("/pip2_vergunningen/MapServer/5/")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: aanvraag ? [1] : [] } : { features: aanvraag ? [permit] : [] }));
     if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
     return route.abort();
   });
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [], kaartUitleg = null, evenement = null } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
@@ -127,7 +137,7 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
   page.on("requestfailed", (request) => { if (/geodata\.antwerpen\.be/.test(request.url())) geodataFouten.push(request.url()); });
-  await routeSources(page, street || pickStreet.fallback, { asign, work, assen, vergunningen, evenement });
+  await routeSources(page, street || pickStreet.fallback, { asign, work, assen, vergunningen, evenement, aanvraag });
   await page.goto(`${baseUrl}/${query}`);
   await page.waitForSelector(".pv-chip");
   return { page, context, errors, geodataFouten };
@@ -209,6 +219,23 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     while (!(await page.locator(WORK_ROW).count())) await page.click(".pv-nav-next");
     const onDays = await page.locator(WORK_ROW).first().locator(".pv-track i.on").count();
     assert.ok(onDays >= 1 && onDays <= 7);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("vergunning: de titel zegt wat er gebeurt, één statusregel, geen vrije tekst", async () => {
+    const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, query: `?plek=${plek}&soort=vergunningen` });
+    const row = page.locator("section.pv-day", { hasText: "Omgevingsaanvragen en besluiten" }).locator(".pv-row").first();
+    await row.waitFor({ timeout: 15000 });
+    assert.equal(await row.locator(".pv-row-title").innerText(), PERMIT_TITLE);
+    await row.locator(".pv-row-btn").click();
+    const tekst = await row.innerText();
+    assert.equal(tekst.match(/volledig en ontvankelijk verklaard/g)?.length, 1, tekst);
+    assert.match(tekst, /Wie beslist/);
+    assert.doesNotMatch(tekst, /Procedurestatus|doel niet|Voorbeeld|0470|20990001 · College/);
+    const technisch = await row.locator("a.pv-bron-technisch").getAttribute("href");
+    assert.equal(new URL(technisch).searchParams.get("where"), "Dossiernummer='20990001'");
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -334,7 +361,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   await t.test("een A-Sign-laag laadt niet: melding bovenaan en in de lege staat", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const asign = asignServer({ fail: [20, 47, 49] });
-    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, asign, work: false, query: "?plek=Peterseliestraat" });
+    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
     const melding = "Parkeerverboden, omleidingen en terrassen konden nu niet geladen worden. Dit overzicht is onvolledig.";
     // De plek tekent opnieuw bij het volgende beeld; wacht tot de laatste laag erin zit.
     await page.waitForFunction((m) => document.querySelector(".pv-place .pv-place-failed")?.innerText.trim() === m, melding, { timeout: 20000 }).catch(() => {});

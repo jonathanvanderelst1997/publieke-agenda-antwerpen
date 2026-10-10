@@ -595,7 +595,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
     }
     const item = entry.item || {};
-    const duidelijk = duidelijkeKaart(entry,item);
+    const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "" });
+    const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
     // technisch ArcGIS-blad is geen infopagina: ingeklapt, met een zin die zegt wat het is.
     const kern = Boolean(entry.uitleg?.kern);
@@ -614,7 +615,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}</span>
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
-            ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
+            ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
@@ -624,8 +625,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <div class="pv-detail" id="pv-d-${uid}" ${open ? "" : "hidden"}>
           ${progress}
           ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
-          ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
-          ${entry.uitleg ? uitlegTemplate(entry, bovenaan) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
+          ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}${waarTemplate(duidelijk.waar)}</dl>` : ""}
+          ${entry.uitleg ? uitlegTemplate(entry, bovenaan) : duidelijk.eigenDetail ? "" : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
@@ -639,6 +640,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${technischBlok}
         </div>
       </li>`;
+  }
+  // "Waar" bij een aanvraag vanaf 3 straten: alleen de volledige lijst, ingeklapt. De korte regel
+  // ("Letlandstraat · ook dicht bij Bstraat, Cstraat en 9 andere straten") staat al in de kop; tot 2
+  // straten staat daar alles.
+  function waarTemplate(waar) {
+    if (!waar?.ingeklapt) return "";
+    return `<div><dt>Waar</dt><dd><details class="pv-streets"><summary>Toon alle ${waar.straten.length} straten</summary><p>${esc(waar.straten.join(", "))}</p></details></dd></div>`;
   }
   // Titel van een balk in de maand: bij een evenement op straat de dag zelf en de innameperiode.
   function balkTitel(entry) {

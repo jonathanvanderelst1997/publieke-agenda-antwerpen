@@ -7,6 +7,7 @@
 import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, koppelEvenement, soortEvenement, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { locationKey } from "./neighborhood-core.js";
+import { aanvraagStand, aanvraagTitel, waarTekst } from "./permit-clarity.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -888,14 +889,22 @@ export function terrasUitleg(type) {
 }
 export function permitEntry(row, theme = "permits") {
   const terrace = String(row?.id || "").startsWith("terrace:");
+  // Een omgevingsaanvraag: de titel zegt in gewone taal wat er gebeurt, er is één statusregel en
+  // vanaf 3 straten een korte "Waar" (site/permit-clarity.js). Geen losse regel met nummer en overheid.
+  if (!terrace) {
+    return {
+      uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: "permits", theme: "permits", group: "vergunningen",
+      title: cleanText(aanvraagTitel(row)), start: "", end: "", openEnd: false, time: "", timeText: "",
+      location: vergunningWaar(row?.streets), status: aanvraagStand(row), info: "",
+      ...(vergunningStraten(row?.streets).length > 2 ? { straten: vergunningStraten(row?.streets) } : {}),
+      reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
+    };
+  }
   return {
-    uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: terrace ? "terraces" : "permits", theme: "permits", group: "vergunningen",
-    title: cleanText(terrace ? terrasTitel(row?.terraceType) : row?.dossierType || "Omgevingsdossier"),
-    ...(terrace ? { summary: terrasUitleg(row?.terraceType) } : {}),
-    start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || (terrace ? streetNames(row) : vergunningWaar(row?.streets)),
-    ...(!terrace && vergunningStraten(row?.streets).length > 2 ? { straten: vergunningStraten(row?.streets) } : {}),
-    status: terrace ? statusNl(row?.status) : cleanText(row?.decision || "In behandeling"),
-    info: cleanText(terrace ? (row?.terraceType ? `Soort zone volgens de stad: ${row.terraceType}` : "") : [row?.dossier, row?.authority].filter(Boolean).join(" · ")),
+    uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: "terraces", theme: "permits", group: "vergunningen",
+    title: cleanText(terrasTitel(row?.terraceType)), summary: terrasUitleg(row?.terraceType),
+    start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || streetNames(row),
+    status: statusNl(row?.status), info: cleanText(row?.terraceType ? `Soort zone volgens de stad: ${row.terraceType}` : ""),
     reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
   };
 }
@@ -908,13 +917,8 @@ export function vergunningStraten(streets = []) {
   const zonderTunnel = namen.filter((n) => !isTunnel(n));
   return zonderTunnel.length ? zonderTunnel : namen;
 }
-export function vergunningWaar(streets = []) {
-  const namen = vergunningStraten(streets);
-  if (namen.length <= 1) return namen[0] || "";
-  const rest = namen.slice(1);
-  const ook = rest.length <= 2 ? rest.join(" en ") : `${rest.slice(0, 2).join(", ")} en ${rest.length - 2} andere straten`;
-  return `${namen[0]} · ook dicht bij ${ook}`;
-}
+// De korte regel komt uit waarTekst() in permit-clarity.js (ook de vergunningkaart gebruikt die).
+export const vergunningWaar = (streets = []) => waarTekst((streets || []).map((s) => s?.name)).kort;
 
 // Terrassen: twee zones van dezelfde soort op hetzelfde adres zijn voor een bewoner één terras.
 export function terrasEntries(rows = []) {
