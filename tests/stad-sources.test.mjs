@@ -37,8 +37,9 @@ const stadOptions = (key) => ({
   skipWorks: true,
 });
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "stad-sources-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -196,8 +197,8 @@ test("werken, omleidingen en heraanleg worden overgeslagen", () => {
 
 // ---------- fetcher districtskanalen ----------
 
-test("fetcher: 9 GET's met 3 s ertussen, geen personeelsvelden of afbeeldingen in de uitvoer", async () => {
-  const root = makeRoot();
+test("fetcher: 9 GET's met 3 s ertussen, geen personeelsvelden of afbeeldingen in de uitvoer", async (t) => {
+  const root = makeRoot(t);
   const requested = [];
   const pauses = [];
   const routes = districtRoutes();
@@ -219,8 +220,8 @@ test("fetcher: 9 GET's met 3 s ertussen, geen personeelsvelden of afbeeldingen i
   assert.ok(document.items.every((item) => item.inDistrict === false));
 });
 
-test("fetcher: faalt één kanaal, dan blijven alleen diens vorige items en is de bron 'error'", async () => {
-  const root = makeRoot();
+test("fetcher: faalt één kanaal, dan blijven alleen diens vorige items en is de bron 'error'", async (t) => {
+  const root = makeRoot(t);
   await runDistricts({ rootDir: root, clock, log: quiet, sleep: noSleep, fetch: districtRoutes() });
   const before = read(root, "stad-districten");
   const wilrijkBefore = before.items.filter((item) => item.id.startsWith("stad-news-wilrijk-"));
@@ -240,8 +241,8 @@ test("fetcher: faalt één kanaal, dan blijven alleen diens vorige items en is d
   assert.deepEqual(read(root, "stad-districten").items, after.items);
 });
 
-test("geen krimpgrens voor stad-districten: nul komende items is gezond als elk kanaal antwoordde", async () => {
-  const root = makeRoot();
+test("geen krimpgrens voor stad-districten: nul komende items is gezond als elk kanaal antwoordde", async (t) => {
+  const root = makeRoot(t);
   await runDistricts({ rootDir: root, clock, log: quiet, sleep: noSleep, fetch: districtRoutes() });
   const committed = read(root, "stad-districten");
   assert.ok(committed.items.length > 0);
@@ -311,8 +312,8 @@ test("GIPOD: ambulante handel, geannuleerd en een tegenstrijdige marktlijst vall
   assert.equal(afternoon.items.some((item) => item.id === "markt-ma1-2026-09-28"), false);
 });
 
-test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD stuk wist niets", async () => {
-  const root = makeRoot();
+test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD stuk wist niets", async (t) => {
+  const root = makeRoot(t);
   const requested = [];
   const routes = (listOk) => async (url) => {
     requested.push(new URL(String(url)).hostname);

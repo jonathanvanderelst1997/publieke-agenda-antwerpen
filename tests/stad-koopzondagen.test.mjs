@@ -20,8 +20,9 @@ const NOW = new Date("2026-09-28T06:00:00Z");
 const clock = () => NOW;
 const quiet = () => {};
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "stad-koopzondagen-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -115,8 +116,8 @@ test("twee jaarlijsten rond de jaarwissel; een datum die twee keer staat, telt �
 
 // ---------- fetcher ----------
 
-test("fetcher: één GET naar de infopagina, geldig brondocument zonder contactgegevens", async () => {
-  const root = makeRoot();
+test("fetcher: één GET naar de infopagina, geldig brondocument zonder contactgegevens", async (t) => {
+  const root = makeRoot(t);
   const requested = [];
   const status = await run({
     rootDir: root,
@@ -140,8 +141,8 @@ test("fetcher: één GET naar de infopagina, geldig brondocument zonder contactg
   assert.ok(document.items.every((item) => item.date >= TODAY && item.retrievedAt === NOW.toISOString()));
 });
 
-test("fetcher: storing, geen HTML of een andere opmaak wist niets", async () => {
-  const root = makeRoot();
+test("fetcher: storing, geen HTML of een andere opmaak wist niets", async (t) => {
+  const root = makeRoot(t);
   await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => html(page) });
   const before = read(root);
   for (const [response, code] of [
@@ -159,9 +160,9 @@ test("fetcher: storing, geen HTML of een andere opmaak wist niets", async () => 
   assert.deepEqual([offline[0].fetchStatus, offline[0].errorCode], ["error", "network_error"]);
 });
 
-test("fetcher: een afgebroken body krijgt precies één herkansing", async () => {
+test("fetcher: een afgebroken body krijgt precies één herkansing", async (t) => {
   const kapot = { ...html(""), text: async () => { throw new TypeError("terminated"); } };
-  const root = makeRoot();
+  const root = makeRoot(t);
   let calls = 0;
   const status = await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => (++calls === 1 ? kapot : html(page)) });
   assert.equal(calls, 2);
@@ -178,8 +179,8 @@ test("fetcher: een afgebroken body krijgt precies één herkansing", async () =>
   assert.equal(eenKeer, 1, "andere fouten krijgen geen herkansing");
 });
 
-test("fetcher: een lijst die ineens leeg is, is suspicious_drop; voorbije koopzondagen tellen nooit als krimp", async () => {
-  const root = makeRoot();
+test("fetcher: een lijst die ineens leeg is, is suspicious_drop; voorbije koopzondagen tellen nooit als krimp", async (t) => {
+  const root = makeRoot(t);
   await run({ rootDir: root, clock, env: {}, log: quiet, fetch: async () => html(page) });
   const before = read(root);
   const unreadable = "<p><strong>Koopzondagen in 2026:</strong></p><ul><li>eerste zondag van de maand</li></ul>";
@@ -193,8 +194,8 @@ test("fetcher: een lijst die ineens leeg is, is suspicious_drop; voorbije koopzo
   assert.deepEqual([later[0].fetchStatus, later[0].itemCount], ["ok", 0]);
 });
 
-test("--dry-run schrijft niets", async () => {
-  const root = makeRoot();
+test("--dry-run schrijft niets", async (t) => {
+  const root = makeRoot(t);
   const logs = [];
   const status = await run({ rootDir: root, clock, env: {}, dryRun: true, log: (line) => logs.push(JSON.parse(line)), fetch: async () => html(page) });
   assert.deepEqual([status[0].fetchStatus, status[0].itemCount], ["ok", 6]);

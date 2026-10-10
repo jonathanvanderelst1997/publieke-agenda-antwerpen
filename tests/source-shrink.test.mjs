@@ -44,8 +44,9 @@ function routes({ page = fixturePage, news = { data: [] } } = {}) {
   };
 }
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "source-shrink-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   // Vertrekpunt: vaste testdata. Kalender: 6 items, waarvan 1 voorbij en 1 lopend (5 komend op 28/09).
   // Nieuws: 2 komende items.
@@ -73,8 +74,8 @@ test("suspiciousDrop: 0 na >0, of meer dan de helft minder vanaf 4; voorbije ite
   assert.equal(suspiciousDrop([item("2026-09-01", "2026-10-05")], [], today)?.before, 1, "een lopend item telt mee");
 });
 
-test("vertrekpunt: vaste testdata, geldig en met komende items", () => {
-  const root = makeRoot();
+test("vertrekpunt: vaste testdata, geldig en met komende items", (t) => {
+  const root = makeRoot(t);
   // readSourceDocument geeft null bij een ongeldig document; dan zou de krimpgrens stil niets vergelijken.
   const kalender = readSourceDocument(root, "district-kalender");
   const nieuws = readSourceDocument(root, "district-nieuws");
@@ -85,8 +86,8 @@ test("vertrekpunt: vaste testdata, geldig en met komende items", () => {
   assert.equal(upcomingCount(kalender.items, "2027-01-15"), 0, "alles voorbij op de latere klok");
 });
 
-test("gewijzigde districtspagina en leeg nieuwskanaal: error, vorige data blijft, health faalt", async () => {
-  const root = makeRoot();
+test("gewijzigde districtspagina en leeg nieuwskanaal: error, vorige data blijft, health faalt", async (t) => {
+  const root = makeRoot(t);
   const kalenderBefore = read(root, "district-kalender");
   const nieuwsBefore = read(root, "district-nieuws");
   assert.deepEqual([kalenderBefore.items.length, nieuwsBefore.items.length], [6, 2], "vertrekpunt heeft data");
@@ -110,8 +111,8 @@ test("gewijzigde districtspagina en leeg nieuwskanaal: error, vorige data blijft
   assert.match(health.lines.join("\n"), /district-kalender\terror\terror\t.*errorCode=suspicious_drop/);
 });
 
-test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_drop", async () => {
-  const root = makeRoot();
+test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_drop", async (t) => {
+  const root = makeRoot(t);
   const nieuwsBefore = read(root, "district-nieuws");
   const article = {
     id: "0123456789abcdef01234567",
@@ -132,21 +133,21 @@ test("nieuwskanaal met artikels maar zonder één bruikbare datum: suspicious_dr
   assert.ok(kalender.itemCount > 0);
 });
 
-test("AGENDA_ALLOW_DROP laat een bewuste daling door; voorbije items tellen nooit als krimp", async () => {
-  const allowed = makeRoot();
+test("AGENDA_ALLOW_DROP laat een bewuste daling door; voorbije items tellen nooit als krimp", async (t) => {
+  const allowed = makeRoot(t);
   const status = await refreshAll({ rootDir: allowed, clock, sleep: noSleep, env: { AGENDA_ALLOW_DROP: "district-kalender" }, fetch: routes({ page: changedPage(), news: { data: [] } }), log: quiet });
   const entry = status.sources.find((candidate) => candidate.sourceId === "district-kalender");
   assert.deepEqual([entry.fetchStatus, entry.itemCount], ["ok", 0]);
 
   // Drie maanden later is alles van nu voorbij: een lege pagina is dan geen storing.
-  const later = makeRoot();
+  const later = makeRoot(t);
   const laterClock = () => new Date("2027-01-15T06:00:00Z");
   const laterStatus = await refreshAll({ rootDir: later, clock: laterClock, env: {}, sleep: noSleep, fetch: routes({ page: changedPage() }), log: quiet });
   assert.equal(laterStatus.sources.find((candidate) => candidate.sourceId === "district-kalender").fetchStatus, "ok");
 });
 
-test("sources:health vergelijkt met de vastgelegde versie: ook zonder grendel in de fetcher faalt een lege agenda", () => {
-  const root = makeRoot();
+test("sources:health vergelijkt met de vastgelegde versie: ook zonder grendel in de fetcher faalt een lege agenda", (t) => {
+  const root = makeRoot(t);
   const committed = { "district-kalender": read(root, "district-kalender"), "district-nieuws": read(root, "district-nieuws") };
   // Een fetcher die zich vergist en toch "ok" met 0 items wegschrijft.
   const emptied = { ...committed["district-kalender"], items: [], retrievedAt: "2026-09-28T06:00:00.000Z" };
