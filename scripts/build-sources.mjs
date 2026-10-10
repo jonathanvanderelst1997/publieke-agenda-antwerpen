@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 
 import { normalized, parseEventTimes } from "../lib/event-contract.mjs";
 import { dutchDateLabel } from "../lib/html-text.mjs";
+import { EVENEMENT_BESLUITEN_FILE } from "../lib/ebesluit-evenementen.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../lib/manual-check.mjs";
 import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
@@ -32,6 +33,9 @@ export function readSources(rootDir) {
   const documents = [];
   const problems = [];
   for (const name of names) {
+    // De gelezen eBesluit-besluiten zijn geen agendabron; hun agendapunten staan in
+    // district-ebesluit-evenementen.json (scripts/validate-data.mjs controleert het bestand).
+    if (name === EVENEMENT_BESLUITEN_FILE) continue;
     const file = path.join(sourcesDir, name);
     let json;
     try {

@@ -323,6 +323,59 @@ De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit.
 
 Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
 
+## Evenementen uit eBesluit (`district-ebesluit-evenementen`)
+
+Collegebesluiten noemen een evenement bij naam, met dag, uren, plaats, opbouw en afbouw. De fetcher
+`scripts/fetch-sources-ebesluit-evenementen.mjs` (code in `lib/ebesluit-evenementen.mjs`) draait als
+laatste in `npm run refresh:fetch`, gratis en zonder AI:
+
+- **Zoeken:** eigen zoektermen "Evenementen", "muziekactiviteit", "Districtsfonds", "Intrede", "Halloween"
+  en "feestelijkheden" (de raadskalender van `district-ebesluit` verandert niet), op zittingsdatum van 60
+  dagen terug tot 120 dagen vooruit, met `searchKeyword()` uit `lib/ebesluit-discovery.mjs`. Hoogstens
+  1 verzoek per seconde, met de User-Agent van `lib/fetch-util.mjs` en een `Referer`.
+- **Welke besluiten:** "Evenementen - <naam>. Organisatie - Goedkeuring" (college of districtscollege),
+  "Toelating muziekactiviteit - <organisator>, voor <evenement>, <adres>" en "Districtsfonds: beleef je
+  buurt!" van district Antwerpen, ook als "Bekrachtiging". De rest valt weg op de titel.
+- **Aanpassingen en intrekkingen:** een "Aanpassing data", rechtzetting of intrekking noemt het oudere
+  besluit (`vervangt`: "met kenmerk <code>" of "het besluit van <dag> (jaarnummer N)" in Artikel 1). Een
+  intrekking of een nieuwe datum maakt het oude geen agendapunt meer, ook als de nieuwe dagen niet te lezen
+  zijn (`wijziging: "data"`). Een rechtzetting van iets anders (bv. het geluidsniveau) laat de oude dagen
+  staan. Dezelfde regel geldt voor een jonger besluit van dezelfde soort met dezelfde naam en plaats.
+- **Lezen:** alleen nieuwe ids (hoogstens 100 per verversing en 150 s; de rest volgt de volgende ochtend),
+  met vaste zinpatronen: Artikel 1 ("keurt de organisatie door … van het evenement … op … in … goed"),
+  "vindt plaats op …", "zal doorgaan van … tot en met …", "van … uur tot … uur", "De opbouw start op … en
+  de afbouw eindigt op …" en de vaste tabel van het Districtsfonds. Niet gepubliceerd: alleen naam en
+  zittingsdatum uit de titel.
+- **Uitvoer:** `site/sources/evenement-besluiten.json` met alle gelezen besluiten (ook buiten het
+  district): de cache per id en de invoer voor de koppelstap "besluit" in de parcoursherkenning. En
+  `site/sources/district-ebesluit-evenementen.json` met agendapunten voor goedgekeurde besluiten met een
+  plaats in het district (postcode 2000, 2018, 2020, 2030, 2050 of 2060, een straat van het district of
+  een gebied zoals Linkeroever). Een muziekactiviteit alleen met een organisator met rechtsvorm of een
+  publieke instelling (stad, district, provincie, autonoom gemeentebedrijf, FOMU): een feest van een
+  privépersoon hoort niet in de agenda.
+- **Privacy:** het blok "Samenstelling" wordt weggeknipt vóór er iets gelezen wordt; een organisator of
+  aanvrager alleen met rechtsvorm (vzw, bv, nv, …) of als publieke instelling; nooit een
+  ondernemingsnummer, IBAN of het adres van de aanvrager. Geen huisnummer in plaats of naam: een
+  muziektitel zonder postcode ("Feest, Proefstraat 12. District Antwerpen") geeft naam "Feest" en plaats
+  "Proefstraat, District Antwerpen". Een straat van het district met een cijfer in de naam ("4
+  septemberpad") telt niet als huisnummer. Uit de tabel van het Districtsfonds komen alleen straten,
+  postcodes en gebieden (die cel noemt soms ontwerpers met hun adres). `validate:data` controleert het
+  bestand.
+- **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
+  wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
+  agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
+- **Fout bij het zoeken:** beide bestanden blijven zoals ze waren, `fetchStatus: "error"`. Een kapotte
+  detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt.
+- Gemeten op 10-10-2026: 60 besluiten, 36 gelezen in 42 tot 45 s, 8 komende agendapunten (onder meer de
+  Antwerp Marathon op 18 oktober, met opbouw vanaf 12 en afbouw tot 21 oktober).
+- **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van
+  `scripts/fetch-sources-ebesluit.mjs` uit te breiden. Zo blijven de raadskalender (`district-ebesluit`) en
+  haar zoektermen ongewijzigd, en houdt een fout of traagheid hier de raadskalender niet tegen.
+- **Ontdubbelen met A-Sign (later):** dit is nog geen koppeling met de A-Sign-evenementendossiers. Elk
+  goedgekeurd besluit in het district wordt hier een eigen agendapunt. Zodra P2 (`district-asign-evenementen`)
+  of de koppelstap "besluit" (P3b) er is, moet dat ontdubbelen deze bron meenemen: één agendapunt per
+  evenement (bv. de Marathon), met beide bronnen.
+
 ## Buurtkaart: wijken en coördinaten (geen agendabron)
 
 - `site/geo/wijken.geo.json`: de 67 wijken van stad Antwerpen uit de laag `wijken_omgevingsinformatie`
