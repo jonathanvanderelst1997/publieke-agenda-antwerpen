@@ -70,5 +70,5 @@ export function duidelijkeKaart(entry={},item={}){
       regels:[],inzageloket:false,
     };
   }
-  return {titel:entry.title,samenvatting:entry.summary,tijd:"",toelichting:"",regels:[],inzageloket:false};
+  return {titel:entry.title,samenvatting:entry.summary,tijd:"",toelichting:"",regels:Array.isArray(entry.regels)?entry.regels:[],inzageloket:false};
 }

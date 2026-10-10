@@ -86,6 +86,12 @@ export function bezoekersLinks(e={}) {
     add(e.sourceUrl,rawData(e.sourceUrl)?"Technische databron (geen infopagina)":"Officiële bronpagina","source");
   return out;
 }
+// Een ruwe databron (ArcGIS, GIPOD-API) is geen pagina voor bewoners: die gaat in een ingeklapt blok
+// "Technische details", de rest blijft gewoon zichtbaar.
+export function splitsLinks(links=[]) {
+  const technisch=links.filter(l=>l?.type==="source"&&rawData(l.url));
+  return {gewoon:links.filter(l=>!technisch.includes(l)),technisch};
+}
 export function bezoekersHint(e={}) {
   const item=e.item||{};
   if(e.source==="permits"){
@@ -96,7 +102,13 @@ export function bezoekersHint(e={}) {
   }
   if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
     "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
-  if(e.source==="publicSpace"&&!item.gipodId)return "A-Sign publiceert hier een stedelijk dossier. Een afzonderlijke publieke evenementenpagina is niet bevestigd.";
+  // Per soort de juiste zin: "evenementenpagina" past alleen bij een evenement op straat.
+  if(e.source==="publicSpace"&&!item.gipodId){
+    if(item.kind==="parking")return "Uit A-Sign, de databank van de stad voor signalisatie. De borden ter plaatse gelden.";
+    if(item.kind==="sgw")return "Uit A-Sign, de databank van de stad voor signalisatie. Een publieke infopagina per werfzone is niet bevestigd.";
+    if(item.kind==="iod")return "A-Sign publiceert hier een stedelijk dossier voor een inname van de straat. Een publieke infopagina per dossier is niet bevestigd.";
+    return "A-Sign publiceert hier een stedelijk dossier. Een afzonderlijke publieke evenementenpagina is niet bevestigd.";
+  }
   if(e.source==="agenda"){
     if(item.actionChecked===true){
       if(item.actionKind==="ticket")return "Tickets voor deze datum officieel bevestigd.";

@@ -10,9 +10,12 @@ import {
   historyArchiveDay,
   historyArchiveDayFile,
   historyArchiveEventsForRun,
+  isHistoryArchiveDayFileName,
+  scrubHistoryArchiveDay,
   updateHistoryArchiveBaseline,
   updateHistoryArchiveDay,
   updateHistoryArchiveIndex,
+  updateHistoryArchiveIndexDay,
   validateHistoryArchiveBaseline,
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
@@ -243,6 +246,8 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       iodFeatures: [...iod22, ...iod23],
       sgwFeatures: sgw,
       districtGeometry: district,
+      // Officiële straatnamen, zodat "De 7 schakenpad" niet als huisnummer wegvalt (site/adres-privacy.js).
+      straatnamen: streets?.byName instanceof Map ? [...streets.byName.values()].flat().map((ref) => ref?.name).filter(Boolean) : null,
     });
     return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district };
   } catch (error) {
@@ -286,10 +291,24 @@ export async function refreshLiveHistory({
     observedAt,
     historyArchiveEventsForRun(history, baseline)
   );
-  const archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  let archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
+  // Oudere dagen: parkeerverboden opkuisen (geen huisnummers, geen foute weekdagregel). Alleen een
+  // dag die echt verandert, wordt herschreven; daarna is dit bij elke verversing een no-op.
+  const archiveDir = path.dirname(archiveBaselineFile);
+  const olderDays = [];
+  for (const name of fs.existsSync(archiveDir) ? fs.readdirSync(archiveDir).sort() : []) {
+    const target = path.join(archiveDir, name);
+    if (!isHistoryArchiveDayFileName(name) || target === archiveDayFile) continue;
+    const before = readJsonIfPresent(target);
+    const after = scrubHistoryArchiveDay(before);
+    if (after === before) continue;
+    olderDays.push([target, after]);
+    archiveIndex = updateHistoryArchiveIndexDay(archiveIndex, after);
+  }
   const archiveErrors = [
     ...validateHistoryArchiveBaseline(baseline),
     ...validateHistoryArchiveDay(dayDocument),
+    ...olderDays.flatMap(([, document]) => validateHistoryArchiveDay(document)),
     ...validateHistoryArchiveIndex(archiveIndex),
   ];
   if (archiveErrors.length) throw new Error(`live historiekarchief ongeldig: ${archiveErrors[0]}`);
@@ -300,6 +319,7 @@ export async function refreshLiveHistory({
   if (dayDocument.events.length > 0 || previousDay) {
     fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
   }
+  for (const [target, document] of olderDays) fs.writeFileSync(target, `${JSON.stringify(document, null, 2)}\n`, "utf8");
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
 

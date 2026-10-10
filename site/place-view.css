@@ -174,6 +174,10 @@
 .pv-links a, .pv-ics { color: var(--pa-accent); font-weight: 700; font-size: .9rem; text-underline-offset: 3px; }
 .pv-links .pv-bron-bezoeker { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface-2); }
 .pv-links .pv-bron-technisch { font-size: .8rem; color: var(--pa-muted); font-weight: 500; }
+/* Ruwe stadsgegevens: ingeklapt, zodat de eerste link een pagina voor bewoners is. */
+.pv-tech { margin-top: 8px; font-size: .85rem; color: var(--pa-muted); }
+.pv-tech summary { cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
+.pv-tech p { margin: 4px 0; }
 .pv-bron-hint { color: var(--pa-muted); font-size: .87rem; line-height: 1.5; }
 .pv-ics { border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface); padding: 8px 12px; cursor: pointer; min-height: 44px; }
 .pv-progress { margin: 14px 0 0; height: 8px; border-radius: 999px; background: var(--cat-soft, var(--pa-surface-2)); overflow: hidden; }
@@ -301,6 +305,8 @@
   .pv-row-chevron { transition: none; }
 }
 .pv-place-failed { color: var(--pa-warn); background: var(--pa-warn-soft); border: 1px solid var(--pa-warn-line); border-radius: 12px; padding: 8px 12px; }
+/* Een live laag laadde niet: dat staat ook in de lege staat, vóór de uitleg. */
+.pv-empty .pv-empty-warn { margin: 6px auto 10px; color: var(--pa-warn); background: var(--pa-warn-soft); border: 1px solid var(--pa-warn-line); border-radius: 12px; padding: 8px 12px; font-weight: 600; }
 .plek-ui .buurt-intro h2 { display: none; }
 .pv-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .pv-hero:has(.pv-suggestions:not([hidden])) .pv-quick { display: none; }
