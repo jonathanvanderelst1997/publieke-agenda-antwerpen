@@ -159,7 +159,10 @@ test("validate-data meldt een huisnummer in de historiek met het pad, zonder de 
     fs.mkdirSync(path.join(root, "scripts"));
     fs.copyFileSync(path.join(repoRoot, "scripts", "validate-data.mjs"), path.join(root, "scripts", "validate-data.mjs"));
     fs.mkdirSync(path.join(root, "site", "history"), { recursive: true });
-    fs.copyFileSync(path.join(repoRoot, "site", "works-core.js"), path.join(root, "site", "works-core.js"));
+    // Alle gedeelde modules uit site/ (lib/ gebruikt er enkele; andere PR's kunnen er bij zetten).
+    for (const name of fs.readdirSync(path.join(repoRoot, "site")).filter((entry) => entry.endsWith(".js"))) {
+      fs.copyFileSync(path.join(repoRoot, "site", name), path.join(root, "site", name));
+    }
     const history = oudeHistoriek({ observedAt: "2026-10-10T03:00:00.000Z", publicSpace: [parkeer(1, "Xstraat 27 2000 Antwerpen")] });
     fs.writeFileSync(path.join(root, "site/history/live-layers.json"), JSON.stringify(history));
     const run = spawnSync(process.execPath, [path.join(root, "scripts", "validate-data.mjs")], { encoding: "utf8" });
