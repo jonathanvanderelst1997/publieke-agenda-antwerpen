@@ -8,6 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
   DATATAKKEN,
@@ -29,6 +30,24 @@ import {
 const lees = (pad) => fs.readFileSync(new URL(`../${pad}`, import.meta.url), "utf8");
 const heeftBash = spawnSync("bash", ["-c", "true"]).status === 0;
 const heeftSha256sum = heeftBash && spawnSync("bash", ["-c", "command -v sha256sum"]).status === 0;
+
+/**
+ * De echte git, ook als deze toets zelf in een droge verversing draait (dan staat de stub van
+ * maakStubs vooraan op het PATH: npm run check in refresh.yml draait de hele suite).
+ */
+function echteGitPad() {
+  for (const map of String(process.env.PATH ?? "").split(path.delimiter)) {
+    const kandidaat = path.join(map, "git");
+    try {
+      if (!fs.statSync(kandidaat).isFile()) continue;
+      if (fs.readFileSync(kandidaat).subarray(0, 4096).includes("# Droge verversing")) continue;
+      return kandidaat;
+    } catch {
+      // niet op deze plek
+    }
+  }
+  return "git";
+}
 
 /** Het blok van één job in een werkstroom (van de kop tot de volgende job). */
 function jobBlok(tekst, naam) {
@@ -127,8 +146,7 @@ test("de verzonnen takkenlijst toetst numeriek sorteren op de grens van vijf", (
 test("de git-stub vangt push en ls-remote op, de rest gaat naar de echte git", { skip: !heeftBash }, () => {
   const map = fs.mkdtempSync(path.join(os.tmpdir(), "droog-stub-"));
   try {
-    const echteGit = spawnSync("bash", ["-c", "command -v git"], { encoding: "utf8" }).stdout.trim();
-    maakStubs(map, echteGit);
+    maakStubs(map, echteGitPad());
     const env = { ...process.env, PATH: `${map}${path.delimiter}${process.env.PATH}` };
     const run = (script) => spawnSync("bash", ["-c", script], { env, encoding: "utf8", cwd: new URL("..", import.meta.url) });
     const push = run("git push --quiet origin HEAD:refs/heads/data/refresh-20261010-1");
@@ -171,7 +189,7 @@ test("DROOG_GITCONFIG: een push die toch langs de stub gaat, raakt het netwerk n
     const config = path.join(map, "gitconfig");
     fs.writeFileSync(config, DROOG_GITCONFIG);
     const env = { ...process.env, GIT_CONFIG_GLOBAL: config, GIT_CONFIG_NOSYSTEM: "1", GIT_TERMINAL_PROMPT: "0" };
-    const git = (...args) => spawnSync("git", args, { cwd: path.join(map, "repo"), env, encoding: "utf8" });
+    const git = (...args) => spawnSync(echteGitPad(), args, { cwd: path.join(map, "repo"), env, encoding: "utf8" });
     fs.mkdirSync(path.join(map, "repo"));
     assert.equal(git("init", "-q").status, 0);
     assert.equal(git("-c", "user.name=Verzonnen", "-c", "user.email=verzonnen@voorbeeld.invalid", "commit", "-q", "--allow-empty", "-m", "x").status, 0);
@@ -181,6 +199,23 @@ test("DROOG_GITCONFIG: een push die toch langs de stub gaat, raakt het netwerk n
     assert.notEqual(push.status, 0);
     assert.match(push.stderr, /droog-geen-push/);
     assert.equal(git("remote", "get-url", "origin").stdout.trim(), "https://voorbeeld.invalid/verzonnen.git", "lezen blijft gewoon");
+  } finally {
+    fs.rmSync(map, { recursive: true, force: true });
+  }
+});
+
+test("de toetsen met git werken ook binnen een droge verversing (stub vooraan op het PATH)", { skip: !heeftBash }, () => {
+  // npm run check in refresh.yml draait de hele suite, en dan met de git-stub op het PATH.
+  const map = fs.mkdtempSync(path.join(os.tmpdir(), "droog-binnen-"));
+  try {
+    maakStubs(map, echteGitPad());
+    const r = spawnSync(process.execPath, ["--test", "--test-name-pattern", "^(DROOG_GITCONFIG|de git-stub)", fileURLToPath(import.meta.url)], {
+      // Zonder NODE_TEST_CONTEXT: anders meldt het kind zijn uitslag alleen aan deze toets.
+      env: { ...Object.fromEntries(Object.entries(process.env).filter(([k]) => k !== "NODE_TEST_CONTEXT")), PATH: `${map}${path.delimiter}${process.env.PATH}` },
+      encoding: "utf8",
+    });
+    assert.equal(r.status, 0, r.stdout.split("\n").filter((l) => /not ok|error:/.test(l)).join("\n"));
+    assert.match(r.stdout, /^# pass 2$/m);
   } finally {
     fs.rmSync(map, { recursive: true, force: true });
   }
