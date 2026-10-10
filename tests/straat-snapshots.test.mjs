@@ -54,14 +54,14 @@ test("privacy: geen huisnummer, geen naam, geen vrije beschrijving, geen adres o
   const root = werkmap(t);
   await bouw(root);
   const tekst = alleTekst(root);
-  for (const verboden of ["Kammenstraat 12", "12-14", "Kammenstraat 5", "Kammenstraat 9", "Kammenstraat 20", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
+  for (const verboden of ["Proefstraat 12", "12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
     assert.equal(tekst.includes(verboden), false, `"${verboden}" staat in een straatbestand`);
   }
   // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat.
   assert.doesNotMatch(tekst, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
   const kam = lees(root, `site/straat/${KAM.id}.json`);
-  assert.equal(kam.werken[0].title, `2000 Antwerpen, Kammenstraat - ${WERK_TITEL}`);
-  assert.equal(kam.publiekeRuimte.find((i) => i.kind === "parking").location, "Kammenstraat, 2000 Antwerpen");
+  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat - ${WERK_TITEL}`);
+  assert.equal(kam.publiekeRuimte.find((i) => i.kind === "parking").location, "Proefstraat, 2000 Antwerpen");
   assert.equal(kam.publiekeRuimte.some((i) => /voorbeeld/i.test(JSON.stringify(i))), false, "het item met een e-mailadres valt weg");
   // Elk item afzonderlijk: een item met iets privé erin wordt null, niet half opgekuist.
   assert.equal(itemVoorStraat({ id: "x", title: "Bel 0470 12 34 56" }), null);

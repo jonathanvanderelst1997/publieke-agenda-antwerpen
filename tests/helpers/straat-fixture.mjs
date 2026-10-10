@@ -1,7 +1,8 @@
 // Verzonnen items voor de straatbestanden (P5): tests/straat-snapshots.test.mjs en tests/e2e/snelheid.e2e.mjs.
-// De straten zijn echte straten van het district (site/geo/straten.json); de werken, parkeerverboden,
-// vergunningen, terrassen, namen en huisnummers zijn verzonnen. Alles in maart 2099, zodat de toets nooit
-// door de echte datum verloopt.
+// De straten waaraan de items hangen, zijn echte straten van het district (site/geo/straten.json); de
+// werken, parkeerverboden, vergunningen, terrassen en namen zijn verzonnen, en een adres met huisnummer
+// staat altijd op de verzonnen Proefstraat. Alles in maart 2099, zodat de toets nooit door de echte
+// datum verloopt.
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,7 +21,7 @@ const midden = [(KAM_BOX[0] + KAM_BOX[2]) / 2, (KAM_BOX[1] + KAM_BOX[3]) / 2];
 
 export const WERK_TITEL = "Proefwerk riolering (snel)";
 export const werk = (gipodId = 990001, extra = {}) => ({
-  gipodId, title: `2000 Antwerpen, Kammenstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland",
+  gipodId, title: `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland",
   start: "2099-03-19T06:00:00Z", end: "2099-04-09T16:00:00Z", workTypes: [], occupancyTypes: ["Riolering"],
   sourceUrls: [`https://gipod.api.vlaanderen.be/api/v1/groundworks/${gipodId}`], lastModified: "2099-03-01T00:00:00Z",
   point: midden, recordCount: 1, boundaryConfidence: "point_inside_new", hindrance: null, hindranceSourceLoaded: true,
@@ -28,7 +29,7 @@ export const werk = (gipodId = 990001, extra = {}) => ({
 });
 export const parkeerverbod = (n = 1) => ({
   id: `parking:PROEF-${n}|L${n}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", reason: "Verhuis",
-  location: "Kammenstraat 12-14, 2000 Antwerpen", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z",
+  location: "Proefstraat 12-14, 2000 Antwerpen", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z",
   status: "Goedgekeurd", reference: `PROEF-${n}`, detail: "", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, postcode: "2000",
   sourceLabel: "A-Sign parkeerverboden", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",
   streets: [KAM], streetResolution: "official_address_match", streetDistanceMeters: 0,
@@ -73,7 +74,7 @@ export function bronnen({ werken = [werk()], extraRuimte = [] } = {}) {
       werken: { ok: true, items: werken },
       publiekeRuimte: { ok: true, items: [parkeerverbod(1), inname, evenementRij(1, [KAM, PET]), metMail, ...extraRuimte] },
       vergunningen: { ok: true, items: [vergunning] },
-      terrassen: { ok: true, items: [terras(1, "Kammenstraat 5"), terras(2, "Kammenstraat 5"), terras(3, "Kammenstraat 9")] },
+      terrassen: { ok: true, items: [terras(1, "Proefstraat 5"), terras(2, "Proefstraat 5"), terras(3, "Proefstraat 9")] },
     },
   };
 }
@@ -88,8 +89,8 @@ export async function schoneBronnen(opties) {
   return b;
 }
 export const agendaItems = [
-  { id: "proef-buurtfeest-2099-03-15", title: "Buurtfeest (proef)", date: "2099-03-15", location: "Kammenstraat 20, 2000 Antwerpen", theme: "Activiteit", timeText: "14.00 uur" },
-  { id: "proef-voorbij-2099-03-01", title: "Al voorbij (proef)", date: "2099-03-01", location: "Kammenstraat 20, 2000 Antwerpen", theme: "Activiteit" },
+  { id: "proef-buurtfeest-2099-03-15", title: "Buurtfeest (proef)", date: "2099-03-15", location: "Kammenstraat, 2000 Antwerpen", theme: "Activiteit", timeText: "14.00 uur" },
+  { id: "proef-voorbij-2099-03-01", title: "Al voorbij (proef)", date: "2099-03-01", location: "Kammenstraat, 2000 Antwerpen", theme: "Activiteit" },
 ];
 export const kaartUitleg = { schemaVersion: 1, generatedAt: VERVERST, vanaf: "2099-03-10", tot: "2099-05-09", werken: {}, evenementen: { ET2099000001: { start: "2099-03-14", eind: "2099-03-14", soort: "", soortBron: "", beschrijvingen: [], straten: ["Kammenstraat", "Peterseliestraat", "Huikstraat"], kruist: [], stratenTekst: "", gekoppeld: null, kaart: [] } } };
 
