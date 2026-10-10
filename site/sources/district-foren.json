@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-foren",
+  "scope": "district",
+  "publisher": "Stad Antwerpen (A-Sign, foorlocaties)",
+  "attribution": {
+    "text": "Bron: stad Antwerpen, foorlocaties in A-Sign (Vlaamse gratis open data licentie)",
+    "url": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0"
+  },
+  "url": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
+  "allowedHosts": [
+    "geodata.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "A-Sign MapServer/0 (foor): periodetekst per foor in district Antwerpen, één item per periode",
+  "retrievedAt": "2026-10-10T21:35:35.733Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [
+    {
+      "id": "foor-fo45-2026-10-03",
+      "externalId": "FO45",
+      "title": "Najaarsfoor Dageraadplaats",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-03",
+      "endDate": "2026-10-18",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Dageraadplaats, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Lokale foor op Dageraadplaats, van 3 oktober 2026 tot en met 18 oktober 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
+      "retrievedAt": "2026-10-10T21:35:35.733Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "foor-fo43-2026-11-21",
+      "externalId": "FO43",
+      "title": "Najaarsfoor Sint-Jansplein",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-21",
+      "endDate": "2026-12-13",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Sint-Jansplein, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Lokale foor op Sint-Jansplein, van 21 november 2026 tot en met 13 december 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
+      "retrievedAt": "2026-10-10T21:35:35.733Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "foor-fo65-2026-12-04",
+      "externalId": "FO65",
+      "title": "Winterkermis Koningin Astridplein",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-04",
+      "endDate": "2027-01-03",
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Koningin Astridplein, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Grote foor (bovenlokaal) op Koningin Astridplein, van 4 december 2026 tot en met 3 januari 2027. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
+      "retrievedAt": "2026-10-10T21:35:35.733Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    }
+  ]
+}

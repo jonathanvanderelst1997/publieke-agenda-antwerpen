@@ -3146,7 +3146,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-012321",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1493",
@@ -3175,7 +3175,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-014907",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1323",
@@ -3219,7 +3219,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-031203",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1302",
@@ -3248,7 +3248,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-038343",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1745",
@@ -3277,7 +3277,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-038343",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2624",
@@ -3306,7 +3306,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-038343",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1629",
@@ -3335,7 +3335,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-040241",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2820",
@@ -3485,7 +3485,7 @@
         "end": "2026-12-18T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-046473",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "212",
@@ -3558,7 +3558,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-050989",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "469",
@@ -3587,7 +3587,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-050989",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "469",
@@ -3616,7 +3616,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-050989",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "469",
@@ -3645,7 +3645,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-052084",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1649",
@@ -3674,7 +3674,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-052304",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2898",
@@ -3898,7 +3898,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053223",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "603",
@@ -3927,7 +3927,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053528",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "294",
@@ -3956,7 +3956,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "415",
@@ -3985,7 +3985,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "415",
@@ -4014,7 +4014,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2973",
@@ -4043,7 +4043,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2973",
@@ -4072,7 +4072,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2973",
@@ -4101,7 +4101,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1951",
@@ -4130,7 +4130,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1951",
@@ -4159,7 +4159,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1951",
@@ -4188,7 +4188,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053662",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4217,7 +4217,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4246,7 +4246,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4275,7 +4275,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4304,7 +4304,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "415",
@@ -4333,7 +4333,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "415",
@@ -4362,7 +4362,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2973",
@@ -4391,7 +4391,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "415",
@@ -4420,7 +4420,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4449,7 +4449,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053670",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4478,7 +4478,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053674",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4507,7 +4507,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053674",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4536,7 +4536,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053674",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4565,7 +4565,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-053674",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "220",
@@ -4594,7 +4594,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-053923",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "530",
@@ -4638,7 +4638,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055080",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "975",
@@ -4667,7 +4667,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055190",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1456",
@@ -4696,7 +4696,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055373",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2537",
@@ -4725,7 +4725,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055373",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2537",
@@ -4754,7 +4754,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-055437",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2181",
@@ -4783,7 +4783,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-055437",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2181",
@@ -4812,7 +4812,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055451",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2605",
@@ -4841,7 +4841,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055451",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1650",
@@ -4870,7 +4870,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1453",
@@ -4899,7 +4899,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1453",
@@ -4928,7 +4928,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1453",
@@ -4957,7 +4957,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055686",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2820",
@@ -4986,7 +4986,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055686",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2820",
@@ -5015,7 +5015,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055686",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2820",
@@ -5044,7 +5044,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-055686",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2820",
@@ -5073,7 +5073,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-055725",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2852",
@@ -5102,7 +5102,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-055725",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2852",
@@ -5431,7 +5431,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-057253",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "287",
@@ -5460,7 +5460,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-057253",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "287",
@@ -5489,7 +5489,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057361",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2630",
@@ -5518,7 +5518,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057361",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2630",
@@ -5547,7 +5547,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057361",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2143",
@@ -5576,7 +5576,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057361",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2143",
@@ -5605,7 +5605,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057410",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2062",
@@ -5634,7 +5634,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-057606",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "193",
@@ -5663,7 +5663,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-057796",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -5692,7 +5692,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-058189",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1119",
@@ -5751,7 +5751,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-058645",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "255",
@@ -5780,7 +5780,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-058926",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "336",
@@ -5809,7 +5809,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-058927",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "336",
@@ -5838,7 +5838,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-058928",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "859",
@@ -5867,7 +5867,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-058936",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2624",
@@ -5911,7 +5911,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059018",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "260",
@@ -5940,7 +5940,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059080",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "453",
@@ -5984,7 +5984,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059213",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2525",
@@ -6013,7 +6013,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059311",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2779",
@@ -6042,7 +6042,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059353",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "837",
@@ -6071,7 +6071,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-059353",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2051",
@@ -6100,7 +6100,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-059553",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2550",
@@ -6174,7 +6174,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-059785",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2898",
@@ -6203,7 +6203,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-059827",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2689",
@@ -6232,7 +6232,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-059888",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2662",
@@ -6261,7 +6261,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-059924",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "879",
@@ -6410,7 +6410,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060599",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "625",
@@ -6439,7 +6439,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060606",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2987",
@@ -6469,7 +6469,7 @@
         "end": "2026-11-04T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060619",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "810",
@@ -6497,7 +6497,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-060653",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3093",
@@ -6526,7 +6526,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-060653",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3093",
@@ -6585,7 +6585,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060860",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2291",
@@ -6615,7 +6615,7 @@
         "end": "2026-10-16T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060886",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1117",
@@ -6644,7 +6644,7 @@
         "end": "2026-10-16T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060886",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3296",
@@ -6673,7 +6673,7 @@
         "end": "2026-10-16T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060886",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3296",
@@ -6702,7 +6702,7 @@
         "end": "2026-10-16T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-060886",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3296",
@@ -6746,7 +6746,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1943",
@@ -6775,7 +6775,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2323",
@@ -6804,7 +6804,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2323",
@@ -6833,7 +6833,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1820",
@@ -6862,7 +6862,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1583",
@@ -6891,7 +6891,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061003",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2102",
@@ -6919,7 +6919,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061006",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "308",
@@ -6963,7 +6963,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-061198",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2088",
@@ -7022,7 +7022,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061234",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2139",
@@ -7081,7 +7081,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061428",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1741",
@@ -7125,7 +7125,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-061493",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1270",
@@ -7154,7 +7154,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-061517",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -7183,7 +7183,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-061538",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "186",
@@ -7213,7 +7213,7 @@
         "end": "2026-11-12T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061545",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1866",
@@ -7241,7 +7241,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061569",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2548",
@@ -7270,7 +7270,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061705",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1514",
@@ -7299,7 +7299,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-061706",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1738",
@@ -7358,7 +7358,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061834",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1593",
@@ -7403,7 +7403,7 @@
         "end": "2026-11-22T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-061994",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1398",
@@ -7446,7 +7446,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062050",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1727",
@@ -7490,7 +7490,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062287",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1716",
@@ -7534,7 +7534,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062391",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1368",
@@ -7563,7 +7563,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062395",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -7592,7 +7592,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062433",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -7621,7 +7621,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062433",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -7695,7 +7695,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062508",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2228",
@@ -7724,7 +7724,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062539",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1417",
@@ -7753,7 +7753,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062542",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2779",
@@ -7797,7 +7797,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062589",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2979",
@@ -7841,7 +7841,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062661",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2728",
@@ -7870,7 +7870,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062813",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3051",
@@ -7899,7 +7899,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062818",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1037",
@@ -7928,7 +7928,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062838",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1086",
@@ -7987,7 +7987,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062906",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1224",
@@ -8016,7 +8016,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-062906",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1224",
@@ -8045,7 +8045,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062921",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1750",
@@ -8074,7 +8074,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062964",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "186",
@@ -8103,7 +8103,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062987",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1647",
@@ -8132,7 +8132,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062987",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1647",
@@ -8161,7 +8161,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-062987",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1647",
@@ -8190,7 +8190,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063031",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3079",
@@ -8219,7 +8219,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-063041",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1742",
@@ -8248,7 +8248,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063088",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2380",
@@ -8277,7 +8277,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063114",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "247",
@@ -8336,7 +8336,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063194",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "969",
@@ -8380,7 +8380,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063335",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2789",
@@ -8409,7 +8409,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-063358",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1403",
@@ -8438,7 +8438,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-063359",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1977",
@@ -8467,7 +8467,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-063365",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1019",
@@ -8496,7 +8496,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "In effect",
         "reference": "2026-063433",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "736",
@@ -8585,7 +8585,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063551",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "520",
@@ -8614,7 +8614,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063586",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2490",
@@ -8733,7 +8733,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063679",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2095",
@@ -8762,7 +8762,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063693",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1482",
@@ -8881,7 +8881,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063817",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2907",
@@ -8910,7 +8910,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063838",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1738",
@@ -8969,7 +8969,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063864",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3236",
@@ -8998,7 +8998,7 @@
         "end": "2026-10-01T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063921",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1776",
@@ -9028,7 +9028,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-063998",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "233",
@@ -9056,7 +9056,7 @@
         "end": "2026-10-26T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064043",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2207",
@@ -9086,7 +9086,7 @@
         "end": "2026-10-14T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064049",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "197",
@@ -9175,7 +9175,7 @@
         "end": "2026-10-12T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064396",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "212",
@@ -9204,7 +9204,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064422",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1224",
@@ -9233,7 +9233,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064422",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1735",
@@ -9262,7 +9262,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064426",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2833",
@@ -9291,7 +9291,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064446",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "359",
@@ -9335,7 +9335,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064451",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2288",
@@ -9364,7 +9364,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064453",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2288",
@@ -9392,7 +9392,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064454",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2633",
@@ -9422,7 +9422,7 @@
         "end": "2026-11-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064456",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2288",
@@ -9451,7 +9451,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064464",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3141",
@@ -9480,7 +9480,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064478",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1301",
@@ -9509,7 +9509,7 @@
         "end": "2026-10-31T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064487",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2987",
@@ -9538,7 +9538,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064493",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2348",
@@ -9567,7 +9567,7 @@
         "end": "2026-10-04T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064496",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2380",
@@ -9596,7 +9596,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064511",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "445",
@@ -9625,7 +9625,7 @@
         "end": "2026-10-23T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064512",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2941",
@@ -9654,7 +9654,7 @@
         "end": "2026-10-11T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064513",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1493",
@@ -9683,7 +9683,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064515",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2431",
@@ -9712,7 +9712,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064518",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2941",
@@ -9741,7 +9741,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064522",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2660",
@@ -9770,7 +9770,7 @@
         "end": "2026-10-15T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064528",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1741",
@@ -9799,7 +9799,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064532",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1569",
@@ -9828,7 +9828,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064537",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3128",
@@ -9857,7 +9857,7 @@
         "end": "2026-10-12T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064540",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2431",
@@ -9886,7 +9886,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064541",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1453",
@@ -9915,7 +9915,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064542",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "240",
@@ -9944,7 +9944,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064543",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1045",
@@ -9973,7 +9973,7 @@
         "end": "2026-10-06T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064546",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10002,7 +10002,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064547",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10031,7 +10031,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064548",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10060,7 +10060,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064549",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10089,7 +10089,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064550",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10118,7 +10118,7 @@
         "end": "2026-10-13T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064552",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10147,7 +10147,7 @@
         "end": "2026-10-14T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064553",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10176,7 +10176,7 @@
         "end": "2026-10-15T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064554",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10205,7 +10205,7 @@
         "end": "2026-10-16T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064555",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10234,7 +10234,7 @@
         "end": "2026-10-17T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064556",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1095",
@@ -10263,7 +10263,7 @@
         "end": "2026-10-14T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064557",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1569",
@@ -10292,7 +10292,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064559",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2911",
@@ -10321,7 +10321,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064560",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1853",
@@ -10350,7 +10350,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064562",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2585",
@@ -10379,7 +10379,7 @@
         "end": "2026-10-02T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064563",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2633",
@@ -10408,7 +10408,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064564",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "214",
@@ -10437,7 +10437,7 @@
         "end": "2026-10-05T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064574",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1086",
@@ -10466,7 +10466,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064580",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2731",
@@ -10495,7 +10495,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064580",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2731",
@@ -10524,7 +10524,7 @@
         "end": "2026-10-05T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064582",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2051",
@@ -10553,7 +10553,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064586",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1943",
@@ -10582,7 +10582,7 @@
         "end": "2026-10-12T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064588",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1943",
@@ -10611,7 +10611,7 @@
         "end": "2026-10-18T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2713",
@@ -10640,7 +10640,7 @@
         "end": "2026-10-18T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "233",
@@ -10669,7 +10669,7 @@
         "end": "2026-10-18T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064610",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1399",
@@ -10698,7 +10698,7 @@
         "end": "2026-10-17T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064611",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2591",
@@ -10727,7 +10727,7 @@
         "end": "2026-10-06T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064635",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2428",
@@ -10756,7 +10756,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064667",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "292",
@@ -10785,7 +10785,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064687",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2062",
@@ -10814,7 +10814,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064688",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2652",
@@ -10843,7 +10843,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064688",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2661",
@@ -10872,7 +10872,7 @@
         "end": "2026-10-06T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064709",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1750",
@@ -10901,7 +10901,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064715",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "286",
@@ -10930,7 +10930,7 @@
         "end": "2026-10-08T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064721",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1632",
@@ -10959,7 +10959,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064739",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "810",
@@ -10988,7 +10988,7 @@
         "end": "2026-10-17T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064741",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1951",
@@ -11017,7 +11017,7 @@
         "end": "2026-10-10T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064751",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3063",
@@ -11046,7 +11046,7 @@
         "end": "2026-10-09T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064757",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2288",
@@ -11075,7 +11075,7 @@
         "end": "2026-10-12T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064769",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "2929",
@@ -11104,7 +11104,7 @@
         "end": "2026-10-15T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064777",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "3020",
@@ -11133,7 +11133,7 @@
         "end": "2026-10-07T00:00:00.000Z",
         "status": "Goedgekeurd",
         "reference": "2026-064781",
-        "detail": "Alleen op weekdagen",
+        "detail": "",
         "streets": [
           {
             "id": "1742",

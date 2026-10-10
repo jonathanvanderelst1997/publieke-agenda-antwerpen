@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-10T03:22:17.338Z",
+  "generatedAt": "2026-10-10T21:36:59.309Z",
   "classificationAsOf": "2026-10-10",
   "sources": [
     {
@@ -8,100 +8,182 @@
       "file": "sources/district-ebesluit.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:20:33.657Z",
+      "retrievedAt": "2026-10-10T21:34:38.276Z",
       "maxAgeHours": 48,
       "itemCount": 9,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 3,
+      "emptySince": null,
+      "contentStatus": "ok"
+    },
+    {
+      "sourceId": "district-ebesluit-evenementen",
+      "file": "sources/district-ebesluit-evenementen.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "maxAgeHours": 48,
+      "itemCount": 8,
+      "errorCode": null,
+      "upcomingCount": 8,
+      "emptySince": null,
+      "contentStatus": "ok"
+    },
+    {
+      "sourceId": "district-foren",
+      "file": "sources/district-foren.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-10-10T21:35:35.733Z",
+      "maxAgeHours": 48,
+      "itemCount": 3,
+      "errorCode": null,
+      "upcomingCount": 3,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "file": "sources/district-gipod-evenementen.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:20:25.555Z",
+      "retrievedAt": "2026-10-10T21:34:30.764Z",
       "maxAgeHours": 48,
       "itemCount": 0,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 0,
+      "emptySince": "2026-10-10",
+      "contentStatus": "ok"
     },
     {
       "sourceId": "district-kalender",
       "file": "sources/district-kalender.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:20:07.107Z",
+      "retrievedAt": "2026-10-10T21:34:16.515Z",
       "maxAgeHours": 48,
       "itemCount": 11,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 11,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "district-nieuws",
       "file": "sources/district-nieuws.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:20:10.618Z",
+      "retrievedAt": "2026-10-10T21:34:19.774Z",
       "maxAgeHours": 48,
       "itemCount": 4,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 4,
+      "emptySince": null,
+      "contentStatus": "ok"
+    },
+    {
+      "sourceId": "district-projecten",
+      "file": "sources/district-projecten.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "maxAgeHours": 48,
+      "itemCount": 18,
+      "errorCode": null,
+      "upcomingCount": 18,
+      "emptySince": null,
+      "contentStatus": "ok"
+    },
+    {
+      "sourceId": "district-schoolstraten",
+      "file": "sources/district-schoolstraten.json",
+      "scope": "district",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "maxAgeHours": 48,
+      "itemCount": 17,
+      "errorCode": null,
+      "upcomingCount": 17,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "district-vergaderingen",
       "file": "sources/district-vergaderingen.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:20:12.282Z",
+      "retrievedAt": "2026-10-10T21:34:21.257Z",
       "maxAgeHours": 48,
       "itemCount": 39,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 39,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "mail-district",
       "file": "sources/mail-district.json",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:22:16.847Z",
+      "retrievedAt": "2026-10-10T21:36:17.090Z",
       "maxAgeHours": 48,
       "itemCount": 0,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 0,
+      "emptySince": "2026-10-10",
+      "contentStatus": "ok"
     },
     {
       "sourceId": "mail-stad",
       "file": "sources/mail-stad.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:22:16.847Z",
+      "retrievedAt": "2026-10-10T21:36:17.090Z",
       "maxAgeHours": 48,
       "itemCount": 0,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 0,
+      "emptySince": "2026-10-10",
+      "contentStatus": "ok"
     },
     {
       "sourceId": "stad-districten",
       "file": "sources/stad-districten.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:21:42.964Z",
+      "retrievedAt": "2026-10-10T21:35:44.997Z",
       "maxAgeHours": 48,
       "itemCount": 23,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 23,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "stad-koopzondagen",
       "file": "sources/stad-koopzondagen.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:22:15.520Z",
+      "retrievedAt": "2026-10-10T21:36:16.494Z",
       "maxAgeHours": 48,
       "itemCount": 5,
-      "errorCode": null
+      "errorCode": null,
+      "upcomingCount": 5,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "stad-markten",
       "file": "sources/stad-markten.json",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T03:22:10.055Z",
+      "retrievedAt": "2026-10-10T21:36:11.624Z",
       "maxAgeHours": 48,
-      "itemCount": 628,
-      "errorCode": null
+      "itemCount": 627,
+      "errorCode": null,
+      "upcomingCount": 627,
+      "emptySince": null,
+      "contentStatus": "ok"
     },
     {
       "sourceId": "stad-uit",
