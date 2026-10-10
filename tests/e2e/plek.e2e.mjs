@@ -89,11 +89,11 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
   return { stats, handle };
 }
 
-async function routeSources(page, street, { asign = null, work: withWork = true } = {}) {
+async function routeSources(page, street, { asign = null, work: withWork = true, assen = [], vergunningen = [] } = {}) {
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
   const [x1, y1, x2, y2] = row[4];
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];
-  const axis = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, y1], [x2, y2]] }, properties: { LSTRNMID: Number(street.id), LSTRNM: street.name, RSTRNMID: Number(street.id), RSTRNM: street.name, postcode: Number(street.postcode), DISTRICT: "Antwerpen" } }] };
+  const axis = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, y1], [x2, y2]] }, properties: { LSTRNMID: Number(street.id), LSTRNM: street.name, RSTRNMID: Number(street.id), RSTRNM: street.name, postcode: Number(street.postcode), DISTRICT: "Antwerpen" } }, ...assen] };
   const work = {
     type: "FeatureCollection", links: [],
     features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: { GipodId: 999999901, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: "https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/999999901" } }],
@@ -106,12 +106,13 @@ async function routeSources(page, street, { asign = null, work: withWork = true 
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
     if (url.includes("/MapServer/905/")) return route.fulfill(json(axis));
     if (asign && url.includes("/P_ASign/")) return asign.handle(route, url);
+    if (vergunningen.length && url.includes("/pip2_vergunningen/")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: vergunningen.map((_, i) => i + 1) } : { features: vergunningen }));
     if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
     return route.abort();
   });
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [] } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
@@ -119,7 +120,7 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
   page.on("requestfailed", (request) => { if (/geodata\.antwerpen\.be/.test(request.url())) geodataFouten.push(request.url()); });
-  await routeSources(page, street || pickStreet.fallback, { asign, work });
+  await routeSources(page, street || pickStreet.fallback, { asign, work, assen, vergunningen });
   await page.goto(`${baseUrl}/${query}`);
   await page.waitForSelector(".pv-chip");
   return { page, context, errors, geodataFouten };
@@ -307,6 +308,36 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const tegels = await page.locator(".pv-place .pv-stats").boundingBox();
     assert.ok(melder && tegels && melder.y < tegels.y, "melding staat boven de tegels");
     assert.doesNotMatch(tekst, /gekozen soorten/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+  // Herstelplan O2: de knoppen +250 m tot +1 km toonden nooit een parcours of een vergunning (die hebben
+  // geen eigen punt). Nu telt een item mee als één van zijn straten binnen de straal ligt.
+  await t.test("straal zonder punt: parcours en vergunning in een straat 250 m verder", async () => {
+    const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+    const huik = straten.streets.find((r) => r[1] === "Huikstraat" && r[2] === "2000");
+    const [hx1, hy1, hx2, hy2] = huik[4];
+    const assen = [{ type: "Feature", geometry: { type: "LineString", coordinates: [[hx1, hy1], [hx2, hy2]] }, properties: { LSTRNMID: Number(huik[0]), LSTRNM: "Huikstraat", RSTRNMID: Number(huik[0]), RSTRNM: "Huikstraat", postcode: 2000, DISTRICT: "Antwerpen" } }];
+    // Een parcours van 12 m breed over de as van de Huikstraat, en een perceel ernaast (verzonnen).
+    const lengte = Math.hypot((hx2 - hx1) * 69760, (hy2 - hy1) * 110540);
+    const nx = (-(hy2 - hy1) * 110540 / lengte) * (6 / 69760), ny = ((hx2 - hx1) * 69760 / lengte) * (6 / 110540);
+    const vlak = [[hx1 + nx, hy1 + ny], [hx2 + nx, hy2 + ny], [hx2 - nx, hy2 - ny], [hx1 - nx, hy1 - ny], [hx1 + nx, hy1 + ny]];
+    const ms = (iso) => Date.parse(`${iso}T08:00:00Z`);
+    const dag = addDays(today, 3);
+    const asign = asignServer({ fixtures: { 22: [{ id: 990001, feature: { attributes: { dossierNummer: "ET2099000001", faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parcours", innameHinder: "True", faseStartDatum: ms(dag), faseEindDatum: ms(dag) }, geometry: { rings: [vlak] } } }] } });
+    const [mx, my] = [(hx1 + hx2) / 2 + nx * 2.5, (hy1 + hy2) / 2 + ny * 2.5], d = 0.00004;
+    const vergunningen = [{ attributes: { DOSSIERTYPE: "Omgevingsvergunning", Dossiernummer: "OMV_2099000001", AardAanvraag: "", Onderwerp: "", Beslissing: "", DatumBeslissing: null, Volledig: "", Ontvankelijk: "", Ingetrokken: "", Stopgezet: "", ProjectnummerOmgevingsloket: "", behandelendeOverheid: "", beslissingsoverheid: "" }, geometry: { rings: [[[mx - d, my - d], [mx + d, my - d], [mx + d, my + d], [mx - d, my + d], [mx - d, my - d]]] } }];
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, street: peterselie, asign, work: false, assen, vergunningen, query: "?plek=Peterseliestraat" });
+    await page.waitForFunction(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return Array.isArray(l.publicSpace) && Array.isArray(l.permits); }, null, { timeout: 30000 });
+    const parcours = page.locator(".pv-results .pv-row", { hasText: "Huikstraat" }).filter({ hasText: "Evenement op straat" });
+    const vergunning = page.locator(".pv-results .pv-row", { hasText: "Vergunning" }).filter({ hasText: "Huikstraat" });
+    await page.waitForTimeout(1500);
+    assert.equal(await parcours.count(), 0, "alleen de straat zelf: het parcours ligt elders");
+    assert.equal(await vergunning.count(), 0);
+    await page.click('.pv-place [data-radius="500"]');
+    await parcours.first().waitFor({ timeout: 15000 });
+    assert.match(await parcours.first().innerText(), /Niet in je straat, wel binnen 500 m/);
+    await vergunning.first().waitFor({ timeout: 15000 });
     assert.deepEqual(errors, []);
     await context.close();
   });
