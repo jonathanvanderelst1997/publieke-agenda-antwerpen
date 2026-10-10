@@ -409,6 +409,12 @@ export function periodeBadge(entry = {}, today = "") {
   if (entry.source === "works" && !/^in uitvoering$/i.test(cleanText(entry.status))) return { label: "Periode loopt", soort: "period" };
   return { label: "Nu bezig", soort: "now" };
 }
+// De kop boven wat vandaag loopt. Staat er een kaart met "Periode loopt" onder, dan zegt de kop niet
+// "Nu bezig": GIPOD meldt dat werk nog niet als in uitvoering.
+export function lopendKop(entries = [], today = "") {
+  if (!entries.some((e) => periodeBadge(e, today)?.soort === "period")) return { titel: "Nu bezig", noot: "Werken, maatregelen en activiteiten die vandaag lopen." };
+  return { titel: "Loopt nu", noot: "Werken, maatregelen en activiteiten waarvan de periode vandaag loopt. Bij “Periode loopt” meldt GIPOD het werk nog niet als in uitvoering." };
+}
 // Korte datums voor de lijst: "1 jan", of "1 jan 2034" als de datum niet in het jaar van vandaag valt.
 const MAANDEN_KORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "sep", "okt", "nov", "dec"];
 export function kortDatum(iso, today = "", { jaar = false } = {}) {

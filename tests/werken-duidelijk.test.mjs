@@ -173,8 +173,9 @@ test("status: geen \"Nu bezig\" naast \"Concreet gepland\"", () => {
 test("wat: eerst één zin in gewone taal, de ruwe GIPOD-tekst apart", () => {
   const ruw = "2030 Antwerpen - Voorbeeldsite - Voorbeeldlaan - Anderestraat Aanleg warmtenet staal DN300 lengte 1650m";
   const k = kaart(werk({ title: ruw, occupancyTypes: ["Thermisch"] }));
-  assert.equal(regels(k).Wat, "Werken aan het warmtenet, afgeleid uit de omschrijving van de beheerder.");
-  assert.doesNotMatch(regels(k).Wat, /2030|Anderestraat/);
+  // Eerst de soort; dan het project in de woorden van de beheerder, zonder postcode, gemeente en losse straat.
+  assert.equal(regels(k).Wat, "Werken aan het warmtenet, afgeleid uit de omschrijving van de beheerder. Volgens de beheerder: “Voorbeeldsite - Anderestraat Aanleg warmtenet staal DN300 lengte 1650m”.");
+  assert.doesNotMatch(regels(k).Wat, /2030|Antwerpen/);
   assert.equal(k.bronTekst, ruw);
   // Zonder herkende soort: de tekst van de beheerder, duidelijk als zijn tekst.
   assert.match(regels(kaart(werk({ title: "Onderhoud van de voorbeeldinstallatie" }))).Wat, /^De beheerder schrijft: “Onderhoud van de voorbeeldinstallatie”$/);

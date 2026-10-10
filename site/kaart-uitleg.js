@@ -82,6 +82,7 @@ export function resterendeDuur({ start, eind, vandaag }) {
 const AANSLUITING = "Nieuwe aansluiting op het net";
 const NUTSWERK = "Werken aan nutsleidingen";
 const HOOGTEWERKER = "Werk met een hoogtewerker";
+const WEGENWERKEN = "Wegenwerken";
 const SOORTEN_WERK = [
   [/riolering|\briool|afvoerleiding/i, "Rioleringswerken"],
   [/bemaling/i, "Bemaling (grondwater wegpompen)"],
@@ -96,7 +97,8 @@ const SOORTEN_WERK = [
   [/nutsleiding|nutswerk|nutsvoorziening/i, NUTSWERK],
   [/sondering|peilbui[sz]|bodemonderzoek|grondonderzoek|infiltratieproef/i, "Bodemonderzoek"],
   [/\bboringen?\b/i, "Boringen in de grond"],
-  [/heraanleg|herinrichting|wegenis|asfalt|bestrating|fietspad|voetpad|rijweg|kasseien/i, "Wegenwerken"],
+  // "voetpadkast" is een kast op het voetpad, geen wegenwerk: de paden tussen woordgrenzen.
+  [/heraanleg|herinrichting|wegenis|asfalt|bestrating|\b(?:fiets|voet)pad(?:en)?\b|\brijweg(?:en)?\b|kasseien/i, WEGENWERKEN],
   [/tijdelijke halte|tramhalte|bushalte|tramsporen|tramlijn|\bde lijn\b/i, "Werken aan tram of bus"],
   [/hoogtewerker/i, HOOGTEWERKER],
   // "doorloopstelling", "gevelstelling" en "torenstelling" zijn een stelling; een "herstelling" niet.
@@ -105,7 +107,8 @@ const SOORTEN_WERK = [
   [/dakwerk|\bdak\b|\bdaken\b/i, "Dakwerken"],
   [/torenkraan|snelmontagekraan|mobiele kraan|\bkraan\b/i, "Bouwkraan"],
   [/\bsloop|afbraak|afbreken/i, "Sloopwerken"],
-  [/ruwbouw|nieuwbouw|appartement|verbouwing|renovatie|bouwwerf|bouwproject/i, "Bouwwerf"],
+  // "Renovatie" alleen bij een gebouw: "Renovatie Havenwegen" is een weg, geen bouwwerf.
+  [/ruwbouw|nieuwbouw|appartement|verbouwing|(?:gevel|dak|woning|gebouw)renovatie|renovatie (?:van )?(?:de |het |een )?(?:woning|gebouw|pand|huis|school|kerk|gevel)|bouwwerf|bouwproject/i, "Bouwwerf"],
   [/\bverhuis/i, "Verhuis"],
   [/\bcontainers?\b/i, "Container"],
   [/\bsnoei|\bboom\b|\bbomen\b|groenaanleg|beplanting/i, "Groenwerken"],
@@ -186,6 +189,10 @@ function nettenUitTekst(teksten) {
 }
 const netSoort = (netten) => (netten.length === 1 ? NETTEN[netten[0]].soort : `Werken aan ${joinNl(netten.map((k) => NETTEN[k].kort))}`);
 const aansluitingSoort = (netten) => `Nieuwe aansluiting op ${joinNl(netten.map((k) => NETTEN[k].aansluiting))}`;
+// Beheerders van een net (elektriciteit, gas, warmte, water, riolering, telecom).
+const NETBEHEERDER = /fluvius|proximus|water-?link|\bwyre\b|aquafin|\belia\b|eurofiber|telenet|pidpa|farys|watergroep|fiberklaar|unifiber/i;
+// Een wegenwerk als deel van het project ("E, G, OV, Wegeniswerken"), niet alleen de bovenlaag van een werkput.
+const WEGEN_PROJECT = /wegeniswerk|heraanleg|herinrichting/i;
 
 // De soort van één werk, met de bron erbij. Eerst wat de beheerder schreef (omschrijving, fasen),
 // dan de vaste soort inname van GIPOD, en pas als laatste de soort grondwerk ("distributienet",
@@ -206,6 +213,13 @@ export function soortVanWerk({ omschrijving = "", fasen = [], occupancyTypes = [
   const inname = nettenUitInname(occupancyTypes, eigenaar);
   const netten = inname.length ? inname : nettenUitTekst([omschrijving, ...fasen]);
   const metInname = (bron) => (inname.length ? `${bron} en de soort inname in GIPOD` : bron);
+  // Een netbeheerder met een net in de soort inname: dat net is het werk. Een wegwoord in de tekst is
+  // dan de bovenlaag van een werkput ("Werkput (openb): Bestrating") of een deel van het project
+  // ("E, G, OV, Wegeniswerken"); dat laatste zeggen we erbij.
+  if (tekst.soort === WEGENWERKEN && inname.length && NETBEHEERDER.test(eigenaar)) {
+    if (WEGEN_PROJECT.test([omschrijving, ...fasen].join(" · "))) return { soort: `${netSoort(inname)}, samen met wegenwerken`, bron: metInname(tekst.bron) };
+    tekst = { soort: "", bron: "" };
+  }
   const types = splitsTypes(occupancyTypes);
   const grondwerk = splitsTypes(workTypes);
   // "distributienet", "transportnet" of "verkaveling" als soort grondwerk: werk aan het net zelf (vaak
@@ -318,8 +332,10 @@ function bruikbareOmschrijving(title) {
 // zonder herkenbaar einde krijgt geen lidwoord ("in Kipdorp"): liever kaal dan een fout lidwoord.
 const HET_NAAM = /(?:plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)$/i;
 const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel)$/i;
-const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk)$/i;
-const VASTE_NAAM = new Map([["meir", "op de"]]);
+// Een "vliet" (Sint-Jansvliet) en de Singel zijn een plein of een ring: "op de".
+const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk|vliet|singel)$/i;
+// Namen zonder herkenbaar einde die iedereen in Antwerpen met een lidwoord zegt.
+const VASTE_NAAM = new Map([["meir", "op de"], ["wapper", "op de"], ["oudaan", "op de"]]);
 export function opStraat(naam) {
   const n = clean(naam, 120);
   if (!n) return "";
@@ -332,40 +348,122 @@ export function opStraat(naam) {
 // Een aansluiting, een verhuis of een container hoort bij één adres, meestal van een privépersoon:
 // dan tonen we de straat, maar nooit het huisnummer.
 const EEN_ADRES = /^(?:Nieuwe aansluiting|Verhuis|Container)/;
+export const isEenAdres = (soort) => EEN_ADRES.test(clean(soort, 120));
 // Elk huisnummer, ook met een aanhangsel of na een streep: "79WERF", "6werf", "4B_BIS", "65RP", "| 13",
 // "nr. 12", "18-24". Niet: een postcode (vier cijfers), een maat ("25m", "10kV") of "DN300".
 const HUISNUMMER = /(^|[^\p{L}\d])(?:nrs?\.?\s*)?\d{1,3}(?!\d|\s?(?:m|km|cm|mm|kv)\b)[\p{L}_]*(?:\s*(?:-|–|tem|t\/m|tot)\s*\d{1,3}(?!\d)[\p{L}_]*)?(?=$|[^\p{L}\d])/giu;
+// "Fase 1", "deel 2", "zone 3" of "nacht 1" is een volgnummer, geen huisnummer.
+const VOLGNUMMER_ERVOOR = /(?:^|[^\p{L}])(?:fase|deel|zone|werfzone|nacht|week|stap|put)\s*$/iu;
+// Een tekst zonder huisnummers (voor één adres: de tekst van de beheerder, de namen van de fasen).
+export function zonderHuisnummers(tekst, max = 300) {
+  return clean(tekst, max)
+    .replace(HUISNUMMER, (m, voor, offset, hele) => (VOLGNUMMER_ERVOOR.test(hele.slice(0, offset + voor.length)) ? m : voor))
+    .replace(/\s+/g, " ").replace(/(?:\s*[|,:;–-])+\s*$/u, "").replace(/\s*([|,])(?:\s*[|,])+/g, " $1").trim();
+}
+// Een naam na een dossiercode ("DNW12345678_Voornaam Achternaam LS_…") is een persoon, bv. een
+// werkleider: die bewaren en tonen we niet. Een code met cijfers erna ("PG0971_N1_…") blijft.
+// Een achternaam met een hoofdletter of in hoofdletters (minstens drie: "LS" is laagspanning).
+const NAAM_NA_CODE = /(\b[A-Z]{2,6}\d{4,}_)\p{Lu}\p{Ll}+(?:[ -](?:(?:van|de|der|den|du|le|la|el|ten|ter)\s)*\p{Lu}(?:\p{Ll}[\p{L}'’]*|\p{Lu}{2,}[\p{Lu}'’]*)){1,3}/gu;
+export function zonderNamen(tekst, max = 300) {
+  return clean(tekst, max).replace(NAAM_NA_CODE, "$1");
+}
+// Een los dossiernummer van zeven cijfers of meer ("Beatrijslaan - 20330374 - Koppelput") zegt een
+// bewoner niets en lijkt voor de filter op contactgegevens een telefoonnummer: weg ermee, de fase blijft.
+const zonderDossiernummers = (t) => t.replace(/(?<![\p{L}\d])\d{7,}(?![\p{L}\d])/gu, " ").replace(/(?:\s*[-–|]\s*){2,}/g, " - ").replace(/\s+/g, " ").trim();
 const sleutel = (v) => clean(v, 300).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // De tekst van de beheerder zoals GIPOD hem geeft, voor wie hem wil nalezen. Zonder huisnummers als
 // het om één adres gaat; leeg als er niets meer staat dan het adres op de kaart of als er contactgegevens
 // in staan. Noemt de beheerder een andere straat dan de kaart, dan blijft de tekst staan.
 export function beheerderTekst(tekst, { zonderNummers = false, straten = [] } = {}) {
-  let t = clean(tekst, 300);
+  let t = zonderNamen(tekst);
   if (!t || CONTACT.test(t)) return "";
-  if (zonderNummers) t = t.replace(HUISNUMMER, "$1").replace(/\s+/g, " ").replace(/(?:\s*[|,:;–-])+\s*$/u, "").replace(/\s*([|,])(?:\s*[|,])+/g, " $1").trim();
+  if (zonderNummers) t = zonderHuisnummers(t);
+  return heeftInhoud(t, straten) ? t : "";
+}
+// Staat er meer dan het adres (postcode, gemeente, de straten van de kaart, nummers)?
+function heeftInhoud(t, straten = []) {
   let rest = ` ${sleutel(t)} `;
   for (const s of straten) if (sleutel(s)) rest = rest.split(sleutel(s)).join(" ");
   rest = rest.replace(/\b\d{4}\b/g, " ").replace(/\b(?:antwerpen|anterwerpen|antwerp|andere)\b/g, " ").replace(/\d+[\p{L}_]*/gu, " ");
-  return rest.split(/[^\p{L}]+/u).some((w) => w.length > 2) ? t : "";
+  return rest.split(/[^\p{L}]+/u).some((w) => w.length > 2);
+}
+
+// Wat de beheerder over het werk of het project zegt: "R1 - Ringpark Zuid", "Verkaveling",
+// "Regio – Energietransitie". Per stuk tekst (tussen " - ", "|", "," …) valt weg wat alleen een adres,
+// een gemeente, een nummer, een maat, een netcode (E, G, OV) of een soortwoord is; lopende zinnen
+// blijven heel. Leeg als er niets anders overblijft.
+const NET_CODES = /(?<![\p{L}\d])(?:E|G|OV|W|T|LS|MS|HS)(?![\p{L}\d])/gu;
+const SOORT_WOORDEN = /(?<!\p{L})(?:klantaansluiting(?:en)?|wegeniswerk(?:en)?|nutswerk(?:en)?|grondwerk(?:en)?)(?!\p{L})/giu;
+const STRAAT_EINDE = "(?:steenweg|straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel|plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)";
+const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z])?(?:\\s*[-/]\\s*\\d{1,4}[a-zA-Z]?)?";
+// Alleen een straatnaam (woorden met een hoofdletter, "van", "de" …) met eventueel een huisnummer:
+// "Brederodestraat | 39", "LONDENSTRAAT", "Pieter van Hobokenstraat 6". Niet "Betonherstel op trambaan".
+const STRAAT_WOORD = "(?:\\p{Lu}[\\p{L}'.-]*|van|de|der|den|het|ten|ter|la|le|du|des)";
+const ALLEEN_ADRES = new RegExp(`^(?:\\d{4}\\s+)?(?:${STRAAT_WOORD}[\\s-]+){0,4}\\p{Lu}[\\p{L}'.-]*(?:${STRAAT_EINDE}|${STRAAT_EINDE.toUpperCase()})(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR})?\\.?$`, "u");
+const LEEG_STUK = [
+  /^(?:nr\.?\s*)?\d{1,4}(?:\s?[a-z])?\.?$/i, // een nummer of een postcode
+  /^(?:\d{4}\s+)?\(?(?:antwerpen|antwerp|anterwerpen)\)?$/i, // de gemeente
+  /^\([\p{L}\s-]+\)$/u, // een gemeente tussen haakjes: "(Hoboken)"
+  /^\(?\s*(?:lengte:?\s*)?\d+(?:[.,]\d+)?\s?(?:m|km|m²|m2)\.?\s*\)?$/i, // een maat
+  /^(?:andere|werk in openbaar domein|rioleringswerk(?:en)?|werken (?:aan )?(?:de )?(?:distributie|nuts|drinkwater|water)leiding(?:en)?\)?)$/i,
+];
+const plat = (v) => v.normalize("NFD").replace(/[̀-ͯ]/g, "");
+const escRe = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
+  let t = clean(tekst, 300);
+  // De Lijn: "Locatie: … Aard van de werken: …".
+  const aard = t.match(/aard van de werken:\s*(.+)$/i);
+  if (aard) t = aard[1];
+  const kaartStraat = straten.map((s) => clean(s, 120)).filter(Boolean)
+    .map((s) => new RegExp(`^${escRe(plat(s))}(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR}(?![\\p{L}\\d]))?\\.?\\s*`, "iu"));
+  const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|_)/);
+  const blijft = [];
+  for (let i = 0; i < delen.length; i += 2) {
+    let stuk = delen[i].replace(/^\d{4}\s+\(?(?:antwerpen|antwerp)\)?(?!\p{L})[\s,:-]*/iu, "").trim();
+    for (const re of kaartStraat) if (re.test(plat(stuk))) stuk = plat(stuk).replace(re, "");
+    stuk = stuk.replace(/\(\s*lengte:?\s*\d+\s?m\s*\)/gi, " ").replace(NET_CODES, " ").replace(SOORT_WOORDEN, " ").replace(/\s+/g, " ").replace(/^[\s,;:.-]+|[\s,;:-]+$/g, "").trim();
+    if (!stuk || ALLEEN_ADRES.test(stuk) || LEEG_STUK.some((re) => re.test(stuk))) continue;
+    blijft.push(`${blijft.length ? delen[i - 1] : ""}${stuk}`);
+  }
+  const uit = blijft.join("").trim();
+  if (!uit || !heeftInhoud(uit, straten)) return "";
+  return uit.length > max ? `${uit.slice(0, max).replace(/\s+\S*$/, "")} …` : uit;
+}
+
+// De postcodes van district Antwerpen. Een fase die met een andere postcode begint ("2070 Beveren-…"),
+// ligt buiten het district: haar gevolgen horen niet in de titel.
+const DISTRICT_POSTCODES = new Set(["2000", "2018", "2020", "2030", "2050", "2060"]);
+export function faseBuitenDistrict(naam) {
+  const m = clean(naam, 160).match(/^(\d{4})\s+\p{L}/u);
+  return Boolean(m && !DISTRICT_POSTCODES.has(m[1]));
 }
 
 // Feiten over één werk, zonder klok. De verversing bewaart ze; de site vult aan met vandaag.
+// Bij één adres (een aansluiting, een verhuis, een container) bewaren we geen huisnummer: niet als
+// veld, niet in de omschrijving en niet in de namen van de fasen. Een naam na een dossiercode ook niet.
 export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } = {}) {
-  const omschrijving = bruikbareOmschrijving(werk.title);
-  const fasen = (werk.hindrance?.phases || [])
-    .map((f) => ({ naam: clean(f.description, 160), start: dagVan(f.start), eind: dagVan(f.end), gevolgen: uniek((f.consequences || []).map(gevolgKort)) }))
+  const ruweOmschrijving = zonderNamen(bruikbareOmschrijving(werk.title));
+  const ruweFasen = (werk.hindrance?.phases || [])
+    .map((f) => ({ naam: zonderDossiernummers(zonderNamen(f.description, 160)), start: dagVan(f.start), eind: dagVan(f.end), gevolgen: uniek((f.consequences || []).map(gevolgKort)), ...(faseBuitenDistrict(f.description) ? { buiten: true } : {}) }))
     .filter((f) => f.naam && !CONTACT.test(f.naam))
     .sort((a, b) => a.start.localeCompare(b.start) || a.naam.localeCompare(b.naam, "nl"));
   const soort = soortVanWerk({
-    omschrijving, fasen: fasen.map((f) => f.naam),
+    omschrijving: ruweOmschrijving, fasen: ruweFasen.map((f) => f.naam),
     occupancyTypes: werk.occupancyTypes || [], workTypes: werk.workTypes || [], eigenaar: clean(werk.owner || werk.ownerGroup, 160),
   });
+  const eenAdres = isEenAdres(soort.soort);
+  const omschrijving = eenAdres ? zonderHuisnummers(ruweOmschrijving) : ruweOmschrijving;
+  const fasen = eenAdres ? ruweFasen.map((f) => ({ ...f, naam: zonderHuisnummers(f.naam, 160) })).filter((f) => f.naam) : ruweFasen;
   const straten = uniek((werk.streets || []).map((s) => s?.name));
-  const eigenNummers = straten.length ? huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0]) : "";
+  const eigenNummers = straten.length && !eenAdres ? huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0]) : "";
   const gevolgen = uniek(werk.hindrance?.consequences || []);
+  // Fasen buiten het district tellen niet voor de titel: dan alleen de gevolgen van de fasen erbinnen.
+  const alleFasen = werk.hindrance?.phases || [];
+  const binnen = alleFasen.filter((p) => !faseBuitenDistrict(p.description));
+  const titelGevolgen = binnen.length === alleFasen.length ? gevolgen : uniek(binnen.flatMap((p) => p.consequences || []));
   // De periode van het zwaarste gevolg: de fasen die het noemen, anders de hele hinder.
-  const hoofd = hoofdgevolgBron(gevolgen);
-  const metHoofd = (werk.hindrance?.phases || []).filter((p) => (p.consequences || []).some((c) => clean(c, 160) === hoofd));
+  const hoofd = hoofdgevolgBron(titelGevolgen);
+  const metHoofd = binnen.filter((p) => (p.consequences || []).some((c) => clean(c, 160) === hoofd));
   const gevolgStart = metHoofd.map((p) => dagVan(p.start)).filter(Boolean).sort()[0] || dagVan(werk.hindrance?.start);
   const gevolgEind = metHoofd.map((p) => dagVan(p.end)).filter(Boolean).sort().at(-1) || dagVan(werk.hindrance?.end);
   // Geen straat op minder dan 35 m: de dichtste straatassen (site/street-core.js), als die er zijn. Twijfel
@@ -391,9 +489,10 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     ...(straatUitTekst ? { straatBron: "omschrijving van de beheerder", straatAfstand: Math.round(Number(werk.streetDistanceMeters)) || 0 } : {}),
     // Gezocht en geen straat met naam binnen 150 m, of niet kunnen zoeken (geen straatassen geladen).
     ...(!straten.length && !nabij ? { straatGezocht: Array.isArray(werk.streetNearby) } : {}),
-    huisnummers: eigenNummers || geldigeHuisnummers(huisnummers),
-    huisnummerBron: eigenNummers ? "omschrijving van de beheerder" : geldigeHuisnummers(huisnummers) ? clean(huisnummerBron, 120) : "",
+    huisnummers: eenAdres ? "" : eigenNummers || geldigeHuisnummers(huisnummers),
+    huisnummerBron: eenAdres ? "" : eigenNummers ? "omschrijving van de beheerder" : geldigeHuisnummers(huisnummers) ? clean(huisnummerBron, 120) : "",
     gevolgen,
+    ...(titelGevolgen !== gevolgen ? { titelGevolgen } : {}),
     // Alleen als het zwaarste gevolg een kortere periode heeft dan de hele hinder.
     ...(gevolgStart !== dagVan(werk.hindrance?.start) || gevolgEind !== dagVan(werk.hindrance?.end) ? { gevolgStart, gevolgEind } : {}),
     ernstig: werk.hindrance?.severe === true,
@@ -436,9 +535,14 @@ function gevolgInTitel(gevolg, { gs, ge, start, eind, vandaag, gepland }) {
   if (gs && eind && (gs > eind || (gs === eind && ge > eind))) return { tekst: `${gevolg} ${vanTot(gs, ge, vandaag)}`, vorm: "na" };
   const korter = Boolean(ge && eind && ge < eind);
   const veelKorter = korter && dagenTussen(ge, eind) >= WEEK;
-  if (gs && gs > vandaag && !(gepland && gs <= start)) {
-    if (gs === eind && (!ge || ge === eind)) return { tekst: `${gevolg} op ${dt(gs)}, de laatste dag van de werken`, vorm: "laatste" };
-    return { tekst: `${gevolg} ${veelKorter ? vanTot(gs, ge, vandaag) : `vanaf ${dt(gs)}`}`, vorm: "eigen" };
+  // Een gevolg dat nog moet beginnen, krijgt altijd zijn begindatum: anders lijkt het nu al te gelden.
+  if (gs && gs > vandaag) {
+    // Begint samen met een gepland werk en loopt (bijna) even lang: "… vanaf 9 november (start over 30 dagen)".
+    if (gepland && gs === start && !veelKorter) return { tekst: gevolg, vorm: "samen" };
+    if (gs === eind && (!ge || ge === eind) && !(gepland && gs <= start)) return { tekst: `${gevolg} op ${dt(gs)}, de laatste dag van de werken`, vorm: "laatste" };
+    // Hinder vóór een gepland werk ("op 30 oktober; werken vanaf 9 november") of korter dan het werk.
+    const eigenEinde = veelKorter || (gepland && gs < start);
+    return { tekst: `${gevolg} ${eigenEinde ? vanTot(gs, ge, vandaag) : `vanaf ${dt(gs)}`}`, vorm: "eigen" };
   }
   if (veelKorter) return { tekst: `${gevolg} tot ${dt(ge)}`, vorm: "eigen" };
   if (korter && !gepland) return { tekst: `${gevolg} tot ${dt(ge)}`, vorm: "kort" };
@@ -467,7 +571,9 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   let wanneer = "";
   if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
   else if (duur.toestand === "gepland") wanneer = `vanaf ${dt(start)} (${duur.tekst})`;
-  const gevolg = gevolgInTitel(hoofdgevolg(f.gevolgen), {
+  // Gevolgen in een fase buiten het district (bv. postcode 2070) horen niet in de titel of de samenvatting.
+  const titelGevolgen = f.titelGevolgen || f.gevolgen;
+  const gevolg = gevolgInTitel(hoofdgevolg(titelGevolgen), {
     gs: f.gevolgStart || f.hinderStart || "", ge: f.gevolgEind || f.hinderEind || "", start, eind, vandaag: v, gepland: duur.toestand === "gepland",
   });
   const kop = [soort, waar].filter(Boolean).join(" ");
@@ -488,13 +594,19 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
 
   // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt).
   const bronTekst = beheerderTekst(f.omschrijving, { zonderNummers: eenAdres, straten: f.straten });
+  // Het werk of project in de woorden van de beheerder ("R1 - Ringpark Zuid") staat zichtbaar bij "Wat",
+  // tenzij het alleen de soort herhaalt ("Riolering" bij "Rioleringswerken").
+  const projectRuw = f.soort && bronTekst ? projectTekst(bronTekst, { straten: f.straten }) : "";
+  const project = projectRuw && !sleutel(f.soort).includes(sleutel(projectRuw)) ? projectRuw : "";
   const inname = (f.inname || []).length > 1 ? ` Volgens GIPOD: ${f.inname.join(" · ")}.` : "";
   const regels = [];
   regels.push(["Wat", f.soort
-    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${inname}${f.omschrijving ? "" : " De beheerder publiceerde zelf geen omschrijving."}`
+    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.omschrijving ? "" : " De beheerder publiceerde zelf geen omschrijving."}`
     : bronTekst ? `De beheerder schrijft: “${bronTekst}”`
     : f.omschrijving ? "Niet bekend: de beheerder gaf alleen een adres op." : `Niet bekend: ${NIET_GEPUBLICEERD}.`]);
-  if (f.fasen.length) regels.push(["Fasen", f.fasen.map((x) => `${x.naam}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
+  // Bij één adres ook geen huisnummer in de naam van een fase (ook niet uit een oudere verversing).
+  const fasen = f.fasen.map((x) => ({ ...x, naam: eenAdres ? zonderHuisnummers(x.naam, 160) : x.naam })).filter((x) => x.naam);
+  if (fasen.length) regels.push(["Fasen", fasen.map((x) => `${x.naam}${x.buiten || faseBuitenDistrict(x.naam) ? " (buiten district Antwerpen)" : ""}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
   regels.push(["Opdrachtgever", f.opdrachtgever || "niet gepubliceerd"]);
   // Een straat uit de omschrijving van de beheerder: zeg dat, en hoe ver het punt in GIPOD ervan ligt.
   const uitTekst = straat && f.straatBron ? [
@@ -511,13 +623,18 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
     : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
-  const ov = openbaarVervoer([...f.gevolgen, ...f.fasen.map((x) => x.naam), f.omschrijving]);
-  if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}`]);
+  const ov = openbaarVervoer([...f.gevolgen, ...fasen.map((x) => x.naam), f.omschrijving]);
+  const deelsBuiten = f.titelGevolgen ? " · deels in een fase buiten district Antwerpen (zie Fasen)" : "";
+  if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}${deelsBuiten}`]);
   else regels.push(["Gevolgen", f.hinderBekend === null ? "nu niet opgehaald" : "niet gepubliceerd in GIPOD"]);
   if (ov.length) regels.push(["Bus en tram", ov.join(" · ")]);
   // GIPOD meldt hinder na de einddatum van het werk: zeg het, want de titel noemt dan geen "werken tot".
   const hinderNa = eind && f.hinderEind && f.hinderEind > eind ? ` · GIPOD meldt nog hinder tot ${dt(f.hinderEind)}` : "";
-  regels.push(["Duur", `${periodeTekst(start, eind, v) || "niet gepubliceerd"}${duur.tekst ? ` · ${duur.tekst}` : ""}${hinderNa}`]);
+  // En hinder vóór de start van het werk (die nog niet voorbij is): de titel zet dan "werken vanaf" erachter.
+  const hinderVoor = start && f.hinderStart && f.hinderStart < start && (!f.hinderEind || f.hinderEind >= v)
+    ? f.hinderEind && f.hinderEind < start ? ` · GIPOD meldt de hinder vóór de werkperiode (${vanTot(f.hinderStart, f.hinderEind, v)})` : ` · GIPOD meldt al hinder vanaf ${dt(f.hinderStart)}, vóór de start van het werk`
+    : "";
+  regels.push(["Duur", `${periodeTekst(start, eind, v) || "niet gepubliceerd"}${duur.tekst ? ` · ${duur.tekst}` : ""}${hinderVoor}${hinderNa}`]);
   // De datums zeggen "bezig", GIPOD zegt nog "concreet gepland": zeg allebei, niet alleen "nu bezig".
   const status = clean(werk.status, 60);
   if (duur.toestand === "bezig" && status && !/^in uitvoering$/i.test(status)) {
@@ -526,10 +643,12 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
 
   const samenvatting = [
     f.omschrijving ? "" : f.soort ? `${f.soort} (afgeleid uit GIPOD).` : "Omschrijving niet gepubliceerd door de beheerder.",
+    project && project.length <= 80 ? `Volgens de beheerder: ${project}.` : "",
     f.opdrachtgever ? `Opdrachtgever: ${f.opdrachtgever}.` : "",
-    f.gevolgen.length ? `${capital(uniek(f.gevolgen).map(gevolgKort).join(", "))}.` : "",
+    titelGevolgen.length ? `${capital(uniek(titelGevolgen).map(gevolgKort).join(", "))}.` : "",
   ].filter(Boolean).join(" ");
-  return { titel, samenvatting, regels, ontbreekt, duur, plek, bronTekst: f.soort ? bronTekst : "" };
+  // De volledige tekst van de beheerder blijft ingeklapt na te lezen, tenzij "Wat" hem al helemaal toont.
+  return { titel, samenvatting, regels, ontbreekt, duur, plek, bronTekst: f.soort && bronTekst !== project ? bronTekst : "" };
 }
 const capital = (t) => (t ? t.charAt(0).toUpperCase() + t.slice(1) : "");
 
