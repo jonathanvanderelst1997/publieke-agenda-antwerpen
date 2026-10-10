@@ -258,6 +258,65 @@ jobs:
           fi
           echo "Databaan in orde: $(wc -l < "$RUNNER_TEMP/changes.txt") pad(en), $(wc -l < "$RUNNER_TEMP/commits.txt") commit(s) van github-actions[bot]."
 
+  # Proef voor Ubuntu 26.04. ubuntu-latest verhuist daarheen tussen 19 oktober
+  # en 19 november 2026. Daar zijn date (Rust-coreutils), jq (1.8) en bash (5.3)
+  # andere versies, en refresh.yml leunt op alle drie (date -u -d, jq, de
+  # databaantoets). Deze job draait de check en een droge verversing op 26.04
+  # (scripts/refresh-droog.mjs): de run-stappen van refresh.yml zelf, met lezen
+  # van het netwerk maar zonder schrijven (geen push, geen tak, geen issue).
+  # continue-on-error: rood hier maakt de run niet rood, en de Gateway kijkt
+  # alleen naar 'check' en 'data-only'. Faalt hij: zie docs/UBUNTU_2604.md.
+  # Net als check: nooit op een self-hosted runner (publieke repo, forks).
+  ubuntu-2604-proef:
+    name: ubuntu-26.04-proef
+    runs-on: ubuntu-26.04
+    continue-on-error: true
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+
+      # Offline: versies van de image en vaste uitkomsten van date, jq, bash,
+      # sort/tail en base64, plus de databaantoets uit refresh.yml.
+      - name: Gereedschap en vaste uitkomsten
+        run: node scripts/refresh-droog.mjs gereedschap
+
+      # De volgende stappen draaien ook als een vorige faalde: zo toont één run
+      # alles wat op 26.04 anders loopt.
+      - name: Afhankelijkheden (lockfile, zonder scripts)
+        if: ${{ !cancelled() }}
+        run: npm ci --ignore-scripts
+
+      - name: npm run check
+        if: ${{ !cancelled() }}
+        run: npm run check
+
+      - name: Gegenereerde bestanden staan in de commit
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "::error::npm run check wijzigde bestanden die niet in de commit staan:"
+            git status --porcelain
+            git --no-pager diff --stat
+            exit 1
+          fi
+
+      # Bij een datatak-PR liep de verversing net: dan geen tweede keer de
+      # bronnen ophalen, alleen de rest van de keten met een verzonnen
+      # generatedAt.
+      - name: Droge verversing (leest, schrijft niets)
+        if: ${{ !cancelled() }}
+        env:
+          DROOG_ZONDER_OPHALEN: ${{ startsWith(github.head_ref, 'data/refresh-') && '1' || '' }}
+        run: node scripts/refresh-droog.mjs verversing
+
   # gitleaks (MIT, gratis, offline) in meldstand: de standaardregels voor
   # sleutels en tokens plus eigen regels voor persoonsgegevens (.gitleaks.toml).
   # Faalt nooit de run: --exit-code 0 in scripts/gitleaks-meld.mjs en
