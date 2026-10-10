@@ -48,8 +48,9 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     for(const change of history.changes){
       const when=Date.parse(change.observedAt||"");
       if(!Number.isFinite(when)||when<cutoff)continue;
-      const item=current.get(change.id)||change.after||change.before;
-      for(const street of item?.streets||[]){
+      // Uit radar.json (historiekUitRadar) staat de straat al bij de wijziging; uit live-layers.json via het item.
+      const streets=Array.isArray(change.streets)?change.streets:(current.get(change.id)||change.after||change.before)?.streets||[];
+      for(const street of streets){
         const group=ensure(street);
         if(group)group.changes.push({id:`${change.observedAt}|${change.layer}|${change.id}`,type:change.type,observedAt:change.observedAt,fields:Array.isArray(change.fields)?change.fields:[]});
       }
@@ -69,6 +70,21 @@ export function buildStreetTimeline(group,{asOf="0000-01-01"}={}){
   for(const entry of entries){const atStart=entries.filter(other=>other.start<=entry.start&&(other.end||other.start)>=entry.start).length;if(atStart>peakConcurrent)peakConcurrent=atStart;entry.overlaps=entries.some(other=>other!==entry&&overlaps(entry,other))}
   const horizon=entries.map(entry=>entry.end||entry.start).filter(Boolean).sort().at(-1)||"";
   return{entries,horizon,peakConcurrent,overlapEntries:entries.filter(entry=>entry.overlaps).length};
+}
+
+// site/history/radar.json (scripts/build-straat-snapshots.mjs, enkele kB) in de vorm die buildStreetGroups en
+// buildDistrictRadar kennen: één wijziging per telling, met haar straat erbij. Vroeger las de voorpagina
+// daarvoor bij elk bezoek live-layers.json (8 tot 12 MB, zonder cache).
+export function historiekUitRadar(radar){
+  if(!radar||typeof radar!=="object"||!radar.straten||typeof radar.straten!=="object")return null;
+  const runs=Array.isArray(radar.runs)?radar.runs:[],types=["added","changed","removed"],changes=[];
+  for(const[sleutel,tellingen]of Object.entries(radar.straten)){
+    const[id="",name="",postcode=""]=sleutel.split("|");if(!name)continue;
+    const street={id,name,postcode};
+    for(const[run,...tel]of Array.isArray(tellingen)?tellingen:[]){const observedAt=runs[run];if(typeof observedAt!=="string")continue;tel.forEach((n,i)=>{for(let k=0;k<n;k+=1)changes.push({observedAt,type:types[i],id:`${sleutel}|${run}|${i}|${k}`,fields:[],streets:[street]})})}
+  }
+  const layers=Object.fromEntries(Object.entries(radar.lagen&&typeof radar.lagen==="object"?radar.lagen:{}).map(([naam,laag])=>[naam,{status:laag?.status,items:[]}]));
+  return{observedAt:typeof radar.ververst==="string"?radar.ververst:"",layers,changes};
 }
 
 export function buildDistrictRadar(groups=[],history=null){
@@ -121,7 +137,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     window.addEventListener("public-agenda:agenda-view",()=>{state.shown=30;render()});
     window.addEventListener("public-agenda:view-change",()=>{state.shown=30;render()});
     search?.addEventListener("input",()=>{state.shown=30;render()});more?.addEventListener("click",()=>{state.shown+=30;render()});
-    Promise.all([loadStreetIndex(),fetch("/history/live-layers.json",{cache:"no-store"}).then(response=>response.ok?response.json():null).catch(()=>null)]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(error=>{note.textContent=`Straatfiche tijdelijk niet beschikbaar: ${error?.message||"bronfout"}`});
+    // De wijzigingen per straat komen uit radar.json (enkele kB, gewone cache met nakijken), niet meer uit
+    // live-layers.json: dat waren bij elk bezoek 8 tot 12 MB, alleen voor deze radar.
+    const radarHistoriek=fetch("/history/radar.json",{headers:{Accept:"application/json"}}).then(response=>response.ok?response.json():null).then(historiekUitRadar).catch(()=>null);
+    radarHistoriek.then(history=>{state.history=history;render()});
+    Promise.all([loadStreetIndex(),radarHistoriek]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(error=>{note.textContent=`Straatfiche tijdelijk niet beschikbaar: ${error?.message||"bronfout"}`});
     render();
   }
 }

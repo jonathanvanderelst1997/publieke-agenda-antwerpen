@@ -20,6 +20,9 @@ import { contentStatusOf, nextEmptySince } from "./stale-policy.mjs";
 export const SOURCE_BUDGET_MS = 3 * 60_000; // standaard per fetcher (de snelste bronnen doen er seconden over)
 export const REFRESH_BUDGET_MS = 12 * 60_000; // alle fetchers samen
 export const LIVE_HISTORY_BUDGET_MS = 3 * 60_000; // live historiek (werken en publieke ruimte) na de fetchers
+// Vergunningen en terrassen voor de straatbestanden (scripts/build-straat-snapshots.mjs): een eigen grens,
+// die pas begint te lopen bij het eerste verzoek, zodat een trage historiek ze niet opgebruikt.
+export const STRAAT_BRONNEN_BUDGET_MS = 90_000;
 // Na het budget krijgt een fetcher nog even om via zijn eigen foutpad af te ronden (zijn verzoeken
 // falen dan meteen); daarna gaat de verversing zonder hem verder.
 export const ABORT_GRACE_MS = 15_000;
@@ -155,7 +158,12 @@ if (isMainModule(import.meta.url)) {
       }
       // Ook de live historiek krijgt een harde grens: een laag die niet op tijd antwoordt, telt als mislukt
       // en houdt haar vorige stand (zie updateLiveHistory).
-      await refreshLiveHistory({ rootDir, fetch: deadlineFetch(globalThis.fetch, AbortSignal.timeout(LIVE_HISTORY_BUDGET_MS)) });
+      let straatSignal = null;
+      const straatFetch = (...args) => {
+        straatSignal ??= AbortSignal.timeout(STRAAT_BRONNEN_BUDGET_MS);
+        return deadlineFetch(globalThis.fetch, straatSignal)(...args);
+      };
+      await refreshLiveHistory({ rootDir, fetch: deadlineFetch(globalThis.fetch, AbortSignal.timeout(LIVE_HISTORY_BUDGET_MS)), straatFetch });
     })
     .catch((error) => {
       console.error(error?.message ?? String(error));

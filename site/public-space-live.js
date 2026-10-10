@@ -4,9 +4,38 @@ import {parkeerTitel,parkeerUren,statusNl} from "./place-core.js";
 import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
 import {asignLayer} from "./asign-query.js";
-import {meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
+import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
 
-const root=document.getElementById("public-space-live");
+// De A-Sign-lagen van de publieke ruimte, voor het hele district of (met `kader`) rond één straat.
+// Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in plaats
+// van 2.875 parkeerverboden), en dat legde een gsm tot een halve minuut stil. Met de lijn van elk
+// parkeerverbod (op 10 cm), voor de knoppen +250 m tot +1 km rond een straat.
+const layer=(nr,opties)=>asignLayer(nr,opties);
+function asignJobs(dateSql,extra={}){
+  const iod=`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,iodVelden="dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum";
+  return[
+    ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",geometry:true,precisie:6,...extra})],
+    ["iod22",layer(22,{where:iod,outFields:iodVelden,geometry:true,spatial:true,...extra})],
+    ["iod23",layer(23,{where:iod,outFields:iodVelden,geometry:true,spatial:true,...extra})],
+    ["sgw47",layer(47,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true,...extra})],
+    ["sgw48",layer(48,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true,...extra})],
+  ];
+}
+const brusselsDag=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return`${o.year}-${o.month}-${o.day}`};
+
+// Snelheid (P5): alleen het kader van één straat, voor de plekpagina (site/place-view.js): elke laag in één
+// of twee kleine verzoeken in plaats van ongeveer 130 blokken voor het hele district. Zelfde verwerking als
+// de lijst hieronder. Geeft { items, mislukt } met de onderdelen die niet laadden (site/live-lagen.js).
+export async function publiekeRuimteInKader(kader,{district=null,streetIndex=null}={}){
+  const settled=await settleSources(asignJobs(`DATE '${brusselsDag()}'`,{spatial:true,kader}));
+  const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
+  if(!district)fail.push("district");
+  const lijst=n=>v[n] instanceof Error?[]:v[n];
+  const items=await collectPublicSpaceInStappen({parkingFeatures:lijst("parking"),iodFeatures:[...lijst("iod22"),...lijst("iod23")],sgwFeatures:[...lijst("sgw47").map(feature=>({feature,kind:"Omleiding"})),...lijst("sgw48").map(feature=>({feature,kind:"Werfzone"}))],districtGeometry:district,streetIndex,postcodes:DISTRICT_POSTCODES});
+  return{items,mislukt:mislukteOnderdelenPublicSpace(fail)};
+}
+
+const root=typeof document!=="undefined"?document.getElementById("public-space-live"):null;
 if(root){
   const state={items:[],shown:60,loaded:false},el=s=>root.querySelector(s);
   const count=el("[data-space-count]"),meta=el("[data-space-meta]"),note=el("[data-space-note]"),search=el("[data-space-search]"),kind=el("[data-space-kind]"),list=el("[data-space-list]"),more=el("[data-space-more]");
@@ -14,10 +43,8 @@ if(root){
   const fmt=new Intl.DateTimeFormat("nl-BE",{day:"numeric",month:"short",year:"numeric"});
   const date=v=>v&&Number.isFinite(Date.parse(v))?fmt.format(new Date(v)):"";
   const range=i=>i.start&&i.end?`${date(i.start)} – ${date(i.end)}`:i.start?`vanaf ${date(i.start)}`:i.end?`tot ${date(i.end)}`:"timing niet ingevuld";
-  const brusselsDate=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return`${o.year}-${o.month}-${o.day}`};
   async function get(url){const r=await fetch(url,{headers:{Accept:"application/json"}});if(!r.ok)throw Error(`bron antwoordde met HTTP ${r.status}`);const j=await r.json();if(j?.error)throw Error(j.error.message||"ArcGIS-bronfout");return j}
-  // A-Sign via de gedeelde ophaler: korte blokken, hoogstens 4 verzoeken tegelijk voor alle lagen.
-  const layer=(nr,opties)=>asignLayer(nr,opties);
+  // A-Sign via de gedeelde ophaler: korte blokken, hoogstens 4 verzoeken tegelijk voor alle lagen (asignJobs).
   async function district(){const u=new URL("https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/109/query");u.search=new URLSearchParams({where:"districtnaam='ANTWERPEN'",outFields:"districtcode,districtnaam,afkorting",outSR:"4326",f:"geojson"});const d=await get(u),fs=Array.isArray(d.features)?d.features:[];if(fs.length!==1)throw Error("officiële districtsgrens niet uniek gevonden");return fs[0].geometry}
   function filtered(){const q=String(search?.value||"").trim().toLowerCase(),k=kind?.value||"";return state.items.filter(i=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(i,"publicSpace")).filter(i=>{const c=[i.kindLabel,i.title,i.location,i.status,i.reference,i.detail,...(i.streets||[]).map(s=>s.name)].join(" ").toLowerCase();return(!q||c.includes(q))&&(!k||i.kind===k)})}
   // Dezelfde woorden als in het plekoverzicht: een titel in gewone taal, geen interne fasenummers.
@@ -27,19 +54,8 @@ if(root){
   function render(){const items=filtered(),shown=items.slice(0,state.shown);list.innerHTML=shown.map(card).join("");count.textContent=`${items.length} maatregelen`;more.hidden=shown.length>=items.length;more.textContent=`Toon meer (${items.length-shown.length} resterend)`}
   async function load(){
     if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Bevestigde parkeerverboden, innames en verkeersmaatregelen worden opgehaald…";
-    const day=brusselsDate(),dateSql=`DATE '${day}'`;
-    const jobs=[
-      // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in
-      // plaats van 2.875 parkeerverboden), en dat legde een gsm tot een halve minuut stil.
-      // Met de lijn van elk parkeerverbod (op 10 cm), voor de knoppen +250 m tot +1 km rond een straat.
-      ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",geometry:true,precisie:6})],
-      ["iod22",layer(22,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
-      ["iod23",layer(23,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
-      ["sgw47",layer(47,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true})],
-      ["sgw48",layer(48,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true})],
-      ["district",district()],
-      ["streets",loadStreetIndex()]
-    ];
+    const dateSql=`DATE '${brusselsDag()}'`;
+    const jobs=[...asignJobs(dateSql),["district",district()],["streets",loadStreetIndex()]];
     const settled=await settleSources(jobs);
     const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
     // Per bron eerlijk melden wat ontbreekt; een halve laag mag niet als volledig doorgaan.
@@ -56,7 +72,8 @@ if(root){
     render();root.classList.remove("loading");
   }
   // Ook laden als alleen "Evenementen" aan staat: A-Sign kent de evenementen op straat (place-view.js).
-  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;const v=window.PUBLIC_AGENDA_VIEW;if((v?.enabled("publicSpace")||v?.wantsStreetEvents)&&(v.hasPlace||v.wantsLiveLayers))load();if(state.ready)render()});
+  // Bij één straat (view.straatSnel) haalt de plekpagina zelf alleen het kader op (publiekeRuimteInKader).
+  window.addEventListener("public-agenda:view-change",()=>{state.shown=60;const v=window.PUBLIC_AGENDA_VIEW;if((v?.enabled("publicSpace")||v?.wantsStreetEvents)&&(v.hasPlace||v.wantsLiveLayers)&&!v.straatSnel)load();if(state.ready)render()});
   [search,kind].forEach(c=>c?.addEventListener("input",()=>{state.shown=60;render()}));more?.addEventListener("click",()=>{state.shown+=60;render()});
-  if("IntersectionObserver"in window){const o=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){o.disconnect();load()}},{rootMargin:"600px"});o.observe(root)}else load()
+  laadAlsInBeeld(root,load,{marge:"600px"})
 }

@@ -43,7 +43,32 @@ export function onvolledigMelding(onderdelen = []) {
 export function meldLiveLaag(naam, items, mislukt = []) {
   if (typeof window === "undefined") return;
   const live = (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
-  if (Array.isArray(items)) live[naam] = items;
+  // De laag van het hele district: de plekpagina zet er dan geen stand van één straat meer over (place-view.js).
+  if (Array.isArray(items)) { live[naam] = items; live.heelDistrict = { ...(live.heelDistrict || {}), [naam]: true }; }
   live.failed = { ...(live.failed || {}), [naam]: [...mislukt] };
   window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: naam, items: Array.isArray(items) ? items : null, failed: [...mislukt] } }));
+}
+
+// Een volledige lijst (werken, publieke ruimte, vergunningen, terrassen van het hele district) laadt pas als
+// ze echt in beeld komt. De plekpagina zet de lijsten in een dichte <details> ("Alle lijsten"); vóór ze
+// dat doet, staan ze nog los op de pagina en zag de observer ze soms al "in beeld" (op een groot scherm
+// laadde de voorpagina zo alle GIPOD-pagina's voor niets). Daarom: kijken vanaf de eerste
+// view-change van de plekpagina (of na 2,5 s als die niet komt), en nooit in een dichte <details>.
+export function laadAlsInBeeld(root, laad, { marge = "600px", wacht = 2500 } = {}) {
+  if (typeof window === "undefined" || !root) return;
+  if (!("IntersectionObserver" in window)) { laad(); return; }
+  let gestart = false;
+  const start = () => {
+    if (gestart) return;
+    gestart = true;
+    window.removeEventListener("public-agenda:view-change", start);
+    const o = new IntersectionObserver((es) => {
+      if (!es.some((e) => e.isIntersecting) || root.closest("details:not([open])")) return;
+      o.disconnect();
+      laad();
+    }, { rootMargin: marge });
+    o.observe(root);
+  };
+  window.addEventListener("public-agenda:view-change", start);
+  setTimeout(start, wacht);
 }

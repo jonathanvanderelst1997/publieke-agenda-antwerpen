@@ -20,6 +20,8 @@ import {bezoekersLinks,bezoekersHint,leesbaarUur,splitsLinks} from "./bezoekers-
 import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
+import { sameStreet } from "./agenda-view.js";
+import { laadStraat, lagenUitStand, kaderRond, verschil, standZin } from "./straat-snapshot.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -117,6 +119,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     expanded: new Set(),
     radius: [0, 250, 500, 1000].includes(Number(url.searchParams.get("straal"))) ? Number(url.searchParams.get("straal")) : 0,
     counts: {},
+    // Snelheid (P5): de stand van de ochtend voor de gekozen straat en wat het live nakijken vond.
+    snel: null,
     eventId: url.searchParams.get("event") || (/^#event=(.+)$/.exec(url.hash)?.[1] ?? "") || (/^\/event\/([^/]+)/.exec(url.pathname)?.[1] ?? ""),
   };
   if (url.searchParams.has("soort")) {
@@ -310,6 +314,114 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     return (place?.wijken?.[0] && index.byKey.get(`wijk:${place.wijken[0]}`)?.label) || "";
   };
 
+  // ---- snel: eerst de stand van de ochtend, dan live alleen het kader van de straat (P5) ----
+  // site/straat/<id>.json (scripts/build-straat-snapshots.mjs) geeft de werken, A-Sign-items, vergunningen
+  // en terrassen van de straat meteen: de tegels en de lijst staan er zonder te wachten op de live bronnen.
+  // Daarna vragen we live alleen het kader van de straat na (plus de gekozen straal) in plaats van alle
+  // werken, hinder en A-Sign-blokken van het hele district (7 + 7 pagina's GIPOD en zo'n 130 A-Sign-
+  // verzoeken), en zeggen we wat er sinds de verversing bij kwam. Lukt dat niet, dan blijft de stand van
+  // de ochtend staan, met een eerlijke zin. Zonder stand (nog geen straatbestanden) werkt alles zoals vroeger.
+  const SNEL_LAGEN = [["works", "werken"], ["publicSpace", "publiekeRuimte"], ["permits", "vergunningen"], ["terraces", "terrassen"]];
+  const SNEL_ONDERDEEL = { works: "werken", publicSpace: "parkeerverboden en innames", permits: "vergunningen", terraces: "terrassen" };
+  let snelMogelijk = true, snelBeurt = 0, districtBelofte = null;
+  const districtsgrens = () => {
+    const u = new URL("https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/109/query");
+    u.search = new URLSearchParams({ where: "districtnaam='ANTWERPEN'", outFields: "districtcode,districtnaam,afkorting", outSR: "4326", f: "geojson" });
+    districtBelofte ||= getJson(u).then((d) => { const fs = Array.isArray(d?.features) ? d.features : []; if (fs.length !== 1) throw new Error("districtsgrens niet uniek"); return fs[0].geometry; });
+    return districtBelofte.catch((error) => { districtBelofte = null; throw error; });
+  };
+  const levend = () => (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
+  function zetSnelLaag(naam, items, mislukt = []) {
+    const live = levend();
+    if (live.heelDistrict?.[naam]) return; // de lijst van het hele district is er al: die is vollediger
+    if (Array.isArray(items)) live[naam] = items; else delete live[naam];
+    live.failed = { ...(live.failed || {}), [naam]: [...mislukt] };
+    window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: naam, items: Array.isArray(items) ? items : null, failed: [...mislukt], bron: "straat" } }));
+  }
+  // Wat telt als "hetzelfde" bij het vergelijken: één kaart per evenementendossier en per werfzone,
+  // één per parkeerverbod (dossier, periode en uren), anders het item zelf.
+  const snelSleutel = (item) => item?.kind === "iod" && isEvenementDossier(item) ? `ev:${item.reference}`
+    : item?.kind === "sgw" && item.reference ? `sgw:${item.reference}`
+      : item?.kind === "parking" && item.reference ? `parking:${item.reference}|${item.start}|${item.end}|${item.startTime || ""}|${item.endTime || ""}`
+        : String(item?.id || (item?.gipodId != null ? `work:${item.gipodId}` : ""));
+  async function snelVoorStraat(place, { alleenLive = false } = {}) {
+    const beurt = ++snelBeurt;
+    if (place?.type !== "straat" || !snelMogelijk) {
+      // Weg van de straat: haar stand mag geen deel van een wijk of het district lijken.
+      if (state.snel) { for (const [naam] of SNEL_LAGEN) zetSnelLaag(naam, null); state.snel = null; }
+      return;
+    }
+    let snel = state.snel?.straat === place.key ? state.snel : null;
+    if (!alleenLive || !snel) {
+      const stand = await laadStraat(place.id).catch(() => null);
+      if (beurt !== snelBeurt) return;
+      if (!stand) {
+        // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district.
+        snelMogelijk = false;
+        view.straatSnel = false;
+        state.snel = null;
+        window.dispatchEvent(new CustomEvent("public-agenda:view-change"));
+        return;
+      }
+      const lagen = lagenUitStand(stand);
+      const bruikbaar = (laag) => ["ok", "stale"].includes(stand.index.lagen?.[laag]?.status);
+      const tijden = SNEL_LAGEN.filter(([, laag]) => bruikbaar(laag)).map(([, laag]) => stand.index.lagen[laag].sinds).filter(Boolean).sort();
+      // Het kader van de straat en van alles wat de verversing eraan hing (een terras met een adres in de
+      // straat kan 150 m verder liggen); zonder bestand alleen dat van de straat.
+      const k = Array.isArray(stand.doc?.kader) && stand.doc.kader.length === 4 ? stand.doc.kader : null, b = place.box;
+      const kader = k && Array.isArray(b) ? [Math.min(k[0], b[0], b[2]), Math.min(k[1], b[1], b[3]), Math.max(k[2], b[0], b[2]), Math.max(k[3], b[1], b[3])] : k || b;
+      snel = { straat: place.key, kader, ochtend: {}, ververst: tijden[0] || stand.index.ververst || "", bezig: true, zin: "" };
+      for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) { snel.ochtend[naam] = lagen[naam]; zetSnelLaag(naam, lagen[naam]); }
+      state.snel = snel;
+    }
+    snel.bezig = true;
+    snel.zin = standZin({ ververst: snel.ververst, bezig: true });
+    schedule();
+    // Live: dat kader met de straal en 40 m marge; de straatassen nog 320 m ruimer (een werk hangt aan een
+    // genoemde straat tot 300 m ver, site/street-core.js).
+    const kader = kaderRond(snel.kader || place.box, (state.radius || 0) + 40);
+    const uitslagen = !kader ? [] : await (async () => {
+      const [district, streetIndex, modules] = await Promise.all([
+        districtsgrens().catch(() => null),
+        import("./street-source.js").then(({ fetchStreetIndex }) => fetchStreetIndex({ kader: kaderRond(kader, 320) })).catch(() => null),
+        Promise.all([import("./works-live.js"), import("./public-space-live.js"), import("./permits-live-core.js"), import("./terraces-live.js")]).catch(() => null),
+      ]);
+      // Zonder straatassen hangt niets aan een straat, zonder grens vallen innames weg: dan niet vergelijken.
+      if (!streetIndex || !district || !modules) return SNEL_LAGEN.map(([naam]) => ({ naam, ok: false }));
+      const [{ werkenInKader }, { publiekeRuimteInKader }, { vergunningenInKader }, { terrassenInKader }] = modules;
+      const vraag = { district, streetIndex };
+      return Promise.all([
+        werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: true, items: r.items }), () => ({ naam: "works", ok: false })),
+        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.items }), () => ({ naam: "publicSpace", ok: false })),
+        vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items }), () => ({ naam: "permits", ok: false })),
+        terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
+      ]);
+    })();
+    if (beurt !== snelBeurt) return;
+    const gekozen = { id: place.id, name: place.name, postcode: place.postcode };
+    const inStraat = (item) => (view.refsOf(item) || []).some((ref) => sameStreet(ref, gekozen));
+    let nieuw = 0, weg = 0;
+    const mislukt = [];
+    for (const { naam, ok, items } of uitslagen) {
+      if (!ok) {
+        mislukt.push(SNEL_ONDERDEEL[naam]);
+        // Geen stand van de ochtend én geen live laag: eerlijk melden dat ze ontbreekt.
+        if (!snel.ochtend[naam]) zetSnelLaag(naam, null, [SNEL_ONDERDEEL[naam]]);
+        continue;
+      }
+      if (snel.ochtend[naam]) {
+        const v = verschil(snel.ochtend[naam].filter(inStraat), items.filter(inStraat), snelSleutel);
+        nieuw += v.nieuw; weg += v.weg;
+      }
+      zetSnelLaag(naam, items);
+    }
+    snel.bezig = false;
+    snel.zin = mislukt.length === SNEL_LAGEN.length || !kader
+      ? standZin({ ververst: snel.ververst, mislukt: true })
+      : `${standZin({ ververst: snel.ververst, nieuw, weg })}${mislukt.length ? ` Live nakijken lukte nu niet voor ${mislukt.join(", ")}: daarvan zie je de stand van de verversing.` : ""}`;
+    schedule();
+  }
+
   // ---- plek kiezen ----
   function streetRef(place) { return { id: place.id, name: place.name, postcode: place.postcode }; }
   function applyPlace(place, { focusResults = false } = {}) {
@@ -329,7 +441,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     closeSuggestions();
     document.body.classList.toggle("has-place", Boolean(place));
     help.textContent = place ? "" : help.textContent;
+    // Eén straat: de volledige lijsten van het district laden niet (works-live.js en co. kijken naar
+    // view.straatSnel); de stand van de ochtend en het kader van de straat komen uit snelVoorStraat().
+    view.straatSnel = place?.type === "straat" && snelMogelijk;
     announce();
+    snelVoorStraat(place);
     if (focusResults) {
       section.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
       // De focus springt naar de kop (schermlezers lezen dan de nieuwe plek voor), zonder kader rond
@@ -551,11 +667,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
         ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
-      ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}`;
+      ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}
+      ${state.snel?.zin && place.type === "straat" ? `<p class="pv-place-loading pv-stand">${state.snel.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(state.snel.zin)}</p>` : ""}`;
   }
   placeBox.addEventListener("click", (event) => {
     const r = event.target.closest("[data-radius]");
-    if (r) { state.radius = Number(r.dataset.radius); view.setArea({ radius: state.radius }); announce(); return; }
+    if (r) { state.radius = Number(r.dataset.radius); view.setArea({ radius: state.radius }); announce(); snelVoorStraat(state.place, { alleenLive: true }); return; }
     const p = event.target.closest("[data-place]");
     if (p) { applyPlace(index.byKey.get(p.dataset.place), { focusResults: true }); return; }
     const only = event.target.closest("[data-only]");
@@ -908,7 +1025,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (expand) { state.expanded.add(expand.dataset.expand); render(); return; }
     if (event.target.closest("[data-period-tip]")) { state.period = "alles"; state.mode = "lijst"; writeUrl(); render(); return; }
     const radiusTip = event.target.closest("[data-radius-tip]");
-    if (radiusTip) { state.radius = Number(radiusTip.dataset.radiusTip); view.setArea({ radius: state.radius }); announce(); return; }
+    if (radiusTip) { state.radius = Number(radiusTip.dataset.radiusTip); view.setArea({ radius: state.radius }); announce(); snelVoorStraat(state.place, { alleenLive: true }); return; }
     const p = event.target.closest("[data-place]");
     if (p) { applyPlace(index.byKey.get(p.dataset.place), { focusResults: true }); return; }
     if (event.target.closest("[data-all-tip]")) { state.groups = new Set(KIND_GROUPS.map((g) => g.key)); state.customized = true; view.wantsLiveLayers = true; view.setThemes(themesForGroups([...state.groups])); announce(); }
@@ -963,7 +1080,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   window.addEventListener("public-agenda:area-change", (event) => {
     const detail = event.detail || {};
     if ("wijk" in detail && index) { applyPlace(detail.wijk ? index.byKey.get(`wijk:${detail.wijk}`) : null); return; }
-    if ("radius" in detail) { state.radius = Number(detail.radius) || 0; view.setArea({ radius: state.radius }); announce(); }
+    if ("radius" in detail) { state.radius = Number(detail.radius) || 0; view.setArea({ radius: state.radius }); announce(); snelVoorStraat(state.place, { alleenLive: true }); }
   });
   window.addEventListener("public-agenda:area-ready", () => { window.dispatchEvent(new CustomEvent("public-agenda:view-change")); schedule(); });
 
