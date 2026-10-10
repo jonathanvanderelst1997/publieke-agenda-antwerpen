@@ -73,16 +73,17 @@ test("de personeelsvelden en vrije tekst komen nooit in de uitvoer; alleen toege
 
 // ---------- fetcher ----------
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "district-foren-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
 const read = (root) => JSON.parse(fs.readFileSync(path.join(root, "site", "sources", `${SOURCE_ID}.json`), "utf8"));
 const json = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 
-test("fetcher: schrijft een geldig brondocument en meldt ok", async () => {
-  const root = makeRoot();
+test("fetcher: schrijft een geldig brondocument en meldt ok", async (t) => {
+  const root = makeRoot(t);
   const requested = [];
   const status = await run({ rootDir: root, clock: () => NOW, log: quiet, fetch: async (url, options) => { requested.push([url, options.headers["user-agent"]]); return json(fixture); } });
   assert.equal(status[0].fetchStatus, "ok");
@@ -93,8 +94,8 @@ test("fetcher: schrijft een geldig brondocument en meldt ok", async () => {
   assert.ok(document.items.length >= 4);
 });
 
-test("fetcher: faalt de bron, dan blijft het vorige antwoord en zegt refresh-status waarom", async () => {
-  const root = makeRoot();
+test("fetcher: faalt de bron, dan blijft het vorige antwoord en zegt refresh-status waarom", async (t) => {
+  const root = makeRoot(t);
   await run({ rootDir: root, clock: () => NOW, log: quiet, fetch: async () => json(fixture) });
   const before = read(root);
   for (const [fetchImpl, code] of [

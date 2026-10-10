@@ -58,8 +58,9 @@ test("register en broncontract kennen de drie bronnen, elk met een eigen fetcher
   assert.deepEqual(SOURCE_DEFINITIONS["district-projecten"].allowedHosts, ["www.antwerpen.be"]);
 });
 
-test("sources:health kent de drie bronnen: nog niet opgehaald is een melding, een fout telt zoals elke bron", () => {
+test("sources:health kent de drie bronnen: nog niet opgehaald is een melding, een fout telt zoals elke bron", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "p7-health-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   statusFile(root, [entry("district-kalender")]);
   const before = checkHealth({ rootDir: root, at: Date.parse("2026-10-10T06:00:00Z"), env: {} });
   for (const sourceId of NIEUW) assert.match(before.lines.join("\n"), new RegExp(`^${sourceId}\\tnog niet opgehaald`, "m"));
@@ -75,11 +76,12 @@ test("sources:health kent de drie bronnen: nog niet opgehaald is een melding, ee
   assert.equal(after.exitCode, 1);
 });
 
-test("een feed-item met thema Werken is geldig en staat als lopend in de agenda", () => {
+test("een feed-item met thema Werken is geldig en staat als lopend in de agenda", (t) => {
   const document = sourceDocument("district-schoolstraten", { retrievedAt: RETRIEVED, fetchStatus: "ok", items: [schoolstraat] });
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "district-schoolstraten" }), []);
   const { feed } = buildFeed({ status: null, documents: [document] }, []);
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "p7-feed-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site"), { recursive: true });
   fs.copyFileSync(path.join(rootDir, "site", "agenda-refresh.js"), path.join(root, "site", "agenda-refresh.js"));
   fs.writeFileSync(path.join(root, "site", "agenda-feed.js"), renderFeedScript({ ...feed, generatedAt: RETRIEVED, classificationAsOf: "2026-10-10" }));

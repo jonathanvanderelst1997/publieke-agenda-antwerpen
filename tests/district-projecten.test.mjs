@@ -103,8 +103,9 @@ test("huisnummers vallen ook weg zonder komma, bij -baan, -dorp en -aan, met een
 
 // ---------- fetcher ----------
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "district-projecten-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -112,8 +113,8 @@ const read = (root) => JSON.parse(fs.readFileSync(path.join(root, "site", "sourc
 const json = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const clock = () => new Date("2026-10-10T03:22:00Z");
 
-test("fetcher: bladert met pauzes, hoogstens PROJECT_MAX_PAGES pagina's, en schrijft een geldig brondocument", async () => {
-  const root = makeRoot();
+test("fetcher: bladert met pauzes, hoogstens PROJECT_MAX_PAGES pagina's, en schrijft een geldig brondocument", async (t) => {
+  const root = makeRoot(t);
   const requested = [];
   let pauses = 0;
   const full = { data: Array.from({ length: PROJECT_PAGE_SIZE }, (_, index) => ({ ...fixture.data[4], id: `6a0000000000000000000${String(100 + index)}` })), meta: { more: true } };
@@ -136,12 +137,12 @@ test("fetcher: bladert met pauzes, hoogstens PROJECT_MAX_PAGES pagina's, en schr
   assert.equal(document.items.length, 8);
 
   const many = [];
-  await run({ rootDir: makeRoot(), clock, log: quiet, sleep: noPause, fetch: async (url) => { many.push(url); return json(full); } });
+  await run({ rootDir: makeRoot(t), clock, log: quiet, sleep: noPause, fetch: async (url) => { many.push(url); return json(full); } });
   assert.equal(many.length, PROJECT_MAX_PAGES);
 });
 
-test("fetcher: faalt de bron, dan blijft het vorige antwoord en zegt refresh-status waarom", async () => {
-  const root = makeRoot();
+test("fetcher: faalt de bron, dan blijft het vorige antwoord en zegt refresh-status waarom", async (t) => {
+  const root = makeRoot(t);
   await run({ rootDir: root, clock, log: quiet, sleep: noPause, fetch: async () => json(fixture) });
   const before = read(root);
   for (const [fetchImpl, code] of [

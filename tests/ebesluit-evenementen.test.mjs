@@ -75,8 +75,9 @@ function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, extraRij
 const zoekRij = ({ id, titel, orgaan = "college van burgemeester en schepenen", zitting = "02/10/2026", gepubliceerd = true }) =>
   `<a href="#" class="result-row" data-type="MEETING_ITEM" data-id="${id}" data-meeting-id="25.0901.0000.0099" data-content-published="${gepubliceerd}"><p class="title">${titel}</p><p class="metadata"><span class="date">${zitting} 09:30</span><span class="organ">${orgaan}</span></p></a>`;
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "ebesluit-evenementen-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   fs.mkdirSync(path.join(root, "site", "geo"), { recursive: true });
   fs.writeFileSync(path.join(root, "site", "geo", "straten.json"), JSON.stringify({ schemaVersion: 1, streets: STRATEN }));
@@ -286,8 +287,8 @@ test("validatie van evenement-besluiten.json: huisnummer, organisator zonder rec
 
 // ---------- bron en agendapunten ----------
 
-test("fetcher: schrijft het besluitenbestand en agendapunten met een plaats in het district", async () => {
-  const root = makeRoot();
+test("fetcher: schrijft het besluitenbestand en agendapunten met een plaats in het district", async (t) => {
+  const root = makeRoot(t);
   const calls = [];
   const [status] = await runOnce(root, nepEbesluit({ calls }));
   assert.deepEqual([status.sourceId, status.fetchStatus, status.errorCode], [SOURCE_ID, "ok", null]);
@@ -325,8 +326,8 @@ test("fetcher: schrijft het besluitenbestand en agendapunten met een plaats in h
   }
 });
 
-test("cache: een tweede verversing haalt geen gelezen detailpagina opnieuw op", async () => {
-  const root = makeRoot();
+test("cache: een tweede verversing haalt geen gelezen detailpagina opnieuw op", async (t) => {
+  const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const calls = [];
   await runOnce(root, nepEbesluit({ calls }));
@@ -334,8 +335,8 @@ test("cache: een tweede verversing haalt geen gelezen detailpagina opnieuw op", 
   assert.equal(readJson(root, `${SOURCE_ID}.json`).items.length, 3);
 });
 
-test("een kapotte detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt", async () => {
-  const root = makeRoot();
+test("een kapotte detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt", async (t) => {
+  const root = makeRoot(t);
   const [status] = await runOnce(root, nepEbesluit({ kapot: new Set(["26.0901.0001.0001"]) }));
   assert.equal(status.fetchStatus, "ok");
   const eerst = readJson(root, EVENEMENT_BESLUITEN_FILE);
@@ -354,8 +355,8 @@ test("hoogstens N detailpagina's per verversing; de rest volgt later", async () 
   assert.equal(result.teLezen, 2);
 });
 
-test("een fout bij het zoeken laat beide bestanden staan en meldt error", async () => {
-  const root = makeRoot();
+test("een fout bij het zoeken laat beide bestanden staan en meldt error", async (t) => {
+  const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const voor = [EVENEMENT_BESLUITEN_FILE, `${SOURCE_ID}.json`].map((n) => fs.readFileSync(path.join(root, "site", "sources", n), "utf8"));
   const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500 }), { clock: () => new Date("2026-10-11T04:00:00Z") });
@@ -381,9 +382,9 @@ test("agendapunten: alleen wat nog komt; uitzondering en toekenning over hetzelf
   ]);
 });
 
-test("register en bouw: de bron draait als laatste en het besluitenbestand is geen agendabron", async () => {
+test("register en bouw: de bron draait als laatste en het besluitenbestand is geen agendabron", async (t) => {
   assert.equal(FETCHERS.at(-1).name, SOURCE_ID);
-  const root = makeRoot();
+  const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const { documents } = readSources(root);
   assert.deepEqual(documents.map((d) => d.sourceId), [SOURCE_ID]);
@@ -423,8 +424,8 @@ test("B1: de validatie weigert ook een huisnummer in de naam", () => {
   assert.deepEqual(validateEvenementBesluiten(doc(besluit({ naam: "Proefpark 2026" }))), []);
 });
 
-test("B1: de fetcher schrijft nooit een huisnummer uit een muziektitel", async () => {
-  const root = makeRoot();
+test("B1: de fetcher schrijft nooit een huisnummer uit een muziektitel", async (t) => {
+  const root = makeRoot(t);
   const extraRijen = zoekRij({ id: "26.0901.0101.0101", titel: "2026_CBS_09101 - Toelating muziekactiviteit - Proefklank vzw, voor Tuinfeest, Proefstraat 12. District Antwerpen. Dossiernummer MUZA2026/997/EM - Goedkeuring", gepubliceerd: false });
   const [status] = await runOnce(root, nepEbesluit({ extraRijen }));
   assert.equal(status.fetchStatus, "ok");
@@ -434,8 +435,8 @@ test("B1: de fetcher schrijft nooit een huisnummer uit een muziektitel", async (
   assert.ok(!JSON.stringify(besluiten).includes("Proefstraat 12"));
 });
 
-test("B2: één besluit met een @ legt de bron niet stil", async () => {
-  const root = makeRoot();
+test("B2: één besluit met een @ legt de bron niet stil", async (t) => {
+  const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const extraRijen = zoekRij({ id: "26.0901.0102.0102", titel: "2026_CBS_09102 - Evenementen - Cirque@proef 2026. Organisatie - Goedkeuring", gepubliceerd: false });
   const [status] = await runOnce(root, nepEbesluit({ extraRijen }), { clock: () => new Date("2026-10-11T04:00:00Z") });
@@ -466,8 +467,8 @@ test("B2: een ongeldig besluit wordt opgekuist of valt weg, de rest blijft", () 
   assert.deepEqual([besluiten[1].naam, besluiten[1].organisator, besluiten[1].plaats, besluiten[1].gelezen], [null, null, null, true], "blijft in de cache, wordt geen agendapunt");
 });
 
-test("B2: een ongeldig besluit in het vorige bestand gooit de cache niet weg", async () => {
-  const root = makeRoot();
+test("B2: een ongeldig besluit in het vorige bestand gooit de cache niet weg", async (t) => {
+  const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const file = path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE);
   const doc = JSON.parse(fs.readFileSync(file, "utf8"));
@@ -507,7 +508,7 @@ test("B3: een jongere datumaanpassing over dezelfde naam en plaats vervangt het 
   assert.deepEqual(punten([oud, geluid]), [["2026_CBS_09105", "2026-11-07", null]]);
 });
 
-test("B4: 'Intrekking - Bekrachtiging' wordt herkend en schrapt wat ze intrekt", async () => {
+test("B4: 'Intrekking - Bekrachtiging' wordt herkend en schrapt wat ze intrekt", async (t) => {
   const dcan = "districtscollege Antwerpen";
   const intrekking = soortVanTitel("2026_DCAN_09108 - Ondersteuning. Districtsfonds: beleef je buurt! - Buurtfeest Proefstraat. Toekenning en uitbetaling. Intrekking - Bekrachtiging", dcan);
   assert.deepEqual(intrekking && [intrekking.soort, intrekking.status], ["districtsfonds", "ingetrokken"]);
@@ -518,7 +519,7 @@ test("B4: 'Intrekking - Bekrachtiging' wordt herkend en schrapt wat ze intrekt",
   assert.deepEqual([detail.naam, detail.vervangt], ["Buurtfeest Proefstraat", ["2026_DCAN_09007"]], "niet de 151 uit de aanleiding");
 
   // Van zoekrij tot agenda: de intrekking wordt gelezen en het buurtfeest verdwijnt.
-  const root = makeRoot();
+  const root = makeRoot(t);
   const extraRijen = zoekRij({ id: "26.0901.0108.0108", titel: "2026_DCAN_09108 - Ondersteuning. Districtsfonds: beleef je buurt! - Buurtfeest Proefstraat. Toekenning en uitbetaling. Intrekking - Bekrachtiging", orgaan: dcan, zitting: "08/10/2026" });
   await runOnce(root, nepEbesluit({ extraRijen, extraDetails: { "26.0901.0108.0108": "intrekking.html" } }));
   const besluiten = readJson(root, EVENEMENT_BESLUITEN_FILE);

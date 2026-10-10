@@ -72,8 +72,9 @@ test("de personeelsvelden komen nooit in de uitvoer; alleen toegelaten velden wo
   assert.deepEqual(new URL(schoolstratenQueryUrl()).searchParams.get("outFields").split(","), [...SCHOOLSTRATEN_FIELDS]);
 });
 
-function makeRoot() {
+function makeRoot(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "district-schoolstraten-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   return root;
 }
@@ -81,8 +82,8 @@ const read = (root) => JSON.parse(fs.readFileSync(path.join(root, "site", "sourc
 const json = (body, status = 200) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const clock = () => new Date("2026-10-10T03:21:00Z");
 
-test("fetcher: geldig brondocument; bij een fout blijft het vorige antwoord met de foutcode", async () => {
-  const root = makeRoot();
+test("fetcher: geldig brondocument; bij een fout blijft het vorige antwoord met de foutcode", async (t) => {
+  const root = makeRoot(t);
   const ok = await run({ rootDir: root, clock, log: quiet, sleep: noPause, fetch: async () => json(fixture) });
   assert.equal(ok[0].fetchStatus, "ok");
   const before = read(root);
@@ -98,10 +99,10 @@ test("fetcher: geldig brondocument; bij een fout blijft het vorige antwoord met 
   }
 });
 
-test("fetcher: eerst een pauze, want de foren vroegen net aan dezelfde host (hoogstens 1 verzoek per seconde)", async () => {
+test("fetcher: eerst een pauze, want de foren vroegen net aan dezelfde host (hoogstens 1 verzoek per seconde)", async (t) => {
   const events = [];
   const status = await run({
-    rootDir: makeRoot(),
+    rootDir: makeRoot(t),
     clock,
     log: quiet,
     sleep: async (ms) => { events.push(["pauze", ms]); },

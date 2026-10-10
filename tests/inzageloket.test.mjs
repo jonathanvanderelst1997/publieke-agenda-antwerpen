@@ -153,9 +153,10 @@ test("site/sources/inzage-status.json: geldig, zonder persoonsgegevens, elke lin
   for (const d of doc.dossiers) assert.match(inzageLink(d.project), /^https:\/\/omgevingsloketinzage\.omgeving\.vlaanderen\.be\/\d{10}$/);
 });
 
-test("de bronbouw leest inzage-status.json niet als agendabron", async () => {
+test("de bronbouw leest inzage-status.json niet als agendabron", async (t) => {
   const { readSources } = await import("../scripts/build-sources.mjs");
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "inzage-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   fs.copyFileSync(new URL("./fixtures/inzage-status.json", import.meta.url), path.join(root, "site", "sources", "inzage-status.json"));
   assert.deepEqual(readSources(root).documents, []);

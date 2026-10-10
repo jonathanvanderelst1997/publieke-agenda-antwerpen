@@ -96,8 +96,9 @@ test("beleid: de derde dag op rij zonder komend item is 'leeg'; een komend item 
   assert.doesNotMatch(docs, /verversingsdagen/);
 });
 
-test("refresh: 3 dagen 0 items of alleen voorbije items geeft 'leeg' in refresh-status.json en in sources:health", async () => {
+test("refresh: 3 dagen 0 items of alleen voorbije items geeft 'leeg' in refresh-status.json en in sources:health", async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "lege-bron-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   writeDoc(root, "district-gipod-evenementen", []); // levert niets
   writeDoc(root, "district-kalender", [item("district-kal-", "aaaaaa", "2026-09-20")]); // alleen voorbij

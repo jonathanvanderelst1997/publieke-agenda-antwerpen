@@ -124,7 +124,7 @@ test("4. wat de beheerder over het project zegt, staat zichtbaar, zonder adres, 
   assert.doesNotMatch(regels(kaart(werk({ ...fluvius, title: "2000 ANTWERPEN VOORBEELDLAAN E, G, OV, Wegeniswerken", occupancyTypes: ["Elektriciteit"] }))).Wat, /Volgens de beheerder/);
 });
 
-test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet op; geen naam na een dossiercode", async () => {
+test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet op; geen naam na een dossiercode", async (t) => {
   const aansluiting = werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"], lastModified: "2026-10-01T00:00:00Z",
     start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z", hindrance: hinder([fase("Fase 1 Voorbeeldlaan 8", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]) });
   const f = ku.werkFeiten(aansluiting, { huisnummers: "nr. 8", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" });
@@ -147,6 +147,7 @@ test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet
   const os = await import("node:os");
   const path = await import("node:path");
   const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "kaart-uitleg-nk2-"));
+  t.after(() => fs.rmSync(rootDir, { recursive: true, force: true }));
   fs.mkdirSync(path.join(rootDir, "site", "sources"), { recursive: true });
   const oudBestand = { schemaVersion: 1, generatedAt: "2026-10-09T05:00:00Z", vanaf: "2026-10-09", tot: "2026-12-08", evenementen: {}, werken: {
     90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "x", omschrijving: "2018 ANTWERPEN, VOORBEELDLAAN 8", opdrachtgever: "", straten: ["Voorbeeldlaan"], huisnummers: "nr. 8", huisnummerBron: "x", adres: "nr. 8", gevolgen: [], fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], bijgewerkt: "x" },
