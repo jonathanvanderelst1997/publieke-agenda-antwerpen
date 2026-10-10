@@ -11,6 +11,7 @@ automatische bron gaat voor.
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
 | `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. |
+| `district-asign-evenementen` | district | de evenementendossiers van de stad op straat (parcours, verkeersvrije zones, innames): één punt per evenementdag, met naam of "naam volgt" | **afgeleid**, geen eigen verzoeken: de dossiers die de parcoursherkenning al uit A-Sign (laag 22 en 23) haalt, in de stap `refresh:herkenning` (zie onder) |
 | `district-foren` | district | foren en kermissen, één punt per periode | A-Sign `MapServer/0` (foor) van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
@@ -41,6 +42,7 @@ De site en straat-tijdlijn mogen dus alles tonen wat deze bronnen betrouwbaar ke
 ```
 npm run refresh:fetch   # fetchers in vaste volgorde (lib/source-registry.mjs) → site/sources/*.json
                         # en site/sources/refresh-status.json
+npm run refresh:herkenning  # parcoursherkenning, daarna de afgeleide bron district-asign-evenementen
 npm run build:all       # build:sources → site/agenda-feed.js, daarna pagina's, manifest en audit
 npm run check           # alles offline: geen klok, geen netwerk
 npm run validate:data   # schema's, hosts, limieten en privacyscan over site/sources
@@ -128,9 +130,15 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 - Sleutel: genormaliseerde titel + datum + uur (`HH:MM`, anders `unknown`).
 - Ook samen: dezelfde datum en hetzelfde uur met dezelfde detailpagina op www.antwerpen.be, of een titel
   (minstens 8 tekens) die volledig in de andere staat.
-- Nooit samen: twee items met verschillende, niet-lege postcodelijsten.
-- Voorrang: `district-kalender` > `district-nieuws` > `stad-districten` > `stad-markten` > `stad-koopzondagen` >
-  `stad-uit` > `mail-district` > `mail-stad` > handmatig.
+- Ook samen: een item dat zelf zegt over welk item van een andere bron het gaat (`sameAs`, een lijst ids).
+  Alleen `district-asign-evenementen` zet dat veld, berekend met de echte vorm van het dossier (zie onder);
+  het geldt ook bij een andere postcodelijst en gaat niet mee naar de site.
+- Nooit samen (buiten `sameAs`): twee items met verschillende, niet-lege postcodelijsten.
+- Voorrang: `district-kalender` > `district-nieuws` > `district-vergaderingen` > `district-gipod-evenementen` >
+  `stad-districten` > `stad-markten` > `stad-koopzondagen` > `district-ebesluit` > `district-asign-evenementen` >
+  `district-ebesluit-evenementen` > `stad-uit` > `mail-district` > `mail-stad` > de rest (alfabetisch) > handmatig.
+- Een samengevoegd item neemt `fasen` en `straten` over van een bron die ze heeft (de kalender kent het uur,
+  het dossier de fasen en de straten).
 - Het samengevoegde item houdt de velden van de bron met voorrang en toont **alle** bronlinks.
 - Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het en
   de build verwijdert de eventpagina.
@@ -371,10 +379,71 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
 - **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van
   `scripts/fetch-sources-ebesluit.mjs` uit te breiden. Zo blijven de raadskalender (`district-ebesluit`) en
   haar zoektermen ongewijzigd, en houdt een fout of traagheid hier de raadskalender niet tegen.
-- **Ontdubbelen met A-Sign (later):** dit is nog geen koppeling met de A-Sign-evenementendossiers. Elk
-  goedgekeurd besluit in het district wordt hier een eigen agendapunt. Zodra P2 (`district-asign-evenementen`)
-  of de koppelstap "besluit" (P3b) er is, moet dat ontdubbelen deze bron meenemen: één agendapunt per
-  evenement (bv. de Marathon), met beide bronnen.
+- **Ontdubbelen met A-Sign:** een besluit dat `district-asign-evenementen` aan een dossier koppelt (zelfde
+  dag en een straat van het dossier, of dezelfde opbouw- en afbouwdag bij precies één dossier), wordt één
+  agendapunt met beide bronnen (`sameAs`). Een besluit zonder overeenkomend dossier blijft een eigen
+  agendapunt. De koppelstap "besluit" in de parcoursherkenning zelf (P3b) is er nog niet.
+
+## Evenementen op straat uit A-Sign (`district-asign-evenementen`)
+
+Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenementendossiers van de stad
+(A-Sign, laag 22 en 23). Deze bron maakt er agendapunten van, gratis en zonder AI
+(`lib/asign-evenementen-agenda.mjs`):
+
+- **Afgeleid, geen eigen verzoeken:** de bron draait in `npm run refresh:herkenning`, na de
+  parcoursherkenning (`lib/parcours-herkenning-refresh.mjs`), met de dossiers die die stap al ophaalt en
+  verrijkt (vorm, straten, gebied). Ze staat in `AFGELEIDE_BRONNEN` in `lib/source-registry.mjs`, niet bij
+  de fetchers, en dus niet in `refresh-status.json`; `sources:health` leest haar bestand zelf
+  ("afgeleid na refresh:herkenning", "verouderd" na 48 uur, een melding en geen fout). Faalt de stap (A-Sign
+  plat of een plotse krimp), dan blijft het vorige bestand staan.
+- **Welke dossiers:** binnen de districtsgrens (`lib/district-antwerpen-grens.geojson`; een parcours dat
+  het district raakt, telt mee), niet geweigerd of afgelast, met een evenementdag van vandaag tot 60 dagen
+  vooruit. Een aanvraag die nog niet goedgekeurd is, telt mee; de tekst zegt dat dan ("stand op …:
+  aanvraag nog niet goedgekeurd").
+- **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
+  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
+  (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
+  voor op die uit A-Sign. Een dossier zonder fase "Evenement" (alleen opbouw, of filmopnames met
+  "Opname periode …") of met een evenementfase van meer dan 62 dagen (een constructie of plaatshouder
+  van een jaar) is geen evenement en krijgt geen agendapunt.
+- **Titel**, in deze volgorde: de naam uit de handfiche; de automatische naam (bij "zeker" de naam, bij
+  "waarschijnlijk" "Vermoedelijk <naam>"); de naam uit een gekoppeld besluit van eBesluit (zie hierboven);
+  de soort ("Studentenactiviteit in de Kerkstraat"); anders "Evenement in de Kerkstraat — naam volgt".
+  Een tunnel is nooit "de straat" van een evenement. Uren in dezelfde volgorde: de handfiche, dan het
+  besluit (alleen op zijn dagen), dan de automatische fiche; een beginuur alleen bij een eenduidige reeks.
+- **Twee dossiers, één evenement:** dossiers op dezelfde dag met dezelfde titel, hetzelfde besluit of
+  hetzelfde punt uit de kalender worden één agendapunt; de beste titel wint (hand, zeker, besluit,
+  vermoeden, soort, naam volgt) en de tekst noemt het andere dossier.
+- **Straten:** `stratenVanParcours()` uit `site/parcours-straten.js` op de parcoursvormen en apart op de
+  verkeersvrije zones, plus de straat waar het begint. Ze staan in het veld `straten` (hoogstens 60) en
+  kort in de plaats ("Meir, Groenplaats, Schoenmarkt en 35 andere straten").
+- **In de districtslijst** alleen een dossier met een naam of een soort, of met een parcours of een
+  verkeersvrije zone over minstens 2 straten. De plekpagina blijft alle dossiers tonen (live uit A-Sign).
+  Op de site valt een dossier zonder herkenbare soort onder "Buurt & straat" (`site/event-types.js`).
+- **Speelstraten:** het trefwoord "speelstraat" in het dossier zelf geeft "Speelstraat in de …". Tot en met
+  10 oktober 2026 staat er geen enkele speelstraat in A-Sign.
+- **Ontdubbelen** met de districtskalender en het districtsnieuws: zelfde dag, en een straat van het
+  dossier in de plaats of de titel van dat agendapunt, of een punt (uit `site/geo/locaties.json`) hoogstens
+  250 m van de route of een inname, of dezelfde eigen naam. Het agendapunt krijgt dan `sameAs`, en
+  `lib/merge-events.mjs` maakt er één item met twee bronnen van (bv. het Linkeroever Criterium). Twee eigen
+  namen die niet op elkaar lijken, of twee soorten die botsen (een studentenactiviteit naast een
+  wielerwedstrijd), worden nooit samengevoegd. Twee dossiers met dezelfde titel op dezelfde dag (een
+  parcours en een zone van hetzelfde evenement) worden één agendapunt.
+- **Geen koppeling met zichzelf:** de kaartjes op de kaart koppelen nooit aan een agendapunt dat alleen uit
+  deze bron komt (`GEEN_KOPPELBRON` in `lib/kaart-uitleg-refresh.mjs`, `alleenUitDossiers()` in
+  `site/place-core.js`): dat is geen tweede bron, en het kan van een buurdossier zijn.
+- Gemeten op 10 oktober 2026 (proefverversing in een wegwerpkopie): 323 dossiers in het district, 38
+  zonder echte evenementfase, 212 niet in de lijst (klein en zonder naam of soort), 73 in de lijst (9 met
+  naam, 52 met soort, 12 "naam volgt", 33 nog niet goedgekeurd), 74 agendapunten. 7 ervan worden één item
+  met een punt uit een andere bron: de districtskalender of het districtsnieuws (het Linkeroever
+  Criterium, Halloween bij CO Nova, FURIE!, Noorderlicht), eBesluit (de Heropening Anselmostraat en de
+  Marathon) of, via dezelfde pagina, het nieuws van een ander district (de EkeRun). De lijst gaat van 755 naar 822
+  items. De stap duurt een paar seconden bovenop de herkenning.
+- **Privacy:** de omschrijving van een inname gaat nooit letterlijk mee (alleen het trefwoord
+  "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; alleen straatnamen van de
+  straatas, nooit een huisnummer (`validate:data` scant titel, plaats, info, uur en straten van deze bron
+  op een huisnummer na een straatnaam); een organisator alleen met een rechtsvorm of als publieke
+  instelling; alleen postcodes van het district.
 
 ## Buurtkaart: wijken en coördinaten (geen agendabron)
 

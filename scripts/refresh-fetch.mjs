@@ -1,5 +1,7 @@
 // Draait elke fetcher in vaste volgorde (lib/source-registry.mjs) en schrijft daarna
-// site/sources/refresh-status.json (contract C3). Alleen dit script schrijft dat bestand.
+// site/sources/refresh-status.json (contract C3). Alleen dit script schrijft dat bestand, op de regel van
+// een afgeleide bron na (AFGELEIDE_BRONNEN): die neemt dit script over van de vorige status, en de stap
+// die de bron afleidt (refresh:herkenning) werkt ze bij (lib/afgeleide-bronstatus.mjs).
 // Een fetcher die crasht, krijgt fetchStatus "error"; zijn vorige data blijft staan.
 import fs from "node:fs";
 import path from "node:path";
@@ -7,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry, upcomingCount } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { FETCHERS } from "../lib/source-registry.mjs";
+import { AFGELEIDE_BRON_IDS, FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
 import { refreshLiveHistory } from "./refresh-live-history.mjs";
 import { contentStatusOf, nextEmptySince } from "./stale-policy.mjs";
@@ -132,6 +134,17 @@ export async function refreshAll({
   const counted = statuses.map((entry) =>
     withContentStatus(entry, { document: readDocumentSafely(rootDir, entry.sourceId), previous: previous.get(entry.sourceId), today })
   );
+  // Een afgeleide bron heeft geen fetcher: haar vorige regel blijft staan (met een vers getelde inhoud),
+  // tot refresh:herkenning ze bijwerkt. Loopt die stap niet, dan veroudert de regel zichtbaar.
+  for (const sourceId of AFGELEIDE_BRON_IDS) {
+    const vorige = previous.get(sourceId);
+    if (!vorige || counted.some((entry) => entry.sourceId === sourceId)) continue;
+    const { upcomingCount: _upcoming, emptySince: _emptySince, contentStatus: _contentStatus, ...regel } = vorige;
+    const nieuw = withContentStatus(regel, { document: readDocumentSafely(rootDir, sourceId), previous: vorige, today });
+    // Een ongeldige oude regel valt weg in plaats van de hele status (en dus de verversing) te breken.
+    const los = validateRefreshStatus({ schemaVersion: 1, generatedAt: generated.toISOString(), classificationAsOf: today, sources: [nieuw] });
+    if (!los.length) counted.push(nieuw);
+  }
   const status = {
     schemaVersion: 1,
     generatedAt: generated.toISOString(),

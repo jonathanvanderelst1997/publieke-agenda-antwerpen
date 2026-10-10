@@ -19,7 +19,7 @@ import { validateHerkenning, validatePatronen } from "../lib/evenement-herkennin
 import { HUISNUMMERS_TEST, evalueer, laadFixtures, VANDAAG } from "./helpers/parcours-herkenning-evaluatie.mjs";
 import { evenementKaartje, evenementFeiten } from "../site/kaart-uitleg.js";
 import { identiteitSamen } from "../site/place-core.js";
-import { privacyFindings } from "../lib/source-feed.mjs";
+import { privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
 import { main as herkenMain } from "../scripts/herken-parcours.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -408,4 +408,56 @@ test("integratie: een straat die het parcours maar één keer raakt, laat de her
   assert.ok(doc, logs.join("\n"));
   assert.doesNotMatch(logs.join("\n"), /niet bijgewerkt/);
   assert.ok(doc.dossiers.ET2026004615);
+});
+
+// ---------- pakket P2: na de herkenning de agendapunten ----------
+
+// Een verzonnen straatas langs de parcours van de vaste dossiers (de echte straatas haalt de toets niet op):
+// zonder straatas schrijft de verversing geen agendapunten (nakijkronde P2, H1).
+function assenLangsDossiers() {
+  const as = (naam, coords) => ({ attributes: { LSTRNM: naam, RSTRNM: naam, LSTRNMID: naam, RSTRNMID: naam, postcode: "2050" }, geometry: { paths: [coords] } });
+  const pad = (id) => F.asign.features.find((f) => f.attributes.dossierNummer === id && f.geometry?.paths)?.geometry.paths[0] || [];
+  return [as("Proefkaai", pad("ET2026003440")), as("Proefbelegstraat", pad("ET2026004615"))].filter((f) => f.geometry.paths[0].length >= 2);
+}
+
+test("na de herkenning worden de evenementdossiers in het district agendapunten (district-asign-evenementen.json)", async () => {
+  const dir = tijdelijkeRoot({ zonderHand: ["ET2026003440", "ET2026004615"] });
+  try {
+    const logs = [];
+    const doc = await herkenParcours({ rootDir: dir, fetch: nepFetch(), clock: klok, log: (l) => logs.push(l), historiekBudgetMs: 1_000, streetFeatures: assenLangsDossiers() });
+    assert.ok(doc, logs.join("\n"));
+    const bron = leesUit(dir, "district-asign-evenementen.json");
+    assert.deepEqual(validateSourceDocument(bron, { expectedSourceId: "district-asign-evenementen" }), []);
+    const per = Object.fromEntries(bron.items.map((item) => [item.externalId, item]));
+    // Het criterium: de naam uit de herkenning, en samen met het punt uit de districtskalender.
+    assert.equal(per.ET2026003440?.title, "Linkeroever Criterium");
+    assert.deepEqual(per.ET2026003440?.sameAs, ["linkeroever-criterium"]);
+    assert.match(per.ET2026004615?.title ?? "", /^Vermoedelijk een schoolactiviteit /, "een soort uit de regels is een vermoeden");
+    assert.ok(logs.some((l) => /"asignEvenementen":\{/.test(l)), logs.join("\n"));
+    // Zonder A-Sign: de vorige agendapunten blijven staan.
+    const voor = fs.readFileSync(path.join(dir, "site", "sources", "district-asign-evenementen.json"), "utf8");
+    assert.equal(await herkenMain({ rootDir: dir, fetch: nepFetch({ asign: false }), log: () => {}, budgetMs: 5_000 }), null);
+    assert.equal(fs.readFileSync(path.join(dir, "site", "sources", "district-asign-evenementen.json"), "utf8"), voor);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("zonder straatas blijft district-asign-evenementen.json byte voor byte staan en staat de fout in refresh-status.json (nakijkronde P2, H1)", async (t) => {
+  const dir = tijdelijkeRoot({ zonderHand: ["ET2026003440", "ET2026004615"] });
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(dir, "site", "sources", "refresh-status.json"), JSON.stringify({ schemaVersion: 1, generatedAt: `${VANDAAG}T05:00:00.000Z`, classificationAsOf: VANDAAG, sources: [] }));
+  const logs = [];
+  assert.ok(await herkenParcours({ rootDir: dir, fetch: nepFetch(), clock: klok, log: (l) => logs.push(l), historiekBudgetMs: 1_000, streetFeatures: assenLangsDossiers() }), logs.join("\n"));
+  const bestand = path.join(dir, "site", "sources", "district-asign-evenementen.json");
+  const voor = fs.readFileSync(bestand, "utf8");
+  assert.ok(JSON.parse(voor).items.length >= 2);
+  // De volgende ochtend antwoordt de straatas niet (de nep-fetch kent alleen A-Sign): de herkenning loopt
+  // wel, de agendapunten blijven zoals ze waren.
+  const doc = await herkenParcours({ rootDir: dir, fetch: nepFetch(), clock: () => new Date("2026-10-11T08:00:00Z"), log: (l) => logs.push(l), historiekBudgetMs: 1_000 });
+  assert.ok(doc, logs.join("\n"));
+  assert.equal(fs.readFileSync(bestand, "utf8"), voor);
+  assert.ok(logs.some((l) => /"asignEvenementen":"niet bijgewerkt","errorCode":"network_error"/.test(l)), logs.join("\n"));
+  const regel = leesUit(dir, "refresh-status.json").sources.find((e) => e.sourceId === "district-asign-evenementen");
+  assert.deepEqual([regel?.fetchStatus, regel?.errorCode, regel?.retrievedAt], ["error", "network_error", `${VANDAAG}T08:00:00.000Z`]);
 });

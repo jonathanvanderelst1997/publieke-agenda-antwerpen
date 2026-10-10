@@ -13,7 +13,8 @@ import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
-import { EVENEMENT_BESLUITEN_FILE, validateEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
+import { EVENEMENT_BESLUITEN_FILE, naamMetHuisnummer, validateEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
+import { AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
 import {
   HISTORY_BACKFILL_DIR,
   HISTORY_BACKFILL_INDEX_FILE,
@@ -106,6 +107,14 @@ if (!fs.existsSync(sourcesDir)) {
     }
     const contract = validateEventContract(Array.isArray(json.items) ? json.items : []);
     for (const error of contract.errors) problems.push(`${name}: eventcontract ${error.code} (${error.id ?? error.index})`);
+    // Een afgeleide bron uit de evenementendossiers van de stad (district-asign-evenementen): nooit een
+    // huisnummer na een straatnaam, in geen enkel tekstveld en in geen enkele straat. Alleen het pad.
+    if (AFGELEIDE_BRON_IDS.includes(sourceId)) {
+      (Array.isArray(json.items) ? json.items : []).forEach((item, index) => {
+        for (const key of ["title", "location", "info", "timeText"]) if (naamMetHuisnummer(item?.[key] ?? "")) problems.push(`${name}: privacy huisnummer op items[${index}].${key}`);
+        (Array.isArray(item?.straten) ? item.straten : []).forEach((straat, j) => { if (naamMetHuisnummer(straat)) problems.push(`${name}: privacy huisnummer op items[${index}].straten[${j}]`); });
+      });
+    }
     summary[sourceId] = { fetchStatus: json.fetchStatus, items: Array.isArray(json.items) ? json.items.length : 0 };
   }
   for (const sourceId of SOURCE_IDS) {
