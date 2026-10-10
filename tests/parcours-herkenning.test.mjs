@@ -10,7 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import {
-  bibliotheekUit, bijwerkenPatronen, compact, dossiersUitAsign, herkenDossier, kaartzin, metStraat, naamBewijs,
+  bibliotheekUit, bijwerkenPatronen, bouwHerkenning, compact, dossiersUitAsign, herkenDossier, kaartzin, metStraat, naamBewijs,
   routeZin, soortenIn, verrijk, zelfdeTitel,
 } from "../lib/parcours-herkenning.mjs";
 import { herkenParcours, kandidatenUitGipod, parseIcs, parseJsonLd, parseSquarespace } from "../lib/parcours-herkenning-refresh.mjs";
@@ -75,6 +75,19 @@ test("patroon: volgend jaar op de route van de marathon heet het vanzelf weer TR
   const d2 = verrijk(dossiersUitAsign(ander).get("ET2027009998"), { districten: F.districten });
   const r2 = herkenDossier(d2, { bibliotheek, charter: F.charter, vandaag: "2027-10-01" });
   assert.notEqual(r2.naam, "TREK Antwerp Marathon");
+});
+
+test("twijfel verlaagt: een tweede activiteit op dezelfde dag en plek maakt van 'zeker' hoogstens een vermoeden", () => {
+  const hand = { ...F.hand, dossiers: Object.fromEntries(Object.entries(F.hand.dossiers).filter(([k]) => k !== "ET2026003440")) };
+  const crit = F.kandidaten.find((k) => k.titel === "Linkeroever Criterium");
+  const bouw = (kandidaten) => bouwHerkenning({ dossiers: F.dossiers.map((d) => ({ ...d })), hand, kandidaten, historiek: F.historiek, charter: F.charter, vandaag: VANDAAG, generatedAt: `${VANDAAG}T08:00:00.000Z` }).dossiers.ET2026003440;
+  assert.equal(bouw(F.kandidaten).zekerheid, "zeker");
+  // Een andere wielerwedstrijd op dezelfde plek en dag (een woord gemeen, maar een andere titel).
+  const r = bouw([...F.kandidaten, { ...crit, titel: "Criterium voor nieuwelingen" }]);
+  assert.notEqual(r.zekerheid, "zeker");
+  assert.notEqual(r.naam, "Linkeroever Criterium");
+  // Dezelfde activiteit uit twee bronnen telt wel als één kandidaat.
+  assert.equal(bouw([...F.kandidaten, { ...crit, bronLabel: "nieuws van district Antwerpen" }]).zekerheid, "zeker");
 });
 
 test("naambewijs: een eigen naam of afkorting uit het dossier, geen gewoon woord", () => {
