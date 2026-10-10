@@ -29,6 +29,7 @@ import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
+import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -211,7 +212,11 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
     const [parking, iod22, iod23, sgw47, sgw48, district] = await Promise.all([
       asignLayer(20, {
         where: `District='ANTWERPEN' AND Einddatum >= ${dateSql} AND Status IN ('Goedgekeurd','In effect')`,
-        outFields: "Dossiernummer,Locatienummer,Status,Adres,Reden,Startdatum,Einddatum,EnkelWeekdagen,GipodID,District",
+        // Postcode en uren: niet voor de historiek (lib/live-history.mjs bewaart ze niet), wel voor de
+        // straatbestanden (scripts/build-straat-snapshots.mjs), zoals de browser ze ophaalt.
+        outFields: "Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",
+        // De lijn van elk parkeerverbod: alleen voor het kader van een straatbestand (waar haar items liggen).
+        geometry: true,
       }, fetchImpl),
       asignLayer(22, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
@@ -251,7 +256,8 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       // Officiële straatnamen, zodat "De 7 schakenpad" niet als huisnummer wegvalt (site/adres-privacy.js).
       straatnamen: streets?.byName instanceof Map ? [...streets.byName.values()].flat().map((ref) => ref?.name).filter(Boolean) : null,
     });
-    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district };
+    // De ruwe features gaan mee voor de straatbestanden (verzamelStraatBronnen); ze komen nooit in de historiek.
+    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district, features: { parking, iod: [...iod22, ...iod23], sgw } };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "public_space_fetch_failed") };
   }
@@ -259,6 +265,9 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
 
 export async function refreshLiveHistory({
   fetch: fetchImpl = globalThis.fetch,
+  // Voor de vergunningen en terrassen van de straatbestanden: een eigen tijdsgrens (refresh-fetch.mjs).
+  // Zonder (zoals in de toetsen) worden ze niet opgehaald en houden de straatbestanden hun vorige stand.
+  straatFetch = null,
   clock = () => new Date(),
   rootDir,
   log = console.log,
@@ -348,6 +357,11 @@ export async function refreshLiveHistory({
   for (const [target, document] of olderDays) fs.writeFileSync(target, `${JSON.stringify(document, null, 2)}\n`, "utf8");
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
+
+  // De items per straat zoals de browser ze maakt, plus vergunningen en terrassen, voor de straatbestanden
+  // (scripts/build-straat-snapshots.mjs verdeelt ze op het einde van npm run refresh). Faalt dit, dan
+  // houden de straatbestanden hun vorige stand.
+  await verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures: streets?.features, fetch: straatFetch, log });
 
   // Bewust geen stap voor het Inzageloket (omgevingsloketinzage.omgeving.vlaanderen.be): robots.txt verbiedt
   // elke bot ("Disallow: /") en een Anubis-botcontrole staat voor elke pagina en voor de API. Die controle

@@ -32,6 +32,7 @@ import {
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
 import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const sourcesDir = path.join(rootDir, "site", "sources");
@@ -211,6 +212,12 @@ for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() :
 }
 // De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
 if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
+
+// Straatbestanden (P5, scripts/build-straat-snapshots.mjs): elk onder 100 kB, de radar onder 50 kB, de
+// index klopt met de bestanden, en dezelfde privacyscan als de historiek en de bronnen.
+const straatProblemen = straatBestandenProblemen(rootDir);
+problems.push(...straatProblemen.slice(0, 50));
+if (straatProblemen.length > 50) problems.push(`site/straat: nog ${straatProblemen.length - 50} problemen`);
 
 const backfillDir = path.join(rootDir, HISTORY_BACKFILL_DIR);
 if (fs.existsSync(backfillDir)) {

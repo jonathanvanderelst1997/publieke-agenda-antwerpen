@@ -12,6 +12,9 @@ const allowed = (lines) => checkDataLane(lines, spec).length === 0;
 const POSITIVES = [
   "site/sources/x.json",
   "site/history/live-layers.json",
+  "site/history/radar.json",
+  "site/straat/1416.json",
+  "site/straat-index.json",
   "site/geo/locaties.json",
   "site/history/archive/baseline.json",
   "site/history/archive/index.json",
@@ -36,6 +39,12 @@ const NEGATIVES = [
   "site/geo/other.json",
   "site/sources/x.json.js",
   "site/history/other.json",
+  "site/straat/kammenstraat.json",
+  "site/straat/1416.js",
+  "site/straat/1416/index.json",
+  "site/straat/radar.json",
+  "site/straat/index.json",
+  "site/straat-index.js",
   "site/history/archive/20261001.json",
   "site/history/archive/oud.json",
   "site/history/backfill/gipod/2020.json",
@@ -51,8 +60,8 @@ const NEGATIVES = [
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 14);
-  assert.deepEqual(spec.deletableUnder, ["site/event/"]);
+  assert.equal(spec.allowed.length, 17);
+  assert.deepEqual(spec.deletableUnder, ["site/event/", "site/straat/"]);
   for (const pattern of spec.allowed) {
     assert.ok(pattern.startsWith("^") && pattern.endsWith("$"), pattern);
     // POSIX-ERE: geen \d, \w, \s, lookarounds of luie kwantoren.
@@ -63,6 +72,8 @@ test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () =
 test("data-paden zijn toegelaten", () => {
   for (const file of POSITIVES) assert.ok(allowed([`M\t${file}`]), file);
   assert.ok(allowed(["A\tsite/sources/district-kalender.json", "D\tsite/event/oud-item-2026-09-01/index.html", "M\tsite/agenda-feed.js"]));
+  // Een straat zonder items verliest haar bestand (scripts/build-straat-snapshots.mjs).
+  assert.ok(allowed(["A\tsite/straat/2289.json", "D\tsite/straat/1416.json", "M\tsite/straat-index.json", "M\tsite/history/radar.json"]));
 });
 
 test("code, configuratie en werkflows zijn niet toegelaten", () => {
@@ -71,9 +82,10 @@ test("code, configuratie en werkflows zijn niet toegelaten", () => {
   assert.deepEqual(violations, [{ code: "path_not_allowed", status: "M", path: "site/agenda.js" }]);
 });
 
-test("verwijderen mag alleen onder site/event/; een lege wijziging faalt", () => {
+test("verwijderen mag alleen onder site/event/ en site/straat/; een lege wijziging faalt", () => {
   assert.deepEqual(checkDataLane(["D\tsite/sources/x.json"], spec), [{ code: "delete_not_allowed", status: "D", path: "site/sources/x.json" }]);
   assert.ok(!allowed(["R100\tsite/sources/a.json\tsite/sources/b.json"]), "een hernoeming verwijdert buiten site/event/");
+  assert.deepEqual(checkDataLane(["D\tsite/history/radar.json"], spec), [{ code: "delete_not_allowed", status: "D", path: "site/history/radar.json" }]);
   assert.deepEqual(checkDataLane([], spec), [{ code: "empty_change", status: "", path: "" }]);
   assert.deepEqual(checkDataLane(["", "   "], spec), [{ code: "empty_change", status: "", path: "" }]);
   assert.ok(!allowed(["X\tsite/sources/x.json"]));

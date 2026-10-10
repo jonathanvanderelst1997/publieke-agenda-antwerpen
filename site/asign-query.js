@@ -12,10 +12,13 @@ export const ASIGN_MAX_IDS = 15000;
 
 const queryUrl = (layer) => new URL(`${ASIGN_BASE}/${layer}/query`);
 
-export function asignIdsUrl(layer, { where = "1=1", spatial = false } = {}) {
+// `kader`: [minX, minY, maxX, maxY] in plaats van het kader van het district, bv. rond één straat
+// (site/place-view.js vraagt na de stand van de ochtend alleen dat kader live na).
+export function asignIdsUrl(layer, { where = "1=1", spatial = false, kader = null } = {}) {
   const url = queryUrl(layer);
   const params = { where, f: "json" };
-  if (spatial) Object.assign(params, { geometry: ASIGN_BBOX, geometryType: "esriGeometryEnvelope", inSR: "4326", spatialRel: "esriSpatialRelIntersects" });
+  const envelope = Array.isArray(kader) && kader.length === 4 && kader.every(Number.isFinite) ? kader.join(",") : ASIGN_BBOX;
+  if (spatial || kader) Object.assign(params, { geometry: envelope, geometryType: "esriGeometryEnvelope", inSR: "4326", spatialRel: "esriSpatialRelIntersects" });
   url.search = new URLSearchParams({ ...params, returnIdsOnly: "true" });
   return url.href;
 }
@@ -79,8 +82,8 @@ async function haal(url, fetchImpl) {
 
 // Alle records van één laag: eerst de ids, dan de details in korte blokken. Faalt één blok, dan
 // faalt de laag (een halve laag zou stil items verbergen) en worden de wachtende blokken overgeslagen.
-export async function asignLayer(layer, { where = "1=1", outFields = "*", geometry = false, precisie = null, spatial = false, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
-  const idData = await begrenzer(() => haal(asignIdsUrl(layer, { where, spatial }), fetchImpl));
+export async function asignLayer(layer, { where = "1=1", outFields = "*", geometry = false, precisie = null, spatial = false, kader = null, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
+  const idData = await begrenzer(() => haal(asignIdsUrl(layer, { where, spatial, kader }), fetchImpl));
   const ids = Array.isArray(idData.objectIds) ? idData.objectIds : [];
   if (ids.length > maxIds) throw new Error(`laag ${layer} overschrijdt de veiligheidslimiet`);
   let mislukt = null;

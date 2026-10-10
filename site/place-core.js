@@ -989,7 +989,9 @@ export const vergunningWaar = (streets = []) => waarTekst((streets || []).map((s
 export function terrasEntries(rows = []) {
   const groepen = new Map();
   for (const row of rows) {
-    const adres = foldText(row?.address);
+    // Uit de stand van de ochtend (site/straat/<id>.json) komt een terras zonder adres (vaak met
+    // huisnummer), wel met een groep per adres binnen de straat (scripts/build-straat-snapshots.mjs).
+    const adres = foldText(row?.address) || (row?.adresGroep ? `groep:${row.adresGroep}` : "");
     const key = adres ? `${adres}|${foldText(row?.terraceType)}|${foldText(row?.status)}` : `los|${row?.id}`;
     groepen.set(key, [...(groepen.get(key) || []), row]);
   }

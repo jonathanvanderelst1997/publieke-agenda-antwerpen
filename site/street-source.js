@@ -21,12 +21,14 @@ async function get(url,fetchImpl){
 
 const inDistrict=feature=>String(feature?.properties?.DISTRICT??feature?.attributes?.DISTRICT??"").trim().toUpperCase()==="ANTWERPEN";
 
-async function fetchPages({fetchImpl,source,pageSize,maxPages,where}){
+async function fetchPages({fetchImpl,source,pageSize,maxPages,where,kader=null}){
   const features=[];
+  // Alleen de straatassen in een kader (rond één straat, site/place-view.js): één klein verzoek.
+  const envelope=Array.isArray(kader)&&kader.length===4&&kader.every(Number.isFinite)?{geometry:kader.join(","),geometryType:"esriGeometryEnvelope",inSR:"4326",spatialRel:"esriSpatialRelIntersects"}:{};
   for(let page=0;page<maxPages;page+=1){
     const url=new URL(source);
     url.search=new URLSearchParams({
-      where,
+      where,...envelope,
       outFields:"LSTRNMID,LSTRNM,RSTRNMID,RSTRNM,postcode,DISTRICT",
       returnGeometry:"true",
       outSR:"4326",
@@ -48,6 +50,7 @@ export async function fetchStreetFeatures({
   source=SOURCE,
   pageSize=DEFAULT_PAGE_SIZE,
   maxPages=25,
+  kader=null,
 }={}){
   if(typeof fetchImpl!=="function")throw sourceError("street_axis_fetch_unavailable","fetch ontbreekt");
   if(!Number.isInteger(pageSize)||pageSize<1||pageSize>2000)throw sourceError("street_axis_invalid","ongeldige pageSize");
@@ -55,14 +58,14 @@ export async function fetchStreetFeatures({
 
   let targeted=[];
   try{
-    targeted=await fetchPages({fetchImpl,source,pageSize,maxPages,where:DISTRICT_WHERE});
+    targeted=await fetchPages({fetchImpl,source,pageSize,maxPages,where:DISTRICT_WHERE,kader});
   }catch(error){
     if(!["street_axis_provider_error","street_axis_http_400"].includes(error?.code))throw error;
   }
   const targetedDistrict=targeted.filter(inDistrict);
   if(targetedDistrict.length)return targetedDistrict;
 
-  const fallback=await fetchPages({fetchImpl,source,pageSize,maxPages,where:"1=1"});
+  const fallback=await fetchPages({fetchImpl,source,pageSize,maxPages,where:"1=1",kader});
   const filtered=fallback.filter(inDistrict);
   if(!filtered.length)throw sourceError("street_axis_empty","geen straatassen voor district Antwerpen");
   return filtered;

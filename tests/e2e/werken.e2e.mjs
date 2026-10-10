@@ -52,6 +52,9 @@ const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-gren
 const RUW = "2000 Antwerpen - Voorbeeldsite - Kammenstraat Aanleg warmtenet staal DN300 lengte 1650m (e2e)";
 
 async function routeSources(page) {
+  // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
+  // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
+  await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
   const [id, name, postcode, , [x1, y1, x2, y2]] = straat;
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];
   const axis = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, y1], [x2, y2]] }, properties: { LSTRNMID: Number(id), LSTRNM: name, RSTRNMID: Number(id), RSTRNM: name, postcode: Number(postcode), DISTRICT: "Antwerpen" } }] };

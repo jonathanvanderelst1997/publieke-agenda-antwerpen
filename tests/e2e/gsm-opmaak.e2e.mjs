@@ -78,6 +78,9 @@ function parcoursRijen(dagen = 8) {
 }
 
 async function routeSources(page) {
+  // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
+  // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
+  await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
   const [x1, y1, x2, y2] = row[4];
   const axis = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, y1], [x2, y2]] }, properties: { LSTRNMID: Number(STRAAT.id), LSTRNM: STRAAT.name, RSTRNMID: Number(STRAAT.id), RSTRNM: STRAAT.name, postcode: Number(STRAAT.postcode), DISTRICT: "Antwerpen" } }] };
   const json = (body) => ({ status: 200, contentType: "application/json", body: typeof body === "string" ? body : JSON.stringify(body) });
