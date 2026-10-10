@@ -34,6 +34,16 @@ function owner(entry, files) {
   return found.length ? `${entry} (tests/${found.join(", tests/")})` : entry;
 }
 
+// Alleen de gefaalde toetsen uit de TAP-uitvoer, met hun foutmelding.
+function failures(stdout) {
+  const lines = stdout.split("\n");
+  const out = [];
+  lines.forEach((line, index) => {
+    if (/^\s*not ok /.test(line)) out.push(...lines.slice(index, index + 12));
+  });
+  return out.join("\n").slice(0, 6000);
+}
+
 test("toetsen die een tijdelijke map maken, laten er na afloop geen achter", (t) => {
   const files = tempUsingTestFiles();
   assert.ok(files.includes("manual-check.test.mjs"), "de toets moet minstens manual-check nakijken");
@@ -43,7 +53,7 @@ test("toetsen die een tijdelijke map maken, laten er na afloop geen achter", (t)
   const env = { ...process.env, TMPDIR: tmp, TMP: tmp, TEMP: tmp };
   delete env.NODE_TEST_CONTEXT;
   const run = spawnSync(process.execPath, ["--test", ...files.map((name) => path.join(testsDir, name))], { cwd: rootDir, env, encoding: "utf8" });
-  assert.equal(run.status, 0, `De toetsen zelf faalden; los dat eerst op.\n${run.stdout.slice(-4000)}\n${run.stderr.slice(-2000)}`);
+  assert.equal(run.status, 0, `De toetsen zelf faalden; los dat eerst op.\n${failures(run.stdout)}\n${run.stderr.slice(-2000)}`);
   const left = fs.readdirSync(tmp).filter((entry) => !NODE_OWN.has(entry)).sort();
   assert.deepEqual(left.map((entry) => owner(entry, files)), [],
     "Achtergebleven tijdelijke mappen. Ruim elke map op direct na mkdtempSync, met " +
