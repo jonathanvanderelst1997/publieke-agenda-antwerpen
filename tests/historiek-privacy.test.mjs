@@ -174,6 +174,33 @@ test("de scan vindt een huisnummer, een postcode buiten het district en een punt
   assert.ok(historiekPrivacyBevindingen({ title: "Xstraat 12" }).every((finding) => !JSON.stringify(finding).includes("12")));
 });
 
+// Nakijken van de samenvoeging: een GIPOD-titel met een naam na een dossiercode (een persoon, bv. een
+// werkleider) stond in live-layers.json en archive/baseline.json; de opkuis haalde hem niet weg en de scan
+// vond hem niet. Dezelfde regel als de kaartjes (naamNaCodeWeg in site/kaart-uitleg.js). Verzonnen naam.
+test("een naam na een dossiercode valt weg uit de historiek, en de scan vindt hem zonder hem te tonen", () => {
+  const codes = (value) => historiekPrivacyBevindingen(value).map((finding) => finding.code).sort();
+  const titel = "2020_ANTWERPEN-Voorbeeldwijk_Voorbeeldlaan / Kabelwerken DNW12345678_Jan Voorbeeldman LS_voetpadkast vervangen";
+  assert.deepEqual(codes({ title: titel }), ["naam"]);
+  assert.ok(historiekPrivacyBevindingen({ title: titel }).every((finding) => !/Jan|Voorbeeldman/.test(JSON.stringify(finding))));
+  const schoon = itemVoorHistoriek({ id: "work:1", gipodId: 1, title: titel });
+  assert.equal(schoon.title, "2020_ANTWERPEN-Voorbeeldwijk_Voorbeeldlaan / Kabelwerken DNW12345678_ LS_voetpadkast vervangen");
+  assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
+  assert.deepEqual(itemVoorHistoriek(schoon), schoon, "opnieuw opkuisen verandert niets");
+  // Een code met cijfers of een kleine letter erna is geen naam ("PG0971_N1_…"), net als in de kaartjes.
+  assert.deepEqual(codes({ title: "Spoorwerken PG0971_N1_Intra_Muros" }), []);
+  assert.deepEqual(codes({ title: "Xstraat, 2000 Antwerpen - DNW12345678_ LS_kast" }), []);
+  // Ook in een laag en in een wijziging; de digest volgt de opgekuiste items.
+  const T = "2026-10-10T03:00:00.000Z";
+  const werk = { id: "work:1", gipodId: 1, title: titel, start: "2026-10-01T06:00:00.000Z", end: "2026-10-30T16:00:00.000Z", status: "In uitvoering" };
+  const h = oudeHistoriek({ observedAt: T, works: [werk], changes: [{ observedAt: T, layer: "works", id: "work:1", type: "added", fields: [], before: null, after: werk }] });
+  assert.deepEqual(codes(h), ["naam", "naam"]);
+  const publiek = historiekVoorPubliek(h, { onbekend: false });
+  assert.deepEqual(historiekPrivacyBevindingen(publiek), []);
+  assert.equal(publiek.layers.works.digest, sha(publiek.layers.works.items));
+  assert.doesNotMatch(JSON.stringify(publiek), /Voorbeeldman/);
+  assert.deepEqual(validateLiveHistory(publiek), []);
+});
+
 test("historiek: oude wijzigingen zonder adres volgen hun parkeerverbod; een wijziging van alleen het huisnummer valt weg", () => {
   const T2 = "2026-10-10T03:00:00.000Z";
   const h2 = oudeHistoriek({

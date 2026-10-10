@@ -10,7 +10,7 @@
       "lastSuccessAt": "2026-10-10T03:22:17.339Z",
       "errorCode": null,
       "count": 1239,
-      "digest": "20c40a41b30afb5920832f70def5822e561868fb42a839d6d27cb9b3f82d257a",
+      "digest": "9b28aa089bb1f8c2fca31f73b2a125a7e8ca42e87f326be3a310f8f339c84ee0",
       "items": [
         {
           "id": "work:11264719",
@@ -23384,7 +23384,7 @@
         {
           "id": "work:20730319",
           "gipodId": 20730319,
-          "title": "2020_ANTWERPEN-Kiel_Acacialaan / Della Faillelaan DNW20330020_Kristof Schippers LS_voetpadkast vervangen wegens schade + defiitief koppelen LS-net Put1= voor 2 verbindinsgmoffen Put2= VV VPK + 3 verbindingsmoffen Put3=voor 3 verbindingsmoffen",
+          "title": "2020_ANTWERPEN-Kiel_Acacialaan / Della Faillelaan DNW20330020_ LS_voetpadkast vervangen wegens schade + defiitief koppelen LS-net Put1= voor 2 verbindinsgmoffen Put2= VV VPK + 3 verbindingsmoffen Put3=voor 3 verbindingsmoffen",
           "status": "Concreet gepland",
           "start": "2026-11-01T23:00:00Z",
           "end": "2026-11-27T23:00:00Z",
@@ -139863,7 +139863,7 @@
       "after": {
         "id": "work:20730319",
         "gipodId": 20730319,
-        "title": "2020_ANTWERPEN-Kiel_Acacialaan / Della Faillelaan DNW20330020_Kristof Schippers LS_voetpadkast vervangen wegens schade + defiitief koppelen LS-net Put1= voor 2 verbindinsgmoffen Put2= VV VPK + 3 verbindingsmoffen Put3=voor 3 verbindingsmoffen",
+        "title": "2020_ANTWERPEN-Kiel_Acacialaan / Della Faillelaan DNW20330020_ LS_voetpadkast vervangen wegens schade + defiitief koppelen LS-net Put1= voor 2 verbindinsgmoffen Put2= VV VPK + 3 verbindingsmoffen Put3=voor 3 verbindingsmoffen",
         "status": "Concreet gepland",
         "start": "2026-11-01T23:00:00Z",
         "end": "2026-11-27T23:00:00Z",

@@ -380,7 +380,11 @@ export function zonderHuisnummers(tekst, max = 300) {
 // Een achternaam met een hoofdletter of in hoofdletters (minstens drie: "LS" is laagspanning).
 const NAAM_NA_CODE = /(\b[A-Z]{2,6}\d{4,}_)\p{Lu}\p{Ll}+(?:[ -](?:(?:van|de|der|den|du|le|la|el|ten|ter)\s)*\p{Lu}(?:\p{Ll}[\p{L}'’]*|\p{Lu}{2,}[\p{Lu}'’]*)){1,3}/gu;
 export function zonderNamen(tekst, max = 300) {
-  return clean(tekst, max).replace(NAAM_NA_CODE, "$1");
+  return naamNaCodeWeg(clean(tekst, max));
+}
+// Hetzelfde zonder in te korten of witruimte te wijzigen (voor de historiek: lib/historiek-privacy.mjs).
+export function naamNaCodeWeg(tekst) {
+  return String(tekst ?? "").replace(NAAM_NA_CODE, "$1");
 }
 // Een los dossiernummer van zeven cijfers of meer ("Beatrijslaan - 20330374 - Koppelput") zegt een
 // bewoner niets en lijkt voor de filter op contactgegevens een telefoonnummer: weg ermee, de fase blijft.
@@ -415,7 +419,7 @@ const STRAAT_EINDE = "(?:steenweg|straat|laan|lei|weg|dreef|baan|kaai|vest|singe
 // Een reeks in elke schrijfwijze, zoals in huisnummersUitTekst: "12-14", "12 tem 14", "12 t.e.m. 14", "12 tot en met 14".
 const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z](?!\\p{L}|\\.\\p{L}))?(?:\\s*(?:-|–|/|→|en|tot en met|t\\.\\s?e\\.\\s?m\\.?|tem|t\\/m|tot)\\s*\\d{1,4}[a-zA-Z]?)?";
 // Alleen een straatnaam (woorden met een hoofdletter, "van", "de" …) met eventueel een huisnummer:
-// "Brederodestraat | 39", "LONDENSTRAAT", "Pieter van Hobokenstraat 6". Niet "Betonherstel op trambaan".
+// "Xstraat | 39", "YSTRAAT", "Pieter van Voorbeeldstraat 6". Niet "Betonherstel op trambaan".
 const STRAAT_WOORD = "(?:\\p{Lu}[\\p{L}'.-]*|van|de|der|den|het|ten|ter|la|le|du|des)";
 const ALLEEN_ADRES = new RegExp(`^(?:\\d{4}\\s+)?(?:${STRAAT_WOORD}[\\s-]+){0,4}\\p{Lu}[\\p{L}'.-]*(?:${STRAAT_EINDE}|${STRAAT_EINDE.toUpperCase()})(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR})?\\.?$`, "u");
 const LEEG_STUK = [
@@ -423,7 +427,7 @@ const LEEG_STUK = [
   /^(?:\d{4}\s+)?\(?(?:antwerpen|antwerp|anterwerpen)\)?$/i, // de gemeente
   /^\([\p{L}\s-]+\)$/u, // een gemeente tussen haakjes: "(Hoboken)"
   /^\d{4}\s+[\p{L}-]+$/u, // postcode en gemeente: "2610 WILRIJK"
-  /^\p{Lu}[\p{Lu}'.-]+(?:\s+\p{Lu}[\p{Lu}'.-]+){0,3}\s+\d{1,4}[a-zA-Z]?$/u, // een straat in hoofdletters met nummer: "KIELSBROEK 5"
+  /^\p{Lu}[\p{Lu}'.-]+(?:\s+\p{Lu}[\p{Lu}'.-]+){0,3}\s+\d{1,4}[a-zA-Z]?$/u, // een straat in hoofdletters met nummer: "PROEFBROEK 5"
   /^\(?\s*(?:lengte:?\s*)?\d+(?:[.,]\d+)?\s?(?:m|km|m²|m2)\.?\s*\)?$/i, // een maat
   /^(?:andere|werk in openbaar domein|rioleringswerk(?:en)?)$/i,
 ];
@@ -678,7 +682,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const bronTekst = beheerderTekst(f.omschrijving, { zonderNummers: eenAdres, straten: f.straten });
   // Het werk of project in de woorden van de beheerder ("R1 - Ringpark Zuid") staat zichtbaar bij "Wat",
   // tenzij het alleen de soort herhaalt ("Riolering" bij "Rioleringswerken"). projectTekst herkent een stuk
-  // dat alleen een adres is aan zijn huisnummer ("KIELSBROEK 5"): daarom eerst de tekst met de nummers,
+  // dat alleen een adres is aan zijn huisnummer ("PROEFBROEK 5"): daarom eerst de tekst met de nummers,
   // en pas daarna het losse nummer weg ("Xstraat thv 31" wordt niet "thv 31").
   const bronMetNummers = eenAdres ? bronTekst : beheerderTekst(f.omschrijving, { losseNummers: true, straten: f.straten });
   const projectMetNummers = f.soort && bronMetNummers ? projectTekst(bronMetNummers, { straten: f.straten }) : "";
@@ -820,7 +824,7 @@ export function innameSoort(type) {
   if (/omleiding/i.test(t)) return "omleiding";
   return "inname";
 }
-// Een huisnummer na een straatnaam ("beatrijslaan 34") kan een woning zijn: dat tonen we niet.
+// Een huisnummer na een straatnaam ("voorbeeldlaan 34") kan een woning zijn: dat tonen we niet.
 export const zonderHuisnummer = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
 
 // Feiten over één evenementendossier (alle innames samen), zonder klok.

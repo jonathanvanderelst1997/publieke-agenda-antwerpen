@@ -1,8 +1,8 @@
 // Zonder imports: ook lib/live-history.mjs (de verversing) gebruikt dit.
 // Een parkeerverbod is vaak een verhuis of een container voor één woning: het huisnummer is dan
 // een privéadres. We houden de straat en de postcode, nooit het huisnummer. A-Sign schrijft
-// "Stijfselrui 26-26 2000 Antwerpen", "Berkenlaan (2610) 34-hoek 2610 Antwerpen" of
-// "Handelstraat hoek-64 2060 Antwerpen".
+// "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
+// "Ystraat hoek-64 2060 Antwerpen" (verzonnen straten).
 const HUISNUMMER=/^(?:\d+\s*[a-z]{0,3}|hoek|onbekend|hnr nvt|nvt)(?:\s*bus\s*\w+)?$/i;
 const vouw=(t)=>String(t??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toLowerCase();
 // Officiële straatnamen met een cijfer ("4 septemberpad", "De 7 schakenpad", "Kanaaldok B1-Oostkaai"):

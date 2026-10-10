@@ -1,9 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
+import { jsFouten, teControlerenJs } from "./js-controle.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const javascriptFiles = [
@@ -46,6 +46,7 @@ const javascriptFiles = [
   "scripts/build-provenance-snapshot.mjs",
   "scripts/build-sources.mjs",
   "scripts/check-data-lane.mjs",
+  "scripts/js-controle.mjs",
   "scripts/fetch-sources-district-news.mjs",
   "scripts/fetch-sources-district.mjs",
   "scripts/fetch-sources-ebesluit-evenementen.mjs",
@@ -88,10 +89,9 @@ const javascriptFiles = [
   "tests/foren-schoolstraten-projecten.test.mjs",
 ];
 
-for (const file of javascriptFiles) {
-  const check = spawnSync(process.execPath, ["--check", path.join(rootDir, file)], { encoding: "utf8" });
-  if (check.status !== 0) throw new Error(check.stderr || `${file} is geen geldige JavaScript.`);
-}
+// De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
+const [eersteFout] = jsFouten(rootDir, teControlerenJs(rootDir, javascriptFiles));
+if (eersteFout) throw new Error(eersteFout.fout);
 
 const engine = loadRefreshEngine(rootDir);
 const items = loadExpandedAgendaItems(rootDir);

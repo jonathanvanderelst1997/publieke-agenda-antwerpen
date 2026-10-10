@@ -28,23 +28,47 @@ const nepRapport = [
   { RuleID: "huisnummer-als-plek", File: "site/agenda-feed.js", Secret: GEHEIM, Match: GEHEIM, StartLine: 1 },
 ];
 
-/** Een nep-gitleaks: antwoordt op "version" en schrijft het rapport naar --report-path. */
+/**
+ * Een nep-gitleaks: antwoordt op "version" en schrijft het rapport naar --report-path. Het programma zelf
+ * staat in een .cjs-bestand achter een kleine sh-wrapper: een bestand zonder extensie met `require` faalt
+ * als de tijdelijke map onder een package.json met "type": "module" ligt (bv. een TMPDIR in een repo).
+ */
 function nepGitleaks(map, rapport, { code = 0, fout = "fout in de configuratie" } = {}) {
   const bin = path.join(map, "gitleaks");
+  const programma = path.join(map, "gitleaks-nep.cjs");
   const rapportBestand = path.join(map, "rapport-bron.json");
   fs.writeFileSync(rapportBestand, JSON.stringify(rapport));
   fs.writeFileSync(path.join(map, "args.txt"), "");
-  fs.writeFileSync(bin, `#!/usr/bin/env node
-const fs = require("node:fs");
+  fs.writeFileSync(bin, `#!/bin/sh\nexec ${JSON.stringify(process.execPath)} ${JSON.stringify(programma)} "$@"\n`, { mode: 0o755 });
+  fs.writeFileSync(programma, `const fs = require("node:fs");
 const args = process.argv.slice(2);
 if (args[0] === "version") { console.log("8.30.1"); process.exit(0); }
 fs.writeFileSync(${JSON.stringify(path.join(map, "args.txt"))}, JSON.stringify({ args, cwd: process.cwd() }));
 const i = args.indexOf("--report-path");
 fs.copyFileSync(${JSON.stringify(rapportBestand)}, args[i + 1]);
 if (${code}) { console.error(${JSON.stringify(fout)}); process.exit(${code}); }
-`, { mode: 0o755 });
+`);
   return bin;
 }
+
+// Nakijken van de samenvoeging: ligt de tijdelijke map onder een package.json met "type": "module"
+// (bv. een TMPDIR in een repo), dan las node de nep-gitleaks zonder extensie als ES-module en faalde
+// `require`: 2 toetsen en de bewakingstoets vielen dan om. Met de wrapper en een .cjs werkt het overal.
+test("de nep-gitleaks werkt ook onder een package.json met \"type\": \"module\"", (t) => {
+  const map = fs.mkdtempSync(path.join(os.tmpdir(), "gitleaks-module-"));
+  t.after(() => fs.rmSync(map, { recursive: true, force: true }));
+  fs.writeFileSync(path.join(map, "package.json"), JSON.stringify({ type: "module" }));
+  const binnen = path.join(map, "binnen");
+  fs.mkdirSync(binnen);
+  const bin = nepGitleaks(binnen, nepRapport);
+  const versie = spawnSync(bin, ["version"], { encoding: "utf8" });
+  assert.equal(versie.status, 0, versie.stderr);
+  assert.equal(versie.stdout.trim(), "8.30.1");
+  const rapport = path.join(binnen, "rapport.json");
+  const scan = spawnSync(bin, ["dir", ".", "--report-path", rapport], { encoding: "utf8", cwd: binnen });
+  assert.equal(scan.status, 0, scan.stderr);
+  assert.equal(JSON.parse(fs.readFileSync(rapport, "utf8")).length, nepRapport.length);
+});
 
 function draai(argv, env) {
   const regels = [];
