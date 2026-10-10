@@ -1,6 +1,8 @@
 function validDate(value) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value ?? "")) return false;
-  return new Date(`${value}T00:00:00.000Z`).toISOString().slice(0, 10) === value;
+  // Een onmogelijke dag (2026-13-01) is ongeldig, geen uitzondering.
+  const date = new Date(`${value}T00:00:00.000Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 export function evaluateStalePolicy({
@@ -30,4 +32,31 @@ export function evaluateStalePolicy({
   }
   if (classificationAsOf > recheckDueOn) return { status: "stale_blocked", publishEligible: false, failClosed: true };
   return { status: "fresh_verified", publishEligible: true, failClosed: false };
+}
+
+// ---------- lege bron ----------
+// Een bron die antwoordt maar al EMPTY_SOURCE_DAYS verversingsdagen op rij niets komends levert
+// (0 items, of alleen items die voorbij zijn), heet "leeg": een oranje melding, geen fout. Zo'n bron
+// is echt leeg (de stad zet er niets in) of stilletjes stuk; in geen van beide gevallen klopt "ok".
+// De teller loopt via `emptySince` in site/sources/refresh-status.json: de eerste dag van de huidige
+// reeks dagen zonder komend item. scripts/refresh-fetch.mjs neemt die dag over van de vorige status.
+export const EMPTY_SOURCE_DAYS = 3;
+
+// Aantal kalenderdagen van `from` tot en met `to` (beide JJJJ-MM-DD).
+function daysInclusive(from, to) {
+  return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / 86_400_000) + 1;
+}
+
+// De eerste dag zonder komend item, of null zodra er weer iets komt. Een ongeldige of toekomstige
+// vorige dag telt niet: dan begint de reeks vandaag.
+export function nextEmptySince({ previousEmptySince = null, upcoming, today }) {
+  if (!validDate(today)) return null;
+  if (Number.isInteger(upcoming) && upcoming > 0) return null;
+  return validDate(previousEmptySince) && previousEmptySince <= today ? previousEmptySince : today;
+}
+
+// "leeg" vanaf de derde dag op rij zonder komend item, anders "ok".
+export function contentStatusOf({ emptySince, today }) {
+  if (!validDate(emptySince) || !validDate(today) || emptySince > today) return "ok";
+  return daysInclusive(emptySince, today) >= EMPTY_SOURCE_DAYS ? "leeg" : "ok";
 }

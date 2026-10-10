@@ -1,12 +1,12 @@
 # Dekkingsmatrix publieke agenda
 
-Stand: 30 september 2026.
+Stand: 30 september 2026; rij 1, 10 en 11 en de brongrenzen voor speelstraten en mail nagekeken op 10 oktober 2026.
 
 Deze matrix is de canonieke lijst van wat de publieke agenda wil dekken. Een onderdeel is pas **opgelost** wanneer de bron automatisch gekoppeld is, district-correct wordt gefilterd waar dat nodig is, actuele status/timing en bronvermelding heeft, privacyveilig is, bronuitval zichtbaar blijft en de werking ook werkelijk getest is. Alleen geparste code, lokaal onderzoek of een niet-geteste livebron telt dus niet als opgelost.
 
 | # | Domein | Stand | Bron / bewijs | Nog open |
 |---|---|---|---|---|
-| 1 | Activiteiten en sport | Deels / sterk | Districtskalender, districtsnieuws, nieuws van 9 andere districten, gratis koopzondagenbron en GIPOD-evenementen. Buurtfeest, wijkfeest, straatfeest, pleinfeest, burenfeest, buurt-/straatbarbecue en buurt-/buren-/straatpicknick zijn expliciet gedekt. | Mail-dubbelcheck na eerstvolgende refresh bevestigen; UiT alleen optioneel met sleutel. |
+| 1 | Activiteiten en sport | Deels | Districtskalender, districtsnieuws, nieuws van 9 andere districten en de gratis koopzondagenbron. De GIPOD-evenementenbron levert in het district niets (zie rij 11) en de mailbronnen leveren 0 items sinds 29 september 2026. | Oorzaak van de lege mailbronnen in de Gateway (aparte PR); UiT alleen optioneel met sleutel. |
 | 2 | Grote/langlopende werken uit mails | Deels | Werkenlaag bestaat; mailsignalen zijn privacyveilig en uploader werkt opnieuw. | Bewijzen dat de volgende agenda-refresh mailsignalen opnieuw als bron consumeert. |
 | 3 | GIPOD-werken | Gekoppeld | Live `INNAME_PUNT`, Werk/Grondwerk, status In uitvoering/Concreet gepland, officiële districtsgrens + exact snapshot. | Eerste history-baseline nog afwachten; Render-liveversie afzonderlijk bewijzen. |
 | 4 | Beheerders/operatoren | Gekoppeld / deels | GIPOD Owner wordt als opdrachtgever/beheerder gegroepeerd. | De Vlaamse Waterweg alleen automatisch toevoegen als een machineleesbare, geografisch filterbare werfbron bewezen is. |
@@ -15,8 +15,8 @@ Deze matrix is de canonieke lijst van wat de publieke agenda wil dekken. Een ond
 | 7 | Parkeerverboden | Gekoppeld | A-Sign goedgekeurd/in effect, District ANTWERPEN. | History-baseline afwachten. |
 | 8 | Innames openbaar domein | Gekoppeld | IOD polygon/lijn, publieke statussen, exacte districtsgeometrie; veilige fasecontext. | History-baseline afwachten. |
 | 9 | Afsluitingen, omleidingen en werfzones | Gekoppeld | SGW lagen 47/48, status vergund, exacte districtsgeometrie. | History-baseline afwachten. |
-| 10 | Speelstraten | Gekoppeld / operationeel, juridisch deels | eBesluit-classificatie en 2026-goedkeuringen zijn bewezen; daarnaast accepteert de GIPOD-evenementenbron alleen expliciete `Speelstraat`-records met concrete districtsstraat, exacte puntfilter en maximaal 14 dagen. | Eerstvolgende refresh moet bewijzen welke Antwerpse GIPOD-speelstraten actueel binnenkomen. De volledige juridische goedkeuringslijst uit eBesluit blijft fail-closed zolang de PDF-bijlagen niet uitleesbaar zijn. |
-| 11 | Evenementen / straatinname | Gekoppeld / conservatief | Activiteitenfeeds + IOD/SGW én `district-gipod-evenementen`: alleen GIPOD `Type=Evenement`, actuele/geplande status, expliciete evenementkenmerken en exact punt binnen District Antwerpen. Buurtfeest, wijkfeest, straatfeest, pleinfeest, burenfeest en aanverwante buurt-/straatbarbecues en picknicks zijn expliciet beschermd. De GIPOD-query kijkt standaard 365 dagen vooruit. | De selectie blijft bewust conservatief: commerciële/markt/terrasachtige innames vallen weg; verder dan wat de officiële bron publiceert wordt niets gegokt. |
+| 10 | Speelstraten | Niet gekoppeld (0 items) | Er is geen publieke lijst. De GIPOD-evenementenbron zou expliciete `Speelstraat`-records nemen (concrete districtsstraat, exacte puntfilter, hoogstens 14 dagen), maar de stad zet geen speelstraten in GIPOD: elke verversing tot en met 10 oktober 2026 gaf 0. De eBesluit-goedkeuringen zijn bewezen, maar de bijlagen met de straten zijn niet uitleesbaar. | Herkennen in A-Sign (trefwoord "speelstraat", pakket P2) zodra de stad ze daar zet. In oktober zijn er geen. |
+| 11 | Evenementen / straatinname | Deels: alleen op de kaart | De evenementendossiers van de stad (A-Sign, IOD/SGW) staan als laag op de kaart, meestal zonder naam, en niet als agendapunt in de lijst of de .ics. `district-gipod-evenementen` levert 0: in het district zet de stad in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10 oktober 2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron heet daarom "vooral buurgemeenten" en krijgt na 3 dagen zonder items de status "leeg". | Evenementdossiers als agendapunten met "naam volgt" (P2) en namen uit collegebesluiten (P3). |
 | 12 | Markten en foren | Gekoppeld | Vaste markten via GIPOD met een standaard queryhorizon van 365 dagen; per markt wordt de eerstvolgende nog geldige marktdag gepubliceerd om de agenda niet te overspoelen. eBesluit vult foren en feestdagafwijkingen aan; annuleringen onderdrukken alleen `stad-markten`. | Volgende refresh bewijst actuele brondata. |
 | 13 | Aannemer / project / fase | Deels | IOD faseNaam/type_dossier/innameHinder; A-Sign Bedrijf/werf/fase als supplement via exact GIPOD-id. | `Bedrijf volgens A-Sign` is geen gegarandeerde juridische aannemer; geen volledige aannemerbron gevonden. |
 | 14 | Snapshots / wijzigingshistoriek | Gebouwd en gemergd | 90 dagen history, added/changed/removed, fail-closed, straatmetadata niet als operationele wijziging. | Eerste automatische baseline moet nog door de 05:17-refresh worden aangemaakt en gecontroleerd. |
@@ -45,11 +45,11 @@ De officiële wervenkaart is relevant en publiceert projectstatus/hinder. Indivi
 
 ### Speelstraten
 
-Voor 2026 zijn de officiële eBesluit-goedkeuringen en bijlagenamen bewezen, maar de bijlagebytes/document-id zijn via de huidige publieke routes niet bereikbaar. De juridische volledige lijst blijft daarom fail-closed. Operationele speelstraten kunnen wel uit GIPOD komen, maar uitsluitend wanneer het record expliciet `Speelstraat` is, een concrete districtsstraat bevat, exact binnen de districtsgrens valt en maximaal 14 dagen duurt. GIPOD vervangt de eBesluit-bijlage dus niet; het levert een afzonderlijke actuele uitvoeringslaag.
+Voor 2026 zijn de officiële eBesluit-goedkeuringen en bijlagenamen bewezen, maar de bijlagebytes/document-id zijn via de huidige publieke routes niet bereikbaar. De juridische volledige lijst blijft daarom fail-closed. In principe kunnen operationele speelstraten uit GIPOD komen (alleen een expliciet `Speelstraat`-record met concrete districtsstraat, exact binnen de districtsgrens, hoogstens 14 dagen), maar de stad zet ze daar niet in: tot en met 10 oktober 2026 kwam er nooit één binnen. Speelstraten staan dus niet in de agenda.
 
 ### Mailsignalen
 
-De lokale mailronde produceert alleen privacyveilige publieke signalen. De companion-upload had een identity-mismatch maar is na de #928-fix opnieuw succesvol: `mail_signalen_uploaded` is runtime gemeten. De eerstvolgende publieke-agenda-refresh moet nog bewijzen dat `mail-district` en `mail-stad` opnieuw door de datalaan worden geconsumeerd.
+De lokale mailronde produceert alleen privacyveilige publieke signalen. `mail-district` en `mail-stad` leveren sinds 29 september 2026 echter 0 items, terwijl hun status "ok" bleef. De oorzaak ligt aan de kant van de Gateway en krijgt een aparte PR in die repo. Na 3 dagen zonder items tonen beide bronnen nu "leeg" in plaats van "ok".
 
 ## Eerstvolgende controles
 
