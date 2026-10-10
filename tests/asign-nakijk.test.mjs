@@ -287,6 +287,16 @@ test("terrassen: geen \"niet actief\", de straat van het adres, en een titel in 
   assert.equal(e.info, "Soort zone volgens de stad: buiten kern");
   assert.equal(e.summary, "Een terras op het openbaar domein, met een vergunning van de stad. Een periode publiceert de stad niet.");
   assert.equal(pc.permitEntry({ id: "terrace:U", terraceType: "uitstalling", status: "actief" }, "terraces").title, "Uitstalling met vergunning");
+  // Twee zones van dezelfde soort op hetzelfde adres: één rij.
+  const t1 = rows.find((r) => r.recordId === "T1");
+  const zones = pc.terrasEntries([{ ...t1, id: "terrace:A" }, { ...t1, id: "terrace:B" }, { ...t1, id: "terrace:C", address: "Proefstraat 9" }]);
+  assert.equal(zones.length, 2);
+  assert.equal(zones[0].info, "Soort zone volgens de stad: buiten kern · 2 zones op dit adres");
+  assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(pick\(live\.terraces, "terraces"\)\)/);
+  // Ook de volledige lijsten onderaan gebruiken de titels in gewone taal, zonder fasenummer.
+  assert.match(bron("site/terraces-live.js"), /<h3>\$\{esc\(terrasTitel\(item\.terraceType\)\)\}<\/h3>/);
+  assert.match(bron("site/public-space-live.js"), /parkeerTitel\(i\.reason\?\?i\.title\)/);
+  assert.doesNotMatch(bron("site/public-space-live.js"), /<h3>\$\{esc\(i\.title\)\}/);
 });
 
 test("de bronzin past bij de soort: geen \"evenementenpagina\" bij een parkeerverbod of werfzone", () => {

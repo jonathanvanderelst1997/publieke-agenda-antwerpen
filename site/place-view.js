@@ -6,7 +6,7 @@ import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, terrasEntries, summarize,
   plekWaar, legeStaatTekst, voortgangTekst,
 } from "./place-core.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -499,7 +499,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ...pick(live.works, "works").map((work) => workEntry(work, { vandaag: brusselsToday(), uitleg: kaartUitleg })),
       ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, straat: state.place?.type === "straat" ? state.place.name : "" }),
       ...pick(live.permits, "permits").map((row) => permitEntry(row)),
-      ...pick(live.terraces, "terraces").map((row) => permitEntry(row, "terraces")),
+      ...terrasEntries(pick(live.terraces, "terraces")),
     ];
     // Chips: tellen binnen de plek, ook voor soorten die uit staan.
     const cc = state.agendaCounts || {};

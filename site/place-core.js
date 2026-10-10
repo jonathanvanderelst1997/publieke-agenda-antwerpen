@@ -596,6 +596,21 @@ export function permitEntry(row, theme = "permits") {
   };
 }
 
+// Terrassen: twee zones van dezelfde soort op hetzelfde adres zijn voor een bewoner één terras.
+export function terrasEntries(rows = []) {
+  const groepen = new Map();
+  for (const row of rows) {
+    const adres = foldText(row?.address);
+    const key = adres ? `${adres}|${foldText(row?.terraceType)}|${foldText(row?.status)}` : `los|${row?.id}`;
+    groepen.set(key, [...(groepen.get(key) || []), row]);
+  }
+  return [...groepen.values()].map((groep) => {
+    const entry = permitEntry(groep[0], "terraces");
+    if (groep.length > 1) entry.info = [entry.info, `${groep.length} zones op dit adres`].filter(Boolean).join(" · ");
+    return entry;
+  });
+}
+
 // Tellen per soortgroep (voor de chips en de samenvatting bovenaan de plek).
 export function summarize(entries, today) {
   const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0 };
