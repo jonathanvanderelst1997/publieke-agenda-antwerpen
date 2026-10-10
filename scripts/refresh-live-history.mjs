@@ -261,13 +261,19 @@ export async function refreshLiveHistory({
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
   // Eerst de bestaande historiek opkuisen (geen huisnummers, alleen het district), ook oudere dagen
-  // van het archief. Een schone historiek blijft ongemoeid. Lukt het niet, dan gaat de verversing
-  // gewoon door; validate-data meldt dan wat er nog opgekuist moet worden.
+  // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
+  // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
+  // wat er nog opgekuist moet worden. De log toont alleen aantallen en het soort fout, nooit een stuk
+  // van een bestand (de logs zijn publiek).
   try {
     const opkuis = opkuisHistoriekPrivacy({ rootDir, write: true, verwijderLeeg: false });
-    if (opkuis.gewijzigd.length) log(JSON.stringify({ historiekOpkuis: { bestanden: opkuis.gewijzigd.length } }));
+    const nietGeschreven = Object.keys(opkuis.nietGeschreven).length;
+    const nogBevindingen = Object.values(opkuis.nogBevindingen).reduce((sum, aantal) => sum + aantal, 0);
+    if (opkuis.gewijzigd.length || nietGeschreven || nogBevindingen) {
+      log(JSON.stringify({ historiekOpkuis: { bestanden: opkuis.gewijzigd.length, nietGeschreven, nogBevindingen } }));
+    }
   } catch (error) {
-    log(JSON.stringify({ historiekOpkuis: "niet gelukt", melding: String(error?.message || error).slice(0, 200) }));
+    log(JSON.stringify({ historiekOpkuis: "niet gelukt", soort: error?.name || "Error" }));
   }
   let previous = null;
   if (fs.existsSync(file)) {

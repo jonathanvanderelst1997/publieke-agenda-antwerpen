@@ -52,20 +52,24 @@ const WERK = {
   properties: { GipodId: 990001, Description: "2000 Antwerpen, Proefstraat 12", Owner: "Proefbedrijf", Status: "In uitvoering", Start: "2026-10-01T06:00:00Z", End: "2026-10-30T18:00:00Z" },
 };
 
-async function nepFetch(input) {
-  const url = new URL(String(input));
-  if (url.pathname.includes("/portal_publiek9/MapServer/905/")) return Response.json({ type: "FeatureCollection", features: [STRAAT] });
-  if (url.pathname.includes("/portal_publiek2/MapServer/109/")) return Response.json({ type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: DISTRICT }] });
-  if (url.pathname.endsWith("/collections/INNAME_PUNT/items")) return Response.json({ type: "FeatureCollection", features: [WERK], links: [] });
-  if (url.pathname.endsWith("/collections/HINDER_PUNT/items")) return Response.json({ type: "FeatureCollection", features: [], links: [] });
-  const laag = url.pathname.match(/\/P_ASign\/ASign\/MapServer\/(\d+)\/query$/)?.[1];
-  if (laag) {
-    const rijen = laag === "20" ? PARKEER : [];
-    if (url.searchParams.get("returnIdsOnly") === "true") return Response.json({ objectIds: rijen.map((rij) => rij.id) });
-    const ids = (url.searchParams.get("objectIds") || "").split(",").map(Number);
-    return Response.json({ features: rijen.filter((rij) => ids.includes(rij.id)).map(parkeerFeature) });
-  }
-  return new Response("", { status: 404 });
+const nepFetch = maakNepFetch(WERK);
+
+function maakNepFetch(werk) {
+  return async (input) => {
+    const url = new URL(String(input));
+    if (url.pathname.includes("/portal_publiek9/MapServer/905/")) return Response.json({ type: "FeatureCollection", features: [STRAAT] });
+    if (url.pathname.includes("/portal_publiek2/MapServer/109/")) return Response.json({ type: "FeatureCollection", features: [{ type: "Feature", properties: {}, geometry: DISTRICT }] });
+    if (url.pathname.endsWith("/collections/INNAME_PUNT/items")) return Response.json({ type: "FeatureCollection", features: [werk], links: [] });
+    if (url.pathname.endsWith("/collections/HINDER_PUNT/items")) return Response.json({ type: "FeatureCollection", features: [], links: [] });
+    const laag = url.pathname.match(/\/P_ASign\/ASign\/MapServer\/(\d+)\/query$/)?.[1];
+    if (laag) {
+      const rijen = laag === "20" ? PARKEER : [];
+      if (url.searchParams.get("returnIdsOnly") === "true") return Response.json({ objectIds: rijen.map((rij) => rij.id) });
+      const ids = (url.searchParams.get("objectIds") || "").split(",").map(Number);
+      return Response.json({ features: rijen.filter((rij) => ids.includes(rij.id)).map(parkeerFeature) });
+    }
+    return new Response("", { status: 404 });
+  };
 }
 
 // Een historiek zoals op main: met huisnummers en met een parkeerverbod buiten het district.
@@ -145,5 +149,44 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
     assert.deepEqual(validateHistoryArchiveDay(dag), []);
     assert.equal(index.days.find((day) => day.date === datum).digest, historyArchiveEventsDigest(dag.events));
     assert.deepEqual(dag.events.map((event) => event.id), ids, `${datum}: alleen de toevoeging in het district blijft`);
+  }
+});
+
+// Een titel met een lange lijst nummers (verzonnen): de opkuis vooraf en de nieuwe ophaling moeten
+// hetzelfde vaste punt geven. Anders blijft er elke dag een nummer staan, komt er een valse
+// "changed:title" bij en houdt validate-data de hele verversing tegen.
+test("verversing: een lange lijst nummers raakt helemaal weg, ook na drie verversingen", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-lijst-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  // Dynamisch: zo faalt de eerste toets van dit bestand op main om de juiste reden.
+  const { historiekPrivacyBevindingen } = await import("../lib/historiek-privacy.mjs");
+  const werk = { ...WERK, properties: { ...WERK.properties, Description: "2000 Antwerpen, Proefstraat 12 14 16 18 20 22 24" } };
+  const runs = ["2026-10-11T03:00:00.000Z", "2026-10-12T03:00:00.000Z", "2026-10-13T03:00:00.000Z"];
+  for (const [index, observedAt] of runs.entries()) {
+    const history = await refreshLiveHistory({ rootDir: root, fetch: maakNepFetch(werk), clock: () => new Date(observedAt), log: () => {} });
+    assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat", `run ${index + 1}`);
+    if (index > 0) assert.deepEqual(history.changes.filter((change) => change.observedAt === observedAt && change.layer === "works"), [], `run ${index + 1}: geen valse wijziging`);
+    for (const [file, inhoud] of historiekTekst(root)) {
+      assert.deepEqual(historiekPrivacyBevindingen(JSON.parse(inhoud)), [], `run ${index + 1}: ${file}`);
+    }
+  }
+});
+
+// Een kapot bestand onder site/history: de opkuis slaat het over, kuist de rest op, en de publieke
+// log toont geen stuk van de inhoud (V8 zet het begin van de tekst in de foutmelding van JSON.parse).
+test("verversing: een kapot archiefbestand komt niet in de log en houdt de opkuis niet tegen", async (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-kapot-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  oudeStand(root);
+  fs.writeFileSync(path.join(root, "site/history/archive/2026-10-08.json"), "Proefstraat 12 bus 3 is geen JSON");
+  const regels = [];
+  await refreshLiveHistory({ rootDir: root, fetch: nepFetch, clock: () => new Date(T2), log: (regel) => regels.push(String(regel)) });
+  const log = regels.join("\n");
+  for (const verboden of ["Proefstraat 12", "bus 3", "geen JSON"]) assert.equal(log.includes(verboden), false, `de log bevat "${verboden}"`);
+  const opkuis = regels.map((regel) => JSON.parse(regel)).find((regel) => regel.historiekOpkuis)?.historiekOpkuis;
+  assert.equal(opkuis?.nietGeschreven, 1, "het kapotte bestand wordt gemeld als aantal");
+  // De andere bestanden zijn wel opgekuist.
+  for (const [file, inhoud] of historiekTekst(root).filter(([file]) => !file.endsWith("2026-10-08.json"))) {
+    for (const verboden of VERBODEN) assert.equal(inhoud.includes(verboden), false, `${file} bevat nog "${verboden}"`);
   }
 });
