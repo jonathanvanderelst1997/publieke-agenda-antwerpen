@@ -30,11 +30,14 @@ test("op een gsm staan de labels boven de waarden: geen waardekolom van 110 px",
   assert.match(regel(smal, ".pv-detail dl div"), /display:\s*block/);
 });
 
-test("geen woordbreuk midden in een woord: nergens overflow-wrap: anywhere", () => {
-  assert.doesNotMatch(css, /overflow-wrap:\s*anywhere/);
-  for (const selector of [".pv-place-name", ".pv-row-title", ".pv-row-summary", ".pv-detail dd"]) {
+test("geen woordbreuk midden in een woord: break-word in plaats van anywhere", () => {
+  for (const selector of [".pv-place-name", ".pv-row-title", ".pv-detail dd", ".pv-row-when"]) {
     assert.match(regel(css, selector), /overflow-wrap:\s*break-word/, selector);
+    assert.doesNotMatch(regel(css, selector), /anywhere/, selector);
   }
+  assert.doesNotMatch(regel(css, ".pv-row-where, .pv-row-range"), /anywhere/);
+  // De samenvatting: een sterkere regel (.pv-row .pv-row-summary) wint van de oude.
+  assert.match(regel(css, ".pv-row .pv-row-summary"), /overflow-wrap:\s*break-word/);
 });
 
 test("de straatnaam krijgt op een gsm de volle breedte; de knoppen staan eronder", () => {

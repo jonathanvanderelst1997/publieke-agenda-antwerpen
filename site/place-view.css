@@ -149,7 +149,7 @@
 .pv-row-where, .pv-row-range { font-size: .87rem; color: var(--pa-muted); overflow-wrap: break-word; }
 .pv-row-where { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .pv-row-range:empty { display: none; }
-.pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: break-word; }
+.pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
@@ -180,6 +180,8 @@
 .pv-bron-dossier > summary::before { content: "＋"; content: "＋" / ""; }
 .pv-bron-dossier[open] > summary::before { content: "－"; content: "－" / ""; }
 .pv-bron-dossier > .pv-uitleg { margin-top: 4px; }
+/* Ook de samenvatting onder de titel breekt geen woord midden in (wint van de regel bij .pv-row-summary). */
+.pv-row .pv-row-summary { overflow-wrap: break-word; }
 /* Open kaart met uitleg: de samenvatting onder de titel staat dan volledig in de regels; niet herhalen. */
 .pv-row.open:has(.pv-uitleg-kaart) .pv-row-summary { display: none; }
 /* De bronzin is een kleine hint, geen lopende tekst (".pv-detail p" maakte ze even groot als de uitleg). */
