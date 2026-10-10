@@ -1,11 +1,13 @@
 // P10: eerlijke bronstatus en kleine fouten.
-// - Een bron die 3 verversingsdagen op rij niets komends levert (0 items of alleen voorbije), heet
+// - Een bron die 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), heet
 //   "leeg" (oranje) in refresh-status.json, in sources:health en op de site, in plaats van "ok".
-// - De GIPOD-evenementenbron zegt eerlijk dat ze vooral buurgemeenten dekt.
+// - De GIPOD-evenementenbron zegt eerlijk dat ze alleen het district toont, waar de stad geen
+//   evenementen in GIPOD zet (GIPOD bevat vooral buurgemeenten, en die vallen weg).
 // - "Bijgewerkt" toont altijd het uur; de dekkingsmatrix zet speelstraten en evenementen niet meer
 //   ten onrechte op "gekoppeld"; er is een icoontje voor de browsertab.
 // Alle testgegevens zijn verzonnen.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -14,8 +16,9 @@ import vm from "node:vm";
 import { fileURLToPath } from "node:url";
 
 import { readSourceDocument, statusEntry, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { classifyGipodEvent } from "../lib/gipod-events.mjs";
 import { SOURCE_DEFINITIONS, sourceDocument, validateRefreshStatus } from "../lib/source-feed.mjs";
-import { loadAgendaRuntime, noClockDate } from "../scripts/agenda-source.mjs";
+import { loadAgendaFeed, loadAgendaRuntime, loadHandAgendaItems, loadRefreshEngine, noClockDate } from "../scripts/agenda-source.mjs";
 import { buildFeed } from "../scripts/build-sources.mjs";
 import { refreshAll, withContentStatus } from "../scripts/refresh-fetch.mjs";
 import { checkHealth } from "../scripts/sources-health.mjs";
@@ -82,6 +85,15 @@ test("beleid: de derde dag op rij zonder komend item is 'leeg'; een komend item 
   // Over de maandgrens en de overgang naar wintertijd (25-10-2026).
   assert.equal(contentStatusOf({ emptySince: "2026-10-24", today: "2026-10-26" }), "leeg");
   assert.equal(contentStatusOf({ emptySince: null, today: "2026-10-12" }), "ok");
+  // De teller telt kalenderdagen, geen verversingen: viel de ochtend van 11/10 uit, dan is de bron op
+  // 12/10 al "leeg" na 2 echte verversingen. De documentatie zegt dat ook zo.
+  assert.equal(nextEmptySince({ previousEmptySince: "2026-10-10", upcoming: 0, today: "2026-10-12" }), "2026-10-10");
+  assert.equal(contentStatusOf({ emptySince: "2026-10-10", today: "2026-10-12" }), "leeg");
+  const docs = fs.readFileSync(path.join(rootDir, "docs", "AGENDA_SOURCES.md"), "utf8");
+  const leegDeel = docs.slice(docs.indexOf("## Leeg: antwoordt wel, levert niets"));
+  assert.match(leegDeel, /3 kalenderdagen op rij/);
+  assert.match(leegDeel, /na 2\s+echte verversingen/);
+  assert.doesNotMatch(docs, /verversingsdagen/);
 });
 
 test("refresh: 3 dagen 0 items of alleen voorbije items geeft 'leeg' in refresh-status.json en in sources:health", async () => {
@@ -205,11 +217,31 @@ test("site: een lege bron toont 'leeg sinds …' in plaats van 'ververst op …'
   assert.match(fs.readFileSync(path.join(rootDir, "site", "styles.css"), "utf8"), /\.source-empty \{/);
 });
 
-test("de GIPOD-evenementenbron heeft een eerlijk label: vooral buurgemeenten, de stad meldt er geen evenementen", () => {
+test("de GIPOD-evenementenbron heeft een eerlijk label: alleen het district, waar de stad geen evenementen meldt", () => {
   const label = SOURCE_DEFINITIONS["district-gipod-evenementen"].label;
-  assert.match(label, /buurgemeenten/);
-  assert.match(label, /geen evenementen/);
+  assert.equal(label, "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)");
   assert.doesNotMatch(label, /^Evenementen op publiek domein/);
+  // Het label mag niet beweren dat de bron buurgemeenten toont: een evenement buiten het district valt weg.
+  assert.doesNotMatch(label, /\(vooral buurgemeenten/);
+  const buurgemeente = {
+    id: "INNAME_PUNT.900001-2610171200",
+    type: "Feature",
+    geometry: { type: "Point", coordinates: [4.5, 51.2] },
+    properties: {
+      GipodId: "900001",
+      Description: "2100 Verzonnengem, Verzonnenstraat : Buurtfeest Verzonnenstraat",
+      Reference: "EV9",
+      Type: "Evenement",
+      PublicDomainOccupancyTypes: "Feest/kermis",
+      Status: "Concreet gepland",
+      Start: "2026-10-17T12:00:00Z",
+      End: "2026-10-17T18:00:00Z",
+    },
+  };
+  assert.equal(classifyGipodEvent(buurgemeente, new Date("2026-10-10T04:00:00Z")).reason, "outside_district");
+  // De gegenereerde feed (site/agenda-feed.js) draagt hetzelfde label.
+  const feedSource = loadAgendaFeed(rootDir).sources.find((source) => source.sourceId === "district-gipod-evenementen");
+  if (feedSource) assert.equal(feedSource.label, label);
 });
 
 test("'Bijgewerkt' toont altijd het uur, met vandaag of gisteren erbij", () => {
@@ -221,6 +253,12 @@ test("'Bijgewerkt' toont altijd het uur, met vandaag of gisteren erbij", () => {
   assert.equal(runtime.freshnessWhen(refreshed, at("2026-10-13T08:00:00Z")), "op 10 oktober 2026 om 05.22");
   // Net na middernacht in Brussel is het al een nieuwe dag.
   assert.equal(runtime.freshnessWhen("2026-10-10T22:30:00Z", at("2026-10-11T06:00:00Z")), "vandaag om 00.30");
+  // De nacht na de overgang naar zomertijd (29-03-2026) duurt 23 uur: om 00.30 op 30/3 is 29/3 gisteren.
+  assert.equal(runtime.freshnessWhen("2026-03-29T03:21:00Z", at("2026-03-29T22:30:00Z")), "gisteren om 05.21");
+  // En na de overgang naar wintertijd (25-10-2026): de hele 26/10 is 25/10 gisteren, op 27/10 niet meer.
+  assert.equal(runtime.freshnessWhen("2026-10-25T04:21:00Z", at("2026-10-25T23:30:00Z")), "gisteren om 05.21");
+  assert.equal(runtime.freshnessWhen("2026-10-25T04:21:00Z", at("2026-10-26T22:30:00Z")), "gisteren om 05.21");
+  assert.equal(runtime.freshnessWhen("2026-10-25T04:21:00Z", at("2026-10-26T23:30:00Z")), "op 25 oktober 2026 om 05.21");
   assert.equal(runtime.freshnessWhen("geen datum", at("2026-10-10T12:00:00Z")), "");
   const agendaSource = fs.readFileSync(path.join(rootDir, "site", "agenda.js"), "utf8");
   assert.match(agendaSource, /"Bijgewerkt"\} \$\{moment\}/);
@@ -235,6 +273,9 @@ test("de dekkingsmatrix zet speelstraten en evenementen niet meer op 'gekoppeld'
   assert.equal(row(11)[2], "Evenementen / straatinname");
   assert.doesNotMatch(row(11)[3], /^Gekoppeld/);
   assert.match(row(11)[4], /buurgemeenten/);
+  // Rij 11 noemt het echte label, niet "vooral buurgemeenten" als wat de bron toont.
+  assert.ok(row(11)[4].includes(`"${SOURCE_DEFINITIONS["district-gipod-evenementen"].label}"`));
+  assert.doesNotMatch(row(11)[4], /heet daarom "vooral buurgemeenten"/);
 });
 
 test("de browsertab heeft een icoontje: /favicon.ico en /favicon.svg bestaan en de pagina's verwijzen ernaar", () => {
@@ -251,5 +292,46 @@ test("de browsertab heeft een icoontje: /favicon.ico en /favicon.svg bestaan en 
     const html = fs.readFileSync(path.join(rootDir, "site", page), "utf8");
     assert.match(html, /<link rel="icon" href="\/favicon\.ico" sizes="32x32" \/>/, page);
     assert.match(html, /<link rel="icon" href="\/favicon\.svg" type="image\/svg\+xml" \/>/, page);
+  }
+});
+
+// De ochtendverversing draait `npm run check` (alle toetsen) na `refresh:manual`. Meldt die dagelijkse
+// broncontrole een handmatige bron als "gewijzigd" of "weg", dan mag geen toets daardoor falen: anders
+// wordt de job refresh rood en komt er geen datatak. Wat zo'n melding doet, toetst manual-check.test.mjs.
+test("de toetsen over handmatige items blijven groen als de dagelijkse broncontrole 'gewijzigd' of 'weg' meldt", () => {
+  const engine = loadRefreshEngine(rootDir);
+  const manualSourceIds = [...new Set(engine.config.rules.map((rule) => rule.sourceId).filter(Boolean))].sort();
+  assert.ok(manualSourceIds.length > 0);
+  for (const status of ["gewijzigd", "weg"]) {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), `broncontrole-${status}-`));
+    for (const file of ["package.json", "scripts/agenda-source.mjs", "site/agenda.js", "site/agenda-refresh.js", "site/public-agenda-manifest.json", "tests/agenda-refresh.test.mjs"]) {
+      fs.mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
+      fs.copyFileSync(path.join(rootDir, file), path.join(root, file));
+    }
+    const feed = loadAgendaFeed(rootDir);
+    feed.manualCheck = {
+      checkedAt: "2026-10-10T03:20:00.000Z",
+      sources: Object.fromEntries(manualSourceIds.map((sourceId) => [sourceId, { status, since: "2026-10-10T03:20:00.000Z" }])),
+    };
+    fs.writeFileSync(path.join(root, "site", "agenda-feed.js"), `window.PUBLIC_AGENDA_FEED = ${JSON.stringify(feed)};\n`);
+    // De nagebootste melding werkt echt: zonder ignoreManualCheck gaan handmatige items van de site.
+    const hand = loadHandAgendaItems(root);
+    const reasons = loadRefreshEngine(root).reconcileAgendaItems(hand, "2026-10-10").auditItems.map((entry) => entry.reviewReason);
+    assert.ok(reasons.includes(status === "weg" ? "manual_source_gone" : "manual_source_changed"), status);
+
+    // Het manifest bouwt de verversing na refresh:manual opnieuw (build:all); hier blijft het oud.
+    const env = { ...process.env };
+    delete env.NODE_TEST_CONTEXT;
+    const run = spawnSync(process.execPath, ["--test", "--test-skip-pattern=^manifest bewaart", "tests/agenda-refresh.test.mjs"], {
+      cwd: root,
+      env,
+      encoding: "utf8",
+      timeout: 60_000,
+    });
+    const output = `${run.stdout}\n${run.stderr}`;
+    assert.equal(run.status, 0, `${status}:\n${output.slice(-3000)}`);
+    assert.match(output, /# fail 0/, status);
+    assert.doesNotMatch(output, /# pass 0\b/, status);
+    fs.rmSync(root, { recursive: true, force: true });
   }
 });

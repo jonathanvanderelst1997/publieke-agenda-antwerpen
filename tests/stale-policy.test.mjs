@@ -33,6 +33,10 @@ test("ontbrekende of ongeldige provenance blokkeert fail-closed", () => {
     [{ recheckDueOn: null }, "blocked_missing_or_invalid_recheck_due"],
     [{ recheckDueOn: "2026-02-30" }, "blocked_missing_or_invalid_recheck_due"],
     [{ classificationAsOf: "2026-02-30" }, "blocked_invalid_as_of"],
+    // Een onmogelijke maand gaf vroeger "Invalid time value" (een uitzondering) in plaats van een blokkade.
+    [{ classificationAsOf: "2026-13-01" }, "blocked_invalid_as_of"],
+    [{ sourceRetrievedAt: "2026-13-01T09:00:00Z" }, "blocked_missing_or_invalid_retrieval"],
+    [{ recheckDueOn: "2026-13-01" }, "blocked_missing_or_invalid_recheck_due"],
     [{ classification: "unknown" }, "blocked_unknown_classification"],
   ];
   for (const [overrides, status] of variants) {

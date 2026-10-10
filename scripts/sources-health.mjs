@@ -3,7 +3,7 @@
 // vóór het moment van controle), of als een bronbestand veel minder komende items heeft dan de
 // vastgelegde versie. Een TIJDELIJKE fout (5xx, 429, time-out) met vorige data binnen maxAgeHours is
 // "stale": een waarschuwing, geen fout (sourceHealthOf in lib/fetch-util.mjs).
-// Een bron die antwoordt maar al 3 dagen op rij niets komends levert (0 items of alleen voorbije), is
+// Een bron die antwoordt maar al 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), is
 // "leeg": ook een waarschuwing (oranje), geen fout (contentStatusOf in scripts/stale-policy.mjs). Op een
 // GitHub-runner komt er per lege bron een ::warning bij.
 //

@@ -1694,8 +1694,12 @@ function freshnessWhen(iso, nowMs) {
     .replace(":", ".");
   const day = dayOf(value);
   if (Number.isFinite(nowMs)) {
-    if (day === dayOf(nowMs)) return `vandaag om ${time}`;
-    if (day === dayOf(nowMs - 24 * 60 * 60 * 1000)) return `gisteren om ${time}`;
+    const today = dayOf(nowMs);
+    if (day === today) return `vandaag om ${time}`;
+    // Gisteren als kalenderdag, niet "nu min 24 uur": de nacht na de overgang naar zomertijd duurt 23 uur.
+    const yesterday = new Date(`${today}T12:00:00Z`);
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1);
+    if (day === yesterday.toISOString().slice(0, 10)) return `gisteren om ${time}`;
   }
   const date = new Intl.DateTimeFormat("nl-BE", { ...zone, day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
   return `op ${date} om ${time}`;
@@ -2388,7 +2392,7 @@ function renderCounts(items, categoryCounts) {
 
 const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
 
-// Per bron: "ververst op …", in het oranje "leeg sinds …" (al 3 verversingen op rij niets komends),
+// Per bron: "ververst op …", in het oranje "leeg sinds …" (al 3 kalenderdagen op rij niets komends),
 // in het rood "verouderd sinds …", of "nog niet actief".
 function renderSourceStatus() {
   const root = document.getElementById("agenda-source-status");

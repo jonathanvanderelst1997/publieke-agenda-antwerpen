@@ -35,11 +35,13 @@ export function evaluateStalePolicy({
 }
 
 // ---------- lege bron ----------
-// Een bron die antwoordt maar al EMPTY_SOURCE_DAYS verversingsdagen op rij niets komends levert
+// Een bron die antwoordt maar al EMPTY_SOURCE_DAYS kalenderdagen op rij niets komends levert
 // (0 items, of alleen items die voorbij zijn), heet "leeg": een oranje melding, geen fout. Zo'n bron
 // is echt leeg (de stad zet er niets in) of stilletjes stuk; in geen van beide gevallen klopt "ok".
 // De teller loopt via `emptySince` in site/sources/refresh-status.json: de eerste dag van de huidige
 // reeks dagen zonder komend item. scripts/refresh-fetch.mjs neemt die dag over van de vorige status.
+// De teller telt kalenderdagen, geen verversingen: valt een ochtend uit, dan is een bron al na 2 echte
+// verversingen "leeg". Dat is bewust: een gemiste ochtend maakt een lege bron niet minder leeg.
 export const EMPTY_SOURCE_DAYS = 3;
 
 // Aantal kalenderdagen van `from` tot en met `to` (beide JJJJ-MM-DD).

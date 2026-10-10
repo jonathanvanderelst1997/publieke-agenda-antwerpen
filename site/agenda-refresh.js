@@ -311,7 +311,7 @@
       attribution: feedSource.attribution,
       itemCount: feedSource.itemCount ?? 0,
       coverage: feedSource.coverage ?? null,
-      // "leeg": al 3 verversingen op rij niets komends (scripts/stale-policy.mjs).
+      // "leeg": al 3 kalenderdagen op rij niets komends (scripts/stale-policy.mjs).
       contentStatus: feedSource.contentStatus ?? null,
       emptySince: feedSource.emptySince ?? null,
       feed: true,

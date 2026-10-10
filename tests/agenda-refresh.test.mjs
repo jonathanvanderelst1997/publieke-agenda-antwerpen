@@ -125,7 +125,9 @@ test("de 19 oude handmatige items zijn weg en geen handmatig item staat nog als 
   const hand = loadHandAgendaItems(rootDir);
   const ids = new Set(hand.map((item) => item.id));
   assert.deepEqual(OPGERUIMD.filter((id) => ids.has(id)), []);
-  const handResult = engine.reconcileAgendaItems(hand, "2026-10-10");
+  // Los van de dagelijkse broncontrole (manual-check.json): meldt die een bron als gewijzigd of weg,
+  // dan zou deze toets anders de ochtendverversing rood maken. Dat gedrag toetst manual-check.test.mjs.
+  const handResult = engine.reconcileAgendaItems(hand, "2026-10-10", { ignoreManualCheck: true });
   assert.deepEqual(
     handResult.auditItems.filter((item) => item.classification === "review_required").map((item) => item.id),
     []
@@ -211,7 +213,7 @@ test("handmatig item: zichtbaar tot en met de einddatum, weg vanaf de dag erna, 
     ["2026-11-01", "current"],
     ["2026-11-02", "expired"],
   ]) {
-    const result = engine.reconcileAgendaItems([item], asOf, { now: `${asOf}T21:59:00Z` });
+    const result = engine.reconcileAgendaItems([item], asOf, { now: `${asOf}T21:59:00Z`, ignoreManualCheck: true });
     const [audit] = result.auditItems;
     assert.equal(audit.classification, expected, asOf);
     assert.equal(audit.reviewReason, null, asOf);
@@ -226,7 +228,7 @@ test("handmatig item: zichtbaar tot en met de einddatum, weg vanaf de dag erna, 
 test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende werf uit een regel volgt nog de SLA", () => {
   const single = items.find((candidate) => candidate.title === "Buurtfeest Gaston Burssenslaan en Hanegraefstraat");
   assert.ok(single);
-  assert.equal(engine.reconcileAgendaItems([single], "2026-10-10").publicItems.length, 1);
+  assert.equal(engine.reconcileAgendaItems([single], "2026-10-10", { ignoreManualCheck: true }).publicItems.length, 1);
   assert.equal(engine.reconcileAgendaItems([single], "2026-10-11").auditItems[0].classification, "expired");
 
   const proef = engineWithRule({ classification: "current" });
