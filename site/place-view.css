@@ -117,7 +117,9 @@
 .pv-chip-zero[aria-pressed="true"] .pv-chip-n { background: var(--pa-surface); color: var(--cat-ink, var(--pa-ink)); }
 /* "Alle onderwerpen tonen/verbergen" is een actie (geen aan/uit-knop): altijd dezelfde vorm. */
 .pv-chip.pv-chip-all { border-style: solid; border-color: var(--pa-ink-strong); background: var(--pa-surface); color: var(--pa-ink-strong); }
-.pv-chip-n { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 2px; border-radius: 999px; background: #ffffff33; font-size: .78rem; text-align: center; }
+/* Het getal op een gekozen chip: een donkere laag over de chipkleur, zodat wit erop minstens 4,5:1 haalt
+   (een witte laag gaf 3,6:1 bij Werken en 4,3:1 bij Vergunningen). Toets: tests/hertest-restpunten.test.mjs. */
+.pv-chip-n { display: inline-block; min-width: 1.6em; padding: 0 6px; margin-left: 2px; border-radius: 999px; background: #00000047; font-size: .78rem; text-align: center; }
 .pv-chip[aria-pressed="false"] .pv-chip-n { background: var(--pa-surface-2); color: var(--pa-muted); }
 .pv-toolbar-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .pv-nav { display: inline-flex; align-items: center; gap: 4px; }

@@ -57,8 +57,9 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(genoemd.streets.map((s) => s.name), ["Voorbeeldplein"]);
   assert.equal(genoemd.streetResolution, "official_address_match");
   const k = kaart(werk({ ...genoemd, occupancyTypes: ["Water"] }));
-  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein nr\. 26 /);
-  assert.match(regels(k).Waar, /^Voorbeeldplein, nr\. 26 \(straat en huisnummer uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  // Eén los huisnummer kan een woning zijn: alleen de straat, met de reden (hertest, restpunt 3).
+  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein tot /);
+  assert.match(regels(k).Waar, /^Voorbeeldplein \(huisnummer weggelaten: één adres kan een woning zijn; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
   // Gezocht, en geen straat met naam binnen 150 m: zeg dat, niet "geen straat in de buurt".
   assert.deepEqual(niets.streets, []);
   assert.deepEqual(niets.streetNearby, []);

@@ -151,12 +151,16 @@ test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet
   fs.mkdirSync(path.join(rootDir, "site", "sources"), { recursive: true });
   const oudBestand = { schemaVersion: 1, generatedAt: "2026-10-09T05:00:00Z", vanaf: "2026-10-09", tot: "2026-12-08", evenementen: {}, werken: {
     90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "x", omschrijving: "2018 ANTWERPEN, VOORBEELDLAAN 8", opdrachtgever: "", straten: ["Voorbeeldlaan"], huisnummers: "nr. 8", huisnummerBron: "x", adres: "nr. 8", gevolgen: [], fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], bijgewerkt: "x" },
-    90000602: { soort: "Werken aan het elektriciteitsnet", soortBron: "x", omschrijving: "Voorbeeldlaan 28 DNW12345678_Jan Voorbeeldman LS_kast", opdrachtgever: "", straten: [], huisnummers: "nr. 28", huisnummerBron: "x", gevolgen: [], fasen: [], bijgewerkt: "x" },
+    90000602: { soort: "Werken aan het elektriciteitsnet", soortBron: "x", omschrijving: "Voorbeeldlaan 28 DNW12345678_Jan Voorbeeldman LS_kast", opdrachtgever: "", straten: [], huisnummers: "nr. 28–30", huisnummerBron: "x", gevolgen: [], fasen: [], bijgewerkt: "x" },
+    90000603: { soort: "Werken aan het elektriciteitsnet", soortBron: "x", omschrijving: "Voorbeeldlaan 28", opdrachtgever: "", straten: [], huisnummers: "nr. 28", huisnummerBron: "x", adres: "nr. 28", gevolgen: [], fasen: [], bijgewerkt: "x" },
   } };
   fs.writeFileSync(path.join(rootDir, "site", "sources", ref.KAART_UITLEG_FILE), JSON.stringify(oudBestand));
   const gehouden = await ref.schrijfKaartUitleg({ rootDir, works: { ok: false, items: [] }, publicSpace: { ok: false }, fetch: fakeFetch, clock: () => new Date("2026-10-10T05:00:00Z"), log: () => {} });
   assert.doesNotMatch(JSON.stringify(gehouden.werken["90000601"]), /VOORBEELDLAAN 8|Voorbeeldlaan 8|nr\. 8|"adres"/);
-  assert.equal(gehouden.werken["90000602"].huisnummers, "nr. 28"); // geen aansluiting: het bereik blijft
+  assert.equal(gehouden.werken["90000602"].huisnummers, "nr. 28–30"); // geen aansluiting: het bereik blijft
+  // Eén los huisnummer bewaren we niet meer, ook niet uit een oudere verversing (hertest, restpunt 3).
+  assert.equal(gehouden.werken["90000603"].huisnummers, "");
+  assert.equal(gehouden.werken["90000603"].adres, "");
   assert.doesNotMatch(gehouden.werken["90000602"].omschrijving, /Jan|Voorbeeldman/);
   // Een naam na een dossiercode is een persoon: niet bewaren, niet tonen. De code zelf blijft.
   const naam = ku.werkFeiten(werk({ ...fluvius, title: "2020_ANTWERPEN-Voorbeeldwijk_Voorbeeldlaan 28 DNW12345678_Jan Voorbeeldman LS_voetpadkast vervangen", occupancyTypes: ["Elektriciteit"] }));

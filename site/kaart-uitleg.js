@@ -306,13 +306,28 @@ export function geldigeHuisnummers(tekst) {
   return t;
 }
 // Huisnummers die de beheerder zelf in een tekst zette: "Kammenstraat 18 - 24", "Schilderstraat 1-25".
+// Een reeks in elke schrijfwijze telt als reeks: "13 tem 15", "13 t.e.m. 15", "13 tot en met 15", "13 t/m 15",
+// "13 tot 15", "13 → 15", "13 en 15" en "13, 15 en 17" geven allemaal "nr. 13–15" (of 13–17), nooit "nr. 13".
+// Hoogstens drie cijfers: "Proefstraat 13, 2000 Antwerpen" is geen reeks tot 2000. Na een komma of "en"
+// telt een getal alleen als er geen woord op volgt ("Proefstraat 12, 3 dagen" is geen reeks).
+const NUMMER = String.raw`\d{1,3}[a-z]?(?![\d\p{L}])`;
+const REEKS = String.raw`\s*(?:-|–|—|→|tot en met|t\.\s?e\.\s?m\.?|tem|t\/m|tot)\s*`;
+const OPSOMMING = String.raw`\s*(?:,|en)\s*`;
+const NA_OPSOMMING = String.raw`(?=\s*(?:$|[.;:,)/|]|[-–→]|(?:en|tem|tot|t\/m)(?!\p{L})))`;
 export function huisnummersUitTekst(tekst, straat) {
   const t = clean(tekst, 400), s = clean(straat, 120);
   if (!t || !s) return "";
   const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const m = t.match(new RegExp(`${esc}\\s+(\\d+[a-z]?)(?:\\s*(?:-|–|tot|t\\/m)\\s*(\\d+[a-z]?))?(?![\\d])`, "i"));
+  const m = t.match(new RegExp(`${esc}\\s+(${NUMMER}(?:${REEKS}${NUMMER}|${OPSOMMING}${NUMMER}${NA_OPSOMMING})*)`, "iu"));
   if (!m) return "";
-  return geldigeHuisnummers(m[2] ? `nr. ${m[1]}–${m[2]}` : `nr. ${m[1]}`);
+  return geldigeHuisnummers(huisnummerBereik(m[1].match(/\d{1,3}[a-z]?/gi)));
+}
+// Eén los huisnummer kan een woning zijn: dat tonen en bewaren we niet, net zoals bij een parkeerverbod
+// of een aansluiting (dan alleen de straat). Een reeks ("nr. 13–15", "nr. 2–34") zegt over welk stuk
+// straat een werk loopt en blijft staan.
+export function huisnummerReeks(tekst) {
+  const t = geldigeHuisnummers(tekst);
+  return /–/.test(t) ? t : "";
 }
 
 // Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette.
@@ -395,7 +410,8 @@ function heeftInhoud(t, straten = []) {
 const NET_CODES = /(?<![\p{L}\d])(?:E|G|OV|W|T|LS|MS|HS)(?![\p{L}\d])/gu;
 const SOORT_WOORDEN = /(?<!\p{L})(?:klantaansluiting(?:en)?|wegeniswerk(?:en)?|nutswerk(?:en)?|grondwerk(?:en)?)(?!\p{L})/giu;
 const STRAAT_EINDE = "(?:steenweg|straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|berg|ring|tunnel|plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)";
-const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z])?(?:\\s*(?:-|/|en|tem|t\\/m|tot)\\s*\\d{1,4}[a-zA-Z]?)?";
+// Een reeks in elke schrijfwijze, zoals in huisnummersUitTekst: "12-14", "12 tem 14", "12 t.e.m. 14", "12 tot en met 14".
+const HUISNR = "(?:[Nn][Rr]\\.?\\s*)?\\d{1,4}(?:\\s?[a-zA-Z](?!\\p{L}|\\.\\p{L}))?(?:\\s*(?:-|–|/|→|en|tot en met|t\\.\\s?e\\.\\s?m\\.?|tem|t\\/m|tot)\\s*\\d{1,4}[a-zA-Z]?)?";
 // Alleen een straatnaam (woorden met een hoofdletter, "van", "de" …) met eventueel een huisnummer:
 // "Brederodestraat | 39", "LONDENSTRAAT", "Pieter van Hobokenstraat 6". Niet "Betonherstel op trambaan".
 const STRAAT_WOORD = "(?:\\p{Lu}[\\p{L}'.-]*|van|de|der|den|het|ten|ter|la|le|du|des)";
@@ -422,7 +438,9 @@ export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
   if (aard) t = aard[1];
   const kaartStraat = straten.map((s) => clean(s, 120)).filter(Boolean)
     .map((s) => new RegExp(`^${escRe(zonderAccenten(s))}(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR}(?![\\p{L}\\d]))?\\.?\\s*`, "iu"));
-  const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|_)/);
+  // Ook per zin ("Xstraat 13 tem 15. Ystraat 2."), en tussen twee adressen die een reeks vormen
+  // ("Xplein 70 tem Ystraat 2"): elk stuk dat alleen een adres is, valt dan weg.
+  const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|_|\.\s+(?=\p{Lu})|\s+(?:tem|t\.\s?e\.\s?m\.?|tot en met|t\/m)\s+(?=\p{Lu}))/u);
   const blijft = [];
   for (let i = 0; i < delen.length; i += 2) {
     // Vooraan: "2018 Antwerpen" of een volgnummer van de beheerder ("5204: Voorbeeldstraat 2A").
@@ -431,7 +449,7 @@ export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
     stuk = stuk.replace(LEIDING_ZIN, " ");
     const leiding = stuk !== voorLeiding;
     for (const re of kaartStraat) if (re.test(zonderAccenten(stuk))) stuk = zonderAccenten(stuk).replace(re, "");
-    stuk = stuk.replace(/\(\s*lengte:?\s*\d+\s?m\s*\)/gi, " ").replace(NET_CODES, " ").replace(SOORT_WOORDEN, " ").replace(/\s+/g, " ").replace(/^[\s,;:.-]+|[\s,;:-]+$/g, "").replace(/^(?:en|of)\s+/i, "").trim();
+    stuk = stuk.replace(/\(\s*lengte:?\s*\d+\s?m\s*\)/gi, " ").replace(NET_CODES, " ").replace(SOORT_WOORDEN, " ").replace(/\s+/g, " ").replace(/^[\s,;:.-]+|[\s,;:-]+$/g, "").replace(/^(?:en|of|tem|t\/m|tot(?: en met)?|t\.\s?e\.\s?m\.?)\s+/i, "").trim();
     if (!stuk || (leiding && !/\s/.test(stuk)) || ALLEEN_ADRES.test(stuk) || LEEG_STUK.some((re) => re.test(stuk))) continue;
     blijft.push(`${blijft.length ? delen[i - 1] : ""}${stuk}`);
   }
@@ -465,7 +483,9 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
   const omschrijving = eenAdres ? zonderHuisnummers(ruweOmschrijving) : ruweOmschrijving;
   const fasen = eenAdres ? ruweFasen.map((f) => ({ ...f, naam: zonderHuisnummers(f.naam, 160) })).filter((f) => f.naam) : ruweFasen;
   const straten = uniek((werk.streets || []).map((s) => s?.name));
-  const eigenNummers = straten.length && !eenAdres ? huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0]) : "";
+  // Alleen een reeks blijft (huisnummerReeks): één los huisnummer kan een woning zijn, ook bij een werk.
+  const eigenNummers = straten.length && !eenAdres ? huisnummerReeks(huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0])) : "";
+  const registerNummers = huisnummerReeks(huisnummers);
   const gevolgen = uniek(werk.hindrance?.consequences || []);
   // Fasen buiten het district tellen niet voor de titel: dan alleen de gevolgen van de fasen erbinnen.
   const alleFasen = werk.hindrance?.phases || [];
@@ -499,8 +519,8 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     ...(straatUitTekst ? { straatBron: "omschrijving van de beheerder", straatAfstand: Math.round(Number(werk.streetDistanceMeters)) || 0 } : {}),
     // Gezocht en geen straat met naam binnen 150 m, of niet kunnen zoeken (geen straatassen geladen).
     ...(!straten.length && !nabij ? { straatGezocht: Array.isArray(werk.streetNearby) } : {}),
-    huisnummers: eenAdres ? "" : eigenNummers || geldigeHuisnummers(huisnummers),
-    huisnummerBron: eenAdres ? "" : eigenNummers ? "omschrijving van de beheerder" : geldigeHuisnummers(huisnummers) ? clean(huisnummerBron, 120) : "",
+    huisnummers: eenAdres ? "" : eigenNummers || registerNummers,
+    huisnummerBron: eenAdres ? "" : eigenNummers ? "omschrijving van de beheerder" : registerNummers ? clean(huisnummerBron, 120) : "",
     gevolgen,
     ...(titelGevolgen !== gevolgen ? { titelGevolgen } : {}),
     // Alleen als het zwaarste gevolg een kortere periode heeft dan de hele hinder.
@@ -567,7 +587,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const dt = (d) => datumBijVandaag(d, v);
   const straat = f.straten[0] || "";
   const eenAdres = EEN_ADRES.test(f.soort || "");
-  const nummers = eenAdres ? "" : geldigeHuisnummers(f.huisnummers);
+  // Alleen een reeks huisnummers; één los nummer (uit de tekst van de beheerder, het adressenregister of
+  // een oudere verversing) laten we weg, en dat zeggen we bij "Waar".
+  const nummers = eenAdres ? "" : huisnummerReeks(f.huisnummers);
+  const losNummerWeg = !eenAdres && !nummers && Boolean(geldigeHuisnummers(f.huisnummers) || (f.straten[0] && huisnummersUitTekst(f.omschrijving, f.straten[0])));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
   const soort = f.soort || (werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
@@ -598,7 +621,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
 
   const ontbreekt = [];
   if (!f.omschrijving) ontbreekt.push(NIET_GEPUBLICEERD);
-  if (!nummers && !eenAdres) ontbreekt.push("huisnummers niet gepubliceerd");
+  if (!nummers && !eenAdres && !losNummerWeg) ontbreekt.push("huisnummers niet gepubliceerd");
   if (f.hinderBekend === false) ontbreekt.push("gevolgen voor het verkeer niet gepubliceerd");
   if (f.hinderBekend === null) ontbreekt.push("gevolgen voor het verkeer nu niet opgehaald");
   if (!eind) ontbreekt.push("einddatum niet gepubliceerd");
@@ -628,7 +651,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   regels.push(["Waar", straat
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : "huisnummers niet gepubliceerd", ...uitTekst])}`
+      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "huisnummers niet gepubliceerd", ...uitTekst])}`
     : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
     : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
