@@ -31,7 +31,18 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
   let area = { wijk: "", radius: 0, postcode: "" }, areaMatcher = null;
   const allowed = new Set(VIEW_THEMES.map(([key]) => key));
   let themes = new Set(defaultThemes.filter(key => allowed.has(key)));
-  const refsOf = item => Array.isArray(item?.streets) && item.streets.length ? item.streets : resolver(item?.location || item?.address || "", item) || [];
+  // Straten van een item zonder eigen straten: één keer per item opzoeken en onthouden. Elke filter-
+  // of tekenbeurt vraagt dit voor elk item; opnieuw zoeken over 1.600 straatnamen legde een gsm stil.
+  // Een nieuwe resolver of een nieuwe straatindex (resetRefs) wist het geheugen.
+  let refsMemo = new WeakMap();
+  const refsOf = item => {
+    if (Array.isArray(item?.streets) && item.streets.length) return item.streets;
+    const key = item && typeof item === "object" ? item : null;
+    if (key && refsMemo.has(key)) return refsMemo.get(key);
+    const refs = resolver(item?.location || item?.address || "", item) || [];
+    if (key) refsMemo.set(key, refs);
+    return refs;
+  };
   return {
     get query() { return query; },
     get selected() { return selected; },
@@ -43,7 +54,8 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
     get place() { return place; },
     get hasPlace() { return Boolean(selected || area.wijk || area.postcode); },
     setPlace(value) { place = value && typeof value === "object" ? { ...value } : null; },
-    setResolver(fn) { if (typeof fn === "function") resolver = fn; },
+    setResolver(fn) { if (typeof fn === "function") { resolver = fn; refsMemo = new WeakMap(); } },
+    resetRefs() { refsMemo = new WeakMap(); },
     refsOf,
     setStreet(text, street = null) { query = String(text || "").trim(); selected = query && street?.name ? { ...street } : null; },
     setThemes(values) { themes = new Set((values || []).filter(key => allowed.has(key))); },
