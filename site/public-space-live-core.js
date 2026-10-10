@@ -1,4 +1,4 @@
-import {dedupeByKey,normalizeIod,normalizeParking,normalizeSgw,publicOnly} from "./public-space-core.js";
+import {dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -70,6 +70,10 @@ export function geometryIntersectsDistrict(g,district){
   return false;
 }
 
+// De eigen vorm van een item (lijnen en vlakken van al zijn features), voor de straal rond een straat
+// (site/neighborhood-core.js vormBinnenStraal). Per sleutel alle features met een geometrie.
+function vormenPerSleutel(features,sleutel){const m=new Map();for(const f of features){const k=sleutel(attrs(f));if(!k||!geom(f))continue;const l=m.get(k);if(l)l.push(f);else m.set(k,[f])}return m}
+const vormVan=(vormen,k)=>{const v=vormen.has(k)?parcoursGeometrie(vormen.get(k)):null;return v&&(v.vlakken.length||v.lijnen.length)?{vorm:v}:{}};
 // De officiële straatnamen uit een straatindex (voor straatnamen met een cijfer, zie adres-privacy.js).
 const namenUit=index=>index?.byName instanceof Map?[...index.byName.values()].flat().map(r=>r?.name).filter(Boolean):null;
 // `postcodes`: alleen parkeerverboden met zo'n postcode (de browser geeft die van het district mee;
@@ -81,7 +85,7 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
   // Zonder huisnummer delen veel parkeerverboden hetzelfde adres: één opzoeking per adres.
   const perAdres=new Map();
   const straatVan=adres=>{if(!streetIndex)return{streets:[],confidence:"unresolved",distanceMeters:null};if(!perAdres.has(adres))perAdres.set(adres,resolveAddressStreet(adres,streetIndex));return perAdres.get(adres)};
-  const out=[];
+  const out=[],vormen=vormenPerSleutel(features,parkingKey);
   for(const n of publicOnly(dedupeByKey(features.map(attrs),r=>normalizeParking(r,{straatnamen})))){
     if(binnen&&n.postcode&&!binnen.has(n.postcode))continue;
     const r=straatVan(n.address);
@@ -92,7 +96,9 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
       // Voor de kaart in gewone taal (place-core.js): de reden zoals de stad ze schrijft, de uren en een
       // GIPOD-id als de stad er een geeft. De historiek (lib/live-history.mjs) bewaart deze velden niet.
       reason:n.reason,postcode:n.postcode,startTime:n.startTime,endTime:n.endTime,weekdaysOnly:n.weekdaysOnly,...(n.gipodId?{gipodId:n.gipodId}:{}),
-      sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",streets:[...r.streets],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters
+      sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",streets:[...r.streets],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters,
+      // De lijn van het parkeerverbod (laag 20), voor de straal; de historiek bewaart dit veld niet.
+      ...vormVan(vormen,n.key)
     });
     yield;
   }
@@ -102,25 +108,28 @@ function* iodItems(features,district,streetIndex){
   const exact=[],byKey=new Map(),vormen=new Map();
   for(const f of features){if(geometryIntersectsDistrict(geom(f),district))exact.push(f);yield}
   if(streetIndex)for(const f of exact){const n=normalizeIod(attrs(f));if(n.key){const a=byKey.get(n.key)||[];a.push(resolveGeometryStreets(geom(f),streetIndex));byKey.set(n.key,a)}yield}
-  // De vorm van elk parcours (vlak uit laag 22, lijn uit laag 23) gaat mee, zodat de browser zelf kan
-  // zien welke straten het parcours volgt en welke het alleen kruist (site/parcours-straten.js) als
-  // de verversing het dossier nog niet kent. De historiek bewaart dit veld niet.
-  for(const f of exact){const n=normalizeIod(attrs(f));if(n.key&&n.type==="Parcours"&&geom(f))vormen.set(n.key,[...(vormen.get(n.key)||[]),f])}
+  // De vorm van elke inname (vlak uit laag 22, lijn uit laag 23) gaat mee: voor de straal, en bij een
+  // parcours ook zodat de browser zelf kan zien welke straten het parcours volgt en welke het alleen
+  // kruist (site/parcours-straten.js) als de verversing het dossier nog niet kent. De historiek bewaart
+  // deze velden niet.
+  for(const[k,fs]of vormenPerSleutel(exact,iodKey))vormen.set(k,fs);
   return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
     phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,
     sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})(),
-    ...(vormen.has(n.key)?{parcours:parcoursGeometrie(vormen.get(n.key))}:{})
+    ...(()=>{const v=vormVan(vormen,n.key);return v.vorm&&n.type==="Parcours"?{vorm:v.vorm,parcours:v.vorm}:v})()
   }));
 }
 function* sgwItems(features,district,streetIndex){
-  const m=new Map();
+  const m=new Map(),vormen=new Map();
   for(const row of features){
     yield;
     const f=row?.feature||row;if(!geometryIntersectsDistrict(geom(f),district))continue;
     const n=normalizeSgw(attrs(f));if(!n.key||!n.publicConfirmed)continue;
+    // De werfzone én de omleiding: liggen ze binnen de straal, dan telt de maatregel mee.
+    if(geom(f)){const l=vormen.get(n.key);if(l)l.push(f);else vormen.set(n.key,[f])}
     const cur=m.get(n.key)||{...n,kinds:new Set(),streetResolutions:[],perSoort:{}};
     const soort=row?.kind||"Maatregel";
     cur.kinds.add(soort);if(streetIndex){const r=resolveGeometryStreets(geom(f),streetIndex);cur.streetResolutions.push(r);(cur.perSoort[soort]=cur.perSoort[soort]||[]).push(r)}cur.start=earlier(cur.start,n.start);cur.end=later(cur.end,n.end);m.set(n.key,cur);
@@ -131,7 +140,8 @@ function* sgwItems(features,district,streetIndex){
     sourceLabel:"A-Sign SGW",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/48",...(()=>{const r=combineStreetResolutions(n.streetResolutions||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})(),
     // Apart: de straten van de werfzone zelf en die van de omleiding. Een straat op de omleiding is
     // geen straat met een werfzone (place-core.js zegt dat aan de bewoner).
-    werfzoneStreets:combineStreetResolutions(n.perSoort.Werfzone||[]).streets,omleidingStreets:combineStreetResolutions(n.perSoort.Omleiding||[]).streets
+    werfzoneStreets:combineStreetResolutions(n.perSoort.Werfzone||[]).streets,omleidingStreets:combineStreetResolutions(n.perSoort.Omleiding||[]).streets,
+    ...vormVan(vormen,n.key)
   }));
 }
 const stamp=v=>{const t=Date.parse(v||"");return Number.isFinite(t)?t:Infinity};

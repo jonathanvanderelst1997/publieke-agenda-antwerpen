@@ -87,8 +87,8 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
       const refs = refsOf(item);
       if (Array.isArray(refs) && refs.some(ref => sameStreet(ref, selected))) return true;
       // Straat + straal: ook wat binnen de straal van die straat ligt: met een punt (GIPOD, geocodering)
-      // telt het punt, zonder punt (parcours, vergunning, parkeerverbod) telt één van zijn straten.
-      return Boolean(area.radius > 0 && areaMatcher?.nearStreet?.(item, selected, area.radius, refs));
+      // telt het punt, zonder punt (parcours, vergunning, parkeerverbod) zijn eigen vorm.
+      return Boolean(area.radius > 0 && areaMatcher?.nearStreet?.(item, selected, area.radius));
     },
     matches(item, theme) { return this.enabled(theme) && this.matchesStreet(item); },
     matchesAgenda(item) { return this.matches(item, agendaTheme(item)); }

@@ -98,18 +98,20 @@ test("de filter gebruikt dezelfde lijst als het kaartje", () => {
   assert.ok(view2.matchesStreet(rij({ streets: [{ id: "1", name: "Leiweg", postcode: "2000" }] })));
 });
 
-test("straal zonder punt: telt mee als één van de straten binnen de straal ligt", () => {
+test("straal zonder punt: telt mee als zijn eigen vorm binnen de straal ligt", () => {
   const view = createAgendaView();
   view.setAreaMatcher(createAreaMatcher({ wijken: [], geo: { entries: {} }, streetIndex: INDEX }));
   view.setStreet("Verrestraat", { id: "5", name: "Verrestraat", postcode: "2000" });
-  const parcours = { kind: "iod", streets: [{ id: "2", name: "Langsstraat", postcode: "2000" }] }; // ±100 m verder
-  const vergunning = { id: "permit:1", streets: [{ name: "Zijstraat" }] }; // zonder postcode: elke variant
+  // Het parcours (vlak VLAK) ligt 68 m van de Verrestraat; een perceel 6 m naast de Zijstraat.
+  const parcours = { kind: "iod", streets: [{ id: "2", name: "Langsstraat", postcode: "2000" }], vorm: parcoursGeometrie([{ geometry: VLAK }]) };
+  const perceel = { rings: [[[456, 13], [470, 13], [470, 40], [456, 40], [456, 13]].map(([x, y]) => m(x, y))] };
+  const vergunning = { id: "permit:1", streets: [{ name: "Zijstraat" }], vorm: parcoursGeometrie([{ geometry: perceel }]) };
   assert.ok(!view.matchesStreet(parcours), "alleen de straat zelf");
   view.setArea({ radius: 250 });
   assert.ok(view.matchesStreet(parcours));
   assert.ok(view.matchesStreet(vergunning));
   const ver = { kind: "iod", streets: [{ id: "x", name: "Verweg", postcode: "2000" }] };
-  assert.ok(!view.matchesStreet(ver), "een onbekende straat telt niet");
+  assert.ok(!view.matchesStreet(ver), "zonder vorm en zonder punt: alleen in de straat zelf");
   // Met een eigen punt beslist het punt (een werk van GIPOD).
   assert.ok(!view.matchesStreet({ point: m(3000, 3000), streets: [{ name: "Langsstraat", postcode: "2000" }] }));
 });

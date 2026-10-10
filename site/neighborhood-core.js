@@ -2,7 +2,6 @@
 // Geen netwerk, geen DOM: dezelfde code draait in de browser (kaart en filter) en in Node
 // (geocodering bij het verversen en de toetsen).
 import { pointInGeometry } from "./works-core.js";
-import { segmentenInKader } from "./street-core.js";
 
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 
@@ -96,48 +95,80 @@ export function segmentSegmentMeters(a, b, c, d) {
   if (kruisen(a, b, c, d)) return 0;
   return Math.min(pointSegmentMeters(a, c, d), pointSegmentMeters(b, c, d), pointSegmentMeters(c, a, b), pointSegmentMeters(d, a, b));
 }
-// Sleutels van alle straten waarvan een stuk binnen `radius` meter van de gekozen straat ligt:
-// "naam|postcode" en "naam|" (voor een straat zonder postcode). Voor items zonder eigen punt.
-export const straatSleutel = (ref) => `${locationKey(ref?.name)}|${ref?.postcode || ""}`;
-export function stratenBinnenStraal(index, segments, radius) {
-  const uit = new Set();
-  if (!index?.segments || !segments?.length || !(radius > 0)) return uit;
-  // Rooster van de gekozen straat (cellen van één straal groot): een kandidaat vergelijkt zich alleen
-  // met de stukken van de straat in de cellen rond hem. Een lange straat (de Leien, 250 stukken) bleef
-  // anders seconden rekenen.
-  const cw = radius / 69000, ch = radius / 110000; // graden per straal op 51° NB, iets ruimer: nooit te krap
-  const box = (s) => s.box || [Math.min(s.a[0], s.b[0]), Math.min(s.a[1], s.b[1]), Math.max(s.a[0], s.b[0]), Math.max(s.a[1], s.b[1])];
-  const rooster = new Map();
+// ---- straal voor een item zonder punt: zijn eigen vorm ----
+// Een vergunning (perceel), een parkeerverbod (lijn), een inname of parcours (vlak) en een werfzone of
+// omleiding hebben geen punt, maar wel een vorm uit hun bronlaag: `vorm` = { vlakken, lijnen } zoals
+// parcoursGeometrie() (site/parcours-straten.js) ze maakt. Het item telt mee als die vorm ergens
+// binnen de straal van de gekozen straat ligt: gemeten tussen de randen van de vorm en de stukken
+// straatas, of de straat ligt in het vlak. Vroeger telde het item als één van zijn stráten binnen de
+// straal lag: een lange straat trok zo vergunningen en parkeerverboden van 900 m ver mee.
+const VORM_KADER = new WeakMap();
+const isXY = (p) => Array.isArray(p) && Number.isFinite(p[0]) && Number.isFinite(p[1]);
+function vormKader(vorm) {
+  if (VORM_KADER.has(vorm)) return VORM_KADER.get(vorm);
+  let k = null;
+  for (const lijn of [...(vorm.vlakken || []).flat(), ...(vorm.lijnen || [])]) for (const p of lijn || []) {
+    if (!isXY(p)) continue;
+    k = k ? [Math.min(k[0], p[0]), Math.min(k[1], p[1]), Math.max(k[2], p[0]), Math.max(k[3], p[1])] : [p[0], p[1], p[0], p[1]];
+  }
+  VORM_KADER.set(vorm, k);
+  return k;
+}
+// De gekozen straat in een rooster met cellen van één straal groot (graden; iets ruimer gerekend dan
+// op 51° NB: nooit te krap). Eén keer per straat en straal.
+const ROOSTERS = new WeakMap();
+function straatRooster(segments, radius) {
+  let perStraal = ROOSTERS.get(segments);
+  if (!perStraal) { perStraal = new Map(); ROOSTERS.set(segments, perStraal); }
+  if (perStraal.has(radius)) return perStraal.get(radius);
+  const cw = radius / 69000, ch = radius / 110000;
+  const cellen = new Map();
   let kader = null;
   for (const s of segments) {
-    const b = box(s);
-    kader = kader ? [Math.min(kader[0], b[0]), Math.min(kader[1], b[1]), Math.max(kader[2], b[2]), Math.max(kader[3], b[3])] : [...b];
+    const b = [Math.min(s.a[0], s.b[0]), Math.min(s.a[1], s.b[1]), Math.max(s.a[0], s.b[0]), Math.max(s.a[1], s.b[1])];
+    kader = kader ? [Math.min(kader[0], b[0]), Math.min(kader[1], b[1]), Math.max(kader[2], b[2]), Math.max(kader[3], b[3])] : b;
     for (let x = Math.floor(b[0] / cw); x <= Math.floor(b[2] / cw); x++) for (let y = Math.floor(b[1] / ch); y <= Math.floor(b[3] / ch); y++) {
-      const k = `${x}:${y}`; const l = rooster.get(k); if (l) l.push(s); else rooster.set(k, [s]);
+      const k = `${x}:${y}`; const l = cellen.get(k); if (l) l.push(s); else cellen.set(k, [s]);
     }
   }
-  const kandidaten = index.grid ? segmentenInKader(index, kader, cw) : index.segments;
-  for (const t of kandidaten) {
-    if ((t.refs || []).every((ref) => uit.has(straatSleutel(ref)))) continue;
-    const b = box(t);
-    let binnen = false;
-    zoek: for (let x = Math.floor(b[0] / cw) - 1; x <= Math.floor(b[2] / cw) + 1; x++) for (let y = Math.floor(b[1] / ch) - 1; y <= Math.floor(b[3] / ch) + 1; y++) {
-      for (const s of rooster.get(`${x}:${y}`) || []) {
-        const sb = box(s);
-        // Eerst de kaders (met iets kleinere meters per graad: nooit te streng): liggen die al verder
-        // dan de straal, dan ook de stukken zelf.
-        if (Math.hypot(Math.max(0, sb[0] - b[2], b[0] - sb[2]) * 69000, Math.max(0, sb[1] - b[3], b[1] - sb[3]) * 110000) > radius) continue;
-        if (segmentSegmentMeters(s.a, s.b, t.a, t.b) <= radius) { binnen = true; break zoek; }
+  const rooster = { cw, ch, cellen, ruim: kader && [kader[0] - cw, kader[1] - ch, kader[2] + cw, kader[3] + ch] };
+  perStraal.set(radius, rooster);
+  return rooster;
+}
+function inRingen(p, ringen) {
+  let binnen = false;
+  for (const r of ringen) for (let i = 0, j = r.length - 1; i < r.length; j = i++) {
+    const a = r[i], b = r[j];
+    if (isXY(a) && isXY(b) && (a[1] > p[1]) !== (b[1] > p[1]) && p[0] < ((b[0] - a[0]) * (p[1] - a[1])) / (b[1] - a[1]) + a[0]) binnen = !binnen;
+  }
+  return binnen;
+}
+export function vormBinnenStraal(vorm, segments, radius) {
+  if (!vorm || !segments?.length || !(radius > 0)) return false;
+  const k = vormKader(vorm);
+  const r = straatRooster(segments, radius);
+  if (!k || !r.ruim || k[0] > r.ruim[2] || k[2] < r.ruim[0] || k[1] > r.ruim[3] || k[3] < r.ruim[1]) return false;
+  const randen = [];
+  for (const ring of (vorm.vlakken || []).flat()) for (let i = 1; i < (ring || []).length; i++) randen.push([ring[i - 1], ring[i]]);
+  for (const lijn of vorm.lijnen || []) for (let i = 1; i < (lijn || []).length; i++) randen.push([lijn[i - 1], lijn[i]]);
+  for (const [a, b] of randen) {
+    if (!isXY(a) || !isXY(b)) continue;
+    const x0 = Math.min(a[0], b[0]), x1 = Math.max(a[0], b[0]), y0 = Math.min(a[1], b[1]), y1 = Math.max(a[1], b[1]);
+    if (x0 > r.ruim[2] || x1 < r.ruim[0] || y0 > r.ruim[3] || y1 < r.ruim[1]) continue;
+    const gezien = new Set();
+    for (let x = Math.floor(Math.max(x0, r.ruim[0]) / r.cw) - 1; x <= Math.floor(Math.min(x1, r.ruim[2]) / r.cw) + 1; x++) {
+      for (let y = Math.floor(Math.max(y0, r.ruim[1]) / r.ch) - 1; y <= Math.floor(Math.min(y1, r.ruim[3]) / r.ch) + 1; y++) {
+        for (const s of r.cellen.get(`${x}:${y}`) || []) {
+          if (gezien.has(s)) continue;
+          gezien.add(s);
+          if (segmentSegmentMeters(s.a, s.b, a, b) <= radius) return true;
+        }
       }
     }
-    if (!binnen) continue;
-    for (const ref of t.refs || []) { uit.add(straatSleutel(ref)); uit.add(`${locationKey(ref?.name)}|`); }
   }
-  return uit;
-}
-// Ligt één van deze straten binnen de straal? Een straat zonder postcode telt in elke postcode.
-export function stratenInStraal(refs, binnen) {
-  return (refs || []).some((ref) => ref?.name && binnen.has(ref.postcode ? straatSleutel(ref) : `${locationKey(ref.name)}|`));
+  // Een straat die helemaal binnen een groot vlak ligt (een werfzone over een plein), raakt geen rand.
+  for (const vlak of vorm.vlakken || []) if (segments.some((s) => inRingen(s.a, vlak))) return true;
+  return false;
 }
 
 // Straatnaam → wijkcodes, via het midden van elk straatsegment. Zo kan ook een item zonder punt maar

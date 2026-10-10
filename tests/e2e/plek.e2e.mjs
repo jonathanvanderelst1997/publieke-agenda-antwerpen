@@ -312,12 +312,20 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
   // Herstelplan O2: de knoppen +250 m tot +1 km toonden nooit een parcours of een vergunning (die hebben
-  // geen eigen punt). Nu telt een item mee als één van zijn straten binnen de straal ligt.
+  // geen eigen punt). Nu telt een item mee als zijn eigen vorm binnen de straal ligt. Nakijkbevinding 3:
+  // niet zijn straat; een vergunning 900 m verder op een lange straat die tot 200 m komt, blijft weg.
   await t.test("straal zonder punt: parcours en vergunning in een straat 250 m verder", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const huik = straten.streets.find((r) => r[1] === "Huikstraat" && r[2] === "2000");
     const [hx1, hy1, hx2, hy2] = huik[4];
-    const assen = [{ type: "Feature", geometry: { type: "LineString", coordinates: [[hx1, hy1], [hx2, hy2]] }, properties: { LSTRNMID: Number(huik[0]), LSTRNM: "Huikstraat", RSTRNMID: Number(huik[0]), RSTRNM: "Huikstraat", postcode: 2000, DISTRICT: "Antwerpen" } }];
+    // Een verzonnen lange straat: begint 200 m ten oosten van de Peterseliestraat en loopt 1,5 km door.
+    const [px1, py1, px2, py2] = straten.streets.find((r) => r[1] === "Peterseliestraat" && r[2] === "2000")[4];
+    const oost = Math.max(px1, px2), pm = (py1 + py2) / 2, opM = (meter) => meter / 69760;
+    const lang = [[oost + opM(200), pm], [oost + opM(1700), pm]];
+    const assen = [
+      { type: "Feature", geometry: { type: "LineString", coordinates: [[hx1, hy1], [hx2, hy2]] }, properties: { LSTRNMID: Number(huik[0]), LSTRNM: "Huikstraat", RSTRNMID: Number(huik[0]), RSTRNM: "Huikstraat", postcode: 2000, DISTRICT: "Antwerpen" } },
+      { type: "Feature", geometry: { type: "LineString", coordinates: lang }, properties: { LSTRNMID: 99999001, LSTRNM: "Proeflaan", RSTRNMID: 99999001, RSTRNM: "Proeflaan", postcode: 2000, DISTRICT: "Antwerpen" } },
+    ];
     // Een parcours van 12 m breed over de as van de Huikstraat, en een perceel ernaast (verzonnen).
     const lengte = Math.hypot((hx2 - hx1) * 69760, (hy2 - hy1) * 110540);
     const nx = (-(hy2 - hy1) * 110540 / lengte) * (6 / 69760), ny = ((hx2 - hx1) * 69760 / lengte) * (6 / 110540);
@@ -326,7 +334,10 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const dag = addDays(today, 3);
     const asign = asignServer({ fixtures: { 22: [{ id: 990001, feature: { attributes: { dossierNummer: "ET2099000001", faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parcours", innameHinder: "True", faseStartDatum: ms(dag), faseEindDatum: ms(dag) }, geometry: { rings: [vlak] } } }] } });
     const [mx, my] = [(hx1 + hx2) / 2 + nx * 2.5, (hy1 + hy2) / 2 + ny * 2.5], d = 0.00004;
-    const vergunningen = [{ attributes: { DOSSIERTYPE: "Omgevingsvergunning", Dossiernummer: "OMV_2099000001", AardAanvraag: "", Onderwerp: "", Beslissing: "", DatumBeslissing: null, Volledig: "", Ontvankelijk: "", Ingetrokken: "", Stopgezet: "", ProjectnummerOmgevingsloket: "", behandelendeOverheid: "", beslissingsoverheid: "" }, geometry: { rings: [[[mx - d, my - d], [mx + d, my - d], [mx + d, my + d], [mx - d, my + d], [mx - d, my - d]]] } }];
+    const perceel = (x, y) => ({ rings: [[[x - d, y - d], [x + d, y - d], [x + d, y + d], [x - d, y + d], [x - d, y - d]]] });
+    const maakVergunning = (nr, geometry) => ({ attributes: { DOSSIERTYPE: "Omgevingsvergunning", Dossiernummer: nr, AardAanvraag: "", Onderwerp: "", Beslissing: "", DatumBeslissing: null, Volledig: "", Ontvankelijk: "", Ingetrokken: "", Stopgezet: "", ProjectnummerOmgevingsloket: "", behandelendeOverheid: "", beslissingsoverheid: "" }, geometry });
+    // De tweede vergunning ligt aan de Proeflaan, 900 m ten oosten van de Peterseliestraat.
+    const vergunningen = [maakVergunning("OMV_2099000001", perceel(mx, my)), maakVergunning("OMV_2099000002", perceel(oost + opM(900), pm + 0.00008))];
     const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, street: peterselie, asign, work: false, assen, vergunningen, query: "?plek=Peterseliestraat" });
     await page.waitForFunction(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return Array.isArray(l.publicSpace) && Array.isArray(l.permits); }, null, { timeout: 30000 });
     const parcours = page.locator(".pv-results .pv-row", { hasText: "Huikstraat" }).filter({ hasText: "Evenement op straat" });
@@ -338,6 +349,11 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await parcours.first().waitFor({ timeout: 15000 });
     assert.match(await parcours.first().innerText(), /Niet in je straat, wel binnen 500 m/);
     await vergunning.first().waitFor({ timeout: 15000 });
+    const ver = page.locator('.pv-results .pv-row[data-uid="permits:permit:OMV_2099000002"]');
+    assert.equal(await ver.count(), 0, "een vergunning 900 m verder telt niet mee in +500 m, ook al komt haar straat tot 200 m");
+    await page.click('.pv-place [data-radius="1000"]');
+    await ver.first().waitFor({ timeout: 15000 });
+    assert.match(await page.locator(".pv-sub").innerText(), /terrassen alleen in de straat zelf/);
     assert.deepEqual(errors, []);
     await context.close();
   });
