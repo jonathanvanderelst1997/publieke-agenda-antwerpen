@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-09T03:21:44.063Z",
+  "checkedAt": "2026-10-10T03:23:08.208Z",
   "sources": [
     {
       "sourceId": "city-gaston-buurtfeest",
@@ -16,13 +16,13 @@
     {
       "sourceId": "poetische-rimpelingen-regatta",
       "url": "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
-      "status": "ok",
-      "httpStatus": 200,
+      "status": "onbereikbaar",
+      "httpStatus": null,
       "missing": [],
       "items": [
         "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
       ],
-      "since": null
+      "since": "2026-10-10T03:23:08.208Z"
     },
     {
       "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
