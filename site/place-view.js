@@ -7,7 +7,7 @@ import {
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, summarize,
-  periodeVan, evenementFase,
+  periodeVan, evenementFase, identiteitSamen,
 } from "./place-core.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
@@ -226,12 +226,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // bestand maken de kaartjes hun uitleg uit de live lagen alleen.
   // Pas laden zodra een live laag er is: zonder werken of innames is het niet nodig.
   // Daarbij de met de hand nagekeken identiteit van evenementendossiers (naam, uren, officiële link).
-  let kaartUitleg = null, kaartUitlegGevraagd = false, evenementIdentiteit = null;
+  // Daarnaast de automatische herkenning bij elke verversing; een handfiche wint altijd (identiteitSamen).
+  let kaartUitleg = null, kaartUitlegGevraagd = false, evenementIdentiteit = null, evenementAuto = null;
   const vraagKaartUitleg = () => {
     if (kaartUitlegGevraagd) return;
     kaartUitlegGevraagd = true;
     getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; announce(); }).catch(() => {});
     getJson("/sources/evenement-identiteit.json").then((doc) => { evenementIdentiteit = doc; announce(); }).catch(() => {});
+    getJson("/sources/evenement-identiteit-auto.json").then((doc) => { evenementAuto = doc; announce(); }).catch(() => {});
   };
   const wijkVan = (straat) => {
     const place = index?.places.find((p) => p.type === "straat" && p.name === straat);
@@ -504,7 +506,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const straat = state.place?.type === "straat" ? state.place.name : "";
     const liveEntries = [
       ...inPlace(live.works).map((work) => workEntry(work, { vandaag, uitleg: kaartUitleg })),
-      ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: evenementIdentiteit, agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat }),
+      ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: identiteitSamen(evenementIdentiteit, evenementAuto), agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...inPlace(live.terraces).map((row) => permitEntry(row, "terraces")),
     ];

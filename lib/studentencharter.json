@@ -1,0 +1,282 @@
+{
+ "uitleg": "Studentencharter van de stad Antwerpen: doopperiode, gefaciliteerde doopplaatsen en drilplaatsen. Gebruikt door de automatische parcoursherkenner (stap regels). Jaarlijks na te kijken bij het nieuwe charter; de doopperiode is al jaren 1 tot en met 31 oktober.",
+ "academiejaar": "2026-2027",
+ "bron": [
+  "https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf",
+  "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"
+ ],
+ "opgehaald": "2026-10-10",
+ "doopperiode": {
+  "van": "10-01",
+  "tot": "10-31"
+ },
+ "plekken": [
+  {
+   "naam": "Scheldekaai, Sint-Michielskaai",
+   "soort": "doopplaats",
+   "vlak": [
+    [
+     [
+      4.390857,
+      51.214379
+     ],
+     [
+      4.390707,
+      51.214194
+     ],
+     [
+      4.390996,
+      51.214053
+     ],
+     [
+      4.391158,
+      51.214275
+     ],
+     [
+      4.390857,
+      51.214379
+     ]
+    ]
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Voorplein Belvedère",
+   "soort": "doopplaats",
+   "vlak": [
+    [
+     [
+      4.402628,
+      51.235484
+     ],
+     [
+      4.403139,
+      51.235475
+     ],
+     [
+      4.402978,
+      51.235795
+     ],
+     [
+      4.402628,
+      51.235484
+     ]
+    ]
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Officiersplein Fort VI",
+   "soort": "doopplaats",
+   "vlak": [
+    [
+     [
+      4.407951,
+      51.165272
+     ],
+     [
+      4.407693,
+      51.165664
+     ],
+     [
+      4.4072,
+      51.165532
+     ],
+     [
+      4.407296,
+      51.165474
+     ],
+     [
+      4.407951,
+      51.165272
+     ]
+    ]
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Konijnenwei",
+   "soort": "doopplaats",
+   "vlak": [
+    [
+     [
+      4.386844,
+      51.200294
+     ],
+     [
+      4.386501,
+      51.199622
+     ],
+     [
+      4.388089,
+      51.199057
+     ],
+     [
+      4.388486,
+      51.200139
+     ],
+     [
+      4.386844,
+      51.200294
+     ]
+    ]
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Luifel Schengenplein",
+   "soort": "doopplaats",
+   "vlak": [
+    [
+     [
+      4.408603,
+      51.233177
+     ],
+     [
+      4.408594,
+      51.233091
+     ],
+     [
+      4.408744,
+      51.233083
+     ],
+     [
+      4.408743,
+      51.233176
+     ],
+     [
+      4.408603,
+      51.233177
+     ]
+    ]
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Falconplein",
+   "soort": "drilplaats",
+   "punt": [
+    4.40503,
+    51.22587
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Frans Halsplein",
+   "soort": "drilplaats",
+   "punt": [
+    4.41212,
+    51.22096
+   ],
+   "straal": 50
+  },
+  {
+   "naam": "Veemarkt",
+   "soort": "drilplaats",
+   "punt": [
+    4.40011,
+    51.22381
+   ],
+   "straal": 40
+  },
+  {
+   "naam": "Ossenmarkt",
+   "soort": "drilplaats",
+   "punt": [
+    4.41354,
+    51.22195
+   ],
+   "straal": 50
+  },
+  {
+   "naam": "Sint-Jansplein",
+   "soort": "drilplaats",
+   "punt": [
+    4.41798,
+    51.22546
+   ],
+   "straal": 80
+  },
+  {
+   "naam": "Plein aan de Mutsaardstraat",
+   "soort": "drilplaats",
+   "punt": [
+    4.40561,
+    51.22383
+   ],
+   "straal": 50
+  },
+  {
+   "naam": "Park Spoor Noord",
+   "soort": "drilplaats",
+   "punt": [
+    4.42353,
+    51.23003
+   ],
+   "straal": 350
+  },
+  {
+   "naam": "Spoor Oost",
+   "soort": "drilplaats",
+   "punt": [
+    4.44453,
+    51.22431
+   ],
+   "straal": 250
+  },
+  {
+   "naam": "Stadspark",
+   "soort": "drilplaats",
+   "punt": [
+    4.41437,
+    51.21248
+   ],
+   "straal": 200
+  },
+  {
+   "naam": "Theaterplein",
+   "soort": "drilplaats",
+   "punt": [
+    4.40989,
+    51.2146
+   ],
+   "straal": 80
+  },
+  {
+   "naam": "Sint-Jansvliet",
+   "soort": "drilplaats",
+   "punt": [
+    4.3962,
+    51.21861
+   ],
+   "straal": 50
+  },
+  {
+   "naam": "Sportterrein aan de Kielsevest",
+   "soort": "drilplaats",
+   "punt": [
+    4.39274,
+    51.19806
+   ],
+   "straal": 100
+  },
+  {
+   "naam": "Grasveld Van der Sweepstraat",
+   "soort": "drilplaats",
+   "punt": [
+    4.38475,
+    51.2074
+   ],
+   "straal": 60
+  },
+  {
+   "naam": "Stadswaag",
+   "soort": "drilplaats",
+   "punt": [
+    4.40726,
+    51.22389
+   ],
+   "straal": 40
+  }
+ ]
+}

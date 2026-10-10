@@ -56,6 +56,13 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
   }
 
+  // Automatische parcoursherkenning (lib/parcours-herkenning-refresh.mjs): alleen melden, telt niet als fout.
+  const herkenning = readJson(path.join(rootDir, "site", "sources", "evenement-identiteit-auto.json"));
+  if (herkenning?.samenvatting) {
+    const s = herkenning.samenvatting;
+    lines.push(["parcours-herkenning", `zeker=${s.zeker}`, `waarschijnlijk=${s.waarschijnlijk}`, `alleen-kaartzin=${s.alleenKaartzin}`, `met-handfiche=${s.metHandfiche}`, `generatedAt=${herkenning.generatedAt ?? "-"}`, ...(s.bronFouten?.length ? [`bronFouten=${s.bronFouten.length}`] : [])].join("\t"));
+  }
+
   if (baseline) {
     const today = brusselsDate(new Date(at));
     let compared = 0;
