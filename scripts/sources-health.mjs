@@ -96,6 +96,13 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     }
     if (!compared) lines.push(`krimpcontrole\tniet beschikbaar\tgeen vastgelegde versie op ${baselineLabel}`);
   }
+
+  // Een bekende bron die nog niet in refresh-status.json staat (nieuw, vóór haar eerste ophaalronde):
+  // melden, niet als fout tellen. Zo kent sources:health elke bron uit lib/source-feed.mjs.
+  const listed = new Set(status.sources.map((entry) => entry.sourceId));
+  for (const sourceId of SOURCE_IDS) {
+    if (!listed.has(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
+  }
   return { lines, warnings, unhealthy, exitCode: unhealthy ? 1 : 0 };
 }
 

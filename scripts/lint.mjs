@@ -30,6 +30,11 @@ const javascriptFiles = [
   "lib/html-text.mjs",
   "lib/koopzondagen.mjs",
   "lib/mail-signals.mjs",
+  "lib/asign-foren.mjs",
+  "lib/schoolstraten.mjs",
+  "lib/district-projecten.mjs",
+  "lib/periode-tekst.mjs",
+  "lib/straatnamen.mjs",
   "lib/merge-events.mjs",
   "lib/postcodes.mjs",
   "lib/source-feed.mjs",
@@ -47,6 +52,9 @@ const javascriptFiles = [
   "scripts/fetch-sources-markten.mjs",
   "scripts/fetch-sources-stad-districten.mjs",
   "scripts/fetch-sources-uit.mjs",
+  "scripts/fetch-sources-foren.mjs",
+  "scripts/fetch-sources-schoolstraten.mjs",
+  "scripts/fetch-sources-projecten.mjs",
   "scripts/load-agenda-source.mjs",
   "scripts/provenance-snapshot.mjs",
   "scripts/provenance-sla.mjs",
@@ -70,6 +78,11 @@ const javascriptFiles = [
   "tests/stad-sources.test.mjs",
   "tests/stale-policy.test.mjs",
   "tests/uit-fetcher.test.mjs",
+  "tests/periode-tekst.test.mjs",
+  "tests/asign-foren.test.mjs",
+  "tests/schoolstraten.test.mjs",
+  "tests/district-projecten.test.mjs",
+  "tests/foren-schoolstraten-projecten.test.mjs",
 ];
 
 for (const file of javascriptFiles) {
