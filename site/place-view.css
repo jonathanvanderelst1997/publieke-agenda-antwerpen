@@ -104,7 +104,8 @@
 /* Na een muisklik krijgt de kop een rustige focus; met het toetsenbord blijft de volle rand. */
 .pv-head h2:focus:not(:focus-visible) { outline-width: 2px; outline-color: color-mix(in srgb, var(--pa-focus) 35%, transparent); }
 .pv-sub { margin: 8px 0 0; color: var(--pa-muted); font-size: .93rem; }
-.pv-toolbar { margin: 14px 0 12px; display: grid; gap: 10px; }
+/* Eén kolom die nooit breder wordt dan de lijst (anders schuift de pagina opzij op een gsm). */
+.pv-toolbar { margin: 14px 0 12px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
 .pv-groups { display: flex; flex-wrap: wrap; gap: 6px; }
 .pv-group-scroll-hint { display: none; margin: 0; font-size: .85rem; line-height: 1.4; color: var(--pa-muted); }
 .pv-chip {
@@ -130,8 +131,11 @@
 
 /* ---- lijst ---- */
 .pv-day { margin: 0 0 18px; }
-.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
+/* flex-wrap: bij grote tekst schuift het aantal onder een lange kop ("Omgevingsaanvragen en besluiten"). */
+.pv-day-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
 .pv-day-title::first-letter { text-transform: uppercase; }
+/* De kop mag smaller worden dan haar langste woord (tekst 200 % op een gsm): dan breekt dat woord, de pagina schuift niet opzij. */
+.pv-day-label { min-width: 0; overflow-wrap: break-word; }
 .pv-rel { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--pa-accent); color: var(--pa-accent-ink); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
 .pv-day-n { margin-left: auto; font-size: .78rem; font-weight: 700; color: var(--pa-muted); background: var(--pa-surface-2); border: 1px solid var(--pa-line); border-radius: 999px; padding: 1px 8px; }
 .pv-day-note { margin: -4px 0 8px; font-size: .84rem; color: var(--pa-muted); }
@@ -154,6 +158,10 @@
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
 .pv-streets p { margin: 4px 0 0 !important; font-size: .86rem !important; color: var(--pa-muted) !important; }
+/* Wat er in het dossier staat: elke omschrijving op een eigen regel, het parcours vooraan. */
+.pv-dossier { margin: 0; padding-left: 1.1em; }
+.pv-dossier li + li { margin-top: 2px; }
+.pv-streets .pv-dossier { margin-top: 4px; font-size: .86rem; color: var(--pa-muted); }
 .pv-ontbreekt { font-size: .86rem !important; color: var(--pa-muted) !important; border-left: 3px solid var(--pa-line-strong); padding-left: 10px; }
 .pv-ontbreekt strong { color: var(--pa-ink); }
 .pv-technisch { font-size: .78rem !important; color: var(--pa-muted) !important; }
@@ -173,7 +181,7 @@
 .pv-detail dl div { display: contents; }
 .pv-detail dt { color: var(--pa-muted); font-weight: 700; }
 .pv-detail dd { margin: 0; overflow-wrap: break-word; }
-/* Wat over de bron gaat (waarom het hier staat, de letterlijke dossiertekst, nummers en codes): ingeklapt. */
+/* Wat over de bron gaat (de organisator die niet openbaar is, het nummer, de codes, een technische databron): ingeklapt. */
 .pv-bron-dossier { margin: 12px 0 0; }
 .pv-bron-dossier > summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; list-style: none; }
 .pv-bron-dossier > summary::-webkit-details-marker { display: none; }
@@ -213,7 +221,8 @@
 .pv-empty-tips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 16px; }
 
 /* ---- week ---- */
-.pv-week-head { display: grid; grid-template-columns: 5.2em minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
+/* De weekkop is kleiner gezet (.72rem): 5.2rem is daar even breed als de 5.2em van de tijdkolom (1rem). */
+.pv-week-head { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
 .pv-week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
 .pv-week-head b { text-align: center; font-weight: 700; line-height: 1.25; padding: 4px 0; }
 .pv-week-head b.today { color: var(--pa-accent); }
@@ -296,8 +305,10 @@
   .pv-place-top { flex-direction: column; align-items: flex-start; gap: 10px; }
   .pv-place-actions { flex-direction: row; flex: none; gap: 6px; }
   .pv-place-actions .pv-btn { min-height: 44px; padding: 8px 12px; font-size: .84rem; }
-  .pv-radius { display: grid; grid-template-columns: auto 1fr 1fr 1fr; width: 100%; }
-  .pv-radius button { padding: 6px 2px; font-size: .78rem; white-space: nowrap; min-width: 0; }
+  /* De afstanden houden hun breedte (geen "+250 m+500 m" tegen elkaar); "Alleen de straat" mag over twee regels. */
+  .pv-radius { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); width: 100%; }
+  .pv-seg.pv-radius button { padding: 6px 4px; font-size: .78rem; white-space: nowrap; min-width: 0; }
+  .pv-seg.pv-radius button:first-child { white-space: normal; line-height: 1.15; }
   .has-place .pv-aside .buurt { padding: 12px; }
   .has-place .pv-aside .buurt-head { display: none; }
   .has-place .pv-aside .buurt-map { height: 230px; }
@@ -311,15 +322,33 @@
   .pv-groups::-webkit-scrollbar { display: none; }
   .pv-group-scroll-hint { display: block; margin: 0 0 4px; }
   .pv-chip { flex: none; white-space: nowrap; }
+  /* Week en maand: "Vandaag" schuift onder de pijlen als de rij te smal is. */
+  .pv-nav { flex-wrap: wrap; max-width: 100%; }
+  .pv-nav-label { min-width: 0; }
   .pv-row-btn { grid-template-columns: 5.2em minmax(0, 1fr) 16px; gap: 8px; padding-left: 14px; }
-  .pv-week-head { grid-template-columns: 5.2em minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
+  .pv-week-head { grid-template-columns: 5.2rem minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
+}
+/* Smalle gsm, ook met grotere tekst: de tijd op een eigen regel boven de soort. Zo krijgt de titel de
+   volle breedte en breekt er geen woord midden in ("Omgevingsaanvraag", "elektriciteitsnet"). 27,5em is
+   440 px bij gewone tekst, en meer als de bezoeker in de browser een grotere standaardtekst kiest. */
+@media (max-width: 27.5em) {
+  .pv-row-btn { grid-template-columns: minmax(0, 1fr) 16px; row-gap: 4px; }
+  .pv-row-when { grid-column: 1; grid-row: 1; padding-top: 0; }
+  /* De titel loopt ook onder het pijltje door: dat staat alleen naast de tijd. */
+  .pv-row-main { grid-column: 1 / -1; grid-row: 2; }
+  .pv-row-chevron { grid-column: 2; grid-row: 1; }
+  /* De weekkop volgt: geen lege kolommen voor de tijd en het pijltje, de dagen boven de balkjes. */
+  .pv-week-head { grid-template-columns: minmax(0, 1fr); }
+  .pv-week-head > span:not(.pv-week-days) { display: none; }
 }
 /* Smal scherm: label boven de waarde, zodat de tekst de volle breedte krijgt (geen kolom van 110 px). */
 @media (max-width: 520px) {
   .pv-detail dl { display: block; }
-  .pv-detail dl div { display: block; margin: 8px 0 0; }
+  /* Iets krapper dan op desktop: zo blijft een open parcourskaart met alle uitleg zichtbaar korter. */
+  .pv-detail dl div { display: block; margin: 6px 0 0; }
   .pv-detail dt { font-size: .76rem; line-height: 1.3; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
   .pv-detail dd { margin: 2px 0 0; }
+  .pv-uitleg dd { line-height: 1.45; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pv-spinner { animation: none; }

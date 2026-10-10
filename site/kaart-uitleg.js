@@ -412,7 +412,8 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, wijkVan } 
     gevolgen.length ? `${capital(gevolgen[0])}.` : "",
   ].filter(Boolean).join(" ");
   const technisch = [f.dossier ? `dossier ${f.dossier}` : "", f.dossierType ? `${f.dossierType} = ${CODES[f.dossierType] || f.dossierType}` : "", `IOD = ${CODES.IOD}`, hinderTekst(f.hinder)].filter(Boolean).join(" · ");
-  return { titel, samenvatting, regels, ontbreekt, duur, plek: straten, technisch };
+  // De omschrijvingen ook als lijst: de kaart zet het parcours vooraan (welk parcours, welke ronde).
+  return { titel, samenvatting, regels, ontbreekt, duur, plek: straten, technisch, beschrijvingen: f.beschrijvingen };
 }
 
 // ---------- kaart ----------

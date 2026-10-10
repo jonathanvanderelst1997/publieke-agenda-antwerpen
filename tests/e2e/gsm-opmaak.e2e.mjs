@@ -1,4 +1,4 @@
-// End-to-end: opmaak op een gsm (390 × 844) en toegankelijkheid van de plekweergave, in Chromium.
+// End-to-end: opmaak op een gsm (390 × 844 en 360 px) en toegankelijkheid van de plekweergave, in Chromium.
 // Zelfde opzet als plek.e2e.mjs: de site/ lokaal, elke externe bron onderschept, een vaste klok.
 // Een evenement op straat met parcours (een fictief dossier) wordt als live A-Sign-laag ingeschoven,
 // in de vorm die public-space-live.js zelf aanmaakt; zo valt een volle parcourskaart te meten
@@ -62,8 +62,8 @@ const ref = (r) => ({ id: String(r[0]), name: r[1], postcode: String(r[2]) });
 const parcoursStraten = [STRAAT, ...straten.filter((r) => r[2] === "2060" && r[1] !== STRAAT.name).slice(0, 39).map(ref)];
 
 // Innames van één evenementendossier, zoals iodItems() in public-space-live-core.js ze aanmaakt.
-function parcoursRijen() {
-  const dag = addDays(today, 8);
+function parcoursRijen(dagen = 8) {
+  const dag = addDays(today, dagen);
   const onderdelen = [
     ["Parcours", "Parcours volwassenen 10 km"], ["Parcours", "Parcours jeugd 5 km"], ["Parkeerverbod", "Parkeerverbod langs het parcours"],
     ["Omleiding", "Omleiding voor fietsers tijdens de wedstrijd"], ["Parkeerverbod", "Servicepunt aan de start"], ["Parcours", "Ronde voor de jeugd, halve ronde"],
@@ -90,6 +90,20 @@ async function routeSources(page) {
     return route.abort();
   });
 }
+
+// Een omgevingsaanvraag zonder bevestigd doel: de titel begint met het lange woord "Omgevingsaanvraag",
+// dat op 360 px midden in brak toen de tijdkolom ernaast stond. Fictief dossier, geen huisnummer.
+const VERGUNNING = {
+  id: "permit:E2E-OMV-2099-0001", dossier: "OMV_2099000001", dossierType: "Omgevingsvergunning", address: STRAAT.name,
+  streets: [STRAAT], decision: "", authority: "", sourceUrl: "https://www.omgevingsloket.be/",
+};
+// Een aanvraag over vier straten, de gekozen straat als laatste: op 360 px kapte de regel "Waar"
+// (twee regels) die straat af toen de tijdkolom ernaast stond. Fictief dossier, alleen straatnamen.
+const naast = ["Beatrijslaan", "Blancefloerlaan", "Sint-Annatunnel"].map((naam) => ref(straten.find((r) => r[1] === naam)));
+const VERGUNNING_STRATEN = {
+  id: "permit:E2E-OMV-2099-0002", dossier: "OMV_2099000002", dossierType: "Omgevingsvergunning", address: "",
+  streets: [...naast, STRAAT], decision: "", authority: "", sourceUrl: "https://www.omgevingsloket.be/",
+};
 
 // In de pagina: woorden die over twee regels lopen zonder spatie of koppelteken als breekpunt.
 function brokenWordsIn(selector) {
@@ -132,21 +146,24 @@ function duidelijkAnderePixelsIn(page, a, b) {
   }, [`data:image/png;base64,${a.toString("base64")}`, `data:image/png;base64,${b.toString("base64")}`]);
 }
 
-async function openPlace(baseUrl, { width = 390, height = 844 } = {}) {
+async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", dagen = 8, vergunning = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   await routeSources(page);
-  await page.goto(`${baseUrl}/?plek=${encodeURIComponent(STRAAT.name)}&periode=alles`);
+  await page.goto(`${baseUrl}/?plek=${encodeURIComponent(STRAAT.name)}&periode=alles${weergave ? `&weergave=${weergave}` : ""}`);
   await page.waitForSelector(".pv-place-name");
   // Eerst de (lege) live laag laten landen, dan het parcours inschuiven zoals de laag het zelf doet.
   await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.publicSpace), null, { timeout: 15000 });
-  await page.evaluate((rows) => {
+  await page.evaluate(([rows, permits]) => {
     window.PUBLIC_AGENDA_LIVE_STREETS.publicSpace = rows;
     window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "publicSpace", items: rows } }));
-  }, parcoursRijen());
+    if (!permits.length) return;
+    window.PUBLIC_AGENDA_LIVE_STREETS.permits = permits;
+    window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "permits", items: permits } }));
+  }, [parcoursRijen(dagen), vergunning ? [VERGUNNING, VERGUNNING_STRATEN] : []]);
   const card = page.locator(".pv-row", { hasText: "parcours" }).first();
   await card.waitFor({ timeout: 15000 });
   return { page, context, errors, card };
@@ -157,8 +174,8 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
   t.after(async () => { server.close(); await browser.close(); });
 
-  await t.test("open parcourskaart op 390 px: labels boven de waarden, geen woordbreuk, lager dan 1.500 px", async (t) => {
-    const { page, context, errors, card } = await openPlace(baseUrl);
+  for (const width of [390, 360]) await t.test(`open parcourskaart op ${width} px: labels boven de waarden, geen woordbreuk, lager dan 1.500 px`, async (t) => {
+    const { page, context, errors, card } = await openPlace(baseUrl, { width });
     await card.locator(".pv-row-btn").click();
     assert.equal(await card.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
     const meting = await card.evaluate((li) => {
@@ -169,7 +186,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       });
       return { hoogte: Math.round(li.getBoundingClientRect().height), detailBreed: Math.round(detail.width), paren };
     });
-    t.diagnostic(`open parcourskaart: ${meting.hoogte}px hoog, detail ${meting.detailBreed}px breed`);
+    t.diagnostic(`open parcourskaart op ${width} px: ${meting.hoogte}px hoog, detail ${meting.detailBreed}px breed`);
     assert.ok(meting.paren.length >= 4, `regels: ${JSON.stringify(meting.paren)}`);
     for (const p of meting.paren) {
       assert.ok(p.ddOnder && Math.abs(p.ddLinks) <= 1, `"${p.label}": waarde staat niet onder het label (${JSON.stringify(p)})`);
@@ -177,16 +194,130 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     }
     assert.deepEqual(await page.evaluate(brokenWordsIn, ".pv-place, .pv-row.open"), [], "geen woord breekt midden in");
     assert.ok(meting.hoogte < 1500, `open parcourskaart is ${meting.hoogte}px hoog`);
-    // Wat over de bron gaat, staat ingeklapt en is met één tik te openen.
-    const bron = card.locator("details.pv-bron-dossier");
-    assert.equal(await bron.count(), 1);
-    assert.equal(await bron.evaluate((d) => d.open), false);
-    assert.match(await bron.textContent(), /Waarom in deze agenda\?/);
-    assert.match(await bron.textContent(), new RegExp(`Dossier ${DOSSIER}`));
-    await bron.locator("summary").click();
-    assert.equal(await bron.evaluate((d) => d.open), true);
     assert.deepEqual(errors, []);
     await context.close();
+  });
+
+  await t.test("open parcourskaart: welk parcours, wat er nog gebeurt, wat, wanneer, waar en waarom zichtbaar; alleen wat over de bron gaat dicht", async () => {
+    const { context, card } = await openPlace(baseUrl);
+    await card.locator(".pv-row-btn").click();
+    const zicht = await card.evaluate((li, dossier) => {
+      const zichtbaar = (el) => Boolean(el.getClientRects().length) && !el.closest("details:not([open]), [hidden]");
+      // De zichtbare tekst: elk tekstknooppunt waarvan het element te zien is (niet in een dichte details).
+      const delen = [], loper = document.createTreeWalker(li.querySelector(".pv-detail"), NodeFilter.SHOW_TEXT);
+      while (loper.nextNode()) if (loper.currentNode.textContent.trim() && zichtbaar(loper.currentNode.parentElement)) delen.push(loper.currentNode.textContent.trim());
+      const tekst = delen.join(" \n ");
+      const bron = li.querySelector("details.pv-bron-dossier");
+      return {
+        tekst,
+        labels: [...li.querySelectorAll(".pv-detail dt")].filter(zichtbaar).map((d) => d.textContent.trim()),
+        // Wat dicht staat onder "Bron en dossier": regels en links.
+        dicht: [...(bron?.querySelectorAll("dt") || [])].map((d) => d.textContent.trim()),
+        bronLinks: [...(bron?.querySelectorAll("a") || [])].map((a) => a.textContent.trim()),
+        zichtbareLinks: [...li.querySelectorAll(".pv-detail a")].filter(zichtbaar).map((a) => a.textContent.trim()),
+        bronOpen: bron?.open ?? null,
+        losNummer: [...li.querySelectorAll(".pv-detail *")].some((el) => zichtbaar(el) && el.textContent.trim() === `Dossier ${dossier}`),
+        knoppen: [...li.querySelectorAll(".pv-detail details:not(.pv-bron-dossier) > summary")].map((s) => s.textContent.trim()),
+        straten: [...li.querySelectorAll(".pv-detail details.pv-streets")].find((d) => /^Toon alle/.test(d.querySelector("summary").textContent))?.textContent || "",
+      };
+    }, DOSSIER);
+    // Welk parcours: elk parcoursdeel uit het dossier staat zichtbaar (Jonathan: "welke race, welk parcours"),
+    // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt.
+    for (const deel of ["Parcours volwassenen 10 km", "Parcours jeugd 5 km", "Ronde voor de jeugd, halve ronde", "Omleiding voor fietsers tijdens de wedstrijd"]) assert.match(zicht.tekst, new RegExp(deel), deel);
+    assert.doesNotMatch(zicht.tekst, /Parkeerverbod langs het parcours|Servicepunt aan de start/);
+    assert.ok(zicht.knoppen.includes("Toon de 2 parkeerverboden uit het dossier"), zicht.knoppen.join(" | "));
+    for (const label of ["Wat", "Wanneer", "Waar"]) assert.ok(zicht.labels.includes(label), `${label} zichtbaar: ${zicht.labels.join(", ")}`);
+    // Waarom het in de agenda staat, blijft zichtbaar (of de kaart het zo noemt of niet).
+    assert.match(zicht.tekst, /toegelaten inname|toelating/);
+    // Dicht staan alleen de organisator (niet openbaar; "Niet in de bron" zegt dat al), het nummer, de codes
+    // en de technische databron (geen pagina voor bezoekers).
+    assert.equal(zicht.bronOpen, false);
+    for (const label of zicht.dicht) assert.ok(["Organisator", "Referentie"].includes(label), `"${label}" staat dicht`);
+    assert.equal(zicht.losNummer, false, "het dossiernummer staat niet als losse regel open");
+    assert.doesNotMatch(zicht.tekst, /IOD = |ETL = /, "de codes staan niet open");
+    assert.deepEqual(zicht.zichtbareLinks, [], "geen technische databron open in de kaart");
+    assert.ok(zicht.bronLinks.some((l) => /Technische databron/.test(l)), zicht.bronLinks.join(" | "));
+    // De uitleg bij de stratenlijst ("40 betrokken straten volgens het dossier; ...") staat bij die lijst.
+    assert.doesNotMatch(zicht.tekst, /betrokken straten volgens het dossier/);
+    assert.match(zicht.straten, /40 betrokken straten volgens het dossier/);
+    const bron = card.locator("details.pv-bron-dossier");
+    await bron.locator("summary").click();
+    assert.match(await bron.innerText(), new RegExp(`Dossier ${DOSSIER}`));
+    assert.match(await bron.innerText(), /IOD = /);
+    await context.close();
+  });
+
+  await t.test("smalle gsm (360 en 320 px) en tekst 200 %: de tijd boven de soort, de titel en de straten over de volle breedte", async () => {
+    const meet = (page) => page.$$eval(".pv-row-btn", (knoppen) => knoppen.filter((b) => b.getClientRects().length).map((b) => {
+      const r = (s) => b.querySelector(s)?.getBoundingClientRect();
+      const tijd = r(".pv-row-when"), soort = r(".pv-row-kind"), titel = r(".pv-row-title");
+      return { titel: b.querySelector(".pv-row-title")?.textContent.slice(0, 40), boven: tijd.bottom <= soort.top + 1, links: Math.round(titel.left - tijd.left), breed: Math.round(titel.width), knop: Math.round(b.clientWidth) };
+    }));
+    for (const width of [360, 320]) {
+      const smal = await openPlace(baseUrl, { width, height: 780, vergunning: true });
+      await smal.page.locator(".pv-row-title", { hasText: "Omgevingsaanvraag" }).first().waitFor({ timeout: 15000 });
+      const rijen = await meet(smal.page);
+      assert.ok(rijen.length >= 3, JSON.stringify(rijen));
+      for (const rij of rijen) {
+        assert.ok(rij.boven && Math.abs(rij.links) <= 1, `${width} px: tijd niet boven de titel: ${JSON.stringify(rij)}`);
+        assert.ok(rij.breed >= rij.knop - 40, `${width} px: titel ${rij.breed}px in een knop van ${rij.knop}px: ${JSON.stringify(rij)}`);
+      }
+      assert.deepEqual(await smal.page.evaluate(brokenWordsIn, ".pv-row"), [], `geen woord breekt midden in op ${width} px`);
+      // De regel "Waar" (hoogstens twee regels) kapt de gekozen straat niet af.
+      const waar = await smal.page.locator(".pv-row-where", { hasText: naast[0].name }).evaluate((el) => ({ tekst: el.textContent, past: el.scrollHeight <= el.clientHeight + 1 }));
+      assert.ok(waar.past && waar.tekst.endsWith(STRAAT.name), `${width} px: ${JSON.stringify(waar)}`);
+      await smal.context.close();
+    }
+    // Tekst 200 % op een gsm van 390 px: de tijdkolom groeide mee en drukte de titel smal; en de pagina
+    // schoof opzij door de kop "Omgevingsaanvragen en besluiten".
+    const groot = await openPlace(baseUrl, { vergunning: true });
+    await groot.page.locator(".pv-day-title", { hasText: "Omgevingsaanvragen" }).waitFor({ timeout: 15000 });
+    await groot.page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    for (const rij of await meet(groot.page)) assert.ok(rij.boven && Math.abs(rij.links) <= 1, `tekst 200 %: ${JSON.stringify(rij)}`);
+    assert.deepEqual(await groot.page.evaluate(() => [document.documentElement.scrollWidth, document.documentElement.clientWidth]), [390, 390], "tekst 200 %: de pagina schuift niet opzij");
+    await groot.context.close();
+  });
+
+  await t.test("geen pagina die opzij schuift op 360 en 320 px (lijst, week, maand), en de straalknoppen houden hun tekst binnen", async () => {
+    for (const width of [360, 320]) {
+      for (const weergave of ["", "week", "maand"]) {
+        const { page, context } = await openPlace(baseUrl, { width, height: 780, weergave, dagen: 0 });
+        if (weergave) await page.locator(".pv-nav:not([hidden])").waitFor({ timeout: 15000 });
+        const m = await page.evaluate(() => ({
+          scroll: [document.documentElement.scrollWidth, document.documentElement.clientWidth],
+          straal: [...document.querySelectorAll(".pv-radius button")].map((b) => ({ tekst: b.textContent, sw: b.scrollWidth, cw: b.clientWidth, links: Math.round(b.getBoundingClientRect().left), rechts: Math.round(b.getBoundingClientRect().right) })),
+        }));
+        assert.deepEqual(m.scroll, [width, width], `${width} px ${weergave || "lijst"}: de pagina schuift ${m.scroll[0] - m.scroll[1]}px opzij`);
+        assert.equal(m.straal.length, 4);
+        for (const [i, b] of m.straal.entries()) {
+          assert.ok(b.sw <= b.cw, `${width} px: "${b.tekst}" loopt uit de knop (${b.sw} > ${b.cw})`);
+          if (i) assert.ok(m.straal[i - 1].rechts <= b.links, `${width} px: "${m.straal[i - 1].tekst}" en "${b.tekst}" overlappen`);
+        }
+        await context.close();
+      }
+    }
+  });
+
+  await t.test("een sectie in de lijst heeft een naam zonder HTML-code of verborgen pictogram", async () => {
+    const { page, context } = await openPlace(baseUrl, { vergunning: true });
+    await page.locator(".pv-day-title", { hasText: "Omgevingsaanvragen" }).waitFor({ timeout: 15000 });
+    const namen = await page.$$eval("section.pv-day[aria-label]", (s) => s.map((x) => x.getAttribute("aria-label")));
+    assert.ok(namen.includes("Omgevingsaanvragen en besluiten"), namen.join(" | "));
+    for (const naam of namen) assert.doesNotMatch(naam, /[<>]|aria-hidden|\p{Extended_Pictographic}/u, naam);
+    await context.close();
+  });
+
+  await t.test("weekweergave: de dagen in de kop staan boven de balkjes, op gsm en desktop", async () => {
+    for (const width of [390, 1280]) {
+      const { page, context } = await openPlace(baseUrl, { width, height: 900, weergave: "week", dagen: 0 });
+      await page.locator(".pv-track").first().waitFor({ timeout: 15000 });
+      const m = await page.evaluate(() => {
+        const kop = document.querySelector(".pv-week-days").getBoundingClientRect(), balk = document.querySelector(".pv-track").getBoundingClientRect();
+        return { kop: [Math.round(kop.left), Math.round(kop.right)], balk: [Math.round(balk.left), Math.round(balk.right)] };
+      });
+      assert.ok(Math.abs(m.kop[0] - m.balk[0]) <= 1 && Math.abs(m.kop[1] - m.balk[1]) <= 1, `breedte ${width}: kop ${m.kop} tegen balk ${m.balk}`);
+      await context.close();
+    }
   });
 
   await t.test("tijdkolom leesbaar: geen tekst die eruit loopt, op gsm en desktop", async () => {

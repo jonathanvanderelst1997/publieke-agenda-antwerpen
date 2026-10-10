@@ -25,10 +25,54 @@ const WEEKDAYS_SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const QUICK_WIJKEN = ["ANT09", "ANT24", "ANT25", "ANT10", "ANT05", "ANT11", "ANT20"];
 const MODES = [["lijst", "Lijst"], ["week", "Week"], ["maand", "Maand"]];
 const SECTION_LIMIT = 12;
-// Regels over de bron zelf, niet over wat er gebeurt: in een open kaart ingeklapt onder "Bron en dossier".
-// "Organisator" zegt bij een evenement op straat altijd dat A-Sign die niet publiceert; dat staat ook al
-// in de zin "Niet in de bron".
-const BRONREGELS = new Set(["Waarom in deze agenda?", "In het dossier", "Organisator"]);
+// Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
+// Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
+// evenement op straat altijd "niet openbaar"; dat zegt de zin "Niet in de bron" al), het nummer en de codes.
+const BRONREGELS = new Set(["Organisator"]);
+// De regel die zegt wat de stratenlijst is ("N betrokken straten volgens het dossier; ..."). Bij een
+// lange lijst staat ze bij die lijst, in "Toon alle N straten": het aantal staat al bij "Waar".
+const STRATENREGEL = "Parcours";
+// Zoveel omschrijvingen uit het dossier staan minstens zichtbaar; elk parcours altijd.
+const DOSSIER_ZICHTBAAR = 3;
+const isParcours = (tekst) => /^Parcours:/i.test(String(tekst));
+const isParkeerverbod = (tekst) => /^Parkeerverbod/i.test(String(tekst));
+
+// Welke regels van de uitleg zichtbaar staan en wat ingeklapt staat. De omschrijvingen uit het dossier:
+// eerst het parcours (welk parcours, welke ronde), dan wat er nog gebeurt (een omleiding, een
+// servicepunt), en als laatste de parkeerverboden: die zijn talrijk, per straat, en staan ingeklapt.
+export function kaartIndeling(uitleg = {}, { reference = "", straten = 0 } = {}) {
+  const alle = uitleg.regels || [];
+  const bron = alle.filter(([dt]) => BRONREGELS.has(dt));
+  if (reference) bron.push(["Referentie", reference]);
+  const stratenNoot = straten > 3 ? alle.find(([dt]) => dt === STRATENREGEL)?.[1] || "" : "";
+  const lijst = uitleg.beschrijvingen || [];
+  const parcours = lijst.filter(isParcours);
+  const overige = lijst.filter((b) => !isParcours(b) && !isParkeerverbod(b));
+  const volgorde = [...parcours, ...overige, ...lijst.filter((b) => !isParcours(b) && isParkeerverbod(b))];
+  let n = Math.max(DOSSIER_ZICHTBAAR, parcours.length + Math.min(overige.length, 2));
+  // Geen knop "Toon nog 1": dan staat die ene ook gewoon zichtbaar.
+  if (volgorde.length <= n + 1) n = volgorde.length;
+  const dicht = volgorde.slice(n);
+  return {
+    regels: alle.filter(([dt]) => !BRONREGELS.has(dt) && !(stratenNoot && dt === STRATENREGEL)),
+    dossier: {
+      zichtbaar: volgorde.slice(0, n),
+      dicht,
+      knop: dicht.length && dicht.every(isParkeerverbod) ? `Toon de ${dicht.length} parkeerverboden uit het dossier` : `Toon nog ${dicht.length} omschrijvingen uit het dossier`,
+    },
+    stratenNoot,
+    bron,
+    technisch: uitleg.technisch || "",
+  };
+}
+
+// De naam van een sectie (aria-label) uit de kop in HTML: zonder tags en zonder de pictogrammen die
+// voor een schermlezer verborgen zijn ("Nu bezig", niet '<span aria-hidden="true">⏳</span> Nu bezig').
+const ENTITEITEN = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#039;": "'" };
+export function kopTekst(html = "") {
+  return String(html).replace(/<span aria-hidden="true">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "")
+    .replace(/&(?:amp|lt|gt|quot|#039);/g, (e) => ENTITEITEN[e]).replace(/\s+/g, " ").trim();
+}
 
 const dayNum = (iso) => Number(iso.slice(8, 10));
 const monthOf = (iso) => Number(iso.slice(5, 7)) - 1;
@@ -566,8 +610,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry,item);
-    const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
+    const linkData = bezoekersLinks(entry);
+    const links = linkData.map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
     const bronHint = bezoekersHint(entry);
+    // Een kaart met uitleg zonder pagina voor bezoekers (alleen een technische databron): die link en
+    // de bronzin gaan over de bron, en staan bij het nummer en de codes onder "Bron en dossier".
+    const bronInKaart = Boolean(entry.uitleg) && linkData.every((l) => l.type === "source");
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
     return `
@@ -588,7 +636,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${progress}
           ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
           ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
-          ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
+          ${entry.uitleg ? uitlegTemplate(entry, bronInKaart ? { hint: bronHint, links } : {}) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}</dd></div>` : ""}
@@ -596,39 +644,43 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
           </dl>`}
-          ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
+          ${bronHint && !bronInKaart ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
           ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
-          ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
+          ${links.length && !bronInKaart ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
   }
   // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
   // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.
-  // Wat over de bron zelf gaat (waarom het hier staat, de letterlijke dossiertekst, het nummer en de
-  // codes) staat ingeklapt onder "Bron en dossier": zo blijft een open kaart kort, ook op een gsm.
-  function uitlegTemplate(entry) {
+  // Wat er gebeurt, waarom en wat er in het dossier staat (het parcours vooraan) blijft zichtbaar;
+  // alleen de organisator (niet openbaar), het nummer, de codes en een technische databron (`databron`:
+  // de bronzin en de link) staan ingeklapt onder "Bron en dossier".
+  function uitlegTemplate(entry, databron = {}) {
     const u = entry.uitleg;
     const straten = entry.straten || [];
     const lange = straten.length > 3;
     const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b])) : "";
-    const regel = ([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`;
-    const bron = u.regels.filter(([dt]) => BRONREGELS.has(dt));
-    if (entry.reference) bron.push(["Referentie", entry.reference]);
+    const { regels, dossier, stratenNoot, bron, technisch } = kaartIndeling(u, { reference: entry.reference, straten: straten.length });
+    // Eén omschrijving als gewone tekst; meer als lijst, met de rest ingeklapt (de rest telt er altijd 2 of meer).
+    const lijst = (items) => `<ul class="pv-dossier">${items.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>`;
+    const dossierHtml = () => (dossier.zichtbaar.length === 1 && !dossier.dicht.length ? esc(dossier.zichtbaar[0])
+      : `${lijst(dossier.zichtbaar)}${dossier.dicht.length ? `<details class="pv-streets"><summary>${esc(dossier.knop)}</summary>${lijst(dossier.dicht)}</details>` : ""}`);
+    const regel = ([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${dt === "In het dossier" && dossier.zichtbaar.length ? dossierHtml() : esc(dd)}</dd></div>`;
     return `
           <dl class="pv-uitleg pv-uitleg-kaart">
-            ${u.regels.filter(([dt]) => !BRONREGELS.has(dt)).map(regel).join("")}
-            ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${regels.map(regel).join("")}
+            ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${stratenNoot ? `<p class="pv-straten-noot">${esc(stratenNoot)}</p>` : ""}<p>${esc(straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
           </dl>
           ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
-          ${bron.length || u.technisch ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}</details>` : ""}`;
+          ${bron.length || technisch || databron.hint || databron.links?.length ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}${databron.hint ? `<p class="pv-bron-hint">${esc(databron.hint)}</p>` : ""}${databron.links?.length ? `<p class="pv-links">${databron.links.join("")}</p>` : ""}</details>` : ""}`;
   }
   function sectionTemplate(key, title, entries, options, note = "") {
     if (!entries.length) return "";
     const all = state.expanded.has(key);
     const shown = all ? entries : entries.slice(0, SECTION_LIMIT);
-    return `<section class="pv-day" aria-label="${esc(title)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
+    return `<section class="pv-day" aria-label="${esc(kopTekst(title))}"><h3 class="pv-day-title"><span class="pv-day-label">${title}</span><span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
   }
   function dayTitle(day, today) {
     const rel = day === today ? "Vandaag" : day === addDays(today, 1) ? "Morgen" : "";
@@ -639,7 +691,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const bundles = window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return "";
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span class="pv-day-label"><span aria-hidden="true">🧺</span> Wekelijkse markten</span><span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
   function emptyTemplate(today) {
     const place = state.place;
