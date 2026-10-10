@@ -20,7 +20,8 @@ import { fileURLToPath } from "node:url";
 
 import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
+import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
+import { MAX_AGE_HOURS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
 export function gitBaseline(rootDir, ref) {
@@ -68,6 +69,32 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, ...content, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
   }
 
+  // Afgeleide bronnen (lib/source-registry.mjs, AFGELEIDE_BRONNEN): geen regel in refresh-status.json,
+  // dus uit hun eigen bestand. Alleen melden: een ontbrekend, ongeldig of verouderd bestand is een
+  // waarschuwing (de stap ervoor, zoals de parcoursherkenning, faalde of liep nog niet); de agenda
+  // verbergt verouderde items zelf.
+  for (const bron of AFGELEIDE_BRONNEN) {
+    for (const sourceId of bron.sourceIds) {
+      const document = readJson(path.join(rootDir, "site", sourceFileName(sourceId)));
+      if (!document) {
+        lines.push(`${sourceId}\tnog niet afgeleid\twacht op ${bron.na}`);
+        continue;
+      }
+      const fouten = validateSourceDocument(document, { expectedSourceId: sourceId });
+      if (fouten.length) {
+        lines.push(`${sourceId}\tongeldig\tafgeleid na ${bron.na}\t${fouten[0]}`);
+        warnings.push(`${sourceId}: ongeldig bestand (${fouten.length} fouten)`);
+        continue;
+      }
+      const items = Array.isArray(document.items) ? document.items : [];
+      const opgehaald = Date.parse(document.retrievedAt ?? "");
+      const verouderd = !Number.isFinite(opgehaald) || at > opgehaald + MAX_AGE_HOURS * 3_600_000;
+      if (verouderd) warnings.push(`${sourceId}: niet bijgewerkt sinds ${document.retrievedAt ?? "-"} (stap ${bron.na})`);
+      const komend = items.filter((item) => (item.endDate || item.date) >= asOfDay).length;
+      lines.push([sourceId, verouderd ? "verouderd" : "ok", `afgeleid na ${bron.na}`, `items=${items.length}`, `upcoming=${komend}`, `retrievedAt=${document.retrievedAt ?? "-"}`].join("\t"));
+    }
+  }
+
   // Automatische parcoursherkenning (lib/parcours-herkenning-refresh.mjs): alleen melden, telt niet als fout.
   const herkenning = readJson(path.join(rootDir, "site", "sources", "evenement-identiteit-auto.json"));
   if (herkenning?.samenvatting) {
@@ -101,7 +128,7 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   // melden, niet als fout tellen. Zo kent sources:health elke bron uit lib/source-feed.mjs.
   const listed = new Set(status.sources.map((entry) => entry.sourceId));
   for (const sourceId of SOURCE_IDS) {
-    if (!listed.has(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
+    if (!listed.has(sourceId) && !AFGELEIDE_BRON_IDS.includes(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
   }
   return { lines, warnings, unhealthy, exitCode: unhealthy ? 1 : 0 };
 }

@@ -19,7 +19,7 @@ import { validateHerkenning, validatePatronen } from "../lib/evenement-herkennin
 import { HUISNUMMERS_TEST, evalueer, laadFixtures, VANDAAG } from "./helpers/parcours-herkenning-evaluatie.mjs";
 import { evenementKaartje, evenementFeiten } from "../site/kaart-uitleg.js";
 import { identiteitSamen } from "../site/place-core.js";
-import { privacyFindings } from "../lib/source-feed.mjs";
+import { privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
 import { main as herkenMain } from "../scripts/herken-parcours.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -408,4 +408,29 @@ test("integratie: een straat die het parcours maar één keer raakt, laat de her
   assert.ok(doc, logs.join("\n"));
   assert.doesNotMatch(logs.join("\n"), /niet bijgewerkt/);
   assert.ok(doc.dossiers.ET2026004615);
+});
+
+// ---------- pakket P2: na de herkenning de agendapunten ----------
+
+test("na de herkenning worden de evenementdossiers in het district agendapunten (district-asign-evenementen.json)", async () => {
+  const dir = tijdelijkeRoot({ zonderHand: ["ET2026003440", "ET2026004615"] });
+  try {
+    const logs = [];
+    const doc = await herkenParcours({ rootDir: dir, fetch: nepFetch(), clock: klok, log: (l) => logs.push(l), historiekBudgetMs: 1_000 });
+    assert.ok(doc, logs.join("\n"));
+    const bron = leesUit(dir, "district-asign-evenementen.json");
+    assert.deepEqual(validateSourceDocument(bron, { expectedSourceId: "district-asign-evenementen" }), []);
+    const per = Object.fromEntries(bron.items.map((item) => [item.externalId, item]));
+    // Het criterium: de naam uit de herkenning, en samen met het punt uit de districtskalender.
+    assert.equal(per.ET2026003440?.title, "Linkeroever Criterium");
+    assert.deepEqual(per.ET2026003440?.sameAs, ["linkeroever-criterium"]);
+    assert.match(per.ET2026004615?.title ?? "", /^Schoolactiviteit /);
+    assert.ok(logs.some((l) => /"asignEvenementen":\{/.test(l)), logs.join("\n"));
+    // Zonder A-Sign: de vorige agendapunten blijven staan.
+    const voor = fs.readFileSync(path.join(dir, "site", "sources", "district-asign-evenementen.json"), "utf8");
+    assert.equal(await herkenMain({ rootDir: dir, fetch: nepFetch({ asign: false }), log: () => {}, budgetMs: 5_000 }), null);
+    assert.equal(fs.readFileSync(path.join(dir, "site", "sources", "district-asign-evenementen.json"), "utf8"), voor);
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
 });

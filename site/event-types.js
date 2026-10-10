@@ -35,6 +35,9 @@
     if(has(v,/\b(sinterklaas|halloween|familiedag|familiefeest|kinderfeest|paasfeest|kerstfeest|winterfeest|bingo)\b/))return"family";
     if(has(v,/\b(?:[a-z0-9-]*(?:festival|concert|theater|expo|tentoonstelling|kunstendag)|circus|film|dans|muziek|kunst|lezing|literatuur|poezie|poëzie|dichter|auteur|voorstelling)\b/))return"culture";
     if(s==="stad-markten"||has(v,/\b(markt|jaarmarkt|kerstmarkt|kermis|foor)\b/))return"market_fair";
+    // Een evenement op straat uit de dossiers van de stad (A-Sign) zonder herkenbare soort ("Evenement in
+    // de Kerkstraat — naam volgt", een studentenactiviteit): wat er in de straat gebeurt.
+    if(s==="district-asign-evenementen")return"neighborhood";
     return"other";
   }
   root.PublicAgendaEventTypes=Object.freeze({types:TYPES,labels:LABELS,classifyEventType,labelFor:k=>LABELS[k]||LABELS.other});

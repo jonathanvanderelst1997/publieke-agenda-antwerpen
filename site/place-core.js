@@ -492,6 +492,13 @@ const OUDE_KAART_MAX = 12;
 // `lijst`: de stratenlijst van evenementStraten() (ook die van de filter); `straat`: de gekozen straat
 // ("jouw straat"); `straal`: de straal rond die straat. identiteit: site/sources/evenement-identiteit.json;
 // agendaItems: de publieke agendapunten, voor een dossier dat (nog) niet nagekeken is.
+// Een agendapunt dat alleen uit de evenementendossiers van de stad komt (lib/asign-evenementen-agenda.mjs).
+// Samengevoegd met de kalender of het nieuws telt het wel: dan is er een tweede bron.
+export function alleenUitDossiers(item = {}) {
+  const bronnen = Array.isArray(item?.sources) && item.sources.length ? item.sources.map((s) => s?.sourceId) : [item?.sourceId];
+  return bronnen.every((id) => id === "district-asign-evenementen");
+}
+
 export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [] } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
@@ -514,7 +521,9 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // Koppeling aan de agenda. Een nagekeken evenement linkt alleen naar het agendapunt met dezelfde
   // naam; een dossier zonder fiche koppelt op dag en straat: eerst live (kent het agendapunt), anders
   // wat de verversing bewaarde.
-  const agenda = Array.isArray(agendaItems) ? agendaItems : [];
+  // Niet een agendapunt dat alleen uit de dossiers van de stad komt (district-asign-evenementen): dat is
+  // geen tweede bron, en het kan van een buurdossier op dezelfde dag en straat zijn.
+  const agenda = (Array.isArray(agendaItems) ? agendaItems : []).filter((item) => !alleenUitDossiers(item));
   const bekend = id && id.zekerheid !== "onbekend";
   const gekoppeld = bekend
     ? (id.zekerheid === "zeker" && id.naam && agenda.length ? koppelEvenement(feiten, agenda, { naam: id.naam }) : null)
