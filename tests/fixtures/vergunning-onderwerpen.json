@@ -91,5 +91,62 @@
       "titel": "Campus Groenenborger (Universiteit Antwerpen): wijziging van een eerdere vergunning · afvalwater lozen",
       "oud": ""
     }
+  ],
+  "randgevallen_uitleg": "Randgevallen uit het nakijkverslag van de vergunningkaart (9 oktober 2026), herschreven zonder adressen of echte nummers. 'fout' is wat de kaart vóór de herstelling toonde.",
+  "randgevallen": [
+    {
+      "onderwerp": "bouwen van een eengezinswoning met bijgebouw en zwembad, aanleggen van verharding en plaatsen van een warmtepomp",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Nieuwbouw · weg, parking of verharding · warmtepomp, airco of verwarming",
+      "fout": "Weg, parking of verharding · warmtepomp, airco of verwarming"
+    },
+    {
+      "onderwerp": "bouwen van een woning met een zwembad",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Nieuwbouw (woningen)",
+      "fout": "Omgevingsaanvraag (soort werk niet herkend)"
+    },
+    {
+      "onderwerp": "bouwen van een nieuwe open overkapping",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Overkapping",
+      "fout": ""
+    },
+    {
+      "onderwerp": "verbouwen van café De Bouw",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Verbouwing of uitbreiding",
+      "fout": "Nieuwbouw · verbouwing of uitbreiding"
+    },
+    {
+      "onderwerp": "plaatsen van zonnepanelen bij Dhr. De Bouw",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Zonnepanelen",
+      "fout": "Nieuwbouw · zonnepanelen"
+    },
+    {
+      "onderwerp": "Bouw en tijdelijke exploitatie van een betoncentrale",
+      "overheid": "Deputatie",
+      "titel": "Nieuwbouw · milieuvergunning (exploitatie)",
+      "fout": ""
+    },
+    {
+      "onderwerp": "heraanleggen van de rijbaan; het rooien van 95 bomen en de aanplant van 201 nieuwe bomen",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "95 bomen vellen · 201 bomen planten · weg, parking of verharding",
+      "fout": "95 bomen vellen · weg, parking of verharding"
+    },
+    {
+      "onderwerp": "vellen van een hoogstammige boom met heraanplant",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "Boom vellen · bomen planten",
+      "fout": "Boom vellen"
+    },
+    {
+      "onderwerp": "4 bomen vellen en 6 bomen heraanplanten",
+      "overheid": "College van burgemeester en schepenen",
+      "titel": "4 bomen vellen · 6 bomen planten",
+      "fout": "4 bomen vellen"
+    }
   ]
 }

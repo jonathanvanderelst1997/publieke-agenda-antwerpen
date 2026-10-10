@@ -15,13 +15,22 @@ const clean=(value,max=160)=>String(value??"").replace(/\s+/g," ").trim().slice(
 const yes=value=>["1","true","ja","yes","y"].includes(clean(value,20).toLowerCase());
 const geom=feature=>feature?.geometry||null;
 const attrs=feature=>feature?.properties||feature?.attributes||feature||{};
+// Soms staat de intrekking alleen in het onderwerp ("INGETROKKEN dd 13/10/2017") en is het veld leeg.
+// Alleen een duidelijke stempel telt: in hoofdletters, tussen haakjes of met een datum. "na de eerder
+// ingetrokken aanvraag" verbergt niets.
+export function ingetrokkenVolgensOnderwerp(onderwerp=""){
+  const s=String(onderwerp??"");
+  const niet=String.raw`(?<!\b(?:eerder|reeds|vorige|de|het|een|na) )`;
+  if(s!==s.toUpperCase()&&new RegExp(niet+String.raw`\b(?:INGETROKKEN|STOPGEZET)\b`).test(s))return true;
+  return new RegExp(String.raw`\((?:ingetrokken|stopgezet)\)|${niet}\b(?:ingetrokken|stopgezet) *(?:op|dd|d\.d\.|per)? *\d{1,2}[/.-]\d{1,2}[/.-]\d{2,4}\b`,"i").test(s);
+}
 
 export function normalizePermit(row={}){
   const dossier=clean(row.Dossiernummer,40);
   const project=clean(row.ProjectnummerOmgevingsloket,40);
   const type=clean(row.DOSSIERTYPE,80);
   if(!dossier&&!project)return null;
-  if(yes(row.Ingetrokken)||yes(row.Stopgezet))return null;
+  if(yes(row.Ingetrokken)||yes(row.Stopgezet)||ingetrokkenVolgensOnderwerp(row.Onderwerp))return null;
   // Vrije onderwerptekst en namen worden nooit uitgegeven; alleen vaste labels en aantallen.
   const inhoud=aanvraagInhoud(row.AardAanvraag,row.Onderwerp,row.behandelendeOverheid);
   return{

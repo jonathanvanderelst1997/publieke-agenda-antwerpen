@@ -595,11 +595,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         </div>
       </li>`;
   }
-  // "Waar" bij een aanvraag vanaf 3 straten: de korte regel en de volledige lijst ingeklapt. Tot 2
-  // straten staat "Waar" al volledig in de kop van de kaart.
+  // "Waar" bij een aanvraag vanaf 3 straten: alleen de volledige lijst, ingeklapt. De korte regel
+  // ("Letlandstraat en 11 andere straten") staat al in de kop; tot 2 straten staat daar alles.
   function waarTemplate(waar) {
     if (!waar?.ingeklapt) return "";
-    return `<div><dt>Waar</dt><dd>${esc(waar.kort)}${waar.ingeklapt ? `<details class="pv-streets"><summary>Toon alle ${waar.straten.length} straten</summary><p>${esc(waar.straten.join(", "))}</p></details>` : ""}</dd></div>`;
+    return `<div><dt>Waar</dt><dd><details class="pv-streets"><summary>Toon alle ${waar.straten.length} straten</summary><p>${esc(waar.straten.join(", "))}</p></details></dd></div>`;
   }
   // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
   // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.

@@ -41,6 +41,21 @@
       "onderwerp": "Dhr. Peter Wouters wil zijn gevel schilderen, bel 0477 55 66 77 na 18u",
       "naam": "",
       "verboden": ["Wouters", "Peter", "Dhr", "0477", "55 66 77", "18u", "schilderen"]
+    },
+    {
+      "onderwerp": "bouwen van een woning, Teststraat 12 appartement 3",
+      "naam": "",
+      "verboden": ["Teststraat", "12 appartement", "3 appartement"]
+    },
+    {
+      "onderwerp": "nieuwbouw Teststraat 112 bus 4 woongelegenheden",
+      "naam": "",
+      "verboden": ["Teststraat", "112", "bus 4", "4 woning"]
+    },
+    {
+      "onderwerp": "slopen van de woning op huisnummer 7 woningen erachter blijven",
+      "naam": "",
+      "verboden": ["huisnummer", "7 woning"]
     }
   ]
 }
