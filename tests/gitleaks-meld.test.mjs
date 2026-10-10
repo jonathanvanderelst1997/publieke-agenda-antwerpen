@@ -204,9 +204,10 @@ test("het noodplan uit docs/UBUNTU_2604.md (ubuntu-24.04 vastzetten) houdt de to
   const doc = lees("docs/UBUNTU_2604.md");
   const label = doc.match(/zet `(ubuntu-[0-9.]+)` vast in plaats van\s+`ubuntu-latest`/)?.[1];
   assert.equal(label, "ubuntu-24.04", "het noodplan noemt het label");
+  // Ook als het al vastgezet is (dan verandert de vervanging niets): de toets moet dan groen blijven.
   for (const pad of WERKSTROMEN) {
     const vast = lees(pad).replace(/^( {4}runs-on: )ubuntu-latest$/gm, `$1${label}`);
-    assert.notEqual(vast, lees(pad), `${pad}: er was iets vast te zetten`);
+    assert.doesNotMatch(vast, /^ {4}runs-on: ubuntu-latest$/m);
     assert.deepEqual(runnerFouten(vast), [], `${pad} met ${label}`);
     if (pad.endsWith("ci.yml")) assert.deepEqual(gitleaksJobFouten(vast), [], `job gitleaks met ${label}`);
   }
