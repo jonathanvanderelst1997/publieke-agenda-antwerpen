@@ -2,6 +2,7 @@ import {dedupeByKey,normalizeIod,normalizeParking,normalizeSgw,publicOnly} from 
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
+import {parcoursGeometrie} from "./parcours-straten.js";
 
 const attrs=f=>f?.properties||f?.attributes||f||{};
 const geom=f=>f?.geometry||null;
@@ -98,15 +99,20 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
   return out;
 }
 function* iodItems(features,district,streetIndex){
-  const exact=[],byKey=new Map();
+  const exact=[],byKey=new Map(),vormen=new Map();
   for(const f of features){if(geometryIntersectsDistrict(geom(f),district))exact.push(f);yield}
   if(streetIndex)for(const f of exact){const n=normalizeIod(attrs(f));if(n.key){const a=byKey.get(n.key)||[];a.push(resolveGeometryStreets(geom(f),streetIndex));byKey.set(n.key,a)}yield}
+  // De vorm van elk parcours (vlak uit laag 22, lijn uit laag 23) gaat mee, zodat de browser zelf kan
+  // zien welke straten het parcours volgt en welke het alleen kruist (site/parcours-straten.js) als
+  // de verversing het dossier nog niet kent. De historiek bewaart dit veld niet.
+  for(const f of exact){const n=normalizeIod(attrs(f));if(n.key&&n.type==="Parcours"&&geom(f))vormen.set(n.key,[...(vormen.get(n.key)||[]),f])}
   return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
     phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,
-    sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})()
+    sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})(),
+    ...(vormen.has(n.key)?{parcours:parcoursGeometrie(vormen.get(n.key))}:{})
   }));
 }
 function* sgwItems(features,district,streetIndex){

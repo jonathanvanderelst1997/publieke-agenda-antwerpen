@@ -7,8 +7,9 @@ import {
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, terrasEntries, summarize,
-  plekWaar, legeStaatTekst, voortgangTekst,
+  plekWaar, legeStaatTekst, voortgangTekst, evenementStraten,
 } from "./place-core.js";
+import { bundelInnames, isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
@@ -226,12 +227,51 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // Uitleg uit de dataverversing (huisnummers, gekoppeld evenement, parcourslijn). Zonder dit
   // bestand maken de kaartjes hun uitleg uit de live lagen alleen.
   // Pas laden zodra een live laag er is: zonder werken of innames is het niet nodig.
-  let kaartUitleg = null, kaartUitlegGevraagd = false;
+  let kaartUitleg = null, kaartUitlegGevraagd = false, kaartUitlegKlaar = false;
   const vraagKaartUitleg = () => {
     if (kaartUitlegGevraagd) return;
     kaartUitlegGevraagd = true;
-    getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; announce(); }).catch(() => {});
+    getJson("/sources/kaart-uitleg.json").then((doc) => { kaartUitleg = doc; }).catch(() => {})
+      .finally(() => { kaartUitlegKlaar = true; view.resetRefs?.(); announce(); });
   };
+  // ---- één stratenlijst voor tonen én filteren ----
+  // Een evenementendossier: de straten van evenementStraten() (place-core.js), zowel die waar het
+  // parcours door loopt als die het alleen kruist. Een werk: de straat van zijn punt plus die van de
+  // werfzone. De filter (agenda-view.js), de kaart en het kaartje gebruiken zo dezelfde lijst.
+  let lijstBron = {}, lijstPerDossier = new Map(), rijenPerDossier = new Map();
+  function lijstVan(dossier) {
+    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
+    if (lijstBron.rijen !== live.publicSpace || lijstBron.uitleg !== kaartUitleg || lijstBron.index !== liveIndex || lijstBron.klaar !== kaartUitlegKlaar) {
+      lijstBron = { rijen: live.publicSpace, uitleg: kaartUitleg, index: liveIndex, klaar: kaartUitlegKlaar };
+      lijstPerDossier = new Map();
+      rijenPerDossier = bundelInnames(Array.isArray(live.publicSpace) ? live.publicSpace : []);
+    }
+    if (!lijstPerDossier.has(dossier)) {
+      // Zelf rekenen (zonder index: niet) pas als duidelijk is dat de verversing het dossier niet kent.
+      lijstPerDossier.set(dossier, evenementStraten(rijenPerDossier.get(dossier) || [], { bewaard: kaartUitleg?.evenementen?.[dossier] || null, index: kaartUitlegKlaar ? liveIndex : null }));
+    }
+    return lijstPerDossier.get(dossier);
+  }
+  // Straatnamen naar officiële straten (met postcode, voor de postcodefilter). Een naam die de rijen
+  // zelf al kennen, houdt hun postcode; anders elke straat met die naam in het district.
+  const naarRefs = (namen, eigen = []) => namen.flatMap((naam) => {
+    const k = locationKey(naam);
+    const bekend = eigen.filter((r) => locationKey(r?.name) === k);
+    return bekend.length ? bekend : refsByName.get(k) || [{ name: naam }];
+  });
+  view.setStreetLists?.((item) => {
+    if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) {
+      const lijst = lijstVan(item.reference);
+      const eigen = (rijenPerDossier.get(item.reference) || []).flatMap((r) => r?.streets || []);
+      return naarRefs([...lijst.langs, ...lijst.kruist], eigen);
+    }
+    const vlak = !item?.kind && item?.gipodId != null ? kaartUitleg?.werken?.[item.gipodId]?.vlakStraten : null;
+    if (Array.isArray(vlak) && vlak.length) {
+      const eigen = Array.isArray(item.streets) ? item.streets : [];
+      return [...eigen, ...naarRefs(vlak.filter((n) => !eigen.some((r) => locationKey(r?.name) === locationKey(n))))];
+    }
+    return null;
+  });
   const wijkVan = (straat) => {
     const place = index?.places.find((p) => p.type === "straat" && p.name === straat);
     return (place?.wijken?.[0] && index.byKey.get(`wijk:${place.wijken[0]}`)?.label) || "";
@@ -497,7 +537,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const entries = [
       ...agenda,
       ...pick(live.works, "works").map((work) => workEntry(work, { vandaag: brusselsToday(), uitleg: kaartUitleg })),
-      ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, straat: state.place?.type === "straat" ? state.place.name : "" }),
+      ...publicSpaceEntries(pick(live.publicSpace, "publicSpace"), { vandaag: brusselsToday(), alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan }),
       ...pick(live.permits, "permits").map((row) => permitEntry(row)),
       ...terrasEntries(pick(live.terraces, "terraces")),
     ];
@@ -579,6 +619,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${entry.location && !entry.uitleg ? `<span class="pv-row-where">${esc(entry.location)}</span>` : ""}
+            ${entry.jouwStraat ? `<span class="pv-row-where pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
             ${track}
           </span>
@@ -608,12 +649,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function uitlegTemplate(entry) {
     const u = entry.uitleg;
     const straten = entry.straten || [];
+    const kruist = entry.kruist || [];
     const lange = straten.length > 3;
     const kaart = entry.kaart?.length ? kaartSvg(entry.kaart, (liveIndex?.segments || []).map((s) => [s.a, s.b])) : "";
     return `
           <dl class="pv-uitleg">
             ${u.regels.map(([dt, dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}
             ${straten.length ? `<div><dt>Waar</dt><dd>${esc(u.plek || straten.join(", "))}${lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary><p>${esc(straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.join(", "))}</p></details>`}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>

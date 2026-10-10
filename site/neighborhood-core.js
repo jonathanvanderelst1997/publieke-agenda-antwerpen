@@ -86,6 +86,39 @@ export function nearSegments(point, segments, radius) {
   return segments.some((s) => pointSegmentMeters(point, s.a, s.b) <= radius);
 }
 
+// Afstand in meter tussen twee straatsegmenten (0 als ze elkaar snijden).
+function kruisen(a, b, c, d) {
+  const o = (p, q, r) => Math.sign((q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1]));
+  return o(a, b, c) !== o(a, b, d) && o(c, d, a) !== o(c, d, b);
+}
+export function segmentSegmentMeters(a, b, c, d) {
+  if (kruisen(a, b, c, d)) return 0;
+  return Math.min(pointSegmentMeters(a, c, d), pointSegmentMeters(b, c, d), pointSegmentMeters(c, a, b), pointSegmentMeters(d, a, b));
+}
+// Sleutels van alle straten waarvan een stuk binnen `radius` meter van de gekozen straat ligt:
+// "naam|postcode" en "naam|" (voor een straat zonder postcode). Voor items zonder eigen punt.
+export const straatSleutel = (ref) => `${locationKey(ref?.name)}|${ref?.postcode || ""}`;
+export function stratenBinnenStraal(index, segments, radius) {
+  const uit = new Set();
+  if (!index?.segments || !segments?.length || !(radius > 0)) return uit;
+  const pad = radius / 70000, padX = radius / 45000; // graden: ruim genoeg op 51° NB
+  for (const s of segments) {
+    const box = [Math.min(s.a[0], s.b[0]) - padX, Math.min(s.a[1], s.b[1]) - pad, Math.max(s.a[0], s.b[0]) + padX, Math.max(s.a[1], s.b[1]) + pad];
+    for (const t of index.segments) {
+      const tb = t.box || [Math.min(t.a[0], t.b[0]), Math.min(t.a[1], t.b[1]), Math.max(t.a[0], t.b[0]), Math.max(t.a[1], t.b[1])];
+      if (tb[0] > box[2] || tb[2] < box[0] || tb[1] > box[3] || tb[3] < box[1]) continue;
+      if ((t.refs || []).every((ref) => uit.has(straatSleutel(ref)))) continue;
+      if (segmentSegmentMeters(s.a, s.b, t.a, t.b) > radius) continue;
+      for (const ref of t.refs || []) { uit.add(straatSleutel(ref)); uit.add(`${locationKey(ref?.name)}|`); }
+    }
+  }
+  return uit;
+}
+// Ligt één van deze straten binnen de straal? Een straat zonder postcode telt in elke postcode.
+export function stratenInStraal(refs, binnen) {
+  return (refs || []).some((ref) => ref?.name && binnen.has(ref.postcode ? straatSleutel(ref) : `${locationKey(ref.name)}|`));
+}
+
 // Straatnaam → wijkcodes, via het midden van elk straatsegment. Zo kan ook een item zonder punt maar
 // met een officiële straat (parkeerverbod, vergunning, terras) in een wijk vallen.
 export function streetWijkMap(index, wijken) {

@@ -14,6 +14,8 @@ import {
   itemPoint,
   nearSegments,
   streetSegments,
+  stratenBinnenStraal,
+  stratenInStraal,
   streetWijkMap,
   streetsInWijk,
   wijkFeatures,
@@ -67,6 +69,7 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null }) {
   const byCode = new Map(wijken.map((f) => [f.properties.code, f]));
   const streetMap = streetIndex ? streetWijkMap(streetIndex, wijken) : null;
   const segmentCache = new Map();
+  const straalCache = new Map();
   return {
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
     inWijk(item, code, refs = []) {
@@ -76,13 +79,18 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null }) {
       if (point) return pointInGeometry(point, feature.geometry);
       return streetsInWijk(refs, code, streetMap);
     },
-    nearStreet(item, street, radius) {
+    // Met een punt: ligt het punt binnen de straal. Zonder punt (parcours, vergunning, parkeerverbod):
+    // ligt één van zijn straten (refs) binnen de straal, gemeten tussen de straatsegmenten.
+    nearStreet(item, street, radius, refs = []) {
       if (!streetIndex) return false;
-      const point = itemPoint(item, geo);
-      if (!point) return false;
       const key = `${street.id}|${street.name}|${street.postcode}`;
       if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
-      return nearSegments(point, segmentCache.get(key), radius);
+      const point = itemPoint(item, geo);
+      if (point) return nearSegments(point, segmentCache.get(key), radius);
+      if (!refs?.length) return false;
+      const straalKey = `${key}|${radius}`;
+      if (!straalCache.has(straalKey)) straalCache.set(straalKey, stratenBinnenStraal(streetIndex, segmentCache.get(key), radius));
+      return stratenInStraal(refs, straalCache.get(straalKey));
     },
     segmentsFor(street) {
       if (!streetIndex || !street) return [];

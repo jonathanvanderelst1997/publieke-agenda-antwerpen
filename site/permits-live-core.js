@@ -30,18 +30,23 @@ export function normalizePermit(row={}){
   };
 }
 
+// De straten van een vergunning staan op afstand: de dichtste straat eerst (dat is meestal de straat
+// waaraan het perceel ligt), de andere daarna. place-core.js toont ze als "grenst ook aan".
+const opAfstand=afstanden=>[...afstanden.values()].sort((a,b)=>a.distanceMeters-b.distanceMeters||a.ref.name.localeCompare(b.ref.name,"nl")).map(x=>x.ref);
+const sleutel=s=>[s.id,s.name,s.postcode].join("|");
 export function collectPermits({features=[],districtGeometry=null,streetIndex=null}={}){
-  const byId=new Map();
+  const byId=new Map(),afstanden=new Map();
   for(const feature of features){
     if(districtGeometry&&!geometryIntersectsDistrict(geom(feature),districtGeometry))continue;
     const normalized=normalizePermit(attrs(feature));
     if(!normalized)continue;
     const street=streetIndex?resolveGeometryStreets(geom(feature),streetIndex,{maxDistanceMeters:24}):{streets:[],confidence:"unresolved",distanceMeters:null};
     const item={...normalized,streets:street.streets,streetResolution:street.confidence,streetDistanceMeters:street.distanceMeters,sourceLabel:"Stad Antwerpen · omgevingsvergunningen in behandeling",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_PiP/pip2_vergunningen/MapServer/5"};
+    const per=afstanden.get(item.id)||new Map();afstanden.set(item.id,per);
+    for(const x of street.metAfstand||street.streets.map(ref=>({ref,distanceMeters:Infinity}))){const k=sleutel(x.ref),cur=per.get(k);if(!cur||x.distanceMeters<cur.distanceMeters)per.set(k,x)}
     const current=byId.get(item.id);
-    if(!current){byId.set(item.id,item);continue}
-    const streets=[...(current.streets||[]),...(item.streets||[])];
-    current.streets=[...new Map(streets.map(s=>[[s.id,s.name,s.postcode].join("|"),s])).values()];
+    if(!current){byId.set(item.id,item);item.streets=opAfstand(per);continue}
+    current.streets=opAfstand(per);
   }
   return[...byId.values()].sort((a,b)=>a.dossierType.localeCompare(b.dossierType,"nl")||a.dossier.localeCompare(b.dossier,"nl"));
 }

@@ -5,6 +5,7 @@
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
 import { bundelInnames, evenementFeiten, evenementKaartje, isEvenementDossier, statusTekst, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { stratenVanParcours } from "./parcours-straten.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -365,7 +366,14 @@ function samenWerk(live, bewaard) {
     soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "",
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaard.huisnummers || "", huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaard.huisnummerBron || "",
+    // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
+    straten: werkStraten(live.straten, bewaard),
   };
+}
+// Straten van een werk: die van het punt, plus die van de werfzone (GIPOD INNAME-vlak) uit de
+// verversing. Een werk over 100 m staat zo bij elke straat die het raakt, niet bij één.
+export function werkStraten(puntStraten = [], bewaard = null) {
+  return [...new Set([...(puntStraten || []), ...(Array.isArray(bewaard?.vlakStraten) ? bewaard.vlakStraten : [])].map(cleanText).filter(Boolean))];
 }
 export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
   ? `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items?f=html&filter-lang=cql2-text&filter=GipodId%3D${Number(gipodId)}` : "");
@@ -381,30 +389,107 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
 }
 // Eén kaartje per evenementendossier, met alle innames (parcours, parkeerverboden) samen.
 // `rows` zijn de innames op de gekozen plek, `alle` die van het hele dossier (voor de straten).
-export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan } = {}) {
+// `lijst`: de stratenlijst van evenementStraten() (ook die van de filter); `straat`: de gekozen straat.
+export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0 } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
-  const feiten = bewaard ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten: bewaard.straten?.length ? bewaard.straten : live.straten } : live;
+  const stratenLijst = verfijnVoorStraat(lijst || evenementStraten(alle, { bewaard, index }), straat, alle, index);
+  const straten = stratenLijst.langs.length ? stratenLijst.langs : bewaard?.straten?.length ? bewaard.straten : live.straten;
+  const feiten = bewaard ? { ...live, soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "", beschrijvingen: live.beschrijvingen.length ? live.beschrijvingen : bewaard.beschrijvingen || [], straten } : { ...live, straten };
   const k = evenementKaartje(feiten, { vandaag, gekoppeld: bewaard?.gekoppeld || null, wijkVan });
+  // Jouw straat: ligt ze op het parcours, kruist ze het, of valt het evenement alleen binnen de straal?
+  const relatie = straatRelatie(straat, stratenLijst);
+  const jouwStraat = jouwStraatTekst(relatie, { parcours: live.parcours > 0, straal });
+  if (jouwStraat) k.regels.unshift(["Jouw straat", jouwStraat.lang]);
   return {
     uid: `publicSpace:dossier:${live.dossier || first.id}`, id: String(live.dossier || first.id || ""), source: "publicSpace", theme: "publicSpace", group: "werken",
     title: k.titel, summary: k.samenvatting, start: dayOf(live.start), end: live.eind && live.eind > live.start ? dayOf(live.eind) : "", openEnd: false, time: "", timeText: "",
     location: k.plek, status: statusTekst(first.status), info: "", reference: live.dossier ? `Dossier ${live.dossier}` : "", url: "",
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
-    straten: feiten.straten, kaart: bewaard?.kaart || [],
+    straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart: bewaard?.kaart || [],
   };
+}
+
+// ---- één stratenlijst per evenementendossier, voor tonen én filteren ----
+const isParcoursRij = (r) => cleanText(r?.innameType || r?.title) === "Parcours";
+const sorteerNl = (namen) => [...new Set(namen.map(cleanText).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
+function samengevoegdeGeometrie(rijen) {
+  const vlakken = [], lijnen = [];
+  for (const r of rijen) { vlakken.push(...(r?.parcours?.vlakken || [])); lijnen.push(...(r?.parcours?.lijnen || [])); }
+  return vlakken.length || lijnen.length ? { vlakken, lijnen } : null;
+}
+// { langs, kruist, bron }. `langs`: straten waar het parcours door loopt of die een andere inname van
+// het dossier inneemt. `kruist`: straten die het parcours alleen kruisen of erop uitkomen.
+// Bron, in deze volgorde: de verversing (site/sources/kaart-uitleg.json); anders de browser zelf, op
+// de geometrie uit A-Sign (site/parcours-straten.js, dezelfde berekening als de verversing); anders
+// de straten van de innames zoals de live laag ze geeft. Een bestand van vóór deze berekening (zonder
+// `kruist`) geldt nog tot de volgende verversing: alles in `langs`, en straatRelatie() kijkt dan voor
+// de gekozen straat zelf na of ze het parcours alleen kruist. Alles in de browser opnieuw berekenen
+// kost op een gsm enkele seconden.
+export function evenementStraten(rijen = [], { bewaard = null, index = null } = {}) {
+  if (bewaard && Array.isArray(bewaard.kruist)) {
+    const langs = sorteerNl(bewaard.straten || []);
+    return { langs, kruist: sorteerNl(bewaard.kruist).filter((n) => !langs.includes(n)), bron: "verversing" };
+  }
+  if (bewaard?.straten?.length) return { langs: sorteerNl(bewaard.straten), kruist: [], bron: "verversing-oud" };
+  const geometrie = index ? samengevoegdeGeometrie(rijen.filter(isParcoursRij)) : null;
+  if (geometrie) {
+    // Alleen de straten die de live laag of de verversing al bij het dossier zet: zo blijft het snel
+    // op een gsm (een parcours telt soms 15.000 punten).
+    const alleen = new Set(sorteerNl([...rijen.flatMap((r) => (r?.streets || []).map((s) => s?.name)), ...(bewaard?.straten || [])]));
+    const p = stratenVanParcours(geometrie, index, { alleen });
+    const innames = rijen.filter((r) => !isParcoursRij(r)).flatMap((r) => (r?.streets || []).map((s) => s?.name));
+    const langs = sorteerNl([...innames, ...p.langs]);
+    return { langs, kruist: p.kruist.filter((n) => !langs.includes(n)), bron: "browser" };
+  }
+  return { langs: sorteerNl(rijen.flatMap((r) => (r?.streets || []).map((s) => s?.name))), kruist: [], bron: "innames" };
+}
+// Voor één gekozen straat bij een lijst uit een oud bestand: loopt het parcours erdoor, of kruist het
+// haar alleen? Snel: alleen die straat wordt bekeken. Geeft een (eventueel aangepaste) lijst terug.
+export function verfijnVoorStraat(lijst, straat, rijen = [], index = null) {
+  if (lijst?.bron !== "verversing-oud" || !index || !straat) return lijst;
+  const eigen = lijst.langs.find((n) => foldText(n) === foldText(straat));
+  const geometrie = eigen ? samengevoegdeGeometrie(rijen.filter(isParcoursRij)) : null;
+  if (!geometrie) return lijst;
+  // Een straat die een andere inname van het dossier inneemt, blijft "in je straat".
+  if (rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === foldText(eigen)))) return lijst;
+  const p = stratenVanParcours(geometrie, index, { alleen: new Set([eigen]) });
+  if (!p.kruist.includes(eigen)) return lijst;
+  return { ...lijst, langs: lijst.langs.filter((n) => n !== eigen), kruist: sorteerNl([...lijst.kruist, eigen]) };
+}
+// "langs", "kruist" of "" voor de gekozen straat.
+export function straatRelatie(straat, lijst) {
+  const eigen = foldText(straat);
+  if (!eigen || !lijst) return "";
+  if ((lijst.langs || []).some((n) => foldText(n) === eigen)) return "langs";
+  if ((lijst.kruist || []).some((n) => foldText(n) === eigen)) return "kruist";
+  return "";
+}
+// Kort (in de lijst, zonder openklappen) en lang (in de details). Zonder gekozen straat: niets.
+export function jouwStraatTekst(relatie, { parcours = true, straal = 0 } = {}) {
+  if (relatie === "langs") return parcours
+    ? { kort: "Ligt in je straat: op het parcours of in een zone van het evenement", lang: "Het parcours of een zone van dit evenement ligt in je straat." }
+    : { kort: "Ligt in je straat", lang: "Dit evenement neemt een deel van je straat in." };
+  if (relatie === "kruist") return { kort: "Je straat kruist het parcours", lang: "Je straat kruist het parcours of komt erop uit; het parcours loopt niet door je straat." };
+  if (straal > 0) {
+    const afstand = straal >= 1000 ? "1 km" : `${straal} m`;
+    return { kort: `Niet in je straat, wel binnen ${afstand}`, lang: `Niet in je straat: dit evenement ligt binnen ${afstand} van je straat.` };
+  }
+  return null;
 }
 const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).filter((s) => s?.name).map((s) => [`${s.id}|${s.name}|${s.postcode}`, s])).values()];
 // Live innames: evenementendossiers bundelen. Parkeerverboden en werfzones per dossier bundelen:
 // één rij per parkeerverbod (alle plaatsen van hetzelfde dossier en dezelfde uren samen) en één rij
 // per werfzone-dossier (alle fasen samen). `straat`: de gekozen straat, die komt eerst bij "Waar".
-export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "" } = {}) {
+// `lijstVan(dossier)`: de stratenlijst die de filter ook gebruikt (place-view.js); `straal`: de straal
+// rond de gekozen straat, voor de regel "jouw straat".
+export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "", straal = 0, index = null, lijstVan = null } = {}) {
   if (!vandaag) return rows.map(publicSpaceEntry);
   const perDossier = bundelInnames(alle);
   const out = [];
   for (const [dossier, groep] of bundelInnames(rows)) {
-    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan }));
+    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, straat, straal, index, lijst: lijstVan ? lijstVan(dossier) : null }));
     else out.push(...groep.map(publicSpaceEntry));
   }
   out.push(...bundelMaatregelen(rows.filter((r) => r?.kind !== "iod"), { alle, straat, vandaag }));
@@ -589,11 +674,22 @@ export function permitEntry(row, theme = "permits") {
     uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: terrace ? "terraces" : "permits", theme: "permits", group: "vergunningen",
     title: cleanText(terrace ? terrasTitel(row?.terraceType) : row?.dossierType || "Omgevingsdossier"),
     ...(terrace ? { summary: terrasUitleg(row?.terraceType) } : {}),
-    start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || streetNames(row),
+    start: "", end: "", openEnd: false, time: "", timeText: "", location: cleanText(row?.address) || (terrace ? streetNames(row) : vergunningWaar(row?.streets)),
+    ...(!terrace && (row?.streets || []).length > 2 ? { straten: [...new Set(row.streets.map((s) => s?.name).filter(Boolean))] } : {}),
     status: terrace ? statusNl(row?.status) : cleanText(row?.decision || "In behandeling"),
     info: cleanText(terrace ? (row?.terraceType ? `Soort zone volgens de stad: ${row.terraceType}` : "") : [row?.dossier, row?.authority].filter(Boolean).join(" · ")),
     reference: row?.dossier ? `Dossier ${row.dossier}` : "", url: "", sourceUrl: safeUrl(row?.sourceUrl), item: row,
   };
+}
+
+// "Waar" bij een vergunning: de dichtste straat (permits-live-core.js zet die eerst), de andere als
+// "grenst ook aan". Vroeger stonden alle straten binnen 24 m even zwaar naast elkaar.
+export function vergunningWaar(streets = []) {
+  const namen = [...new Set((streets || []).map((s) => cleanText(s?.name)).filter(Boolean))];
+  if (namen.length <= 1) return namen[0] || "";
+  const rest = namen.slice(1);
+  const ook = rest.length <= 2 ? rest.join(" en ") : `${rest.slice(0, 2).join(", ")} en ${rest.length - 2} andere straten`;
+  return `${namen[0]} · grenst ook aan ${ook}`;
 }
 
 // Terrassen: twee zones van dezelfde soort op hetzelfde adres zijn voor een bewoner één terras.
