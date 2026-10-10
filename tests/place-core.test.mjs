@@ -154,7 +154,7 @@ test("entries: agenda, GIPOD-werk en A-Sign in één vorm, zonder onveilige link
   const work = workEntry({ gipodId: 12, title: "Riolering", status: "Concreet gepland", start: "2026-10-14T22:00:00Z", end: "2026-11-30T22:00:00Z", streets: [{ name: "Kammenstraat" }], sourceUrls: ["https://gipod.api.vlaanderen.be/x"] });
   assert.deepEqual([work.start, work.end, work.location, work.group], ["2026-10-15", "2026-11-30", "Kammenstraat", "werken"]);
   const sign = publicSpaceEntry({ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09T22:00:00Z", end: "2026-10-10T21:59:00Z", streets: [{ name: "Kammenstraat" }] });
-  assert.equal(sign.title, "Parkeerverbod: Verhuis");
+  assert.equal(sign.title, "Parkeerverbod voor een verhuis");
   const sum = summarize([agenda, { ...agenda, uid: "y" }, work, sign, manual], "2026-10-06");
   assert.equal(sum.evenementen, 1); // een reeks telt één keer
   assert.equal(sum.werkenGepland, 2);

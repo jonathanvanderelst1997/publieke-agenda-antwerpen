@@ -58,12 +58,22 @@ export function maakBegrenzer(max = ASIGN_GELIJKTIJDIG) {
 export const asignBegrenzer = maakBegrenzer(ASIGN_GELIJKTIJDIG);
 
 const standaardFetch = (...args) => globalThis.fetch(...args);
-async function haal(url, fetchImpl) {
+async function haalEenKeer(url, fetchImpl) {
   const response = await fetchImpl(url, { headers: { Accept: "application/json" } });
   if (!response.ok) throw new Error(`bron antwoordde met HTTP ${response.status}`);
   const json = await response.json();
   if (json?.error) throw new Error(json.error.message || "ArcGIS-bronfout");
   return json;
+}
+// Eén tijdelijke hapering (netwerk, een 5xx) mag geen hele laag doen vallen: elk verzoek krijgt
+// één nieuwe poging. Faalt ook die, dan faalt de laag en meldt de pagina dat eerlijk.
+export const ASIGN_POGINGEN = 2;
+async function haal(url, fetchImpl) {
+  let fout = null;
+  for (let poging = 0; poging < ASIGN_POGINGEN; poging += 1) {
+    try { return await haalEenKeer(url, fetchImpl); } catch (error) { fout = error; }
+  }
+  throw fout;
 }
 
 // Alle records van één laag: eerst de ids, dan de details in korte blokken. Faalt één blok, dan

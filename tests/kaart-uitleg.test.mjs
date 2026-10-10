@@ -146,7 +146,7 @@ test("de site bundelt innames per dossier en geeft werken een duidelijke titel",
   assert.equal(entries[0].straten.length, 5);
   assert.match(entries[0].sourceUrl, /^https:\/\/geodata\.antwerpen\.be\//);
   const parking = publicSpaceEntries([{ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09", end: "2026-10-10" }], { vandaag: VANDAAG });
-  assert.equal(parking[0].title, "Parkeerverbod: Verhuis");
+  assert.equal(parking[0].title, "Parkeerverbod voor een verhuis");
   const w = workEntry(werk(), { vandaag: VANDAAG, uitleg: { werken: { 90000001: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } });
   assert.equal(w.title, "Stelling (steiger) Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
   assert.match(w.sourceUrl, /GipodId%3D90000001/);

@@ -1,4 +1,5 @@
-import {collectPublicSpace,publicSpaceStats} from "./public-space-live-core.js";
+import {collectPublicSpaceInStappen,publicSpaceStats} from "./public-space-live-core.js";
+import {DISTRICT_POSTCODES,parkeerverbodWhere} from "./public-space-core.js";
 import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
 import {asignLayer} from "./asign-query.js";
@@ -24,7 +25,9 @@ if(root){
     if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Bevestigde parkeerverboden, innames en verkeersmaatregelen worden opgehaald…";
     const day=brusselsDate(),dateSql=`DATE '${day}'`;
     const jobs=[
-      ["parking",layer(20,{where:`District='ANTWERPEN' AND Einddatum >= ${dateSql} AND Status IN ('Goedgekeurd','In effect')`,outFields:"Dossiernummer,Locatienummer,Status,Adres,Reden,Startdatum,Einddatum,EnkelWeekdagen,GipodID,District"})],
+      // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in
+      // plaats van 2.875 parkeerverboden), en dat legde een gsm tot een halve minuut stil.
+      ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District"})],
       ["iod22",layer(22,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
       ["iod23",layer(23,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
       ["sgw47",layer(47,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true})],
@@ -40,7 +43,8 @@ if(root){
     const parking=v.parking instanceof Error?[]:v.parking,iod=[...(v.iod22 instanceof Error?[]:v.iod22),...(v.iod23 instanceof Error?[]:v.iod23)];
     const sgw=[...(v.sgw47 instanceof Error?[]:v.sgw47).map(feature=>({feature,kind:"Omleiding"})),...(v.sgw48 instanceof Error?[]:v.sgw48).map(feature=>({feature,kind:"Werfzone"}))];
     const streetIndex=v.streets instanceof Error?null:v.streets;
-    try{state.items=collectPublicSpace({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"])}
+    // In stappen: duizenden features verwerken mag de pagina op een gsm niet stilleggen.
+    try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"])}
     state.ready=true;meldLiveLaag("publicSpace",state.items,mislukt);
     const s=publicSpaceStats(state.items);meta.textContent=`${s.parking} parkeerverboden · ${s.iod} innames · ${s.sgw} werfzones/omleidingen`;
     note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(mislukt.length?` ${onvolledigMelding(mislukt)}`:"");

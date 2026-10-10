@@ -273,6 +273,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await parkeer.waitFor({ timeout: 15000 });
     assert.match(await parkeer.innerText(), new RegExp(`${street.name}, ${street.postcode} Antwerpen`));
     assert.doesNotMatch(await parkeer.innerText(), /12-14/, "geen huisnummer bij een parkeerverbod");
+    // Een titel in gewone taal; de technische bron zit ingeklapt.
+    assert.match(await parkeer.innerText(), /Parkeerverbod voor een verhuis/);
+    assert.doesNotMatch(await parkeer.innerText(), /Parkeerverbod: /);
+    await parkeer.locator(".pv-row-btn").click();
+    await parkeer.locator(".pv-tech summary").waitFor();
+    assert.equal(await parkeer.locator(".pv-tech").evaluate((el) => el.open), false, "technische details dicht");
     await page.locator(".pv-results .pv-row", { hasText: "Terraszone (e2e)" }).first().waitFor({ timeout: 15000 });
     assert.equal(await page.locator(".pv-place-failed").count(), 0);
     assert.deepEqual(errors, []);
@@ -293,7 +299,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const tekst = await leeg.innerText();
     assert.match(tekst, /Niets gevonden in Peterseliestraat/);
     assert.ok(tekst.includes(melding), tekst);
-    assert.match(tekst, /Er staat niets op de agenda voor deze straat\./);
+    // Een laag laadde niet: alleen iets zeggen over wat wel geladen is.
+    assert.match(tekst, /In wat wel geladen is, staat niets voor deze straat\./);
+    assert.doesNotMatch(tekst, /Er staat niets op de agenda/);
+    // Op een gsm valt de melding binnen het eerste scherm: boven de tegels.
+    const melder = await page.locator(".pv-place .pv-place-failed").boundingBox();
+    const tegels = await page.locator(".pv-place .pv-stats").boundingBox();
+    assert.ok(melder && tegels && melder.y < tegels.y, "melding staat boven de tegels");
     assert.doesNotMatch(tekst, /gekozen soorten/);
     assert.deepEqual(errors, []);
     await context.close();
