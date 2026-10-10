@@ -3,6 +3,7 @@
 // en bestandsnamen (de CI-logs zijn publiek).
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
@@ -62,6 +63,15 @@ const parkeer = (id, location, extra = {}) => ({
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null, ...extra,
 });
 
+// Een historiek zoals main ze schreef (met huisnummers), los van lib/live-history.mjs: die kan zelf al
+// opkuisen (#139), en deze toetsen moeten de oude vorm blijven nabootsen.
+const sha = (items) => crypto.createHash("sha256").update(JSON.stringify([...items].sort((a, b) => String(a.id).localeCompare(String(b.id), "nl")))).digest("hex");
+const laag = (items, at) => ({ status: "ok", lastAttemptAt: at, lastSuccessAt: at, errorCode: null, count: items.length, digest: sha(items), items });
+const oudeHistoriek = ({ observedAt, works = [], publicSpace = [], changes = [] }) => ({
+  schemaVersion: 1, observedAt, retentionDays: 90, baselineInitializedAt: observedAt,
+  layers: { works: laag(works, observedAt), publicSpace: laag(publicSpace, observedAt) }, changes,
+});
+
 test("een punt buiten het district valt weg", () => {
   const result = resultaatVoorHistoriek({ ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen"), parkeer(3, "Zstraat 9 2600 Antwerpen")] });
   assert.deepEqual(result.items.map((item) => item.id), ["parking:D1|L1"]);
@@ -85,17 +95,23 @@ test("de scan vindt een huisnummer, een postcode buiten het district en een punt
 });
 
 test("historiek: oude wijzigingen zonder adres volgen hun parkeerverbod; een wijziging van alleen het huisnummer valt weg", () => {
-  const T1 = "2026-10-09T03:00:00.000Z", T2 = "2026-10-10T03:00:00.000Z";
-  const h1 = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen")] } });
-  const h2 = updateLiveHistory(h1, { observedAt: T2, worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 4 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen", { end: "2026-10-14T18:00:00.000Z" })] } });
-  assert.equal(h2.changes.length, 2, "op main: een huisnummerwijziging en een wijziging buiten het district");
+  const T2 = "2026-10-10T03:00:00.000Z";
+  const h2 = oudeHistoriek({
+    observedAt: T2,
+    publicSpace: [parkeer(1, "Xstraat 4 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen", { end: "2026-10-14T18:00:00.000Z" })],
+    changes: [
+      { observedAt: T2, layer: "publicSpace", id: "parking:D1|L1", type: "changed", fields: ["location"], before: { location: "Xstraat 2 2000 Antwerpen" }, after: { location: "Xstraat 4 2000 Antwerpen" } },
+      { observedAt: T2, layer: "publicSpace", id: "parking:D2|L2", type: "changed", fields: ["end"], before: { end: "2026-10-13T18:00:00.000Z" }, after: { end: "2026-10-14T18:00:00.000Z" } },
+    ],
+  });
+  assert.deepEqual(validateLiveHistory(h2), []);
   const schoon = historiekVoorPubliek(h2, { onbekend: false });
   assert.deepEqual(schoon.changes, []);
   assert.deepEqual(schoon.layers.publicSpace.items.map((item) => item.location), ["Xstraat, 2000 Antwerpen"]);
   assert.deepEqual(validateLiveHistory(schoon), []);
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
-  // Dagarchief: dezelfde regels.
-  const dag = archiefDagVoorPubliek({ schemaVersion: 1, date: "2026-10-10", events: h2.changes }, { onbekend: false, opzoeking: null });
+  // Dagarchief: dezelfde regels; een wijziging waarvan het adres niet te vinden is, valt weg.
+  const dag = archiefDagVoorPubliek({ schemaVersion: 1, date: "2026-10-10", events: h2.changes }, { onbekend: false });
   assert.deepEqual(dag.events, []);
 });
 
@@ -144,7 +160,7 @@ test("validate-data meldt een huisnummer in de historiek met het pad, zonder de 
     fs.copyFileSync(path.join(repoRoot, "scripts", "validate-data.mjs"), path.join(root, "scripts", "validate-data.mjs"));
     fs.mkdirSync(path.join(root, "site", "history"), { recursive: true });
     fs.copyFileSync(path.join(repoRoot, "site", "works-core.js"), path.join(root, "site", "works-core.js"));
-    const history = updateLiveHistory(null, { observedAt: "2026-10-10T03:00:00.000Z", worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 27 2000 Antwerpen")] } });
+    const history = oudeHistoriek({ observedAt: "2026-10-10T03:00:00.000Z", publicSpace: [parkeer(1, "Xstraat 27 2000 Antwerpen")] });
     fs.writeFileSync(path.join(root, "site/history/live-layers.json"), JSON.stringify(history));
     const run = spawnSync(process.execPath, [path.join(root, "scripts", "validate-data.mjs")], { encoding: "utf8" });
     const regels = run.stderr.split("\n").filter((line) => line.startsWith("site/history/") && line.includes("privacy"));
