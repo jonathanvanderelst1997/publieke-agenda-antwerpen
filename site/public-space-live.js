@@ -31,7 +31,8 @@ if(root){
     const jobs=[
       // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in
       // plaats van 2.875 parkeerverboden), en dat legde een gsm tot een halve minuut stil.
-      ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District"})],
+      // Met de lijn van elk parkeerverbod (op 10 cm), voor de knoppen +250 m tot +1 km rond een straat.
+      ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",geometry:true,precisie:6})],
       ["iod22",layer(22,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
       ["iod23",layer(23,{where:`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,outFields:"dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum",geometry:true,spatial:true})],
       ["sgw47",layer(47,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true})],

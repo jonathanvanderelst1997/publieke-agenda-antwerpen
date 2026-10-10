@@ -22,11 +22,12 @@ export function asignIdsUrl(layer, { where = "1=1", spatial = false } = {}) {
 
 // De detail-URL's voor een lijst ids: blokken van hoogstens `blok` ids, en elk blok dat toch een te
 // lange URL geeft, wordt in tweeën gedeeld tot het past.
-export function asignDetailUrls(layer, ids = [], { outFields = "*", geometry = false, blok = ASIGN_BLOK, maxUrl = ASIGN_MAX_URL } = {}) {
+// `precisie`: aantal decimalen van de geometrie (6 = ongeveer 10 cm), voor een kleiner antwoord.
+export function asignDetailUrls(layer, ids = [], { outFields = "*", geometry = false, precisie = null, blok = ASIGN_BLOK, maxUrl = ASIGN_MAX_URL } = {}) {
   const urls = [];
   const maak = (deel) => {
     const url = queryUrl(layer);
-    url.search = new URLSearchParams({ f: "json", objectIds: deel.join(","), outFields, returnGeometry: String(geometry), outSR: "4326" });
+    url.search = new URLSearchParams({ f: "json", objectIds: deel.join(","), outFields, returnGeometry: String(geometry), outSR: "4326", ...(geometry && precisie != null ? { geometryPrecision: String(precisie) } : {}) });
     return url.href;
   };
   const voegToe = (deel) => {
@@ -78,12 +79,12 @@ async function haal(url, fetchImpl) {
 
 // Alle records van één laag: eerst de ids, dan de details in korte blokken. Faalt één blok, dan
 // faalt de laag (een halve laag zou stil items verbergen) en worden de wachtende blokken overgeslagen.
-export async function asignLayer(layer, { where = "1=1", outFields = "*", geometry = false, spatial = false, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
+export async function asignLayer(layer, { where = "1=1", outFields = "*", geometry = false, precisie = null, spatial = false, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
   const idData = await begrenzer(() => haal(asignIdsUrl(layer, { where, spatial }), fetchImpl));
   const ids = Array.isArray(idData.objectIds) ? idData.objectIds : [];
   if (ids.length > maxIds) throw new Error(`laag ${layer} overschrijdt de veiligheidslimiet`);
   let mislukt = null;
-  const blokken = asignDetailUrls(layer, ids, { outFields, geometry }).map((url) => begrenzer(async () => {
+  const blokken = asignDetailUrls(layer, ids, { outFields, geometry, precisie }).map((url) => begrenzer(async () => {
     if (mislukt) throw mislukt;
     try {
       const data = await haal(url, fetchImpl);
