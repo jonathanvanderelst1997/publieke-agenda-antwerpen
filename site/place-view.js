@@ -66,14 +66,6 @@ export function kaartIndeling(uitleg = {}, { reference = "", straten = 0 } = {})
   };
 }
 
-// De naam van een sectie (aria-label) uit de kop in HTML: zonder tags en zonder de pictogrammen die
-// voor een schermlezer verborgen zijn ("Nu bezig", niet '<span aria-hidden="true">⏳</span> Nu bezig').
-const ENTITEITEN = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#039;": "'" };
-export function kopTekst(html = "") {
-  return String(html).replace(/<span aria-hidden="true">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "")
-    .replace(/&(?:amp|lt|gt|quot|#039);/g, (e) => ENTITEITEN[e]).replace(/\s+/g, " ").trim();
-}
-
 const dayNum = (iso) => Number(iso.slice(8, 10));
 const monthOf = (iso) => Number(iso.slice(5, 7)) - 1;
 const shortDate = (iso) => (iso ? `${dayNum(iso)} ${MONTHS_SHORT[monthOf(iso)]}` : "");
@@ -675,7 +667,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!entries.length) return "";
     const all = state.expanded.has(key);
     const shown = all ? entries : entries.slice(0, SECTION_LIMIT);
-    return `<section class="pv-day" aria-label="${esc(kopTekst(title))}"><h3 class="pv-day-title"><span class="pv-day-label">${title}</span><span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
+    return `<section class="pv-day" aria-label="${esc(title)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${shown.map((e) => rowTemplate(e, options)).join("")}</ul>${entries.length > shown.length ? `<button type="button" class="pv-more-rows" data-expand="${esc(key)}">Toon alle ${entries.length}</button>` : ""}</section>`;
   }
   function dayTitle(day, today) {
     const rel = day === today ? "Vandaag" : day === addDays(today, 1) ? "Morgen" : "";
@@ -686,7 +678,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const bundles = window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return "";
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span class="pv-day-label"><span aria-hidden="true">🧺</span> Wekelijkse markten</span><span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
   function emptyTemplate(today) {
     const place = state.place;

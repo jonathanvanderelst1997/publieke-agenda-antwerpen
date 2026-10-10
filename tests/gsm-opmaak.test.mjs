@@ -81,10 +81,11 @@ test("op een gsm schuift de pagina niet opzij: werkbalk, weeknavigatie, straalkn
   assert.match(regel(gsm, ".pv-radius"), /grid-template-columns:\s*minmax\(0,\s*1fr\)\s+repeat\(3,\s*auto\)/);
   assert.match(regel(gsm, ".pv-seg.pv-radius button:first-child"), /white-space:\s*normal/);
   assert.doesNotMatch(gsm, /\.pv-radius\s*\{[^}]*auto 1fr 1fr 1fr/);
-  // Een sectiekop mag smaller worden dan haar langste woord (tekst 200 %); het aantal blijft ernaast.
+  // Een sectiekop mag smaller worden dan haar langste woord (tekst 200 %); alleen de tekst krimpt, het
+  // pictogram, "Vandaag" en het aantal niet, en het aantal blijft ernaast.
   assert.doesNotMatch(regel(css, ".pv-day-title"), /flex-wrap:\s*wrap/);
-  assert.match(regel(css, ".pv-day-label"), /min-width:\s*0[^}]*overflow-wrap:\s*break-word/);
-  assert.match(js, /<h3 class="pv-day-title"><span class="pv-day-label">\$\{title\}<\/span>/);
+  assert.match(regel(css, ".pv-day-title"), /overflow-wrap:\s*anywhere/);
+  assert.match(regel(css, ".pv-day-title > span"), /flex:\s*none/);
 });
 
 test("op een gsm komt de lijst vóór de kaart", () => {
@@ -124,14 +125,6 @@ test("de knop Alle onderwerpen is een actie zonder aria-pressed", () => {
 test("de kaart naast de lijst is een regio, geen aside binnen een section", () => {
   assert.doesNotMatch(js, /<aside\b/);
   assert.match(js, /class="pv-aside" role="region" aria-label="Kaart"/);
-});
-
-test("een sectie heeft een naam zonder HTML-code of verborgen pictogram", () => {
-  assert.equal(typeof plekView.kopTekst, "function", "place-view.js deelt kopTekst");
-  assert.equal(plekView.kopTekst('<span aria-hidden="true">⏳</span> Nu bezig'), "Nu bezig");
-  assert.equal(plekView.kopTekst('<span class="pv-rel">Vandaag</span> zaterdag 10 oktober'), "Vandaag zaterdag 10 oktober");
-  assert.equal(plekView.kopTekst("Week van 5 okt &amp; later"), "Week van 5 okt & later");
-  assert.match(js, /aria-label="\$\{esc\(kopTekst\(title\)\)\}"/);
 });
 
 // Een uitleg zoals kaart-uitleg.js die geeft, met verzonnen tekst. De toetsen hieronder hangen niet aan

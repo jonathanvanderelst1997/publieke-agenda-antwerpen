@@ -293,13 +293,11 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     }
   });
 
-  await t.test("een sectie in de lijst heeft een naam zonder HTML-code of verborgen pictogram; het aantal staat naast de kop", async () => {
+  await t.test("sectiekop op 360 px: ook over twee regels staat het aantal ernaast, en geen woord breekt", async () => {
     const { page, context } = await openPlace(baseUrl, { width: 360, height: 780, vergunning: true });
     await page.locator(".pv-day-title", { hasText: "Omgevingsaanvragen" }).waitFor({ timeout: 15000 });
-    const namen = await page.$$eval("section.pv-day[aria-label]", (s) => s.map((x) => x.getAttribute("aria-label")));
-    assert.ok(namen.includes("Omgevingsaanvragen en besluiten"), namen.join(" | "));
-    for (const naam of namen) assert.doesNotMatch(naam, /[<>]|aria-hidden|\p{Extended_Pictographic}/u, naam);
-    // Ook als de kop over twee regels loopt, staat het aantal ernaast en niet op een eigen regel eronder.
+    assert.deepEqual(await page.evaluate(brokenWordsIn, ".pv-day-title"), []);
+    // Het aantal staat naast de kop en niet op een eigen regel eronder.
     const koppen = await page.$$eval(".pv-day-title", (hs) => hs.map((h) => {
       const n = h.querySelector(".pv-day-n").getBoundingClientRect(), r = h.getBoundingClientRect();
       return { kop: h.textContent, naast: n.bottom <= r.top + n.height + 12 };

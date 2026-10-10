@@ -131,11 +131,13 @@
 
 /* ---- lijst ---- */
 .pv-day { margin: 0 0 18px; }
-.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; }
+.pv-day-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: .98rem; color: var(--pa-ink-strong); text-transform: none; overflow-wrap: anywhere; }
 .pv-day-title::first-letter { text-transform: uppercase; }
-/* De kop loopt over meer regels naast het aantal, en mag smaller worden dan haar langste woord
-   ("Omgevingsaanvragen" bij tekst 200 % op een gsm): dan breekt dat woord, de pagina schuift niet opzij. */
-.pv-day-label { min-width: 0; overflow-wrap: break-word; }
+/* Alleen de tekst van een sectiekop krimpt (overflow-wrap: anywhere hierboven laat ze smaller worden dan
+   haar langste woord): het pictogram, "Vandaag" en het aantal houden hun breedte. Zo staat het aantal naast
+   een kop van twee regels, en breekt alleen een woord dat breder is dan de hele regel ("Omgevingsaanvragen"
+   bij tekst 200 % op een gsm), in plaats van de pagina opzij te duwen. */
+.pv-day-title > span { flex: none; }
 .pv-rel { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--pa-accent); color: var(--pa-accent-ink); font-size: .74rem; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
 .pv-day-n { margin-left: auto; font-size: .78rem; font-weight: 700; color: var(--pa-muted); background: var(--pa-surface-2); border: 1px solid var(--pa-line); border-radius: 999px; padding: 1px 8px; }
 .pv-day-note { margin: -4px 0 8px; font-size: .84rem; color: var(--pa-muted); }
