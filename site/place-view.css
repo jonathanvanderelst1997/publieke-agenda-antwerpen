@@ -181,7 +181,7 @@
 .pv-detail dl div { display: contents; }
 .pv-detail dt { color: var(--pa-muted); font-weight: 700; }
 .pv-detail dd { margin: 0; overflow-wrap: break-word; }
-/* Wat over de bron gaat (de organisator die niet openbaar is, het nummer, de codes, een technische databron): ingeklapt. */
+/* Wat over de bron gaat (de organisator die niet openbaar is, het nummer en de codes): ingeklapt. */
 .pv-bron-dossier { margin: 12px 0 0; }
 .pv-bron-dossier > summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; list-style: none; }
 .pv-bron-dossier > summary::-webkit-details-marker { display: none; }
@@ -190,8 +190,9 @@
 .pv-bron-dossier > .pv-uitleg { margin-top: 4px; }
 /* Ook de samenvatting onder de titel breekt geen woord midden in (wint van de regel bij .pv-row-summary). */
 .pv-row .pv-row-summary { overflow-wrap: break-word; }
-/* Open kaart met uitleg: de samenvatting onder de titel staat dan volledig in de regels; niet herhalen. */
-.pv-row.open:has(.pv-uitleg-kaart) .pv-row-summary { display: none; }
+/* Open kaart met uitleg: de samenvatting en de periode onder de titel staan dan volledig in de regels
+   ("Wanneer"); niet herhalen. */
+.pv-row.open:has(.pv-uitleg-kaart) :is(.pv-row-summary, .pv-row-range) { display: none; }
 /* De bronzin is een kleine hint, geen lopende tekst (".pv-detail p" maakte ze even groot als de uitleg). */
 .pv-detail p.pv-bron-hint { font-size: .87rem; color: var(--pa-muted); }
 .pv-links { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; }

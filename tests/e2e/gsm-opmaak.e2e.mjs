@@ -198,7 +198,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("open parcourskaart: welk parcours, wat er nog gebeurt, wat, wanneer, waar en waarom zichtbaar; alleen wat over de bron gaat dicht", async () => {
+  await t.test("open parcourskaart: welk parcours, wat er nog gebeurt, wat, wanneer, waar en waarom zichtbaar; alleen nummer en codes dicht", async () => {
     const { context, card } = await openPlace(baseUrl);
     await card.locator(".pv-row-btn").click();
     const zicht = await card.evaluate((li, dossier) => {
@@ -213,8 +213,6 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
         labels: [...li.querySelectorAll(".pv-detail dt")].filter(zichtbaar).map((d) => d.textContent.trim()),
         // Wat dicht staat onder "Bron en dossier": regels en links.
         dicht: [...(bron?.querySelectorAll("dt") || [])].map((d) => d.textContent.trim()),
-        bronLinks: [...(bron?.querySelectorAll("a") || [])].map((a) => a.textContent.trim()),
-        zichtbareLinks: [...li.querySelectorAll(".pv-detail a")].filter(zichtbaar).map((a) => a.textContent.trim()),
         bronOpen: bron?.open ?? null,
         losNummer: [...li.querySelectorAll(".pv-detail *")].some((el) => zichtbaar(el) && el.textContent.trim() === `Dossier ${dossier}`),
         knoppen: [...li.querySelectorAll(".pv-detail details:not(.pv-bron-dossier) > summary")].map((s) => s.textContent.trim()),
@@ -229,14 +227,11 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     for (const label of ["Wat", "Wanneer", "Waar"]) assert.ok(zicht.labels.includes(label), `${label} zichtbaar: ${zicht.labels.join(", ")}`);
     // Waarom het in de agenda staat, blijft zichtbaar (of de kaart het zo noemt of niet).
     assert.match(zicht.tekst, /toegelaten inname|toelating/);
-    // Dicht staan alleen de organisator (niet openbaar; "Niet in de bron" zegt dat al), het nummer, de codes
-    // en de technische databron (geen pagina voor bezoekers).
+    // Dicht staan alleen de organisator (niet openbaar; "Niet in de bron" zegt dat al), het nummer en de codes.
     assert.equal(zicht.bronOpen, false);
     for (const label of zicht.dicht) assert.ok(["Organisator", "Referentie"].includes(label), `"${label}" staat dicht`);
     assert.equal(zicht.losNummer, false, "het dossiernummer staat niet als losse regel open");
     assert.doesNotMatch(zicht.tekst, /IOD = |ETL = /, "de codes staan niet open");
-    assert.deepEqual(zicht.zichtbareLinks, [], "geen technische databron open in de kaart");
-    assert.ok(zicht.bronLinks.some((l) => /Technische databron/.test(l)), zicht.bronLinks.join(" | "));
     // De uitleg bij de stratenlijst ("40 betrokken straten volgens het dossier; ...") staat bij die lijst.
     assert.doesNotMatch(zicht.tekst, /betrokken straten volgens het dossier/);
     assert.match(zicht.straten, /40 betrokken straten volgens het dossier/);

@@ -610,12 +610,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry,item);
-    const linkData = bezoekersLinks(entry);
-    const links = linkData.map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
+    const links = bezoekersLinks(entry).map(l => `<a class="${l.type === "source" ? "pv-bron-technisch" : "pv-bron-bezoeker"}" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">${esc(l.label)} <span aria-hidden="true">↗</span></a>`);
     const bronHint = bezoekersHint(entry);
-    // Een kaart met uitleg zonder pagina voor bezoekers (alleen een technische databron): die link en
-    // de bronzin gaan over de bron, en staan bij het nummer en de codes onder "Bron en dossier".
-    const bronInKaart = Boolean(entry.uitleg) && linkData.every((l) => l.type === "source");
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
     return `
@@ -636,7 +632,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${progress}
           ${duidelijk.toelichting ? `<p class="pv-bronduidelijkheid">${esc(duidelijk.toelichting)}</p>` : ""}
           ${duidelijk.regels?.length ? `<dl class="pv-uitleg">${duidelijk.regels.map(([dt,dd]) => `<div><dt>${esc(dt)}</dt><dd>${esc(dd)}</dd></div>`).join("")}</dl>` : ""}
-          ${entry.uitleg ? uitlegTemplate(entry, bronInKaart ? { hint: bronHint, links } : {}) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
+          ${entry.uitleg ? uitlegTemplate(entry) : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
             ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}</dd></div>` : ""}
@@ -644,18 +640,17 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
           </dl>`}
-          ${bronHint && !bronInKaart ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
+          ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
           ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
-          ${links.length && !bronInKaart ? `<p class="pv-links">${links.join("")}</p>` : ""}
+          ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
         </div>
       </li>`;
   }
   // Uitleg in gewone taal (site/kaart-uitleg.js): regels, de straten ingeklapt, een kaartschets als
   // de verversing de lijn van het parcours kent, wat de bron niet zegt, en de ruwe codes apart.
   // Wat er gebeurt, waarom en wat er in het dossier staat (het parcours vooraan) blijft zichtbaar;
-  // alleen de organisator (niet openbaar), het nummer, de codes en een technische databron (`databron`:
-  // de bronzin en de link) staan ingeklapt onder "Bron en dossier".
-  function uitlegTemplate(entry, databron = {}) {
+  // alleen de organisator (niet openbaar), het nummer en de codes staan ingeklapt onder "Bron en dossier".
+  function uitlegTemplate(entry) {
     const u = entry.uitleg;
     const straten = entry.straten || [];
     const lange = straten.length > 3;
@@ -674,7 +669,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           </dl>
           ${kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van het parcours (rood) uit A-Sign, over de straatassen van de stad.</figcaption></figure>` : ""}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
-          ${bron.length || technisch || databron.hint || databron.links?.length ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}${databron.hint ? `<p class="pv-bron-hint">${esc(databron.hint)}</p>` : ""}${databron.links?.length ? `<p class="pv-links">${databron.links.join("")}</p>` : ""}</details>` : ""}`;
+          ${bron.length || technisch ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}</details>` : ""}`;
   }
   function sectionTemplate(key, title, entries, options, note = "") {
     if (!entries.length) return "";

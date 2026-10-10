@@ -152,9 +152,10 @@ test("een open kaart klapt alleen de organisator, het nummer en de codes in; elk
   assert.deepEqual(plekView.kaartIndeling(uitlegMet(parcours), { straten: 40 }).regels.map(([dt]) => dt), ["Wat"]);
   assert.equal(plekView.kaartIndeling(uitlegMet(parcours), { straten: 40 }).stratenNoot, "40 betrokken straten volgens het dossier");
   assert.deepEqual(plekView.kaartIndeling(uitlegMet(parcours), { straten: 2 }).regels.map(([dt]) => dt), ["Wat", "Parcours"]);
-  // In de kaart: het nummer, de codes en een technische databron staan onder "Bron en dossier".
+  // In de kaart: het nummer en de codes staan onder "Bron en dossier".
   assert.match(js, /<details class="pv-bron-dossier"><summary>Bron en dossier<\/summary>/);
-  assert.match(js, /bronInKaart = Boolean\(entry\.uitleg\) && linkData\.every\(\(l\) => l\.type === "source"\)/);
+  // De periode onder de titel staat in een open kaart al bij "Wanneer": niet herhalen.
+  assert.match(css, /\.pv-row\.open:has\(\.pv-uitleg-kaart\) :is\(\.pv-row-summary, \.pv-row-range\) \{ display: none; \}/);
   assert.match(regel(css, ".pv-bron-dossier > summary"), /min-height:\s*44px/);
 });
 
