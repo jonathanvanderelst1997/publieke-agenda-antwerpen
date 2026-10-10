@@ -63,6 +63,13 @@ const WORK_TITLE = "Proefwerk riolering (e2e)";
 // Een verzonnen omgevingsaanvraag met een naam en een telefoonnummer in het vrije onderwerp:
 // de kaart moet zeggen wat er gebeurt, zonder iets van dat onderwerp te tonen.
 const PERMIT_TITLE = "Sloop en nieuwbouw (6 woningen en een winkel)";
+// Inzageloket (site/inzage-status.js): de eerlijke zin zonder nagekeken stand en een vaste stand per toets.
+const GEEN_INZAGE = "Deze site kon niet nagaan of er nu een openbaar onderzoek loopt. Het Inzageloket toont een aanvraag alleen tijdens het openbaar onderzoek en tijdens de beroepstermijn na de beslissing.";
+const LOKET_LINK = "https://omgevingsloketinzage.omgeving.vlaanderen.be/2099000001";
+const BEZWAAR_LABEL = "Zo dien je een bezwaar in (uitleg van Vlaanderen)";
+const inzageStand = (dossier) => ({ schema: "inzage-status/1", uitleg: "e2e", dossiers: [{ project: "OMV_2099000001", gevonden: true, toestand: "openbaar onderzoek", bron: "handmatig", ...dossier }] });
+const MAANDEN = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
+const dagTekst = (iso) => `${Number(iso.slice(8))} ${MAANDEN[Number(iso.slice(5, 7)) - 1]}${iso.slice(0, 4) === today.slice(0, 4) ? "" : ` ${iso.slice(0, 4)}`}`;
 
 async function routeSources(page, street) {
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
@@ -198,7 +205,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.equal(new URL(technisch).searchParams.get("where"), "Dossiernummer='20990001'");
     // Niet nagekeken in het Inzageloket: geen knop naar de startpagina, wel een eerlijke zin.
     assert.equal(await row.locator('a[href^="https://omgevingsloketinzage."]').count(), 0);
-    assert.match(tekst, /Geen lopend openbaar onderzoek bekend voor dit dossier\. Het Inzageloket toont alleen dossiers in openbaar onderzoek of met een beslissing\./);
+    assert.ok(tekst.includes(GEEN_INZAGE), tekst);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -206,7 +213,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   await t.test("openbaar onderzoek: bovenaan de lijst, de termijn in de dichte kaart en een rechtstreekse link", async () => {
     const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
     const tot = addDays(today, 10);
-    const inzage = { schema: "inzage-status/1", uitleg: "e2e", dossiers: [{ project: "OMV_2099000001", gevonden: true, openbaarOnderzoek: { van: addDays(today, -19), totEnMet: tot }, nagekeken: addDays(today, -1), bron: "handmatig" }] };
+    const inzage = inzageStand({ openbaarOnderzoek: { van: addDays(today, -19), totEnMet: tot }, nagekeken: addDays(today, -1) });
     const { page, context, errors } = await openPage(baseUrl, { street, inzage, query: `?plek=${plek}` });
     const sectie = page.locator("section.pv-day", { hasText: "Openbaar onderzoek: bezwaar indienen kan nu" });
     await sectie.waitFor({ timeout: 15000 });
@@ -214,20 +221,78 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.equal(await page.locator(".pv-results section.pv-day").first().getAttribute("aria-label"), "Openbaar onderzoek: bezwaar indienen kan nu");
     const row = sectie.locator(".pv-row").first();
     assert.equal(await row.locator(".pv-row-title").innerText(), PERMIT_TITLE);
-    const maanden = ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus", "september", "oktober", "november", "december"];
-    const datum = `${Number(tot.slice(8))} ${maanden[Number(tot.slice(5, 7)) - 1]}${tot.slice(0, 4) === today.slice(0, 4) ? "" : ` ${tot.slice(0, 4)}`}`;
     // Zichtbaar zonder openklappen.
-    assert.equal(await row.locator(".pv-row-alert").innerText(), `Openbaar onderzoek loopt tot en met ${datum}. Bezwaar indienen kan tot dan.`);
+    assert.equal(await row.locator(".pv-row-alert").innerText(), `Openbaar onderzoek loopt tot en met ${dagTekst(tot)}. Bezwaar indienen kan tot dan.`);
     assert.ok(await row.locator(".pv-row-alert").isVisible());
     assert.match(await row.locator(".pv-row-kind").innerText(), /Openbaar onderzoek/);
     await row.locator(".pv-row-btn").click();
-    assert.equal(await row.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/2099000001"]').count(), 1);
+    assert.equal(await row.locator(`a[href="${LOKET_LINK}"]`).count(), 1);
     assert.equal(await row.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/"]').count(), 0);
-    assert.doesNotMatch(await row.innerText(), /Geen lopend openbaar onderzoek/);
+    assert.ok((await row.locator('a[href="https://www.vlaanderen.be/omgevingsvergunning/inzageloket"]').innerText()).startsWith(BEZWAAR_LABEL));
+    assert.doesNotMatch(await row.innerText(), /kon niet nagaan/);
     // Niet dubbel: de aanvraag staat niet nog eens onderaan bij de gewone aanvragen.
     assert.equal(await page.locator(".pv-row", { hasText: PERMIT_TITLE }).count(), 1);
     assert.deepEqual(errors, []);
     await context.close();
+  });
+
+  await t.test("openbaar onderzoek dat niet vandaag loopt, of zonder einddatum: niet bovenaan, wel de melding in de dichte kaart", async () => {
+    const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const van = addDays(today, 5), tot = addDays(today, 34);
+    const gevallen = [
+      // De termijn begint later (nagekeken moet binnen de termijn liggen).
+      [inzageStand({ openbaarOnderzoek: { van, totEnMet: tot }, nagekeken: van }), `Openbaar onderzoek van ${dagTekst(van)} tot en met ${dagTekst(tot)}. Bezwaar indienen kan in die periode.`],
+      // Gevonden in openbaar onderzoek, zonder afgelezen datums: alleen de dag waarop het liep.
+      [inzageStand({ nagekeken: addDays(today, -1) }), `Op ${dagTekst(addDays(today, -1))} liep er een openbaar onderzoek, volgens het Inzageloket. Tot wanneer je bezwaar kunt indienen, staat in het loket bij "Toestand".`],
+    ];
+    for (const [inzage, melding] of gevallen) {
+      const { page, context, errors } = await openPage(baseUrl, { street, inzage, query: `?plek=${plek}` });
+      const sectie = page.locator("section.pv-day", { hasText: "Omgevingsaanvragen en besluiten" });
+      await sectie.locator(".pv-row").first().waitFor({ timeout: 15000 });
+      assert.equal(await page.locator('section.pv-day[aria-label="Openbaar onderzoek: bezwaar indienen kan nu"]').count(), 0, melding);
+      const row = sectie.locator(".pv-row", { hasText: PERMIT_TITLE }).first();
+      assert.equal(await row.locator(".pv-row-alert").innerText(), melding);
+      assert.ok(await row.locator(".pv-row-alert").isVisible());
+      assert.doesNotMatch(await row.locator(".pv-row-kind").innerText(), /Openbaar onderzoek/, "geen badge");
+      await row.locator(".pv-row-btn").click();
+      assert.equal(await row.locator(`a[href="${LOKET_LINK}"]`).count(), 1);
+      assert.doesNotMatch(await row.innerText(), /kon niet nagaan/);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+  });
+
+  await t.test("lijst met alle omgevingsdossiers: melding, rechtstreekse link en eerlijke zin in een opengeklapte kaart", async () => {
+    const tot = addDays(today, 10);
+    for (const inzage of [inzageStand({ openbaarOnderzoek: { van: addDays(today, -19), totEnMet: tot }, nagekeken: addDays(today, -1) }), null]) {
+      // De lijst toont alleen dossiers als de soort "vergunningen" aan staat.
+      const { page, context, errors } = await openPage(baseUrl, { street, inzage, query: "?soort=vergunningen" });
+      await page.click(".pv-more > summary");
+      const kaart = page.locator("#permits-live .permit-card", { hasText: PERMIT_TITLE }).first();
+      await kaart.waitFor({ timeout: 15000 });
+      // Openklappen zoals een bewoner. Terwijl de andere lagen nog laden, kan de lijst opnieuw tekenen (en de
+      // kaart weer dichtklappen): dan opnieuw, tot de technische link onderaan de open kaart zichtbaar is.
+      const onderaan = kaart.locator("details > summary", { hasText: "Technische stadsbron" });
+      for (let poging = 0; poging < 5 && !(await onderaan.isVisible()); poging += 1) {
+        if (!(await kaart.evaluate((el) => el.open))) await kaart.locator("summary").first().click();
+        await onderaan.waitFor({ state: "visible", timeout: 2000 }).catch(() => {});
+      }
+      assert.ok(await onderaan.isVisible(), "de kaart klapt open");
+      const tekst = await kaart.innerText();
+      assert.equal(await kaart.locator('a[href="https://omgevingsloketinzage.omgeving.vlaanderen.be/"]').count(), 0, "nooit de startpagina van het loket");
+      if (inzage) {
+        // Eerst in de lijst, de termijn in de dichte kaart, de link naar het dossier zelf.
+        assert.equal(await page.locator("#permits-live .permit-card").first().locator(".permit-alert").innerText(), `Openbaar onderzoek loopt tot en met ${dagTekst(tot)}. Bezwaar indienen kan tot dan.`);
+        assert.equal(await kaart.locator(`a[href="${LOKET_LINK}"]`).innerText(), "Bekijk dit dossier en de plannen in het Inzageloket");
+        assert.equal(await kaart.locator('a[href="https://www.vlaanderen.be/omgevingsvergunning/inzageloket"]').innerText(), BEZWAAR_LABEL);
+        assert.doesNotMatch(tekst, /kon niet nagaan/);
+      } else {
+        assert.equal(await kaart.locator('a[href^="https://omgevingsloketinzage."]').count(), 0);
+        assert.ok(tekst.includes(GEEN_INZAGE), tekst);
+      }
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
   });
 
   await t.test("wijk en postcode, lege staat met uitleg, toetsenbord", async () => {

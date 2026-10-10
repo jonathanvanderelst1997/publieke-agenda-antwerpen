@@ -6,7 +6,7 @@ test("vergunningen: geen startpagina van het Inzageloket, wel een rechtstreekse 
  const e={source:"permits",item:{project:"OMV_2026080750"},sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_PiP/pip2_vergunningen/MapServer/5"};
  const links=bezoekersLinks(e);
  assert.equal(links.some(x=>x.url===INZAGE),false);
- assert.match(bezoekersHint(e),/Inzageloket toont alleen dossiers in openbaar onderzoek of met een beslissing/);
+ assert.match(bezoekersHint(e),/^Deze site kon niet nagaan of er nu een openbaar onderzoek loopt\. Het Inzageloket toont een aanvraag alleen tijdens het openbaar onderzoek en tijdens de beroepstermijn na de beslissing\.$/);
  assert.match(links.at(-1).label,/Technische/);
  e.item.inzage={link:INZAGE+"2026080750"};
  assert.equal(bezoekersLinks(e)[0].url,INZAGE+"2026080750");

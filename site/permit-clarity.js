@@ -403,7 +403,8 @@ export function duidelijkeKaart(entry={},item={},{straat="",vandaag=brusselsVand
   if(entry.source==="permits"){
     const stage=omgevingsStatus(item);
     // Een openbaar onderzoek dat iemand in het Inzageloket nakeek (site/inzage-status.js): bovenaan de
-    // kaart, ook als die dicht is. Zonder die stand zegt de kaart er niets over.
+    // kaart, ook als die dicht is. Zonder die stand zegt de kaart er niets over. De badge alleen als de
+    // termijn bekend is en vandaag loopt.
     const melding=onderzoekZin(item.inzage,vandaag);
     const periode=melding?onderzoekRegel(item.inzage,vandaag):"";
     const wat=item.inhoud?.wat||(!item.inhoud&&!item.purpose?ONBEKEND_WAT:"");
@@ -415,7 +416,7 @@ export function duidelijkeKaart(entry={},item={},{straat="",vandaag=brusselsVand
       tijd:stage.type==="vergund"?"Vergund":stage.type==="geweigerd"?"Geweigerd":"Aanvraag",
       toelichting:"",
       melding,
-      badge:melding?"Openbaar onderzoek":"",
+      badge:melding&&item.inzage?.loopt===true?"Openbaar onderzoek":"",
       regels:[...(periode?[["Openbaar onderzoek",periode]]:[]),
         ...(wat?[["Wat",wat]]:[]),
         ...(wie?[[stage.type==="aanvraag"?"Wie beslist":"Beslist door",wie]]:[]),

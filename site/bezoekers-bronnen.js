@@ -55,9 +55,10 @@ export function bezoekersLinks(e={}) {
   if(e.source==="permits"){
     // Nooit de startpagina van het Inzageloket: daar vindt een bewoner het dossier meestal niet. Alleen een
     // rechtstreekse link naar een dossier dat in het loket opende (site/inzage-status.js).
+    // Bij een openbaar onderzoek zegt de uitleglink waarvoor ze dient: die pagina legt uit hoe je bezwaar indient.
     if(item.inzage?.link){
       add(item.inzage.link,"Bekijk dit dossier en de plannen in het Inzageloket");
-      add(INZAGE_UITLEG,"Uitleg van Vlaanderen over het Inzageloket","help");
+      add(INZAGE_UITLEG,item.inzage.toestand==="openbaar onderzoek"?"Zo dien je een bezwaar in (uitleg van Vlaanderen)":"Uitleg van Vlaanderen over het Inzageloket","help");
     }
   }else if(e.source==="works"){
     add(hinderkaart(item.gipodId),"Bekijk werken en hinder op de officiële kaart");

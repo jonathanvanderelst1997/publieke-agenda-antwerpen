@@ -1,10 +1,11 @@
 {
   "schema": "inzage-status/1",
-  "uitleg": "Verzonnen testdossiers (OMV_2099...). Vorm zoals site/sources/inzage-status.json.",
+  "uitleg": "Verzonnen testdossiers (OMV_2099...). Vorm zoals site/sources/inzage-status.json. Het eerste heeft de periode van de Riemstraat (21 september tot en met 20 oktober, nagekeken op 9 oktober).",
   "dossiers": [
     {
       "project": "OMV_2099000001",
       "gevonden": true,
+      "toestand": "openbaar onderzoek",
       "openbaarOnderzoek": { "van": "2026-09-21", "totEnMet": "2026-10-20" },
       "nagekeken": "2026-10-09",
       "bron": "handmatig"
@@ -12,8 +13,24 @@
     {
       "project": "OMV_2099000002",
       "gevonden": true,
+      "toestand": "openbaar onderzoek",
       "openbaarOnderzoek": { "van": "2026-12-20", "totEnMet": "2027-01-18" },
       "nagekeken": "2026-12-21",
+      "bron": "handmatig"
+    },
+    {
+      "project": "OMV_2099000003",
+      "gevonden": true,
+      "toestand": "openbaar onderzoek",
+      "nagekeken": "2026-10-09",
+      "bron": "handmatig"
+    },
+    {
+      "project": "OMV_2099000004",
+      "gevonden": true,
+      "toestand": "openbaar onderzoek",
+      "openbaarOnderzoek": { "van": "2026-10-15", "totEnMet": "2026-11-13" },
+      "nagekeken": "2026-10-15",
       "bron": "handmatig"
     }
   ]
