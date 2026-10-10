@@ -178,7 +178,8 @@ test("9. alleen een kruispunt als de straten elkaar raken; de straat die de behe
 });
 
 test("10. noemt de beheerder een andere straat dan de kaart, dan blijft zijn tekst staan", () => {
-  assert.equal(ku.beheerderTekst("2000 | Antwerpen | Anderestraat | 38", { straten: ["Voorbeeldstraat"] }), "2000 | Antwerpen | Anderestraat | 38");
+  // De tekst blijft, zonder het losse huisnummer: één adres kan een woning zijn (hertest, restpunt 3).
+  assert.equal(ku.beheerderTekst("2000 | Antwerpen | Anderestraat | 38", { straten: ["Voorbeeldstraat"] }), "2000 | Antwerpen | Anderestraat");
   const k = kaart(werk({ title: "2000 | Antwerpen | Anderestraat | 38", occupancyTypes: ["Hoogtewerker;Nutswerken"] }));
   assert.match(k.bronTekst, /Anderestraat/);
   // Alleen het adres van de kaart zelf (ook in hoofdletters zonder trema): geen herhaling.

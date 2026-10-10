@@ -318,12 +318,16 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
 
 // Indeling van de lijst: wat nu loopt, en wat er per dag start of plaatsvindt binnen de periode.
 // Een evenement op straat staat bij "nu bezig" tijdens opbouw en afbraak, en anders op de dag van
-// het evenement; valt alleen de opbouw in de periode, dan op de eerste dag van de opbouw.
+// het evenement; valt alleen de opbouw in de periode, dan op de eerste dag van de opbouw. Een
+// evenement van vandaag staat altijd bovenaan "nu bezig", ook als het maar één dag duurt (een koers,
+// een stoet): het zakt niet onder de lopende werven in een aparte sectie "Vandaag".
 export function groupForList(entries, { from, to, today }) {
   const running = [], days = new Map(), later = [];
+  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak).
+  const vandaagEvenement = (e) => e.group === "evenementen" && (e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
   for (const entry of entries) {
     const fase = evenementFase(entry, today);
-    if (fase === "opbouw" || fase === "afbraak") { running.push(entry); continue; }
+    if (fase === "opbouw" || fase === "afbraak" || vandaagEvenement(entry)) { running.push(entry); continue; }
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     if (multi && entry.start <= today && (entry.openEnd || entry.end >= today)) { running.push(entry); continue; }
     if (!entry.start) continue;
@@ -337,10 +341,11 @@ export function groupForList(entries, { from, to, today }) {
     days.get(day).push(entry);
   }
   const byTitle = (a, b) => String(a.time || "99").localeCompare(String(b.time || "99")) || String(a.title).localeCompare(String(b.title), "nl");
-  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak), staat bovenaan "Loopt nu":
-  // het zakt niet onder de lopende werven en werfzones. Daarna wat het eerst afloopt.
-  const vandaagEvenement = (e) => e.group === "evenementen" && (e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
-  running.sort((a, b) => Number(vandaagEvenement(b)) - Number(vandaagEvenement(a)) || String(periodeVan(a).end || "9999").localeCompare(String(periodeVan(b).end || "9999")) || byTitle(a, b));
+  // Een evenement van vandaag staat bovenaan "Loopt nu": het zakt niet onder de lopende werven en
+  // werfzones. Daarna wat het eerst afloopt; een evenement van één dag loopt vandaag af, iets zonder
+  // einde ("tot voorjaar 2027") komt achteraan.
+  const eindVan = (e) => periodeVan(e).end || (e.openEnd ? "" : e.start) || "9999";
+  running.sort((a, b) => Number(vandaagEvenement(b)) - Number(vandaagEvenement(a)) || String(eindVan(a)).localeCompare(String(eindVan(b))) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
   return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
 }

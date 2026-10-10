@@ -8,6 +8,25 @@ import { KIND_GROUPS } from "../site/place-core.js";
 
 const css = (naam) => fs.readFileSync(new URL(`../site/${naam}`, import.meta.url), "utf8");
 
+// ---------- 1. einddata van het openbaar onderzoek (Inzageloket) ----------
+// De visuele hertest opende elk dossier één keer in een gewone browser (de verversing bevraagt het loket
+// niet) en las de periode bij Toestand af. Wie een verlopen regel later opruimt, breekt deze toets niet.
+test("1. de twee termijnen uit het Inzageloket staan erin, en de site zegt tot wanneer bezwaar kan", async () => {
+  const { inzageVoor, onderzoekRegel, onderzoekZin, valideerInzageStatus } = await import("../site/inzage-status.js");
+  const doc = JSON.parse(css("sources/inzage-status.json"));
+  assert.deepEqual(valideerInzageStatus(doc), []);
+  const termijnen = { OMV_2026065445: ["2026-09-18", "2026-10-17", /17 oktober/], OMV_2026061320: ["2026-10-07", "2026-11-05", /5 november/] };
+  for (const [project, [van, totEnMet, einde]] of Object.entries(termijnen)) {
+    if (!doc.dossiers.some((d) => d.project === project)) continue; // opgeruimd na de termijn
+    const inzage = inzageVoor(doc, project, "2026-10-10");
+    assert.deepEqual(inzage?.onderzoek, { van, totEnMet }, project);
+    assert.equal(inzage.loopt, true, project);
+    assert.match(onderzoekZin(inzage, "2026-10-10"), einde, project);
+    assert.match(onderzoekZin(inzage, "2026-10-10"), /Bezwaar indienen kan tot dan/, project);
+    assert.doesNotMatch(onderzoekRegel(inzage, "2026-10-10"), /kent deze site niet/, project);
+  }
+});
+
 // ---------- 2. contrast van het getal op de onderwerpchips ----------
 // Een kleine rekenaar voor de CSS-variabelen van agenda-uitgaan.css en de chipregels van place-view.css:
 // var() met terugval, color-mix(in srgb, ...) en #hex met alfa (over de chipkleur gelegd).
@@ -109,6 +128,52 @@ test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los n
   assert.equal(ku.huisnummersUitTekst("Proefstraat 13, 2000 Antwerpen", "Proefstraat"), "nr. 13");
 });
 
+// Nakijken van de samenvoeging: de ingeklapte "Tekst van de beheerder in GIPOD" (bronTekst), de regel
+// "Volgens de beheerder", de fasen en "Bus en tram" toonden een los huisnummer nog letterlijk, ook als
+// "Waar" zei dat het weggelaten was ("thv 31", "ter hoogte van nr 31"). Een reeks blijft overal staan.
+test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen geen los huisnummer; een reeks blijft", async () => {
+  const ku = await import("../site/kaart-uitleg.js");
+  const werk = (title, extra = {}) => ({
+    gipodId: 90000902, title, status: "In uitvoering", start: "2026-05-02T05:00:00Z", end: "2026-11-02T16:00:00Z",
+    owner: "Voorbeeldnet", ownerGroup: "Andere", workTypes: [], occupancyTypes: ["Telecom"],
+    streets: [{ id: "1", name: "Proefstraat", postcode: "2018" }], hindrance: null, ...extra,
+  });
+  const kaart = (title, extra) => ku.werkKaartje(werk(title, extra), { vandaag: "2026-10-10" });
+  const getoond = (k) => [k.titel, k.samenvatting, k.bronTekst, ...k.regels.map(([, v]) => v)].join(" ¶ ");
+  // Eén los nummer: "Waar" zegt dat het weggelaten is, en nergens staat het nog.
+  const los = kaart("2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
+  assert.match(Object.fromEntries(los.regels).Waar, /huisnummer weggelaten/);
+  assert.equal(los.bronTekst, "2018 Antwerpen - Proefstraat - werken aan nutsleiding");
+  for (const [titel, nummer] of [
+    ["Proefstraat thv 31 - vervangen voetpadkast", /31/],
+    ["Vervangen voetpadkast ter hoogte van nr 31 Voorbeeldlaan", /31/],
+    ["Voetpadkast thv 31 - Voorbeeldlaan", /31/],
+    ["Voorbeeldlaan nr. 7 bus 2 - herstelling", /\b7\b|bus 2/],
+    ["Proefstraat 12 A - herstelling", /\b12\b|\bA\b/],
+    ["2020 ANTWERPEN, PROEFBROEK 4B_BIS - herstelling", /\b4B?\b/],
+    ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", /\b12\b/],
+  ]) {
+    const k = kaart(titel);
+    assert.doesNotMatch(getoond(k), nummer, titel);
+    assert.match(Object.fromEntries(k.regels).Wat, /Volgens de beheerder|De beheerder schrijft/, `${titel}: de rest van de tekst blijft`);
+  }
+  // Een postcode en een maat blijven.
+  assert.equal(ku.zonderLosseHuisnummers("Proefstraat 12, 2000 Antwerpen - kabel 30 m", ["Proefstraat"]), "Proefstraat, 2000 Antwerpen - kabel 30 m");
+  // Een reeks blijft, in elke schrijfwijze; een volgnummer ook.
+  for (const reeks of ["13 tem 15", "13-15", "13 t.e.m. 15", "13, 15 en 17", "thv 13-15"]) {
+    assert.equal(ku.zonderLosseHuisnummers(`Proefstraat ${reeks} - werken`, ["Proefstraat"]), `Proefstraat ${reeks} - werken`, reeks);
+  }
+  assert.equal(ku.zonderLosseHuisnummers("Fase 2: Voorbeeldlaan 4 en Proefstraat 6-8", []), "Fase 2: Voorbeeldlaan en Proefstraat 6-8");
+  assert.match(kaart("Proefstraat 13 tem 15 - vervangen voetpadkast").bronTekst, /Proefstraat 13 tem 15/);
+  // De fasen: geen los nummer, een reeks blijft.
+  const fase = (description, dag) => ({ description, start: `2026-10-0${dag}T06:00:00Z`, end: `2026-10-0${dag}T16:00:00Z`, consequences: [] });
+  const fasen = kaart("Herstelling voetpad", { hindrance: { start: "2026-10-01T06:00:00Z", end: "2026-10-09T16:00:00Z", consequences: [], phases: [fase("Fase 1 Proefstraat 8", 1), fase("Fase 2 Proefstraat 8-14", 6)] } });
+  assert.match(Object.fromEntries(fasen.regels).Fasen, /^Fase 1 Proefstraat \(.+\) · Fase 2 Proefstraat 8-14 \(/);
+  // Bus en tram: de omschrijving zonder los nummer.
+  const tram = kaart("Proefstraat 21 - herstelling tramspoor");
+  assert.equal(Object.fromEntries(tram.regels)["Bus en tram"], "Proefstraat - herstelling tramspoor");
+});
+
 // ---------- 4. een evenement van vandaag staat bovenaan "Loopt nu" ----------
 test("4. in \"Loopt nu\" staan de evenementen van vandaag boven de lopende werven en werfzones", async () => {
   const { groupForList, periodRange } = await import("../site/place-core.js");
@@ -120,6 +185,27 @@ test("4. in \"Loopt nu\" staan de evenementen van vandaag boven de lopende werve
   const opbouw = { uid: "opbouw", group: "evenementen", title: "Opbouw van een later feest", start: "2026-10-13", end: "2026-10-13", innameStart: "2026-10-08", innameEind: "2026-10-14" };
   const { running } = groupForList([werf, zone, opbouw, foor, koers], { ...periodRange("alles", vandaag), today: vandaag });
   assert.deepEqual(running.map((e) => e.uid), ["koers", "foor", "werf", "zone", "opbouw"]);
+});
+
+// De visuele hertest vond het geval dat toets 4 niet zag: een evenement van één dag (begin = einde =
+// vandaag, zoals een koers of een stoet) stond in een aparte sectie "Vandaag" ná 15 lopende werven en
+// werfzones, niet bovenaan "Loopt nu". Met opbouw en afbraak (A-Sign) en zonder (de kalender).
+test("4b. ook een evenement van één dag vandaag staat bovenaan \"Loopt nu\", niet in een sectie eronder", async () => {
+  const { groupForList, periodRange } = await import("../site/place-core.js");
+  const vandaag = "2026-10-10";
+  const werven = Array.from({ length: 15 }, (_, i) => ({ uid: `werf${i}`, group: "werken", title: `Werf ${i}`, start: "2026-09-01", end: `2026-10-${String(11 + i).padStart(2, "0")}` }));
+  // Zoals evenementEntry een dossier van één dag geeft: start = de dag, geen einde, opbouw en afbraak errond.
+  const koers = { uid: "koers", group: "evenementen", title: "Proefkoers", start: vandaag, end: "", innameStart: "2026-10-09", innameEind: "2026-10-11" };
+  const stoet = { uid: "stoet", group: "evenementen", title: "Proefstoet", start: vandaag, end: "", innameStart: vandaag, innameEind: vandaag };
+  const feest = { uid: "feest", group: "evenementen", title: "Buurtfeest Voorbeeldlaan", start: vandaag, end: "", time: "14:00" };
+  const foor = { uid: "foor", group: "evenementen", title: "Proeffoor", start: "2026-10-03", end: "2026-10-18" };
+  const morgen = { uid: "morgen", group: "evenementen", title: "Feest morgen", start: "2026-10-11", end: "" };
+  const handmatig = { uid: "handmatig", group: "werken", title: "Heraanleg", start: "2026-08-03", openEnd: true };
+  const { running, days } = groupForList([...werven, handmatig, morgen, foor, feest, stoet, koers], { ...periodRange("alles", vandaag), today: vandaag });
+  assert.deepEqual(running.slice(0, 4).map((e) => e.uid), ["feest", "stoet", "koers", "foor"]);
+  assert.equal(running.at(-1).uid, "handmatig", "iets zonder einde komt achteraan");
+  assert.equal(running.length, 4 + 15 + 1);
+  assert.deepEqual(days.map(([d, l]) => [d, l.map((e) => e.uid)]), [["2026-10-11", ["morgen"]]], "geen aparte sectie voor vandaag");
 });
 
 // ---------- 5. de uren van de Sinterklaasstoet in Ekeren (ET2026004916) ----------

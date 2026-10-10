@@ -14,14 +14,16 @@
       "project": "OMV_2026065445",
       "gevonden": true,
       "toestand": "openbaar onderzoek",
-      "nagekeken": "2026-10-09",
+      "openbaarOnderzoek": { "van": "2026-09-18", "totEnMet": "2026-10-17" },
+      "nagekeken": "2026-10-10",
       "bron": "handmatig"
     },
     {
       "project": "OMV_2026061320",
       "gevonden": true,
       "toestand": "openbaar onderzoek",
-      "nagekeken": "2026-10-09",
+      "openbaarOnderzoek": { "van": "2026-10-07", "totEnMet": "2026-11-05" },
+      "nagekeken": "2026-10-10",
       "bron": "handmatig"
     }
   ]
