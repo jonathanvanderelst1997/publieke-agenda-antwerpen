@@ -1,221 +1,201 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 845,
+    "events": 841,
     "errors": 0,
-    "warnings": 42,
-    "unconfirmedStart": 42
+    "warnings": 38,
+    "unconfirmedStart": 38
   },
   "errors": [],
   "warnings": [
     {
       "code": "unconfirmed_start",
       "index": 4,
-      "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 5,
       "id": "kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29"
     },
     {
       "code": "unconfirmed_start",
-      "index": 6,
-      "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 7,
-      "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 8,
-      "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 14,
+      "index": 10,
       "id": "aquajogging-start-to-wake-2026-07-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 15,
+      "index": 11,
       "id": "openluchtzwemmen-2026-07-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 39,
+      "index": 35,
       "id": "the-tall-ships-races-antwerpen-2026-07-12"
     },
     {
       "code": "unconfirmed_start",
-      "index": 40,
+      "index": 36,
       "id": "the-tall-ships-races-antwerpen-2026-07-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 43,
+      "index": 39,
       "id": "the-tall-ships-races-antwerpen-2026-07-14"
     },
     {
       "code": "unconfirmed_start",
-      "index": 75,
+      "index": 71,
       "id": "tuk-tuk-rommelmarkt-2026-08-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 116,
+      "index": 112,
       "id": "eilandje-in-beweging-2026-08-29"
     },
     {
       "code": "unconfirmed_start",
-      "index": 121,
+      "index": 117,
       "id": "eilandje-in-beweging-2026-08-30"
     },
     {
       "code": "unconfirmed_start",
-      "index": 122,
+      "index": 118,
       "id": "red-star-run-2026-08-30"
     },
     {
       "code": "unconfirmed_start",
-      "index": 124,
+      "index": 120,
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25"
     },
     {
       "code": "unconfirmed_start",
-      "index": 126,
+      "index": 122,
       "id": "reanimatielessen-2026-09-10"
     },
     {
       "code": "unconfirmed_start",
-      "index": 133,
+      "index": 129,
       "id": "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 135,
+      "index": 131,
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7"
     },
     {
       "code": "unconfirmed_start",
-      "index": 136,
+      "index": 132,
       "id": "ebesluit-2026-dcan-00002-2026-04-05-7468f16e"
     },
     {
       "code": "unconfirmed_start",
-      "index": 137,
+      "index": 133,
       "id": "ebesluit-2026-dcan-00002-2026-05-01-a9596129"
     },
     {
       "code": "unconfirmed_start",
-      "index": 138,
+      "index": 134,
       "id": "ebesluit-2026-dcan-00002-2026-05-01-dc71d324"
     },
     {
       "code": "unconfirmed_start",
-      "index": 139,
+      "index": 135,
       "id": "ebesluit-2026-dcan-00002-2026-05-24-2a68dbfb"
     },
     {
       "code": "unconfirmed_start",
-      "index": 140,
+      "index": 136,
       "id": "ebesluit-2026-dcan-00002-2026-05-24-bee7d76c"
     },
     {
       "code": "unconfirmed_start",
-      "index": 141,
+      "index": 137,
       "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09"
     },
     {
       "code": "unconfirmed_start",
-      "index": 156,
+      "index": 152,
       "id": "stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 175,
+      "index": 171,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r12-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 202,
+      "index": 198,
       "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 234,
+      "index": 230,
       "id": "stad-news-merksem-6655c1fac846040011359f8b-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 238,
+      "index": 234,
       "id": "koopzondag-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 257,
+      "index": 253,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 262,
+      "index": 258,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-07"
     },
     {
       "code": "unconfirmed_start",
-      "index": 266,
+      "index": 262,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 267,
+      "index": 263,
       "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 288,
+      "index": 284,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 296,
+      "index": 292,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 309,
+      "index": 305,
       "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 310,
+      "index": 306,
       "id": "stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 381,
+      "index": 377,
       "id": "koopzondag-2026-12-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 403,
+      "index": 399,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r16-2026-12-11"
     },
     {
       "code": "unconfirmed_start",
-      "index": 411,
+      "index": 407,
       "id": "koopzondag-2026-12-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 438,
+      "index": 434,
       "id": "koopzondag-2026-12-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 461,
+      "index": 457,
       "id": "koopzondag-2026-12-27"
     }
   ]
