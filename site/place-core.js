@@ -424,9 +424,9 @@ function samengevoegdeGeometrie(rijen) {
 // Bron, in deze volgorde: de verversing (site/sources/kaart-uitleg.json); anders de browser zelf, op
 // de geometrie uit A-Sign (site/parcours-straten.js, dezelfde berekening als de verversing); anders
 // de straten van de innames zoals de live laag ze geeft. Een bestand van vóór deze berekening (zonder
-// `kruist`) geldt nog tot de volgende verversing: alles in `langs`, en straatRelatie() kijkt dan voor
-// de gekozen straat zelf na of ze het parcours alleen kruist. Alles in de browser opnieuw berekenen
-// kost op een gsm enkele seconden.
+// `kruist`) geldt nog tot de volgende verversing: alles in `langs`, en verfijnVoorStraat() kijkt dan
+// voor de gekozen straat zelf na of ze het parcours alleen kruist. Alles in de browser opnieuw
+// berekenen kost op een gsm enkele seconden.
 export function evenementStraten(rijen = [], { bewaard = null, index = null } = {}) {
   if (bewaard && Array.isArray(bewaard.kruist)) {
     const langs = sorteerNl(bewaard.straten || []);
