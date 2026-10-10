@@ -1,0 +1,61 @@
+{
+  "uitleg": "Verzonnen onderwerpen met namen, telefoonnummers, mailadressen, adressen en rekeningnummers. Geen enkel stuk ervan mag in een titel, label, 'Wat' of ander veld terechtkomen. 'verboden' zijn de stukken die nergens mogen opduiken.",
+  "aanvragen": [
+    {
+      "onderwerp": "Verbouwen door Jan Peeters, 0470 12 34 56, naam@example.be",
+      "naam": "Persoonsbedrijf Peeters",
+      "verboden": ["Peeters", "0470", "12 34 56", "naam@", "example", "Persoonsbedrijf"]
+    },
+    {
+      "onderwerp": "aanvraag van mevrouw An Janssens (gsm +32 478 98 76 54) voor het slopen van haar woning in de Teststraat 12 bus 3",
+      "naam": "",
+      "verboden": ["Janssens", "mevrouw", "478", "98 76 54", "Teststraat", "12 bus 3", "haar woning"]
+    },
+    {
+      "onderwerp": "Bakkerij De Smet bv: plaatsen van zaakgebonden publiciteit 'Bakkerij De Smet', info 03 123 45 67",
+      "naam": "Bakkerij De Smet bv",
+      "verboden": ["Smet", "Bakkerij", "03 123", "45 67"]
+    },
+    {
+      "onderwerp": "nieuwbouw voor de familie Vermeulen, Voorbeeldlaan 5, 2000 Antwerpen, rekening BE68 5390 0754 7034, rijksregister 85.07.30-033.28",
+      "naam": "",
+      "verboden": ["Vermeulen", "Voorbeeldlaan", "BE68", "5390", "0754", "7034", "85.07.30", "033.28", "2000 Antwerpen", "familie"]
+    },
+    {
+      "onderwerp": "Oosterweeltuin van Karel Claes: vellen van een boom in de achtertuin",
+      "naam": "",
+      "overheid": "College van burgemeester en schepenen",
+      "verboden": ["Claes", "Karel", "Oosterweel", "achtertuin"]
+    },
+    {
+      "onderwerp": "bouwen van 12 appartementen; contact jos.voorbeeld@mail.test of 0499/11.22.33, bouwheer Jos Voorbeeld",
+      "naam": "Voorbeeld Bouw nv",
+      "verboden": ["Voorbeeld", "jos.", "mail.test", "0499", "11.22.33", "bouwheer"]
+    },
+    {
+      "onderwerp": "plaatsen van 0470 12 34 56 appartementen door Mia Test",
+      "naam": "",
+      "verboden": ["0470", "12 34", "56 appartementen", "34 56", "Mia", "Test"]
+    },
+    {
+      "onderwerp": "Dhr. Peter Wouters wil zijn gevel schilderen, bel 0477 55 66 77 na 18u",
+      "naam": "",
+      "verboden": ["Wouters", "Peter", "Dhr", "0477", "55 66 77", "18u", "schilderen"]
+    },
+    {
+      "onderwerp": "bouwen van een woning, Teststraat 12 appartement 3",
+      "naam": "",
+      "verboden": ["Teststraat", "12 appartement", "3 appartement"]
+    },
+    {
+      "onderwerp": "nieuwbouw Teststraat 112 bus 4 woongelegenheden",
+      "naam": "",
+      "verboden": ["Teststraat", "112", "bus 4", "4 woning"]
+    },
+    {
+      "onderwerp": "slopen van de woning op huisnummer 7 woningen erachter blijven",
+      "naam": "",
+      "verboden": ["huisnummer", "7 woning"]
+    }
+  ]
+}

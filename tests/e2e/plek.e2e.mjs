@@ -60,6 +60,9 @@ const today = generatedAt.slice(0, 10);
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const WORK_TITLE = "Proefwerk riolering (e2e)";
+// Een verzonnen omgevingsaanvraag met een naam en een telefoonnummer in het vrije onderwerp:
+// de kaart moet zeggen wat er gebeurt, zonder iets van dat onderwerp te tonen.
+const PERMIT_TITLE = "Sloop en nieuwbouw (6 woningen en een winkel)";
 
 async function routeSources(page, street) {
   const row = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode);
@@ -70,6 +73,11 @@ async function routeSources(page, street) {
     type: "FeatureCollection", links: [],
     features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: { GipodId: 999999901, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: "https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/999999901" } }],
   };
+  const d = 0.0002;
+  const permit = {
+    attributes: { Dossiernummer: "20990001", DOSSIERTYPE: "OMV2019_AANVRAAG", AardAanvraag: "Aanvraag omgevingsproject", Onderwerp: "slopen van 2 panden en bouwen van een gemengd gebouw met een detailhandel en 6 woonentiteiten, aanvrager Jan Voorbeeld 0470 12 34 56", Volledig: "ja", Ontvankelijk: "ja", Ingetrokken: "nee", Stopgezet: "nee", ProjectnummerOmgevingsloket: "OMV_2099000001", behandelendeOverheid: "College van burgemeester en schepenen" },
+    geometry: { rings: [[[mid[0] - d, mid[1] - d], [mid[0] + d, mid[1] - d], [mid[0] + d, mid[1] + d], [mid[0] - d, mid[1] + d], [mid[0] - d, mid[1] - d]]] },
+  };
   const json = (body) => ({ status: 200, contentType: "application/json", body: typeof body === "string" ? body : JSON.stringify(body) });
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
@@ -77,6 +85,7 @@ async function routeSources(page, street) {
     if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
     if (url.includes("/MapServer/905/")) return route.fulfill(json(axis));
+    if (url.includes("/pip2_vergunningen/MapServer/5/")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [1] } : { features: [permit] }));
     if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
     return route.abort();
   });
@@ -168,6 +177,23 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     while (!(await page.locator(".pv-row", { hasText: WORK_TITLE }).count())) await page.click(".pv-nav-next");
     const onDays = await page.locator(".pv-row", { hasText: WORK_TITLE }).first().locator(".pv-track i.on").count();
     assert.ok(onDays >= 1 && onDays <= 7);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("vergunning: de titel zegt wat er gebeurt, één statusregel, geen vrije tekst", async () => {
+    const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, query: `?plek=${plek}&soort=vergunningen` });
+    const row = page.locator("section.pv-day", { hasText: "Omgevingsaanvragen en besluiten" }).locator(".pv-row").first();
+    await row.waitFor({ timeout: 15000 });
+    assert.equal(await row.locator(".pv-row-title").innerText(), PERMIT_TITLE);
+    await row.locator(".pv-row-btn").click();
+    const tekst = await row.innerText();
+    assert.equal(tekst.match(/volledig en ontvankelijk verklaard/g)?.length, 1, tekst);
+    assert.match(tekst, /Wie beslist/);
+    assert.doesNotMatch(tekst, /Procedurestatus|doel niet|Voorbeeld|0470|20990001 · College/);
+    const technisch = await row.locator("a.pv-bron-technisch").getAttribute("href");
+    assert.equal(new URL(technisch).searchParams.get("where"), "Dossiernummer='20990001'");
     assert.deepEqual(errors, []);
     await context.close();
   });
