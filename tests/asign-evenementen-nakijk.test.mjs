@@ -164,6 +164,15 @@ test("M1: een buurtfeest uit het Districtsfonds krijgt zijn naam; een stoet die 
   const parcours = feit("ET2099100023", { dagen: [dag], fasen, beginStraat: "Startbrug", kernStraten: ["Startbrug"], langs: ["Eerstelaan", "Proefkaai", "Startbrug"] });
   assert.equal(koppelBesluiten([parcours], [marathon]).get("ET2099100023")?.naam, "Proefmarathon 2026");
   assert.equal(koppelBesluiten([parcours, stoet], [besluit({ naam: "Proefmarathon 2026", dagen: [dag], plaats: "Proefweg", straten: ["Proefweg"] })]).size, 1, "alleen de stoet loopt door de Proefweg");
+  // Twee routes door de kaai van het besluit (het parcours en een zone): alleen het dossier dat zelf al die
+  // naam draagt (handfiche), zoals de echte Marathon; zonder zo'n naam geen naam.
+  const zone = feit("ET2099100024", { dagen: [dag], fasen, beginStraat: "Dokstraat", kernStraten: ["Dokstraat"], zone: ["Dokstraat", "Proefkaai"] });
+  assert.equal(koppelBesluiten([parcours, zone], [marathon]).size, 0);
+  const naamVan = (d) => (d === "ET2099100023" ? "Proefmarathon van de Stad" : "");
+  assert.deepEqual([...koppelBesluiten([parcours, zone], [marathon], { naamVan }).keys()], ["ET2099100023"]);
+  const hand = { dossiers: { ET2099100023: fiche({ zekerheid: "zeker", naam: "Proefmarathon van de Stad" }) } };
+  const metZone = bouw({ feiten: [parcours, zone], hand, besluiten: [marathon] }).items;
+  assert.deepEqual(metZone.map((i) => [i.externalId, i.title]), [["ET2099100023", "Proefmarathon van de Stad"], ["ET2099100024", "Evenement in de Dokstraat — naam volgt"]]);
 });
 
 // ---------- M2: een vermoede soort is geen feit ----------

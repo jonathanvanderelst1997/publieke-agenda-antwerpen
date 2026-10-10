@@ -138,7 +138,12 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
   `stad-districten` > `stad-markten` > `stad-koopzondagen` > `district-ebesluit` > `district-asign-evenementen` >
   `district-ebesluit-evenementen` > `stad-uit` > `mail-district` > `mail-stad` > de rest (alfabetisch) > handmatig.
 - Een samengevoegd item neemt `fasen` en `straten` over van een bron die ze heeft (de kalender kent het uur,
-  het dossier de fasen en de straten).
+  het dossier de fasen en de straten). De feed (`site/agenda-feed.js`) draagt die twee velden niet: de site
+  leest ze niet, en de voorpagina laadt de feed bij elk bezoek. Ze blijven in het bronbestand.
+- Zegt het primaire item zelf (`sameAs`) dat het over een ander punt gaat, dan beslaat het samengevoegde
+  item de ruimste periode van die twee: een dossier van één dag bij een festival van drie dagen uit een
+  besluit verliest zo geen dagen. Een bijdrager die naar het primaire item wijst, rekt het niet op (één dag
+  uit een dossier van weken maakt van een opening in de kalender geen evenement van weken).
 - Het samengevoegde item houdt de velden van de bron met voorrang en toont **alle** bronlinks.
 - Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het en
   de build verwijdert de eventpagina.
@@ -379,10 +384,10 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
 - **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van
   `scripts/fetch-sources-ebesluit.mjs` uit te breiden. Zo blijven de raadskalender (`district-ebesluit`) en
   haar zoektermen ongewijzigd, en houdt een fout of traagheid hier de raadskalender niet tegen.
-- **Ontdubbelen met A-Sign:** een besluit dat `district-asign-evenementen` aan een dossier koppelt (zelfde
-  dag en een straat van het dossier, of dezelfde opbouw- en afbouwdag bij precies één dossier), wordt één
-  agendapunt met beide bronnen (`sameAs`). Een besluit zonder overeenkomend dossier blijft een eigen
-  agendapunt. De koppelstap "besluit" in de parcoursherkenning zelf (P3b) is er nog niet.
+- **Ontdubbelen met A-Sign:** een besluit dat `district-asign-evenementen` aan een dossier koppelt (zie
+  "Koppelen met een besluit" onder), wordt één agendapunt met beide bronnen (`sameAs`), over de ruimste
+  periode van de twee. Een besluit zonder overeenkomend dossier blijft een eigen agendapunt. De koppelstap
+  "besluit" in de parcoursherkenning zelf (P3b) is er nog niet.
 
 ## Evenementen op straat uit A-Sign (`district-asign-evenementen`)
 
@@ -393,13 +398,26 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Afgeleid, geen eigen verzoeken:** de bron draait in `npm run refresh:herkenning`, na de
   parcoursherkenning (`lib/parcours-herkenning-refresh.mjs`), met de dossiers die die stap al ophaalt en
   verrijkt (vorm, straten, gebied). Ze staat in `AFGELEIDE_BRONNEN` in `lib/source-registry.mjs`, niet bij
-  de fetchers, en dus niet in `refresh-status.json`; `sources:health` leest haar bestand zelf
-  ("afgeleid na refresh:herkenning", "verouderd" na 48 uur, een melding en geen fout). Faalt de stap (A-Sign
-  plat of een plotse krimp), dan blijft het vorige bestand staan.
-- **Welke dossiers:** binnen de districtsgrens (`lib/district-antwerpen-grens.geojson`; een parcours dat
-  het district raakt, telt mee), niet geweigerd of afgelast, met een evenementdag van vandaag tot 60 dagen
-  vooruit. Een aanvraag die nog niet goedgekeurd is, telt mee; de tekst zegt dat dan ("stand op …:
-  aanvraag nog niet goedgekeurd").
+  de fetchers.
+- **Bronstatus:** die stap zet de regel van de bron in `refresh-status.json` (`lib/afgeleide-bronstatus.mjs`),
+  en `scripts/refresh-fetch.mjs` neemt die regel 's anderendaags over tot de stap ze bijwerkt. Zo zien
+  `sources:health`, de job source-health en de site de bron zoals elke andere: een tijdelijke fout (een 503
+  van A-Sign of de straatas) is "stale", een waarschuwing; een blijvende fout of een krimp is een fout, met
+  de errorCode erbij. Zonder regel (vóór de eerste ronde met deze stap) leest `sources:health` het bestand
+  zelf ("nog niet afgeleid", "verouderd" na 48 uur: een melding).
+- **Het vorige bestand blijft byte voor byte staan** (en de regel zegt "error") als de straatas niet
+  antwoordt (zonder straten zouden de titels "in district Antwerpen" zeggen en zouden dossiers ten onrechte
+  samenvallen), als de herkenning faalt (A-Sign plat of gekrompen), bij elke andere fout, en bij een
+  plotse krimp (`suspiciousDrop`: meer dan de helft minder komende agendapunten, of nul). Een krimp gaat
+  wel door als het vorige bestand al meer dan 3 dagen oud is (dan is ze echt) of met `AGENDA_ALLOW_DROP`.
+  `sources:health` vergelijkt deze bron daarom niet nog eens met HEAD (`shrinkGuard: false`).
+- **Welke dossiers:** binnen de districtsgrens (`lib/district-antwerpen-grens.geojson`), niet geweigerd of
+  afgelast, met een evenementdag van vandaag tot en met 60 dagen vooruit. Een dossier dat het district
+  alleen aan de rand raakt (minder dan 20 % van de route binnen de grens, zoals een loop in Ekeren die even
+  over de grens gaat), hoort bij een ander district en staat niet in de districtslijst; een handfiche
+  beslist zelf (`binnenDistrict`, met de hand nagekeken). Een aanvraag die nog niet goedgekeurd is, telt
+  mee; de tekst zegt dat dan, met de dag van de laatste wijziging in A-Sign ("laatst gewijzigd op …:
+  aanvraag nog niet goedgekeurd"). Niet de dag van de verversing: dan zou elk item elke ochtend veranderen.
 - **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
   veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
   (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
@@ -409,16 +427,36 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Titel**, in deze volgorde: de naam uit de handfiche; de automatische naam (bij "zeker" de naam, bij
   "waarschijnlijk" "Vermoedelijk <naam>"); de naam uit een gekoppeld besluit van eBesluit (zie hierboven);
   de soort ("Studentenactiviteit in de Kerkstraat"); anders "Evenement in de Kerkstraat — naam volgt".
-  Een tunnel is nooit "de straat" van een evenement. Uren in dezelfde volgorde: de handfiche, dan het
+  Een soort die de herkenning alleen vermoedt (uit de plek, de periode en vroegere dossiers) staat er als
+  "Vermoedelijk een studentenactiviteit in de Kerkstraat", met de zin "Soort vermoed via …; niet
+  bevestigd." Alleen het trefwoord in het dossier zelf (speelstraat) heet "De soort staat in het dossier".
+  Een tunnel is nooit "de straat" van een evenement, en de straat in de titel ligt op de route (begint een
+  parcours aan een kruispunt, dan niet de dwarsstraat). Uren in dezelfde volgorde: de handfiche, dan het
   besluit (alleen op zijn dagen), dan de automatische fiche; een beginuur alleen bij een eenduidige reeks.
-- **Twee dossiers, één evenement:** dossiers op dezelfde dag met dezelfde titel, hetzelfde besluit of
-  hetzelfde punt uit de kalender worden één agendapunt; de beste titel wint (hand, zeker, besluit,
-  vermoeden, soort, naam volgt) en de tekst noemt het andere dossier.
+  Geeft de handfiche geen reeks, dan het beginuur uit het besluit als de fiche dat uur zelf noemt (de
+  Marathon: "start om 9 uur" en 9 uur in het besluit).
+- **Koppelen met een besluit** (eBesluit, P3a): een gemeenschappelijke evenementdag en de straat van het
+  besluit. Een besluit over één vaste plek (Districtsfonds, muziekactiviteit) hoort bij hoogstens één
+  dossier, en alleen als die straat de eigen plek van het dossier is (het begin, het einde of een inname):
+  een stoet die de straat van een buurtfeest kruist, krijgt die naam niet. Een evenementbesluit (College)
+  hoort bij de dossiers met hun eigen plek in die straat (startzone en parcours worden één agendapunt),
+  anders bij het enige dossier waarvan de route erdoor loopt. Zijn er meer kandidaten, dan alleen het ene
+  dossier dat zelf al een naam draagt die op die van het besluit lijkt (de Marathon: het parcours met de
+  handfiche "TREK Antwerp Marathon", niet de zone in het Eilandje die ook langs de Rijnkaai loopt); anders
+  geen naam. Zonder plaats: dezelfde opbouw- en afbouwdag bij precies één dossier. De plaats uit het besluit
+  komt vooraan in de plaats van het agendapunt.
+- **Twee dossiers, één evenement:** dossiers op dezelfde dag met dezelfde titel (alleen als die een eigen
+  naam of een straat noemt), hetzelfde besluit of hetzelfde punt uit de kalender worden één agendapunt; de
+  beste titel wint (hand, zeker, besluit, vermoeden, soort, vermoede soort, naam volgt) en de tekst noemt
+  het andere dossier. Komen zo dagen samen (de dagen van een festival uit een besluit), dan beslaat het
+  agendapunt de ruimste periode.
 - **Straten:** `stratenVanParcours()` uit `site/parcours-straten.js` op de parcoursvormen en apart op de
   verkeersvrije zones, plus de straat waar het begint. Ze staan in het veld `straten` (hoogstens 60) en
   kort in de plaats ("Meir, Groenplaats, Schoenmarkt en 35 andere straten").
-- **In de districtslijst** alleen een dossier met een naam of een soort, of met een parcours of een
-  verkeersvrije zone over minstens 2 straten. De plekpagina blijft alle dossiers tonen (live uit A-Sign).
+- **In de districtslijst** alleen een dossier met een naam, met een soort én een straat (of een wijk), of
+  met een parcours of een verkeersvrije zone over minstens 2 straten. Een soort zonder plek
+  ("Studentenactiviteit in district Antwerpen") zegt niets over een straat. De plekpagina blijft alle
+  dossiers tonen (live uit A-Sign).
   Op de site valt een dossier zonder herkenbare soort onder "Buurt & straat" (`site/event-types.js`).
 - **Speelstraten:** het trefwoord "speelstraat" in het dossier zelf geeft "Speelstraat in de …". Tot en met
   10 oktober 2026 staat er geen enkele speelstraat in A-Sign.
@@ -432,7 +470,14 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Geen koppeling met zichzelf:** de kaartjes op de kaart koppelen nooit aan een agendapunt dat alleen uit
   deze bron komt (`GEEN_KOPPELBRON` in `lib/kaart-uitleg-refresh.mjs`, `alleenUitDossiers()` in
   `site/place-core.js`): dat is geen tweede bron, en het kan van een buurdossier zijn.
-- Gemeten op 10 oktober 2026 (proefverversing in een wegwerpkopie): 323 dossiers in het district, 38
+- Na de nakijkronde gemeten op 11 oktober 2026 (Brussel), met dezelfde opgenomen brondata voor de vorige
+  en de nieuwe code: 315 dossiers in het district, 2 aan de rand (de EkeRun en een dossier in Borgerhout),
+  64 in de lijst (6 met naam, 46 met soort, 12 "naam volgt"), 66 agendapunten; de lijst gaat van 754 naar
+  815 items (+61, was +66). Weg: 7 agendapunten "Studentenactiviteit in district Antwerpen" en de EkeRun als
+  districtsitem. De Marathon is één item (A-Sign en eBesluit) om 9 uur, met de Rijnkaai vooraan. Valt de
+  straatas uit (503), dan blijft het bestand byte voor byte staan en zegt de regel "stale" (de vorige code
+  schreef 36 in plaats van 72 agendapunten, met "ok"). De feed groeit met 8,1 kB gzip in plaats van 13,7 kB.
+- Gemeten op 10 oktober 2026 (proefverversing in een wegwerpkopie, vóór de nakijkronde): 323 dossiers in het district, 38
   zonder echte evenementfase, 212 niet in de lijst (klein en zonder naam of soort), 73 in de lijst (9 met
   naam, 52 met soort, 12 "naam volgt", 33 nog niet goedgekeurd), 74 agendapunten. 7 ervan worden één item
   met een punt uit een andere bron: de districtskalender of het districtsnieuws (het Linkeroever
