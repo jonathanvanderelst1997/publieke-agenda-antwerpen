@@ -21,6 +21,31 @@ function find(title, date) {
   return result.auditItems.find((item) => item.title === title && item.date === date);
 }
 
+// Een lopende werf met een vaste classificatie uit een regel. De echte heraanleg-items komen sinds
+// pakket P7 uit de bron district-projecten; deze verzonnen werf houdt de regel-SLA getoetst.
+const PROEFWERF = {
+  id: "proefwerf-voorbeeldstraat-2026-06-29",
+  title: "Proefwerf Voorbeeldstraat",
+  theme: "Werken",
+  className: "works",
+  date: "2026-06-29",
+  dateLabel: "29 juni 2026, tot planning loopt door",
+  timeSlot: "Uur volgt",
+  timeText: "",
+  location: "Voorbeeldstraat",
+  info: "Verzonnen werf voor deze toets.",
+  link: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken",
+};
+function withWorksRule(callback) {
+  const rule = { match: { title: PROEFWERF.title, theme: "Werken" }, sourceId: "city-works-permit", classification: "current" };
+  engine.config.rules.push(rule);
+  try {
+    return callback();
+  } finally {
+    engine.config.rules.splice(engine.config.rules.indexOf(rule), 1);
+  }
+}
+
 test("classificeert verlopen, lopende en toekomstige punten deterministisch", () => {
   const asOf = engine.config.classificationAsOf;
   assert.match(asOf, /^\d{4}-\d{2}-\d{2}$/);
@@ -29,11 +54,12 @@ test("classificeert verlopen, lopende en toekomstige punten deterministisch", ()
   assert.equal(find("Kammenstraat autovrij tijdens soldenperiode", "2026-06-29").classificationBasis, "rule");
 
   // Een lopende werf blijft lopend zolang zijn bron vers is; daarna verouderd en niet publiek.
-  const works = find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29");
-  const worksSource = engine.config.sources[works.sourceId];
-  const worksDue = addDays(worksSource.retrievedAt, 2);
-  if (asOf <= worksDue) assert.equal(works.classification, "current");
-  else assert.deepEqual([works.classification, works.reviewReason], ["review_required", "stale_source"]);
+  withWorksRule(() => {
+    const works = engine.reconcileAgendaItems([PROEFWERF], asOf).auditItems[0];
+    const worksDue = addDays(engine.config.sources[works.sourceId].retrievedAt, 2);
+    if (asOf <= worksDue) assert.equal(works.classification, "current");
+    else assert.deepEqual([works.classification, works.reviewReason], ["review_required", "stale_source"]);
+  });
 
   // Elk item dat op datum geclassificeerd is, klopt met classificationAsOf en zijn date/endDate.
   for (const item of result.auditItems.filter((candidate) => candidate.classificationBasis === "date")) {
@@ -160,8 +186,11 @@ test("handmatig item zonder einddatum loopt tot en met zijn dag; een lopende wer
   assert.equal(engine.reconcileAgendaItems([single], "2026-10-10").publicItems.length, 1);
   assert.equal(engine.reconcileAgendaItems([single], "2026-10-11").auditItems[0].classification, "expired");
 
-  const works = find("Fasewissel heraanleg Balansstraat en Lange Elzenstraat", "2026-06-29");
-  const due = addDays(engine.config.sources[works.sourceId].retrievedAt, 2);
-  const later = engine.reconcileAgendaItems([items.find((candidate) => candidate.id === works.id)], addDays(due, 1));
-  assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
+  withWorksRule(() => {
+    const due = addDays(engine.config.sources["city-works-permit"].retrievedAt, 2);
+    const fresh = engine.reconcileAgendaItems([PROEFWERF], due);
+    assert.deepEqual([fresh.auditItems[0].classification, fresh.auditItems[0].classificationBasis], ["current", "rule"]);
+    const later = engine.reconcileAgendaItems([PROEFWERF], addDays(due, 1));
+    assert.deepEqual([later.auditItems[0].classification, later.auditItems[0].reviewReason], ["review_required", "stale_source"]);
+  });
 });

@@ -52,19 +52,6 @@ const agendaItems = [
     "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
   },
   {
-    "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
-    "title": "Fasewissel heraanleg Balansstraat en Lange Elzenstraat",
-    "theme": "Werken",
-    "className": "works",
-    "date": "2026-06-29",
-    "dateLabel": "18 mei 2026, tot planning loopt door tot 2027",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
-    "location": "Verduidelijking Balansstraat, Lange Elzenstraat, Balansstraat, Kielsevest, Desguinlei",
-    "info": "Fasewissel in de werfzone; bewoners best doorverwijzen naar de publieke werkenpagina voor actuele fasering en hinder.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken"
-  },
-  {
     "id": "kammenstraat-autovrij-tijdens-soldenperiode-2026-06-29",
     "title": "Kammenstraat autovrij tijdens soldenperiode",
     "theme": "Werken",
@@ -76,45 +63,6 @@ const agendaItems = [
     "location": "Kammenstraat, Kammenstraat en Nationalestraat, Sleutelstraat, Sint-Antoniusstraat, Everdijstraat",
     "info": "Kammenstraat autovrij tijdens de soldenperiode; laden en lossen na 19 uur en voor 11 uur. Bewoners en handelaars best naar Slim naar Antwerpen verwijzen voor actuele bereikbaarheid.",
     "link": "https://www.slimnaarantwerpen.be/"
-  },
-  {
-    "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29",
-    "title": "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat",
-    "theme": "Werken",
-    "className": "works",
-    "date": "2026-06-29",
-    "dateLabel": "week van 20 april 2026, tot bouwverlof juli 2026",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
-    "location": "Gaston Burssenslaan - Hanegraefstraat, Waterhoenlaan",
-    "info": "Timing gewijzigd; de laatste fase loopt langer. Geschikt als update wanneer bewoners nieuwe timing nodig hebben.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken"
-  },
-  {
-    "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29",
-    "title": "Werken Halenstraat en Schijnpoortweg",
-    "theme": "Werken",
-    "className": "works",
-    "date": "2026-06-29",
-    "dateLabel": "20 april 2026, tot april 2027",
-    "timeSlot": "Uur volgt",
-    "timeText": "",
-    "location": "Halenstraat, Schijnpoortweg",
-    "info": "Langlopende werken tot april 2027; nuttig in periodieke bewonersupdates met verwijzing naar de publieke werkenpagina.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken"
-  },
-  {
-    "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03",
-    "title": "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2",
-    "theme": "Werken",
-    "className": "works",
-    "date": "2026-08-03",
-    "dateLabel": "3 augustus 2026 tot voorjaar 2027",
-    "timeSlot": "Info",
-    "timeText": "fase 2 in uitvoering",
-    "location": "Van Maerlantstraat, Vondelstraat en kruispunt Sint-Jansplein",
-    "info": "De tweede fase van de heraanleg loopt van de Van Maerlantstraat tot en met de volledige Vondelstraat. Raadpleeg de officiële pagina voor de actuele bereikbaarheid en fasering.",
-    "link": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat"
   },
   {
     "id": "antwerpen-danst-2026-06-30-2026-06-30-bcd0d383",

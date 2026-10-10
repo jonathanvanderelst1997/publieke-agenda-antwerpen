@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-10",
-  "sourceItemCount": 845,
-  "sourceDigest": "6f652ecfd72bf15c47c8f4ede2555d13ef1a02fabccfc3c79de020896e4a9dc6",
+  "sourceItemCount": 841,
+  "sourceDigest": "e2bb3cc847fed7d10895c30576455ebdb5d28ba84b8135a78ba881959a75a49e",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -1319,19 +1319,6 @@
       "verificationState": "verified"
     },
     {
-      "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
-      "title": "Fasewissel heraanleg Balansstraat en Lange Elzenstraat",
-      "eventDate": "2026-06-29",
-      "classification": "review_required",
-      "classificationAsOf": "2026-10-10",
-      "sourceId": "city-works-permit",
-      "sourcePublisher": "Stad Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
-      "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-09-16T12:46:42Z",
-      "verificationState": "verified"
-    },
-    {
       "id": "feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7",
       "title": "Feesten in het Stadspark",
       "eventDate": "2026-07-04",
@@ -1629,19 +1616,6 @@
       "sourceHost": "www.facebook.com",
       "sourceRetrievedAt": "2026-08-13T13:24:19Z",
       "verificationState": "review_required"
-    },
-    {
-      "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03",
-      "title": "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2",
-      "eventDate": "2026-08-03",
-      "classification": "review_required",
-      "classificationAsOf": "2026-10-10",
-      "sourceId": "city-osystraat-works",
-      "sourcePublisher": "District Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
-      "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-09-16T12:46:42Z",
-      "verificationState": "verified"
     },
     {
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",
@@ -9899,19 +9873,6 @@
       "verificationState": "verified"
     },
     {
-      "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29",
-      "title": "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat",
-      "eventDate": "2026-06-29",
-      "classification": "review_required",
-      "classificationAsOf": "2026-10-10",
-      "sourceId": "city-gaston-works",
-      "sourcePublisher": "District Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/heraanleg-gaston-burssenslaan-en-hanegraefstraat-start-op-12-november",
-      "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-08-13T13:24:19Z",
-      "verificationState": "review_required"
-    },
-    {
       "id": "openluchtzwemmen-2026-07-01",
       "title": "Openluchtzwemmen Bonapartedok",
       "eventDate": "2026-07-01",
@@ -10820,19 +10781,6 @@
       "sourceHost": "minigolfbeatrijs.be",
       "sourceRetrievedAt": null,
       "verificationState": "date_elapsed_only"
-    },
-    {
-      "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29",
-      "title": "Werken Halenstraat en Schijnpoortweg",
-      "eventDate": "2026-06-29",
-      "classification": "review_required",
-      "classificationAsOf": "2026-10-10",
-      "sourceId": "city-works-permit",
-      "sourcePublisher": "Stad Antwerpen",
-      "canonicalSourceUrl": "https://www.antwerpen.be/nl/info/545104d9cea8a77f338b465a/aanvraag-minderhindervergunning",
-      "sourceHost": "www.antwerpen.be",
-      "sourceRetrievedAt": "2026-09-16T12:46:42Z",
-      "verificationState": "verified"
     },
     {
       "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",

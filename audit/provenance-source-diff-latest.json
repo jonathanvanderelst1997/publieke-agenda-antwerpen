@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-10",
-  "sourceDigest": "6f652ecfd72bf15c47c8f4ede2555d13ef1a02fabccfc3c79de020896e4a9dc6",
-  "matrixDigest": "6f652ecfd72bf15c47c8f4ede2555d13ef1a02fabccfc3c79de020896e4a9dc6",
+  "sourceDigest": "e2bb3cc847fed7d10895c30576455ebdb5d28ba84b8135a78ba881959a75a49e",
+  "matrixDigest": "e2bb3cc847fed7d10895c30576455ebdb5d28ba84b8135a78ba881959a75a49e",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 845
+    "unchanged": 841
   },
   "actions": [
     {
@@ -620,12 +620,6 @@
       "matrixDigest": "db737ba3fa9f4125aff551db8e99a4eacaa20d0784a12abb3c833fb165e01d08"
     },
     {
-      "id": "fasewissel-heraanleg-balansstraat-en-lange-elzenstraat-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "df903c2ea460beb83ed6bfcacac15bf74494e653e316051365a4f51f43a58208",
-      "matrixDigest": "df903c2ea460beb83ed6bfcacac15bf74494e653e316051365a4f51f43a58208"
-    },
-    {
       "id": "feesten-in-het-stadspark-2026-07-05-2026-07-04-cff415b7",
       "action": "unchanged",
       "sourceDigest": "00062ced4e29220d21e43cadbe72870ab89680283ad0f059f5c3a82682fc17c7",
@@ -762,12 +756,6 @@
       "action": "unchanged",
       "sourceDigest": "15c9d721f03d3f0fd147f87f85d887d96d26fb660d37073f53cfb90f6d715aa6",
       "matrixDigest": "15c9d721f03d3f0fd147f87f85d887d96d26fb660d37073f53cfb90f6d715aa6"
-    },
-    {
-      "id": "heraanleg-van-maerlantstraat-vondelstraat-fase-2-2026-08-03",
-      "action": "unchanged",
-      "sourceDigest": "1c9f95e427e6f687a1f9536e083d69a975e841f7b2a6ebcb857145a38c213461",
-      "matrixDigest": "1c9f95e427e6f687a1f9536e083d69a975e841f7b2a6ebcb857145a38c213461"
     },
     {
       "id": "inschrijven-herfstklaar-zonder-materiaal-2026-09-25",
@@ -4580,12 +4568,6 @@
       "matrixDigest": "cd6d2ef4c0ca05735e5f8ec36062ac44a727b060c56b00950037715ec05a6cc4"
     },
     {
-      "id": "nieuwe-fase-heraanleg-gaston-burssenslaan-en-hanegraefstraat-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "f4e275c354836155a01cd84a9cbab844efdd7b1f35d658685bc27762dc598304",
-      "matrixDigest": "f4e275c354836155a01cd84a9cbab844efdd7b1f35d658685bc27762dc598304"
-    },
-    {
       "id": "openluchtzwemmen-2026-07-01",
       "action": "unchanged",
       "sourceDigest": "c49621ad679931ce26bd1e2810284cada40436013d4187f31060bea4f472211f",
@@ -5004,12 +4986,6 @@
       "action": "unchanged",
       "sourceDigest": "f6c4eed3a577f060453bbc26a6161efe44132f795906232aee068cf1ec28617a",
       "matrixDigest": "f6c4eed3a577f060453bbc26a6161efe44132f795906232aee068cf1ec28617a"
-    },
-    {
-      "id": "werken-halenstraat-en-schijnpoortweg-2026-06-29",
-      "action": "unchanged",
-      "sourceDigest": "bfc5c5cf90b8f4626b31f13b219bf856142aa53c90e74b58ff798bc852e8bdb7",
-      "matrixDigest": "bfc5c5cf90b8f4626b31f13b219bf856142aa53c90e74b58ff798bc852e8bdb7"
     },
     {
       "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",

@@ -1,0 +1,166 @@
+{
+ "displayFieldName": "naam",
+ "fields": [],
+ "features": [
+  {
+   "attributes": {
+    "ObjectID": 1,
+    "id": "FO901",
+    "niveau": "lokaal",
+    "locatie": "VOORBEELDPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "3 oktober – 18 oktober",
+    "periode2": "",
+    "periode3": null,
+    "naam": "Najaarsfoor",
+    "begindatum": 1790985600000,
+    "einddatum": 1792281600000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 2,
+    "id": "FO902",
+    "niveau": "lokaal",
+    "locatie": "SINT-JANSPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "21 november - 13 december",
+    "periode2": null,
+    "periode3": "",
+    "naam": "Najaarsfoor",
+    "begindatum": 1795219200000,
+    "einddatum": 1797120000000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 3,
+    "id": "FO903",
+    "niveau": "bovenlokaal",
+    "locatie": "KONINGIN ASTRIDPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "4 december  – 3 januari ",
+    "periode2": null,
+    "periode3": null,
+    "naam": "Winterkermis",
+    "begindatum": 1796342400000,
+    "einddatum": 1767398400000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 4,
+    "id": "FO904",
+    "niveau": "bovenlokaal",
+    "locatie": "STEENPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "1 juli – 31 augustus",
+    "periode2": null,
+    "periode3": null,
+    "naam": "Zomerkermis",
+    "begindatum": 1782864000000,
+    "einddatum": 1788134400000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 5,
+    "id": "FO905",
+    "niveau": "lokaal",
+    "locatie": "ANDERPLEIN",
+    "district": "DEURNE",
+    "periode1": "1 november – 11 november",
+    "periode2": null,
+    "periode3": null,
+    "naam": "Najaarsfoor",
+    "begindatum": 1793491200000,
+    "einddatum": 1794355200000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 6,
+    "id": "FO906",
+    "niveau": "lokaal",
+    "locatie": "FREDERIK VAN EEDENPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "7 maart - 29 maart",
+    "periode2": "10 oktober - 25 oktober",
+    "periode3": null,
+    "naam": "Seizoensfoor",
+    "begindatum": 1772841600000,
+    "einddatum": 1774742400000,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 7,
+    "id": "FO907",
+    "niveau": "lokaal",
+    "locatie": "VOORBEELDPLAATS",
+    "district": "ANTWERPEN",
+    "periode1": "na de zomer",
+    "periode2": null,
+    "periode3": null,
+    "naam": "Nafoor",
+    "begindatum": null,
+    "einddatum": null,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  },
+  {
+   "attributes": {
+    "ObjectID": 8,
+    "id": "FO908",
+    "niveau": "lokaal",
+    "locatie": "VOORBEELDPLEIN",
+    "district": "ANTWERPEN",
+    "periode1": "12 – 21 november",
+    "periode2": null,
+    "periode3": null,
+    "naam": "Kleine foor",
+    "begindatum": null,
+    "einddatum": null,
+    "dossierBeheerder": "Verzonnen Beheerder",
+    "creator": "Verzonnen Maker",
+    "assignee": "Verzonnen Toegewezene",
+    "lockOwner": "Verzonnen Slot",
+    "innameBeschrijving": "Vrije tekst Voorbeeldstraat 12, bel 0470 12 34 56"
+   }
+  }
+ ]
+}

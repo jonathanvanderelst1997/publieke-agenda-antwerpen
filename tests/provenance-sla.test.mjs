@@ -68,13 +68,34 @@ test("onzekere sportreeksen blijven geblokkeerd, ook nadat hun datum verstreken 
 });
 
 test("de actuele wegenwerkfase is publiceerbaar zolang haar bron vers is, en daarna geblokkeerd", () => {
-  const row = matrix.items.find(
-    (item) => item.title === "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2"
-  );
+  // Een verzonnen werf met een regel: de echte heraanleg-items komen sinds pakket P7 uit de bron
+  // district-projecten (feed), deze toets houdt de SLA van een regel met vaste classificatie bij.
+  const werf = {
+    id: "proefwerf-fase-2-2026-08-03",
+    title: "Proefwerf Voorbeeldstraat - fase 2",
+    theme: "Werken",
+    className: "works",
+    date: "2026-08-03",
+    dateLabel: "3 augustus 2026 tot voorjaar 2027",
+    timeSlot: "Info",
+    timeText: "fase 2 in uitvoering",
+    location: "Voorbeeldstraat",
+    info: "Verzonnen werf voor deze toets.",
+    link: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken",
+  };
+  const rule = { match: { title: werf.title, dates: [werf.date] }, sourceId: "city-osystraat-works", classification: "current" };
+  engine.config.rules.push(rule);
+  let werfMatrix;
+  try {
+    werfMatrix = buildProvenanceSlaMatrix([werf], engine);
+  } finally {
+    engine.config.rules.splice(engine.config.rules.indexOf(rule), 1);
+  }
+  const row = werfMatrix.items[0];
   assert.equal(row.sourceId, "city-osystraat-works");
   const source = engine.config.sources[row.sourceId];
   assert.equal(row.sourceRetrievedAt, source.retrievedAt);
-  const fresh = matrix.classificationAsOf <= addDays(source.retrievedAt, 2);
+  const fresh = werfMatrix.classificationAsOf <= addDays(source.retrievedAt, 2);
   if (fresh) {
     assert.equal(row.classification, "current");
     assert.equal(row.slaStatus, "fresh_verified");

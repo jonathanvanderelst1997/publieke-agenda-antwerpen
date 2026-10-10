@@ -216,15 +216,6 @@
 
   const rules = [
     {
-      match: { title: "Fasewissel heraanleg Balansstraat en Lange Elzenstraat", theme: "Werken" },
-      sourceId: "city-works-permit",
-      classification: "current",
-      changes: {
-        dateLabel: "Fase 5 tot 15 augustus 2026; volgende fasen lopen door tot 31 december 2027",
-        location: "Balansstraat, Kielsevest, Desguinlei en Lange Elzenstraat",
-      },
-    },
-    {
       match: { title: "Kammenstraat autovrij tijdens soldenperiode", theme: "Werken" },
       sourceId: "slim-kammenstraat",
       classification: "expired",
@@ -237,17 +228,6 @@
     {
       match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },
       sourceId: "publiekeruimte-schoolstraat-vanhoenacker",
-    },
-    {
-      match: { title: "Nieuwe fase heraanleg Gaston Burssenslaan en Hanegraefstraat", theme: "Werken" },
-      sourceId: "city-gaston-works",
-      classification: "review_required",
-    },
-    {
-      match: { title: "Werken Halenstraat en Schijnpoortweg", theme: "Werken" },
-      sourceId: "city-works-permit",
-      classification: "current",
-      changes: { dateLabel: "Fase 1 tot 30 september 2026; volgende fasen lopen tot 30 april 2027" },
     },
     {
       match: { title: "Sportinitiaties met Jespo", dateFrom: "2026-08-10" },
@@ -307,11 +287,6 @@
     {
       match: { title: "Inschrijven Herfstklaar", dates: ["2026-09-25"] },
       sourceId: "city-herfstklaar",
-    },
-    {
-      match: { title: "Heraanleg Van Maerlantstraat en Vondelstraat - fase 2", dates: ["2026-08-03"] },
-      sourceId: "city-osystraat-works",
-      classification: "current",
     },
     {
       match: { title: "Eilandje in beweging", dates: ["2026-08-29", "2026-08-30"] },
