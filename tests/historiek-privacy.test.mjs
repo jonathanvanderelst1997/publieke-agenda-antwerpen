@@ -116,6 +116,12 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   schrijf("site/history/archive/2026-10-10.json", dag);
   schrijf("site/history/archive/index.json", { schemaVersion: 1, baselineInitializedAt: T1, lastObservedAt: T2, days: [{ date: "2026-10-10", file: "site/history/archive/2026-10-10.json", count: 1, digest: "0".repeat(64) }] });
 
+  // De verversing mag geen bestand wissen (datatak): een dag die leeg zou worden, stopt de opkuis
+  // dan zonder iets te schrijven, met de weg vooruit in de melding.
+  const vooraf = fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
+  assert.throws(() => opkuisHistoriekPrivacy({ rootDir: root, write: true, verwijderLeeg: false }), /een dag wordt leeg .*opkuis-historiek-privacy\.mjs --write/);
+  assert.equal(fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8"), vooraf);
+
   const eerste = opkuisHistoriekPrivacy({ rootDir: root, write: true });
   assert.deepEqual(eerste.leegGeworden, ["site/history/archive/2026-10-10.json"], "de enige wijziging lag buiten het district");
   const tekst = fs.readdirSync(path.join(root, "site/history/archive")).map((name) => fs.readFileSync(path.join(root, "site/history/archive", name), "utf8")).join("\n")
@@ -125,8 +131,9 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   assert.deepEqual(index.days, []);
 
   const voor = fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  opkuisHistoriekPrivacy({ rootDir: root, write: true });
-  assert.equal(fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8"), voor, "tweede keer verandert niets");
+  const tweede = opkuisHistoriekPrivacy({ rootDir: root, write: true });
+  assert.deepEqual(tweede.gewijzigd, [], "tweede keer verandert niets");
+  assert.equal(fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8"), voor);
 });
 
 test("validate-data meldt een huisnummer in de historiek met het pad, zonder de waarde", () => {
@@ -142,6 +149,7 @@ test("validate-data meldt een huisnummer in de historiek met het pad, zonder de 
     const run = spawnSync(process.execPath, [path.join(root, "scripts", "validate-data.mjs")], { encoding: "utf8" });
     const regels = run.stderr.split("\n").filter((line) => line.startsWith("site/history/") && line.includes("privacy"));
     assert.deepEqual(regels, ["site/history/live-layers.json: privacy huisnummer op $.layers.publicSpace.items[0].location"]);
+    assert.ok(run.stderr.includes("oplossing: node scripts/opkuis-historiek-privacy.mjs --write"), "de melding toont de weg vooruit");
     assert.equal(run.stderr.includes("27"), false);
   } finally {
     fs.rmSync(root, { recursive: true, force: true });

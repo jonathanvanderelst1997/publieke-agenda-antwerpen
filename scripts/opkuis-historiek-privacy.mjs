@@ -1,6 +1,8 @@
 // Eenmalige opkuis van site/history (live-layers.json en archive/): alleen district Antwerpen en geen
 // huisnummers (lib/historiek-privacy.mjs). Daarna houdt de verversing (scripts/refresh-live-history.mjs)
-// het zo. Veilig om opnieuw te draaien: een schoon bestand blijft gelijk.
+// het zo; ze draait deze opkuis ook zelf vooraf, zodat een oud bestand dat toch terugkomt (bv. uit een
+// oudere datatak) bij de volgende verversing schoon wordt. Veilig om opnieuw te draaien: een schoon
+// bestand blijft gelijk en wordt niet herschreven.
 //
 //   node scripts/opkuis-historiek-privacy.mjs          toont alleen de tellingen
 //   node scripts/opkuis-historiek-privacy.mjs --write  schrijft de bestanden
@@ -38,7 +40,9 @@ const telling = (document) => {
   return counts;
 };
 
-export function opkuisHistoriekPrivacy({ rootDir, write = false } = {}) {
+// `verwijderLeeg: false` (de verversing): een dag die leeg zou worden, stopt de opkuis in plaats van
+// het bestand te wissen.
+export function opkuisHistoriekPrivacy({ rootDir, write = false, verwijderLeeg = true } = {}) {
   if (!rootDir) throw new Error("rootDir ontbreekt");
   const liveFile = path.join(rootDir, LIVE_HISTORY_FILE);
   const baselineFile = path.join(rootDir, LIVE_HISTORY_ARCHIVE_BASELINE_FILE);
@@ -122,9 +126,15 @@ export function opkuisHistoriekPrivacy({ rootDir, write = false } = {}) {
   const over = [...uit.values()].reduce((sum, doc) => sum + historiekPrivacyBevindingen(doc).length, 0);
   if (over) throw new Error(`na de opkuis blijven ${over} bevindingen over; er is niets geschreven`);
   rapport.leegGeworden = leeg.map((file) => path.relative(rootDir, file));
+  // De datatak van de verversing mag geen bestanden onder site/history wissen (lib/data-lane-paths.json).
+  if (leeg.length && !verwijderLeeg) {
+    throw new Error(`een dag wordt leeg (${rapport.leegGeworden.join(", ")}); draai node scripts/opkuis-historiek-privacy.mjs --write in een gewone PR`);
+  }
 
+  const gewijzigd = [...uit].filter(([file, document]) => !fs.existsSync(file) || fs.readFileSync(file, "utf8") !== tekst(document));
+  rapport.gewijzigd = [...gewijzigd.map(([file]) => file), ...leeg].map((file) => path.relative(rootDir, file));
   if (write) {
-    for (const [file, document] of uit) fs.writeFileSync(file, tekst(document), "utf8");
+    for (const [file, document] of gewijzigd) fs.writeFileSync(file, tekst(document), "utf8");
     for (const file of leeg) fs.rmSync(file);
   }
   return rapport;

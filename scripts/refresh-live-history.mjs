@@ -25,6 +25,7 @@ import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -259,6 +260,15 @@ export async function refreshLiveHistory({
 } = {}) {
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
+  // Eerst de bestaande historiek opkuisen (geen huisnummers, alleen het district), ook oudere dagen
+  // van het archief. Een schone historiek blijft ongemoeid. Lukt het niet, dan gaat de verversing
+  // gewoon door; validate-data meldt dan wat er nog opgekuist moet worden.
+  try {
+    const opkuis = opkuisHistoriekPrivacy({ rootDir, write: true, verwijderLeeg: false });
+    if (opkuis.gewijzigd.length) log(JSON.stringify({ historiekOpkuis: { bestanden: opkuis.gewijzigd.length } }));
+  } catch (error) {
+    log(JSON.stringify({ historiekOpkuis: "niet gelukt", melding: String(error?.message || error).slice(0, 200) }));
+  }
   let previous = null;
   if (fs.existsSync(file)) {
     previous = JSON.parse(fs.readFileSync(file, "utf8"));

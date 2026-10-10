@@ -18,19 +18,21 @@ import {
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
 
+const TA = "2026-10-09T03:00:00.000Z"; // eerste run (baseline)
 const T0 = "2026-10-10T03:00:00.000Z"; // vorige dag
 const T1 = "2026-10-11T01:00:00.000Z"; // eerdere run vandaag
 const T2 = "2026-10-11T03:00:00.000Z"; // deze run
 const START = Date.parse("2026-10-12T06:00:00Z");
 const EINDE = Date.parse("2026-10-13T18:00:00Z");
 
-// Verzonnen adressen. Twee in het district (2000), één erbuiten (2100).
+// Verzonnen adressen. Drie in het district (2000), één erbuiten (2100).
 const PARKEER = [
   { id: 1, adres: "Proefstraat 12 bus 3 2000 Antwerpen" },
   { id: 2, adres: "Proefstraat 14-16 2000 Antwerpen" },
   { id: 3, adres: "Proefweg 7 2100 Antwerpen" },
+  { id: 4, adres: "Proefstraat 20 2000 Antwerpen" },
 ];
-const VERBODEN = ["Proefstraat 12", "bus 3", "14-16", "Proefweg", "2100"];
+const VERBODEN = ["Proefstraat 12", "bus 3", "14-16", "Proefstraat 20", "Proefweg", "2100"];
 
 const parkeerFeature = ({ id, adres }) => ({
   attributes: {
@@ -75,25 +77,25 @@ const oudParkeer = (id, adres) => ({
 const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 12", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
 
 function oudeStand(root) {
-  const h0 = updateLiveHistory(null, {
-    observedAt: T0,
-    worksResult: { ok: true, items: [oudWerk] },
-    publicSpaceResult: { ok: true, items: [oudParkeer(1, PARKEER[0].adres), oudParkeer(3, PARKEER[2].adres)] },
-  });
-  const h1 = updateLiveHistory(h0, {
-    observedAt: T1,
-    worksResult: { ok: true, items: [oudWerk] },
-    publicSpaceResult: { ok: true, items: [oudParkeer(1, PARKEER[0].adres), oudParkeer(2, PARKEER[1].adres), oudParkeer(3, PARKEER[2].adres)] },
-  });
-  const baseline = updateHistoryArchiveBaseline(null, h0);
+  const oud = (...ids) => ({ ok: true, items: ids.map((id) => oudParkeer(id, PARKEER[id - 1].adres)) });
+  const hA = updateLiveHistory(null, { observedAt: TA, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1) });
+  const h0 = updateLiveHistory(hA, { observedAt: T0, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1, 3, 4) });
+  const h1 = updateLiveHistory(h0, { observedAt: T1, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1, 2, 3, 4) });
+  const baseline = updateHistoryArchiveBaseline(null, hA);
+  // Een oudere dag (gisteren) en de dag van vandaag, allebei zoals op main.
+  const gisteren = updateHistoryArchiveDay(null, T0, h0.changes.filter((change) => change.observedAt === T0));
   const dag = updateHistoryArchiveDay(null, T1, h1.changes.filter((change) => change.observedAt === T1));
-  const index = updateHistoryArchiveIndex(null, { observedAt: T1, baseline, dayDocument: dag });
+  const index = updateHistoryArchiveIndex(
+    updateHistoryArchiveIndex(null, { observedAt: T0, baseline, dayDocument: gisteren }),
+    { observedAt: T1, baseline, dayDocument: dag }
+  );
   const schrijf = (relative, value) => {
     fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
     fs.writeFileSync(path.join(root, relative), `${JSON.stringify(value, null, 2)}\n`);
   };
   schrijf("site/history/live-layers.json", h1);
   schrijf("site/history/archive/baseline.json", baseline);
+  schrijf(`site/history/archive/${gisteren.date}.json`, gisteren);
   schrijf(`site/history/archive/${dag.date}.json`, dag);
   schrijf("site/history/archive/index.json", index);
 }
@@ -124,7 +126,7 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
   }
 
   const parkeer = history.layers.publicSpace.items.filter((item) => item.kind === "parking");
-  assert.deepEqual(parkeer.map((item) => item.id).sort(), ["parking:PROEF-1|L1", "parking:PROEF-2|L2"]);
+  assert.deepEqual(parkeer.map((item) => item.id).sort(), ["parking:PROEF-1|L1", "parking:PROEF-2|L2", "parking:PROEF-4|L4"]);
   assert.ok(parkeer.every((item) => item.location === "Proefstraat, 2000 Antwerpen"));
   assert.ok(parkeer.every((item) => item.streets.length === 1 && item.streets[0].postcode === "2000"), "de straat blijft gekend");
   assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat");
@@ -134,11 +136,14 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
   assert.deepEqual(history.changes.filter((change) => change.observedAt === T2), []);
   assert.deepEqual(validateLiveHistory(history), []);
 
-  // Het archief van vandaag en de index blijven geldig en kloppen met elkaar.
-  const dag = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/2026-10-11.json"), "utf8"));
+  // Het archief (ook de oudere dag) en de index blijven geldig en kloppen met elkaar.
   const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
-  assert.deepEqual(validateHistoryArchiveDay(dag), []);
   assert.deepEqual(validateHistoryArchiveIndex(index), []);
-  assert.equal(index.days.find((day) => day.date === dag.date).digest, historyArchiveEventsDigest(dag.events));
-  assert.deepEqual(dag.events.map((event) => event.id), ["parking:PROEF-2|L2"], "alleen de toevoeging in het district blijft");
+  const verwacht = { "2026-10-10": ["parking:PROEF-4|L4"], "2026-10-11": ["parking:PROEF-2|L2"] };
+  for (const [datum, ids] of Object.entries(verwacht)) {
+    const dag = JSON.parse(fs.readFileSync(path.join(root, `site/history/archive/${datum}.json`), "utf8"));
+    assert.deepEqual(validateHistoryArchiveDay(dag), []);
+    assert.equal(index.days.find((day) => day.date === datum).digest, historyArchiveEventsDigest(dag.events));
+    assert.deepEqual(dag.events.map((event) => event.id), ids, `${datum}: alleen de toevoeging in het district blijft`);
+  }
 });
