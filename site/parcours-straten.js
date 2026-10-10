@@ -5,9 +5,10 @@
 // Werkwijze: de straatas van elke straat in de buurt van het parcours wordt om de STAP meter
 // bemonsterd. Een monster ligt "op het parcours" als het in het vlak van het parcours ligt (A-Sign
 // laag 22), of binnen MARGE_LIJN meter van de lijn (laag 23, als er geen vlak is). Aaneengesloten
-// monsters vormen een stuk. Reikt het parcours rond dat stuk verder langs de straat dan erdwars,
-// dan loopt het parcours door de straat. Een stuk dwars over een breed parcours (de Leien) is
-// een kruising: de straat kruist het parcours, of komt erop uit.
+// monsters vormen een stuk. Is dat stuk eigen straatas minstens 40 m lang, en langer dan het parcours
+// daar breed is, dan loopt het parcours door de straat (looptLangs). Een stuk dwars over een breed
+// parcours (de Leien), een hoek waar het parcours afslaat, of een tunnel eronder: de straat kruist
+// het parcours, of komt erop uit.
 import { segmentenInKader } from "./street-core.js";
 
 export const STAP = 5; // meter tussen twee monsters op de straatas
@@ -122,7 +123,6 @@ function reikwijdte(v, p, hoek) {
   }
   return totaal;
 }
-const RICHTINGEN = Array.from({ length: 12 }, (_, i) => (i * Math.PI) / 12);
 
 // Stukken: monsters die elkaar raken (hoogstens anderhalve stap uit elkaar) horen samen.
 function stukken(monsters) {
@@ -142,23 +142,47 @@ function stukken(monsters) {
   return [...uit.values()];
 }
 
-// Loopt het parcours langs dit stuk straat? De richting van het stuk (twee rijbanen en een bocht
-// samen, niet één monster) tegen de vorm van het parcours rond zijn midden: reikt het parcours langs
-// de straat minstens zo ver als dwars erop, en bijna zo ver als in zijn langste richting, dan loopt
-// het parcours door de straat. Dwars over de Leien reikt het parcours veel verder langs de Leien dan
-// langs de straat: dat is een kruising.
-function looptLangs(v, stuk) {
-  const lang = stuk.reduce((s, x) => s + x.gewicht, 0);
-  if (lang < 3 * STAP) return false;
-  const mx = stuk.reduce((s, x) => s + x.p[0], 0) / stuk.length, my = stuk.reduce((s, x) => s + x.p[1], 0) / stuk.length;
-  const midden = stuk.reduce((best, x) => (Math.hypot(x.p[0] - mx, x.p[1] - my) < Math.hypot(best.p[0] - mx, best.p[1] - my) ? x : best), stuk[0]).p;
-  let c2 = 0, s2 = 0;
-  for (const x of stuk) { const h = Math.atan2(x.d[1], x.d[0]); c2 += x.gewicht * Math.cos(2 * h); s2 += x.gewicht * Math.sin(2 * h); }
-  const hoek = Math.atan2(s2, c2) / 2;
-  const langs = reikwijdte(v, midden, hoek);
-  if (langs < reikwijdte(v, midden, hoek + Math.PI / 2)) return false;
-  // Reikt het parcours in een andere richting duidelijk verder, dan loopt het daar, niet hier.
-  return !RICHTINGEN.some((h) => reikwijdte(v, midden, h) * 0.75 > langs);
+// Loopt het parcours langs dit stuk straat? Beslist op de eigen straatas, niet op de vorm van het
+// parcours rond één middelpunt (dat mislukte bij een straat met een knik, en telde bij een hoek het
+// parcours in het verlengde van de straat mee):
+// - de lengte van de eigen straatas in het parcours: minstens MIN_LANGS meter (een kortere straat:
+//   bijna haar hele lengte). Een hoek waar het parcours afslaat, of een kruispunt, is korter.
+// - die lengte tegen de breedte van het parcours daar: per monster dwars op zijn eigen segment
+//   gemeten (een bocht of knik telt zo goed mee), en daarvan de mediaan. Dwars over de Leien is het
+//   stuk straat in het parcours korter dan het parcours er breed is (het loopt langs de Leien
+//   verder): dat is een kruising. Langs de straat is het stuk langer dan het parcours breed is.
+export const MIN_LANGS = 40;
+// De lengte van een stuk: van het ene eind tot het andere (twee keer het verste monster zoeken), niet
+// de som van de monsters. Drie rijbanen naast elkaar (de Leien) telden zo drie keer.
+export function stukLengte(stuk) {
+  const verste = (van) => { let best = stuk[0], d = -1; for (const x of stuk) { const e = Math.hypot(x.p[0] - van[0], x.p[1] - van[1]); if (e > d) { d = e; best = x; } } return [best, d]; };
+  const [a] = verste(stuk[0].p);
+  return Math.min(verste(a.p)[1] + STAP, stuk.reduce((s, x) => s + x.gewicht, 0));
+}
+function looptLangs(v, stuk, straatLengte = Infinity) {
+  const lang = stukLengte(stuk);
+  if (lang < Math.max(3 * STAP, Math.min(MIN_LANGS, 0.8 * straatLengte))) return false;
+  // Elk monster telt mee (geen steekproef): zo hangt de uitkomst niet af van de volgorde van de
+  // straatsegmenten, en is ze in de verversing en in de browser dezelfde.
+  const breedtes = stuk.map((x) => reikwijdte(v, x.p, Math.atan2(x.d[1], x.d[0]) + Math.PI / 2)).sort((a, b) => a - b);
+  // De reikwijdte telt in stappen van STAP meter: het parcours is daar tussen breed en breed + 2 × STAP
+  // breed. Vergelijk met het midden, zodat een afronding van een paar meter de uitkomst niet omgooit.
+  return lang > breedtes[Math.floor(breedtes.length / 2)] + STAP;
+}
+// Een tunnel ligt onder het parcours: het parcours loopt er nooit "door".
+export const isTunnel = (naam) => /tunnel$/i.test(String(naam || "").trim());
+// Loopt het parcours door deze straat? Een stuk dat langs de straat loopt (looptLangs), of de straat
+// ligt grotendeels in het parcours: een plein in de zone van een evenement (Grote Markt, Mediaplein)
+// is geen kruising, en een korte straat of brug die helemaal op het parcours ligt, evenmin. Een korte
+// zijstraat die op de Leien uitkomt, ligt er maar voor een deel in.
+function straatInParcours(v, monsters, naam, index) {
+  if (isTunnel(naam)) return false;
+  let lengte;
+  const straatLengte = () => (lengte ??= straatLengteVan(index, naam));
+  const binnen = monsters.reduce((s, x) => s + x.gewicht, 0);
+  if (binnen >= 2 * MIN_LANGS && binnen >= 0.6 * straatLengte()) return true;
+  if (binnen >= 3 * STAP && binnen >= 0.9 * straatLengte()) return true;
+  return stukken(monsters).some((stuk) => looptLangs(v, stuk, stukLengte(stuk) < MIN_LANGS ? straatLengte() : Infinity));
 }
 
 // Per straatas: de segmenten per straatnaam, één keer per index (voor `alleen`).
@@ -171,6 +195,15 @@ function segmentenVanNamen(index, namen) {
     PER_NAAM.set(index, perNaam);
   }
   return [...new Set([...namen].flatMap((n) => perNaam.get(n) || []))];
+}
+// De hele lengte van een straatas in meter (alle stukken met die naam), voor een korte straat.
+function straatLengteVan(index, naam) {
+  let som = 0;
+  for (const s of segmentenVanNamen(index, [naam])) {
+    const kx = 111320 * Math.cos((((s.a[1] + s.b[1]) / 2) * Math.PI) / 180);
+    som += Math.hypot((s.b[0] - s.a[0]) * kx, (s.b[1] - s.a[1]) * 110540);
+  }
+  return som;
 }
 
 // { langs, kruist }: straatnamen, alfabetisch. `langs`: het parcours loopt door de straat.
@@ -200,7 +233,7 @@ export function stratenVanParcours(geometrie, index, { alleen = null } = {}) {
     }
   }
   const langs = [], kruist = [];
-  for (const [naam, monsters] of perStraat) (stukken(monsters).some((stuk) => looptLangs(v, stuk)) ? langs : kruist).push(naam);
+  for (const [naam, monsters] of perStraat) (straatInParcours(v, monsters, naam, index) ? langs : kruist).push(naam);
   const sorteer = (l) => l.sort((a, b) => a.localeCompare(b, "nl"));
   return { langs: sorteer(langs), kruist: sorteer(kruist) };
 }
