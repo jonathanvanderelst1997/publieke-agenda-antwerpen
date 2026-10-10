@@ -12,6 +12,7 @@ import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../l
 import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie.mjs";
+import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 
 export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet met de hand wijzigen.";
@@ -20,8 +21,9 @@ export function readSources(rootDir) {
   const sourcesDir = path.join(rootDir, "site", "sources");
   if (!fs.existsSync(sourcesDir)) return { status: null, documents: [], manualCheck: null };
   // kaart-uitleg.json en evenement-identiteit.json zijn geen agendabronnen maar uitleg bij de live
-  // lagen (lib/kaart-uitleg-refresh.mjs en de met de hand nagekeken identiteit van evenementendossiers).
-  const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && name !== KAART_UITLEG_FILE && name !== EVENEMENT_IDENTITEIT_FILE).sort();
+  // lagen (lib/kaart-uitleg-refresh.mjs en de met de hand nagekeken identiteit van evenementendossiers);
+  // inzage-status.json is de nagekeken stand in het Inzageloket (site/inzage-status.js).
+  const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && name !== KAART_UITLEG_FILE && name !== EVENEMENT_IDENTITEIT_FILE && name !== INZAGE_STATUS_FILE).sort();
   let status = null;
   let manualCheck = null;
   const documents = [];

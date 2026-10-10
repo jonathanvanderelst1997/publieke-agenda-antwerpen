@@ -9,6 +9,7 @@ import { validateEventContract } from "../lib/event-contract.mjs";
 import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs";
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
+import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 import {
@@ -62,6 +63,10 @@ if (!fs.existsSync(sourcesDir)) {
     }
     if (name === EVENEMENT_IDENTITEIT_FILE) {
       for (const error of validateEvenementIdentiteit(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === INZAGE_STATUS_FILE) {
+      for (const error of valideerInzageStatus(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === "refresh-status.json") {

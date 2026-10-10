@@ -1,3 +1,5 @@
+import {brusselsVandaag,onderzoekRegel,onderzoekZin} from "./inzage-status.js";
+
 // Alleen vaste categorieën uit openbare bronvelden; nooit vrije onderwerptekst of namen.
 // Wat een kaart over een aanvraag zegt, komt uit de vaste teksten in dit bestand, plus aantallen
 // (een getal met een vaste eenheid, zoals "6 woningen"). Het onderwerp zelf wordt nooit getoond.
@@ -406,9 +408,14 @@ export function waarTekst(namen=[],voorkeur=""){
 }
 // Titel van een aanvraag, ook voor oudere items die alleen een ruwe categorie hebben.
 export const aanvraagTitel=(item={})=>item.inhoud?.titel||item.purpose||ONBEKEND_TITEL;
-export function duidelijkeKaart(entry={},item={},{straat=""}={}){
+export function duidelijkeKaart(entry={},item={},{straat="",vandaag=brusselsVandaag()}={}){
   if(entry.source==="permits"){
     const stage=omgevingsStatus(item);
+    // Een openbaar onderzoek dat iemand in het Inzageloket nakeek (site/inzage-status.js): bovenaan de
+    // kaart, ook als die dicht is. Zonder die stand zegt de kaart er niets over. De badge alleen als de
+    // termijn bekend is en vandaag loopt.
+    const melding=onderzoekZin(item.inzage,vandaag);
+    const periode=melding?onderzoekRegel(item.inzage,vandaag):"";
     const wat=item.inhoud?.wat||(!item.inhoud&&!item.purpose?ONBEKEND_WAT:"");
     const wie=String(item.decisionAuthority||item.authority||"").trim();
     const nummer=[item.dossier,item.project?`Omgevingsloket ${item.project}`:""].filter(Boolean).join(" · ");
@@ -417,7 +424,10 @@ export function duidelijkeKaart(entry={},item={},{straat=""}={}){
       samenvatting:aanvraagStand(item),
       tijd:stage.type==="vergund"?"Vergund":stage.type==="geweigerd"?"Geweigerd":"Aanvraag",
       toelichting:"",
-      regels:[...(wat?[["Wat",wat]]:[]),
+      melding,
+      badge:melding&&item.inzage?.loopt===true?"Openbaar onderzoek":"",
+      regels:[...(periode?[["Openbaar onderzoek",periode]]:[]),
+        ...(wat?[["Wat",wat]]:[]),
         ...(wie?[[stage.type==="aanvraag"?"Wie beslist":"Beslist door",wie]]:[]),
         ...(item.decisionDateLabel?[["Beslissingsdatum",item.decisionDateLabel]]:[]),
         ["Start van de werken","Niet gepubliceerd"],

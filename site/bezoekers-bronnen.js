@@ -1,4 +1,6 @@
-export const INZAGE = "https://omgevingsloketinzage.omgeving.vlaanderen.be/";
+import {GEEN_INZAGE_ZIN,INZAGE_LOKET} from "./inzage-status.js";
+
+export const INZAGE = INZAGE_LOKET;
 export const INZAGE_UITLEG = "https://www.vlaanderen.be/omgevingsvergunning/inzageloket";
 export const GEOPUNT = "https://www.geopunt.be/?app=hinder-in-kaart";
 
@@ -51,8 +53,13 @@ export function bezoekersLinks(e={}) {
     if(href&&!out.some(x=>x.url===href))out.push({url:href,label,type});
   };
   if(e.source==="permits"){
-    add(INZAGE,"Zoek aanvraag en plannen in het Inzageloket");
-    add(INZAGE_UITLEG,"Uitleg: zoeken op projectnummer of adres","help");
+    // Nooit de startpagina van het Inzageloket: daar vindt een bewoner het dossier meestal niet. Alleen een
+    // rechtstreekse link naar een dossier dat in het loket opende (site/inzage-status.js).
+    // Bij een openbaar onderzoek zegt de uitleglink waarvoor ze dient: die pagina legt uit hoe je bezwaar indient.
+    if(item.inzage?.link){
+      add(item.inzage.link,"Bekijk dit dossier en de plannen in het Inzageloket");
+      add(INZAGE_UITLEG,item.inzage.toestand==="openbaar onderzoek"?"Zo dien je een bezwaar in (uitleg van Vlaanderen)":"Uitleg van Vlaanderen over het Inzageloket","help");
+    }
   }else if(e.source==="works"){
     add(hinderkaart(item.gipodId),"Bekijk werken en hinder op de officiële kaart");
   }else if(e.source==="publicSpace"&&item.kind==="event"){
@@ -102,12 +109,7 @@ export function splitsLinks(links=[]) {
 }
 export function bezoekersHint(e={}) {
   const item=e.item||{};
-  if(e.source==="permits"){
-    const project=String(item.project||"").trim();
-    return /^OMV[_-]?\d{8,}$/i.test(project)
-      ?"Zoek op projectnummer "+project+". Plannen zijn alleen tijdens de publieke procedure zichtbaar."
-      :"Zoek op OMV-projectnummer of adres. Niet iedere aanvraag is op dit moment openbaar.";
-  }
+  if(e.source==="permits")return item.inzage?.link?"":GEEN_INZAGE_ZIN;
   if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
     "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
   // Een evenementkaart zegt zelf onderaan waar de gegevens vandaan komen.

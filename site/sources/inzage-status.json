@@ -1,0 +1,28 @@
+{
+  "schema": "inzage-status/1",
+  "uitleg": "Dossiers die iemand zelf opzocht in het Inzageloket van Vlaanderen. toestand is wat het loket toonde (letter O: openbaar onderzoek). openbaarOnderzoek staat er alleen als iemand de periode bij Toestand aflas; zonder die periode toont de site alleen de link en de dag waarop het onderzoek liep, en na 30 dagen niets meer. De verversing bevraagt het loket niet: robots.txt verbiedt elke bot en een botcontrole staat voor elke pagina. Alleen projectnummer, toestand en datums; geen namen of adressen. Na de laatste dag van het openbaar onderzoek toont de site niets meer uit een regel. Vorm: site/inzage-status.js (valideerInzageStatus).",
+  "dossiers": [
+    {
+      "project": "OMV_2026062371",
+      "gevonden": true,
+      "toestand": "openbaar onderzoek",
+      "openbaarOnderzoek": { "van": "2026-09-21", "totEnMet": "2026-10-20" },
+      "nagekeken": "2026-10-09",
+      "bron": "handmatig"
+    },
+    {
+      "project": "OMV_2026065445",
+      "gevonden": true,
+      "toestand": "openbaar onderzoek",
+      "nagekeken": "2026-10-09",
+      "bron": "handmatig"
+    },
+    {
+      "project": "OMV_2026061320",
+      "gevonden": true,
+      "toestand": "openbaar onderzoek",
+      "nagekeken": "2026-10-09",
+      "bron": "handmatig"
+    }
+  ]
+}

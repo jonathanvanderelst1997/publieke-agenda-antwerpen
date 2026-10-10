@@ -152,6 +152,8 @@
 .pv-row-summary { font-size: .87rem; color: var(--pa-ink); line-height: 1.45; overflow-wrap: anywhere; }
 /* Een open evenementkaart zegt wanneer en jouw straat al in de kern: de samenvatting niet herhalen. */
 .pv-row.open.pv-row-kern .pv-row-summary { display: none; }
+/* Openbaar onderzoek (site/inzage-status.js): de termijn staat in de dichte kaart, niet pas na openklappen. */
+.pv-row-alert { display: block; margin: 2px 0; padding: 4px 8px; border-left: 3px solid var(--pa-warn-line); border-radius: 4px; background: var(--pa-warn-soft); color: var(--pa-warn); font-size: .9rem; font-weight: 700; line-height: 1.4; }
 .pv-uitleg dd { line-height: 1.5; }
 .pv-streets { margin-top: 4px; }
 .pv-streets summary { cursor: pointer; color: var(--pa-accent); font-weight: 700; font-size: .86rem; min-height: 44px; display: inline-flex; align-items: center; }
