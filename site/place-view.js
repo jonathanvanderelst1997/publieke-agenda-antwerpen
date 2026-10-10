@@ -6,8 +6,9 @@ import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, workEntry, publicSpaceEntries, permitEntry, terrasEntries, summarize,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase,
+  periodeBadge, kortDatum, kortBereik, lopendKop,
 } from "./place-core.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -528,7 +529,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const agenda = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
     const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
     const liveEntries = [
-      ...inPlace(live.works).map((work) => workEntry(work, { vandaag, uitleg: kaartUitleg })),
+      ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg }),
       ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: evenementIdentiteit, agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...terrasEntries(inPlace(live.terraces)),
@@ -574,13 +575,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     let when = marktUur ? marktUur.start.replace(":",".") : leesbaarUur(entry,{multi,running});
     // Een evenement op straat: opbouw, de dag zelf of afbraak (periodeVan/evenementFase in place-core.js).
     const periode = periodeVan(entry), fase = evenementFase(entry, today);
-    if (context === "running") when = (fase ? periode.end : entry.end) ? `t/m ${shortDate(fase ? periode.end : entry.end)}` : "Loopt";
+    if (context === "running") when = (fase ? periode.end : entry.end) ? `t/m ${kortDatum(fase ? periode.end : entry.end, today)}` : "Loopt";
     const FASE_BADGE = { opbouw: ["Opbouw bezig", "now"], afbraak: ["Afbraak bezig", "now"], evenement: ["Vandaag", "now"], gepland: ["Gepland", "planned"] };
+    // Anders "Periode loopt" voor een werk dat GIPOD nog niet "in uitvoering" noemt (place-core.js).
+    const b = fase ? null : periodeBadge(entry, today);
     const badge = fase
       ? (FASE_BADGE[fase] ? `<span class="pv-badge pv-badge-${FASE_BADGE[fase][1]}">${FASE_BADGE[fase][0]}</span>` : "")
-      : entry.group === "werken" || entry.source !== "agenda"
-      ? (entry.start && planned ? `<span class="pv-badge pv-badge-planned">Gepland</span>` : running ? `<span class="pv-badge pv-badge-now">Nu bezig</span>` : "")
-      : "";
+      : b ? `<span class="pv-badge pv-badge-${b.soort}">${esc(b.label)}</span>` : "";
     const range = multi ? `${fullDate(entry.start)} – ${entry.end ? fullDate(entry.end) : "einde volgens de bron"}` : entry.start ? fullDate(entry.start) : "";
     let progress = "";
     if (multi && entry.end) {
@@ -619,7 +620,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
-            ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? `${shortDate(entry.start)} → ${entry.end ? shortDate(entry.end) : "…"}` : "")}</span>` : ""}
+            ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
             ${track}
           </span>
           <span class="pv-row-chevron" aria-hidden="true"></span>
@@ -721,6 +722,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
           </dl>
+          ${u.bronTekst ? `<details class="pv-streets pv-bron-tekst"><summary>Tekst van de beheerder in GIPOD</summary><p>${esc(u.bronTekst)}</p></details>` : ""}
           ${kaart}
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
           ${u.technisch ? `<p class="pv-technisch">${esc(u.technisch)}</p>` : ""}`;
@@ -771,7 +773,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const { inspraak, overige: permits } = splitsOpOnderzoek(entries.filter((e) => e.group === "vergunningen"));
     const html = [];
     html.push(sectionTemplate("openbaar-onderzoek", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
-    html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> Nu bezig`, running, { today, context: "running" }, `<p class="pv-day-note">Werken, maatregelen en activiteiten die vandaag lopen.</p>`));
+    const kop = lopendKop(running, today);
+    html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> ${esc(kop.titel)}`, running, { today, context: "running" }, `<p class="pv-day-note">${esc(kop.noot)}</p>`));
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
     html.push(marketsTemplate(entries, today));
