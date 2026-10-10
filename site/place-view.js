@@ -663,7 +663,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const inspraak = allePermits.filter((e) => e.item?.inzage?.onderzoek);
     const permits = allePermits.filter((e) => !e.item?.inzage?.onderzoek);
     const html = [];
-    html.push(sectionTemplate("inspraak", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
+    html.push(sectionTemplate("openbaar-onderzoek", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
     html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> Nu bezig`, running, { today, context: "running" }, `<p class="pv-day-note">Werken, maatregelen en activiteiten die vandaag lopen.</p>`));
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
