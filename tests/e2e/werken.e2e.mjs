@@ -75,7 +75,7 @@ async function routeSources(page) {
   });
 }
 
-test("werkkaart: jaartal, soort, eigen afsluitingsperiode, geen \"Nu bezig\" bij concreet gepland", { skip }, async (t) => {
+test("werkkaart: jaartal, soort, eigen afsluitingsperiode, project zichtbaar, geen \"Nu bezig\" bij concreet gepland", { skip }, async (t) => {
   const server = await serve();
   const baseUrl = `http://127.0.0.1:${server.address().port}`;
   t.after(async () => { server.close(); await browser.close(); });
@@ -91,12 +91,20 @@ test("werkkaart: jaartal, soort, eigen afsluitingsperiode, geen \"Nu bezig\" bij
     await rij.waitFor({ timeout: 20000 });
     assert.equal(await rij.locator(".pv-row-title").innerText(), "Werken aan het warmtenet in de Kammenstraat: afgesloten voor auto's tot 30 november; werken tot 6 juli 2027 (nog 270 dagen)");
     assert.equal(await rij.locator(".pv-badge").innerText(), "Periode loopt");
+    // De kop erboven zegt dan niet "Nu bezig".
+    const kop = await page.locator("section.pv-day", { has: rij }).locator("h3.pv-day-title").innerText();
+    assert.match(kop, /Loopt nu/);
+    assert.doesNotMatch(kop, /Nu bezig/);
+    assert.match(await rij.locator(".pv-row-summary").innerText(), /^Volgens de beheerder: Voorbeeldsite - Aanleg warmtenet/);
     assert.equal((await rij.locator(".pv-row-when").innerText()).replace(/\s+/g, " "), "t/m 6 jul 2027");
     assert.equal(await rij.locator(".pv-row-range").innerText(), "5 jan 2026 → 6 jul 2027");
     await rij.locator(".pv-row-btn").click();
     const detail = rij.locator(".pv-detail");
     assert.match(await detail.innerText(), /Stand\s+De geplande periode loopt sinds 5 januari, maar GIPOD meldt het werk nog als “concreet gepland”/);
-    assert.doesNotMatch(await detail.locator("dl.pv-uitleg").innerText(), /2000 Antwerpen|Voorbeeldsite/);
+    // Wat de beheerder over het project zegt, staat zichtbaar; zonder postcode en gemeente.
+    const uitleg = await detail.locator("dl.pv-uitleg").innerText();
+    assert.match(uitleg, /Volgens de beheerder: “Voorbeeldsite - Aanleg warmtenet staal DN300 lengte 1650m \(e2e\)”/);
+    assert.doesNotMatch(uitleg, /2000 Antwerpen/);
     const ruw = detail.locator("details.pv-bron-tekst");
     assert.equal(await ruw.locator("summary").innerText(), "Tekst van de beheerder in GIPOD");
     assert.equal(await ruw.locator("p").isVisible(), false);
