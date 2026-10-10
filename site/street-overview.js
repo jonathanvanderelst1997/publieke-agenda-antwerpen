@@ -1,5 +1,7 @@
 import {resolveAddressStreet} from "./street-core.js";
 import {loadStreetIndex} from "./street-source.js";
+import {aanvraagStand,aanvraagTitel} from "./permit-clarity.js";
+import {onderzoekZin} from "./inzage-status.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
@@ -26,7 +28,8 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     const normalized={id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.detail||item.location),sourceUrl:item.sourceUrl||""};
     for(const street of item.streets||[])add(street,bucket,normalized);
   }
-  for(const item of permits){const normalized={id:item.id,title:item.dossierType||"Omgevingsdossier",status:item.decision||"In behandeling",start:"",end:"",detail:[item.dossier,item.project,item.authority].filter(Boolean).join(" · "),sourceUrl:item.sourceUrl||""};for(const street of item.streets||[])add(street,"permits",normalized)}
+  // Een nagekeken openbaar onderzoek (site/inzage-status.js) staat ook hier, vóór de stand van de aanvraag.
+  for(const item of permits){const normalized={id:item.id,title:aanvraagTitel(item),status:[onderzoekZin(item.inzage,asOf),aanvraagStand(item)].filter(Boolean).join(" "),start:"",end:"",detail:item.dossier?`Dossier ${item.dossier}`:"",sourceUrl:item.sourceUrl||""};for(const street of item.streets||[])add(street,"permits",normalized)}
   if(streetIndex){
     for(const item of agendaItems){
       const end=item.endDate||item.date||"";

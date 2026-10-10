@@ -15,6 +15,7 @@ import {
   nearSegments,
   streetSegments,
   streetWijkMap,
+  vormBinnenStraal,
   streetsInWijk,
   wijkFeatures,
   groupByPoint,
@@ -67,6 +68,7 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null }) {
   const byCode = new Map(wijken.map((f) => [f.properties.code, f]));
   const streetMap = streetIndex ? streetWijkMap(streetIndex, wijken) : null;
   const segmentCache = new Map();
+  const straalCache = new WeakMap(); // item → Map("straat|straal" → ja/nee)
   return {
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
     inWijk(item, code, refs = []) {
@@ -76,13 +78,21 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null }) {
       if (point) return pointInGeometry(point, feature.geometry);
       return streetsInWijk(refs, code, streetMap);
     },
+    // Met een punt (GIPOD, geocodering): ligt het punt binnen de straal. Zonder punt: ligt de eigen vorm
+    // van het item (perceel, parkeerverbod, inname, parcours, werfzone) binnen de straal. Zonder punt en
+    // zonder vorm (een terras, een item uit de historiek): alleen in de straat zelf.
     nearStreet(item, street, radius) {
-      if (!streetIndex) return false;
-      const point = itemPoint(item, geo);
-      if (!point) return false;
+      if (!streetIndex || !item || typeof item !== "object") return false;
       const key = `${street.id}|${street.name}|${street.postcode}`;
       if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
-      return nearSegments(point, segmentCache.get(key), radius);
+      const point = itemPoint(item, geo);
+      if (point) return nearSegments(point, segmentCache.get(key), radius);
+      if (!item.vorm) return false;
+      let perItem = straalCache.get(item);
+      if (!perItem) { perItem = new Map(); straalCache.set(item, perItem); }
+      const straalKey = `${key}|${radius}`;
+      if (!perItem.has(straalKey)) perItem.set(straalKey, vormBinnenStraal(item.vorm, segmentCache.get(key), radius));
+      return perItem.get(straalKey);
     },
     segmentsFor(street) {
       if (!streetIndex || !street) return [];

@@ -95,6 +95,7 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   parkeerverboden en innames (A-Sign), inspraak en infomomenten, markten en vergunningen. Bovenaan staan de
   aantallen; bij een straat kies je ook de straal (alleen de straat, + 250 m, + 500 m, + 1 km).
 - Lijst, week of maand. De lijst toont "Nu bezig" en dan per dag binnen 7 dagen, 30 dagen, 3 maanden of alles.
+  Staat er een werk bij dat GIPOD nog niet "in uitvoering" meldt ("Periode loopt"), dan heet die kop "Loopt nu".
   In de week- en maandkalender lopen meerdaagse werken als balk over hun periode. Details openen inline.
 - Eén rij soortchips (evenementen, werken & verkeer, inspraak & info, markten, raad, vergunningen) vervangt de
   losse keuzelijsten. De volledige lijsten per laag, district/stad en de bronstatus staan ingeklapt onderaan.

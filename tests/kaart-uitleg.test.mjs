@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 
 import {
   NIET_GEPUBLICEERD, bruikbareBeschrijving, evenementFeiten, evenementKaartje, huisnummerBereik, huisnummersUitTekst,
-  koppelEvenement, resterendeDuur, soortWerk, stratenSamenvatting, werkFeiten, werkKaartje, kaartSvg, vereenvoudigLijnen,
+  koppelEvenement, resterendeDuur, soortEvenement, soortWerk, stratenSamenvatting, werkFeiten, werkKaartje, kaartSvg, vereenvoudigLijnen,
 } from "../site/kaart-uitleg.js";
 import { collectHindrance } from "../site/works-hindrance.js";
 import { normalizeIod } from "../site/public-space-core.js";
@@ -44,7 +44,7 @@ test("soort werk komt uit de bron, met de bron erbij", () => {
 
 test("werk zonder omschrijving: duidelijke titel, eerlijk over wat ontbreekt", () => {
   const k = werkKaartje(werk(), { vandaag: VANDAAG, feiten: werkFeiten(werk(), { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" }) });
-  assert.equal(k.titel, "Stelling (steiger) Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
+  assert.equal(k.titel, "Stelling (steiger) in de Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
   assert.ok(k.ontbreekt.includes(NIET_GEPUBLICEERD));
   assert.ok(!k.ontbreekt.some((t) => /huisnummers/.test(t)));
   const regels = Object.fromEntries(k.regels);
@@ -56,9 +56,9 @@ test("werk zonder omschrijving: duidelijke titel, eerlijk over wat ontbreekt", (
 });
 
 test("werk zonder hinder en huisnummers zegt dat ze niet gepubliceerd zijn", () => {
-  const w = werk({ hindrance: null, title: "2000 Antwerpen Voorbeeldstraat, Klantaansluiting elektriciteit", start: "2026-10-12T05:00:00Z", end: "2026-10-20T15:00:00Z" });
+  const w = werk({ hindrance: null, title: "2000 Antwerpen Voorbeeldstraat, vernieuwen waterleiding", start: "2026-10-12T05:00:00Z", end: "2026-10-20T15:00:00Z" });
   const k = werkKaartje(w, { vandaag: VANDAAG });
-  assert.equal(k.titel, "Nieuwe aansluiting op het net Voorbeeldstraat vanaf 12 oktober (start over 6 dagen)");
+  assert.equal(k.titel, "Werken aan de waterleiding in de Voorbeeldstraat vanaf 12 oktober (start over 6 dagen)");
   assert.ok(k.ontbreekt.includes("huisnummers niet gepubliceerd"));
   assert.ok(k.ontbreekt.includes("gevolgen voor het verkeer niet gepubliceerd"));
   assert.ok(!k.ontbreekt.includes(NIET_GEPUBLICEERD));
@@ -110,13 +110,19 @@ test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk ov
   assert.deepEqual(f.beschrijvingen, ["Parcours: 10K volwassenen", "Inname: Startzone en aankomst"]);
   const wijk = (s) => (s === "Eestraat" ? "Zuid" : "Centrum");
   const k = evenementKaartje(f, { vandaag: VANDAAG, wijkVan: wijk });
-  assert.equal(k.titel, "Loopwedstrijd met parcours door 5 straten in Centrum en Zuid, 13 oktober");
+  // De soort komt uit een woord in het dossier ("10K"): dus "vermoedelijk", met de reden erbij.
+  assert.equal(k.titel, "Vermoedelijk een loopwedstrijd");
+  const kern = Object.fromEntries(k.kern);
+  assert.match(kern.Wat, /omschrijving van het dossier/);
+  assert.equal(kern.Wanneer, "Dinsdag 13 oktober; de uren zijn niet gepubliceerd.");
+  assert.match(kern.Waar, /^Parcours door 5 straten in Centrum en Zuid \(berekend/);
   assert.ok(k.ontbreekt.includes("naam van het evenement niet gepubliceerd door de stad"));
   assert.ok(k.ontbreekt.includes("uren niet gepubliceerd"));
   assert.ok(k.ontbreekt.includes("organisator niet gepubliceerd"));
-  assert.doesNotMatch(`${k.titel} ${k.samenvatting} ${k.regels.flat().join(" ")}`, /ETL|IOD|True|maurits/);
-  assert.match(k.technisch, /ETL = evenementendossier van de stad/);
-  assert.match(k.technisch, /IOD = inname van het openbaar domein/);
+  // Geen codes meer, ook niet in een aparte regel: één korte bronzin in gewone taal.
+  assert.doesNotMatch(`${k.titel} ${k.samenvatting} ${k.kern.flat().join(" ")} ${k.regels.flat().join(" ")} ${k.voetnoot}`, /ETL|IOD|True|maurits/);
+  assert.equal(k.technisch, "");
+  assert.match(k.voetnoot, /^De stad gaf toelating voor dit evenement \(dossier ET2099000001\), maar zegt niet wie het organiseert of op welke uren\.$/);
 });
 
 test("parcours gekoppeld aan een bekend evenement via datum en straat", () => {
@@ -129,7 +135,9 @@ test("parcours gekoppeld aan een bekend evenement via datum en straat", () => {
   const g = koppelEvenement(f, items);
   assert.deepEqual([g.titel, g.tijd], ["Voorbeeldloop", "9 tot 14 uur"]);
   const k = evenementKaartje(f, { vandaag: VANDAAG, gekoppeld: g });
-  assert.equal(k.titel, "Voorbeeldloop: parcours door 5 straten, 13 oktober 9 tot 14 uur");
+  assert.equal(k.titel, "Vermoedelijk: Voorbeeldloop");
+  assert.match(k.kern[0][1], /Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat/);
+  assert.equal(k.samenvatting, "Dinsdag 13 oktober, 9 tot 14 uur.");
   assert.ok(!k.ontbreekt.some((t) => /naam|uren/.test(t)));
   assert.equal(koppelEvenement(f, [{ title: "Alleen dezelfde dag", date: "2026-10-13", location: "Elders" }]), null);
 });
@@ -142,13 +150,14 @@ test("lange straatlijst wordt een telling met de wijken", () => {
 test("de site bundelt innames per dossier en geeft werken een duidelijke titel", () => {
   const entries = publicSpaceEntries(rijen.slice(0, 1), { vandaag: VANDAAG, alle: rijen, uitleg: null, wijkVan: () => "" });
   assert.equal(entries.length, 1);
-  assert.match(entries[0].title, /^Loopwedstrijd met parcours door 5 straten/);
+  assert.equal(entries[0].title, "Vermoedelijk een loopwedstrijd");
+  assert.equal(entries[0].group, "evenementen"); // een evenementendossier is een evenement, geen werk
   assert.equal(entries[0].straten.length, 5);
   assert.match(entries[0].sourceUrl, /^https:\/\/geodata\.antwerpen\.be\//);
   const parking = publicSpaceEntries([{ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09", end: "2026-10-10" }], { vandaag: VANDAAG });
-  assert.equal(parking[0].title, "Parkeerverbod: Verhuis");
+  assert.equal(parking[0].title, "Parkeerverbod voor een verhuis");
   const w = workEntry(werk(), { vandaag: VANDAAG, uitleg: { werken: { 90000001: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } });
-  assert.equal(w.title, "Stelling (steiger) Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
+  assert.equal(w.title, "Stelling (steiger) in de Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
   assert.match(w.sourceUrl, /GipodId%3D90000001/);
   assert.equal(workEntry(werk()).title, "Werk in openbaar domein"); // zonder vandaag: ongewijzigd
 });
@@ -224,4 +233,19 @@ test("inhaakpunt: schrijft het bestand, en een mislukte laag houdt haar vorige f
   assert.deepEqual(validateKaartUitleg(JSON.parse(fs.readFileSync(file, "utf8"))), []);
   const tweede = await schrijfKaartUitleg({ rootDir, works: { ok: false, items: [] }, publicSpace: { ok: false }, fetch: geenNet, clock, log: stil });
   assert.deepEqual(Object.keys(tweede.werken), ["90000001"]);
+});
+
+// Herstelplan O1/4: het losse woord "markt" maakte van elke inname op een plein een "Markt".
+test("soort evenement: een plein met 'markt' in de naam is geen markt", () => {
+  for (const tekst of ["grote markt, verkoop", "Grote Markt", "Inname: Veemarkt", "Vrijdagmarkt - podium", "Parkeerverbod op Paardenmarkt"]) {
+    assert.equal(soortEvenement([tekst]), "", tekst);
+  }
+  for (const tekst of ["rommelmarkt", "Braderie Proefstraat", "verplaatsbare markt", "kerstmarkt op het plein"]) {
+    assert.equal(soortEvenement([tekst]), "Markt", tekst);
+  }
+  const feiten = evenementFeiten([
+    { kind: "iod", reference: "ET2026000001", dossierType: "ETL", innameType: "Inname", description: "theaterplein - drill", start: "2026-10-15T00:00:00.000Z", end: "2026-10-15T00:00:00.000Z", streets: [] },
+    { kind: "iod", reference: "ET2026000001", dossierType: "ETL", innameType: "Inname", description: "grote markt, verkoop", start: "2026-10-15T00:00:00.000Z", end: "2026-10-15T00:00:00.000Z", streets: [] },
+  ]);
+  assert.notEqual(feiten.soort, "Markt");
 });

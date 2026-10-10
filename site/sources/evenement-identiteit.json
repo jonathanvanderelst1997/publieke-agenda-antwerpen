@@ -1,0 +1,351 @@
+{
+ "schemaVersion": 1,
+ "bijgewerkt": "2026-10-09",
+ "uitleg": "Wie of wat achter een evenementendossier van de stad (A-Sign) zit, met de publieke bron. Met de hand nagekeken; zie REFRESH_PROCESS.md. Alleen publieke feiten, geen namen van personen en geen huisnummers.",
+ "dossiers": {
+  "ET2025003100": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route.",
+   "dagen": ["2026-11-21"], "uren": "", "urenNoot": "",
+   "waar": "Tussen de Grote Markt en de Sint-Jacobskerk, via de Groenplaats en de Meir.",
+   "watMerkJe": "Afsluitingen, parkeerverboden of opbouw staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026001217": {
+   "zekerheid": "zeker", "naam": "TREK Antwerp Marathon", "soort": "loopwedstrijd: marathon, halve marathon en 10 km", "organisator": "Golazo",
+   "reden": "",
+   "dagen": ["2026-10-18"], "uren": "start marathon en 10 km om 9 uur, halve marathon om 14 uur; de finish sluit om 18 uur", "urenNoot": "Het parcours is verkeersvrij van 8 tot 18 uur.",
+   "waar": "Start aan de Kattendijkbrug (de 10 km start op de Orteliuskaai), finish aan het MAS. De lopers komen onder meer langs het Havenhuis, de Meir, het Centraal Station, de Dageraadplaats, het KMSKA, de Marnixplaats, de Kloosterstraat en de Scheldekaaien.",
+   "watMerkJe": "Het parcours is verkeersvrij van 8 tot 18 uur. Tijdens de opbouw, de afbraak en de marathon zelf zijn bepaalde zones parkeervrij of autovrij. Fietsers zijn niet toegelaten op het parcours: stap af en ga verder als voetganger. Met de auto oversteken kan aan Italiëlei–Frankrijklei, via de Brabantstunnels en aan Amerikalei–Ring. Tram en bus hebben tot 19 uur hinder.",
+   "link": "https://antwerpmarathon.com/nl/het-parcours/", "linkLabel": "", "linkUitleg": "",
+   "extraLinks": [{ "label": "Bereikbaarheid op de marathondag (Slim naar Antwerpen)", "url": "https://www.slimnaarantwerpen.be/nl/werken-events/bereikbaarheid-antwerp-marathon-zondag-18-oktober-2026" }],
+   "binnenDistrict": true,
+   "bron": ["https://antwerpmarathon.com/nl/het-parcours/", "https://antwerpmarathon.com/nl/praktische-info/", "https://www.slimnaarantwerpen.be/nl/werken-events/bereikbaarheid-antwerp-marathon-zondag-18-oktober-2026"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026002264": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving. Een bron die het evenement bevestigt, is er nog niet.",
+   "dagen": ["2026-10-31"], "uren": "", "urenNoot": "",
+   "waar": "Een lus rond het Sint-Jansplein.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026002581": {
+   "zekerheid": "zeker", "naam": "Griezeltocht (Halloween in Merksem)", "soort": "Halloween-avondwandeling", "organisator": "scoutsgroepen uit Merksem, aangekondigd door District Merksem",
+   "reden": "",
+   "dagen": ["2026-10-31"], "uren": "18 tot 22 uur", "urenNoot": "",
+   "waar": "Start aan het Kroonplein in Merksem, door het Gemeentepark.",
+   "watMerkJe": "Groepjes wandelaars rond het Kroonplein en het Gemeentepark in Merksem. In district Antwerpen merk je er niets van.",
+   "link": "https://www.antwerpen.be/nl/info/6a912a94a7e51100370f33e2", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/nl/info/6a912a94a7e51100370f33e2"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026003440": {
+   "zekerheid": "zeker", "naam": "Linkeroever Criterium", "soort": "wielerkoers: 3 jeugdreeksen, 1 vrouwenreeks en 2 mannenreeksen", "organisator": "",
+   "reden": "",
+   "dagen": ["2026-10-10"], "uren": "11 tot 18.30 uur", "urenNoot": "",
+   "waar": "Een ronde van ongeveer 1,8 km. Start, finish en prijsuitreiking op de Beatrijslaan, op de hoek met de Abraham Verhoevenlaan.",
+   "watMerkJe": "Op zaterdag is de ronde verkeersvrij, met nadarhekken en parkeerverbod in de straten van het parcours. Het verkeer wordt omgeleid via de Thonetlaan, de Blancefloerlaan en de Galgenweellaan. Van 14 tot 17 uur is er langs het parcours ook het buurtfeest voor de vernieuwde Gaston Burssenslaan en Hanegraefstraat.",
+   "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "linkLabel": "", "linkUitleg": "Op de districtskalender van district Antwerpen, bij 10 oktober.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026003764": {
+   "zekerheid": "zeker", "naam": "Campus Trailrun en Kidsrun", "soort": "recreatieve loop van 1, 5 of 10 km en een kidsrun, tijdens een opendeurdag", "organisator": "Zorggroep Multiversum",
+   "reden": "",
+   "dagen": ["2026-10-11"], "uren": "kidsrun om 14 uur, trailrun om 15 uur", "urenNoot": "",
+   "waar": "Start en finish op de campus aan de Deurnestraat in Mortsel. Een stuk loopt in Deurne langs de Luchthavenlei en het Schorsmolenpad.",
+   "watMerkJe": "Lopers en wandelaars op de paden. In Deurne zijn geen afsluitingen of parkeerverboden gepubliceerd. In district Antwerpen merk je er niets van.",
+   "link": "https://multiversum.be/opendeurdag/", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://multiversum.be/opendeurdag/"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026003785": {
+   "zekerheid": "zeker", "naam": "Nationale Sluitingsprijs Putte-Kapellen", "soort": "wielerkoers voor profrenners, met een ronde door Berendrecht", "organisator": "Koninklijke Wielrijdersclub van Merksem (Karakterkoersen)",
+   "reden": "",
+   "dagen": ["2026-10-13"], "uren": "officiële start rond 12.10 uur aan de Solftplaats; de renners komen 8 keer door Berendrecht, tot ongeveer 15.30 uur", "urenNoot": "",
+   "waar": "Een ronde door Berendrecht met de start aan de Solftplaats. De aankomst ligt in Putte.",
+   "watMerkJe": "De hele dag parkeerverbod in de straten van de ronde; die worden verkeersvrij. De Lijn rijdt van 10 tot 17 uur niet door Berendrecht. In district Antwerpen merk je er niets van.",
+   "link": "https://www.antwerpen.be/info/63357141fca03f428619a8cc/nationale-sluitingsprijs-komt-door-berendrecht", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/info/63357141fca03f428619a8cc/nationale-sluitingsprijs-komt-door-berendrecht", "https://www.schaalsels.be/nationale-sluitingsprijs/sp-parcours--mobiliteit"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026003793": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop of ander welkomstritueel van een studentenvereniging (dril en stoet te voet)", "organisator": "",
+   "reden": "Park Spoor Noord, de Ossenmarkt en het Sint-Jansplein staan als drilplaatsen in het studentencharter 2026-2027, en 13 oktober valt in de doopperiode (1 tot 31 oktober). De stad maakt de naam niet bekend.",
+   "dagen": ["2026-10-13"], "uren": "", "urenNoot": "Het studentencharter laat zulke activiteiten alleen toe tussen 10 en 22 uur.",
+   "waar": "Park Spoor Noord en de Ossenmarkt, met een tocht te voet via het Sint-Jansplein en Kipdorp naar de Grote Markt.",
+   "watMerkJe": "Groepen studenten in Park Spoor Noord en op de Ossenmarkt, en een groep te voet door de Dam, het Sint-Jansplein en de binnenstad. Parkeerverboden of afsluitingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004192": {
+   "zekerheid": "zeker", "naam": "EkeRun", "soort": "recreatieve loop van 5 en 10 km, met een wandeling van 2 km", "organisator": "District Ekeren",
+   "reden": "",
+   "dagen": ["2026-11-08"], "uren": "verzamelen om 9.30 uur", "urenNoot": "",
+   "waar": "Start en finish aan sportpark De Schinde in Ekeren, met lussen door Muisbroek en Ekeren-Donk.",
+   "watMerkJe": "In district Antwerpen merk je praktisch niets: alleen een kort stuk van de Transcontinentaalweg in de haven hoort bij de 10 km.",
+   "link": "https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-de-pracht-van-muisbroek-tijdens-de-ekerun", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-de-pracht-van-muisbroek-tijdens-de-ekerun"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004253": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop met een stoet te voet naar het Droogdokkenpark", "organisator": "",
+   "reden": "Het dossier spreekt van een doop, en de stoet eindigt aan de Belvédère in het Droogdokkenpark, een plek voor studentendopen. Welke vereniging het is, is niet publiek.",
+   "dagen": ["2026-10-20"], "uren": "", "urenNoot": "Het studentencharter laat een stoet alleen toe tussen 10 en 22 uur.",
+   "waar": "Van de Sint-Nicolaasplaats via de Sint-Paulusbuurt en de Scheldekaaien naar de Belvédère in het Droogdokkenpark.",
+   "watMerkJe": "Een groep studenten te voet door de Universiteitsbuurt en langs de kaaien. Straatafsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004329": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop met een doopstoet naar Fort VI", "organisator": "",
+   "reden": "Het parcours eindigt aan het officiersplein van Fort VI, de officiële doopplaats van Wilrijk, en 27 oktober valt in de doopperiode. Welke vereniging het is, is niet publiek.",
+   "dagen": ["2026-10-27"], "uren": "", "urenNoot": "Het studentencharter laat een stoet toe tussen 10 en 22 uur, een doop op de doopplaats tot middernacht.",
+   "waar": "Van de Pieter Coeckelaan en de Groenenborgerlaan door Wilrijk-centrum naar Fort VI.",
+   "watMerkJe": "Een groep studenten te voet door Wilrijk-centrum; 's avonds de doop aan Fort VI.",
+   "link": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "linkLabel": "Officiële regels voor studentendopen", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004331": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop met een doopstoet naar Fort VI", "organisator": "",
+   "reden": "Het parcours loopt naar Fort VI, een officiële doopplaats, en 13 oktober valt in de doopperiode (1 tot 31 oktober). De stad maakt de naam niet bekend.",
+   "dagen": ["2026-10-13"], "uren": "", "urenNoot": "Het studentencharter laat een stoet toe tussen 10 en 22 uur, een doop op de doopplaats tot middernacht.",
+   "waar": "Van Middelheim (Lindendreef, Groenenborgerlaan, Pieter Coeckelaan) door Wilrijk naar Fort VI.",
+   "watMerkJe": "In district Antwerpen een groep studenten te voet over de Lindendreef en de Groenenborgerlaan. Parkeerverboden of afsluitingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004341": {
+   "zekerheid": "zeker", "naam": "Fortentocht", "soort": "wandeltocht langs de forten, van 5 tot 37 km", "organisator": "Wandelclub Bosgeuzen-Voorkempen",
+   "reden": "",
+   "dagen": ["2026-10-25"], "uren": "vertrekken van 8 tot 15 uur; laatste aankomst om 18 uur", "urenNoot": "",
+   "waar": "Start en aankomst aan Fort 2 in Wommelgem, met lussen door Deurne (Rivierenhof) en Borsbeek.",
+   "watMerkJe": "Wandelaars in het Rivierenhof, het domein Ertbrugge en Borsbeek. Weinig hinder voor auto's. In district Antwerpen merk je er niets van.",
+   "link": "https://www.wommelgem.be/activiteiten/detail/4195/fortentocht", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.wommelgem.be/activiteiten/detail/4195/fortentocht"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004447": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een doop- of schachtenactiviteit van studenten op het domein van Fort 6", "organisator": "",
+   "reden": "Het gaat om het terrein bij de studentenzalen van Fort 6, waar in oktober vaker dopen plaatsvinden. Het dossier zelf zegt niets over de aard.",
+   "dagen": ["2026-10-20"], "uren": "", "urenNoot": "",
+   "waar": "Het domein van Fort 6 in Wilrijk, niet op de openbare weg.",
+   "watMerkJe": "Geen verkeershinder verwacht. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.uantwerpen.be/nl/studentenleven/vrije-tijd-en-engagement/stipaspace/fort6feestzalen/"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004449": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop: dril op het Theaterplein en in het Stadspark, daarna een doopstoet naar de Scheldekaai", "organisator": "",
+   "reden": "De route eindigt aan de doopplaats op de Scheldekaai ter hoogte van de Sint-Michielskaai, en 27 oktober valt in de doopperiode. Welke vereniging het is, is niet publiek.",
+   "dagen": ["2026-10-27"], "uren": "", "urenNoot": "Het studentencharter laat dril en stoet toe tussen 10 en 22 uur, de doop op de kaai tot middernacht.",
+   "waar": "Het Theaterplein en het Stadspark, dan te voet door Sint-Andries naar de Sint-Michielskaai.",
+   "watMerkJe": "Een groep studenten verzamelt op het Theaterplein en in het Stadspark en trekt te voet naar de Scheldekaai. Daar is de doop, met lawaai tot uiterlijk middernacht.",
+   "link": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "linkLabel": "Officiële regels voor studentendopen", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004512": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit in deze straten.",
+   "dagen": ["2026-10-11"], "uren": "", "urenNoot": "",
+   "waar": "De Hollebeekstraat (tussen Zwaantjesstraat en Gaspar Verreyckenstraat), de Gaspar Verreyckenstraat en de Jos De Ceulaerdestraat in Hoboken.",
+   "watMerkJe": "Die straten zijn op zondag 11 oktober verkeersvrij. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004615": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een schoolactiviteit te voet rond het bouwblok", "organisator": "",
+   "reden": "Het dossier spreekt van een schoolactiviteit. Welke school het is, staat nergens publiek.",
+   "dagen": ["2026-11-20"], "uren": "", "urenNoot": "",
+   "waar": "Een lus rond het bouwblok Belegstraat, Haantjeslei en Lange Batterijstraat.",
+   "watMerkJe": "Een groep te voet rond het bouwblok. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004648": {
+   "zekerheid": "zeker", "naam": "AAAntwerp: shoppingdag Allure", "soort": "winkelfestival met straatanimatie", "organisator": "Beleef Antwerpen",
+   "reden": "",
+   "dagen": ["2026-10-17"], "uren": "kratstapelen op de Groenplaats van 12 tot 17 uur; muzikanten in de namiddag", "urenNoot": "",
+   "waar": "De winkelstraten van de binnenstad, van de Meir tot de Kloosterstraat, met een kratstapeltoren op de Groenplaats.",
+   "watMerkJe": "Muzikanten trekken door de winkelstraten en op de Groenplaats staat een kratstapeltoren. Er zijn geen verkeersafsluitingen vermeld.",
+   "link": "https://www.aaantwerp.be/programma/", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.aaantwerp.be/programma/", "https://www.beleefantwerpen.be/evenement/aaantwerp-drie-dagen-drie-as-een-stad-vol-beleving"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004667": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een kroegentocht van een studentenvereniging", "organisator": "",
+   "reden": "De route verbindt studentencafés tussen de Stadswaag en de Grote Markt, het dossier loopt over twee dagen (een avond tot na middernacht) en valt in de doopperiode.",
+   "dagen": ["2026-10-21", "2026-10-22"], "uren": "", "urenNoot": "",
+   "waar": "Tussen de Stadswaag en de Grote Markt, via de Minderbroedersrui en het Hendrik Conscienceplein.",
+   "watMerkJe": "Vermoedelijk 's avonds een groep studenten die van café naar café trekt. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004779": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route.",
+   "dagen": ["2026-10-11"], "uren": "", "urenNoot": "",
+   "waar": "Parkpaden van het Rivierenhof en Park Groot Schijn in Deurne, ongeveer 5,7 km.",
+   "watMerkJe": "Deelnemers op de parkpaden en in enkele straten in Deurne. Parkeerverboden, afsluitingen of omleidingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004916": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een Sinterklaasstoet in Ekeren, van het Kristus-Koningplein naar Kasteel Veltwijck", "organisator": "",
+   "reden": "Datum en route komen overeen met de Sinterklaasstoet van 2024 en 2025. Voor 2026 is er nog geen aankondiging.",
+   "dagen": ["2026-11-28"], "uren": "", "urenNoot": "In 2024 en 2025 begon de stoet om 13.30 uur.",
+   "waar": "Van het Kristus-Koningplein naar Kasteel Veltwijck in Ekeren.",
+   "watMerkJe": "Korte hinder waar de stoet passeert en een parkeerverbod op de dreef naar het kasteel. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://pers.antwerpen.be/sint-komt-langs-in-antwerpse-districten-qw23bf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004943": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop of ander welkomstritueel van een studentenvereniging (dril of tocht te voet)", "organisator": "",
+   "reden": "De Stadswaag, het Falconplein en het plein aan de Mutsaardstraat staan als drilplaatsen in het studentencharter 2026-2027, en 12 oktober valt in de doopperiode (1 tot 31 oktober). De stad maakt de naam niet bekend.",
+   "dagen": ["2026-10-12"], "uren": "", "urenNoot": "Het studentencharter laat zulke activiteiten alleen toe tussen 10 en 22 uur.",
+   "waar": "De Stadswaag, het Falconplein en de oude binnenstad tot aan de Grote Markt.",
+   "watMerkJe": "Groepen studenten te voet, met een tijdelijke inname op de Stadswaag. Parkeerverboden of afsluitingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005074": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop: een stoet met dril, spelletjes en een doop", "organisator": "",
+   "reden": "Volgens de omschrijving in het dossier zelf: van de start naar een drillocatie, een spelletjeslocatie en een dooplocatie. Welke vereniging het is, is niet publiek.",
+   "dagen": ["2026-10-27"], "uren": "", "urenNoot": "Het studentencharter laat dril en stoet toe tussen 10 en 22 uur, de doop aan de Belvédère tot middernacht.",
+   "waar": "Van het Frans Halsplein via de Stadswaag (dril) en de dokken van het Eilandje naar de Belvédère in het Droogdokkenpark.",
+   "watMerkJe": "Een luidruchtige groep studenten te voet. Aan de Belvédère kan het lawaai duren tot middernacht.",
+   "link": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "linkLabel": "Officiële regels voor studentendopen", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005129": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze plek.",
+   "dagen": ["2026-10-13"], "uren": "", "urenNoot": "",
+   "waar": "De Cornelissenlaan en het Eksterlaarpad in Deurne.",
+   "watMerkJe": "Een parkeerverbod langs het parcours. Afsluitingen staan niet in het dossier. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005298": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route.",
+   "dagen": ["2026-11-17"], "uren": "", "urenNoot": "",
+   "waar": "Straten tussen de Stadscampus, het Schipperskwartier en het Eilandje.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005310": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze plek.",
+   "dagen": ["2026-10-30"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 1,5 km rond het Brilschanspark in Berchem.",
+   "watMerkJe": "Standen bij de speeltuin aan de Henri Prostlaan, met opbouw en afbraak. Afsluitingen of parkeerverboden staan niet in het dossier. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005314": {
+   "zekerheid": "zeker", "naam": "Parade Noorderlicht", "soort": "lichtjesparade te voet, met muziek en kunst", "organisator": "",
+   "reden": "",
+   "dagen": ["2026-11-26"], "uren": "18 tot 21 uur", "urenNoot": "",
+   "waar": "Door de Seefhoek tot aan de Franklin Rooseveltplaats en het Operaplein.",
+   "watMerkJe": "Waar de stoet passeert, ligt het verkeer even stil. Op het De Coninckplein geldt die dag een parkeerverbod.",
+   "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "linkLabel": "", "linkUitleg": "Op de districtskalender van district Antwerpen, bij 26 november.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005388": {
+   "zekerheid": "zeker", "naam": "Feest voor de Sint", "soort": "Sinterklaasstoet met paard en koets, daarna een show in park Gravenhof", "organisator": "District Hoboken",
+   "reden": "",
+   "dagen": ["2026-11-28"], "uren": "14 tot 16.30 uur; de stoet vertrekt om 14.15 uur", "urenNoot": "",
+   "waar": "Van het Veer naar park Gravenhof in Hoboken.",
+   "watMerkJe": "Tussen ongeveer 14.15 en 14.45 uur is de straat kort afgesloten waar de stoet passeert. In district Antwerpen merk je er niets van.",
+   "link": "https://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005479": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een doopactiviteit van een studentenvereniging: een tocht te voet langs zeven stops met opdrachten", "organisator": "",
+   "reden": "De tocht doet dezelfde pleinen aan als een doop- en schachtentocht uit 2025 en valt in de doopperiode (1 tot 31 oktober). Het dossier noemt geen naam.",
+   "dagen": ["2026-10-13"], "uren": "", "urenNoot": "",
+   "waar": "Van het Theaterplein langs de Graanmarkt, de Sint-Andriesplaats, de Sint-Jansvliet, de Veemarkt en de Stadswaag naar het Frans Halsplein.",
+   "watMerkJe": "Groepen te voet die halt houden op zeven pleinen. Afsluitingen of parkeerverboden staan niet in het dossier. Dezelfde tocht staat ook op dinsdag 20 oktober.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005499": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route.",
+   "dagen": ["2026-11-29"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 10 km vanaf de Beukenlaan, door het Nachtegalenpark, langs het Middelheimmuseum en door de villawijk.",
+   "watMerkJe": "Het dossier vermeldt opbouw en afbraak. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005502": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een doopactiviteit van een studentenvereniging: een tocht te voet langs zeven stops met opdrachten", "organisator": "",
+   "reden": "De tocht doet dezelfde pleinen aan als een doop- en schachtentocht uit 2025 en valt in de doopperiode (1 tot 31 oktober). Het dossier noemt geen naam.",
+   "dagen": ["2026-10-20"], "uren": "", "urenNoot": "",
+   "waar": "Van het Theaterplein langs de Graanmarkt, de Sint-Andriesplaats, de Sint-Jansvliet, de Veemarkt en de Stadswaag naar het Frans Halsplein.",
+   "watMerkJe": "Groepen te voet die halt houden op zeven pleinen. Afsluitingen of parkeerverboden staan niet in het dossier. Dezelfde tocht stond ook op dinsdag 13 oktober.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005550": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit in het park op die dag.",
+   "dagen": ["2026-10-24"], "uren": "", "urenNoot": "",
+   "waar": "Het Boekenbergpark in Deurne.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier. In district Antwerpen merk je er niets van.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005554": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een parcours op 17 oktober.",
+   "dagen": ["2026-10-17"], "uren": "", "urenNoot": "",
+   "waar": "Een lus langs het Falconplein, Klapdorp, de Grote Markt, de Kloosterstraat, het Zuidpark en de Scheldekaaien.",
+   "watMerkJe": "Innames in die straten en grote zones op het Zuidpark en de kaaien. Afsluitingen of uren staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005637": {
+   "zekerheid": "zeker", "naam": "Herdenking Wapenstilstand in Wilrijk", "soort": "herdenking met een korte stoet onder politiebegeleiding", "organisator": "District Wilrijk",
+   "reden": "",
+   "dagen": ["2026-11-11"], "uren": "9.15 uur plechtigheid aan begraafplaats Steytelinck, 10 uur kransneerlegging op de Bist", "urenNoot": "",
+   "waar": "Tussen begraafplaats Steytelinck en de Bist in Wilrijk.",
+   "watMerkJe": "Tussen ongeveer 9.30 en 10 uur een korte stoet met korte verkeershinder. In district Antwerpen merk je er niets van.",
+   "link": "https://www.antwerpen.be/nl/info/61765158ee3611215716e619", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/nl/info/61765158ee3611215716e619"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005653": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving.",
+   "dagen": ["2026-10-09"], "uren": "", "urenNoot": "",
+   "waar": "Een korte lus op het plein Stadswaag.",
+   "watMerkJe": "Parkeerverboden of afsluitingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005657": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentenactiviteit te voet langs cafés (kroegentocht of doopstoet)", "organisator": "",
+   "reden": "De lus loopt langs studentencafés aan de Stadswaag, de Wolstraat en de Melkmarkt, in de doopperiode.",
+   "dagen": ["2026-10-14"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 1,5 km vanaf de Stadswaag door de Minderbroeders- en Consciencebuurt.",
+   "watMerkJe": "Een groep te voet. Afsluitingen of uren staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005710": {
+   "zekerheid": "zeker", "naam": "Walk for Palestine", "soort": "solidariteitswandeling, deel van de dag 'When the Bulbul Stopped Singing'", "organisator": "Bulbul Speaks en Antwerp for Palestine, met Rataplan, De Roma en andere organisaties",
+   "reden": "",
+   "dagen": ["2026-10-24"], "uren": "vertrek om 17.30 uur aan Rataplan; vanaf 18 uur avondprogramma in De Roma", "urenNoot": "",
+   "waar": "Van Rataplan aan het Terloplein door de Terlo- en Krugerbuurt naar De Roma aan de Turnhoutsebaan (Borgerhout).",
+   "watMerkJe": "Rond 17.30 tot 18 uur een groep te voet, met korte hinder op de Turnhoutsebaan. In district Antwerpen merk je er niets van.",
+   "link": "https://rataplanvzw.be/e/when-the-bulbul-stopped-singing", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://rataplanvzw.be/e/when-the-bulbul-stopped-singing", "https://www.deroma.be/nl/event/when-the-bulbul-stopped-singing"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005793": {
+   "zekerheid": "zeker", "naam": "Jaak Schram Parkloop", "soort": "gratis recreatieve parkloop met omlopen van 1 en 2,5 km", "organisator": "District Hoboken",
+   "reden": "",
+   "dagen": ["2026-11-21"], "uren": "12.45 uur opwarming, 13 uur start 1 km, 13.30 uur start 2,5 km", "urenNoot": "",
+   "waar": "Park Sorghvliedt en het Broydenborgpark in Hoboken.",
+   "watMerkJe": "Lopers in de parken. Waar het parcours de Marneflaan oversteekt, is een stuk verkeersvrij met parkeerverbod. In district Antwerpen merk je er niets van.",
+   "link": "https://www.antwerpen.be/nl/overzicht/district-hoboken-1/nieuws/de-52ste-jaak-schram-parkloop-op-naar-2660-kilometer", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
+   "bron": ["https://www.antwerpen.be/nl/overzicht/district-hoboken-1/nieuws/de-52ste-jaak-schram-parkloop-op-naar-2660-kilometer"], "bijgewerkt": "2026-10-09"
+  }
+ }
+}

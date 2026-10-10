@@ -21,12 +21,17 @@ test("vergunningkaart laat uitvoering niet als reeds begonnen zien en toont alle
  const y=duidelijkeKaart(e,{purpose:"Nieuwbouw"});
  assert.equal(y.regels.some(([k])=>k==="Beslissingsdatum"),false);
 });
-test("naamloos parcours benoemt thema-onzekerheid, innameperiode en niet-bewezen afsluiting",()=>{
+test("naamloos parcours zegt eerlijk dat de stad niet bekendmaakt wat het is, zonder vaste parcourszin of codes",()=>{
  const input={start:"2026-10-13",eind:"2026-10-13",dossier:"ET2026003793",dossierType:"ETL",straten:Array.from({length:115},(_,i)=>"Straat "+i),soorten:["Parcours"],parcours:1,fasen:["Evenement"],beschrijvingen:[],soort:"",soortBron:"",hinder:"True"};
  const x=evenementKaartje(input,{vandaag:"2026-10-08",wijkVan:()=> "Centrum"});
- assert.match(x.regels.find(([label])=>label==="Thema / soort")[1],/Niet openbaar/);
- assert.match(x.regels.find(([label])=>label==="Wanneer")[1],/periode van de inname/);
- assert.match(x.regels.find(([label])=>label==="Parcours")[1],/niet dat ze allemaal tegelijkertijd afgesloten zijn/);
- assert.ok(x.regels.some(([label])=>label==="Organisator"));
+ const kern=Object.fromEntries(x.kern);
+ assert.equal(x.titel,"Evenement met toelating van de stad");
+ assert.match(kern.Wat,/de stad maakt niet bekend wat het is/);
+ assert.match(kern.Wanneer,/^Dinsdag 13 oktober; de uren zijn niet gepubliceerd/);
+ assert.match(kern["Wat merk je"],/welke en hoe laat, maakt de stad niet bekend/);
+ // Het aantal straten staat bij "Waar" (knop "Toon alle 115 straten"); de uitleg staat in die lijst, niet in een extra regel.
+ assert.equal(x.regels.some(([label])=>label==="Straten"),false);
+ assert.equal(x.stratenNoot,"Straten langs het parcours, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht.");
+ assert.doesNotMatch(JSON.stringify(x),/uit een parcours alleen volgt niet|volgens het dossier|ETL|IOD|Kijk bij de officiële bron hieronder/);
  assert.doesNotMatch(x.titel,/loopwedstrijd/i);
 });
