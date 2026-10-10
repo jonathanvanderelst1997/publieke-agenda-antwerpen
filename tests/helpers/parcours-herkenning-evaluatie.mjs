@@ -4,7 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { bijwerkenPatronen, bibliotheekUit, bouwHerkenning, dossiersUitAsign, plat, soortenIn, verrijk, zelfdeTitel } from "../../lib/parcours-herkenning.mjs";
+import { bijwerkenPatronen, bibliotheekUit, bouwHerkenning, dossiersUitAsign, gewoonWoord, plat, soortenIn, verrijk } from "../../lib/parcours-herkenning.mjs";
 
 export const VANDAAG = "2026-10-10";
 // Een huisnummer na een straatnaam (zelfde regel als lib/evenement-identiteit-validatie.mjs).
@@ -30,13 +30,48 @@ export function laadFixtures(root) {
   };
 }
 
-// Valt de automatische naam samen met de handfiche (naam, of genoemd in de soort)?
+// Woorden die alleen een soort noemen: een gedeeld "cantus" of "halloween" zegt niet dat het hetzelfde
+// evenement is. Ook samenstellingen ervan ("halloweentocht", "trailrun").
+const GENERIEK = new Set(("doop dopen dril cantus schachten kroegentocht halloween griezel griezeltocht criterium koers wielerkoers " +
+  "wielerwedstrijd marathon jogging loop lopen run trail kids parkloop stratenloop sponsorloop wandeling wandel wandeltocht tocht fietstocht " +
+  "stoet optocht parade processie carnaval markt kerstmarkt rommelmarkt braderie herdenking sinterklaas sint feest buurtfeest straatfeest " +
+  "fuif party concert festival quiz avond dag nacht").split(" "));
+function generiek(w) {
+  if (!w) return true;
+  if (GENERIEK.has(w)) return true;
+  for (let i = 3; i < w.length - 2; i++) if (GENERIEK.has(w.slice(0, i)) && generiek(w.slice(i))) return true;
+  return false;
+}
+// Twee opeenvolgende woorden gemeen, samen minstens 10 letters, niet allebei gewoon ("Nationale Sluitingsprijs").
+function gedeeldPaar(a, b) {
+  const paren = (t) => { const w = t.split(" "); return w.slice(1).map((y, i) => [w[i], y]); };
+  const pb = new Set(paren(b).map((p) => p.join(" ")));
+  return paren(a).some(([x, y]) => pb.has(`${x} ${y}`) && x.length + y.length >= 10 && !(gewoonWoord(x) && gewoonWoord(y)));
+}
+// Valt de automatische naam samen met de handfiche? Streng: de ene naam bevat de andere (niet als dat
+// alleen een soortwoord is), twee opeenvolgende woorden gemeen, een stuk van 8 letters dat niet in een
+// soortwoord valt ("Campustrail" en "Campus Trailrun"), of een eigen woord gemeen met de naam of de
+// soort van de handfiche ("Fabiant"). Eén gedeeld soortwoord ("Cantus", "Halloween") telt niet.
 export function zelfdeNaam(auto, hand) {
   const a = plat(auto), n = plat(hand.naam), s = plat(hand.soort);
   if (!a) return false;
-  if (n && (a.includes(n) || n.includes(a) || zelfdeTitel(auto, hand.naam))) return true;
-  const woorden = a.split(" ").filter((w) => w.length >= 5);
-  return woorden.some((w) => n.split(" ").includes(w) || ` ${s} `.includes(` ${w} `));
+  if (n) {
+    const [kort, lang] = a.length <= n.length ? [a, n] : [n, a];
+    if (kort.length >= 5 && lang.includes(kort) && !(kort.split(" ").length === 1 && generiek(kort))) return true;
+    if (gedeeldPaar(a, n)) return true;
+    // Per letter: hoort ze bij een betekenisvol woord (geen gewoon woord, plaatsnaam of soortwoord)?
+    const woordenA = a.split(" ");
+    const p = woordenA.join(""), q = n.replace(/ /g, "");
+    const telt = woordenA.flatMap((w) => [...w].map(() => !gewoonWoord(w) && !generiek(w) && w.length > 2));
+    const woordenN = n.split(" ").filter((w) => w.length >= 8 && generiek(w));
+    for (let i = 0; i + 8 <= p.length; i++) {
+      const stuk = p.slice(i, i + 8);
+      if (q.includes(stuk) && telt.slice(i, i + 8).filter(Boolean).length >= 5 && !woordenN.some((w) => w.includes(stuk))) return true;
+    }
+  }
+  const eigen = (t) => t.split(" ").filter((w) => w.length >= 5 && !/\d/.test(w) && !gewoonWoord(w) && !generiek(w));
+  const hier = new Set([...eigen(n), ...eigen(s)]);
+  return eigen(a).some((w) => hier.has(w));
 }
 // Past de soort bij de handfiche? Zelfde soortgroep uit SOORTEN, of de handfiche noemt het woord.
 const GROEP = { student: ["student", "haltes"], haltes: ["student", "haltes", "wandel", "tocht"], loop: ["loop", "wandel"], wandel: ["wandel", "loop", "tocht", "halloween"], tocht: ["tocht", "wandel", "loop"], halloween: ["halloween", "wandel"], sint: ["sint", "stoet"], stoet: ["stoet", "sint", "herdenking", "student"] };
