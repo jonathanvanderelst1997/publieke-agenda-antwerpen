@@ -1,119 +1,119 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-10T21:36:59.309Z",
-  "classificationAsOf": "2026-10-10",
-  "sourceCount": 871,
-  "count": 752,
-  "eventPageCount": 752,
+  "candidateGeneratedAt": "2026-10-11T03:22:04.009Z",
+  "classificationAsOf": "2026-10-11",
+  "sourceCount": 870,
+  "count": 748,
+  "eventPageCount": 748,
   "classifications": {
-    "expired": 119,
-    "current": 32,
-    "future": 720,
+    "expired": 122,
+    "current": 31,
+    "future": 717,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 104,
+    "district": 100,
     "stad": 648
   },
-  "feedGeneratedAt": "2026-10-10T21:36:59.309Z",
+  "feedGeneratedAt": "2026-10-11T03:22:04.009Z",
   "feedSources": [
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:34:38.276Z",
+      "retrievedAt": "2026-10-11T03:20:26.774Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:36:17.412Z",
+      "retrievedAt": "2026-10-11T03:21:57.867Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:35:35.733Z",
+      "retrievedAt": "2026-10-11T03:21:16.974Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:34:30.764Z",
+      "retrievedAt": "2026-10-11T03:20:18.471Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:34:16.515Z",
+      "retrievedAt": "2026-10-11T03:20:05.365Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:34:19.774Z",
+      "retrievedAt": "2026-10-11T03:20:08.041Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-projecten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "retrievedAt": "2026-10-11T03:21:18.697Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "retrievedAt": "2026-10-11T03:21:17.568Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:34:21.257Z",
+      "retrievedAt": "2026-10-11T03:20:08.774Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:36:17.090Z",
+      "retrievedAt": "2026-10-11T03:21:57.662Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:36:17.090Z",
+      "retrievedAt": "2026-10-11T03:21:57.662Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:35:44.997Z",
+      "retrievedAt": "2026-10-11T03:21:25.510Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:36:16.494Z",
+      "retrievedAt": "2026-10-11T03:21:56.649Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-10T21:36:11.624Z",
+      "retrievedAt": "2026-10-11T03:21:51.253Z",
       "state": "fresh"
     },
     {
@@ -124,16 +124,14 @@
       "state": "inactive"
     }
   ],
-  "digest": "e0f14f0a5526d8054bc06d54554045f8df2c06635268db4e45e00f23b46f6359",
+  "digest": "d0a068f94a93f7b1b0c235d1bb22da06d330a56bbb3a04a77952e3da319c4d8e",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
-    "Buurtfeest Gaston Burssenslaan en Hanegraefstraat",
     "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat",
-    "Poëtische Rimpelingen",
     "Heraanleg Paardenmarkt: fase 4 (Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt))",
     "Heraanleg Paardenmarkt: fase 5 (Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei)",
     "Heraanleg Balansstraat & Lange Elzenstraat: fase 4b (Ondergrondse persing Lange Elzenstraat)",
@@ -161,8 +159,6 @@
     "Humans of Antwerp",
     "Najaarsfoor Dageraadplaats",
     "Vergroening Matigheidstraat & Spaarstraat: fase 1A (Spaarstraat)",
-    "Linkeroever Criterium",
-    "Sikopi's Eddy cup",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
