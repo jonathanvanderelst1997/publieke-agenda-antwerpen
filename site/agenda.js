@@ -2273,6 +2273,10 @@ function highlightCardTemplate(item, range) {
 
 // Bovenaan de voorpagina: wat er dit weekend te doen is. Dezelfde keuze als "Uitgelicht" (pickHighlights),
 // hoogstens zes kaarten om opzij te vegen. Met een gekozen plek verbergt place-view.css het blok.
+// "Alles dit weekend (n)" klapt het blok open: dan staan alle n kaarten erin, niet dezelfde zes.
+let ditWeekendOpen = false;
+let ditWeekendItems = [];
+
 function weekendLabel(range) {
   const fmt = (iso, options) => {
     const [year, month, day] = iso.split("-").map(Number);
@@ -2291,30 +2295,60 @@ function renderDitWeekend(items) {
     root.hidden = true;
     return;
   }
+  ditWeekendItems = items;
   const range = uitgaan.rangesFor(todayIso()).weekend;
-  const alle = items.filter((item) => uitgaan.overlaps(item, range) && uitgaan.categoryFor(item.category || uitgaan.categoryOf(item)).weight > 0);
-  const kaarten = uitgaan.pickHighlights(items, range, 6);
+  // n telt precies wat "Alles" toont: dezelfde keuze als de kaarten, zonder grens.
+  const alle = uitgaan.pickHighlights(items, range, Infinity);
   const n = alle.length;
+  const open = ditWeekendOpen && n > 6;
+  const kaarten = open ? alle : uitgaan.pickHighlights(items, range, 6);
+  const anders = n ? [] : weekendZonderUitstap(items, range);
+  const kop = n ? `${esc(n)} ${n === 1 ? "ding" : "dingen"} te doen` : anders.length ? "Geen uitstappen of evenementen" : "Nog niets op de agenda";
   root.hidden = false;
   root.innerHTML = `
-    <h2 id="dit-weekend-titel" class="dw-titel">
-      <span class="dw-wanneer">Dit weekend · ${esc(weekendLabel(range))}</span>
-      <span class="dw-kop">${n ? `${esc(n)} ${n === 1 ? "ding" : "dingen"} te doen` : "Nog niets op de agenda"}</span>
-    </h2>
+    <div class="dw-kopregel">
+      <h2 id="dit-weekend-titel" class="dw-titel">
+        <span class="dw-wanneer">Dit weekend · ${esc(weekendLabel(range))}</span>
+        <span class="dw-kop">${kop}</span>
+      </h2>
+      ${n > 6 ? `<button type="button" class="dw-meer" data-dw-meer aria-expanded="${open}" aria-controls="dw-lijst">${open ? "Toon minder" : `Alles dit weekend (${esc(n)})`}</button>` : ""}
+    </div>
     ${kaarten.length
-      ? `<ul class="hl-grid dw-grid">${kaarten.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`
-      : `<p class="dw-leeg">Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.</p>`}
-    ${n > kaarten.length ? `<button type="button" class="dw-meer" data-dw-meer>Alles dit weekend (${esc(n)})</button>` : ""}
+      ? `<ul id="dw-lijst" class="hl-grid dw-grid${open ? " dw-alles" : ""}">${kaarten.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`
+      : anders.length
+        ? `<p class="dw-leeg">Binnen je keuze staan er dit weekend wel andere dingen op de agenda: ${esc(lijstZin(anders))}. Je vindt ze in de agenda hieronder.</p>`
+        : `<p class="dw-leeg">Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.</p>`}
   `;
   // In de plekweergave klapt PUBLIC_AGENDA_OPEN het item open in de lijst; anders de oude lijst.
   root.querySelectorAll("[data-hl-id]").forEach((button) =>
     button.addEventListener("click", () => (window.PUBLIC_AGENDA_OPEN ? window.PUBLIC_AGENDA_OPEN(button.dataset.hlId) : openAgendaItem(button.dataset.hlId)))
   );
+  // Open- en dichtklappen: de knop staat boven de kaarten en blijft dus op zijn plaats; de focus blijft erop.
   root.querySelector("[data-dw-meer]")?.addEventListener("click", () => {
-    highlightTab = "weekend";
-    render();
-    document.getElementById("agenda-highlights")?.scrollIntoView({ block: "start" });
+    ditWeekendOpen = !open;
+    renderDitWeekend(ditWeekendItems);
+    root.querySelector("[data-dw-meer]")?.focus();
   });
+}
+
+// Wat er binnen de keuze dit weekend wel staat, maar geen uitstap of evenement is (gewicht 0: markten,
+// werken, raad, inspraak, oproepen), per soort geteld. Markten één keer per markt, zoals in de lijst.
+function weekendZonderUitstap(items, range) {
+  const tellers = new Map();
+  const markten = [];
+  for (const item of items) {
+    if (!uitgaan.overlaps(item, range)) continue;
+    const key = item.category || uitgaan.categoryOf(item);
+    if (uitgaan.categoryFor(key).weight > 0) continue;
+    if (key === "markets") markten.push(item);
+    else tellers.set(key, (tellers.get(key) || 0) + 1);
+  }
+  if (markten.length) tellers.set("markets", uitgaan.bundleWeeklyMarkets(markten, range.from).length);
+  return uitgaan.categories.filter((c) => tellers.get(c.key) > 0).map((c) => `${c.label} (${tellers.get(c.key)})`);
+}
+
+function lijstZin(delen) {
+  return delen.length > 1 ? `${delen.slice(0, -1).join(", ")} en ${delen[delen.length - 1]}` : delen[0] || "";
 }
 
 function defaultHighlightTab(lists, today) {
@@ -2548,6 +2582,7 @@ window.addEventListener("public-agenda:view-change", render);
 window.addEventListener("public-agenda:reset-filters", () => {
   enabledScopes = new Set(["district"]); enabledStadPlaces = new Set(stadPlaceOrder);
   highlightTab = "";
+  ditWeekendOpen = false;
   render();
 });
 if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {

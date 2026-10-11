@@ -149,7 +149,48 @@ const proefAgendapunt = (dag, straat) => ({
   location: `${straat.name}, ${straat.postcode} Antwerpen`, postcodes: [straat.postcode], info: "Verzonnen agendapunt voor de toets.", infoUrl: "", dateLabel: dagTekst(dag),
 });
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false } = {}) {
+// "Dit weekend" met nagebootste items (nakijkbevinding: de toets hing af van de weekdag van de data). Een feed
+// van dag `dag`: alle bronnen die ochtend opgehaald, en alleen verzonnen items. De klok staat dan op `dag`.
+const weekdagVan = (iso) => new Date(`${iso}T12:00:00Z`).getUTCDay(); // 0 = zondag
+const volgendeWeekdag = (iso, wd) => addDays(iso, (wd - weekdagVan(iso) + 7) % 7);
+// Dit weekend volgens de site: vrijdag t/m zondag van die week, op zaterdag en zondag vanaf vandaag.
+const weekendDagen = (dag) => {
+  const van = [6, 0].includes(weekdagVan(dag)) ? dag : volgendeWeekdag(dag, 5);
+  return [van, addDays(van, 1), addDays(van, 2)].filter((d) => d <= volgendeWeekdag(dag, 0));
+};
+const LANGE_TITELS = [
+  "Openluchtconcert met het jeugdorkest van de muziekacademie", "Voorleesnamiddag voor kinderen en hun grootouders in de bibliotheek",
+  "Wandelzoektocht langs de verborgen binnentuinen van de wijk", "Theatervoorstelling over honderd jaar havenarbeid aan de kaaien",
+  "Buurtfeest met springkasteel, muziek en een grote picknick", "Fietstocht langs de nieuwe groene parels van het district",
+  "Rommelmarkt van de bewonersvereniging op het pleintje", "Filmavond in openlucht met een klassieker uit de jaren zestig",
+  "Danslessen voor beginners in het buurthuis, met koffie en taart",
+];
+function weekendFeed(dag, { uitstappen = 0, markten = [] } = {}) {
+  const feed = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1));
+  const stempel = `${dag}T05:00:00.000Z`;
+  feed.generatedAt = stempel;
+  feed.classificationAsOf = dag;
+  for (const bron of feed.sources) bron.retrievedAt = stempel;
+  const dagen = weekendDagen(dag);
+  const kalender = feed.items.find((i) => i.sourceId === "district-kalender") || feed.items.find((i) => i.scope === "district");
+  const markt = feed.items.find((i) => i.sourceId === "stad-markten" && i.inDistrict === true);
+  const vers = (basis) => ({ retrievedAt: stempel, sources: (basis.sources || []).map((s) => ({ ...s, retrievedAt: stempel })) });
+  feed.items = [
+    ...Array.from({ length: uitstappen }, (_, i) => ({
+      ...kalender, ...vers(kalender), id: `e2e-weekend-${i + 1}`, externalId: `e2e-weekend-${i + 1}`, title: `${LANGE_TITELS[i % LANGE_TITELS.length]} (e2e ${i + 1})`,
+      date: dagen[i % dagen.length], endDate: "", timeSlot: `${String(10 + (i % 9)).padStart(2, "0")}:00`, timeText: "", location: "Proefplein 1, 2000 Antwerpen", postcodes: ["2000"],
+      info: "Verzonnen item voor de toets.", infoUrl: "", dateLabel: dagTekst(dagen[i % dagen.length]),
+    })),
+    // Een wekelijkse markt (stad, in het district) op een dag van het weekend: `markten` = [[naam, plein, dagindex], ...].
+    ...markten.map(([naam, plein, d], i) => ({
+      ...markt, ...vers(markt), id: `e2e-markt-${i + 1}`, externalId: `e2e-markt-${i + 1}`, title: naam, location: `${plein}, 2000 Antwerpen`,
+      date: dagen[Math.min(d, dagen.length - 1)], endDate: null, dateLabel: dagTekst(dagen[Math.min(d, dagen.length - 1)]),
+    })),
+  ];
+  return feed;
+}
+
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
@@ -159,7 +200,9 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
     feed.items.push(...agendaErbij.map((item) => ({ ...basis, ...item })));
     return route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: `window.PUBLIC_AGENDA_FEED = ${JSON.stringify(feed)};` });
   });
-  await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
+  // Een volledig nagebootste feed (weekendFeed), met de klok op de dag van die feed.
+  if (feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: `window.PUBLIC_AGENDA_FEED = ${JSON.stringify(feed)};` }));
+  await page.clock.setFixedTime(new Date(`${dag}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
@@ -479,23 +522,95 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  // P8: de voorpagina op de gsm opent met "Dit weekend"; zonder plek staat er één kaart per markt.
-  await t.test("voorpagina (390×844): 'Dit weekend' boven 600 px, tikken klapt het item open; marktkaarten = markten", async () => {
-    const { page, context, errors } = await openPage(baseUrl, { query: "" });
+  // P8: de voorpagina op de gsm opent met "Dit weekend". Nakijkbevinding: de toets hing af van de data (die van een
+  // zondag paste, die van een werkdag niet). Nu met negen verzonnen uitstappen met lange titels en de klok op een
+  // woensdag, een zaterdag en een zondag na de dag van de data: zes kaarten en de knop "Alles" boven 600 px.
+  const weekendKop = (page) => page.locator("#dit-weekend .dw-kop").textContent().then((tekst) => Number((tekst.match(/^(\d+) dingen te doen$/) || [])[1]));
+  await t.test("voorpagina (390×844): 'Dit weekend' met zes kaarten en 'Alles' boven 600 px, op een woensdag, zaterdag en zondag; tikken klapt het item open", async () => {
+    const gevallen = [
+      ["woensdag", volgendeWeekdag(today, 3), /^Dit weekend · vr \d+ (\S+ )?– zo \d+ \S+$/],
+      ["zaterdag", volgendeWeekdag(today, 6), /^Dit weekend · za \d+ (\S+ )?– zo \d+ \S+$/],
+      ["zondag", volgendeWeekdag(today, 0), /^Dit weekend · zo \d+ \S+$/],
+    ];
+    for (const [naam, dag, label] of gevallen) {
+      const { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 9 }) });
+      const blok = page.locator("#dit-weekend");
+      await blok.locator(".dw-titel").waitFor();
+      assert.match(await blok.locator(".dw-wanneer").textContent(), label, naam);
+      // Minstens de negen verzonnen uitstappen (een handmatig item in dat weekend mag erbij komen).
+      const n = await weekendKop(page);
+      assert.ok(n >= 9, `${naam}: ${n} dingen te doen`);
+      assert.equal(await blok.locator(".hl-card").count(), 6, `${naam}: zes kaarten`);
+      assert.equal((await blok.locator("[data-dw-meer]").innerText()).trim(), `Alles dit weekend (${n})`);
+      const onder = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+      t.diagnostic(`${naam} ${dag}: Dit weekend eindigt op ${onder}px`);
+      assert.ok(onder <= 600, `${naam}: 'Dit weekend' eindigt op ${onder}px, niet boven 600px`);
+      if (naam === "woensdag") {
+        const kaart = blok.locator(".hl-card").first();
+        const id = await kaart.getAttribute("data-hl-id");
+        await kaart.click();
+        await page.locator(`.pv-results .pv-row.open[data-uid="agenda:${id}"]`).waitFor({ timeout: 10000 });
+      }
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+  });
+
+  // Nakijkbevindingen: "Alles dit weekend (n)" opende Uitgelicht met dezelfde zes kaarten, en de focus viel weg.
+  // Nu klapt het blok open met alle n kaarten; de knop staat boven de kaarten en houdt de focus.
+  await t.test("voorpagina: 'Alles dit weekend (n)' toont alle n kaarten; met het toetsenbord blijft de focus op de knop", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 9 }) });
+    const blok = page.locator("#dit-weekend");
+    const knop = blok.locator("[data-dw-meer]");
+    await knop.waitFor();
+    const n = await weekendKop(page);
+    assert.equal(await knop.getAttribute("aria-expanded"), "false");
+    await knop.focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction((aantal) => document.querySelectorAll("#dit-weekend .hl-card").length === aantal, n, { timeout: 5000 })
+      .catch(async () => assert.fail(`na 'Alles dit weekend (${n})' staan er ${await blok.locator(".hl-card").count()} kaarten`));
+    const ids = await blok.locator(".hl-card").evaluateAll((els) => els.map((el) => el.dataset.hlId));
+    for (let i = 1; i <= 9; i += 1) assert.ok(ids.includes(`e2e-weekend-${i}`), `uitstap ${i} staat erbij`);
+    assert.equal(await knop.getAttribute("aria-expanded"), "true");
+    assert.equal(await page.evaluate(() => document.activeElement?.matches("#dit-weekend [data-dw-meer]") ?? false), true, "de focus blijft op de knop");
+    // De volgende tab gaat naar de eerste kaart van het blok, niet ergens anders op de pagina.
+    await page.keyboard.press("Tab");
+    assert.equal(await page.evaluate(() => Boolean(document.activeElement?.closest("#dit-weekend .hl-card"))), true, "Tab gaat naar de eerste kaart");
+    // Dichtklappen: weer zes kaarten, de focus op de knop.
+    await page.keyboard.press("Shift+Tab");
+    await page.keyboard.press("Enter");
+    assert.equal(await blok.locator(".hl-card").count(), 6);
+    assert.equal(await knop.getAttribute("aria-expanded"), "false");
+    assert.equal(await page.evaluate(() => document.activeElement?.matches("#dit-weekend [data-dw-meer]") ?? false), true);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding: met alleen markten (gewicht 0) zei het blok "Nog niets op de agenda", terwijl er dit weekend
+  // markten zijn. Nu zegt het dat er geen uitstappen of evenementen zijn, en wat er wel is (markten één keer per markt).
+  await t.test("voorpagina: 'Dit weekend' zegt nooit 'Nog niets op de agenda' als er binnen de keuze markten zijn; marktkaarten = markten", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const markten = [["Proefmarkt (e2e)", "Proefplein", 1], ["Proefmarkt (e2e)", "Proefplein", 2], ["Proefbiomarkt (e2e)", "Proefkaai", 2]];
+    let { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { markten }), query: "?soort=markten" });
     const blok = page.locator("#dit-weekend");
     await blok.locator(".dw-titel").waitFor();
-    assert.match(await blok.locator(".dw-wanneer").textContent(), /^Dit weekend · \S/);
-    const onder = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
-    t.diagnostic(`Dit weekend eindigt op ${onder}px`);
-    assert.ok(onder <= 600, `'Dit weekend' eindigt op ${onder}px, niet boven 600px`);
-    const kaarten = blok.locator(".hl-card");
-    assert.ok((await kaarten.count()) <= 6, "hoogstens zes kaarten");
-    if (await kaarten.count()) {
-      const id = await kaarten.first().getAttribute("data-hl-id");
-      await kaarten.first().click();
-      await page.locator(`.pv-results .pv-row.open[data-uid="agenda:${id}"]`).waitFor({ timeout: 10000 });
-    }
-    // Markten: de teller telt markten en de lijst toont evenveel marktkaarten, elk met de volgende dag.
+    assert.equal(await blok.isVisible(), true);
+    assert.equal((await blok.locator(".dw-kop").textContent()).trim(), "Geen uitstappen of evenementen");
+    const tekst = await blok.innerText();
+    assert.doesNotMatch(tekst, /niets op de agenda/i, tekst);
+    assert.match(await blok.locator(".dw-leeg").textContent(), /wel andere dingen op de agenda: Wekelijkse markten \(2\)\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+    // Zonder iets in het weekend binnen de keuze blijft de eerlijke lege tekst.
+    ({ page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag), query: "?soort=markten" }));
+    await page.locator("#dit-weekend .dw-titel").waitFor();
+    assert.equal((await page.locator("#dit-weekend .dw-kop").textContent()).trim(), "Nog niets op de agenda");
+    assert.match(await page.locator("#dit-weekend .dw-leeg").textContent(), /^Binnen je keuze staat er dit weekend niets op de agenda\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+    // Markten in de echte data: de teller telt markten en de lijst toont evenveel marktkaarten, elk met de volgende dag.
+    ({ page, context, errors } = await openPage(baseUrl, { query: "" }));
     await page.goto(`${baseUrl}/?soort=markten&periode=alles`);
     await page.waitForFunction(() => document.querySelector('[data-group="markten"] .pv-chip-n') && document.querySelector(".pv-markets"));
     const chip = Number(await page.locator('[data-group="markten"] .pv-chip-n').innerText());
