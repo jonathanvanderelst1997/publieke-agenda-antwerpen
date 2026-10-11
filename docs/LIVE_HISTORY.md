@@ -46,3 +46,11 @@ De plekpagina toont een straat meteen uit haar bestand en vraagt daarna live all
 Privacy: dezelfde opkuis als de historiek (geen huisnummers, ook niet in titels; geen naam na een dossiercode), en daarbovenop geen vrije beschrijving van een inname, geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm, en nooit `creator`, `assignee` of `lockOwner`. `validate:data` kijkt elk bestand na (grootte onder 100 kB, de radar onder 50 kB, de index klopt, privacyscan). De datalaan laat `site/history/radar.json`, `site/straat-index.json` en `site/straat/<id>.json` toe; verwijderen mag onder `site/straat/` (een straat zonder items).
 
 Een laag die bij de verversing niet laadt of verdacht krimpt (meer dan de helft minder bij minstens 20 items), houdt per straat haar vorige stand, met status `stale` in de index.
+
+Na de nakijkronde:
+
+- **Openbaar onderzoek:** de plekpagina zet de nagekeken stand van het Inzageloket (`site/sources/inzage-status.json`) ook op de vergunningen uit het straatbestand en op de live vergunningen van het kader.
+- **Opbouw en afbraak:** per evenementendossier staat in elk straatbestand van dat dossier een samenvatting per fase en soort inname (vroegste begin, laatste einde, zonder straat of vorm, `faseSamenvatting`). Zo toont de kaart "opbouw vanaf … en afbraak tot …" ook als de opbouw elders ligt, ook na het live nakijken van het kader.
+- **Radar binnen budget:** past de radar niet in 50 kB, dan vallen eerst de oudste dagen weg, dan alles behalve de laatste verversing, en dan de straten met de minste wijzigingen (`ingekort`, `weggelaten`). Zo maakt een drukke week de verversing nooit rood. `node scripts/build-straat-snapshots.mjs --alleen-radar` maakt alleen `radar.json` opnieuw (bv. na een merge met een nieuwere historiek).
+- **Privacy:** ook een nummer na "gevel", "pand", "woning", "huis" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase) valt weg, en de scan van `validate:data` ziet het.
+- **Zichtbaar:** `npm run sources:health` toont een regel `straatbestanden` en meldt (zonder rood) een laag op `stale` of `error` of een bouw van meer dan 26 uur oud.
