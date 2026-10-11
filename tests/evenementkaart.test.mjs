@@ -121,8 +121,10 @@ test("tweede ronde: 'zeker' alleen met een bron die dag en route noemt; geen doo
 test("onbekend: één korte eerlijke zin, geen gegokte soort", () => {
   const rows = [rij("ET2026005554", "Evenement", "Parcours", "2026-10-17", "2026-10-17", ["Kloosterstraat"])];
   const e = evenementEntry(rows, opties);
-  assert.equal(e.title, "Evenement met toelating van de stad");
-  assert.equal(kern(e.uitleg).Wat, "Evenement met toelating van de stad; de stad maakt niet bekend wat het is.");
+  // Geen soort en geen naam: de titel zegt wat er vaststaat (een parcours, waar), zonder te gokken.
+  assert.equal(e.title, "Parcours door Kloosterstraat");
+  assert.equal(kern(e.uitleg).Wat, "De stad gaf toelating voor een parcours. Wat er gebeurt of wat er staat, zegt het dossier niet.");
+  assert.doesNotMatch(e.summary, /vermoedelijk|maakt niet bekend wat het is/i);
   assert.match(kern(e.uitleg).Waar, /Zuidpark en de Scheldekaaien/); // waar komt wel uit de nagekeken fiche
 });
 
@@ -145,8 +147,8 @@ test("nieuw dossier zonder fiche: gekoppeld aan een agendapunt op dezelfde dag e
   assert.equal(koppelEvenement(evenementFeiten(rows), [{ ...agenda[0], date: "2026-10-23" }]), null);
   const lang = [rij("ET2099000010", "Evenement", "Inname", "2026-10-01", "2026-12-31", ["Voorbeeldplein"])];
   assert.equal(koppelEvenement(evenementFeiten(lang), agenda), null);
-  // Zonder koppeling: de eerlijke korte zin.
-  assert.equal(evenementEntry(rows, { ...opties, agendaItems: [] }).title, "Evenement met toelating van de stad");
+  // Zonder koppeling: wat er vaststaat (een parcours, door welke straten), geen gok.
+  assert.match(evenementEntry(rows, { ...opties, agendaItems: [] }).title, /^Parcours door /);
 });
 
 test("jouw straat: op het parcours of alleen kruisend, als de verversing de straten langs de lijn kent", () => {
@@ -197,7 +199,7 @@ test("'Grote Markt' in een dossier maakt er geen markt van", async () => {
   const rows = [rij("ET2099000031", "Evenement", "Parcours", "2026-10-22", "2026-10-22", ["Proefstraat"], { description: "Wandelroute van start naar eind" })];
   const uitleg = { evenementen: { ET2099000031: { straten: ["Proefstraat"], beschrijvingen: ["Inname: Startlocatie Doop", "Parkeerverbod in Straat: proefstraat 12"], soort: "Wandeling", gekoppeld: null, kaart: [] } } };
   const e = evenementEntry(rows, { ...opties, uitleg });
-  assert.equal(e.title, "Vermoedelijk een studentendoop");
+  assert.equal(e.title, "Vermoedelijk een studentendoop door Proefstraat"); // wat en waar
   assert.ok(e.uitleg.beschrijvingen.includes("Parkeerverbod in Straat: proefstraat"));
   // Alleen een nummer na een straatnaam valt weg, geen afstand of stopnummer.
   const { zonderHuisnummer } = await import("../site/kaart-uitleg.js");

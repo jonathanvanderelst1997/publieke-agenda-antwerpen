@@ -5,6 +5,8 @@
 // uitleg krijgt. Verzint niets: een soort werk of evenement komt alleen uit woorden die in de
 // bron staan, en de bron van die afleiding gaat mee. Geen klok: "vandaag" komt altijd van buiten.
 
+import { DINGEN, LANG_DAGEN, dingVan, duurDagen, echteDagen, inWijk, patroonTekst, patroonVan, versieringTekst, voorwerpenIn } from "./evenement-wat.js";
+
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = "omschrijving niet gepubliceerd door de beheerder";
 
@@ -781,8 +783,13 @@ export function bruikbareBeschrijving(tekst) {
 }
 
 // "Grote Markt" is een plein, geen markt: alleen woorden die echt een markt noemen tellen.
-// "Doop" eerst: een doopstoet of doopwandeling is in de eerste plaats een studentendoop.
+// "Doop" eerst: een doopstoet of doopwandeling is in de eerste plaats een studentendoop. Maar een
+// doopfeest met een scheepsnaam ("doopfeest MTS ...") is de doop van een schip: dat staat ervoor.
+// De dingen uit site/evenement-wat.js (kermis, reuzenrad, stickers, vlaggen, bladslag ...) staan ook in
+// deze lijst, met hetzelfde woord als in de herkenner (lib/parcours-herkenning.mjs).
+const DING_LABEL = (key) => capital(dingVan(key).zonder);
 const SOORTEN_EVENEMENT = [
+  [dingVan("schip").re, DING_LABEL("schip")],
   [/doop/i, "Studentendoop"],
   [/\b\d+\s?(?:k|km)\b|loopwedstrijd|stratenloop|marathon|jogging|\brun\b|\bloop\b/i, "Loopwedstrijd"],
   [/wieler|koers|criterium|wielren/i, "Wielerwedstrijd"],
@@ -790,10 +797,18 @@ const SOORTEN_EVENEMENT = [
   [/stoet|optocht|parade|processie|carnaval/i, "Stoet"],
   [/wandel/i, "Wandeling"],
   // Niet het losse woord "markt": dat is ook een plein (Grote Markt, Veemarkt, Vrijdagmarkt).
-  [/braderie|rommelmarkt|vlooienmarkt|kerstmarkt|jaarmarkt|boekenmarkt|ambachtenmarkt|boerenmarkt|verplaatsbare markt|wekelijkse markt|marktkra(?:am|men)/i, "Markt"],
+  [/braderie|rommelmarkt|vlooienmarkt|kerstmarkt|jaarmarkt|boekenmarkt|boekenplein|stripmarkt|ambachtenmarkt|boerenmarkt|tweedehandsmarkt|verplaatsbare markt|wekelijkse markt|marktkra(?:am|men)/i, "Markt"],
   [/straatfeest|buurtfeest|wijkfeest/i, "Buurtfeest"],
+  ...DINGEN.filter((d) => d.key !== "schip").map((d) => [d.re, DING_LABEL(d.key)]),
   [/\bstop\b|\w+stop\b/i, "Tocht met haltes"],
 ];
+// Soorten die het dossier zelf met naam noemt (een reuzenrad, stickers): die zegt de kaart zonder
+// "vermoedelijk". De andere (een loop, een stoet) blijven een vermoeden uit één woord.
+const ZEKERE_SOORT = new Set(DINGEN.filter((d) => d.zeker).map((d) => DING_LABEL(d.key)));
+export const soortIsZeker = (soort) => ZEKERE_SOORT.has(clean(soort, 200));
+// Een ding dat geen evenement met publiek is (stickers, een bord, de bladslag).
+const GEEN_EVENEMENT_SOORT = new Set(DINGEN.filter((d) => !d.evenement).map((d) => DING_LABEL(d.key)));
+export const soortIsGeenEvenement = (soort) => GEEN_EVENEMENT_SOORT.has(clean(soort, 200));
 export function soortEvenement(teksten = []) {
   for (const [re, soort] of SOORTEN_EVENEMENT) if (teksten.some((t) => re.test(clean(t, 200)))) return soort;
   return "";
@@ -866,7 +881,13 @@ export function evenementFeiten(rows = []) {
   const ends = rows.map((r) => dagVan(r.end)).filter(Boolean).sort();
   const straten = uniek(rows.flatMap((r) => (r.streets || []).map((s) => s?.name))).sort((a, b) => a.localeCompare(b, "nl"));
   const beschrijvingen = uniek(onderdelen);
-  const soort = soortEvenement([...beschrijvingen, ...rows.map((r) => r.description)].map((t) => bruikbareBeschrijving(t) || "").filter(Boolean)) || "";
+  // De soort en de voorwerpen komen uit alle omschrijvingen (ook "Sticker ..." of "Hub voor bladslag",
+  // die de woordenfilter niet toont), maar alleen als vast woord uit de lijst: de tekst zelf gaat nergens heen.
+  const ruw = rows.map((r) => clean(String(r.description ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 200)).filter((t) => t && !CONTACT.test(t));
+  const soort = soortEvenement([...beschrijvingen, ...ruw]) || "";
+  // Hoeveel innames er op de dag(en) zelf staan, en op welke dagen echt (een maandag per maand is geen
+  // periode van maanden). Zie site/evenement-wat.js.
+  const opDag = rows.filter((r) => clean(r.phase, 40) === "Evenement");
   const fasePeriodes = [...fasen.values()].sort((a, b) => faseRang(a.naam) - faseRang(b.naam) || a.start.localeCompare(b.start) || a.naam.localeCompare(b.naam, "nl"));
   const dag = fasen.get("Evenement");
   return {
@@ -886,13 +907,22 @@ export function evenementFeiten(rows = []) {
     soortBron: soort ? "omschrijvingen in het dossier" : "",
     hinder,
     straten,
+    dagen: echteDagen(rows),
+    innames: (opDag.length ? opDag : rows).length,
+    voorwerpen: voorwerpenIn(ruw),
+    versiering: soort === capital(dingVan("versiering").zonder) ? versieringTekst(ruw) : "",
   };
 }
 
 // Een parcours koppelen aan een gewoon evenement uit de agenda: dezelfde dag als het evenement zelf
 // (niet de opbouw) en een straat van het dossier in de locatie. Geen gok op alleen de datum, en geen
-// koppeling voor een inname van weken (een werf of een markt die maanden staat).
+// koppeling voor een inname van weken (een werf of een markt die maanden staat). Ook het agendapunt zelf
+// duurt hoogstens zo lang: een project van september tot januari (wegenwerken, een heraanleg, een
+// schoolstraat met het thema "Werken") ligt elke dag in elke straat van zijn buurt, en gaf zo veertien
+// dossiers aan de Noordersingel de naam van de werken aan de Schijnpoortweg.
 const GEEN_EVENEMENT = /\b(?:markets|meetings|admin|works|info|calls)\b|markt|raad|commissie|zitdag/i;
+// Het thema zoals de nieuwe bronnen (district-projecten, district-schoolstraten) het in het Nederlands zetten.
+const GEEN_EVENEMENT_THEMA = /^(?:werken|oproep\/deadline|inspraak)$/i;
 export const MAX_KOPPEL_DAGEN = 3;
 // Met { naam } (een nagekeken naam uit evenement-identiteit.json): alleen een agendapunt met die
 // naam op dezelfde dag, zodat de kaart naar het juiste agendapunt linkt en niet naar een buurman.
@@ -911,8 +941,8 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
   let best = null;
   for (const item of agendaItems) {
     const d = dagVan(item?.date), e = dagVan(item?.endDate) || d;
-    if (!d || d > (dag.eind || dag.start) || e < dag.start) continue;
-    if (GEEN_EVENEMENT.test(`${item.category || ""} ${item.theme || ""} ${item.title || ""}`)) continue;
+    if (!d || d > (dag.eind || dag.start) || e < dag.start || dagenTussen(d, e) >= MAX_KOPPEL_DAGEN) continue;
+    if (GEEN_EVENEMENT.test(`${item.category || ""} ${item.theme || ""} ${item.title || ""}`) || GEEN_EVENEMENT_THEMA.test(clean(item.theme, 40))) continue;
     const t = plat(item.title);
     if (n && !(t.length >= 6 && (t.includes(n) || n.includes(t)))) continue;
     const loc = ` ${clean(`${item.location || ""} ${item.title || ""}`, 400).toLowerCase()} `;
@@ -968,8 +998,9 @@ export const AUTO_HERKOMST = Object.freeze({
   kalender: "een agenda met dezelfde dag en plek",
   gipod: "GIPOD (zelfde dag, het evenementvlak overlapt het parcours)",
   organisator: "de agenda van de organisator (zelfde dag en plek)",
+  besluit: "een besluit van de stad of het district (zelfde dag en straat)",
   patroon: "dezelfde route als een vorige keer",
-  regels: "de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter",
+  regels: "de omschrijving in het dossier en het studentencharter",
 });
 
 // Wat jouw straat met dit evenement te maken heeft, met de dagen van een parkeerverbod of een
@@ -1020,38 +1051,95 @@ export function eersteUur(tekst) {
   return `${m[1].padStart(2, "0")}:${m[2] || "00"}`;
 }
 
-// De kaart van één evenementendossier. Bovenaan in gewone taal: wat, wanneer, waar, jouw straat en
-// wat je merkt; daaronder de details en één korte bronregel. identiteit komt uit
-// site/sources/evenement-identiteit.json, gekoppeld uit de agenda (koppelEvenement).
+// Waar het dossier ligt, kort, voor de titel: de plek uit de automatische fiche (lib/parcours-herkenning.mjs,
+// plekKort), anders uit de straten van de innames: één straat ("op de Meir"), anders de wijk.
+function plekVoorTitel(f, id, wijkVan) {
+  const plek = clean(id?.plek, 120);
+  if (plek) return plek;
+  // Een handfiche met een soort zegt de plek al in haar eigen woorden ("tussen Middelheim en Fort VI").
+  if (id && id.zekerheid !== "onbekend") return "";
+  // Een parcours zonder fiche: door welke straten ("door 38 straten in Historisch centrum").
+  if (f.parcours) { const s = stratenSamenvatting(f.straten, wijkVan); return s ? `door ${s}` : ""; }
+  const ps = f.perSoort || {};
+  const eigen = uniek([...(ps.inname || []), ...(ps.verkeersvrij || [])]);
+  if (eigen.length === 1) return opStraat(eigen[0]);
+  if (typeof wijkVan !== "function") return "";
+  const tel = new Map();
+  for (const s of eigen.length ? eigen : f.straten || []) { const w = clean(wijkVan(s), 80); if (w) tel.set(w, (tel.get(w) || 0) + 1); }
+  const top = [...tel].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "nl"))[0]?.[0];
+  return top ? inWijk(top) : "";
+}
+// Wat er staat, als de stad niet zegt wat het is: "een inname van de straat", "een parkeerverbod" ...
+function innameWat(f) {
+  const ps = f.perSoort || {};
+  if (f.parcours) return { titel: "Parcours", zin: "een parcours" };
+  if (ps.verkeersvrij?.length && !ps.inname?.length) return { titel: "Verkeersvrije zone", zin: "een verkeersvrije zone" };
+  if (ps.parkeerverbod?.length && !ps.inname?.length && !ps.verkeersvrij?.length) return { titel: "Parkeerverbod", zin: "een parkeerverbod" };
+  return { titel: "Inname", zin: "een inname van de openbare ruimte" };
+}
+const zonderLidwoord = (t) => clean(t, 200).replace(/^(?:een|de|het)\s+/i, "");
+const metPlek = (t, plek) => clean(`${t}${plek ? ` ${plek}` : ""}`, 160);
+
+// De kaart van één evenementendossier. Titel en eerste regel zeggen meteen wát (een naam, een soort, of
+// wat er vaststaat), wáár en wannéér, en hoe zeker dat is: "vermoedelijk" alleen met een echt signaal,
+// en zonder signaal nooit alleen "de stad maakt niet bekend wat het is". Daaronder in gewone taal: wat,
+// wanneer, waar, jouw straat en wat je merkt; dan de details en één korte bronregel. identiteit komt uit
+// site/sources/evenement-identiteit.json (met de hand) of evenement-identiteit-auto.json (de herkenner),
+// gekoppeld uit de agenda (koppelEvenement).
 export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit = null, straat = "", wijkVan } = {}) {
   const f = feiten;
   const id = identiteit && ZEKERHEDEN.includes(identiteit.zekerheid) ? identiteit : null;
   const bekend = id && id.zekerheid !== "onbekend" ? id : null;
   const koppeling = !bekend && gekoppeld?.titel ? gekoppeld : null;
+  // Een automatische fiche zegt "onbekend" nadat ze de omschrijving al las: dan geen eigen woord-gok meer.
+  const fSoort = id?.methode && id.zekerheid === "onbekend" ? "" : clean(f.soort, 200);
   const dagen = evenementDagen(f, bekend);
   const datum = dagenTekst(dagen.start, dagen.eind, vandaag) || "datum niet gepubliceerd";
   const straten = stratenSamenvatting(f.straten, wijkVan);
   const duur = resterendeDuur({ start: dagen.start, eind: dagen.eind, vandaag });
+  // De echte dagen: losse dagen (een maandag per maand) of een lange periode (een maand, een jaar).
+  // Uit de innames zelf (de fiche bewaart bij een lange periode alleen de eerste en de laatste dag).
+  const echt = patroonVan((f.dagen?.length ? f.dagen : []).filter((d) => d >= dagen.start && d <= (dagen.eind || dagen.start)), vandaag);
+  const losse = Boolean(echt && echt.losse && echt.aantal > 1);
+  const lang = !losse && duurDagen(dagen.start, dagen.eind) >= LANG_DAGEN;
+  const wanneerKort = losse ? patroonTekst(echt, vandaag)
+    : lang ? (() => { const t = patroonTekst(patroonVan(alleDagen(dagen.start, dagen.eind), vandaag), vandaag); return /^van /.test(t) ? `loopt ${t}` : t; })()
+      : datum;
+  const plek = plekVoorTitel(f, id, wijkVan);
+  const geenEvenement = Boolean(bekend?.geenEvenement) || (!bekend && !koppeling && soortIsGeenEvenement(fSoort));
 
-  // WAT
-  let titel, wat;
+  // WAT, met de titel: wat + waar.
+  let titel, wat, zeker = "";
+  const inname = innameWat(f);
   if (bekend?.zekerheid === "zeker") {
     titel = clean(bekend.naam, 120);
     wat = [zin(bekend.soort), bekend.organisator ? `Organisator: ${clean(bekend.organisator, 200)}.` : ""].filter(Boolean).join(" ");
+  } else if (bekend?.soortZeker) {
+    // De soort staat in het dossier zelf (een reuzenrad, stickers, een studentendoop in de doopperiode).
+    titel = metPlek(capital(zonderLidwoord(bekend.soort)), plek);
+    wat = [`${capital(zonderLidwoord(bekend.soort))}: zo staat het in het dossier van de stad.`, zin(bekend.reden)].filter(Boolean).join(" ");
+    zeker = `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : "de naam maakt de stad niet bekend"}.`;
   } else if (bekend) {
-    titel = `Vermoedelijk ${clean(bekend.soort, 200)}`;
-    wat = [`${titel}.`, zin(bekend.reden)].filter(Boolean).join(" ");
+    titel = metPlek(`Vermoedelijk ${clean(bekend.soort, 200)}`, plek);
+    wat = [`Vermoedelijk ${clean(bekend.soort, 200)}.`, zin(bekend.reden)].filter(Boolean).join(" ");
+    zeker = `Vermoedelijk${bekend.grond ? `, afgeleid uit ${clean(bekend.grond, 160)}` : !bekend.methode ? ", met de hand nagekeken" : ""}; de stad noemt geen naam.`;
   } else if (koppeling) {
     // Een koppeling op dag en straat blijft een vermoeden: zo staat het ook in de titel.
     titel = `Vermoedelijk: ${koppeling.titel}`;
     wat = `${titel}${koppeling.locatie ? ` (${koppeling.locatie})` : ""}. Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat.`;
-  } else if (f.soort) {
-    titel = `Vermoedelijk een ${f.soort.toLowerCase()}`;
-    wat = `${titel}: dat staat in de omschrijving van het dossier. De stad maakt de naam niet bekend.`;
+  } else if (fSoort) {
+    const z = soortIsZeker(fSoort);
+    titel = metPlek(z ? fSoort : `Vermoedelijk een ${fSoort.toLowerCase()}`, plek);
+    wat = z ? `${fSoort}: zo staat het in het dossier van de stad. De stad maakt de naam niet bekend.` : `Vermoedelijk een ${fSoort.toLowerCase()}: dat staat in de omschrijving van het dossier. De stad maakt de naam niet bekend.`;
+    zeker = z ? `Zo staat het in het dossier${geenEvenement ? "; het is geen evenement met publiek" : ""}.` : "Vermoedelijk: een woord in de omschrijving van het dossier.";
   } else {
-    titel = "Evenement met toelating van de stad";
-    wat = "Evenement met toelating van de stad; de stad maakt niet bekend wat het is.";
+    // Niets over wát: dan wat er wél vaststaat (soort inname, plek, periode, omvang, voorwerpen).
+    titel = metPlek(/^op \d+ (?:kleine )?plekken/.test(plek) && inname.titel === "Inname" ? "Innames" : inname.titel, plek);
+    const voorwerpen = (f.voorwerpen || []).slice(0, 3);
+    wat = `De stad gaf toelating voor ${inname.zin}${voorwerpen.length ? `, met ${joinNl(voorwerpen)}` : ""}. Wat er gebeurt of wat er staat, zegt het dossier niet.`;
+    zeker = `${voorwerpen.length ? `Met ${joinNl(voorwerpen)}. ` : ""}Wat er gebeurt, zegt de stad niet.`;
   }
+  if (f.versiering && /^straatversiering$/i.test(zonderLidwoord(titel.replace(/ (?:op|in|aan|bij) .*$/, "")))) titel = metPlek(capital(f.versiering), plek);
 
   // WANNEER: de dag(en) van het evenement, apart van opbouw en afbraak.
   const uren = clean(bekend?.uren || koppeling?.tijd || "", 300);
@@ -1059,13 +1147,14 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   const opbouw = fasenBuiten.find((p) => p.naam === "Opbouw"), afbraak = fasenBuiten.find((p) => p.naam === "Afbraak");
   const rand = [opbouw && opbouw.start < dagen.start ? `opbouw vanaf ${dagTekst(opbouw.start, vandaag)}` : "", afbraak && afbraak.eind > dagen.eind ? `afbraak tot ${dagTekst(afbraak.eind, vandaag)}` : ""].filter(Boolean);
   const wanneer = [
-    `${capital(datum)}${uren ? `, ${uren}` : "; de uren zijn niet gepubliceerd"}.`,
+    `${capital(losse || lang ? wanneerKort : datum)}${uren ? `, ${uren}` : "; de uren zijn niet gepubliceerd"}.`,
     zin(bekend?.urenNoot),
-    rand.length ? zin(joinNl(rand)) : dagen.bron === "inname" && f.eind && f.eind !== f.start ? "Dit is de periode waarin de stad de straat in gebruik geeft." : "",
+    rand.length ? zin(joinNl(rand)) : "",
+    lang && !bekend ? "Dit is de periode waarin de stad de plek in gebruik geeft; of er elke dag iets gebeurt, zegt de stad niet." : !lang && dagen.bron === "inname" && f.eind && f.eind !== f.start ? "Dit is de periode waarin de stad de straat in gebruik geeft." : "",
   ].filter(Boolean).join(" ");
 
   // WAAR en JOUW STRAAT
-  const waar = clean(id?.waar, 400) || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
+  const waar = clean(id?.waar, 400) || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : plek ? `${capital(plek)}${straten && !/^\d/.test(plek) ? ` (${straten}, berekend uit de kaart van de stad)` : ""}.` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
   const jouw = jouwStraat(f, straat, vandaag);
 
   // WAT MERK JE
@@ -1079,7 +1168,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   const merk = clean(id?.watMerkJe, 600) || (afgeleid.length
     ? `${zin(joinNl(afgeleid))}${ps.parkeerverbod?.length ? " De uren van het parkeerverbod staan niet in het dossier." : ""}${f.hinder === "True" ? " De stad verwacht hinder voor het verkeer." : ""}`
     : f.parcours ? "Straten op het parcours kunnen tijdelijk dicht zijn; welke en hoe laat, maakt de stad niet bekend."
-      : "Welke straten dicht gaan en wanneer, maakt de stad niet bekend.");
+      : "In het dossier staat geen afgesloten straat, parkeerverbod of omleiding: alleen de inname zelf.");
 
   const kern = [["Wat", wat], ["Wanneer", wanneer], ["Waar", waar]];
   if (jouw) kern.push(["Jouw straat", jouw]);
@@ -1095,9 +1184,10 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   if (gekoppeld?.agendaId) voegToe(`/event/${gekoppeld.agendaId}/`, `Agendapunt: ${clean(gekoppeld.titel, 100)}`);
 
   // Details onder de kern. Opbouw en afbraak staan al bij "Wanneer", het aantal straten bij "Waar"
-  // (de knop "Toon alle N straten"): niet nog eens herhalen. De uitleg bij die stratenlijst:
+  // (de knop "Toon alle N straten"): niet nog eens herhalen. De uitleg bij die stratenlijst: bij een
+  // parcours de straten langs het parcours; zonder parcours de straten rond de plekken, geen parcours.
   const regels = [];
-  const stratenNoot = f.straten.length > 3 ? `${f.parcours ? "Straten langs het parcours" : "Straten in het dossier"}, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht.` : "";
+  const stratenNoot = f.straten.length > 3 ? (f.parcours ? "Straten langs het parcours, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht." : "Straten tot 18 m van de plekken in het dossier, berekend uit de kaart van de stad. Het is geen parcours: deze straten gaan niet dicht volgens het dossier.") : "";
 
   // Eén korte bronregel in gewone taal, zonder codes.
   const dossier = f.dossier ? ` (dossier ${f.dossier})` : "";
@@ -1106,33 +1196,48 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   // Een automatische fiche (site/sources/evenement-identiteit-auto.json, met `methode`) zegt eerlijk
   // dat niemand ze met de hand nakeek, en waarop ze steunt.
   const herkomst = AUTO_HERKOMST[clean(id?.methode, 20)] || "";
+  const toelating = geenEvenement ? "deze inname" : "dit evenement";
   const voetnoot = bekend?.zekerheid === "zeker" && herkomst
-    ? `De stad gaf toelating voor dit evenement${dossier}. De naam is automatisch gevonden in ${herkomst}${bronnen.length ? ` (${joinNl(bronnen)})` : ""}; niet met de hand nagekeken.`
+    ? `De stad gaf toelating voor ${toelating}${dossier}. De naam is automatisch gevonden in ${herkomst}${bronnen.length ? ` (${joinNl(bronnen)})` : ""}; niet met de hand nagekeken.`
+    : bekend?.soortZeker && herkomst
+      ? `De stad gaf toelating voor ${toelating}${dossier}, zonder naam. Wat het is, staat in het dossier zelf; automatisch gelezen, niet met de hand nagekeken.`
     : bekend && herkomst
-      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden is automatisch afgeleid uit ${herkomst}; niet met de hand nagekeken.`
+      ? `De stad gaf toelating voor ${toelating}${dossier}, zonder naam. Het vermoeden is automatisch afgeleid uit ${clean(bekend.grond, 160) || herkomst}; niet met de hand nagekeken.`
     : bekend?.zekerheid === "zeker"
-    ? `De stad gaf toelating voor dit evenement${dossier}. Wat het is, hebben we nagekeken${nagekeken}.`
+    ? `De stad gaf toelating voor ${toelating}${dossier}. Wat het is, hebben we nagekeken${nagekeken}.`
     : bekend
-      ? `De stad gaf toelating voor dit evenement${dossier}, zonder naam. Het vermoeden steunt op het dossier en op wat we nagekeken hebben${nagekeken}.`
+      ? `De stad gaf toelating voor ${toelating}${dossier}, zonder naam. Het vermoeden steunt op het dossier en op wat we nagekeken hebben${nagekeken}.`
     : koppeling
-      ? `De stad gaf toelating voor dit evenement${dossier}. De naam komt van het agendapunt op dezelfde dag in dezelfde straat.`
-      : `De stad gaf toelating voor dit evenement${dossier}, maar zegt niet wie het organiseert of op welke uren.`;
+      ? `De stad gaf toelating voor ${toelating}${dossier}. De naam komt van het agendapunt op dezelfde dag in dezelfde straat.`
+      : fSoort ? `De stad gaf toelating voor ${toelating}${dossier}, maar zegt niet wie het organiseert of op welke uren.`
+        : `De stad gaf toelating${dossier}, maar zegt niet wat het is, wie het organiseert of op welke uren.`;
 
   const ontbreekt = [];
-  if (!bekend && !koppeling) ontbreekt.push("naam van het evenement niet gepubliceerd door de stad");
+  if (!bekend && !koppeling) ontbreekt.push(fSoort ? "naam van het evenement niet gepubliceerd door de stad" : "wat er gebeurt en de naam niet gepubliceerd door de stad");
   if (!uren) ontbreekt.push("uren niet gepubliceerd");
   if (!bekend?.organisator) ontbreekt.push("organisator niet gepubliceerd");
 
+  // De eerste regel: wanneer (met de uren), hoe groot of hoe zeker, en jouw straat.
+  const omvang = !bekend && !koppeling && !fSoort ? clean(id?.omvang, 160) : "";
   const samenvatting = [
-    !bekend && !koppeling && !f.soort ? "De stad maakt niet bekend wat het is." : "",
-    `${capital(datum)}${uren ? `, ${uren}` : ""}.`,
+    `${capital(wanneerKort)}${uren ? `, ${uren}` : ""}${omvang ? ` · ${omvang}` : ""}.`,
+    zeker,
     jouw,
   ].filter(Boolean).join(" ");
   return {
     titel, samenvatting, kern, regels, links, voetnoot, ontbreekt, duur, plek: straten, technisch: "", stratenNoot,
     beschrijvingen: f.beschrijvingen || [], tijd: eersteUur(uren),
     zekerheid: bekend?.zekerheid || (koppeling ? "gekoppeld" : "onbekend"), dagen: { start: dagen.start, eind: dagen.eind },
+    // Voor de lijst (site/place-core.js): de losse dagen (een maandag per maand is geen periode van maanden),
+    // een lange periode (geen "Vandaag" en een eigen groep) en of het geen evenement met publiek is.
+    losseDagen: losse ? echt.alle : [], lang, geenEvenement,
   };
+}
+// Alle dagen van a tot b (hoogstens 800).
+function alleDagen(a, b) {
+  const uit = [];
+  for (let d = a; d && d <= (b || a) && uit.length < 800; d = new Date(Date.parse(`${d}T12:00:00Z`) + 86_400_000).toISOString().slice(0, 10)) uit.push(d);
+  return uit;
 }
 
 

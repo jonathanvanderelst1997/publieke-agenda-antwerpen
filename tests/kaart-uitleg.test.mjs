@@ -111,7 +111,7 @@ test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk ov
   const wijk = (s) => (s === "Eestraat" ? "Zuid" : "Centrum");
   const k = evenementKaartje(f, { vandaag: VANDAAG, wijkVan: wijk });
   // De soort komt uit een woord in het dossier ("10K"): dus "vermoedelijk", met de reden erbij.
-  assert.equal(k.titel, "Vermoedelijk een loopwedstrijd");
+  assert.equal(k.titel, "Vermoedelijk een loopwedstrijd door 5 straten in Centrum en Zuid"); // wat en waar
   const kern = Object.fromEntries(k.kern);
   assert.match(kern.Wat, /omschrijving van het dossier/);
   assert.equal(kern.Wanneer, "Dinsdag 13 oktober; de uren zijn niet gepubliceerd.");
@@ -150,7 +150,7 @@ test("lange straatlijst wordt een telling met de wijken", () => {
 test("de site bundelt innames per dossier en geeft werken een duidelijke titel", () => {
   const entries = publicSpaceEntries(rijen.slice(0, 1), { vandaag: VANDAAG, alle: rijen, uitleg: null, wijkVan: () => "" });
   assert.equal(entries.length, 1);
-  assert.equal(entries[0].title, "Vermoedelijk een loopwedstrijd");
+  assert.match(entries[0].title, /^Vermoedelijk een loopwedstrijd door /);
   assert.equal(entries[0].group, "evenementen"); // een evenementendossier is een evenement, geen werk
   assert.equal(entries[0].straten.length, 5);
   assert.match(entries[0].sourceUrl, /^https:\/\/geodata\.antwerpen\.be\//);

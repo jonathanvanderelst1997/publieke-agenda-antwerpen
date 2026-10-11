@@ -179,7 +179,8 @@ test("site: een handfiche wint altijd, en een automatische fiche zegt dat ze nie
   assert.match(k.voetnoot, /De naam is automatisch gevonden in een agenda met dezelfde dag en plek \(antwerpen\.be\); niet met de hand nagekeken\.$/);
   const regels = LOO.rijen.find((r) => r.dossier === "ET2026004615").auto;
   const k2 = evenementKaartje(evenementFeiten([{ ...rij, reference: "ET2026004615" }]), { vandaag: VANDAAG, identiteit: regels });
-  assert.equal(k2.titel, "Vermoedelijk een schoolactiviteit");
+  // De titel zegt ook waar (plekKort in lib/parcours-herkenning.mjs): "... vanaf de Belegstraat".
+  assert.match(k2.titel, /^Vermoedelijk een schoolactiviteit vanaf de /);
   assert.match(k2.voetnoot, /automatisch afgeleid uit de omschrijving in het dossier/);
 });
 

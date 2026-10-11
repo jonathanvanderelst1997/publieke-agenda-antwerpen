@@ -6,6 +6,7 @@
 
 import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, koppelEvenement, soortEvenement, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
+import { LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, waarTekst } from "./permit-clarity.js";
 
@@ -322,11 +323,27 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
 // evenement van vandaag staat altijd bovenaan "nu bezig", ook als het maar één dag duurt (een koers,
 // een stoet): het zakt niet onder de lopende werven in een aparte sectie "Vandaag".
 export function groupForList(entries, { from, to, today }) {
-  const running = [], days = new Map(), later = [];
-  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak).
-  const vandaagEvenement = (e) => e.group === "evenementen" && (e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
+  const running = [], days = new Map(), later = [], doorlopend = [];
+  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak). Een periode van twee weken
+  // of langer niet (een toelating van een maand of een jaar is geen evenement van vandaag), en bij losse
+  // dagen (een maandag per maand) alleen als vandaag zo'n dag is.
+  const vandaagEvenement = (e) => e.group === "evenementen" && !langEvenement(e) && (e.losseDagen?.length ? e.losseDagen.includes(today) : e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
   for (const entry of entries) {
     const fase = evenementFase(entry, today);
+    // Lang (twee weken of meer) en vandaag bezig: een eigen groep, onder wat vandaag echt gebeurt.
+    if (langEvenement(entry)) {
+      const p = periodeVan(entry);
+      if (p.start && p.start <= today && (p.end || p.start) >= today) { doorlopend.push(entry); continue; }
+    }
+    // Losse dagen: bij de eerstvolgende dag zelf, niet de hele periode bij "nu bezig".
+    if (entry.losseDagen?.length && !vandaagEvenement(entry)) {
+      const dag = entry.losseDagen.find((d) => d >= from && d >= today);
+      if (!dag) continue;
+      if (dag > to) { later.push({ ...entry, start: dag }); continue; }
+      if (!days.has(dag)) days.set(dag, []);
+      days.get(dag).push(entry);
+      continue;
+    }
     if (fase === "opbouw" || fase === "afbraak" || vandaagEvenement(entry)) { running.push(entry); continue; }
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     if (multi && entry.start <= today && (entry.openEnd || entry.end >= today)) { running.push(entry); continue; }
@@ -347,7 +364,26 @@ export function groupForList(entries, { from, to, today }) {
   const eindVan = (e) => periodeVan(e).end || (e.openEnd ? "" : e.start) || "9999";
   running.sort((a, b) => Number(vandaagEvenement(b)) - Number(vandaagEvenement(a)) || String(eindVan(a)).localeCompare(String(eindVan(b))) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
-  return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
+  doorlopend.sort((a, b) => String(eindVan(a)).localeCompare(String(eindVan(b))) || byTitle(a, b));
+  return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later, doorlopend };
+}
+// Een evenement (of evenementendossier) van twee weken of langer, zonder losse dagen: geen "Vandaag",
+// een eigen groep "Doorlopend" in de lijst (klacht van 10 oktober 2026: maanden- en jaardossiers met
+// "Vandaag" bovenaan). Werken en maatregelen blijven waar ze staan.
+export const langEvenement = (e = {}) => e.group === "evenementen" && !e.losseDagen?.length && duurDagen(e.start, e.end) >= LANG_DAGEN;
+// Het label bij een evenement op straat als de gewone fase ("Vandaag") niet klopt: een lange periode
+// ("Loopt tot 29 okt") of losse dagen ("Vandaag" alleen op zo'n dag, anders "Volgende: 9 nov"). Anders
+// null: dan de gewone badge van de fase (place-view.js, FASE_BADGE).
+export function evenementBadge(entry = {}, today = "") {
+  const fase = evenementFase(entry, today);
+  if (!fase || fase === "voorbij" || fase === "gepland") return null;
+  if (entry.losseDagen?.length) {
+    if (entry.losseDagen.includes(today)) return { label: "Vandaag", soort: "now" };
+    const volgende = entry.losseDagen.find((d) => d > today);
+    return volgende ? { label: `Volgende: ${kortDatum(volgende, today)}`, soort: "planned" } : null;
+  }
+  if (fase === "evenement" && langEvenement(entry)) return { label: entry.end ? `Loopt tot ${kortDatum(entry.end, today)}` : "Doorlopend", soort: "period" };
+  return null;
 }
 
 // ---- soorten (de enige filterrij) ----
@@ -540,6 +576,8 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
     innameStart, innameEind,
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
     evenementLinks: k.links, straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart, kaartDeel,
+    // De echte dagen als die los liggen (een maandag per maand), voor de lijst en de badge (groupForList).
+    losseDagen: k.losseDagen || [],
   };
 }
 
@@ -1037,10 +1075,24 @@ export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 
   if (onvolledig) return plek ? `In wat wel geladen is, staat niets voor ${plek}.` : "In wat wel geladen is, staat nu niets.";
   return plek ? `Er staat niets op de agenda voor ${plek}.` : "Er staat nu niets op de agenda.";
 }
-// Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8".
+// Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8". Een
+// periode van twee weken of langer is een toelating, geen evenement dat je dag per dag volgt: dan "Loopt
+// sinds 1 okt · nog 19 dagen (t/m 29 okt)" of "Loopt heel 2026 · nog 82 dagen".
 export function voortgangTekst(start, end, today) {
   const totaal = Math.max(1, daysBetween(start, end) + 1);
   const dagen = (n) => `${n} dag${n === 1 ? "" : "en"}`;
   if (start > today) return `Start over ${dagen(daysBetween(today, start))} · duurt ${dagen(totaal)}`;
+  if (totaal >= LANG_DAGEN) {
+    const nog = Math.max(0, daysBetween(today, end));
+    const heelJaar = start.slice(5) === "01-01" && end.slice(5) === "12-31" && start.slice(0, 4) === end.slice(0, 4);
+    return `${heelJaar ? `Loopt heel ${start.slice(0, 4)}` : `Loopt sinds ${kortDatum(start, today)}`} · ${nog ? `nog ${dagen(nog)}` : "laatste dag"}${heelJaar ? "" : ` (t/m ${kortDatum(end, today)})`}`;
+  }
   return `Dag ${Math.min(totaal, Math.max(0, daysBetween(start, today) + 1))} van ${totaal}`;
+}
+// Losse dagen van een evenement op straat, in gewone taal: "Elke woensdag van 7 tot 28 oktober; de
+// volgende is woensdag 21 oktober" (site/evenement-wat.js).
+export function losseDagenTekst(entry = {}, today = "") {
+  const p = patroonVan(entry.losseDagen || [], today);
+  const t = p ? patroonTekst(p, today) : "";
+  return t ? `${t.charAt(0).toUpperCase()}${t.slice(1)}` : "";
 }

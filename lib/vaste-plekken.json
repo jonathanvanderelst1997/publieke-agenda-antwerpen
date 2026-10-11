@@ -1,0 +1,40 @@
+{
+  "uitleg": "Vaste plekken die op de evenementkaart een naam krijgen als een evenementendossier (A-Sign) er helemaal binnen ligt: een terrein zonder straatnaam of met een eigen functie. Het midden en de straal (meter) komen uit de vlakken van A-Sign laag 22 en het studentencharter (geodata.antwerpen.be). Een plek zegt waar iets is, nooit wat er gebeurt: `feit` is wat de plek zelf is (de parking van de zalen), geen soort evenement. `minM2`: alleen een dossier dat samen minstens zoveel m² inneemt (de hele parking, niet een stukje stoep ernaast). `geenCharter`: een plek uit het studentencharter in de buurt zegt hier niets (lib/parcours-herkenning.mjs).",
+  "bijgewerkt": "2026-10-11",
+  "plekken": [
+    {
+      "naam": "Parking Spoor Oost",
+      "zin": "op Parking Spoor Oost",
+      "punt": [4.44378, 51.22384],
+      "straal": 600,
+      "minM2": 50000,
+      "feit": "het terrein is de evenementenparking van de AFAS Dome en de Lotto Arena",
+      "geenCharter": true,
+      "bron": "https://www.afas-dome.be/mobiliteit"
+    },
+    {
+      "naam": "Olympisch Stadion",
+      "zin": "bij het Olympisch Stadion",
+      "punt": [4.38194, 51.18502],
+      "straal": 180
+    },
+    {
+      "naam": "park Den Brandt",
+      "zin": "in park Den Brandt",
+      "punt": [4.40323, 51.18171],
+      "straal": 400
+    },
+    {
+      "naam": "park Konijnenwei",
+      "zin": "in park Konijnenwei (Nieuw Zuid)",
+      "punt": [4.38765, 51.20075],
+      "straal": 260
+    },
+    {
+      "naam": "Belvédère",
+      "zin": "aan de Belvédère (Droogdokkenpark)",
+      "punt": [4.40285, 51.23565],
+      "straal": 90
+    }
+  ]
+}
