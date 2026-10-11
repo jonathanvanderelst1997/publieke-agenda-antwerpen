@@ -32,6 +32,8 @@ const javascriptFiles = [
   "lib/koopzondagen.mjs",
   "lib/mail-signals.mjs",
   "lib/asign-foren.mjs",
+  "lib/asign-evenementen-agenda.mjs",
+  "lib/afgeleide-bronstatus.mjs",
   "lib/schoolstraten.mjs",
   "lib/district-projecten.mjs",
   "lib/periode-tekst.mjs",

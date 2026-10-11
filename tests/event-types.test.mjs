@@ -21,3 +21,11 @@ test("herkent cultuur en participatie breder zonder algemene woorden te gokken",
   assert.equal(c({title:"Kunstendag voor kinderen"}),"culture");
   assert.equal(c({title:"Vliegend College komt naar de wijken"}),"participation");
 });
+test("een evenement op straat uit de dossiers van de stad zonder herkenbare soort hoort bij buurt & straat",()=>{
+  const s="district-asign-evenementen";
+  assert.equal(c({title:"Evenement in de Proefstraat — naam volgt",sourceId:s}),"neighborhood");
+  assert.equal(c({title:"Studentenactiviteit op het Proefplein",sourceId:s}),"neighborhood");
+  assert.equal(c({title:"Speelstraat in de Proefstraat",sourceId:s}),"playstreet");
+  assert.equal(c({title:"Proefloop Zuid",theme:"Sport",sourceId:s}),"sport");
+  assert.equal(c({title:"Evenement in de Proefstraat",sourceId:"district-kalender"}),"other","andere bronnen blijven ongewijzigd");
+});

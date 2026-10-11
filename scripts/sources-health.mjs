@@ -12,7 +12,9 @@
 // (--baseline <ref> kiest een andere, --no-baseline slaat ze over). Dat is een tweede slot naast de
 // grendel in de fetchers: ook een fetcher die zich vergist, kan zo geen lege agenda live zetten.
 // Een bewuste daling laat de eigenaar toe met AGENDA_ALLOW_DROP=<sourceId>[,<sourceId>…].
-// Een bron met shrinkGuard: false in lib/source-feed.mjs (stad-districten) wordt niet vergeleken.
+// Een bron met shrinkGuard: false in lib/source-feed.mjs (stad-districten) wordt niet vergeleken; ook
+// district-asign-evenementen niet: die houdt een krimp zelf tegen bij het schrijven en meldt ze dan als
+// fout (suspicious_drop) in haar regel in refresh-status.json.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -20,7 +22,8 @@ import { fileURLToPath } from "node:url";
 
 import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
+import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
+import { MAX_AGE_HOURS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
 export function gitBaseline(rootDir, ref) {
@@ -54,6 +57,9 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
 
   let unhealthy = 0;
   const warnings = [];
+  // Elke melding met haar eigen titel (een verouderde bron is geen lege bron).
+  const meldingen = [];
+  const meld = (titel, tekst) => { warnings.push(tekst); meldingen.push({ titel, tekst }); };
   const asOfDay = brusselsDate(new Date(at));
   for (const entry of status.sources) {
     const fetched = sourceHealthOf(entry, at);
@@ -61,11 +67,40 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     if (health === "error" || health === "expired") unhealthy += 1;
     if (health === "leeg") {
       const what = entry.itemCount ? `${entry.itemCount} items, allemaal voorbij` : "0 items";
-      warnings.push(`${entry.sourceId}: sinds ${entry.emptySince} niets komends (${what})`);
+      meld("Bron leeg", `${entry.sourceId}: sinds ${entry.emptySince} niets komends (${what})`);
     }
     const coverage = entry.capped ? `capped=t/m ${entry.coverageUntil ?? "-"}` : "";
     const content = Number.isInteger(entry.upcomingCount) ? [`upcoming=${entry.upcomingCount}`, entry.emptySince ? `emptySince=${entry.emptySince}` : ""] : [];
     lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, ...content, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
+  }
+
+  // Afgeleide bronnen (lib/source-registry.mjs, AFGELEIDE_BRONNEN): de stap die ze afleidt, zet haar regel
+  // in refresh-status.json (lib/afgeleide-bronstatus.mjs); dan telt ze hierboven mee zoals elke bron (een
+  // tijdelijke fout is "stale", een blijvende fout of een krimp is een fout). Zonder regel (nog nooit
+  // afgeleid met die stap): uit het eigen bestand, en dan alleen melden. Een ontbrekend, ongeldig of
+  // verouderd bestand is een waarschuwing; de agenda verbergt verouderde items zelf.
+  const metRegel = new Set(status.sources.map((entry) => entry.sourceId));
+  for (const bron of AFGELEIDE_BRONNEN) {
+    for (const sourceId of bron.sourceIds) {
+      if (metRegel.has(sourceId)) continue;
+      const document = readJson(path.join(rootDir, "site", sourceFileName(sourceId)));
+      if (!document) {
+        lines.push(`${sourceId}\tnog niet afgeleid\twacht op ${bron.na}`);
+        continue;
+      }
+      const fouten = validateSourceDocument(document, { expectedSourceId: sourceId });
+      if (fouten.length) {
+        lines.push(`${sourceId}\tongeldig\tafgeleid na ${bron.na}\t${fouten[0]}`);
+        meld("Bron ongeldig", `${sourceId}: ongeldig bestand (${fouten.length} fouten)`);
+        continue;
+      }
+      const items = Array.isArray(document.items) ? document.items : [];
+      const opgehaald = Date.parse(document.retrievedAt ?? "");
+      const verouderd = !Number.isFinite(opgehaald) || at > opgehaald + MAX_AGE_HOURS * 3_600_000;
+      if (verouderd) meld("Bron verouderd", `${sourceId}: niet bijgewerkt sinds ${document.retrievedAt ?? "-"} (stap ${bron.na})`);
+      const komend = items.filter((item) => (item.endDate || item.date) >= asOfDay).length;
+      lines.push([sourceId, verouderd ? "verouderd" : "ok", `afgeleid na ${bron.na}`, `items=${items.length}`, `upcoming=${komend}`, `retrievedAt=${document.retrievedAt ?? "-"}`].join("\t"));
+    }
   }
 
   // Automatische parcoursherkenning (lib/parcours-herkenning-refresh.mjs): alleen melden, telt niet als fout.
@@ -101,9 +136,9 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   // melden, niet als fout tellen. Zo kent sources:health elke bron uit lib/source-feed.mjs.
   const listed = new Set(status.sources.map((entry) => entry.sourceId));
   for (const sourceId of SOURCE_IDS) {
-    if (!listed.has(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
+    if (!listed.has(sourceId) && !AFGELEIDE_BRON_IDS.includes(sourceId)) lines.push(`${sourceId}\tnog niet opgehaald\twacht op de eerste verversing`);
   }
-  return { lines, warnings, unhealthy, exitCode: unhealthy ? 1 : 0 };
+  return { lines, warnings, meldingen, unhealthy, exitCode: unhealthy ? 1 : 0 };
 }
 
 if (isMainModule(import.meta.url)) {
@@ -116,7 +151,7 @@ if (isMainModule(import.meta.url)) {
   const baseline = args.includes("--no-baseline") ? null : gitBaseline(rootDir, ref);
   const result = checkHealth({ rootDir, at, baseline, baselineLabel: ref });
   for (const line of result.lines) console.log(line);
-  // Oranje in de run van GitHub: een lege bron is een melding, geen fout.
-  if (process.env.GITHUB_ACTIONS === "true") for (const warning of result.warnings ?? []) console.log(`::warning title=Bron leeg::${warning}`);
+  // Oranje in de run van GitHub: een lege, verouderde of ongeldige afgeleide bron is een melding, geen fout.
+  if (process.env.GITHUB_ACTIONS === "true") for (const { titel, tekst } of result.meldingen ?? []) console.log(`::warning title=${titel}::${tekst}`);
   process.exitCode = result.exitCode;
 }

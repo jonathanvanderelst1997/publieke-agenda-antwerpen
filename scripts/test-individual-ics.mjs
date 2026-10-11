@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import fs from "node:fs";
 await import("../site/agenda-ics.js");
 const { buildIndividualIcs, filenameForItem, validateIndividualIcs } = globalThis.AgendaIcs;
 
@@ -46,9 +47,26 @@ assert.throws(() => buildIndividualIcs({ ...timed, date: "2026-02-30" }), /onmog
 assert.throws(() => buildIndividualIcs({ ...timed, link: "http://example.test" }), /HTTPS/);
 assert.equal(filenameForItem(timed), "2026-10-10-poetische-rimpelingen-slot.ics");
 
+// Elk echt item uit de feed (site/agenda-feed.js) geeft een geldig .ics-bestand, zoals de knop op de site
+// het maakt: ook de evenementen op straat uit A-Sign en de items die uit twee bronnen samenkomen.
+const feedTekst = fs.readFileSync(new URL("../site/agenda-feed.js", import.meta.url), "utf8");
+const feed = JSON.parse(feedTekst.replace(/^[\s\S]*?window\.PUBLIC_AGENDA_FEED\s*=\s*/, "").replace(/;\s*$/, ""));
+const echteItems = Array.isArray(feed.items) ? feed.items : [];
+const echteFouten = [];
+for (const item of echteItems) {
+  try {
+    const { errors } = validateIndividualIcs(buildIndividualIcs(item, { now: "2026-08-13T00:00:00.000Z" }));
+    if (errors.length) echteFouten.push(`${item.id}: ${errors.join(", ")}`);
+  } catch (error) {
+    echteFouten.push(`${item.id}: ${error.message}`);
+  }
+}
+assert.deepEqual(echteFouten.slice(0, 10), [], `${echteFouten.length} echte items geven geen geldig .ics-bestand`);
+
 console.log(JSON.stringify({
   result: "PASS",
-  checks: 16,
+  checks: 17,
+  feedItems: echteItems.length,
   timedMode: "Europe/Brussels with DST rules",
   unknownTimeMode: "all-day with exclusive next-day DTEND",
   sourcePolicy: "public HTTPS required",

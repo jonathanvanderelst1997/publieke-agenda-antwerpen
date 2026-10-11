@@ -47,3 +47,15 @@ test("current public source satisfies critical event contract", async () => {
   assert.equal(result.errors.length, 0, JSON.stringify(result.errors.slice(0, 5)));
   assert.equal(result.events.length, items.length);
 });
+
+test("fasen en straten van een evenement op straat: geldig, of een fout; een dag buiten de fasen is een waarschuwing", () => {
+  const base = { id: "asign-ev-et2099000001-2026-10-18", title: "Proefloop", date: "2026-10-18", timeSlot: "Info", location: "Proefstraat" };
+  const ok = validateEventContract([{ ...base, fasen: [{ naam: "Opbouw", start: "2026-10-16", eind: "2026-10-17" }, { naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }], straten: ["Proefstraat"] }]);
+  assert.deepEqual(ok.errors, []);
+  const fout = validateEventContract([{ ...base, fasen: [{ naam: "Opbouw", start: "2026-10-18", eind: "2026-10-16" }] }]);
+  assert.deepEqual(fout.errors.map((error) => error.code), ["invalid_phases"]);
+  assert.deepEqual(validateEventContract([{ ...base, straten: ["", "Proefstraat"] }]).errors.map((error) => error.code), ["invalid_streets"]);
+  const buiten = validateEventContract([{ ...base, fasen: [{ naam: "Evenement", start: "2026-10-20", eind: "2026-10-20" }] }]);
+  assert.deepEqual(buiten.errors, []);
+  assert.ok(buiten.warnings.some((warning) => warning.code === "date_outside_phases"));
+});
