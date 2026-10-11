@@ -136,3 +136,41 @@ test("de uitvoer is deterministisch, ongeacht de volgorde van de invoer", () => 
   assert.deepEqual(mergeEvents(sources), mergeEvents(reversed));
   assert.deepEqual(mergeEvents(sources).items.map((merged) => merged.id), ["uit-9", "kal-10", "kal-9"]);
 });
+
+test("sameAs: een evenementendossier (district-asign-evenementen) wordt één item met het punt uit de kalender, ook bij een andere postcode", () => {
+  const dossier = item("asign-ev-et2099000001-2026-10-18", {
+    title: "Evenement in de Proefstraat — naam volgt",
+    timeSlot: "Info",
+    timeText: "",
+    location: "Proefstraat en Voorbeeldlaan",
+    postcodes: ["2000"],
+    sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+    fasen: [{ naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }],
+    straten: ["Proefstraat", "Voorbeeldlaan"],
+    sameAs: ["kal-30"],
+  });
+  const buur = item("asign-ev-et2099000002-2026-10-18", { title: "Evenement in de Verre Straat — naam volgt", timeSlot: "Info", location: "Verre Straat", postcodes: ["2060"], sourceUrl: dossier.sourceUrl });
+  const { items } = mergeEvents({
+    "district-asign-evenementen": { scope: "district", items: [dossier, buur] },
+    "district-kalender": { scope: "district", items: [item("kal-30", { title: "Proefcriterium", postcodes: ["2050"] })] },
+  });
+  assert.deepEqual(items.map((merged) => merged.id), ["kal-30", "asign-ev-et2099000002-2026-10-18"]);
+  const [merged] = items;
+  assert.equal(merged.title, "Proefcriterium");
+  assert.deepEqual(merged.sources.map((source) => source.sourceId), ["district-kalender", "district-asign-evenementen"]);
+  assert.deepEqual(merged.straten, ["Proefstraat", "Voorbeeldlaan"]);
+  assert.deepEqual(merged.fasen, [{ naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }]);
+  assert.equal("sameAs" in merged, false);
+  assert.equal(items[1].sources.length, 1, "zonder sameAs, andere titel en andere straat: apart");
+});
+
+test("sameAs werkt in beide richtingen en de dossiers gaan vóór de besluiten van eBesluit", () => {
+  const besluit = item("ebesluit-ev-2099-cbs-00001-2026-10-18", { title: "Proeffeest", sourceUrl: "https://ebesluit.antwerpen.be/zittingen/1/agendapunten/2" });
+  const dossier = item("asign-ev-et2099000003-2026-10-18", { title: "Proeffeest", timeSlot: "Info", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22", sameAs: [besluit.id] });
+  const { items } = mergeEvents({
+    "district-ebesluit-evenementen": { scope: "district", items: [besluit] },
+    "district-asign-evenementen": { scope: "district", items: [dossier] },
+  });
+  assert.equal(items.length, 1);
+  assert.deepEqual(items[0].sources.map((source) => source.sourceId), ["district-asign-evenementen", "district-ebesluit-evenementen"]);
+});

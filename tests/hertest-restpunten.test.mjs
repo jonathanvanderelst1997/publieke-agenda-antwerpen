@@ -183,8 +183,12 @@ test("4. in \"Loopt nu\" staan de evenementen van vandaag boven de lopende werve
   const koers = { uid: "koers", group: "evenementen", title: "Proefkoers", start: "2026-10-09", end: "2026-10-11", innameStart: "2026-10-08", innameEind: "2026-10-11" };
   const foor = { uid: "foor", group: "evenementen", title: "Proeffoor", start: "2026-10-03", end: "2026-10-18" };
   const opbouw = { uid: "opbouw", group: "evenementen", title: "Opbouw van een later feest", start: "2026-10-13", end: "2026-10-13", innameStart: "2026-10-08", innameEind: "2026-10-14" };
-  const { running } = groupForList([werf, zone, opbouw, foor, koers], { ...periodRange("alles", vandaag), today: vandaag });
-  assert.deepEqual(running.map((e) => e.uid), ["koers", "foor", "werf", "zone", "opbouw"]);
+  const { running, doorlopend } = groupForList([werf, zone, opbouw, foor, koers], { ...periodRange("alles", vandaag), today: vandaag });
+  // Een foor van 16 dagen loopt twee weken of langer: die staat in een eigen groep "Doorlopend", niet
+  // als evenement van vandaag bovenaan (klacht van de eigenaar op 10-10-2026: maand- en jaardossiers met
+  // "Vandaag"). Wat vandaag echt gebeurt, de koers, blijft bovenaan "Loopt nu".
+  assert.deepEqual(running.map((e) => e.uid), ["koers", "werf", "zone", "opbouw"]);
+  assert.deepEqual(doorlopend.map((e) => e.uid), ["foor"]);
 });
 
 // De visuele hertest vond het geval dat toets 4 niet zag: een evenement van één dag (begin = einde =
@@ -201,10 +205,11 @@ test("4b. ook een evenement van één dag vandaag staat bovenaan \"Loopt nu\", n
   const foor = { uid: "foor", group: "evenementen", title: "Proeffoor", start: "2026-10-03", end: "2026-10-18" };
   const morgen = { uid: "morgen", group: "evenementen", title: "Feest morgen", start: "2026-10-11", end: "" };
   const handmatig = { uid: "handmatig", group: "werken", title: "Heraanleg", start: "2026-08-03", openEnd: true };
-  const { running, days } = groupForList([...werven, handmatig, morgen, foor, feest, stoet, koers], { ...periodRange("alles", vandaag), today: vandaag });
-  assert.deepEqual(running.slice(0, 4).map((e) => e.uid), ["feest", "stoet", "koers", "foor"]);
+  const { running, days, doorlopend } = groupForList([...werven, handmatig, morgen, foor, feest, stoet, koers], { ...periodRange("alles", vandaag), today: vandaag });
+  assert.deepEqual(running.slice(0, 3).map((e) => e.uid), ["feest", "stoet", "koers"]);
   assert.equal(running.at(-1).uid, "handmatig", "iets zonder einde komt achteraan");
-  assert.equal(running.length, 4 + 15 + 1);
+  assert.equal(running.length, 3 + 15 + 1);
+  assert.deepEqual(doorlopend.map((e) => e.uid), ["foor"], "de foor van 16 dagen staat in de groep Doorlopend");
   assert.deepEqual(days.map(([d, l]) => [d, l.map((e) => e.uid)]), [["2026-10-11", ["morgen"]]], "geen aparte sectie voor vandaag");
 });
 

@@ -127,6 +127,8 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "site", "inzage-status.js"), path.join(root, "site", "inzage-status.js"));
       // lib/historiek-privacy.mjs haalt de naamregel uit de kaartjes (naamNaCodeWeg).
       fs.copyFileSync(path.join(repoRoot, "site", "kaart-uitleg.js"), path.join(root, "site", "kaart-uitleg.js"));
+      // ... en die haalt de vaste woorden en de dagen van een evenementendossier uit site/evenement-wat.js.
+      fs.copyFileSync(path.join(repoRoot, "site", "evenement-wat.js"), path.join(root, "site", "evenement-wat.js"));
 
       const baseline = { schemaVersion: 1, layers: { works: { observedAt: T1, items: [{ id: "work:1" }] }, publicSpace: null } };
       const day = updateHistoryArchiveDay(null, T2, [event(T2, "work:2")]);

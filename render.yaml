@@ -18,3 +18,32 @@ services:
       - path: /*
         name: Referrer-Policy
         value: strict-origin-when-cross-origin
+      # Cache (P5, bandbreedte: Render Hobby telt 5 GB per maand). Zonder regel stuurt Render
+      # "public, max-age=0, s-maxage=300": de browser vraagt elke keer na en krijgt een 304 als er
+      # niets veranderde. Dat blijft zo voor de code (index.html, *.js, *.css): die hebben geen versie
+      # in hun naam, en een oude module naast een nieuwe breekt de pagina na een uitrol.
+      # Een straatbestand vraagt de pagina altijd op met de hash van zijn inhoud ("/straat/1416.json?v=…",
+      # zie site/straat-snapshot.js): een nieuwe inhoud is een nieuwe URL, dus mag het een jaar blijven.
+      - path: /straat/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      # De data die elke ochtend verandert: vijf minuten bewaren, daarna nakijken (een 304 als ze niet veranderde).
+      - path: /straat-index.json
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
+      - path: /history/*
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
+      - path: /sources/*
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
+      - path: /agenda-feed.js
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
+      - path: /geo/locaties.json
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
+      # De icoontjes veranderen bijna nooit.
+      - path: /favicon.*
+        name: Cache-Control
+        value: public, max-age=604800

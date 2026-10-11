@@ -1,1 +1,3 @@
 node_modules/
+# Tussenbestand van de verversing (scripts/build-straat-snapshots.mjs); nooit publiek.
+.cache/

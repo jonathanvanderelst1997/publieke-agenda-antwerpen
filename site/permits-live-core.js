@@ -74,3 +74,44 @@ export function collectPermits({features=[],districtGeometry=null,streetIndex=nu
   for(const[id,item]of byId){const v=vormen.has(id)?parcoursGeometrie(vormen.get(id)):null;if(v&&(v.vlakken.length||v.lijnen.length))item.vorm=v}
   return[...byId.values()].sort((a,b)=>a.dossierType.localeCompare(b.dossierType,"nl")||a.dossier.localeCompare(b.dossier,"nl"));
 }
+
+// ---------- ophalen ----------
+// Het kader van het district (zoals de andere live lagen), of een kleiner kader rond één straat.
+export const DISTRICT_KADER = Object.freeze([4.300791, 51.175458, 4.444331, 51.313629]);
+const VELDEN = "DOSSIERTYPE,Dossiernummer,AardAanvraag,Onderwerp,Beslissing,DatumBeslissing,Volledig,Ontvankelijk,Ingetrokken,Stopgezet,ProjectnummerOmgevingsloket,behandelendeOverheid,beslissingsoverheid";
+async function haalJson(url, fetchImpl) {
+  const r = await fetchImpl(url, { headers: { Accept: "application/json" } });
+  if (!r.ok) throw Error(`HTTP ${r.status}`);
+  const j = await r.json();
+  if (j?.error) throw Error(j.error.message || "bronfout");
+  return j;
+}
+// De ruwe dossiers in een kader: eerst de ids, dan de details in blokken van 500. Het onderwerp (vrije
+// tekst, soms met een naam) komt alleen binnen om een intrekking te herkennen; normalizePermit geeft het nooit uit.
+export async function haalVergunningenInKader(kader = DISTRICT_KADER, { fetch: fetchImpl = (...a) => globalThis.fetch(...a) } = {}) {
+  const base = `${LAAG}/query`, idsUrl = new URL(base);
+  idsUrl.search = new URLSearchParams({ where: "1=1", geometry: kader.join(","), geometryType: "esriGeometryEnvelope", inSR: "4326", spatialRel: "esriSpatialRelIntersects", returnIdsOnly: "true", f: "json" });
+  const idData = await haalJson(idsUrl, fetchImpl), ids = Array.isArray(idData.objectIds) ? idData.objectIds : [];
+  if (ids.length > 10000) throw Error("te veel omgevingsdossiers");
+  const features = [];
+  for (let i = 0; i < ids.length; i += 500) {
+    const u = new URL(base);
+    u.search = new URLSearchParams({ objectIds: ids.slice(i, i + 500).join(","), outFields: VELDEN, returnGeometry: "true", outSR: "4326", f: "json" });
+    const d = await haalJson(u, fetchImpl);
+    if (!Array.isArray(d.features)) throw Error("omgevingsdossiers ontbreken");
+    features.push(...d.features);
+  }
+  return features;
+}
+// Snelheid (P5): de vergunningen in het kader van één straat, voor de plekpagina (site/place-view.js).
+// `volledigeIndex`: een functie die de straatassen van het hele district geeft (die laden op de plekpagina
+// al). Een aanvraag die ver buiten het kader reikt (een leidingwerf, de Oosterweelverbinding) kent dan al
+// haar straten, in dezelfde volgorde als vroeger ("Amerikadok-Zuidkaai · ook dicht bij … en 39 andere
+// straten"). Lukt dat niet, dan de straatassen van het kader (`streetIndex`).
+export async function vergunningenInKader(kader, { district = null, streetIndex = null, volledigeIndex = null, fetch: fetchImpl } = {}) {
+  const [features, heel] = await Promise.all([
+    haalVergunningenInKader(kader, fetchImpl ? { fetch: fetchImpl } : {}),
+    typeof volledigeIndex === "function" ? Promise.resolve().then(volledigeIndex).catch(() => null) : null,
+  ]);
+  return collectPermits({ features, districtGeometry: district, streetIndex: heel || streetIndex });
+}

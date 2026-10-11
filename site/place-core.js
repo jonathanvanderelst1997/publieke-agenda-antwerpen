@@ -4,8 +4,9 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, koppelEvenement, soortEvenement, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, koppelEvenement, soortEvenementMet, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
+import { LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, waarTekst } from "./permit-clarity.js";
 
@@ -322,11 +323,30 @@ export function layoutWeekBars(entries, weekStart, maxLanes = Infinity) {
 // evenement van vandaag staat altijd bovenaan "nu bezig", ook als het maar één dag duurt (een koers,
 // een stoet): het zakt niet onder de lopende werven in een aparte sectie "Vandaag".
 export function groupForList(entries, { from, to, today }) {
-  const running = [], days = new Map(), later = [];
-  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak).
-  const vandaagEvenement = (e) => e.group === "evenementen" && (e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
+  const running = [], days = new Map(), later = [], doorlopend = [];
+  // Een evenement dat vandaag zelf plaatsvindt (niet de opbouw of de afbraak). Een periode van twee weken
+  // of langer niet (een toelating van een maand of een jaar is geen evenement van vandaag), en bij losse
+  // dagen (een maandag per maand) alleen als vandaag zo'n dag is.
+  const vandaagEvenement = (e) => e.group === "evenementen" && !langEvenement(e) && (e.losseDagen?.length ? e.losseDagen.includes(today) : e.innameStart ? evenementFase(e, today) === "evenement" : Boolean(e.start) && e.start <= today && (e.end || e.start) >= today);
   for (const entry of entries) {
     const fase = evenementFase(entry, today);
+    // Lang (twee weken of meer) en vandaag bezig: een eigen groep, onder wat vandaag echt gebeurt.
+    if (langEvenement(entry)) {
+      const p = periodeVan(entry);
+      if (p.start && p.start <= today && (p.end || p.start) >= today) { doorlopend.push(entry); continue; }
+    }
+    // Opbouw of afbraak vandaag (een parkeerverbod dat nu geldt): bij "nu bezig", ook bij losse dagen.
+    // Anders viel een dossier met losse dagen tijdens de afbraak na zijn laatste dag uit de lijst.
+    if (fase === "opbouw" || fase === "afbraak") { running.push(entry); continue; }
+    // Losse dagen: bij de eerstvolgende dag zelf, niet de hele periode bij "nu bezig".
+    if (entry.losseDagen?.length && !vandaagEvenement(entry)) {
+      const dag = entry.losseDagen.find((d) => d >= from && d >= today);
+      if (!dag) continue;
+      if (dag > to) { later.push({ ...entry, start: dag }); continue; }
+      if (!days.has(dag)) days.set(dag, []);
+      days.get(dag).push(entry);
+      continue;
+    }
     if (fase === "opbouw" || fase === "afbraak" || vandaagEvenement(entry)) { running.push(entry); continue; }
     const multi = Boolean((entry.end && entry.end > entry.start) || entry.openEnd);
     if (multi && entry.start <= today && (entry.openEnd || entry.end >= today)) { running.push(entry); continue; }
@@ -347,7 +367,26 @@ export function groupForList(entries, { from, to, today }) {
   const eindVan = (e) => periodeVan(e).end || (e.openEnd ? "" : e.start) || "9999";
   running.sort((a, b) => Number(vandaagEvenement(b)) - Number(vandaagEvenement(a)) || String(eindVan(a)).localeCompare(String(eindVan(b))) || byTitle(a, b));
   later.sort((a, b) => a.start.localeCompare(b.start) || byTitle(a, b));
-  return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later };
+  doorlopend.sort((a, b) => String(eindVan(a)).localeCompare(String(eindVan(b))) || byTitle(a, b));
+  return { running, days: [...days.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([day, list]) => [day, list.sort(byTitle)]), later, doorlopend };
+}
+// Een evenement (of evenementendossier) van twee weken of langer, zonder losse dagen: geen "Vandaag",
+// een eigen groep "Doorlopend" in de lijst (klacht van 10 oktober 2026: maanden- en jaardossiers met
+// "Vandaag" bovenaan). Werken en maatregelen blijven waar ze staan.
+export const langEvenement = (e = {}) => e.group === "evenementen" && !e.losseDagen?.length && duurDagen(e.start, e.end) >= LANG_DAGEN;
+// Het label bij een evenement op straat als de gewone fase ("Vandaag") niet klopt: een lange periode
+// ("Loopt tot 29 okt") of losse dagen ("Vandaag" alleen op zo'n dag, anders "Volgende: 9 nov"). Anders
+// null: dan de gewone badge van de fase (place-view.js, FASE_BADGE).
+export function evenementBadge(entry = {}, today = "") {
+  const fase = evenementFase(entry, today);
+  if (!fase || fase === "voorbij" || fase === "gepland") return null;
+  if (entry.losseDagen?.length) {
+    if (entry.losseDagen.includes(today)) return { label: "Vandaag", soort: "now" };
+    const volgende = entry.losseDagen.find((d) => d > today);
+    return volgende ? { label: `Volgende: ${kortDatum(volgende, today)}`, soort: "planned" } : null;
+  }
+  if (fase === "evenement" && langEvenement(entry)) return { label: entry.end ? `Loopt tot ${kortDatum(entry.end, today)}` : "Doorlopend", soort: "period" };
+  return null;
 }
 
 // ---- soorten (de enige filterrij) ----
@@ -492,6 +531,13 @@ const OUDE_KAART_MAX = 12;
 // `lijst`: de stratenlijst van evenementStraten() (ook die van de filter); `straat`: de gekozen straat
 // ("jouw straat"); `straal`: de straal rond die straat. identiteit: site/sources/evenement-identiteit.json;
 // agendaItems: de publieke agendapunten, voor een dossier dat (nog) niet nagekeken is.
+// Een agendapunt dat alleen uit de evenementendossiers van de stad komt (lib/asign-evenementen-agenda.mjs).
+// Samengevoegd met de kalender of het nieuws telt het wel: dan is er een tweede bron.
+export function alleenUitDossiers(item = {}) {
+  const bronnen = Array.isArray(item?.sources) && item.sources.length ? item.sources.map((s) => s?.sourceId) : [item?.sourceId];
+  return bronnen.every((id) => id === "district-asign-evenementen");
+}
+
 export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [] } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
@@ -506,22 +552,28 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de
   // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
   const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map(zonderHuisnummer)].filter(Boolean))];
-  const soort = soortEvenement(beschrijvingen) || live.soort || bewaard?.soort || "";
+  // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
+  // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet).
+  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(beschrijvingen);
+  const soort = sm.soort || live.soort || bewaard?.soort || "";
+  const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
   const feiten = bewaard
-    ? { ...live, soort, soortBron: soort ? "omschrijvingen in het dossier" : "", beschrijvingen, straten, langs, parcoursRelatie }
+    ? { ...live, soort, soortZeker, soortBron: soort ? live.soortBron || "omschrijvingen in het dossier" : "", beschrijvingen, straten, langs, parcoursRelatie }
     : { ...live, straten, langs, parcoursRelatie };
   const id = identiteit?.dossiers?.[live.dossier] || null;
   // Koppeling aan de agenda. Een nagekeken evenement linkt alleen naar het agendapunt met dezelfde
   // naam; een dossier zonder fiche koppelt op dag en straat: eerst live (kent het agendapunt), anders
   // wat de verversing bewaarde.
-  const agenda = Array.isArray(agendaItems) ? agendaItems : [];
+  // Niet een agendapunt dat alleen uit de dossiers van de stad komt (district-asign-evenementen): dat is
+  // geen tweede bron, en het kan van een buurdossier op dezelfde dag en straat zijn.
+  const agenda = (Array.isArray(agendaItems) ? agendaItems : []).filter((item) => !alleenUitDossiers(item));
   const bekend = id && id.zekerheid !== "onbekend";
   const gekoppeld = bekend
     ? (id.zekerheid === "zeker" && id.naam && agenda.length ? koppelEvenement(feiten, agenda, { naam: id.naam }) : null)
     : (agenda.length ? koppelEvenement(feiten, agenda) : null) || bewaard?.gekoppeld || null;
   const k = evenementKaartje(feiten, { vandaag, gekoppeld, identiteit: id, straat, wijkVan });
   // Jouw straat: kort in de lijst (zonder openklappen), lang in de kaart (jouwStraat in kaart-uitleg.js).
-  const jouwStraat = jouwStraatVoorLijst(straat, { lijst: stratenLijst, parcoursRelatie, rijen: alle, straal });
+  const jouwStraat = jouwStraatVoorLijst(straat, { lijst: stratenLijst, parcoursRelatie, rijen: alle, straal, geenEvenement: Boolean(k.geenEvenement) });
   vulJouwStraatAan(k, jouwStraat);
   const start = dayOf(k.dagen.start || live.start), end = k.dagen.eind && k.dagen.eind > k.dagen.start ? dayOf(k.dagen.eind) : "";
   // Innameperiode op de gekozen plek (opbouw tot afbraak van de innames hier, zoals een parkeerverbod
@@ -540,6 +592,8 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
     innameStart, innameEind,
     sourceUrl: iodBronUrl(live.dossier) || safeUrl(first.sourceUrl), item: { ...first, kind: "event", streets: rowsStreets(alle) }, uitleg: k,
     evenementLinks: k.links, straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart, kaartDeel,
+    // De echte dagen als die los liggen (een maandag per maand), voor de lijst en de badge (groupForList).
+    losseDagen: k.losseDagen || [],
   };
 }
 
@@ -699,16 +753,20 @@ export function straatRelatie(straat, lijst) {
 // Kort (in de lijst, zonder openklappen) en lang (in de details). Zonder gekozen straat: niets.
 // Een inname zonder parcours hangt aan elke straat tot 18 m ervan (site/street-core.js): daar zegt de
 // zin niet meer dan dat, en niet dat het evenement "een deel van je straat inneemt".
-export function jouwStraatTekst(relatie, { viaParcours = false, straal = 0 } = {}) {
+// Met { geenEvenement } (stickers, een bord, een opname): "deze inname", niet "dit evenement".
+export function jouwStraatTekst(relatie, { viaParcours = false, straal = 0, geenEvenement = false } = {}) {
+  const dit = geenEvenement ? "deze inname" : "dit evenement";
   if (relatie === "langs") return viaParcours
     ? { kort: "Het parcours loopt door je straat", lang: "Het parcours loopt door je straat." }
-    : { kort: "Een zone van dit evenement ligt in of naast je straat", lang: "Een inname van dit evenement (zoals een parkeerverbod of een afgesloten zone) ligt in je straat of tot 18 m van de straatas." };
+    : geenEvenement
+      ? { kort: "Een plek van deze inname ligt in of naast je straat", lang: "Een plek van deze inname ligt in je straat of tot 18 m van de straatas." }
+      : { kort: "Een zone van dit evenement ligt in of naast je straat", lang: "Een inname van dit evenement (zoals een parkeerverbod of een afgesloten zone) ligt in je straat of tot 18 m van de straatas." };
   if (relatie === "kruist") return { kort: "Je straat kruist het parcours", lang: "Je straat kruist het parcours of komt erop uit; het parcours loopt niet door je straat." };
   // Zonder vorm van het parcours (of nog zonder straatas): niet meer zeggen dan "in of naast".
   if (relatie === "naast") return { kort: "Het parcours ligt in of naast je straat", lang: "Het parcours ligt in of naast je straat." };
   if (straal > 0) {
     const afstand = straal >= 1000 ? "1 km" : `${straal} m`;
-    return { kort: `Niet in je straat, wel binnen ${afstand}`, lang: `Niet in je straat: dit evenement ligt binnen ${afstand} van je straat.` };
+    return { kort: `Niet in je straat, wel binnen ${afstand}`, lang: `Niet in je straat: ${dit} ligt binnen ${afstand} van je straat.` };
   }
   return null;
 }
@@ -737,15 +795,15 @@ export function parcoursRelatieVoorStraat(straat, { lijst = null, bewaard = null
 // loopt erdoor; anders een andere inname van het dossier in of naast de straat (een parkeerverbod, een
 // zone: die hangen aan elke straat tot 18 m ervan); anders kruist het parcours haar; anders staat ze
 // in de lijst zonder dat de vorm bekend is ("in of naast"); anders de straal.
-export function jouwStraatVoorLijst(straat, { lijst = null, parcoursRelatie = null, rijen = [], straal = 0 } = {}) {
+export function jouwStraatVoorLijst(straat, { lijst = null, parcoursRelatie = null, rijen = [], straal = 0, geenEvenement = false } = {}) {
   const eigen = foldText(straat);
   if (!eigen) return null;
   if (parcoursRelatie === "op") return jouwStraatTekst("langs", { viaParcours: true });
-  if (rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === eigen))) return jouwStraatTekst("langs");
+  if (rijen.some((r) => !isParcoursRij(r) && (r?.streets || []).some((s) => foldText(s?.name) === eigen))) return jouwStraatTekst("langs", { geenEvenement });
   const relatie = straatRelatie(straat, lijst);
   if (parcoursRelatie === "kruist" || relatie === "kruist") return jouwStraatTekst("kruist");
   if (relatie === "langs") return jouwStraatTekst("naast");
-  return jouwStraatTekst("", { straal });
+  return jouwStraatTekst("", { straal, geenEvenement });
 }
 // De lange regel "Jouw straat" in de kaart komt uit jouwStraat() (kaart-uitleg.js), met de dagen van
 // een parkeerverbod of verkeersvrije zone. Twee aanvullingen: hangt de straat er alleen aan via een
@@ -756,7 +814,7 @@ function vulJouwStraatAan(k, jouw) {
   if (!jouw || !Array.isArray(k?.kern)) return;
   const i = k.kern.findIndex(([dt]) => dt === "Jouw straat");
   if (i >= 0) {
-    if (jouw.kort === jouwStraatTekst("langs").kort && !/parcours/.test(k.kern[i][1])) k.kern[i] = ["Jouw straat", `${k.kern[i][1]} ${INNAME_18M}`];
+    if (jouw.kort === jouwStraatTekst("langs", { geenEvenement: Boolean(k.geenEvenement) }).kort && !/parcours/.test(k.kern[i][1])) k.kern[i] = ["Jouw straat", `${k.kern[i][1]} ${INNAME_18M}`];
     return;
   }
   const voor = k.kern.findIndex(([dt]) => dt === "Wat merk je");
@@ -827,7 +885,8 @@ export function waarKort(straten = [], gekozen = "") {
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
-const maatregelSleutel = (row) => (row?.kind === "sgw" && row.reference ? `sgw|${row.reference}`
+// Ook voor scripts/build-straat-snapshots.mjs: welke rijen samen één kaart worden.
+export const maatregelSleutel = (row) => (row?.kind === "sgw" && row.reference ? `sgw|${row.reference}`
   : row?.kind === "parking" && row.reference ? `parking|${row.reference}|${dayOf(row.start)}|${dayOf(row.end)}|${row.startTime || ""}|${row.endTime || ""}|${parkeerReden(row)}`
     : `los|${row?.id}`);
 function bundelMaatregelen(rows, { alle = rows, straat = "", vandaag = "" } = {}) {
@@ -989,7 +1048,9 @@ export const vergunningWaar = (streets = []) => waarTekst((streets || []).map((s
 export function terrasEntries(rows = []) {
   const groepen = new Map();
   for (const row of rows) {
-    const adres = foldText(row?.address);
+    // Uit de stand van de ochtend (site/straat/<id>.json) komt een terras zonder adres (vaak met
+    // huisnummer), wel met een groep per adres binnen de straat (scripts/build-straat-snapshots.mjs).
+    const adres = foldText(row?.address) || (row?.adresGroep ? `groep:${row.adresGroep}` : "");
     const key = adres ? `${adres}|${foldText(row?.terraceType)}|${foldText(row?.status)}` : `los|${row?.id}`;
     groepen.set(key, [...(groepen.get(key) || []), row]);
   }
@@ -1002,9 +1063,10 @@ export function terrasEntries(rows = []) {
 
 // Tellen per soortgroep (voor de chips en de samenvatting bovenaan de plek).
 // Terrassen horen bij de groep "vergunningen" (één chip), maar de tegel telt ze apart: "12 vergunningen"
-// mocht geen 9 terrassen meetellen.
+// mocht geen 9 terrassen meetellen. Zo ook een inname die geen evenement met publiek is (stickers, een
+// bord, een opname): die staat in de groep "evenementen", maar de tegel telt ze apart.
 export function summarize(entries, today) {
-  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0, terrassen: 0 };
+  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0, terrassen: 0, innamesOpStraat: 0 };
   const seen = new Set();
   for (const entry of entries) {
     const key = entry.source === "agenda" ? `${entry.group}|${entry.title}|${entry.location}` : entry.uid;
@@ -1015,6 +1077,7 @@ export function summarize(entries, today) {
     if (seen.has(key)) continue; // een reeks (elke dinsdag) telt één keer
     seen.add(key);
     if (entry.group === "vergunningen" && entry.source === "terraces") out.terrassen += 1;
+    else if (entry.group === "evenementen" && entry.uitleg?.geenEvenement) out.innamesOpStraat += 1;
     else if (entry.group in out) out[entry.group] += 1;
   }
   return out;
@@ -1037,10 +1100,24 @@ export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 
   if (onvolledig) return plek ? `In wat wel geladen is, staat niets voor ${plek}.` : "In wat wel geladen is, staat nu niets.";
   return plek ? `Er staat niets op de agenda voor ${plek}.` : "Er staat nu niets op de agenda.";
 }
-// Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8".
+// Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8". Een
+// periode van twee weken of langer is een toelating, geen evenement dat je dag per dag volgt: dan "Loopt
+// sinds 1 okt · nog 19 dagen (t/m 29 okt)" of "Loopt heel 2026 · nog 82 dagen".
 export function voortgangTekst(start, end, today) {
   const totaal = Math.max(1, daysBetween(start, end) + 1);
   const dagen = (n) => `${n} dag${n === 1 ? "" : "en"}`;
   if (start > today) return `Start over ${dagen(daysBetween(today, start))} · duurt ${dagen(totaal)}`;
+  if (totaal >= LANG_DAGEN) {
+    const nog = Math.max(0, daysBetween(today, end));
+    const heelJaar = start.slice(5) === "01-01" && end.slice(5) === "12-31" && start.slice(0, 4) === end.slice(0, 4);
+    return `${heelJaar ? `Loopt heel ${start.slice(0, 4)}` : `Loopt sinds ${kortDatum(start, today)}`} · ${nog ? `nog ${dagen(nog)}` : "laatste dag"}${heelJaar ? "" : ` (t/m ${kortDatum(end, today)})`}`;
+  }
   return `Dag ${Math.min(totaal, Math.max(0, daysBetween(start, today) + 1))} van ${totaal}`;
+}
+// Losse dagen van een evenement op straat, in gewone taal: "Elke woensdag van 7 tot 28 oktober; de
+// volgende is woensdag 21 oktober" (site/evenement-wat.js).
+export function losseDagenTekst(entry = {}, today = "") {
+  const p = patroonVan(entry.losseDagen || [], today);
+  const t = p ? patroonTekst(p, today) : "";
+  return t ? `${t.charAt(0).toUpperCase()}${t.slice(1)}` : "";
 }

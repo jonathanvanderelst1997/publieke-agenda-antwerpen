@@ -25,8 +25,11 @@ test("naamloos parcours zegt eerlijk dat de stad niet bekendmaakt wat het is, zo
  const input={start:"2026-10-13",eind:"2026-10-13",dossier:"ET2026003793",dossierType:"ETL",straten:Array.from({length:115},(_,i)=>"Straat "+i),soorten:["Parcours"],parcours:1,fasen:["Evenement"],beschrijvingen:[],soort:"",soortBron:"",hinder:"True"};
  const x=evenementKaartje(input,{vandaag:"2026-10-08",wijkVan:()=> "Centrum"});
  const kern=Object.fromEntries(x.kern);
- assert.equal(x.titel,"Evenement met toelating van de stad");
- assert.match(kern.Wat,/de stad maakt niet bekend wat het is/);
+ // Zonder naam of soort zegt de titel wat er wel vaststaat (een parcours, door welke straten), en de
+ // eerste regel wanneer; nooit alleen "de stad maakt niet bekend wat het is" (klacht van 10-10-2026).
+ assert.equal(x.titel,"Parcours door 115 straten in Centrum");
+ assert.match(kern.Wat,/^De stad gaf toelating voor een parcours\. Wat er gebeurt of wat er staat, zegt het dossier niet\.$/);
+ assert.match(x.samenvatting,/^Dinsdag 13 oktober\. Wat er gebeurt, zegt de stad niet\./);
  assert.match(kern.Wanneer,/^Dinsdag 13 oktober; de uren zijn niet gepubliceerd/);
  assert.match(kern["Wat merk je"],/welke en hoe laat, maakt de stad niet bekend/);
  // Het aantal straten staat bij "Waar" (knop "Toon alle 115 straten"); de uitleg staat in die lijst, niet in een extra regel.

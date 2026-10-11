@@ -64,12 +64,15 @@ function loadLeaflet() {
 }
 
 // De matcher die agenda-view.js gebruikt voor "in deze wijk" en "binnen de straal van je straat".
-export function createAreaMatcher({ wijken, geo, streetIndex = null }) {
+// `straal`: of de straatassen voor de straal er zijn ("klaar"), nog komen ("laadt") of niet laadden
+// ("mislukt"); de plekpagina zegt het dan (site/straat-snapshot.js, standZin).
+export function createAreaMatcher({ wijken, geo, streetIndex = null, straatasMislukt = false }) {
   const byCode = new Map(wijken.map((f) => [f.properties.code, f]));
   const streetMap = streetIndex ? streetWijkMap(streetIndex, wijken) : null;
   const segmentCache = new Map();
   const straalCache = new WeakMap(); // item → Map("straat|straal" → ja/nee)
   return {
+    straal: streetIndex ? "klaar" : straatasMislukt ? "mislukt" : "laadt",
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
     inWijk(item, code, refs = []) {
       const feature = byCode.get(code);
@@ -138,7 +141,7 @@ export async function mountNeighborhoodMap(view) {
   const select = $("#buurt-wijk"), radiusGroup = $(".buurt-radius"), status = $(".buurt-status");
   const mapEl = $(".buurt-map"), veil = $(".buurt-map-veil"), noGeo = $(".buurt-nogeo");
 
-  let wijken = [], geo = { entries: {} }, matcher = null, streetIndex = null;
+  let wijken = [], geo = { entries: {} }, matcher = null, streetIndex = null, straatasMislukt = false;
   let L = null, map = null, wijkLayer = null, markerLayer = null, workLayer = null, streetLayer = null, districtBounds = null;
 
   // ---- gegevens ----
@@ -148,6 +151,8 @@ export async function mountNeighborhoodMap(view) {
     geo = geoDoc && typeof geoDoc.entries === "object" ? geoDoc : { entries: {} };
   } catch {
     status.textContent = "De wijkgrenzen konden nu niet geladen worden. De agenda en de straatfilter werken gewoon.";
+    view.straalNietBeschikbaar?.();
+    window.dispatchEvent(new CustomEvent("public-agenda:area-ready"));
     return;
   }
   for (const f of [...wijken].sort((a, b) => a.properties.naam.localeCompare(b.properties.naam, "nl"))) {
@@ -159,7 +164,7 @@ export async function mountNeighborhoodMap(view) {
   select.disabled = false;
   select.value = view.area.wijk || "";
   function installMatcher() {
-    matcher = createAreaMatcher({ wijken, geo, streetIndex });
+    matcher = createAreaMatcher({ wijken, geo, streetIndex, straatasMislukt });
     view.setAreaMatcher(matcher);
     window.dispatchEvent(new CustomEvent("public-agenda:area-ready"));
   }
@@ -167,7 +172,8 @@ export async function mountNeighborhoodMap(view) {
   import("./street-source.js")
     .then(({ loadStreetIndex }) => loadStreetIndex())
     .then((index) => { streetIndex = index; installMatcher(); })
-    .catch(() => { /* Zonder straatas: wijk volgt alleen echte punten; de straal is dan niet beschikbaar. */ });
+    // Zonder straatas: wijk volgt alleen echte punten; de straal is dan niet beschikbaar (en dat zegt de plek).
+    .catch(() => { straatasMislukt = true; installMatcher(); });
 
   select.addEventListener("change", () => {
     window.dispatchEvent(new CustomEvent("public-agenda:area-change", { detail: { wijk: select.value } }));

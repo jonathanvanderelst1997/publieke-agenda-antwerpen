@@ -48,8 +48,9 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     for(const change of history.changes){
       const when=Date.parse(change.observedAt||"");
       if(!Number.isFinite(when)||when<cutoff)continue;
-      const item=current.get(change.id)||change.after||change.before;
-      for(const street of item?.streets||[]){
+      // Uit radar.json (historiekUitRadar) staat de straat al bij de wijziging; uit live-layers.json via het item.
+      const streets=Array.isArray(change.streets)?change.streets:(current.get(change.id)||change.after||change.before)?.streets||[];
+      for(const street of streets){
         const group=ensure(street);
         if(group)group.changes.push({id:`${change.observedAt}|${change.layer}|${change.id}`,type:change.type,observedAt:change.observedAt,fields:Array.isArray(change.fields)?change.fields:[]});
       }
@@ -69,6 +70,32 @@ export function buildStreetTimeline(group,{asOf="0000-01-01"}={}){
   for(const entry of entries){const atStart=entries.filter(other=>other.start<=entry.start&&(other.end||other.start)>=entry.start).length;if(atStart>peakConcurrent)peakConcurrent=atStart;entry.overlaps=entries.some(other=>other!==entry&&overlaps(entry,other))}
   const horizon=entries.map(entry=>entry.end||entry.start).filter(Boolean).sort().at(-1)||"";
   return{entries,horizon,peakConcurrent,overlapEntries:entries.filter(entry=>entry.overlaps).length};
+}
+
+// site/history/radar.json (scripts/build-straat-snapshots.mjs, enkele kB) in de vorm die buildStreetGroups en
+// buildDistrictRadar kennen: één wijziging per telling, met haar straat erbij. Vroeger las de voorpagina
+// daarvoor bij elk bezoek live-layers.json (8 tot 12 MB, zonder cache).
+export function historiekUitRadar(radar){
+  if(!radar||typeof radar!=="object"||!radar.straten||typeof radar.straten!=="object")return null;
+  const runs=Array.isArray(radar.runs)?radar.runs:[],types=["added","changed","removed"],changes=[];
+  for(const[sleutel,tellingen]of Object.entries(radar.straten)){
+    const[id="",name="",postcode=""]=sleutel.split("|");if(!name)continue;
+    const street={id,name,postcode};
+    for(const[run,...tel]of Array.isArray(tellingen)?tellingen:[]){const observedAt=runs[run];if(typeof observedAt!=="string")continue;tel.forEach((n,i)=>{for(let k=0;k<n;k+=1)changes.push({observedAt,type:types[i],id:`${sleutel}|${run}|${i}|${k}`,fields:[],streets:[street]})})}
+  }
+  const layers=Object.fromEntries(Object.entries(radar.lagen&&typeof radar.lagen==="object"?radar.lagen:{}).map(([naam,laag])=>[naam,{status:laag?.status,items:[]}]));
+  // Een radar die niet in het budget paste (radarBinnenBudget in scripts/build-straat-snapshots.mjs) is
+  // ingekort: minder dagen, alleen de laatste verversing, of zonder de straten met de minste wijzigingen.
+  const ververst=typeof radar.ververst==="string"?radar.ververst:"";
+  const vroegste=runs.filter(run=>typeof run==="string").sort()[0]||"";
+  const dagen=radar.ingekort===true?Math.max(1,Math.ceil((Date.parse(ververst)-Date.parse(vroegste))/86_400_000)||1):7;
+  return{observedAt:ververst,layers,changes,periode:{dagen,ingekort:radar.ingekort===true,alleenLaatste:radar.ingekort===true&&runs.length===1,weggelaten:Number(radar.weggelaten)||0}};
+}
+// "laatste 7 dagen", of wat er na het inkorten van de radar nog in staat.
+export function radarPeriodeTekst(periode=null){
+  if(!periode?.ingekort)return"laatste 7 dagen";
+  const basis=periode.alleenLaatste?"alleen de laatste verversing":`laatste ${periode.dagen} ${periode.dagen===1?"dag":"dagen"}`;
+  return`${basis} (ingekort${periode.weggelaten?`, zonder ${periode.weggelaten} straten met weinig wijzigingen`:""})`;
 }
 
 export function buildDistrictRadar(groups=[],history=null){
@@ -102,12 +129,12 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     function allGroups(){if(!state.streetIndex)return[];return buildStreetGroups({works:state.works.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"works")),publicSpace:state.publicSpace.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"publicSpace")),permits:state.permits.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"permits")),agendaItems:Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS)?window.PUBLIC_AGENDA_VISIBLE_ITEMS:[],streetIndex:state.streetIndex,history:state.history,asOf:brusselsToday()})}
     function filtered(){const query=clean(search?.value).toLowerCase(),groups=allGroups();if(!query)return groups;return groups.filter(group=>[group.street.name,group.street.postcode,...group.works.map(item=>item.title),...group.parking.map(item=>item.title),...group.iod.map(item=>item.title),...group.sgw.map(item=>item.title),...group.permits.map(item=>item.title),...group.markets.map(item=>item.title),...group.agenda.map(item=>item.title)].join(" ").toLowerCase().includes(query))}
     function line(kind,item){const timing=range(item);return`<li><span class="street-item-kind">${esc(kind)}</span><span><strong>${esc(item.title)}</strong>${item.status?` · ${esc(item.status)}`:""}${timing?` · ${esc(timing)}`:""}${item.detail?`<small>${esc(item.detail)}</small>`:""}</span>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">bron</a>`:""}</li>`}
-    function card(group){const timeline=buildStreetTimeline(group,{asOf:brusselsToday()}),badges=[group.works.length&&`${group.works.length} werken`,group.parking.length&&`${group.parking.length} parkeerverboden`,group.iod.length&&`${group.iod.length} innames`,group.sgw.length&&`${group.sgw.length} verkeer`,group.permits.length&&`${group.permits.length} vergunningen`,group.markets.length&&`${group.markets.length} markten`,group.agenda.length&&`${group.agenda.length} activiteiten`,group.works.some(item=>item.severeHindrance)&&"ernstige hinder",timeline.peakConcurrent>1&&`piek ${timeline.peakConcurrent} tegelijk`,group.changes.length&&`${group.changes.length} wijzigingen (7d)`].filter(Boolean);const items=[...group.works.map(item=>line("Werk",item)),...group.parking.map(item=>line("Parkeren",item)),...group.iod.map(item=>line("Inname",item)),...group.sgw.map(item=>line("Verkeer",item)),...group.permits.map(item=>line("Vergunning",item)),...group.markets.map(item=>line("Markt",item)),...group.agenda.map(item=>line("Agenda",item))].join("");const timelineRows=timeline.entries.slice(0,12).map(item=>`<li class="${item.overlaps?"has-overlap":""}"><time>${esc(item.start===item.end?date(item.start):`${date(item.start)} – ${date(item.end)}`)}</time><span><b>${esc(item.kind)}</b> · ${esc(item.title)}</span></li>`).join("");const timelineMore=timeline.entries.length>12?`<small>+ ${timeline.entries.length-12} latere bekende items; alle details staan hieronder.</small>`:"";const timelineHtml=timeline.entries.length?`<div class="street-timeline"><div><strong>Tijdlijn</strong><span>${timeline.horizon?`bekend t/m ${esc(date(timeline.horizon))}`:""}${timeline.overlapEntries?` · ${timeline.overlapEntries} items overlappen`:""}</span></div><ol>${timelineRows}</ol>${timelineMore}</div>`:"";return`<details class="street-card"><summary><span><strong>${esc(group.street.name)}</strong>${group.street.postcode?` <small>${esc(group.street.postcode)}</small>`:""}</span><span class="street-badges">${badges.map(badge=>`<em>${esc(badge)}</em>`).join("")}</span></summary>${timelineHtml}<ul>${items}</ul></details>`}
+    function card(group){const timeline=buildStreetTimeline(group,{asOf:brusselsToday()}),badges=[group.works.length&&`${group.works.length} werken`,group.parking.length&&`${group.parking.length} parkeerverboden`,group.iod.length&&`${group.iod.length} innames`,group.sgw.length&&`${group.sgw.length} verkeer`,group.permits.length&&`${group.permits.length} vergunningen`,group.markets.length&&`${group.markets.length} markten`,group.agenda.length&&`${group.agenda.length} activiteiten`,group.works.some(item=>item.severeHindrance)&&"ernstige hinder",timeline.peakConcurrent>1&&`piek ${timeline.peakConcurrent} tegelijk`,group.changes.length&&`${group.changes.length} wijzigingen (${state.history?.periode?.alleenLaatste?"laatste verversing":`${state.history?.periode?.dagen||7}d`})`].filter(Boolean);const items=[...group.works.map(item=>line("Werk",item)),...group.parking.map(item=>line("Parkeren",item)),...group.iod.map(item=>line("Inname",item)),...group.sgw.map(item=>line("Verkeer",item)),...group.permits.map(item=>line("Vergunning",item)),...group.markets.map(item=>line("Markt",item)),...group.agenda.map(item=>line("Agenda",item))].join("");const timelineRows=timeline.entries.slice(0,12).map(item=>`<li class="${item.overlaps?"has-overlap":""}"><time>${esc(item.start===item.end?date(item.start):`${date(item.start)} – ${date(item.end)}`)}</time><span><b>${esc(item.kind)}</b> · ${esc(item.title)}</span></li>`).join("");const timelineMore=timeline.entries.length>12?`<small>+ ${timeline.entries.length-12} latere bekende items; alle details staan hieronder.</small>`:"";const timelineHtml=timeline.entries.length?`<div class="street-timeline"><div><strong>Tijdlijn</strong><span>${timeline.horizon?`bekend t/m ${esc(date(timeline.horizon))}`:""}${timeline.overlapEntries?` · ${timeline.overlapEntries} items overlappen`:""}</span></div><ol>${timelineRows}</ol>${timelineMore}</div>`:"";return`<details class="street-card"><summary><span><strong>${esc(group.street.name)}</strong>${group.street.postcode?` <small>${esc(group.street.postcode)}</small>`:""}</span><span class="street-badges">${badges.map(badge=>`<em>${esc(badge)}</em>`).join("")}</span></summary>${timelineHtml}<ul>${items}</ul></details>`}
     function render(){
       const all=allGroups(),groups=filtered(),shown=groups.slice(0,state.shown),r=buildDistrictRadar(all,state.history);
       summary.textContent=`${groups.length} straten met actuele of geplande informatie`;
       const changeValue=r.recentlyChangedStreets===null?"—":String(r.recentlyChangedStreets);
-      const changeNote=r.historyState==="ok"?"laatste 7 dagen":r.historyState==="stale"?"history verouderd":"na gezonde history-refresh";
+      const changeNote=r.historyState==="ok"?radarPeriodeTekst(state.history?.periode):r.historyState==="stale"?"history verouderd":"na gezonde history-refresh";
       const delta=r.latestChangeCounts;
       const deltaTotal=delta?delta.added+delta.changed+delta.removed:0;
       const deltaText=r.historyState==="unavailable"?"Beschikbaar na een gezonde history-refresh.":deltaTotal?`${delta.added} nieuw · ${delta.changed} gewijzigd · ${delta.removed} afgelopen · ${r.latestChangedStreets} straten`:"Geen operationele wijzigingen sinds de vorige verversing.";
@@ -121,7 +148,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     window.addEventListener("public-agenda:agenda-view",()=>{state.shown=30;render()});
     window.addEventListener("public-agenda:view-change",()=>{state.shown=30;render()});
     search?.addEventListener("input",()=>{state.shown=30;render()});more?.addEventListener("click",()=>{state.shown+=30;render()});
-    Promise.all([loadStreetIndex(),fetch("/history/live-layers.json",{cache:"no-store"}).then(response=>response.ok?response.json():null).catch(()=>null)]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(error=>{note.textContent=`Straatfiche tijdelijk niet beschikbaar: ${error?.message||"bronfout"}`});
+    // De wijzigingen per straat komen uit radar.json (enkele kB, gewone cache met nakijken), niet meer uit
+    // live-layers.json: dat waren bij elk bezoek 8 tot 12 MB, alleen voor deze radar.
+    const radarHistoriek=fetch("/history/radar.json",{headers:{Accept:"application/json"}}).then(response=>response.ok?response.json():null).then(historiekUitRadar).catch(()=>null);
+    radarHistoriek.then(history=>{state.history=history;render()});
+    Promise.all([loadStreetIndex(),radarHistoriek]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(error=>{note.textContent=`Straatfiche tijdelijk niet beschikbaar: ${error?.message||"bronfout"}`});
     render();
   }
 }

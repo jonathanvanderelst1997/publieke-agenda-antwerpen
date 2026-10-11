@@ -1,5 +1,7 @@
 // Draait elke fetcher in vaste volgorde (lib/source-registry.mjs) en schrijft daarna
-// site/sources/refresh-status.json (contract C3). Alleen dit script schrijft dat bestand.
+// site/sources/refresh-status.json (contract C3). Alleen dit script schrijft dat bestand, op de regel van
+// een afgeleide bron na (AFGELEIDE_BRONNEN): die neemt dit script over van de vorige status, en de stap
+// die de bron afleidt (refresh:herkenning) werkt ze bij (lib/afgeleide-bronstatus.mjs).
 // Een fetcher die crasht, krijgt fetchStatus "error"; zijn vorige data blijft staan.
 import fs from "node:fs";
 import path from "node:path";
@@ -7,7 +9,7 @@ import { fileURLToPath } from "node:url";
 
 import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry, upcomingCount } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
-import { FETCHERS } from "../lib/source-registry.mjs";
+import { AFGELEIDE_BRON_IDS, FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
 import { refreshLiveHistory } from "./refresh-live-history.mjs";
 import { contentStatusOf, nextEmptySince } from "./stale-policy.mjs";
@@ -20,6 +22,9 @@ import { contentStatusOf, nextEmptySince } from "./stale-policy.mjs";
 export const SOURCE_BUDGET_MS = 3 * 60_000; // standaard per fetcher (de snelste bronnen doen er seconden over)
 export const REFRESH_BUDGET_MS = 12 * 60_000; // alle fetchers samen
 export const LIVE_HISTORY_BUDGET_MS = 3 * 60_000; // live historiek (werken en publieke ruimte) na de fetchers
+// Vergunningen en terrassen voor de straatbestanden (scripts/build-straat-snapshots.mjs): een eigen grens,
+// die pas begint te lopen bij het eerste verzoek, zodat een trage historiek ze niet opgebruikt.
+export const STRAAT_BRONNEN_BUDGET_MS = 90_000;
 // Na het budget krijgt een fetcher nog even om via zijn eigen foutpad af te ronden (zijn verzoeken
 // falen dan meteen); daarna gaat de verversing zonder hem verder.
 export const ABORT_GRACE_MS = 15_000;
@@ -132,6 +137,17 @@ export async function refreshAll({
   const counted = statuses.map((entry) =>
     withContentStatus(entry, { document: readDocumentSafely(rootDir, entry.sourceId), previous: previous.get(entry.sourceId), today })
   );
+  // Een afgeleide bron heeft geen fetcher: haar vorige regel blijft staan (met een vers getelde inhoud),
+  // tot refresh:herkenning ze bijwerkt. Loopt die stap niet, dan veroudert de regel zichtbaar.
+  for (const sourceId of AFGELEIDE_BRON_IDS) {
+    const vorige = previous.get(sourceId);
+    if (!vorige || counted.some((entry) => entry.sourceId === sourceId)) continue;
+    const { upcomingCount: _upcoming, emptySince: _emptySince, contentStatus: _contentStatus, ...regel } = vorige;
+    const nieuw = withContentStatus(regel, { document: readDocumentSafely(rootDir, sourceId), previous: vorige, today });
+    // Een ongeldige oude regel valt weg in plaats van de hele status (en dus de verversing) te breken.
+    const los = validateRefreshStatus({ schemaVersion: 1, generatedAt: generated.toISOString(), classificationAsOf: today, sources: [nieuw] });
+    if (!los.length) counted.push(nieuw);
+  }
   const status = {
     schemaVersion: 1,
     generatedAt: generated.toISOString(),
@@ -155,7 +171,12 @@ if (isMainModule(import.meta.url)) {
       }
       // Ook de live historiek krijgt een harde grens: een laag die niet op tijd antwoordt, telt als mislukt
       // en houdt haar vorige stand (zie updateLiveHistory).
-      await refreshLiveHistory({ rootDir, fetch: deadlineFetch(globalThis.fetch, AbortSignal.timeout(LIVE_HISTORY_BUDGET_MS)) });
+      let straatSignal = null;
+      const straatFetch = (...args) => {
+        straatSignal ??= AbortSignal.timeout(STRAAT_BRONNEN_BUDGET_MS);
+        return deadlineFetch(globalThis.fetch, straatSignal)(...args);
+      };
+      await refreshLiveHistory({ rootDir, fetch: deadlineFetch(globalThis.fetch, AbortSignal.timeout(LIVE_HISTORY_BUDGET_MS)), straatFetch });
     })
     .catch((error) => {
       console.error(error?.message ?? String(error));
