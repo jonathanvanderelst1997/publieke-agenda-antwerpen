@@ -449,6 +449,35 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // P8: de voorpagina op de gsm opent met "Dit weekend"; zonder plek staat er één kaart per markt.
+  await t.test("voorpagina (390×844): 'Dit weekend' boven 600 px, tikken klapt het item open; marktkaarten = markten", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { query: "" });
+    const blok = page.locator("#dit-weekend");
+    await blok.locator(".dw-titel").waitFor();
+    assert.match(await blok.locator(".dw-wanneer").textContent(), /^Dit weekend · \S/);
+    const onder = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+    t.diagnostic(`Dit weekend eindigt op ${onder}px`);
+    assert.ok(onder <= 600, `'Dit weekend' eindigt op ${onder}px, niet boven 600px`);
+    const kaarten = blok.locator(".hl-card");
+    assert.ok((await kaarten.count()) <= 6, "hoogstens zes kaarten");
+    if (await kaarten.count()) {
+      const id = await kaarten.first().getAttribute("data-hl-id");
+      await kaarten.first().click();
+      await page.locator(`.pv-results .pv-row.open[data-uid="agenda:${id}"]`).waitFor({ timeout: 10000 });
+    }
+    // Markten: de teller telt markten en de lijst toont evenveel marktkaarten, elk met de volgende dag.
+    await page.goto(`${baseUrl}/?soort=markten&periode=alles`);
+    await page.waitForFunction(() => document.querySelector('[data-group="markten"] .pv-chip-n') && document.querySelector(".pv-markets"));
+    const chip = Number(await page.locator('[data-group="markten"] .pv-chip-n').innerText());
+    assert.ok(chip > 0, "de data heeft markten");
+    assert.equal(await page.locator(".pv-results .pv-markets > li").count(), chip);
+    assert.equal(await page.locator(".pv-results .pv-row").count(), 0, "geen losse marktdagen in de lijst");
+    assert.match(await page.locator(".pv-results .pv-markets > li").first().innerText(), /Volgende: /);
+    assert.equal(await page.locator("#dit-weekend").isVisible(), true);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Herstelplan O1: de A-Sign-lagen faalden bij elke laadbeurt (URL's van 3.000 tot 4.800 tekens).
   await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod zonder huisnummer en terras in de straat", async () => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];

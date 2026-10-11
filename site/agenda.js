@@ -2271,6 +2271,52 @@ function highlightCardTemplate(item, range) {
   `;
 }
 
+// Bovenaan de voorpagina: wat er dit weekend te doen is. Dezelfde keuze als "Uitgelicht" (pickHighlights),
+// hoogstens zes kaarten om opzij te vegen. Met een gekozen plek verbergt place-view.css het blok.
+function weekendLabel(range) {
+  const fmt = (iso, options) => {
+    const [year, month, day] = iso.split("-").map(Number);
+    return new Intl.DateTimeFormat("nl-BE", options).format(new Date(year, month - 1, day));
+  };
+  const vol = { weekday: "short", day: "numeric", month: "short" };
+  if (range.from === range.to) return fmt(range.from, vol);
+  const zelfdeMaand = range.from.slice(0, 7) === range.to.slice(0, 7);
+  return `${fmt(range.from, zelfdeMaand ? { weekday: "short", day: "numeric" } : vol)} – ${fmt(range.to, vol)}`;
+}
+
+function renderDitWeekend(items) {
+  const root = document.getElementById("dit-weekend");
+  if (!root) return;
+  if (!uitgaan) {
+    root.hidden = true;
+    return;
+  }
+  const range = uitgaan.rangesFor(todayIso()).weekend;
+  const alle = items.filter((item) => uitgaan.overlaps(item, range) && uitgaan.categoryFor(item.category || uitgaan.categoryOf(item)).weight > 0);
+  const kaarten = uitgaan.pickHighlights(items, range, 6);
+  const n = alle.length;
+  root.hidden = false;
+  root.innerHTML = `
+    <h2 id="dit-weekend-titel" class="dw-titel">
+      <span class="dw-wanneer">Dit weekend · ${esc(weekendLabel(range))}</span>
+      <span class="dw-kop">${n ? `${esc(n)} ${n === 1 ? "ding" : "dingen"} te doen` : "Nog niets op de agenda"}</span>
+    </h2>
+    ${kaarten.length
+      ? `<ul class="hl-grid dw-grid">${kaarten.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`
+      : `<p class="dw-leeg">Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.</p>`}
+    ${n > kaarten.length ? `<button type="button" class="dw-meer" data-dw-meer>Alles dit weekend (${esc(n)})</button>` : ""}
+  `;
+  // In de plekweergave klapt PUBLIC_AGENDA_OPEN het item open in de lijst; anders de oude lijst.
+  root.querySelectorAll("[data-hl-id]").forEach((button) =>
+    button.addEventListener("click", () => (window.PUBLIC_AGENDA_OPEN ? window.PUBLIC_AGENDA_OPEN(button.dataset.hlId) : openAgendaItem(button.dataset.hlId)))
+  );
+  root.querySelector("[data-dw-meer]")?.addEventListener("click", () => {
+    highlightTab = "weekend";
+    render();
+    document.getElementById("agenda-highlights")?.scrollIntoView({ block: "start" });
+  });
+}
+
 function defaultHighlightTab(lists, today) {
   const weekday = weekdayIndex(today);
   if ([0, 5, 6].includes(weekday) && lists.weekend.length) return "weekend";
@@ -2463,6 +2509,7 @@ function render() {
   renderCounts(visible, categoryCounts);
   renderFreshness();
   renderHighlights(visible);
+  renderDitWeekend(visible);
   renderList(visible);
   window.dispatchEvent(new CustomEvent("public-agenda:agenda-view", { detail: { count: visible.length, categoryCounts } }));
 }

@@ -615,3 +615,20 @@ body.agenda-focused {
   .hl-card, .view-themes .view-chip { transition: none; }
   .hl-card:hover, .view-themes .view-chip:hover { transform: none; }
 }
+
+/* ---- Dit weekend: bovenaan de voorpagina, verborgen zodra een plek gekozen is ---- */
+.dit-weekend { margin: 0; }
+.dw-titel { margin: 0 0 10px; display: flex; flex-direction: column; gap: 2px; }
+.dw-wanneer { font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pa-accent); }
+.dw-kop { font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; color: var(--pa-ink-strong); }
+.dw-leeg { margin: 0; color: var(--pa-muted); }
+.dw-meer {
+  margin-top: 10px; min-height: 44px; padding: 8px 14px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--pa-line-strong); background: var(--pa-surface); color: var(--pa-ink-strong); font: inherit; font-weight: 700;
+}
+.dw-meer:hover { border-color: var(--pa-accent); color: var(--pa-accent); }
+.has-place .dit-weekend { display: none; }
+@media (max-width: 640px) {
+  /* Op de gsm zegt "Dit weekend" meteen wat er te doen is; de uitlegzin onder de titel mag weg. */
+  .plek-ui .agenda-header:has(~ .dit-weekend:not([hidden])) .hero-text > p:not(.hero-kicker) { display: none; }
+}
