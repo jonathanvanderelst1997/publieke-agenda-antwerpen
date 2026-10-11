@@ -388,6 +388,17 @@ export function evenementBadge(entry = {}, today = "") {
   if (fase === "evenement" && langEvenement(entry)) return { label: entry.end ? `Loopt tot ${kortDatum(entry.end, today)}` : "Doorlopend", soort: "period" };
   return null;
 }
+// Gebeurt er op dag `d` echt iets, voor een teken in de tijdlijn en de lijst van die dag? Opbouw en afbraak
+// (een parkeerverbod) wel. Losse dagen (elke woensdag) alleen op die dagen, niet de hele periode ertussen.
+// Een evenement van twee weken of langer niet per dag: de lijst zet het bij "Doorlopend" (groupForList).
+// Anders de periode zelf (overlaps).
+export function opDag(entry = {}, d = "") {
+  const fase = evenementFase(entry, d);
+  if (fase === "opbouw" || fase === "afbraak") return true;
+  if (entry.losseDagen?.length) return entry.losseDagen.includes(d);
+  if (langEvenement(entry)) return false;
+  return overlaps(entry, d, d);
+}
 
 // ---- soorten (de enige filterrij) ----
 // Elke chip bundelt een paar onderliggende soorten van agenda-uitgaan.js en de live lagen.
@@ -1206,6 +1217,38 @@ export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 
   const plek = place?.type === "straat" ? "deze straat" : place?.type === "wijk" ? "deze wijk" : place ? "deze postcode" : "";
   if (onvolledig) return plek ? `In wat wel geladen is, staat niets voor ${plek}.` : "In wat wel geladen is, staat nu niets.";
   return plek ? `Er staat niets op de agenda voor ${plek}.` : "Er staat nu niets op de agenda.";
+}
+// Een aantal per soort in gewone taal, in enkelvoud of meervoud: "1 evenement", "2 markten". De namen van
+// de soorten zelf ("Werken & verkeer") zijn geen telwoorden.
+const SOORT_WOORD = Object.freeze({
+  evenementen: ["evenement", "evenementen"],
+  werken: ["werk of verkeersmaatregel", "werken of verkeersmaatregelen"],
+  inspraak: ["item over inspraak of info", "items over inspraak of info"],
+  markten: ["markt", "markten"],
+  raad: ["vergadering van raad of commissie", "vergaderingen van raad of commissies"],
+  vergunningen: ["vergunning", "vergunningen"],
+});
+export const soortAantal = (key, n) => `${n} ${(SOORT_WOORD[key] || ["item", "items"])[n === 1 ? 0 : 1]}`;
+// Een dag zonder iets in de tijdlijn (de naam van de dagknop). Laadt een laag nog of laadde ze niet, dan
+// nooit "niets gepland"; en anders "binnen je keuze": de soorten die uit staan, tellen niet mee.
+// `bezig`: de lagen die nog laden ("werken", "verkeersmaatregelen" ...).
+export function legeDagLabel({ bezig = [], onvolledig = false } = {}) {
+  if (bezig.length) return `nog niets gevonden, ${opsomming(bezig)} ${bezig.length > 1 ? "worden" : "wordt"} nog geladen`;
+  if (onvolledig) return "niets gevonden in wat geladen is, niet alles laadde";
+  return "niets gepland binnen je keuze";
+}
+// Lege tijdlijn: eerlijk over die ene dag (`dag`) of over de komende 14 dagen, niet over de hele plek
+// (dat doet legeStaatTekst). `andereDagen`: hoeveel andere dagen van de 14 wel iets hebben; `doorlopend`:
+// hoeveel toelatingen van twee weken of langer er wel lopen (die staan eronder, zonder teken per dag).
+export function legeTijdlijnTekst({ dag = false, bezig = [], onvolledig = false, aantalSoorten = 1, andereDagen = 0, doorlopend = 0 } = {}) {
+  if (!aantalSoorten) return "Je hebt alle soorten uitgezet.";
+  const wanneer = dag ? "op die dag" : "de komende 14 dagen";
+  const behalve = doorlopend ? " behalve wat hieronder doorloopt" : "";
+  const zin = bezig.length ? `In wat al geladen is, staat ${wanneer} niets${behalve}; ${opsomming(bezig)} ${bezig.length > 1 ? "worden" : "wordt"} nog geladen.`
+    : onvolledig ? `In wat wel geladen is, staat ${wanneer} niets${behalve}.`
+    : `Binnen je keuze staat ${wanneer} niets gepland${behalve}.`;
+  if (!dag || !andereDagen) return zin;
+  return `${zin} Op ${andereDagen === 1 ? "1 andere dag" : `${andereDagen} andere dagen`} van de komende 14 dagen staat wel iets: kies een dag met een teken.`;
 }
 // Voortgang van een meerdaagse periode: "Start over 13 dagen · duurt 8 dagen" of "Dag 3 van 8". Een
 // periode van twee weken of langer is een toelating, geen evenement dat je dag per dag volgt: dan "Loopt

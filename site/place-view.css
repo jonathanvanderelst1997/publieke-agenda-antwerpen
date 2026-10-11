@@ -293,10 +293,15 @@
 .pv-bar.cs { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
 .pv-bar.ce { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .pv-cal-more { z-index: 1; pointer-events: none; font-size: .64rem; font-weight: 800; color: var(--pa-muted); text-align: center; line-height: 6px; }
-/* Tijdlijn over 14 dagen: op de gsm twee rijen van zeven, breder één rij. Een stip per soort. */
-.pv-tl-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 4px 0 0; }
+/* Tijdlijn over 14 dagen: twee rijen van zeven, of één rij als er plaats is. Een kolom is minstens zo breed als
+   "vand." en het dagnummer (in rem: groeit mee met de tekst). Bij grote tekst of een smal scherm passen er
+   minder dagen naast elkaar; de tekst loopt nooit in die van de buurdag. */
+.pv-tl { container-type: inline-size; }
+.pv-tl-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr)); gap: .25rem; margin: 4px 0 0; }
+@container (min-width: 19.7rem) { .pv-tl-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@container (min-width: 39.7rem) { .pv-tl-strip { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
 .pv-tl-dag {
-  min-height: 64px; padding: 6px 2px; border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface); color: var(--pa-ink);
+  min-width: 0; min-height: 64px; padding: 6px 0; border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface); color: var(--pa-ink);
   display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; font: inherit;
 }
 .pv-tl-dag.weekend { background: var(--pa-surface-2); }
@@ -304,10 +309,20 @@
 .pv-tl-dag[aria-pressed="true"] { background: var(--pa-ink-strong); border-color: var(--pa-ink-strong); color: var(--pa-surface); }
 .pv-tl-wd { font-size: .72rem; font-weight: 700; color: inherit; opacity: .85; }
 .pv-tl-n { font-size: 1.05rem; font-weight: 800; line-height: 1; }
-.pv-tl-stippen { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-height: 8px; }
-.pv-tl-stippen i { width: 8px; height: 8px; border-radius: 50%; background: var(--cat); box-shadow: 0 0 0 1.5px var(--pa-surface); }
+/* Een teken per soort, elk met een eigen vorm (de kleur is niet de enige drager): evenementen een rondje,
+   werken en verkeer een vierkant, inspraak een driehoek, markten een ruit, raad een liggend balkje. Ook in
+   de legende. In donker de lichte tint van de soort (--cat-ink), op een gekozen dag de kleur van het vlak. */
+.pv-tl-stippen { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px; min-height: .625rem; }
+.pv-tl i[class*="vorm-"] { display: inline-block; flex: none; width: .625rem; height: .625rem; border-radius: 0; background: var(--cat); }
+.pv-tl i.vorm-evenementen { border-radius: 50%; }
+.pv-tl i.vorm-werken { width: .55rem; height: .55rem; }
+.pv-tl i.vorm-inspraak { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.pv-tl i.vorm-markten { width: .7rem; height: .7rem; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.pv-tl i.vorm-raad { width: .8rem; height: .375rem; border-radius: 1px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pv-tl i[class*="vorm-"] { background: var(--cat-ink); } }
+:root[data-theme="dark"] .pv-tl i[class*="vorm-"] { background: var(--cat-ink); }
+.pv-tl .pv-tl-dag[aria-pressed="true"] .pv-tl-stippen i[class*="vorm-"] { background: var(--pa-surface); }
 .pv-tl-alle { margin: 4px 0 12px; }
-@media (min-width: 900px) { .pv-tl-strip { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
 .pv-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 2px 14px; font-size: .82rem; color: var(--pa-muted); }
 .pv-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .pv-legend-item i { width: 18px; height: 8px; border-radius: 4px; background: var(--cat); }
