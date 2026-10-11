@@ -64,9 +64,12 @@
   border: 1px solid var(--pa-line); box-shadow: var(--pa-shadow);
 }
 /* Soortlabel en knoppen op één regel als ze naast elkaar passen; anders schuiven de knoppen naar een eigen
-   regel onder het label (nooit eroverheen, ook niet met grote tekst). Naam en meta krijgen de volle breedte. */
+   regel onder het label (nooit eroverheen, ook niet met grote tekst). Naam en meta krijgen de volle breedte.
+   In de DOM staat de naam (de kop) vóór de knoppen, voor wie per kop navigeert; op het scherm eronder. */
 .pv-place-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; }
 .pv-place-name, .pv-place-meta { flex-basis: 100%; min-width: 0; }
+.pv-place-name { order: 1; }
+.pv-place-meta { order: 2; }
 .pv-place-name { overflow-wrap: break-word; }
 .pv-stat-off button { opacity: .75; box-shadow: inset 4px 0 0 var(--pa-line-strong); }
 .pv-stat-off strong { color: var(--pa-muted); }
@@ -295,12 +298,14 @@
 .pv-bar.cs { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
 .pv-bar.ce { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .pv-cal-more { z-index: 1; pointer-events: none; font-size: .64rem; font-weight: 800; color: var(--pa-muted); text-align: center; line-height: 6px; }
-/* Tijdlijn over 14 dagen: twee rijen van zeven, of één rij als er plaats is. Een kolom is minstens zo breed als
-   "vand." en het dagnummer (in rem: groeit mee met de tekst). Bij grote tekst of een smal scherm passen er
-   minder dagen naast elkaar; de tekst loopt nooit in die van de buurdag. */
+/* Tijdlijn over 14 dagen: twee rijen van zeven (een week per rij, de weekdagen onder elkaar), of één rij als er
+   plaats is. Zeven kolommen vanaf 17.5rem: dan is een knop (17.5rem - 6 × .25rem) / 7 ≈ 2.29rem breed, net
+   breder dan "vand." (2.26rem bij gewone tekst), ook op een gsm van 320 px (strook 18rem). In rem: de drempel
+   groeit mee met de tekst. Bij grote tekst passen er minder dagen naast elkaar (minstens 2.6rem per dag); de
+   tekst loopt nooit in die van de buurdag. */
 .pv-tl { container-type: inline-size; }
 .pv-tl-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr)); gap: .25rem; margin: 4px 0 0; }
-@container (min-width: 19.7rem) { .pv-tl-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@container (min-width: 17.5rem) { .pv-tl-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
 @container (min-width: 39.7rem) { .pv-tl-strip { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
 .pv-tl-dag {
   min-width: 0; min-height: 64px; padding: 6px 0; border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface); color: var(--pa-ink);

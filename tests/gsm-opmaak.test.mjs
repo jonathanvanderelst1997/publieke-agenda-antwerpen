@@ -53,11 +53,15 @@ test("plekkop: de naam krijgt de volle breedte; label en knoppen delen een regel
   assert.match(regel(css, ".pv-place-top"), /display:\s*flex/);
   assert.match(regel(css, ".pv-place-top"), /flex-wrap:\s*wrap/);
   assert.match(regel(css, ".pv-place-name, .pv-place-meta"), /flex-basis:\s*100%/);
-  // In de DOM dezelfde volgorde als op het scherm (en dus voor Tab): label, knoppen, naam, meta.
+  // Nakijkbevinding (gsm-kop, afweging): in de DOM label, naam (de kop), knoppen, meta. Wie met een schermlezer
+  // naar de kop springt en verder leest, hoort Deel en Andere plek nog. Op het scherm staan de knoppen op de rij
+  // van het label en de naam eronder (order); de kop krijgt geen focus, dus Tab volgt nog altijd het scherm.
   const kop = js.slice(js.indexOf('<div class="pv-place-top">'));
-  const plaats = ["pv-place-kind", "pv-place-actions", "pv-place-name", "pv-place-meta"].map((c) => kop.indexOf(`class="${c}"`));
+  const plaats = ["pv-place-kind", "pv-place-name", "pv-place-actions", "pv-place-meta"].map((c) => kop.indexOf(`class="${c}"`));
   assert.ok(plaats.every((p) => p >= 0), JSON.stringify(plaats));
-  assert.deepEqual([...plaats].sort((a, b) => a - b), plaats, "de knoppen staan in de DOM direct na het label, vóór de naam");
+  assert.deepEqual([...plaats].sort((a, b) => a - b), plaats, "de kop staat in de DOM vóór de knoppen");
+  assert.match(regel(css, ".pv-place-name"), /order:\s*1/);
+  assert.match(regel(css, ".pv-place-meta"), /order:\s*2/);
 });
 
 test("de tijdkolom is minstens 5em breed, ook op een gsm", () => {

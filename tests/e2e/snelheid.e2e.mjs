@@ -18,6 +18,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const site = path.join(root, "site");
 const fixture = await import("../helpers/straat-fixture.mjs").catch(() => null);
+const { feedScript, proefFeed } = await import("../helpers/proef-feed.mjs");
 
 async function loadPlaywright() {
   for (const spec of [process.env.PLAYWRIGHT_MODULE, "playwright"].filter(Boolean)) {
@@ -155,7 +156,7 @@ function arcgis(records, url) {
   return { features: records.filter((r) => ids.has(r.id)).map((r) => r.feature) };
 }
 
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false } = {}) {
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(NU);
@@ -163,6 +164,8 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
   page.on("pageerror", (error) => errors.push(error.message));
   if (inzage) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/inzage-status.json", (route) => route.fulfill(json(inzage)));
   if (uitleg) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/kaart-uitleg.json", (route) => route.fulfill(json(uitleg)));
+  // Desgewenst een verzonnen agendafeed (tests/helpers/proef-feed.mjs), los van wat er in de echte feed staat.
+  if (feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(feed) }));
   // De straatbestanden: uit de fixture, nooit uit wat er toevallig in site/ staat.
   await page.route((url) => url.hostname === "127.0.0.1" && (url.pathname === "/straat-index.json" || url.pathname.startsWith("/straat/")), (route) => {
     const pad = new URL(route.request().url()).pathname;
@@ -300,6 +303,33 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand van de verversing van 05:22.");
     assert.deepEqual(errors, []);
     await context.close();
+  });
+
+  // Nakijkbevinding (weekzin): met de stand van de ochtend zijn alle lagen geladen, ook die van soorten die uit
+  // staan. Een rustige week bleef met alle soorten aan "Rustig", maar werd met ?soort=inspraak "Onbekend ... staan
+  // uit", terwijl alles nagekeken was. Verzonnen ochtend: alleen een werk dat pas na de 7 dagen begint.
+  await t.test("de komende 7 dagen: met de stand van de ochtend hetzelfde licht en dezelfde zin, welke soorten ook aan staan", async (st) => {
+    const map = fs.mkdtempSync(path.join(os.tmpdir(), "snelheid-e2e-"));
+    st.after(() => fs.rmSync(map, { recursive: true, force: true }));
+    fixture.maakWerkmap(map);
+    await fixture.bouw(map, { bronnenDoc: await fixture.bronnenUitLiveLagen({ works: [fixture.werk()] }) });
+    const lees = (rel) => fs.readFileSync(path.join(map, rel), "utf8");
+    const index = JSON.parse(lees("site/straat-index.json"));
+    const stand = { index: lees("site/straat-index.json"), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
+    const zinnen = [];
+    for (const query of ["?plek=Kammenstraat", "?plek=Kammenstraat&soort=inspraak", "?plek=Kammenstraat&soort=evenementen"]) {
+      const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", query, feed: proefFeed("2099-03-10", []) });
+      await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+      await page.waitForFunction(() => document.querySelector(".pv-dezeweek") && !/nog geladen/.test(document.querySelector(".pv-dezeweek").textContent), null, { timeout: 10000 });
+      const week = page.locator(".pv-dezeweek");
+      zinnen.push([query, (await week.getAttribute("class")).match(/pv-dezeweek-(\S+)/)[1], (await week.innerText()).trim()]);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+    for (const [query, licht, zin] of zinnen) {
+      assert.equal(licht, "rustig", `${query}: ${zin}`);
+      assert.equal(zin.replace(/\s+/g, " "), "Rustig De komende 7 dagen in jouw straat: rustig. Geen werken, parkeerverboden of evenementen gepland.", query);
+    }
   });
 
   for (const [scenario, evenement] of Object.entries(EVENEMENTEN)) await t.test(`dezelfde kaartjes als met alle live lagen (${scenario}): openbaar onderzoek bovenaan, opbouw en afbraak bij het evenement, met en zonder live`, async (st) => {

@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
 import { locationKey } from "../../site/neighborhood-core.js";
+import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const site = path.join(root, "site");
@@ -165,43 +166,38 @@ const LANGE_TITELS = [
   "Rommelmarkt van de bewonersvereniging op het pleintje", "Filmavond in openlucht met een klassieker uit de jaren zestig",
   "Danslessen voor beginners in het buurthuis, met koffie en taart",
 ];
-function weekendFeed(dag, { uitstappen = 0, markten = [] } = {}) {
-  const feed = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1));
-  const stempel = `${dag}T05:00:00.000Z`;
-  feed.generatedAt = stempel;
-  feed.classificationAsOf = dag;
-  for (const bron of feed.sources) bron.retrievedAt = stempel;
+// De basisitems zijn vaste letterlijke objecten (tests/helpers/proef-feed.mjs), niet geleend uit de echte feed.
+// Echte weekenditems hebben vaak een lange plaats ("Kloosterstraat, Arenbergstraat ... en 31 andere straten"):
+// met `langePlaats` ook de helft van de uitstappen, zodat de toets meet wat zo'n plaats doet met het blok.
+const LANGE_PLAATS = "Proefstraat, Proeflaan, Proefkaai, Proefplein, Proefvest, Proefdreef en 31 andere straten";
+function weekendFeed(dag, { uitstappen = 0, markten = [], langePlaats = false } = {}) {
   const dagen = weekendDagen(dag);
-  const kalender = feed.items.find((i) => i.sourceId === "district-kalender") || feed.items.find((i) => i.scope === "district");
-  const markt = feed.items.find((i) => i.sourceId === "stad-markten" && i.inDistrict === true);
-  const vers = (basis) => ({ retrievedAt: stempel, sources: (basis.sources || []).map((s) => ({ ...s, retrievedAt: stempel })) });
-  feed.items = [
-    ...Array.from({ length: uitstappen }, (_, i) => ({
-      ...kalender, ...vers(kalender), id: `e2e-weekend-${i + 1}`, externalId: `e2e-weekend-${i + 1}`, title: `${LANGE_TITELS[i % LANGE_TITELS.length]} (e2e ${i + 1})`,
-      date: dagen[i % dagen.length], endDate: "", timeSlot: `${String(10 + (i % 9)).padStart(2, "0")}:00`, timeText: "", location: "Proefplein 1, 2000 Antwerpen", postcodes: ["2000"],
-      info: "Verzonnen item voor de toets.", infoUrl: "", dateLabel: dagTekst(dagen[i % dagen.length]),
+  return proefFeed(dag, (stempel) => [
+    ...Array.from({ length: uitstappen }, (_, i) => kalenderItem(stempel, {
+      id: `e2e-weekend-${i + 1}`, externalId: `e2e-weekend-${i + 1}`, title: `${LANGE_TITELS[i % LANGE_TITELS.length]} (e2e ${i + 1})`,
+      date: dagen[i % dagen.length], timeSlot: `${String(10 + (i % 9)).padStart(2, "0")}:00`, location: langePlaats && i % 2 === 0 ? LANGE_PLAATS : "Proefplein 1, 2000 Antwerpen", postcodes: ["2000"],
+      dateLabel: dagTekst(dagen[i % dagen.length]),
     })),
     // Een wekelijkse markt (stad, in het district) op een dag van het weekend: `markten` = [[naam, plein, dagindex], ...].
-    ...markten.map(([naam, plein, d], i) => ({
-      ...markt, ...vers(markt), id: `e2e-markt-${i + 1}`, externalId: `e2e-markt-${i + 1}`, title: naam, location: `${plein}, 2000 Antwerpen`,
-      date: dagen[Math.min(d, dagen.length - 1)], endDate: null, dateLabel: dagTekst(dagen[Math.min(d, dagen.length - 1)]),
+    ...markten.map(([naam, plein, d], i) => marktItem(stempel, {
+      id: `e2e-markt-${i + 1}`, externalId: `e2e-markt-${i + 1}`, title: naam, location: `${plein}, 2000 Antwerpen`,
+      date: dagen[Math.min(d, dagen.length - 1)], dateLabel: dagTekst(dagen[Math.min(d, dagen.length - 1)]),
     })),
-  ];
-  return feed;
+  ]);
 }
 
 async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
-  if (agendaErbij.length) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
-    const feed = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1));
-    const basis = feed.items.find((i) => i.sourceId === "district-kalender") || feed.items.find((i) => i.scope === "district");
-    feed.items.push(...agendaErbij.map((item) => ({ ...basis, ...item })));
-    return route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: `window.PUBLIC_AGENDA_FEED = ${JSON.stringify(feed)};` });
+  // De echte feed met verzonnen agendapunten erbij (`agendaErbij`, met een vaste letterlijke basis), of een volledig
+  // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed.
+  if (agendaErbij.length && !feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
+    const echt = echteFeed();
+    echt.items.push(...agendaErbij.map((item) => kalenderItem(echt.generatedAt, item)));
+    return route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(echt) });
   });
-  // Een volledig nagebootste feed (weekendFeed), met de klok op de dag van die feed.
-  if (feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: `window.PUBLIC_AGENDA_FEED = ${JSON.stringify(feed)};` }));
+  if (feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(feed) }));
   await page.clock.setFixedTime(new Date(`${dag}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -525,15 +521,18 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   // P8: de voorpagina op de gsm opent met "Dit weekend". Nakijkbevinding: de toets hing af van de data (die van een
   // zondag paste, die van een werkdag niet). Nu met negen verzonnen uitstappen met lange titels en de klok op een
   // woensdag, een zaterdag en een zondag na de dag van de data: zes kaarten en de knop "Alles" boven 600 px.
+  // Nakijkbevinding 35: echte items hebben vaak een lange plaats, die over twee regels liep (30 px meer); de
+  // verzonnen uitstappen hebben er nu ook een, en er wordt ook op 360 px gemeten.
   const weekendKop = (page) => page.locator("#dit-weekend .dw-kop").textContent().then((tekst) => Number((tekst.match(/^(\d+) dingen te doen$/) || [])[1]));
-  await t.test("voorpagina (390×844): 'Dit weekend' met zes kaarten en 'Alles' boven 600 px, op een woensdag, zaterdag en zondag; tikken klapt het item open", async () => {
+  await t.test("voorpagina (390×844 en 360×780): 'Dit weekend' met zes kaarten en 'Alles' boven 600 px, op een woensdag, zaterdag en zondag, ook met een lange plaats; tikken klapt het item open", async () => {
     const gevallen = [
-      ["woensdag", volgendeWeekdag(today, 3), /^Dit weekend · vr \d+ (\S+ )?– zo \d+ \S+$/],
-      ["zaterdag", volgendeWeekdag(today, 6), /^Dit weekend · za \d+ (\S+ )?– zo \d+ \S+$/],
-      ["zondag", volgendeWeekdag(today, 0), /^Dit weekend · zo \d+ \S+$/],
+      ["woensdag", volgendeWeekdag(today, 3), /^Dit weekend · vr \d+ (\S+ )?– zo \d+ \S+$/, 390],
+      ["zaterdag", volgendeWeekdag(today, 6), /^Dit weekend · za \d+ (\S+ )?– zo \d+ \S+$/, 390],
+      ["zondag", volgendeWeekdag(today, 0), /^Dit weekend · zo \d+ \S+$/, 390],
+      ["woensdag op 360 px", volgendeWeekdag(today, 3), /^Dit weekend · vr \d+ (\S+ )?– zo \d+ \S+$/, 360],
     ];
-    for (const [naam, dag, label] of gevallen) {
-      const { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 9 }) });
+    for (const [naam, dag, label, width] of gevallen) {
+      const { page, context, errors } = await openPage(baseUrl, { dag, width, height: width === 390 ? 844 : 780, feed: weekendFeed(dag, { uitstappen: 9, langePlaats: true }) });
       const blok = page.locator("#dit-weekend");
       await blok.locator(".dw-titel").waitFor();
       assert.match(await blok.locator(".dw-wanneer").textContent(), label, naam);
@@ -542,8 +541,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       assert.ok(n >= 9, `${naam}: ${n} dingen te doen`);
       assert.equal(await blok.locator(".hl-card").count(), 6, `${naam}: zes kaarten`);
       assert.equal((await blok.locator("[data-dw-meer]").innerText()).trim(), `Alles dit weekend (${n})`);
+      // Een kaart met de lange plaats staat erbij, op één regel (met een beletselteken).
+      const plaatsen = await blok.locator(".hl-where").evaluateAll((els) => els.map((el) => el.textContent));
+      assert.ok(plaatsen.includes(LANGE_PLAATS), `${naam}: geen kaart met de lange plaats: ${JSON.stringify(plaatsen)}`);
+      const hoogte = await blok.locator(".hl-where").evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+      assert.ok(Math.max(...hoogte) <= Math.min(...hoogte) + 1, `${naam}: een plaats loopt over meer regels: ${hoogte}`);
       const onder = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
-      t.diagnostic(`${naam} ${dag}: Dit weekend eindigt op ${onder}px`);
+      t.diagnostic(`${naam} ${dag} (${width} px): Dit weekend eindigt op ${onder}px`);
       assert.ok(onder <= 600, `${naam}: 'Dit weekend' eindigt op ${onder}px, niet boven 600px`);
       if (naam === "woensdag") {
         const kaart = blok.locator(".hl-card").first();
@@ -587,34 +591,61 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  // Nakijkbevinding: met alleen markten (gewicht 0) zei het blok "Nog niets op de agenda", terwijl er dit weekend
-  // markten zijn. Nu zegt het dat er geen uitstappen of evenementen zijn, en wat er wel is (markten één keer per markt).
-  await t.test("voorpagina: 'Dit weekend' zegt nooit 'Nog niets op de agenda' als er binnen de keuze markten zijn; marktkaarten = markten", async () => {
+  // Nakijkbevinding 11 (rest): het tabblad "Dit weekend" van Uitgelicht zei 6, het blok bovenaan "12 dingen te doen".
+  await t.test("voorpagina: het tabblad 'Dit weekend' van Uitgelicht telt evenveel als het blok bovenaan, en zegt hoeveel het toont", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 9 }) });
+    await page.locator("#dit-weekend [data-dw-meer]").waitFor();
+    const n = await weekendKop(page);
+    const tab = page.locator("#hl-tab-weekend");
+    assert.equal(Number(await tab.locator(".hl-tab-count").textContent()), n, "het tabblad telt alles van het weekend");
+    await tab.click();
+    const paneel = page.locator("#agenda-highlights .highlights-panel");
+    assert.equal(await paneel.locator(".hl-card").count(), 6);
+    assert.equal((await paneel.locator(".hl-meer").textContent()).trim(), `6 van de ${n} getoond. Alles staat in de lijst hierboven.`);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevindingen 12 en 29: met alleen markten (gewicht 0) zei het blok "Nog niets op de agenda", terwijl er dit
+  // weekend markten zijn; daarna zei de kop zonder voorbehoud "Geen uitstappen of evenementen", terwijl de keuze de
+  // evenementen uitsloot. Nu noemt de kop de keuze, zegt de zin eronder dat de evenementen uit staan en wat er wel
+  // is (markten één keer per markt). Alles verzonnen: drie uitstappen en markten in hetzelfde weekend.
+  await t.test("voorpagina: 'Dit weekend' noemt de keuze en zegt nooit zonder voorbehoud dat er niets of geen evenementen zijn; marktkaarten = markten", async () => {
     const dag = volgendeWeekdag(today, 3);
     const markten = [["Proefmarkt (e2e)", "Proefplein", 1], ["Proefmarkt (e2e)", "Proefplein", 2], ["Proefbiomarkt (e2e)", "Proefkaai", 2]];
-    let { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { markten }), query: "?soort=markten" });
+    const uitZin = "Evenementen staan niet in je keuze; zet ze aan om te zien wat er te doen is.";
+    let { page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 3, markten }), query: "?soort=markten" });
     const blok = page.locator("#dit-weekend");
     await blok.locator(".dw-titel").waitFor();
     assert.equal(await blok.isVisible(), true);
-    assert.equal((await blok.locator(".dw-kop").textContent()).trim(), "Geen uitstappen of evenementen");
+    assert.equal((await blok.locator(".dw-kop").textContent()).trim(), "Geen uitstappen of evenementen binnen je keuze");
     const tekst = await blok.innerText();
     assert.doesNotMatch(tekst, /niets op de agenda/i, tekst);
-    assert.match(await blok.locator(".dw-leeg").textContent(), /wel andere dingen op de agenda: Wekelijkse markten \(2\)\./);
+    const leeg = (await blok.locator(".dw-leeg").textContent()).trim();
+    assert.ok(leeg.startsWith(uitZin), leeg);
+    assert.match(leeg, /wel andere dingen op de agenda: Wekelijkse markten \(2\)\./);
     assert.deepEqual(errors, []);
     await context.close();
-    // Zonder iets in het weekend binnen de keuze blijft de eerlijke lege tekst.
-    ({ page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag), query: "?soort=markten" }));
+    // Niets binnen de keuze in het weekend, wel drie uitstappen erbuiten: nooit "Nog niets op de agenda".
+    ({ page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { uitstappen: 3 }), query: "?soort=markten" }));
     await page.locator("#dit-weekend .dw-titel").waitFor();
-    assert.equal((await page.locator("#dit-weekend .dw-kop").textContent()).trim(), "Nog niets op de agenda");
-    assert.match(await page.locator("#dit-weekend .dw-leeg").textContent(), /^Binnen je keuze staat er dit weekend niets op de agenda\./);
+    assert.equal((await page.locator("#dit-weekend .dw-kop").textContent()).trim(), "Nog niets binnen je keuze");
+    assert.equal((await page.locator("#dit-weekend .dw-leeg").textContent()).trim(), `${uitZin} Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.`);
     assert.deepEqual(errors, []);
     await context.close();
-    // Markten in de echte data: de teller telt markten en de lijst toont evenveel marktkaarten, elk met de volgende dag.
-    ({ page, context, errors } = await openPage(baseUrl, { query: "" }));
-    await page.goto(`${baseUrl}/?soort=markten&periode=alles`);
+    // Evenementen aan (standaard) en alleen markten in het weekend: de kop noemt de keuze, geen zin over evenementen die uit staan.
+    ({ page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { markten }) }));
+    await page.locator("#dit-weekend .dw-titel").waitFor();
+    assert.equal((await page.locator("#dit-weekend .dw-kop").textContent()).trim(), "Nog niets binnen je keuze");
+    assert.doesNotMatch(await page.locator("#dit-weekend .dw-leeg").textContent(), /staan niet in je keuze/);
+    assert.deepEqual(errors, []);
+    await context.close();
+    // Markten: de teller telt markten en de lijst toont evenveel marktkaarten, elk met de volgende dag.
+    ({ page, context, errors } = await openPage(baseUrl, { dag, feed: weekendFeed(dag, { markten }), query: "?soort=markten&periode=alles" }));
     await page.waitForFunction(() => document.querySelector('[data-group="markten"] .pv-chip-n') && document.querySelector(".pv-markets"));
     const chip = Number(await page.locator('[data-group="markten"] .pv-chip-n').innerText());
-    assert.ok(chip > 0, "de data heeft markten");
+    assert.equal(chip, 2, "twee verzonnen markten");
     assert.equal(await page.locator(".pv-results .pv-markets > li").count(), chip);
     assert.equal(await page.locator(".pv-results .pv-row").count(), 0, "geen losse marktdagen in de lijst");
     assert.match(await page.locator(".pv-results .pv-markets > li").first().innerText(), /Volgende: /);
@@ -656,15 +687,17 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   // Nakijkbevindingen (kaart-tellers): "X in de lijst, Y op de kaart" onder de kaart. X is wat de lijst echt
   // toont: met de periode, of de 14 dagen van de tijdlijn en de gekozen dag; de maand heeft geen lijst en
   // krijgt de gewone zin. Y telt wat de kaart tekent, op dezelfde manier: een werf in stukken één keer.
-  // In de Peterseliestraat staan geen agendapunten (zie "een A-Sign-laag laadt niet" hieronder): de lijst
-  // toont alleen het nagebootste werk en de verzonnen aanvraag.
+  // Nakijkbevinding (frisse ogen): deze toetsen gingen ervan uit dat er in de echte feed niets in de Peterseliestraat
+  // staat. Nu krijgen ze een verzonnen feed (`LEGE_FEED`, of met een eigen reeks): de lijst toont het nagebootste werk,
+  // de verzonnen aanvraag en wat de toets er zelf bij zet.
   const PETERSELIE = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+  const LEGE_FEED = proefFeed(today, []);
   const wachtOpZin = (page, begin) => page.waitForFunction((b) => (document.querySelector(".buurt-status")?.textContent || "").startsWith(b), begin, { timeout: 10000 })
     .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: "${begin}…"`));
   const wachtOpLijst = (page, x) => page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in Peterseliestraat`).test(document.querySelector(".buurt-status")?.textContent || ""), x, { timeout: 10000 })
     .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: ${x} in de lijst`));
   await t.test("kaart-tellers: 'X in de lijst' is wat de lijst toont, in de tijdlijn, met een gekozen dag en met de periode", async () => {
-    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LEGE_FEED, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
     await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
     // De tijdlijn toont het werk, niet de aanvraag; het overzicht boven de lijst telt beide.
@@ -699,7 +732,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   });
 
   await t.test("kaart-tellers: een werf in twee stukken is één kaart in de lijst en telt één keer op de kaart", async () => {
-    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, werkStukken: 2, query: "?plek=Peterseliestraat&weergave=maand" });
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LEGE_FEED, werkStukken: 2, query: "?plek=Peterseliestraat&weergave=maand" });
     // Beide stukken zijn binnen, elk met een eigen punt.
     await page.waitForFunction(() => (window.PUBLIC_AGENDA_LIVE_STREETS?.works || []).filter((w) => w.gipodId >= 999999901 && Array.isArray(w.point)).length === 2, null, { timeout: 15000 });
     // De maand: de gewone zin, met de werf één keer bij de werken (niet per stuk).
@@ -717,10 +750,40 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
 
   await t.test("kaart-tellers: een kaart die later laadt dan de lijst, zegt toch hoeveel er in de lijst staat", async () => {
     // Een rustige straat: de live lagen voegen niets toe, dus de lijst meldt haar aantal maar één keer.
-    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, work: false, aanvraag: false, kaartLaat: true, query: "?plek=Peterseliestraat" });
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LEGE_FEED, work: false, aanvraag: false, kaartLaat: true, query: "?plek=Peterseliestraat" });
     await page.locator("#buurtkaart .buurt-status").waitFor({ timeout: 15000 });
     await page.waitForFunction(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return Array.isArray(l.works) && Array.isArray(l.permits); }, null, { timeout: 15000 });
     await wachtOpLijst(page, await inSecties(page));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevindingen 14 (rest) en "inSecties telt kaarten": X telde per activiteit, de lijst toont een activiteit op
+  // twee dagen als twee kaarten (en de aantallen naast de koppen ook). Nu telt X de kaarten die je ziet, in de tijdlijn
+  // en in de lijst. Een verzonnen activiteit (dezelfde titel en plek) op morgen en overmorgen + 2.
+  await t.test("kaart-tellers: een activiteit op twee dagen telt als twee kaarten, zoals de lijst ze toont (tijdlijn en lijst)", async () => {
+    const reeks = proefFeed(today, (stempel) => [1, 3].map((n) => kalenderItem(stempel, {
+      id: `e2e-reeks-${n}`, externalId: "e2e-reeks", title: "Proefatelier voor buren (e2e)", date: addDays(today, n), timeSlot: "14:00",
+      location: `${PETERSELIE.name}, ${PETERSELIE.postcode} Antwerpen`, postcodes: [PETERSELIE.postcode], dateLabel: dagTekst(addDays(today, n)),
+    })));
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: reeks, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
+    // Wat er echt staat: de kaarten in de lijst (niets zit achter "Toon alle N").
+    const kaarten = () => page.locator(".pv-results .pv-row").count();
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid^="agenda:e2e-reeks-"]').count(), 2, "de activiteit staat er op twee dagen");
+    assert.equal(await page.locator(".pv-more-rows").count(), 0);
+    // De tijdlijn: het werk en de activiteit op twee dagen.
+    assert.equal(await kaarten(), 3);
+    assert.equal(await inSecties(page), 3);
+    await wachtOpLijst(page, 3);
+    // De lijst over 30 dagen: ook de aanvraag.
+    await page.click('[data-mode="lijst"]');
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
+    assert.equal(await page.locator(".pv-more-rows").count(), 0);
+    assert.equal(await kaarten(), 4);
+    assert.equal(await inSecties(page), 4);
+    await wachtOpLijst(page, 4);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -754,6 +817,42 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.match(tekst, WEEK_MET_FEEST);
     assert.match(tekst, /\. Werken zijn niet geladen\.$/);
     assert.doesNotMatch(tekst, /rustig|Geen werken/i);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding 9 (rest): zolang de evenementen op straat laden, zegt de zin dat (nooit "rustig"); en een
+  // werkenlaag die deels mislukte terwijl werken uit staan, telde als volledig geladen.
+  await t.test("de komende 7 dagen: met alleen evenementen en een trage A-Sign 'nog geladen', en werken die deels mislukten staan in de zin", async () => {
+    let open;
+    const poort = new Promise((klaar) => { open = klaar; });
+    // A-Sign antwoordt pas als de toets de poort opent.
+    const traag = { handle: async (route, url) => { await poort; return route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }) }).catch(() => {}); } };
+    const { page, context, errors } = await openPage(baseUrl, { street, asign: traag, query: `${plekQuery}&soort=evenementen`, agendaErbij: [proefAgendapunt(today, street)] });
+    const week = page.locator(".pv-dezeweek");
+    try {
+      await page.waitForFunction(() => /evenementen op straat worden nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 })
+        .catch(async () => assert.fail(`terwijl A-Sign laadt, zegt de zin "${await week.innerText().catch(() => "")}"`));
+      const wachtzin = await week.innerText();
+      assert.match(wachtzin, /^Onbekend\s+De komende 7 dagen in jouw straat: evenementen op straat worden nog geladen…$/);
+      assert.doesNotMatch(wachtzin, /rustig/i);
+    } finally { open(); }
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).publicSpace), null, { timeout: 20000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    assert.match(await week.innerText(), /\. Werken zijn niet geladen\.$/);
+    // De werkenlaag laadt deels (zoals de lijst van het hele district die in beeld kwam en voor een deel mislukte),
+    // terwijl werken uit staan: de zin zegt dat de werken niet volledig geladen zijn.
+    await page.evaluate(() => {
+      const live = window.PUBLIC_AGENDA_LIVE_STREETS;
+      live.works = [];
+      live.failed = { ...(live.failed || {}), works: ["werken"] };
+      window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "works", items: [], failed: ["werken"] } }));
+    });
+    await page.waitForFunction(() => /niet volledig geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 5000 })
+      .catch(async () => assert.fail(`na de deels mislukte werken zegt de zin "${await week.innerText()}"`));
+    const tekst = await week.innerText();
+    assert.match(tekst, WEEK_MET_FEEST);
+    assert.match(tekst, /\. Werken zijn niet volledig geladen\.$/);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -795,7 +894,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   await t.test("een A-Sign-laag laadt niet: melding bovenaan en in de lege staat", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const asign = asignServer({ fail: [20, 47, 49] });
-    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
+    // Een verzonnen feed zonder agendapunten: de toets verwacht een lege straat, los van de echte feed.
+    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, feed: proefFeed(today, []), asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
     const melding = "Parkeerverboden, omleidingen en terrassen konden nu niet geladen worden. Dit overzicht is onvolledig.";
     // De plek tekent opnieuw bij het volgende beeld; wacht tot de laatste laag erin zit.
     await page.waitForFunction((m) => document.querySelector(".pv-place .pv-place-failed")?.innerText.trim() === m, melding, { timeout: 20000 }).catch(() => {});

@@ -2303,7 +2303,13 @@ function renderDitWeekend(items) {
   const open = ditWeekendOpen && n > 6;
   const kaarten = open ? alle : uitgaan.pickHighlights(items, range, 6);
   const anders = n ? [] : weekendZonderUitstap(items, range);
-  const kop = n ? `${esc(n)} ${n === 1 ? "ding" : "dingen"} te doen` : anders.length ? "Geen uitstappen of evenementen" : "Nog niets op de agenda";
+  // De items volgen de soortkeuze: zonder uitstappen zegt de kop dus "binnen je keuze", nooit dat er niets is.
+  // Staan de evenementen zelf uit, dan zegt de zin eronder dat ook.
+  const kop = n ? `${esc(n)} ${n === 1 ? "ding" : "dingen"} te doen` : anders.length ? "Geen uitstappen of evenementen binnen je keuze" : "Nog niets binnen je keuze";
+  const view = window.PUBLIC_AGENDA_VIEW;
+  // De echte uitstappen (feest, buurt, cultuur, sport ... : gewicht 2 of meer) horen bij de chip "Evenementen".
+  const evenementenUit = Boolean(view?.enabled) && !uitgaan.categories.some((c) => c.weight > 1 && view.enabled(c.key));
+  const uitZin = evenementenUit ? "Evenementen staan niet in je keuze; zet ze aan om te zien wat er te doen is. " : "";
   root.hidden = false;
   root.innerHTML = `
     <div class="dw-kopregel">
@@ -2316,8 +2322,8 @@ function renderDitWeekend(items) {
     ${kaarten.length
       ? `<ul id="dw-lijst" class="hl-grid dw-grid${open ? " dw-alles" : ""}">${kaarten.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`
       : anders.length
-        ? `<p class="dw-leeg">Binnen je keuze staan er dit weekend wel andere dingen op de agenda: ${esc(lijstZin(anders))}. Je vindt ze in de agenda hieronder.</p>`
-        : `<p class="dw-leeg">Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.</p>`}
+        ? `<p class="dw-leeg">${esc(uitZin)}Binnen je keuze staan er dit weekend wel andere dingen op de agenda: ${esc(lijstZin(anders))}. Je vindt ze in de agenda hieronder.</p>`
+        : `<p class="dw-leeg">${esc(uitZin)}Binnen je keuze staat er dit weekend niets op de agenda. Kies hieronder meer soorten of kijk verder in de lijst.</p>`}
   `;
   // In de plekweergave klapt PUBLIC_AGENDA_OPEN het item open in de lijst; anders de oude lijst.
   root.querySelectorAll("[data-hl-id]").forEach((button) =>
@@ -2369,19 +2375,23 @@ function renderHighlights(items) {
   const today = todayIso();
   const ranges = uitgaan.rangesFor(today);
   const lists = Object.fromEntries(HIGHLIGHT_TABS.map(([key]) => [key, uitgaan.pickHighlights(items, ranges[key], 6)]));
+  // Het aantal op een tabblad is alles in die periode (zoals "12 dingen te doen" in Dit weekend), niet alleen
+  // de zes kaarten die het paneel toont; staan er meer, dan zegt het paneel hoeveel het er toont.
+  const totaal = Object.fromEntries(HIGHLIGHT_TABS.map(([key]) => [key, uitgaan.pickHighlights(items, ranges[key], Infinity).length]));
   if (!highlightTab || !lists[highlightTab]) highlightTab = defaultHighlightTab(lists, today);
   const tabs = root.querySelector(".highlights-tabs");
   const panel = root.querySelector(".highlights-panel");
   tabs.innerHTML = HIGHLIGHT_TABS.map(
     ([key, label]) =>
-      `<button type="button" role="tab" id="hl-tab-${key}" aria-controls="hl-panel" aria-selected="${key === highlightTab}" tabindex="${key === highlightTab ? "0" : "-1"}" data-hl-tab="${key}">${esc(label)}<span class="hl-tab-count">${esc(lists[key].length)}</span></button>`
+      `<button type="button" role="tab" id="hl-tab-${key}" aria-controls="hl-panel" aria-selected="${key === highlightTab}" tabindex="${key === highlightTab ? "0" : "-1"}" data-hl-tab="${key}">${esc(label)}<span class="hl-tab-count">${esc(totaal[key])}</span></button>`
   ).join("");
   panel.id = "hl-panel";
   panel.setAttribute("aria-labelledby", `hl-tab-${highlightTab}`);
   const list = lists[highlightTab];
   const range = ranges[highlightTab];
   if (list.length) {
-    panel.innerHTML = `<ul class="hl-grid">${list.map((item) => highlightCardTemplate(item, range)).join("")}</ul>`;
+    const meer = totaal[highlightTab] > list.length ? `<p class="hl-meer">${esc(list.length)} van de ${esc(totaal[highlightTab])} getoond. Alles staat in de lijst hierboven.</p>` : "";
+    panel.innerHTML = `<ul class="hl-grid">${list.map((item) => highlightCardTemplate(item, range)).join("")}</ul>${meer}`;
   } else {
     const next = ["today", "weekend", "week", "next"].find((key) => key !== highlightTab && lists[key].length && (ranges[key].from >= range.from));
     panel.innerHTML = `

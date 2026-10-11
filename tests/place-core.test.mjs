@@ -279,8 +279,44 @@ test("de komende 7 dagen: opbouw en afbraak van een evenement op straat tellen m
   const metAfbraak = dezeWeek(afbraak, vandaag);
   assert.equal(metAfbraak.licht, "let-op");
   assert.equal(metAfbraak.zin, "De komende 7 dagen in jouw straat: afbraak na 1 evenement (tot en met morgen).");
-  // Valt de dag van het evenement zelf in het venster, dan die dag.
-  assert.match(dezeWeek(opbouw, "2026-10-20").zin, /1 evenement \(za 24 okt\)/);
+  // Valt de dag van het evenement zelf in het venster, dan die dag, en (nakijkbevinding, frisse ogen) ook de
+  // opbouw die al loopt en de afbraak erna: de straat merkt meer dan alleen zaterdag.
+  assert.equal(dezeWeek(opbouw, "2026-10-20").zin, "De komende 7 dagen in jouw straat: 1 evenement (za 24 okt, opbouw loopt al, afbraak tot en met zo 25 okt).");
+});
+
+// Nakijkbevinding (frisse ogen): de weekzin verzweeg de opbouw zodra de evenementdag ook in de 7 dagen viel.
+// Maandag 12 okt: een parkeerverbod voor de opbouw van 12 tot 16 okt, het parcours op za 17 okt.
+test("de komende 7 dagen: opbouw en evenementdag samen in het venster, dan staan ze er allebei", () => {
+  const vandaag = "2026-10-12";
+  let n = 0;
+  const rij = (phase, type, start, end) => ({
+    id: `iod:ET2099000103|${phase}|${(n += 1)}`, kind: "iod", title: type, innameType: type, reference: "ET2099000103", dossierType: "ETL",
+    phase, hindrance: "True", description: "", start, end, status: "aanvraag_goedgekeurd",
+    streets: [{ id: `p${n}`, name: "Proefstraat", postcode: "2000" }], sourceUrl: "https://geodata.antwerpen.be/x",
+  });
+  const opties = { vandaag, straat: "Proefstraat", wijkVan: () => "" };
+  const kaarten = publicSpaceEntries([rij("Opbouw", "Parkeerverbod in Straat", "2026-10-12", "2026-10-16"), rij("Evenement", "Parcours", "2026-10-17", "2026-10-17")], opties);
+  assert.equal(dezeWeek(kaarten, vandaag).zin, "De komende 7 dagen in jouw straat: 1 evenement (za 17 okt, opbouw vanaf vandaag).");
+  // De opbouw begint morgen: "vanaf morgen".
+  assert.equal(dezeWeek(kaarten, "2026-10-11").zin, "De komende 7 dagen in jouw straat: 1 evenement (za 17 okt, opbouw vanaf morgen).");
+  // Zonder opbouw of afbraak in het venster blijft de zin zoals hij was.
+  const zonder = publicSpaceEntries([rij("Evenement", "Parcours", "2026-10-15", "2026-10-15")], opties);
+  assert.equal(dezeWeek(zonder, vandaag).zin, "De komende 7 dagen in jouw straat: 1 evenement (do 15 okt).");
+});
+
+// Nakijkbevinding (weekzin, werfzone): een werfzone met fasen en een gat ertussen telde als "1 werk (loopt al)"
+// in een week zonder fase. Verzonnen dossier, twee sgw-rijen met dezelfde referentie.
+test("de komende 7 dagen: een werfzone telt alleen als een fase in het venster valt", () => {
+  const sgw = (id, start, end) => ({ id: `sgw:${id}`, kind: "sgw", kindLabel: "Werfzone", title: "Werfzone", reference: "SGW_2099_0001", start: `${start}T00:00:00.000Z`, end: `${end}T00:00:00.000Z`, status: "vergund", streets: [{ name: "Proefstraat", postcode: "2000" }] });
+  const metGat = publicSpaceEntries([sgw(1, "2026-10-01", "2026-10-05"), sgw(2, "2026-10-20", "2026-10-30")], { vandaag: "2026-10-12", straat: "Proefstraat" });
+  assert.equal(metGat.length, 1);
+  assert.deepEqual(metGat[0].fasen, [["2026-10-01", "2026-10-05"], ["2026-10-20", "2026-10-30"]]);
+  // Vandaag 12 okt: de komende 7 dagen (12–18 okt) vallen in het gat.
+  assert.deepEqual(dezeWeek(metGat, "2026-10-12"), { licht: "rustig", zin: "De komende 7 dagen in jouw straat: rustig. Geen werken, parkeerverboden of evenementen gepland." });
+  // Vandaag 17 okt: de tweede fase begint over 3 dagen.
+  assert.equal(dezeWeek(metGat, "2026-10-17").zin, "De komende 7 dagen in jouw straat: 1 werk (vanaf di 20 okt).");
+  // Vandaag 3 okt: de eerste fase loopt al.
+  assert.equal(dezeWeek(metGat, "2026-10-03").zin, "De komende 7 dagen in jouw straat: 1 werk (loopt al).");
 });
 
 // Nakijkbevinding (losse dagen en jaartoelatingen): alleen een echte dag in het venster telt, met die dag.
@@ -307,7 +343,17 @@ test("de komende 7 dagen: ernstige hinder bij een werf in stukken hangt niet af 
     assert.equal(kaarten.length, 1);
     assert.equal(kaarten[0].ernstig, true);
     assert.deepEqual(dezeWeek(kaarten, vandaag), { licht: "hinder", zin: "De komende 7 dagen in jouw straat: 1 werk (met ernstige hinder, vanaf vandaag)." });
+    // Nakijkbevinding (frisse ogen): de kaart zegt het ook, in beide volgordes (info zonder uitleg, en de uitleg).
+    assert.match(kaarten[0].info, /Ernstige hinder/, kaarten[0].info);
+    const metUitleg = werkEntries(stukken, { vandaag })[0];
+    const regels = metUitleg.uitleg.regels.map(([dt, dd]) => `${dt}: ${dd}`).join(" | ");
+    assert.match(regels, /ernstige hinder/i, regels);
+    assert.ok(metUitleg.uitleg.regels.some(([dt, dd]) => dt === "Ernstige hinder" && dd === "bij 1 van de 2 stukken, volgens GIPOD"), regels);
   }
+  // Allebei ernstig: geen regel "bij 2 van de 2".
+  const beide = werkEntries([stuk(103, true), stuk(104, true)], { vandaag })[0];
+  assert.ok(!beide.uitleg.regels.some(([dt]) => dt === "Ernstige hinder"));
+  assert.equal(beide.info.match(/Ernstige hinder/g)?.length, 1, beide.info);
 });
 
 // Nakijkbevinding ("vanaf vandaag"): alleen als het vandaag begint; wat al eerder begon, "loopt al".
@@ -344,4 +390,26 @@ test("de komende 7 dagen: staat een laag uit of is ze niet geladen, dan nooit 'r
   assert.equal(dezeWeek([feest], vandaag, { onbekend: uit }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet geladen.");
   // Uit maar wel geladen: wat er is, telt gewoon mee (geen "niet geladen").
   assert.equal(dezeWeek([feest], vandaag, { onbekend: [{ wat: "werken", uit: true, geladen: true }] }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
+});
+
+// Nakijkbevinding (weekzin): een laag die uit staat maar volledig geladen is, is nagekeken. Een lege week is dan
+// "rustig", met alle soorten aan of niet: de zin hing anders van de chips af.
+test("de komende 7 dagen: een laag die uit staat maar geladen is, maakt een lege week niet 'onbekend'", () => {
+  const vandaag = "2026-10-12";
+  assert.equal(dezeWeek([], vandaag, { onbekend: [{ wat: "werken", uit: true, geladen: true }] }).licht, "rustig");
+  const allesUit = ["werken", "parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, uit: true, geladen: true }));
+  assert.deepEqual(dezeWeek([], vandaag, { onbekend: allesUit }), dezeWeek([], vandaag));
+  // Niet geladen: wel "onbekend".
+  assert.equal(dezeWeek([], vandaag, { onbekend: [{ wat: "werken", uit: true, geladen: false }] }).licht, "onbekend");
+});
+
+// Nakijkbevinding (weekzin): een werkenlaag die deels mislukte terwijl werken uit staan, telde als geladen.
+test("de komende 7 dagen: een laag die maar deels laadde, zegt dat erbij en is nooit 'rustig'", () => {
+  const vandaag = "2026-10-12";
+  const deels = [{ wat: "werken", uit: true, geladen: false, deels: true }];
+  const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
+  assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet volledig geladen.");
+  const leeg = dezeWeek([], vandaag, { onbekend: deels });
+  assert.equal(leeg.licht, "onbekend");
+  assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken zijn niet volledig geladen. Of het rustig is, weten we dus niet.");
 });

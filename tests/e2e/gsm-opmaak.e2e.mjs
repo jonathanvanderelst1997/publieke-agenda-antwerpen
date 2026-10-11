@@ -12,6 +12,8 @@ import path from "node:path";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
+import { feedScript, kalenderItem, proefFeed } from "../helpers/proef-feed.mjs";
+
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const site = path.join(root, "site");
 
@@ -92,8 +94,9 @@ function dossierRijen(dossier, perioden) {
 const losseDagenRijen = () => dossierRijen(LOSSE_DAGEN, [[2, 2], [9, 9]]);
 const langeRijen = () => dossierRijen(LANG_DOSSIER, [[-30, 60]]);
 
-// `werkenHangen`: GIPOD (de werken) antwoordt niet, zoals een laag die nog onderweg is.
-async function routeSources(page, { werkenHangen = false } = {}) {
+// `werkenHangen`: GIPOD (de werken) antwoordt niet, zoals een laag die nog onderweg is; `werkenFout`: GIPOD
+// antwoordt met een serverfout, zoals een laag die niet laadt.
+async function routeSources(page, { werkenHangen = false, werkenFout = false } = {}) {
   // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
   // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
   await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
@@ -103,6 +106,7 @@ async function routeSources(page, { werkenHangen = false } = {}) {
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
     if (url.includes("/collections/") && werkenHangen) return undefined;
+    if (url.includes("/collections/") && werkenFout) return route.fulfill({ status: 500, contentType: "text/plain", body: "Interne fout (e2e)" });
     if (url.includes("/collections/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
     if (url.includes("/MapServer/905/")) return route.fulfill(json(axis));
@@ -167,14 +171,17 @@ function duidelijkAnderePixelsIn(page, a, b) {
 }
 
 // `extra`: nog rijen in de laag (dossierRijen); `kaart: false` wacht niet op de parcourskaart (die staat niet
-// in de tijdlijn als het parcours later dan 14 dagen valt).
-async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", dagen = 8, vergunning = false, colorScheme = "light", extra = [], werkenHangen = false, kaart = true } = {}) {
+// in de tijdlijn als het parcours later dan 14 dagen valt). `agenda`: een verzonnen agendafeed in plaats van de
+// echte (een lijst, of een functie van de stempel van die ochtend): dan hangt de toets niet af van wat er
+// toevallig in de echte feed in de straat staat.
+async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", dagen = 8, vergunning = false, colorScheme = "light", extra = [], werkenHangen = false, werkenFout = false, kaart = true, agenda = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
-  await routeSources(page, { werkenHangen });
+  if (agenda) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(proefFeed(today, agenda)) }));
+  await routeSources(page, { werkenHangen, werkenFout });
   await page.goto(`${baseUrl}/?plek=${encodeURIComponent(STRAAT.name)}&periode=alles${weergave ? `&weergave=${weergave}` : ""}`);
   await page.waitForSelector(".pv-place-name");
   // Eerst de (lege) live laag laten landen, dan het parcours inschuiven zoals de laag het zelf doet.
@@ -365,7 +372,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
   const sectieVan = (rij) => rij.evaluate((li) => li.closest("section.pv-day")?.getAttribute("aria-label") || "");
 
   await t.test("tijdlijn: een dossier op losse dagen staat alleen op die dagen; twee weken of langer staat bij 'Doorlopend', zonder teken per dag", async () => {
-    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", extra: [...losseDagenRijen(), ...langeRijen()] });
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", agenda: [], extra: [...losseDagenRijen(), ...langeRijen()] });
     await dossierRij(page, LOSSE_DAGEN).waitFor({ timeout: 15000 });
     // Alle afwijkingen samen melden: zo toont een rode toets elk deel dat niet klopt.
     const fouten = [];
@@ -378,19 +385,24 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       const aantal = await dossierRij(page, LOSSE_DAGEN).count();
       zeker(aantal === (opDieDag ? 1 : 0), `${d} (+${n}): het dossier met losse dagen staat ${aantal ? "wel" : "niet"} bij die dag`);
       if (opDieDag && aantal) zeker(await sectieVan(dossierRij(page, LOSSE_DAGEN)) === langeDatum(d), `${d}: niet onder de kop van die dag`);
-      // Zonder iets van die dag zelf in de lijst: geen teken en geen evenement in de naam van de dagknop.
-      if (!opDieDag && !(await page.locator(".pv-results section.pv-day:not([aria-label^='Doorlopend'])").count())) {
+      // Zonder iets van die dag zelf (de feed is verzonnen en leeg): geen teken en geen evenement in de naam van
+      // de dagknop. Het lange dossier loopt die dag wel door: de naam zegt dat, en nooit "niets gepland".
+      if (!opDieDag) {
+        zeker(!(await page.locator(".pv-results section.pv-day:not([aria-label^='Doorlopend'])").count()), `${d}: de lijst van die dag is niet leeg`);
         const knop = (await dagKnoppen(page)).find((k) => k.d === d);
         zeker(!knop.tekens.length, `${d}: tekens ${knop.tekens.join(", ")} op een dag zonder iets`);
         zeker(!/evenement/.test(knop.naam), `${d}: "${knop.naam}"`);
+        zeker(/: niets apart gepland binnen je keuze; 1 toelating van twee weken of langer loopt door$/.test(knop.naam), `${d}: "${knop.naam}"`);
       }
       // Het lange dossier loopt die dag, maar niet als iets van die dag: bij "Doorlopend".
       const lang = await sectieVan(dossierRij(page, LANG_DOSSIER));
       zeker(/^Doorlopend/.test(lang), `${d}: het lange dossier staat onder "${lang}", niet bij "Doorlopend"`);
     }
-    // De tekens in de strook: het dossier met losse dagen op +2 en +9.
+    // De tekens in de strook: het dossier met losse dagen op +2 en +9. Geen enkele dag heet "niets gepland": het
+    // lange dossier loopt elke dag door.
     const knoppen = await dagKnoppen(page);
     for (const n of [2, 9]) zeker(knoppen.find((k) => k.d === tlDag(n)).tekens.some((c) => /cat-festival/.test(c)), `+${n} heeft geen teken`);
+    for (const k of knoppen) zeker(!/: niets gepland/.test(k.naam) && /loopt door$/.test(k.naam), `${k.d}: "${k.naam}"`);
     // Zonder gekozen dag: het dossier met losse dagen bij de 14 dagen, het lange bij "Doorlopend".
     await page.click(".pv-tl-alle");
     zeker(/^Komende 14 dagen/.test(await sectieVan(dossierRij(page, LOSSE_DAGEN))), "zonder gekozen dag: losse dagen niet bij de 14 dagen");
@@ -417,24 +429,28 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
   });
 
   await t.test("tijdlijn: zolang de werken laden, zegt geen dag 'niets gepland', ook niet de lege dag zelf", async () => {
-    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", werkenHangen: true });
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", werkenHangen: true, agenda: [] });
     await page.locator(".pv-tl-strip").waitFor({ timeout: 15000 });
     const leeg = (await dagKnoppen(page)).filter((k) => !k.tekens.length);
-    assert.ok(leeg.length, "minstens één dag zonder teken");
+    // De feed is verzonnen en leeg: alleen de dag van het parcours (+8) heeft een teken.
+    assert.equal(leeg.length, 13, "13 dagen zonder teken");
     for (const k of leeg) {
       assert.doesNotMatch(k.naam, /niets gepland/, k.naam);
-      assert.match(k.naam, /: nog niets gevonden, werken wordt nog geladen$/, k.naam);
+      // "werken worden": elke laag heet in het meervoud (nakijkbevinding, frisse ogen).
+      assert.match(k.naam, /: nog niets gevonden, werken worden nog geladen$/, k.naam);
     }
     await page.click(`[data-tl-dag="${leeg[0].d}"]`);
     const tekst = await page.locator(".pv-results .pv-empty").innerText();
     assert.doesNotMatch(tekst, /niets gepland|niets op de agenda/i, tekst);
-    assert.match(tekst, /In wat al geladen is, staat op die dag niets; werken wordt nog geladen\./, tekst);
+    assert.match(tekst, /In wat al geladen is, staat op die dag niets; werken worden nog geladen\./, tekst);
+    // De plekkop zegt het ook in het meervoud.
+    assert.match(await page.locator(".pv-place").innerText(), /werken worden live opgehaald…/);
     assert.deepEqual(errors, []);
     await context.close();
   });
 
   await t.test("tijdlijn: een lege dag zegt dat over die dag, niet 'niets voor deze straat'; leeg over 14 dagen wijst naar wat later komt", async () => {
-    let { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn" });
+    let { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", agenda: [] });
     const fouten = [];
     const knoppen = await dagKnoppen(page);
     const leeg = knoppen.find((k) => !k.tekens.length);
@@ -452,7 +468,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     assert.deepEqual(errors, []);
     await context.close();
     // Het parcours pas over 20 dagen en verder niets in de straat: zeg dat over de 14 dagen, met de tip voor later.
-    ({ page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", dagen: 20, kaart: false }));
+    ({ page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", dagen: 20, kaart: false, agenda: [] }));
     blok = page.locator(".pv-results .pv-empty");
     await blok.locator("h3").waitFor({ timeout: 15000 });
     kop = await blok.locator("h3").innerText();
@@ -466,6 +482,133 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       await page.locator(".pv-row", { hasText: "parcours" }).first().waitFor({ timeout: 15000 });
     } else fouten.push("14 dagen leeg: geen knop 'Toon ook wat later komt'");
     assert.deepEqual(fouten, []);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding 19 (rest): het geval van een laag die niet laadde, stond alleen in de helper getoetst.
+  await t.test("tijdlijn: laadden de werken niet, dan zegt elke lege dag dat (nooit 'niets gepland')", async () => {
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", werkenFout: true, agenda: [] });
+    await page.waitForFunction(() => (window.PUBLIC_AGENDA_LIVE_STREETS?.failed?.works || []).length > 0, null, { timeout: 15000 });
+    await page.waitForFunction(() => /niet alles laadde/.test(document.querySelector(".pv-tl-dag")?.getAttribute("aria-label") || ""), null, { timeout: 10000 });
+    const leeg = (await dagKnoppen(page)).filter((k) => !k.tekens.length);
+    assert.equal(leeg.length, 13, "13 dagen zonder teken");
+    for (const k of leeg) assert.match(k.naam, /: niets gevonden in wat geladen is, niet alles laadde$/, k.naam);
+    await page.click(`[data-tl-dag="${leeg[0].d}"]`);
+    const tekst = await page.locator(".pv-results .pv-empty").innerText();
+    assert.match(tekst, /In wat wel geladen is, staat op die dag niets\./, tekst);
+    assert.doesNotMatch(tekst, /niets gepland|niets op de agenda/i, tekst);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding (tijdlijn): een toelating van twee weken of langer die binnen de 14 dagen begint, kreeg geen
+  // teken op haar eerste dag, en die dag heette "niets gepland binnen je keuze". Verzonnen dossier ET2099000009
+  // van vandaag + 5 tot vandaag + 30.
+  await t.test("tijdlijn: een lange toelating die binnen de 14 dagen begint, staat op haar eerste dag; daarna 'loopt door'", async () => {
+    const BEGINT = "ET2099000009";
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", agenda: [], extra: dossierRijen(BEGINT, [[5, 30]]) });
+    await dossierRij(page, BEGINT).waitFor({ timeout: 15000 });
+    const knoppen = await dagKnoppen(page);
+    const fouten = [];
+    const zeker = (ok, melding) => { if (!ok) fouten.push(melding); };
+    // Vóór de eerste dag is er echt niets; vanaf de eerste dag heet geen enkele dag "niets gepland".
+    for (const k of knoppen) zeker(k.d < tlDag(5) ? /: niets gepland binnen je keuze$/.test(k.naam) : !/: niets gepland/.test(k.naam), `${k.d}: "${k.naam}"`);
+    const start = knoppen.find((k) => k.d === tlDag(5));
+    zeker(start.tekens.some((c) => /cat-festival/.test(c)), `+5: geen teken (${start.tekens})`);
+    zeker(/: 1 evenement$/.test(start.naam), `+5: "${start.naam}"`);
+    const daarna = knoppen.find((k) => k.d === tlDag(6));
+    zeker(!daarna.tekens.length, `+6: tekens ${daarna.tekens}`);
+    zeker(/: niets apart gepland binnen je keuze; 1 toelating van twee weken of langer loopt door$/.test(daarna.naam), `+6: "${daarna.naam}"`);
+    // Zonder gekozen dag: bij de 14 dagen (niet bij "Doorlopend"); op de eerste dag onder de kop van die dag.
+    zeker(/^Komende 14 dagen/.test(await sectieVan(dossierRij(page, BEGINT))), `zonder dag: "${await sectieVan(dossierRij(page, BEGINT))}"`);
+    await page.click(`[data-tl-dag="${tlDag(5)}"]`);
+    zeker(await sectieVan(dossierRij(page, BEGINT)) === langeDatum(tlDag(5)), `+5: "${await sectieVan(dossierRij(page, BEGINT))}"`);
+    // Een dag later loopt ze door: bij "Doorlopend", met een noot die zegt wat het is.
+    await page.click(`[data-tl-dag="${tlDag(6)}"]`);
+    zeker(/^Doorlopend/.test(await sectieVan(dossierRij(page, BEGINT))), `+6: "${await sectieVan(dossierRij(page, BEGINT))}"`);
+    zeker(/^Toelatingen van de stad die weken of maanden lopen\. Ze krijgen geen teken per dag, wel op de dag waarop ze beginnen\.$/.test(await page.locator(".pv-results section.pv-day[aria-label^='Doorlopend'] .pv-day-note").innerText()), "noot bij Doorlopend");
+    assert.deepEqual(fouten, []);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevindingen (frisse ogen en tijdlijn): een foor of expo uit de agenda kreeg geen teken en elke dag heette
+  // "niets gepland"; de noot bij "Doorlopend" noemde zo'n agendapunt een toelating van de stad. Verzonnen agendapunt
+  // van 16 dagen in de straat (van gisteren tot vandaag + 14).
+  await t.test("tijdlijn en lijst: een agendapunt van weken krijgt elke dag een teken, en de noot noemt het geen toelating", async () => {
+    const foor = (stempel) => [kalenderItem(stempel, {
+      id: "e2e-foor", externalId: "e2e-foor", title: "Najaarsfoor (e2e)", date: tlDag(-1), endDate: tlDag(14), timeSlot: "", location: `${STRAAT.name}, ${STRAAT.postcode} Antwerpen`, postcodes: [STRAAT.postcode],
+    })];
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", agenda: foor });
+    const rij = page.locator('.pv-results .pv-row[data-uid="agenda:e2e-foor"]');
+    await rij.waitFor({ timeout: 15000 });
+    const knoppen = await dagKnoppen(page);
+    for (const k of knoppen) {
+      assert.doesNotMatch(k.naam, /niets gepland/, `${k.d}: "${k.naam}"`);
+      assert.ok(k.tekens.some((c) => /cat-festival/.test(c)), `${k.d}: geen teken`);
+    }
+    // In de lijst staat ze bij "Doorlopend": de noot zegt niet dat het een toelating van de stad is.
+    await page.click('[data-mode="lijst"]');
+    await rij.waitFor();
+    assert.match(await sectieVan(rij), /^Doorlopend/);
+    const noot = await page.locator(".pv-results section.pv-day[aria-label^='Doorlopend'] .pv-day-note").innerText();
+    assert.doesNotMatch(noot, /Toelatingen van de stad|vandaag echt/, noot);
+    assert.match(noot, /^Evenementen en activiteiten die weken of maanden lopen\./, noot);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding (frisse ogen): de tijdlijn noemde een dag met alleen opbouw "1 evenement"; de weekzin zegt
+  // "opbouw voor 1 evenement". Verzonnen dossier: opbouw op + 1 en + 2, het evenement op + 3, afbraak op + 4.
+  await t.test("tijdlijn: een dag met alleen opbouw of afbraak heet zoals in de weekzin", async () => {
+    const OPBOUW = "ET2099000010";
+    const rijen = [["Opbouw", 1, 2], ["Evenement", 3, 3], ["Afbraak", 4, 4]].map(([fase, van, tot], i) => ({ ...dossierRijen(OPBOUW, [[van, tot]])[0], id: `iod:${OPBOUW}|${fase}|${i + 1}`, phase: fase }));
+    const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", agenda: [], extra: rijen });
+    await dossierRij(page, OPBOUW).waitFor({ timeout: 15000 });
+    const naam = async (n) => (await dagKnoppen(page)).find((k) => k.d === tlDag(n)).naam;
+    assert.match(await naam(1), /: opbouw voor 1 evenement$/);
+    assert.match(await naam(2), /: opbouw voor 1 evenement$/);
+    assert.match(await naam(3), /: 1 evenement$/);
+    assert.match(await naam(4), /: afbraak na 1 evenement$/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding (frisse ogen): de maand telde nog met de hele periode (een dossier op losse dagen stond ook op de
+  // dagen ertussen) en zei "niets gepland binnen je keuze" terwijl de werken nog laadden.
+  await t.test("maand: losse dagen alleen op die dagen; een lege dag zegt het eerlijk zolang de werken laden", async () => {
+    const naarMaand = async (page, d) => {
+      for (let i = 0; i < 2 && !(await page.locator(`[data-day="${d}"]:not(.out)`).count()); i += 1) await page.click(".pv-nav-next");
+    };
+    let { page, context, errors } = await openPlace(baseUrl, { weergave: "maand", agenda: [], extra: losseDagenRijen(), kaart: false });
+    await page.locator(".pv-cal").waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector('.pv-cal-day[aria-label*="item"]'), null, { timeout: 15000 });
+    const fouten = [];
+    for (const [n, verwacht] of [[2, true], [3, false], [5, false], [9, true]]) {
+      const d = tlDag(n);
+      await naarMaand(page, d);
+      const cel = page.locator(`[data-day="${d}"]:not(.out)`);
+      const label = await cel.getAttribute("aria-label");
+      await cel.click();
+      const inPaneel = await page.locator(`.pv-cal-daypanel .pv-row[data-uid="publicSpace:dossier:${LOSSE_DAGEN}"]`).count();
+      if (Boolean(inPaneel) !== verwacht) fouten.push(`+${n} (${d}): het dossier staat ${inPaneel ? "wel" : "niet"} in het dagpaneel`);
+      if (!verwacht && /item/.test(label)) fouten.push(`+${n}: "${label}"`);
+      if (!verwacht && !/: niets gepland binnen je keuze$/.test(label)) fouten.push(`+${n}: "${label}"`);
+    }
+    assert.deepEqual(fouten, []);
+    assert.deepEqual(errors, []);
+    await context.close();
+    // De werken laden nog: geen "niets gepland" in een lege dag (cel en paneel).
+    ({ page, context, errors } = await openPlace(baseUrl, { weergave: "maand", agenda: [], werkenHangen: true, kaart: false }));
+    await page.locator(".pv-cal").waitFor({ timeout: 15000 });
+    const d = tlDag(3);
+    await naarMaand(page, d);
+    await page.locator(`[data-day="${d}"]:not(.out)`).click();
+    assert.match(await page.locator(`[data-day="${d}"]:not(.out)`).getAttribute("aria-label"), /: nog niets gevonden, werken worden nog geladen$/);
+    const paneel = await page.locator(".pv-cal-daypanel").innerText();
+    assert.doesNotMatch(paneel, /niets gepland/, paneel);
+    assert.match(paneel, /In wat al geladen is, staat op die dag niets; werken worden nog geladen\./, paneel);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -498,8 +641,8 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       assert.deepEqual(m.fouten, [], `${width} px, tekst ${schaal}`);
       assert.equal(m.buiten, 0, `${width} px, tekst ${schaal}: een dag valt buiten beeld`);
       assert.equal(m.scroll[0], m.scroll[1], `${width} px, tekst ${schaal}: de pagina schuift opzij`);
-      // Gewone tekst: op een gsm een week per rij, breed alle 14 dagen naast elkaar.
-      if (schaal === "100%" && width >= 360) assert.equal(m.kolommen, width >= 1280 ? 14 : 7, `${width} px`);
+      // Gewone tekst: op een gsm een week per rij (ook op 320 px: de weekdagen onder elkaar), breed alle 14 dagen naast elkaar.
+      if (schaal === "100%") assert.equal(m.kolommen, width >= 1280 ? 14 : 7, `${width} px`);
       await context.close();
     }
   });
@@ -684,6 +827,11 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       else if (volgorde.length) break;
     }
     assert.deepEqual(volgorde.map((f) => f.naam), ["🔗 Deel", "Andere plek", "Stuivenberg"]);
+    // Nakijkbevinding (gsm-kop, afweging): voor een schermlezer staat de kop (de straatnaam) vóór Deel en Andere
+    // plek, zodat wie met H naar de kop springt en verder leest, de knoppen nog hoort.
+    const snap = await page.locator(".pv-place-top").ariaSnapshot();
+    const kopAt = snap.indexOf(`heading "${STRAAT.name}"`), deelAt = snap.indexOf('button "Deel de link naar deze plek"'), andereAt = snap.indexOf('button "Andere plek"'), wijkAt = snap.indexOf('button "Stuivenberg"');
+    assert.ok(kopAt >= 0 && kopAt < deelAt && deelAt < andereAt && andereAt < wijkAt, snap);
     // Elke volgende knop staat lager, of op dezelfde rij rechts ervan: nooit terug omhoog.
     for (let i = 1; i < volgorde.length; i += 1) {
       const [a, b] = [volgorde[i - 1], volgorde[i]];
