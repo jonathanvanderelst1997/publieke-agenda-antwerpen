@@ -1,0 +1,400 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-projecten",
+  "scope": "district",
+  "publisher": "District Antwerpen",
+  "attribution": {
+    "text": "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)",
+    "url": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen"
+  },
+  "url": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1",
+  "allowedHosts": [
+    "www.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "antwerpen.be projectpagina's van district Antwerpen (portaal-API, contentType 9): inspraakmomenten, bevragingen en fasen",
+  "retrievedAt": "2026-10-10T21:35:37.439Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [
+    {
+      "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01",
+      "externalId": "5d725f47b628f03ea317d3b8",
+      "title": "Heraanleg Paardenmarkt: fase 4 (Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt))",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-05-01",
+      "endDate": "2027-06-20",
+      "timeSlot": "Info",
+      "timeText": "mei 2026 tot voorjaar 2027 (data bij benadering)",
+      "location": "Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt), 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Fase 4 van het project \"Heraanleg Paardenmarkt\": Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt). Periode volgens de projectpagina: mei 2026 tot voorjaar 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5d725f47b628f03ea317d3b8/heraanleg-paardenmarkt",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-5d725f47b628f03ea317d3b8-fase-5-2026-08-01",
+      "externalId": "5d725f47b628f03ea317d3b8",
+      "title": "Heraanleg Paardenmarkt: fase 5 (Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-08-01",
+      "endDate": "2027-03-31",
+      "timeSlot": "Info",
+      "timeText": "augustus 2026 tot maart 2027 (data bij benadering)",
+      "location": "Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Fase 5 van het project \"Heraanleg Paardenmarkt\": Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei. Periode volgens de projectpagina: augustus 2026 tot maart 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5d725f47b628f03ea317d3b8/heraanleg-paardenmarkt",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-5ebcee18901c1f55f320daf0-fase-4b-2026-08-01",
+      "externalId": "5ebcee18901c1f55f320daf0",
+      "title": "Heraanleg Balansstraat & Lange Elzenstraat: fase 4b (Ondergrondse persing Lange Elzenstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-08-01",
+      "endDate": "2026-12-31",
+      "timeSlot": "Info",
+      "timeText": "augustus 2026 tot december 2026 (data bij benadering)",
+      "location": "Ondergrondse persing Lange Elzenstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Fase 4b van het project \"Heraanleg Balansstraat & Lange Elzenstraat\": Ondergrondse persing Lange Elzenstraat. Periode volgens de projectpagina: augustus 2026 tot december 2026 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/heraanleg-balansstraat-lange-elzenstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-608fe3749dc6b9660910da8b-fase-2-2026-08-03",
+      "externalId": "608fe3749dc6b9660910da8b",
+      "title": "Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat: fase 2 (Van Maerlantstraat + Vondelstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-08-03",
+      "endDate": "2027-03-31",
+      "timeSlot": "Info",
+      "timeText": "augustus 2026 - begin 2027 (data bij benadering)",
+      "location": "Van Maerlantstraat + Vondelstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 2 van het project \"Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat\": Van Maerlantstraat + Vondelstraat. Periode volgens de projectpagina: augustus 2026 - begin 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6a-2026-08-10",
+      "externalId": "5ebcee18901c1f55f320daf0",
+      "title": "Heraanleg Balansstraat & Lange Elzenstraat: fase 6a (kruispunt Lange Elzenstraat - Desguinlei)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-08-10",
+      "endDate": "2026-10-31",
+      "timeSlot": "Info",
+      "timeText": "midden augustus tot eind oktober 2026 (data bij benadering)",
+      "location": "kruispunt Lange Elzenstraat - Desguinlei, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Fase 6a van het project \"Heraanleg Balansstraat & Lange Elzenstraat\": kruispunt Lange Elzenstraat - Desguinlei. Periode volgens de projectpagina: midden augustus tot eind oktober 2026 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/heraanleg-balansstraat-lange-elzenstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6b-2026-08-10",
+      "externalId": "5ebcee18901c1f55f320daf0",
+      "title": "Heraanleg Balansstraat & Lange Elzenstraat: fase 6b (Lange Elzenstraat van de Desguinlei tot en met het kruispunt met de Coebergerstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-08-10",
+      "endDate": "2027-03-31",
+      "timeSlot": "Info",
+      "timeText": "midden augustus 2026 tot eind maart 2027 (data bij benadering)",
+      "location": "Lange Elzenstraat van de Desguinlei tot en met het kruispunt met de Coebergerstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Fase 6b van het project \"Heraanleg Balansstraat & Lange Elzenstraat\": Lange Elzenstraat van de Desguinlei tot en met het kruispunt met de Coebergerstraat. Periode volgens de projectpagina: midden augustus 2026 tot eind maart 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/heraanleg-balansstraat-lange-elzenstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-2-2026-09-01",
+      "externalId": "69d4e01eff0ca8b3330b381c",
+      "title": "Werken Halenstraat & Schijnpoortweg: fase 2 (Schijnpoortwegtunnel noord)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-01-31",
+      "timeSlot": "Info",
+      "timeText": "september 2026 - januari 2027 (data bij benadering)",
+      "location": "Schijnpoortwegtunnel noord, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 2 van het project \"Werken Halenstraat & Schijnpoortweg\": Schijnpoortwegtunnel noord. Periode volgens de projectpagina: september 2026 - januari 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-1a-2026-10-05",
+      "externalId": "694bdb74d2ceb2ae395e520c",
+      "title": "Vergroening Matigheidstraat & Spaarstraat: fase 1A (Spaarstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-10-05",
+      "endDate": "2026-10-12",
+      "timeSlot": "Info",
+      "timeText": "5 tot en met 12 oktober 2026",
+      "location": "Spaarstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 1A van het project \"Vergroening Matigheidstraat & Spaarstraat\": Spaarstraat. Periode volgens de projectpagina: 5 tot en met 12 oktober 2026.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/vergroening-matigheidstraat-spaarstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-1b-2026-10-12",
+      "externalId": "694bdb74d2ceb2ae395e520c",
+      "title": "Vergroening Matigheidstraat & Spaarstraat: fase 1B (Spaarstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-10-12",
+      "endDate": "2026-10-14",
+      "timeSlot": "Info",
+      "timeText": "12 tot en met 14 oktober 2026",
+      "location": "Spaarstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 1B van het project \"Vergroening Matigheidstraat & Spaarstraat\": Spaarstraat. Periode volgens de projectpagina: 12 tot en met 14 oktober 2026.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/vergroening-matigheidstraat-spaarstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-2a-2026-10-14",
+      "externalId": "694bdb74d2ceb2ae395e520c",
+      "title": "Vergroening Matigheidstraat & Spaarstraat: fase 2A (Matigheidstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-10-14",
+      "endDate": "2026-10-19",
+      "timeSlot": "Info",
+      "timeText": "14 tot en met 19 oktober 2026",
+      "location": "Matigheidstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 2A van het project \"Vergroening Matigheidstraat & Spaarstraat\": Matigheidstraat. Periode volgens de projectpagina: 14 tot en met 19 oktober 2026.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/vergroening-matigheidstraat-spaarstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19",
+      "externalId": "694bdb74d2ceb2ae395e520c",
+      "title": "Vergroening Matigheidstraat & Spaarstraat: fase 2B (Matigheidstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-10-19",
+      "endDate": "2026-10-23",
+      "timeSlot": "Info",
+      "timeText": "19 tot en met 23 oktober 2026",
+      "location": "Matigheidstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 2B van het project \"Vergroening Matigheidstraat & Spaarstraat\": Matigheidstraat. Periode volgens de projectpagina: 19 tot en met 23 oktober 2026.",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/vergroening-matigheidstraat-spaarstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-6abbbb7f332512009f4367fe-bevraging-2026-11-15",
+      "externalId": "6abbbb7f332512009f4367fe",
+      "title": "Bevraging: Speelweefselplan Binnenstad",
+      "theme": "Oproep/deadline",
+      "className": "call",
+      "date": "2026-11-15",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "invullen tot en met 15 november 2026",
+      "location": "Speelweefselplan Binnenstad, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "District Antwerpen vraagt je mening over het project \"Speelweefselplan Binnenstad\". Invullen kan tot en met 15 november 2026; de link staat op de projectpagina.",
+      "kind": "deadline",
+      "sourceUrl": "https://www.antwerpen.be/info/6abbbb7f332512009f4367fe/speelweefselplan-binnenstad",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-608fe3749dc6b9660910da8b-fase-3-2027-01-01",
+      "externalId": "608fe3749dc6b9660910da8b",
+      "title": "Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat: fase 3 (Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat))",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-01-01",
+      "endDate": "2027-09-22",
+      "timeSlot": "Info",
+      "timeText": "begin 2027 - zomer 2027 (data bij benadering)",
+      "location": "Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat), 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 3 van het project \"Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat\": Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat). Periode volgens de projectpagina: begin 2027 - zomer 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-3-2027-01-01",
+      "externalId": "69d4e01eff0ca8b3330b381c",
+      "title": "Werken Halenstraat & Schijnpoortweg: fase 3 (Schijnpoortwegtunnel zuid)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-01-01",
+      "endDate": "2027-04-30",
+      "timeSlot": "Info",
+      "timeText": "januari 2027 - april 2027 (data bij benadering)",
+      "location": "Schijnpoortwegtunnel zuid, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 3 van het project \"Werken Halenstraat & Schijnpoortweg\": Schijnpoortwegtunnel zuid. Periode volgens de projectpagina: januari 2027 - april 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01",
+      "externalId": "69d4e01eff0ca8b3330b381c",
+      "title": "Werken Halenstraat & Schijnpoortweg: fase 0, deel 2 (Halenstraat (kant Stuivenbergplein))",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-03-01",
+      "endDate": "2027-03-31",
+      "timeSlot": "Info",
+      "timeText": "maart 2027 (data bij benadering)",
+      "location": "Halenstraat (kant Stuivenbergplein), 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 0, deel 2 van het project \"Werken Halenstraat & Schijnpoortweg\": Halenstraat (kant Stuivenbergplein). Periode volgens de projectpagina: maart 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01",
+      "externalId": "69d4e01eff0ca8b3330b381c",
+      "title": "Werken Halenstraat & Schijnpoortweg: fase 4 (Schijnpoortweg)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-03-01",
+      "endDate": "2027-04-30",
+      "timeSlot": "Info",
+      "timeText": "maart 2027 - april 2027 (data bij benadering)",
+      "location": "Schijnpoortweg, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 4 van het project \"Werken Halenstraat & Schijnpoortweg\": Schijnpoortweg. Periode volgens de projectpagina: maart 2027 - april 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01",
+      "externalId": "5ebcee18901c1f55f320daf0",
+      "title": "Heraanleg Balansstraat & Lange Elzenstraat: fase 6c (Lange Elzenstraat van de Beuckerstraat tot het kruispunt met de Balansstraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-04-01",
+      "endDate": "2027-12-31",
+      "timeSlot": "Info",
+      "timeText": "april 2027 tot december 2027 (data bij benadering)",
+      "location": "Lange Elzenstraat van de Beuckerstraat tot het kruispunt met de Balansstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Fase 6c van het project \"Heraanleg Balansstraat & Lange Elzenstraat\": Lange Elzenstraat van de Beuckerstraat tot het kruispunt met de Balansstraat. Periode volgens de projectpagina: april 2027 tot december 2027 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/heraanleg-balansstraat-lange-elzenstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "project-608fe3749dc6b9660910da8b-fase-4-2027-06-21",
+      "externalId": "608fe3749dc6b9660910da8b",
+      "title": "Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat: fase 4 (Van de Wervestraat)",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2027-06-21",
+      "endDate": "2028-03-31",
+      "timeSlot": "Info",
+      "timeText": "zomer 2027 - begin 2028 (data bij benadering)",
+      "location": "Van de Wervestraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Fase 4 van het project \"Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat\": Van de Wervestraat. Periode volgens de projectpagina: zomer 2027 - begin 2028 (data bij benadering).",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat",
+      "retrievedAt": "2026-10-10T21:35:37.439Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    }
+  ]
+}

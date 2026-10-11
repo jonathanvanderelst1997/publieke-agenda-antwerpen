@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "district-schoolstraten",
+  "scope": "district",
+  "publisher": "Stad Antwerpen (schoolstraten)",
+  "attribution": {
+    "text": "Bron: stad Antwerpen, schoolstraten (Vlaamse gratis open data licentie)",
+    "url": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986"
+  },
+  "url": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+  "allowedHosts": [
+    "geodata.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "portal_publiek10/MapServer/986: schoolstraten van district Antwerpen met venstertijden, per schooljaar en bij de start van een proef",
+  "retrievedAt": "2026-10-10T21:35:36.278Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [
+    {
+      "id": "schoolstraat-schoolstr005-2026",
+      "externalId": "SCHOOLSTR005",
+      "title": "Schoolstraat Hertoginstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-8.15, 8.50-9.05, 15.10-15.25 en 16.00-16.15; wo 8.00-8.15, 8.50-9.05, 11.50-12.05 en 12.40-12.55",
+      "location": "Hertoginstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan Koninklijk Lyceum Antwerpen: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.00-8.15, 8.50-9.05, 15.10-15.25 en 16.00-16.15; wo 8.00-8.15, 8.50-9.05, 11.50-12.05 en 12.40-12.55. Definitief sinds 18 januari 2018.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr007-2026",
+      "externalId": "SCHOOLSTR007",
+      "title": "Schoolstraat Durletstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, wo, do, vr 8.25-8.50",
+      "location": "Durletstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan De Sterrenkijker: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, wo, do, vr 8.25-8.50. Definitief sinds 10 maart 2023.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr017-2026",
+      "externalId": "SCHOOLSTR017",
+      "title": "Schoolstraat Bervoetstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-8.30 en 15.15-15.35; wo 8.00-8.30 en 12.00-12.20",
+      "location": "Bervoetstraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan Sint Ludgardis: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.00-8.30 en 15.15-15.35; wo 8.00-8.30 en 12.00-12.20. Definitief sinds 31 maart 2023.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr018-2026",
+      "externalId": "SCHOOLSTR018",
+      "title": "Schoolstraat Constitutiestraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-8.30 en 14.55-15.25; wo 8.00-8.30 en 11.55-12.25",
+      "location": "Constitutiestraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Schoolstraat aan De Evenaar: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.00-8.30 en 14.55-15.25; wo 8.00-8.30 en 11.55-12.25. Definitief.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr023-2026",
+      "externalId": "SCHOOLSTR023",
+      "title": "Schoolstraat Duinstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.30-8.45 en 15.20-15.35; wo 8.30-8.45 en 12.20-12.35",
+      "location": "Duinstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Schoolstraat aan Stedelijke basisschool Het Atelier: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.30-8.45 en 15.20-15.35; wo 8.30-8.45 en 12.20-12.35. Definitief sinds 3 december 2021.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr024-2026",
+      "externalId": "SCHOOLSTR024",
+      "title": "Schoolstraat Korte Scholierstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-9.00 en 15.00-16.00; wo 8.00-9.00 en 12.00-13.00",
+      "location": "Korte Scholierstraat, Antwerpen",
+      "postcodes": [],
+      "info": "Schoolstraat aan Stedelijke Kleuterschool Eureka: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.00-9.00 en 15.00-16.00; wo 8.00-9.00 en 12.00-13.00. Definitief sinds 3 december 2021.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr032-2026",
+      "externalId": "SCHOOLSTR032",
+      "title": "Schoolstraat Scheldestraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-8.30 en 15.00-15.30; wo 8.00-8.30 en 12.20-12.50",
+      "location": "Scheldestraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan Vrije Basisschool Rudolf Steiner-Hibernia: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.00-8.30 en 15.00-15.30; wo 8.00-8.30 en 12.20-12.50. Definitief.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr033-2026",
+      "externalId": "SCHOOLSTR033",
+      "title": "Schoolstraat Louiza-Marialei",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.30-8.45 en 15.10-15.45; wo 8.30-8.45 en 12.05-12.35",
+      "location": "Louiza-Marialei, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan Ignatiaanse scholen Antwerpen: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.30-8.45 en 15.10-15.45; wo 8.30-8.45 en 12.05-12.35. Definitief sinds 3 december 2021.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr037-2026",
+      "externalId": "SCHOOLSTR037",
+      "title": "Schoolstraat Demerstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.05-8.35 en 15.00-15.30; wo 8.05-8.35 en 11.55-12.25",
+      "location": "Demerstraat, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "Schoolstraat aan Vrije basisschool 't Spoor: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.05-8.35 en 15.00-15.30; wo 8.05-8.35 en 11.55-12.25. Definitief sinds 3 december 2021.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr050-2026",
+      "externalId": "SCHOOLSTR050",
+      "title": "Schoolstraat Jacob Jordaensstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.15-8.45 en 15.15-15.45; wo 8.15-8.45 en 12.10-12.40",
+      "location": "Jacob Jordaensstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan De Wegwijzer: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.15-8.45 en 15.15-15.45; wo 8.15-8.45 en 12.10-12.40. Definitief sinds 20 januari 2023.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr051-2026",
+      "externalId": "SCHOOLSTR051",
+      "title": "Schoolstraat Begijnenvest",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.00-8.30 en 15.15-15.45; wo 8.00-8.30 en 12.05-12.30",
+      "location": "Begijnenvest, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan Sint-Lievenscollege: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 8.00-8.30 en 15.15-15.45; wo 8.00-8.30 en 12.05-12.30. Definitief sinds 20 januari 2023.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr054-2026",
+      "externalId": "SCHOOLSTR054",
+      "title": "Schoolstraat Van Immerseelstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, wo 8.05-8.30 en 15.35-16.00; di, do 8.05-8.30 en 16.00-16.25; vr 8.05-8.30 en 12.00-12.25",
+      "location": "Van Immerseelstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan Vrije basisschool Benoth Jerusalem: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, wo 8.05-8.30 en 15.35-16.00; di, do 8.05-8.30 en 16.00-16.25; vr 8.05-8.30 en 12.00-12.25. Definitief sinds 29 maart 2024.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr058-2026",
+      "externalId": "SCHOOLSTR058",
+      "title": "Schoolstraat Lange Van Ruusbroecstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, wo, do 8.00-8.20 en 16.00-16.20; vr 8.00-8.20",
+      "location": "Lange Van Ruusbroecstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan Jesode Hatora Beth Jacob: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, wo, do 8.00-8.20 en 16.00-16.20; vr 8.00-8.20. Definitief sinds 7 maart 2025.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr060-2026",
+      "externalId": "SCHOOLSTR060",
+      "title": "Schoolstraat Grotebeerstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 7.55-8.30 en 15.10-15.40; wo 7.55-8.30 en 11.55-12.25",
+      "location": "Grotebeerstraat, 2018 Antwerpen",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Schoolstraat aan GVBS De Brug: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slagboom). Venstertijden: ma, di, do, vr 7.55-8.30 en 15.10-15.40; wo 7.55-8.30 en 11.55-12.25. Definitief sinds 27 januari 2025.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr102-2026",
+      "externalId": "SCHOOLSTR102",
+      "title": "Schoolstraat Begijnenstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.10-8.30 en 15.15-15.35; wo 8.10-8.30 en 12.00-12.20",
+      "location": "Begijnenstraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan Muzische Academie GO!: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.10-8.30 en 15.15-15.35; wo 8.10-8.30 en 12.00-12.20. Proefopstelling sinds 3 november 2025.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr103-2026",
+      "externalId": "SCHOOLSTR103",
+      "title": "Schoolstraat Lange Riddersstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.25-8.45 en 15.25-15.45; wo 8.25-8.45 en 12.15-12.35",
+      "location": "Lange Riddersstraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan SB Musica: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.25-8.45 en 15.25-15.45; wo 8.25-8.45 en 12.15-12.35. Proefopstelling sinds 3 november 2025.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    },
+    {
+      "id": "schoolstraat-schoolstr107-2026",
+      "externalId": "SCHOOLSTR107",
+      "title": "Schoolstraat Jan Vanhoenackerstraat",
+      "theme": "Werken",
+      "className": "works",
+      "date": "2026-09-01",
+      "endDate": "2027-06-30",
+      "timeSlot": "Info",
+      "timeText": "op schooldagen: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-15.45",
+      "location": "Jan Vanhoenackerstraat, 2000 Antwerpen",
+      "postcodes": [
+        "2000"
+      ],
+      "info": "Schoolstraat aan GO! Muzische basisschool K’Do: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-15.45. Proefopstelling sinds 23 februari 2026.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
+      "retrievedAt": "2026-10-10T21:35:36.278Z",
+      "reviewRequired": false,
+      "inDistrict": true
+    }
+  ]
+}
