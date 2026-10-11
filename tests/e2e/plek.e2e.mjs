@@ -116,7 +116,8 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const json = (body) => ({ status: 200, contentType: "application/json", body: typeof body === "string" ? body : JSON.stringify(body) });
   // Een verzonnen evenementendossier (A-Sign laag 23): een parcours over de gekozen straat.
   const fase = evenement && Date.parse(`${evenement.dag}T08:00:00Z`);
-  const parcours = evenement && { attributes: { dossierNummer: evenement.dossier, faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Parcours", innameBeschrijving: "", innameHinder: "True", faseStartDatum: fase, faseEindDatum: fase }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
+  // Desgewenst een ander type (een gewone inname), een omschrijving en een einde weken later (`tot`).
+  const parcours = evenement && { attributes: { dossierNummer: evenement.dossier, faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: evenement.type || "Parcours", innameBeschrijving: evenement.beschrijving || "", innameHinder: "True", faseStartDatum: fase, faseEindDatum: evenement.tot ? Date.parse(`${evenement.tot}T08:00:00Z`) : fase }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   // Desgewenst een parkeerverbod tijdens de afbraak, na de dag van het evenement, in dezelfde straat.
   const afbraak = evenement?.afbraakTot && { attributes: { ...parcours.attributes, faseId: "F2", innameId: "I2", faseNaam: "Afbraak", innameTypeNaam: "Parkeerverbod in Straat", faseStartDatum: fase, faseEindDatum: Date.parse(`${evenement.afbraakTot}T08:00:00Z`) }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
@@ -370,7 +371,10 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000077", dag: addDays(today, 5) }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
     const row = page.locator(".pv-row", { hasText: "Evenement op straat" }).first();
     await row.waitFor({ timeout: 20000 });
-    assert.match(await row.innerText(), /Evenement met toelating van de stad/);
+    // Zonder naam of soort: wat er vaststaat (een parcours, door welke straat), nooit alleen "de stad
+    // maakt niet bekend wat het is" (klacht 10-10-2026).
+    assert.match(await row.innerText(), /Parcours door /);
+    assert.doesNotMatch(await row.innerText(), /Evenement met toelating van de stad|maakt niet bekend wat het is/);
     // Chips en tegels tellen kaarten: het dossier is één evenement; de vijfde tegel is vergunningen.
     await page.waitForFunction(() => document.querySelector('[data-group="evenementen"] .pv-chip-n'));
     const chip = Number(await page.locator('[data-group="evenementen"] .pv-chip-n').innerText());
@@ -382,6 +386,24 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.deepEqual(labels.slice(0, 3), ["Wat", "Wanneer", "Waar"]);
     assert.ok(labels.includes("Jouw straat") && labels.includes("Wat merk je"));
     assert.doesNotMatch(await row.locator(".pv-detail").innerText(), /ETL|IOD|Niet in de bron/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("een dossier van een maand: wat het is, geen 'Vandaag' en geen 'Dag N van M', in de groep Doorlopend", async () => {
+    const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000079", dag: addDays(today, -9), tot: addDays(today, 19), type: "Inname", beschrijving: "Sticker" }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
+    const row = page.locator(".pv-row", { hasText: "Stickers op straat" }).first();
+    await row.waitFor({ timeout: 20000 });
+    const kop = await row.locator(".pv-row-btn").innerText();
+    assert.doesNotMatch(kop, /Vandaag|Evenement met toelating|maakt niet bekend wat het is/);
+    assert.match(kop, /Loopt tot /);
+    assert.match(kop, /Inname op straat/i);
+    const sectie = page.locator(".pv-day", { has: row });
+    assert.match(await sectie.locator(".pv-day-title").innerText(), /Doorlopend/);
+    await row.locator(".pv-row-btn").click();
+    assert.doesNotMatch(await row.locator(".pv-detail").innerText(), /Dag \d+ van \d+/);
+    assert.match(await row.locator(".pv-detail").innerText(), /Loopt sinds /);
     assert.deepEqual(errors, []);
     await context.close();
   });

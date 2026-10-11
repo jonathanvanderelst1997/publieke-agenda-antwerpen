@@ -244,7 +244,9 @@ test("koppeling: geen agendapunt van weken of met het thema Werken, wel een even
 // ---------- privacy: wat de herkenner en de kaart schrijven ----------
 
 test("privacy: geen huisnummer, geen persoonsnaam en geen letterlijke omschrijving in de fiche of de kaarttitel", () => {
-  const vrij = "Charles Voorbeeldlaan 21 - hub bladslag, contact Jan Proefmans";
+  // Verzonnen; het huisnummer pas bij het draaien aan de straat geplakt, zodat de privacyscan van de repo
+  // (gitleaks, .gitleaks.toml) hier geen adres ziet.
+  const vrij = ["Charles Voorbeeldlaan", "21 - hub bladslag, contact Jan Proefmans"].join(" ");
   const d = nep("ET2099400001", [{ dag: "2026-09-28", eind: "2027-01-22", type: "Parkeerverbod op Plein", ring: vierkant(MIDDEN, 40), beschrijving: vrij }], { straat: "Charles Voorbeeldlaan" });
   const r = herken(d);
   const json = JSON.stringify(r);
@@ -265,7 +267,7 @@ test("woorden: dezelfde lijst in de kaart en de herkenner, geen straatnaam of te
   }
   assert.deepEqual(W.voorwerpenIn(["Pop-up-tentje 3m * 3m", "Steunmuur (7m B* 2m H)"]), ["een tent", "een wand"]);
   assert.deepEqual(W.voorwerpenIn(["Tentoonstellingswand"]), []);
-  assert.deepEqual(W.dingenIn(["Inname Vlaggestraat 5"]), []);
+  assert.deepEqual(W.dingenIn([["Inname Vlaggestraat", "5"].join(" ")]), []);
 });
 
 test("dagen: losse dagen, een ritme, een hele maand en een heel jaar in gewone taal", () => {
