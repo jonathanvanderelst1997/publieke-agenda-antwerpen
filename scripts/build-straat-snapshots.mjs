@@ -294,14 +294,21 @@ const isEvenementFase = (item) => /^evenement$/i.test(clean(item?.phase)) || /Fa
 // en afbraak tot …", "Parcours door …" en de hele innameperiode uit alle rijen van het dossier
 // (evenementFeiten in site/kaart-uitleg.js). Daarom per evenementendossier één samenvattende rij per fase
 // en soort inname (parcours, parkeerverbod, verkeersvrij, omleiding, andere): het vroegste begin en het
-// laatste einde van die rijen, zonder straat, vorm of omschrijving (`faseSamenvatting`). Zonder straat
-// verandert ze niets aan "jouw straat" (de eigen rijen van de straat staan er al). Ze komt in elke straat
-// waar het dossier staat; de plekpagina houdt ze ook na het live nakijken van het kader van de straat
-// (aanvullenMetOchtend in site/straat-snapshot.js). Bewust zonder de straten van de andere rijen: bij een
-// groot parcours zijn dat er honderden, in elk bestand van dat parcours (gemeten: 7 MB extra over alle
-// straten). Daardoor noemt "Wat merk je" in de snelle weg alleen de straten van de rijen in het bestand
-// of in het kader dat live nagekeken wordt; een nagekeken fiche (evenement-identiteit.json) gaat voor.
+// laatste einde van die rijen, zonder vorm of omschrijving (`faseSamenvatting`). Ze komt in elke straat
+// waar het dossier staat; de plekpagina houdt ze ook als het live nakijken mislukt (aanvullenMetOchtend in
+// site/straat-snapshot.js).
+// Straten: alleen bij een parkeerverbod, een verkeersvrije zone of een omleiding, de soorten die "Wat merk
+// je" noemt ("Parkeerverbod in Hanegraefstraat, Krimsonpad. … De stad verwacht hinder voor het verkeer.").
+// Zonder die straten zei de kaart ten onrechte "Welke straten dicht gaan en wanneer, maakt de stad niet
+// bekend." De straat van het bestand zelf valt weg (verdeelOverStraten): die heeft haar eigen rijen, dus
+// "jouw straat" verandert niet. De straten van een parcours of een gewone inname blijven bewust weg: bij
+// een groot parcours zijn dat er honderden, in elk bestand van dat parcours (gemeten: 7 MB extra over
+// alle straten; met alleen de drie soorten hierboven 0,03 MB op de data van 11 oktober 2026). Het parcours
+// staat in kaart-uitleg.json.
 const tijd = (waarde) => Date.parse(waarde || "");
+const MET_STRATEN = new Set(["parkeerverbod", "verkeersvrij", "omleiding"]);
+const naamVolgorde = (a, b) => clean(a.name).localeCompare(clean(b.name), "nl") || String(a.postcode || "").localeCompare(String(b.postcode || "")) || String(a.id || "").localeCompare(String(b.id || ""));
+const samenStraten = (...lijsten) => uniekeRefs(lijsten.flatMap((lijst) => (Array.isArray(lijst) ? lijst : []))).sort(naamVolgorde);
 export function faseSamenvattingen(rijen = []) {
   const perDossier = new Map();
   for (const rij of rijen) {
@@ -316,10 +323,11 @@ export function faseSamenvattingen(rijen = []) {
       fasen.set(sleutel, {
         id: `iod:${ref}|fase|${fase || "zonder"}|${soort}`, kind: "iod", kindLabel: rij.kindLabel || "Inname openbaar domein", title: "", location: "",
         start, end, status: rij.status || "", reference: ref, detail: fase ? `Fase ${fase}` : "", phase: fase,
-        dossierType: rij.dossierType || "", innameType: type, hindrance: clean(rij.hindrance), streets: [], faseSamenvatting: true,
+        dossierType: rij.dossierType || "", innameType: type, hindrance: clean(rij.hindrance), streets: MET_STRATEN.has(soort) ? samenStraten(rij.streets) : [], faseSamenvatting: true,
       });
       continue;
     }
+    if (MET_STRATEN.has(soort)) huidig.streets = samenStraten(huidig.streets, rij.streets);
     // "Parcours" telt als parcours (evenementFeiten): die naam wint binnen de soort.
     if (type === "Parcours") huidig.innameType = type;
     if (Number.isFinite(tijd(start)) && !(tijd(huidig.start) <= tijd(start))) huidig.start = start;

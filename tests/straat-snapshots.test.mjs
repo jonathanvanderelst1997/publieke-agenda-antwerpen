@@ -332,6 +332,29 @@ test("evenement: opbouw en afbraak elders in de stad staan als samenvatting in e
   assert.equal(aanvullenMetOchtend([], ochtend).length, 0);
 });
 
+test("evenement: een parkeerverbod alleen in een andere straat staat met zijn straten in de samenvatting ('Wat merk je' zoals live)", async (t) => {
+  const root = werkmap(t);
+  // Opbouw en afbraak van het verzonnen evenement: een parkeerverbod in de Huikstraat, niet in de Kammenstraat.
+  const fasen = [evenementFase(2, "Opbouw", "2099-03-12", "2099-03-13", [HUIK]), evenementFase(3, "Afbraak", "2099-03-15", "2099-03-16", [HUIK])];
+  const b = await schoneBronnen({ extraRuimte: fasen });
+  await bouw(root, { bronnenDoc: b });
+  const merk = (rijen) => evenementKaartje(evenementFeiten(rijen), { vandaag: "2099-03-10" }).kern.find(([dt]) => dt === "Wat merk je")[1];
+  // Zoals de live laag van het hele district: alle rijen van het dossier.
+  const alle = b.lagen.publiekeRuimte.items.filter((i) => i.reference === "ET2099000001");
+  const verwacht = merk(alle);
+  assert.match(verwacht, /^Parkeerverbod in Huikstraat\. .*De stad verwacht hinder voor het verkeer\.$/);
+  const kam = lagenUitStand({ doc: lees(root, `site/straat/${KAM.id}.json`) }).publicSpace.filter((i) => i.reference === "ET2099000001");
+  assert.equal(merk(kam), verwacht, "de Kammenstraat zegt niet dat de stad de straten niet bekendmaakt");
+  assert.doesNotMatch(merk(kam), /maakt de stad niet bekend/);
+  // De straten staan in de samenvatting, zonder de straat van het bestand zelf; "jouw straat" blijft gelijk.
+  assert.deepEqual(kam.filter((i) => i.faseSamenvatting).map((i) => [i.phase, i.streets.map((s) => s.name)]).sort(), [["Afbraak", [HUIK.name]], ["Opbouw", [HUIK.name]]]);
+  const { jouwStraat } = await import("../site/kaart-uitleg.js");
+  assert.doesNotMatch(jouwStraat(evenementFeiten(kam), KAM.name, "2099-03-10"), /parkeerverbod/);
+  const huik = lagenUitStand({ doc: lees(root, `site/straat/${HUIK.id}.json`) }).publicSpace.filter((i) => i.reference === "ET2099000001");
+  assert.match(jouwStraat(evenementFeiten(huik), HUIK.name, "2099-03-10"), /krijgt een parkeerverbod van donderdag 12 maart tot maandag 16 maart/);
+  assert.ok(huik.filter((i) => i.faseSamenvatting).every((i) => !i.streets.some((s) => s.id === HUIK.id)), "de eigen straat staat niet in de samenvatting");
+});
+
 test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-hinderfase) valt weg", async (t) => {
   // Verzonnen omschrijvingen van een hinderfase.
   const fasen = [
