@@ -550,8 +550,12 @@ test("privacy 2 en L5: alleen een dossier dat een buurtactie kan zijn, vraagt zi
   assert.equal(R.historiekGeldig(oud(ander), ander, vensters), true, "de cache van een gewoon dossier blijft geldig");
   assert.equal(R.historiekGeldig(oud(buurt), buurt, vensters), false, "een mogelijke buurtactie vraagt opnieuw");
   assert.match(R.historiekSleutel(buurt, vensters), /^b2\|/);
-  assert.equal(R.historiekGeldig({ sleutel: R.historiekSleutel(buurt, vensters) }, buurt, vensters), true);
-  assert.equal(R.historiekGeldig({ sleutel: `b2|${R.historiekSleutel(ander, [])}` }, ander, vensters), true, "een b2-samenvatting geldt ook voor de rest");
+  assert.equal(R.historiekGeldig({ sleutel: R.historiekSleutel(buurt, vensters), items: [] }, buurt, vensters), true);
+  assert.equal(R.historiekGeldig({ sleutel: `b2|${R.historiekSleutel(ander, [])}`, items: [] }, ander, vensters), true, "een b2-samenvatting geldt ook voor de rest");
+  // Wie vraagt: alleen wie geen geldige historiek heeft, en een mogelijke buurtactie eerst.
+  const nieuw = een("ET2099600092", "", { dag: "2026-11-02", plek: oost(MIDDEN, 7100), m: 3 });
+  const taken = R.historiekTaken([nieuw, ander, buurt], { oud: { ET2099600091: oud(ander), ET2099600090: oud(buurt) }, vensters });
+  assert.deepEqual(taken.map((d) => d.dossier), ["ET2099600090", "ET2099600092"]);
 });
 
 test("privacy 3: een dossier met losse dagen blijft tijdens de afbraak bij 'Nu bezig'", () => {
