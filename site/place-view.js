@@ -5,10 +5,11 @@
 import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
-  periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize,
+  periodRange, monthWeeks, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize, dezeWeek, WEEK_LICHT,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
-  periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen,
+  opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
+  periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, lijstAantal, werfPerStuk,
 } from "./place-core.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -30,7 +31,8 @@ const MONTHS_SHORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "s
 const WEEKDAYS = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"];
 const WEEKDAYS_SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const QUICK_WIJKEN = ["ANT09", "ANT24", "ANT25", "ANT10", "ANT05", "ANT11", "ANT20"];
-const MODES = [["lijst", "Lijst"], ["week", "Week"], ["maand", "Maand"]];
+// "14 dagen" (tijdlijn) vervangt de weekweergave; een oude link met weergave=week opent de tijdlijn.
+const MODES = [["lijst", "Lijst"], ["tijdlijn", "14 dagen"], ["maand", "Maand"]];
 const SECTION_LIMIT = 12;
 // Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
 // Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
@@ -113,7 +115,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     groups: new Set(DEFAULT_GROUPS),
     customized: false,
     period: PERIODS.some(([k]) => k === url.searchParams.get("periode")) ? url.searchParams.get("periode") : "maand",
-    mode: MODES.some(([k]) => k === url.searchParams.get("weergave")) ? url.searchParams.get("weergave") : "lijst",
+    mode: url.searchParams.get("weergave") === "week" ? "tijdlijn" : MODES.some(([k]) => k === url.searchParams.get("weergave")) ? url.searchParams.get("weergave") : "lijst",
+    dagFilter: "",
     cursor: "",
     selectedDay: "",
     open: new Set(),
@@ -612,10 +615,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     modesEl.innerHTML = MODES.map(([k, label]) => `<button type="button" data-mode="${k}" aria-pressed="${state.mode === k}">${label}</button>`).join("");
     periodsEl.hidden = state.mode !== "lijst";
     periodsEl.innerHTML = PERIODS.map(([k, label]) => `<button type="button" data-period="${k}" aria-pressed="${state.period === k}">${label}</button>`).join("");
-    navEl.hidden = state.mode === "lijst";
+    navEl.hidden = state.mode !== "maand";
     if (state.mode === "maand") navEl.querySelector(".pv-nav-label").textContent = `${MONTHS[monthOf(state.cursor)]} ${state.cursor.slice(0, 4)}`;
-    if (state.mode === "week") { const end = addDays(state.cursor, 6); navEl.querySelector(".pv-nav-label").textContent = `${shortDate(state.cursor)} – ${shortDate(end)}`; }
-    navEl.querySelector(".pv-nav-today").disabled = state.mode === "maand" ? startOfMonth(today) === state.cursor : startOfWeek(today) === state.cursor;
+    navEl.querySelector(".pv-nav-today").disabled = startOfMonth(today) === state.cursor;
   }
   groupsEl.addEventListener("click", (event) => {
     const button = event.target.closest("[data-group]");
@@ -633,8 +635,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!button) return;
     state.mode = button.dataset.mode;
     const today = brusselsToday();
-    state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today);
+    state.cursor = startOfMonth(today);
     state.selectedDay = today;
+    state.dagFilter = "";
     writeUrl(); render();
   });
   periodsEl.addEventListener("click", (event) => {
@@ -645,15 +648,15 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   navEl.addEventListener("click", (event) => {
     const step = event.target.closest(".pv-nav-prev") ? -1 : event.target.closest(".pv-nav-next") ? 1 : 0;
     const today = brusselsToday();
-    if (event.target.closest(".pv-nav-today")) state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today);
-    else if (step) state.cursor = state.mode === "maand" ? addMonths(state.cursor, step) : addDays(state.cursor, 7 * step);
+    if (event.target.closest(".pv-nav-today")) state.cursor = startOfMonth(today);
+    else if (step) state.cursor = addMonths(state.cursor, step);
     else return;
     if (state.mode === "maand") state.selectedDay = state.cursor <= today && today < addMonths(state.cursor, 1) ? today : state.cursor;
     render();
   });
 
   // ---- de plekkop ----
-  function renderPlace(summary, loading, failure = "") {
+  function renderPlace(summary, loading, failure = "", week = null) {
     const place = state.place;
     placeBox.hidden = !place;
     if (!place) return;
@@ -664,20 +667,22 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const tile = (n, label, cls, group) => !state.groups.has(group)
       ? `<li class="pv-stat pv-stat-off ${cls}"><button type="button" data-only="${group}" aria-label="${esc(label)} staan uit; tik om ze te tonen"><strong>–</strong><span>${esc(label)} (uit)</span></button></li>`
       : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}${group === "werken" && !n && state.werkenOnvolledig ? " (onbekend: niet alles laadde)" : ""}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "?" : n}</strong><span>${esc(label)}</span></button></li>`;
+    // In de DOM: label, naam (de kop), knoppen, meta. Wie met een schermlezer naar de kop springt en verder
+    // leest, hoort de knoppen nog. Op het scherm staan de knoppen op de rij van het label (of eronder als ze er
+    // niet naast passen) en de naam daaronder (CSS order). De kop krijgt geen focus: Tab gaat Deel, Andere
+    // plek, dan de wijk, in de volgorde die je ziet.
     placeBox.innerHTML = `
       <div class="pv-place-top">
-        <div class="pv-place-id">
-          <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
-          <h2 class="pv-place-name">${esc(place.label)}</h2>
-          <p class="pv-place-meta">${meta}</p>
-        </div>
+        <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
+        <h2 class="pv-place-name">${esc(place.label)}</h2>
         <div class="pv-place-actions">
           <button type="button" class="pv-btn pv-share" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
+        <p class="pv-place-meta">${meta}</p>
       </div>
+      ${week?.zin ? `<p class="pv-dezeweek pv-dezeweek-${week.licht}"><span class="pv-licht" aria-hidden="true"></span><strong class="pv-licht-label">${esc(WEEK_LICHT[week.licht] || "")}</strong> <span class="pv-dezeweek-zin">${esc(week.zin)}</span></p>` : ""}
       ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}
-      ${radius}
       <ul class="pv-stats" aria-label="Samenvatting">
         ${tile(summary.evenementen, `${summary.evenementen === 1 ? "evenement" : "evenementen"}${summary.innamesOpStraat ? ` (+ ${summary.innamesOpStraat} ${summary.innamesOpStraat === 1 ? "inname" : "innames"})` : ""}`, "cat-festival", "evenementen")}
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
@@ -685,6 +690,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
         ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
+      ${radius /* onder de tegels: op een gsm staan straat, weekzin en tellers zo zonder scrollen in beeld */}
       ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}
       ${(() => { const s = place.type === "straat" ? snelZin() : null; return s?.zin ? `<p class="pv-place-loading pv-stand" role="status">${s.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(s.zin)}</p>` : ""; })()}`;
   }
@@ -700,7 +706,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (share) {
       const link = window.location.href;
       const done = () => { share.innerHTML = `<span aria-hidden="true">✓</span> Link gekopieerd`; setTimeout(() => { share.innerHTML = `<span aria-hidden="true">🔗</span> Deel`; }, 2400); };
-      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: `${state.place.label} · publieke agenda`, url: link }).catch(() => {});
+      const tekst = state.week?.zin && !state.layersPending ? state.week.zin : undefined;
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: `${state.place.label} · publieke agenda`, ...(tekst ? { text: tekst } : {}), url: link }).catch(() => {});
       else navigator.clipboard?.writeText(link).then(done, () => window.prompt("Kopieer deze link", link));
     }
   });
@@ -746,11 +753,29 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (wants && (view.enabled("publicSpace") || evenementenOpStraat) && !loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) loading.push(view.enabled("publicSpace") ? "verkeersmaatregelen" : "evenementen op straat");
     if (wants && view.enabled("terraces") && !loadedLayer(live.terraces) && !mislukt.terraces?.length) loading.push("terrassen");
     const failed = ontbrekendeOnderdelen(mislukt, (laag) => view.enabled(laag) || (laag === "publicSpace" && evenementenOpStraat));
-    return { entries, loading, failed };
+    // De weekzin hangt niet af van de gekozen soorten: alle agendapunten op de plek (niet VISIBLE_ITEMS,
+    // die volgen de soortkeuze), plus alle kaarten van de live lagen die geladen zijn. Alleen evenementen
+    // en werken in de komende 7 dagen; eerst op datum, zodat de plekfilter niet elk punt moet nakijken.
+    const weekEinde = addDays(vandaag, 6);
+    const agendaWeek = !state.place ? [] : (Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : [])
+      .filter((item) => String(item?.date || "").slice(0, 10) <= weekEinde)
+      .map((item) => agendaEntry(item, item.category || "other"))
+      .filter((e) => (e.group === "evenementen" || e.group === "werken") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item));
+    // Een laag die de weekzin nodig heeft en die uit staat of er niet is: dan nooit "rustig". Nog onderweg
+    // (loading) of mislukt (failed) zegt de zin elders; een geladen laag telt mee, ook als ze uit staat. Een
+    // laag die uit staat en (deels) mislukte, staat niet in `failed` (dat volgt de soortkeuze): die zeggen we
+    // hier, los van de keuze. Geladen is ze dan alleen als niets ervan mislukte.
+    const psAan = view.enabled("publicSpace") || evenementenOpStraat;
+    const weekLaag = (rows, fout, uit) => ({ uit, geladen: loadedLayer(rows) && !fout?.length, deels: loadedLayer(rows) && Boolean(fout?.length) });
+    const weekOnbekend = [
+      ...(!view.enabled("works") || (!loadedLayer(live.works) && !mislukt.works?.length) ? [{ wat: "werken", ...weekLaag(live.works, mislukt.works, !view.enabled("works")) }] : []),
+      ...(!psAan || (!loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) ? ["parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, ...weekLaag(live.publicSpace, mislukt.publicSpace, !psAan) })) : []),
+    ];
+    return { entries, loading, failed, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend };
   }
 
   // ---- weergave ----
-  function rowTemplate(entry, { today, context = "list", weekStart = "" } = {}) {
+  function rowTemplate(entry, { today, context = "list" } = {}) {
     const k = kindInfo(entry);
     const uid = cssId(entry.uid);
     const open = state.open.has(entry.uid);
@@ -780,13 +805,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const done = Math.min(total, Math.max(0, daysBetween(entry.start, today) + 1));
       progress = `<div class="pv-progress" aria-hidden="true"><span style="width:${Math.round((done / total) * 100)}%"></span></div><p class="pv-progress-text">${esc(voortgangTekst(entry.start, entry.end, today))}</p>`;
     }
-    let track = "";
-    if (context === "week") {
-      const end = periode.end || (entry.openEnd ? addDays(weekStart, 6) : periode.start);
-      const s = periode.start < weekStart ? 0 : daysBetween(weekStart, periode.start);
-      const e = Math.min(6, daysBetween(weekStart, end));
-      track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
-    }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
@@ -812,7 +830,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
-            ${track}
           </span>
           <span class="pv-row-chevron" aria-hidden="true"></span>
         </button>
@@ -940,14 +957,18 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const rel = day === today ? "Vandaag" : day === addDays(today, 1) ? "Morgen" : "";
     return `${rel ? `<span class="pv-rel">${rel}</span> ` : ""}${esc(longDate(day))}${day.slice(0, 4) !== today.slice(0, 4) ? ` ${day.slice(0, 4)}` : ""}`;
   }
-  function marketsTemplate(entries, today) {
+  function marktBundels(entries, today) {
     const items = entries.filter((e) => e.theme === "markets").map((e) => e.item);
-    const bundles = window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
+    return window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
+  }
+  function marketsTemplate(bundles) {
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return "";
     return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
-  function emptyTemplate(today) {
+  // De tijdlijn geeft een eigen periode (`wanneer`: "op dinsdag 20 oktober", "in de komende 14 dagen") en
+  // uitleg mee: een lege dag zegt niets over de hele plek. `later`: de tip "Toon ook wat later komt".
+  function emptyTemplate(today, { wanneer = "", uitleg: eigenUitleg = "", later = false } = {}) {
     const place = state.place;
     const where = esc(plekWaar(place));
     const tips = [];
@@ -956,10 +977,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const wijk = place.wijken?.[0] && index.byKey.get(`wijk:${place.wijken[0]}`);
       if (wijk) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-place="${esc(wijk.key)}">Bekijk de wijk ${esc(wijk.label)}</button>`);
     }
-    if (state.mode === "lijst" && state.period !== "alles") tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-period-tip="alles">Toon ook wat later komt</button>`);
+    if ((state.mode === "lijst" && state.period !== "alles") || later) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-period-tip="alles">Toon ook wat later komt</button>`);
     if (state.groups.size < KIND_GROUPS.length) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-all-tip>Toon alle soorten</button>`);
-    const period = state.mode === "lijst" ? (state.period === "alles" ? "" : ` in de komende ${PERIODS.find(([k]) => k === state.period)[1]}`) : "";
-    const uitleg = legeStaatTekst({ place, gekozen: state.customized, aantalSoorten: state.groups.size, onvolledig: Boolean(state.onvolledig) });
+    const period = wanneer ? ` ${esc(wanneer)}` : state.mode === "lijst" ? (state.period === "alles" ? "" : ` in de komende ${PERIODS.find(([k]) => k === state.period)[1]}`) : "";
+    const uitleg = eigenUitleg || legeStaatTekst({ place, gekozen: state.customized, aantalSoorten: state.groups.size, onvolledig: Boolean(state.onvolledig) });
     // Lege staat met een laag die niet laadde: eerst zeggen dat het overzicht onvolledig is.
     const onvolledig = state.onvolledig ? `<p class="pv-empty-warn"><span aria-hidden="true">⚠️</span> ${esc(state.onvolledig)}</p>` : "";
     return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3>${onvolledig}<p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
@@ -979,34 +1000,91 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
     // Toelatingen en evenementen van twee weken of langer: een eigen groep, onder wat vandaag en de komende
     // dagen echt gebeurt (groupForList in place-core.js).
-    html.push(sectionTemplate("doorlopend", `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">Toelatingen van de stad die weken of maanden lopen. Wat er vandaag echt gebeurt, staat hierboven.</p>`));
+    html.push(sectionTemplate("doorlopend", `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend))}</p>`));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
-    html.push(marketsTemplate(entries, today));
+    const bundels = marktBundels(entries, today);
+    html.push(marketsTemplate(bundels));
     html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }));
     const body = html.filter(Boolean).join("");
     results.innerHTML = body || emptyTemplate(today);
+    // Wat de lijst toont, in dezelfde eenheid als de aantallen naast de koppen: een kaart per kaart (een
+    // activiteit op twee dagen is twee kaarten), ook wat achter "Toon alle N" zit, en een kaart per markt;
+    // niet wat "later gepland" is.
+    return [inspraak, running, ...days.map(([, list]) => list), doorlopend, permits].reduce((n, lijst) => n + lijst.length, 0) + bundels.length;
   }
-  function renderWeek(entries, today) {
-    const weekStart = state.cursor, weekEnd = addDays(weekStart, 6);
-    const inWeek = entries.filter((e) => e.start && e.group !== "vergunningen" && overlaps(e, weekStart, weekEnd))
-      .sort((a, b) => a.start.localeCompare(b.start) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl"));
-    const head = `<div class="pv-week-head" aria-hidden="true"><span></span><span class="pv-week-days">${Array.from({ length: 7 }, (_, i) => { const d = addDays(weekStart, i); return `<b class="${d === today ? "today" : ""}">${WEEKDAYS_SHORT[i]}<br>${dayNum(d)}</b>`; }).join("")}</span><span></span></div>`;
-    if (!inWeek.length) { results.innerHTML = `${head}${emptyTemplate(today)}`; return; }
-    results.innerHTML = `<div class="pv-week">${head}${sectionTemplate(`w:${weekStart}`, `Week van ${esc(shortDate(weekStart))}`, inWeek, { today, context: "week", weekStart })}</div>`;
+  // Tijdlijn over 14 dagen (vandaag inbegrepen): per dag een teken per soort, alleen op de dagen waarop er
+  // echt iets gebeurt (opDag in place-core.js: losse dagen alleen op die dagen, een werfzone alleen in haar
+  // fasen; een toelating van twee weken of langer alleen op haar eerste dag, verder bij "Doorlopend", zoals in
+  // de lijst). Elke soort heeft een eigen vorm: de kleur is niet de enige drager. Tik op een dag en de lijst
+  // eronder toont alleen die dag; nog eens tikken (of "Toon alle 14 dagen") toont alles weer.
+  function renderTijdlijn(entries, today) {
+    const einde = addDays(today, 13);
+    const dagen = Array.from({ length: 14 }, (_, i) => addDays(today, i));
+    if (state.dagFilter && !dagen.includes(state.dagFilter)) state.dagFilter = "";
+    const dag = state.dagFilter;
+    const binnen = entries.filter((e) => e.start && e.group !== "vergunningen" && overlaps(e, today, einde));
+    // Per kaart de dagen van de 14 waarop er echt iets gebeurt; zonder zo'n dag staat ze niet in de strook.
+    const echt = new Map(binnen.map((e) => [e, dagen.filter((d) => opDag(e, d))]));
+    const dated = binnen.filter((e) => echt.get(e).length);
+    const groepen = KIND_GROUPS.filter((g) => g.key !== "vergunningen");
+    const perDag = new Map(dagen.map((d) => [d, groepen.map((g) => [g, dated.filter((e) => e.group === g.key && opDag(e, d))]).filter(([, lijst]) => lijst.length)]));
+    // Wat die dag doorloopt zonder eigen teken (een toelating van twee weken of langer): dat zegt de naam erbij.
+    const lang = binnen.filter((e) => langEvenement(e));
+    const doorDag = (d) => lang.filter((e) => overlaps(e, d, d) && !opDag(e, d)).length;
+    // Een dag zonder iets: nooit "niets gepland" zolang een laag laadt, als ze niet laadde of als er iets
+    // doorloopt (legeDagLabel).
+    const bezig = state.weekBezig || [];
+    const onvolledig = Boolean(state.werkenOnvolledig);
+    const vorm = (g) => `<i class="cat-${g.cat} vorm-${g.key}" aria-hidden="true"></i>`;
+    const strip = dagen.map((d) => {
+      const perGroep = perDag.get(d), door = doorDag(d);
+      const tekst = perGroep.length ? `${dagInhoud(perGroep, d)}${door ? `; ${doorlopendTekst(door)}` : ""}` : legeDagLabel({ bezig, onvolledig, doorlopend: door });
+      const cls = [d === today ? "today" : "", d === dag ? "sel" : "", weekdayMon0(d) >= 5 ? "weekend" : ""].filter(Boolean).join(" ");
+      // "vand." op de knop staat ook in de naam ("Vandaag, zondag 11 oktober: ..."), voor schermlezers en spraakbesturing.
+      return `<button type="button" class="pv-tl-dag ${cls}" data-tl-dag="${d}" aria-pressed="${d === dag}" aria-label="${d === today ? "Vandaag, " : ""}${esc(longDate(d))}: ${esc(tekst)}"><span class="pv-tl-wd">${d === today ? "vand." : WEEKDAYS_SHORT[weekdayMon0(d)]}</span><span class="pv-tl-n">${dayNum(d)}</span><span class="pv-tl-stippen" aria-hidden="true">${perGroep.map(([g]) => vorm(g)).join("")}</span></button>`;
+    }).join("");
+    const legend = groepen.filter((g) => state.groups.has(g.key)).map((g) => `<span class="pv-legend-item cat-${g.cat}">${vorm(g)}${esc(g.label)}</span>`).join("");
+    const begin = (e) => echt.get(e)?.[0] || today;
+    const sorteer = (a, b) => begin(a).localeCompare(begin(b)) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl");
+    const lijst = (dag ? dated.filter((e) => opDag(e, dag)) : dated).sort(sorteer);
+    // Twee weken of langer, zonder echte dag in de strook (of op de gekozen dag): bij "Doorlopend".
+    const doorlopend = binnen.filter((e) => langEvenement(e) && (dag ? overlaps(e, dag, dag) && !opDag(e, dag) : !echt.get(e).length)).sort(sorteer);
+    const titel = dag ? dayTitle(dag, today) : `<span aria-hidden="true">🗓️</span> Komende 14 dagen`;
+    const doorlopendHtml = sectionTemplate(`tl-doorlopend:${dag || "alle"}`, `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend, { tijdlijn: true }))}</p>`);
+    // Leeg: eerlijk over die dag of de 14 dagen, niet "niets voor deze straat" (legeTijdlijnTekst).
+    let uitleg = legeTijdlijnTekst({ dag: Boolean(dag), bezig, onvolledig, aantalSoorten: state.groups.size, andereDagen: dagen.filter((d) => d !== dag && perDag.get(d).length).length, doorlopend: doorlopend.length });
+    if (!dag && state.groups.has("vergunningen") && entries.some((e) => e.group === "vergunningen")) uitleg += " Vergunningen staan niet in de tijdlijn, wel in de lijst.";
+    const inhoud = lijst.length ? `${sectionTemplate(`tl:${dag || "alle"}`, titel, lijst, { today, context: "tijdlijn" })}${doorlopendHtml}`
+      : doorlopend.length ? `<p class="pv-day-empty">${dag ? `<strong>${esc(longDate(dag))}</strong>: ` : ""}${esc(uitleg)}</p>${doorlopendHtml}`
+      : emptyTemplate(today, { wanneer: dag ? `op ${longDate(dag)}` : "in de komende 14 dagen", uitleg, later: !dated.length });
+    results.innerHTML = `
+      <div class="pv-tl">
+        <div class="pv-tl-strip" role="group" aria-label="Tijdlijn: kies een dag">${strip}</div>
+        <p class="pv-legend">${legend}<span class="pv-legend-hint">Elke soort heeft een eigen vorm. Tik op een dag om alleen die dag te zien.</span></p>
+      </div>
+      ${inhoud}
+      ${dag ? `<button type="button" class="pv-btn pv-btn-ghost pv-tl-alle" data-tl-dag="">Toon alle 14 dagen</button>` : ""}`;
+    // Zoals de aantallen naast de koppen: een kaart per kaart (een weekmarkt op twee dagen is twee kaarten).
+    return lijst.length + doorlopend.length;
   }
   function renderMonth(entries, today) {
     const month = state.cursor, weeks = monthWeeks(month), nextMonth = addMonths(month, 1);
     const dated = entries.filter((e) => e.start && e.group !== "vergunningen");
     const narrow = window.matchMedia("(max-width: 640px)").matches;
     const maxLanes = narrow ? 4 : 3;
+    // Dezelfde regels als de tijdlijn (opDag): losse dagen alleen op die dagen, een werfzone alleen in haar
+    // fasen. Wat twee weken of langer loopt, staat in de maand als balk en telt dus elke dag mee.
+    const opMaandDag = (e, d) => opDag(e, d) || (langEvenement(e) && overlaps(e, d, d));
+    // Een lege dag: nooit "niets gepland" zolang een laag laadt of als ze niet laadde (legeDagLabel).
+    const bezig = state.weekBezig || [], onvolledig = Boolean(state.werkenOnvolledig);
     if (!state.selectedDay || state.selectedDay < month || state.selectedDay >= nextMonth) state.selectedDay = today >= month && today < nextMonth ? today : month;
     const rows = weeks.map((weekStart) => {
       const { bars, lanes, overflow } = layoutWeekBars(dated, weekStart, maxLanes);
       const days = Array.from({ length: 7 }, (_, i) => {
         const d = addDays(weekStart, i);
-        const n = dated.filter((e) => overlaps(e, d, d)).length;
+        const n = dated.filter((e) => opMaandDag(e, d)).length;
         const cls = [d < month || d >= nextMonth ? "out" : "", d === today ? "today" : "", d === state.selectedDay ? "sel" : "", d < today ? "past" : ""].filter(Boolean).join(" ");
-        return `<button type="button" class="pv-cal-day ${cls}" data-day="${d}" style="grid-column:${i + 1}" aria-pressed="${d === state.selectedDay}" aria-label="${esc(longDate(d))}: ${n ? `${n} item${n === 1 ? "" : "s"}` : "niets gepland"}"><span>${dayNum(d)}</span></button>`;
+        return `<button type="button" class="pv-cal-day ${cls}" data-day="${d}" style="grid-column:${i + 1}" aria-pressed="${d === state.selectedDay}" aria-label="${esc(longDate(d))}: ${n ? `${n} item${n === 1 ? "" : "s"}` : esc(legeDagLabel({ bezig, onvolledig }))}"><span>${dayNum(d)}</span></button>`;
       }).join("");
       const barHtml = bars.map((b) => {
         const k = kindInfo(b.entry);
@@ -1017,7 +1095,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       return `<div class="pv-cal-week" style="--lanes:${Math.max(1, lanes) + (overflow.some(Boolean) ? 1 : 0)}">${days}${barHtml}${more}</div>`;
     }).join("");
     const day = state.selectedDay;
-    const onDay = dated.filter((e) => overlaps(e, day, day)).sort((a, b) => (a.start === day ? 0 : 1) - (b.start === day ? 0 : 1) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl"));
+    const onDay = dated.filter((e) => opMaandDag(e, day)).sort((a, b) => (a.start === day ? 0 : 1) - (b.start === day ? 0 : 1) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl"));
     const legend = KIND_GROUPS.filter((g) => state.groups.has(g.key) && g.key !== "vergunningen").map((g) => `<span class="pv-legend-item cat-${g.cat}"><i aria-hidden="true"></i>${esc(g.label)}</span>`).join("");
     results.innerHTML = `
       <div class="pv-cal" aria-label="Maandkalender ${esc(MONTHS[monthOf(month)])}">
@@ -1025,10 +1103,22 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${rows}
       </div>
       <p class="pv-legend">${legend}<span class="pv-legend-hint">Balken = meerdaagse werken of activiteiten. Tik op een dag voor alles van die dag.</span></p>
-      <div class="pv-cal-daypanel" aria-live="polite">${onDay.length ? sectionTemplate(`c:${day}`, dayTitle(day, today), onDay, { today, context: "day" }) : `<p class="pv-day-empty"><strong>${esc(longDate(day))}</strong>: niets gepland binnen je keuze.</p>`}</div>`;
+      <div class="pv-cal-daypanel" aria-live="polite">${onDay.length ? sectionTemplate(`c:${day}`, dayTitle(day, today), onDay, { today, context: "day" }) : `<p class="pv-day-empty"><strong>${esc(longDate(day))}</strong>: ${esc(legeTijdlijnTekst({ dag: true, bezig, onvolledig, aantalSoorten: state.groups.size }))}</p>`}</div>`;
   }
 
   results.addEventListener("click", (event) => {
+    const dag = event.target.closest("[data-tl-dag]");
+    if (dag) {
+      const d = dag.dataset.tlDag, vorige = state.dagFilter;
+      state.dagFilter = d && d !== state.dagFilter ? d : "";
+      render();
+      // De focus blijft op de dag die je net aan- of uitzette (een schermlezer hoort "niet ingedrukt"). Na
+      // "Toon alle 14 dagen" (onder de lijst) gaat ze naar de dag die gekozen was, en komt die in beeld.
+      const doel = results.querySelector(`.pv-tl-dag[data-tl-dag="${d || vorige}"]`) || results.querySelector(".pv-tl-dag");
+      if (d) doel?.focus({ preventScroll: true });
+      else doel?.focus();
+      return;
+    }
     const row = event.target.closest(".pv-row-btn");
     if (row) {
       const li = row.closest(".pv-row"), uid = li.dataset.uid, detail = li.querySelector(".pv-detail");
@@ -1068,22 +1158,34 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (li) { li.scrollIntoView({ block: "center" }); li.querySelector(".pv-row-btn")?.focus({ preventScroll: true }); }
   };
 
+  // "De komende 7 dagen in jouw straat": zolang werken, verkeersmaatregelen of evenementen op straat nog
+  // laden, zeggen we dat eerlijk.
+  const WEEK_LAGEN = ["werken", "verkeersmaatregelen", "evenementen op straat"];
+  function weekVoorPlek(entries, today, { bezig = [], onbekend = [] } = {}) {
+    const place = state.place;
+    const waar = place.type === "straat" ? (state.radius ? "in en rond jouw straat" : "in jouw straat") : plekWaar(place);
+    if (bezig.length) return { licht: "onbekend", zin: `De komende 7 dagen ${waar}: ${bezig.length > 1 ? `${bezig.slice(0, -1).join(", ")} en ${bezig.at(-1)}` : bezig[0]} worden nog geladen…` };
+    return dezeWeek(entries, today, { waar, onvolledig: Boolean(state.werkenOnvolledig), onbekend });
+  }
+
   function render() {
     const today = brusselsToday();
-    if (!state.cursor) { state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today); }
-    if (state.mode === "maand" && state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor);
-    if (state.mode === "week" && weekdayMon0(state.cursor) !== 0) state.cursor = startOfWeek(state.cursor);
-    const { entries, loading, failed } = collect();
+    if (!state.cursor || state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor || today);
+    const { entries, loading, failed, opPlek, weekOnbekend } = collect();
     const summary = summarize(entries, today);
-    state.layersPending = loading.includes("werken") || loading.includes("verkeersmaatregelen");
+    const weekBezig = loading.filter((laag) => WEEK_LAGEN.includes(laag));
+    state.layersPending = weekBezig.length > 0;
+    state.weekBezig = weekBezig;
     state.werkenOnvolledig = failed.some((o) => o !== "terrassen");
     state.onvolledig = onvolledigMelding(failed);
     const opsomming = loading.length > 1 ? `${loading.slice(0, -1).join(", ")} en ${loading.at(-1)}` : loading.join("");
-    renderPlace(summary, loading.length ? `${opsomming} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", state.onvolledig);
+    state.week = state.place ? weekVoorPlek(opPlek, today, { bezig: weekBezig, onbekend: weekOnbekend }) : null;
+    // De lagen heten allemaal in het meervoud ("werken", "terrassen"): altijd "worden".
+    renderPlace(summary, loading.length ? `${opsomming} worden live opgehaald…` : "", state.onvolledig, state.week);
     renderToolbar();
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
-    const n = new Set(entries.map((e) => (e.source === "agenda" ? `${e.title}|${e.location}` : e.uid))).size;
+    const n = lijstAantal(entries);
     subEl.textContent = place
       ? `${n} item${n === 1 ? "" : "s"} uit officiële bronnen${place.type === "straat" && state.radius ? `, ook ${state.radius >= 1000 ? "1 km" : `${state.radius} m`} rond de straat (terrassen alleen in de straat zelf)` : ""}.`
       : "Zoek hierboven je straat of wijk om ook werken, verkeer en inspraak in je buurt te zien.";
@@ -1091,9 +1193,22 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       loading.length ? `<span class="pv-spinner" aria-hidden="true"></span> ${esc(opsomming)} laden…` : "",
       state.onvolledig ? `<span class="pv-place-failed">${esc(state.onvolledig)}</span>` : "",
     ].filter(Boolean).join(" ");
+    let getoond = null;
     if (state.mode === "maand") renderMonth(entries, today);
-    else if (state.mode === "week") renderWeek(entries, today);
-    else renderList(entries, today);
+    else getoond = state.mode === "tijdlijn" ? renderTijdlijn(entries, today) : renderList(entries, today);
+    meldKaart(place ? getoond : null, entries);
+  }
+  // De buurtkaart zegt "X in de lijst, Y op de kaart" (neighborhood-map.js). X is wat de lijst hierboven
+  // echt toont: met de periode, of de 14 dagen en de gekozen dag van de tijdlijn. De maand heeft geen lijst
+  // en geeft geen aantal. Daarbij welke GIPOD-stukken samen één werf zijn, zodat de kaart haar punten per
+  // kaart van de lijst telt. De laatste stand staat ook op window: een kaart die later laadt, leest ze daar.
+  function meldKaart(aantal, entries) {
+    const stand = { aantal, werfPerStuk: werfPerStuk(entries) };
+    const sleutel = JSON.stringify(stand);
+    if (sleutel === state.kaartMelding) return;
+    state.kaartMelding = sleutel;
+    window.PUBLIC_AGENDA_PLACE_LIST = stand;
+    window.dispatchEvent(new CustomEvent("public-agenda:place-list", { detail: stand }));
   }
   let frame = 0;
   function schedule() { cancelAnimationFrame(frame); frame = requestAnimationFrame(render); }

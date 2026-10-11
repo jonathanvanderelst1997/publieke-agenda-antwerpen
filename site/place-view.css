@@ -63,15 +63,20 @@
   background: linear-gradient(140deg, color-mix(in srgb, var(--pa-accent) 10%, var(--pa-surface)), var(--pa-surface) 60%);
   border: 1px solid var(--pa-line); box-shadow: var(--pa-shadow);
 }
-.pv-place-top { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 14px; }
-.pv-place-id { min-width: 0; }
+/* Soortlabel en knoppen op één regel als ze naast elkaar passen; anders schuiven de knoppen naar een eigen
+   regel onder het label (nooit eroverheen, ook niet met grote tekst). Naam en meta krijgen de volle breedte.
+   In de DOM staat de naam (de kop) vóór de knoppen, voor wie per kop navigeert; op het scherm eronder. */
+.pv-place-top { display: flex; flex-wrap: wrap; align-items: center; gap: 0 14px; }
+.pv-place-name, .pv-place-meta { flex-basis: 100%; min-width: 0; }
+.pv-place-name { order: 1; }
+.pv-place-meta { order: 2; }
 .pv-place-name { overflow-wrap: break-word; }
 .pv-stat-off button { opacity: .75; box-shadow: inset 4px 0 0 var(--pa-line-strong); }
 .pv-stat-off strong { color: var(--pa-muted); }
 .pv-place-kind { display: inline-block; font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; color: var(--pa-accent); }
 .pv-place-name { margin: 4px 0 2px; font-size: clamp(1.7rem, 6vw, 2.5rem); line-height: 1.08; letter-spacing: -0.035em; color: var(--pa-ink-strong); }
 .pv-place-meta { margin: 0; color: var(--pa-muted); font-size: .95rem; }
-.pv-place-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; }
+.pv-place-actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: flex-start; margin-left: auto; }
 .pv-btn {
   min-height: 44px; padding: 10px 16px; border-radius: 12px; border: 1px solid var(--pa-ink-strong); background: var(--pa-ink-strong);
   color: var(--pa-surface); font-weight: 700; font-size: .9rem; cursor: pointer;
@@ -87,6 +92,17 @@
 .pv-stat strong { font-size: 1.7rem; line-height: 1; color: var(--cat-ink); letter-spacing: -0.03em; }
 .pv-stat span { font-size: .84rem; color: var(--pa-muted); font-weight: 600; }
 .pv-stat-planned button { box-shadow: inset 4px 0 0 var(--cat), inset 0 0 0 0 transparent; background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--cat) 6%, transparent) 8px 16px); }
+/* "De komende 7 dagen in jouw straat": het licht is een bolletje plus een woord, nooit kleur alleen. */
+.pv-dezeweek {
+  margin: 12px 0 0; padding: 10px 12px; border-radius: 14px; font-size: .95rem; line-height: 1.4; color: var(--pa-ink);
+  background: var(--pa-surface); border: 1px solid var(--pa-line); box-shadow: inset 4px 0 0 var(--licht);
+  --licht: var(--pa-line-strong); --licht-ink: var(--pa-muted);
+}
+.pv-dezeweek-rustig { --licht: #1f9d6b; --licht-ink: var(--pa-fresh); }
+.pv-dezeweek-let-op { --licht: #e0a100; --licht-ink: var(--pa-warn); }
+.pv-dezeweek-hinder { --licht: #d13b1f; --licht-ink: var(--pa-accent); }
+.pv-licht { display: inline-block; width: .7em; height: .7em; margin-right: 6px; border-radius: 50%; background: var(--licht); vertical-align: .02em; box-shadow: 0 0 0 2px color-mix(in srgb, var(--licht) 25%, transparent); }
+.pv-licht-label { color: var(--licht-ink); font-weight: 800; }
 .pv-place-loading { margin: 12px 0 0; font-size: .88rem; color: var(--pa-muted); display: flex; align-items: center; gap: 8px; }
 .pv-spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--pa-line-strong); border-top-color: var(--pa-accent); animation: pv-spin .8s linear infinite; display: inline-block; flex: none; }
 @keyframes pv-spin { to { transform: rotate(360deg); } }
@@ -254,14 +270,6 @@
 
 /* ---- week ---- */
 /* De weekkop is kleiner gezet (.72rem): 5.2rem is daar even breed als de 5.2em van de tijdkolom (1rem). */
-.pv-week-head { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
-.pv-week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
-.pv-week-head b { text-align: center; font-weight: 700; line-height: 1.25; padding: 4px 0; }
-.pv-week-head b.today { color: var(--pa-accent); }
-.pv-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin-top: 6px; height: 8px; }
-.pv-track i { border-radius: 3px; background: var(--pa-surface-2); outline: 1px solid var(--pa-line); outline-offset: -1px; }
-.pv-track i.on { background: var(--cat, var(--pa-accent)); outline: 0; }
-.pv-track i.today:not(.on) { outline-color: var(--pa-accent); }
 
 /* ---- maand ---- */
 .pv-cal { border: 1px solid var(--pa-line); border-radius: 18px; overflow: hidden; background: var(--pa-surface); }
@@ -290,6 +298,38 @@
 .pv-bar.cs { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
 .pv-bar.ce { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .pv-cal-more { z-index: 1; pointer-events: none; font-size: .64rem; font-weight: 800; color: var(--pa-muted); text-align: center; line-height: 6px; }
+/* Tijdlijn over 14 dagen: twee rijen van zeven (een week per rij, de weekdagen onder elkaar), of één rij als er
+   plaats is. Zeven kolommen vanaf 17.5rem: dan is een knop (17.5rem - 6 × .25rem) / 7 ≈ 2.29rem breed, net
+   breder dan "vand." (2.26rem bij gewone tekst), ook op een gsm van 320 px (strook 18rem). In rem: de drempel
+   groeit mee met de tekst. Bij grote tekst passen er minder dagen naast elkaar (minstens 2.6rem per dag); de
+   tekst loopt nooit in die van de buurdag. */
+.pv-tl { container-type: inline-size; }
+.pv-tl-strip { display: grid; grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr)); gap: .25rem; margin: 4px 0 0; }
+@container (min-width: 17.5rem) { .pv-tl-strip { grid-template-columns: repeat(7, minmax(0, 1fr)); } }
+@container (min-width: 39.7rem) { .pv-tl-strip { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
+.pv-tl-dag {
+  min-width: 0; min-height: 64px; padding: 6px 0; border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface); color: var(--pa-ink);
+  display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; font: inherit;
+}
+.pv-tl-dag.weekend { background: var(--pa-surface-2); }
+.pv-tl-dag.today { border-color: var(--pa-ink-strong); }
+.pv-tl-dag[aria-pressed="true"] { background: var(--pa-ink-strong); border-color: var(--pa-ink-strong); color: var(--pa-surface); }
+.pv-tl-wd { font-size: .72rem; font-weight: 700; color: inherit; opacity: .85; }
+.pv-tl-n { font-size: 1.05rem; font-weight: 800; line-height: 1; }
+/* Een teken per soort, elk met een eigen vorm (de kleur is niet de enige drager): evenementen een rondje,
+   werken en verkeer een vierkant, inspraak een driehoek, markten een ruit, raad een liggend balkje. Ook in
+   de legende. In donker de lichte tint van de soort (--cat-ink), op een gekozen dag de kleur van het vlak. */
+.pv-tl-stippen { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px; min-height: .625rem; }
+.pv-tl i[class*="vorm-"] { display: inline-block; flex: none; width: .625rem; height: .625rem; border-radius: 0; background: var(--cat); }
+.pv-tl i.vorm-evenementen { border-radius: 50%; }
+.pv-tl i.vorm-werken { width: .55rem; height: .55rem; }
+.pv-tl i.vorm-inspraak { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.pv-tl i.vorm-markten { width: .7rem; height: .7rem; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%); }
+.pv-tl i.vorm-raad { width: .8rem; height: .375rem; border-radius: 1px; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .pv-tl i[class*="vorm-"] { background: var(--cat-ink); } }
+:root[data-theme="dark"] .pv-tl i[class*="vorm-"] { background: var(--cat-ink); }
+.pv-tl .pv-tl-dag[aria-pressed="true"] .pv-tl-stippen i[class*="vorm-"] { background: var(--pa-surface); }
+.pv-tl-alle { margin: 4px 0 12px; }
 .pv-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 2px 14px; font-size: .82rem; color: var(--pa-muted); }
 .pv-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .pv-legend-item i { width: 18px; height: 8px; border-radius: 4px; background: var(--cat); }
@@ -332,10 +372,27 @@
   .pv-aside .buurt-map { height: 420px; }
 }
 @media (max-width: 640px) {
+  /* P6: met een gekozen plek wordt de kop één korte regel, zodat straat, "De komende 7 dagen" en de tegels
+     zonder scrollen in beeld staan. Het zoeklabel blijft voor schermlezers. */
+  .plek-ui.has-place .hero-kicker,
+  .plek-ui.has-place .hero-text > p:not(.hero-kicker) { display: none; }
+  .plek-ui.has-place .agenda-header h1 { font-size: 1.15rem; line-height: 1.2; margin: 0; }
+  .plek-ui.has-place .hero-meta { margin-top: 6px; gap: 6px; }
+  .plek-ui.has-place .freshness-pill { padding: 4px 10px; font-size: .78rem !important; }
+  .plek-ui.has-place .theme-toggle { min-height: 32px; padding: 4px 10px; font-size: .8rem; }
+  .plek-ui.has-place .agenda-controls.pv-controls { padding: 10px; margin: 10px 0 12px; border-radius: 18px; }
+  .plek-ui.has-place .pv-search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .plek-ui.has-place .pv-search-box { min-height: 48px; }
+  .plek-ui.has-place #agenda-street-jump.pv-search-input { min-height: 44px; font-size: 1.05rem; }
+  .plek-ui.has-place .agenda-page { padding-top: 12px; }
+  .plek-ui.has-place .agenda-header { margin-bottom: 0; }
+  .plek-ui.has-place .agenda-controls.pv-controls { margin: 0; }
+  /* Deel en Andere plek op de rij van "Straat" als ze ernaast passen, anders op een eigen regel eronder (smalle
+     gsm, grotere tekst, "Link gekopieerd"); de naam houdt de volle breedte. Zie .pv-place-top hierboven. */
+  .plek-ui.has-place .pv-place-actions .pv-btn { min-height: 40px; padding: 6px 10px; }
   .pv-place { padding: 16px 14px; border-radius: 18px; }
-  /* De straatnaam krijgt de volle breedte (geen woord dat midden in breekt); de knoppen staan eronder. */
-  .pv-place-top { flex-direction: column; align-items: flex-start; gap: 10px; }
-  .pv-place-actions { flex-direction: row; flex: none; gap: 6px; }
+  .pv-place-top { column-gap: 8px; }
+  .pv-place-actions { gap: 6px; }
   .pv-place-actions .pv-btn { min-height: 44px; padding: 8px 12px; font-size: .84rem; }
   /* De afstanden houden hun breedte (geen "+250 m+500 m" tegen elkaar); "Alleen de straat" mag over twee regels. */
   .pv-radius { display: grid; grid-template-columns: minmax(0, 1fr) repeat(3, auto); width: 100%; }
@@ -359,7 +416,6 @@
   .pv-nav { flex-wrap: wrap; max-width: 100%; }
   .pv-nav-label { min-width: 0; }
   .pv-row-btn { grid-template-columns: 5.2em minmax(0, 1fr) 16px; gap: 8px; padding-left: 14px; }
-  .pv-week-head { grid-template-columns: 5.2rem minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
 }
 /* Smalle gsm, ook met grotere tekst: de tijd op een eigen regel boven de soort. Zo krijgt de titel de
    volle breedte en breekt er geen woord midden in ("Omgevingsaanvraag", "elektriciteitsnet"). 27,5em is
@@ -370,9 +426,6 @@
   /* De titel loopt ook onder het pijltje door: dat staat alleen naast de tijd. */
   .pv-row-main { grid-column: 1 / -1; grid-row: 2; }
   .pv-row-chevron { grid-column: 2; grid-row: 1; }
-  /* De weekkop volgt: geen lege kolommen voor de tijd en het pijltje, de dagen boven de balkjes. */
-  .pv-week-head { grid-template-columns: minmax(0, 1fr); }
-  .pv-week-head > span:not(.pv-week-days) { display: none; }
 }
 /* Smal scherm: label boven de waarde, zodat de tekst de volle breedte krijgt (geen kolom van 110 px). */
 @media (max-width: 520px) {

@@ -375,6 +375,7 @@ body.agenda-focused {
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
   gap: 14px;
 }
+.hl-meer { margin: 10px 0 0; color: var(--pa-muted); font-size: .9rem; }
 .hl-card {
   display: flex;
   flex-direction: column;
@@ -614,4 +615,33 @@ body.agenda-focused {
 @media (prefers-reduced-motion: reduce) {
   .hl-card, .view-themes .view-chip { transition: none; }
   .hl-card:hover, .view-themes .view-chip:hover { transform: none; }
+}
+
+/* ---- Dit weekend: bovenaan de voorpagina, verborgen zodra een plek gekozen is ---- */
+.dit-weekend { margin: 0; }
+/* De knop "Alles dit weekend" staat naast (op de gsm onder) de titel, boven de kaarten: openklappen verschuift hem niet. */
+.dw-kopregel { margin: 0 0 10px; display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 8px 16px; }
+.dw-titel { margin: 0; display: flex; flex-direction: column; gap: 2px; }
+.dw-wanneer { font-size: .78rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--pa-accent); }
+.dw-kop { font-size: clamp(1.4rem, 5vw, 2rem); line-height: 1.1; letter-spacing: -0.02em; color: var(--pa-ink-strong); }
+.dw-leeg { margin: 0; color: var(--pa-muted); }
+.dw-meer {
+  min-height: 44px; padding: 8px 14px; border-radius: 12px; cursor: pointer;
+  border: 1px solid var(--pa-line-strong); background: var(--pa-surface); color: var(--pa-ink-strong); font: inherit; font-weight: 700;
+}
+.dw-meer:hover { border-color: var(--pa-accent); color: var(--pa-accent); }
+.has-place .dit-weekend { display: none; }
+@media (max-width: 640px) {
+  /* Op de gsm zegt "Dit weekend" meteen wat er te doen is; de uitlegzin onder de titel mag weg. */
+  .plek-ui .agenda-header:has(~ .dit-weekend:not([hidden])) .hero-text > p:not(.hero-kicker) { display: none; }
+  /* Zes kaarten en de knop passen in het eerste scherm: een lagere prent en titels op hoogstens twee regels
+     (de volledige titel staat in de lijst; voorleessoftware leest hem helemaal). Opengeklapt: alles onder elkaar. */
+  .dw-grid .hl-art { height: 64px; }
+  .dw-grid .hl-emoji { font-size: 2.4rem; }
+  .dw-grid:not(.dw-alles) .hl-title { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
+  /* De plaats op één regel ("Kloosterstraat, Arenbergstraat en 31 andere straten" liep over twee regels en
+     duwde het blok onder het eerste scherm); de volledige plaats staat in de lijst. */
+  .dw-grid:not(.dw-alles) .hl-body { grid-template-columns: minmax(0, 1fr); }
+  .dw-grid:not(.dw-alles) .hl-where { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .dw-grid.dw-alles { grid-auto-flow: row; grid-auto-columns: auto; grid-template-columns: 1fr; overflow-x: visible; }
 }

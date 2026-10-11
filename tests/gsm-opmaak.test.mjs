@@ -43,21 +43,35 @@ test("geen woordbreuk midden in een woord: break-word in plaats van anywhere", (
   assert.match(regel(css, ".pv-row .pv-row-summary"), /overflow-wrap:\s*break-word/);
 });
 
-test("de straatnaam krijgt op een gsm de volle breedte; de knoppen staan eronder", () => {
+test("plekkop: de naam krijgt de volle breedte; label en knoppen delen een regel als ze passen, anders staan de knoppen onder het label", () => {
   const gsm = mediaBlok("max-width: 640px");
-  assert.match(regel(gsm, ".pv-place-top"), /flex-direction:\s*column/);
   assert.doesNotMatch(regel(gsm, ".pv-place-top"), /nowrap/);
+  // Nakijkbevinding (gsm-kop): geen raster met een labelkolom die tot 0 px krimpt (het label liep dan onder de
+  // knoppen), en geen display: contents die de knoppen op het scherm boven de naam zet maar in de DOM erna.
+  assert.doesNotMatch(css, /\.pv-place-top\s*\{[^}]*display:\s*grid/);
+  assert.doesNotMatch(css, /\.pv-place-id\s*\{[^}]*display:\s*contents/);
+  assert.match(regel(css, ".pv-place-top"), /display:\s*flex/);
+  assert.match(regel(css, ".pv-place-top"), /flex-wrap:\s*wrap/);
+  assert.match(regel(css, ".pv-place-name, .pv-place-meta"), /flex-basis:\s*100%/);
+  // Nakijkbevinding (gsm-kop, afweging): in de DOM label, naam (de kop), knoppen, meta. Wie met een schermlezer
+  // naar de kop springt en verder leest, hoort Deel en Andere plek nog. Op het scherm staan de knoppen op de rij
+  // van het label en de naam eronder (order); de kop krijgt geen focus, dus Tab volgt nog altijd het scherm.
+  const kop = js.slice(js.indexOf('<div class="pv-place-top">'));
+  const plaats = ["pv-place-kind", "pv-place-name", "pv-place-actions", "pv-place-meta"].map((c) => kop.indexOf(`class="${c}"`));
+  assert.ok(plaats.every((p) => p >= 0), JSON.stringify(plaats));
+  assert.deepEqual([...plaats].sort((a, b) => a - b), plaats, "de kop staat in de DOM vóór de knoppen");
+  assert.match(regel(css, ".pv-place-name"), /order:\s*1/);
+  assert.match(regel(css, ".pv-place-meta"), /order:\s*2/);
 });
 
-test("de tijdkolom is minstens 5em breed, ook op een gsm, en de weekkop staat er precies boven", () => {
+test("de tijdkolom is minstens 5em breed, ook op een gsm", () => {
   const kolom = (selector) => [...css.matchAll(new RegExp(`\\.${selector}\\s*\\{[^}]*grid-template-columns:\\s*([\\d.]+)(r?em)\\s`, "g"))].map((m) => [Number(m[1]), m[2]]);
-  const knop = kolom("pv-row-btn"), kop = kolom("pv-week-head");
-  assert.ok(knop.length >= 2 && kop.length >= 2, JSON.stringify({ knop, kop }));
+  const knop = kolom("pv-row-btn");
+  assert.ok(knop.length >= 2, JSON.stringify({ knop }));
   for (const [n, eenheid] of knop) assert.ok(n >= 5 && eenheid === "em", `kaartknop: ${n}${eenheid}`);
-  // De weekkop staat in kleinere letters (.72rem): in em zou zijn tijdkolom smaller zijn dan die van
-  // de kaartknop (1rem), en de dagen stonden niet boven de balkjes. Dus in rem, met hetzelfde getal.
   assert.match(regel(css, ".pv-row-btn"), /font:\s*inherit/);
-  assert.deepEqual(kop, knop.map(([n]) => [n, "rem"]));
+  // De weekweergave is vervangen door de tijdlijn van 14 dagen: geen weekkop meer.
+  assert.doesNotMatch(css, /\.pv-week-head|\.pv-track\b/);
 });
 
 test("op een smalle gsm staat de tijd op een eigen regel boven de soort; de titel krijgt de volle breedte", () => {
@@ -66,9 +80,6 @@ test("op een smalle gsm staat de tijd op een eigen regel boven de soort; de tite
   assert.match(regel(smal, ".pv-row-when"), /grid-row:\s*1\b/);
   // De titel loopt ook onder het pijltje door (dat staat alleen naast de tijd).
   assert.match(regel(smal, ".pv-row-main"), /grid-column:\s*1\s*\/\s*-1\s*;\s*grid-row:\s*2\b/);
-  // De weekkop volgt: zonder lege kolommen staan de dagen boven de balkjes.
-  assert.match(regel(smal, ".pv-week-head"), /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*;/);
-  assert.match(regel(smal, ".pv-week-head > span:not(.pv-week-days)"), /display:\s*none/);
 });
 
 test("op een gsm schuift de pagina niet opzij: werkbalk, weeknavigatie, straalknoppen en sectiekoppen", () => {

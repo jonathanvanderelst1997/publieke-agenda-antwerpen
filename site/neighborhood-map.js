@@ -106,6 +106,28 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null, straatasMis
   };
 }
 
+// Hoeveel kaarten van de lijst de getekende werken zijn: een werf in stukken heeft een punt per stuk, maar
+// is één kaart (werkEntries en werfPerStuk in place-core.js). Zonder die indeling telt elk werk apart.
+export function werkKaarten(werken = [], werfPerStuk = null) {
+  return new Set(werken.map((w) => String(werfPerStuk?.[w?.gipodId] ?? w?.gipodId))).size;
+}
+
+// De zin onder de kaart. Met een gekozen plek en een lijst (de maand heeft er geen): "X in de lijst, Y op
+// de kaart", zodat een kortere kaart niet als een fout leest. Allebei op dezelfde manier geteld: een
+// agendapunt per activiteit, een werk per kaart van de lijst. X is wat de lijst echt toont (place-view.js),
+// Y wat de kaart tekent.
+export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenAan = false, werkenGeladen = false, metPlek = false, lijstAantal = null } = {}) {
+  const metWerken = werkenAan && werkenGeladen;
+  const works = werkKaarten(werken, werfPerStuk);
+  const opKaart = mapped + (metWerken ? works : 0);
+  const parts = Number.isInteger(lijstAantal) && metPlek
+    ? [`${lijstAantal} in de lijst, ${opKaart} op de kaart in ${where}`]
+    : [`${mapped} agendapunt${mapped === 1 ? "" : "en"} op de kaart in ${where}`, ...(metWerken ? [`${works} werken en hinder`] : [])];
+  if (werkenAan && !werkenGeladen) parts.push("werken en hinder worden geladen…");
+  if (without) parts.push(`${without} zonder vaste plek`);
+  return `${parts.join(" · ")}.`;
+}
+
 export async function mountNeighborhoodMap(view) {
   if (typeof document === "undefined" || document.getElementById("buurtkaart") || !view) return;
   const anchor = document.getElementById("agenda-highlights") || document.querySelector(".agenda-controls");
@@ -140,6 +162,11 @@ export async function mountNeighborhoodMap(view) {
   const $ = (s) => section.querySelector(s);
   const select = $("#buurt-wijk"), radiusGroup = $(".buurt-radius"), status = $(".buurt-status");
   const mapEl = $(".buurt-map"), veil = $(".buurt-map-veil"), noGeo = $(".buurt-nogeo");
+  // Voor de statusregel (zetStatus). Het plekoverzicht meldt wat de lijst toont via public-agenda:place-list,
+  // alleen als dat verandert, en bewaart de laatste stand op window. Daarom eerst die stand lezen en luisteren
+  // vóór het eerste await: anders mist een kaart die later laadt dan de lijst haar aantal voorgoed.
+  let laatste = null, lijstStand = window.PUBLIC_AGENDA_PLACE_LIST || null;
+  window.addEventListener("public-agenda:place-list", (event) => { lijstStand = event.detail || null; zetStatus(); });
 
   let wijken = [], geo = { entries: {} }, matcher = null, streetIndex = null, straatasMislukt = false;
   let L = null, map = null, wijkLayer = null, markerLayer = null, workLayer = null, streetLayer = null, districtBounds = null;
@@ -330,18 +357,19 @@ export async function mountNeighborhoodMap(view) {
     const button = event.target.closest?.("[data-open-id]");
     if (button) openItem(button.dataset.openId);
   });
+  // De werken die de kaart tekent (of tekent zodra ze open is, zoals de agendapunten hierboven): met een punt,
+  // binnen de keuze, hoogstens MAX_WORK_MARKERS. De statusregel telt precies deze.
   function drawWorks() {
-    if (!workLayer) return 0;
-    workLayer.clearLayers();
-    if (!view.enabled("works")) return 0;
-    const works = (window.PUBLIC_AGENDA_LIVE_STREETS?.works || []).filter((w) => isPoint(w.point) && view.matches(w, "works"));
-    for (const w of works.slice(0, MAX_WORK_MARKERS)) {
+    workLayer?.clearLayers();
+    if (!view.enabled("works")) return [];
+    const works = (window.PUBLIC_AGENDA_LIVE_STREETS?.works || []).filter((w) => isPoint(w.point) && view.matches(w, "works")).slice(0, MAX_WORK_MARKERS);
+    if (workLayer) for (const w of works) {
       const running = w.status === "In uitvoering";
       L.circleMarker([w.point[1], w.point[0]], { radius: running ? 6 : 5, color: "#ffffff", weight: 1.5, fillColor: running ? "#d97706" : "#64748b", fillOpacity: 0.9 })
         .bindPopup(`<div class="buurt-pop"><p><strong>🚧 ${esc(w.title)}</strong></p><p><small>${esc(w.ownerGroup || w.owner || "")} · ${esc(w.status)}</small></p>${w.hindrance ? `<p><small>Hinder: ${esc((w.hindrance.consequences || []).join(" · ") || "gevalideerd")}</small></p>` : ""}</div>`, { maxWidth: 280 })
         .addTo(workLayer);
     }
-    return works.length;
+    return works;
   }
   function drawStreet() {
     if (!streetLayer) return;
@@ -361,10 +389,12 @@ export async function mountNeighborhoodMap(view) {
     const focusKey = `${view.selected ? `${view.selected.id}|${view.selected.name}` : ""}|${view.area.wijk}|${view.area.postcode || ""}|${view.place?.key || ""}|${view.area.radius}|${Boolean(matcher?.segmentsFor && view.selected && matcher.segmentsFor(view.selected).length)}`;
     if (map && focusKey !== lastFocus) { focusArea(lastFocus !== ""); lastFocus = focusKey; }
     const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : view.area.postcode ? `postcode ${view.area.postcode}` : "district Antwerpen";
-    const parts = [`${counts.mapped} agendapunt${counts.mapped === 1 ? "" : "en"} op de kaart in ${where}`];
-    if (view.enabled("works")) parts.push(window.PUBLIC_AGENDA_LIVE_STREETS?.works ? `${works} werken en hinder` : "werken en hinder worden geladen…");
-    if (counts.without) parts.push(`${counts.without} zonder vaste plek`);
-    status.textContent = `${parts.join(" · ")}.`;
+    laatste = { where, mapped: counts.mapped, without: counts.without, werken: works, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
+    zetStatus();
+  }
+  function zetStatus() {
+    if (!laatste) return;
+    status.textContent = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal, werfPerStuk: lijstStand?.werfPerStuk });
   }
   let pending = 0;
   const schedule = () => { cancelAnimationFrame(pending); pending = requestAnimationFrame(drawAll); };
