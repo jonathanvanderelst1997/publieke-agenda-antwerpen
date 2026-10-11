@@ -43,10 +43,21 @@ test("geen woordbreuk midden in een woord: break-word in plaats van anywhere", (
   assert.match(regel(css, ".pv-row .pv-row-summary"), /overflow-wrap:\s*break-word/);
 });
 
-test("de straatnaam krijgt op een gsm de volle breedte; de knoppen staan eronder", () => {
+test("plekkop: de naam krijgt de volle breedte; label en knoppen delen een regel als ze passen, anders staan de knoppen onder het label", () => {
   const gsm = mediaBlok("max-width: 640px");
-  assert.match(regel(gsm, ".pv-place-top"), /flex-direction:\s*column/);
   assert.doesNotMatch(regel(gsm, ".pv-place-top"), /nowrap/);
+  // Nakijkbevinding (gsm-kop): geen raster met een labelkolom die tot 0 px krimpt (het label liep dan onder de
+  // knoppen), en geen display: contents die de knoppen op het scherm boven de naam zet maar in de DOM erna.
+  assert.doesNotMatch(css, /\.pv-place-top\s*\{[^}]*display:\s*grid/);
+  assert.doesNotMatch(css, /\.pv-place-id\s*\{[^}]*display:\s*contents/);
+  assert.match(regel(css, ".pv-place-top"), /display:\s*flex/);
+  assert.match(regel(css, ".pv-place-top"), /flex-wrap:\s*wrap/);
+  assert.match(regel(css, ".pv-place-name, .pv-place-meta"), /flex-basis:\s*100%/);
+  // In de DOM dezelfde volgorde als op het scherm (en dus voor Tab): label, knoppen, naam, meta.
+  const kop = js.slice(js.indexOf('<div class="pv-place-top">'));
+  const plaats = ["pv-place-kind", "pv-place-actions", "pv-place-name", "pv-place-meta"].map((c) => kop.indexOf(`class="${c}"`));
+  assert.ok(plaats.every((p) => p >= 0), JSON.stringify(plaats));
+  assert.deepEqual([...plaats].sort((a, b) => a - b), plaats, "de knoppen staan in de DOM direct na het label, vóór de naam");
 });
 
 test("de tijdkolom is minstens 5em breed, ook op een gsm", () => {

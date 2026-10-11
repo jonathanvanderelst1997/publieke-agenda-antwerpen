@@ -667,17 +667,17 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const tile = (n, label, cls, group) => !state.groups.has(group)
       ? `<li class="pv-stat pv-stat-off ${cls}"><button type="button" data-only="${group}" aria-label="${esc(label)} staan uit; tik om ze te tonen"><strong>–</strong><span>${esc(label)} (uit)</span></button></li>`
       : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}${group === "werken" && !n && state.werkenOnvolledig ? " (onbekend: niet alles laadde)" : ""}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "?" : n}</strong><span>${esc(label)}</span></button></li>`;
+    // De knoppen staan in de DOM direct na het soortlabel, zoals op het scherm (op de rij van het label, of
+    // eronder als ze er niet naast passen): zo volgt Tab de volgorde die je ziet.
     placeBox.innerHTML = `
       <div class="pv-place-top">
-        <div class="pv-place-id">
-          <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
-          <h2 class="pv-place-name">${esc(place.label)}</h2>
-          <p class="pv-place-meta">${meta}</p>
-        </div>
+        <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
         <div class="pv-place-actions">
           <button type="button" class="pv-btn pv-share" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
+        <h2 class="pv-place-name">${esc(place.label)}</h2>
+        <p class="pv-place-meta">${meta}</p>
       </div>
       ${week?.zin ? `<p class="pv-dezeweek pv-dezeweek-${week.licht}"><span class="pv-licht" aria-hidden="true"></span><strong class="pv-licht-label">${esc(WEEK_LICHT[week.licht] || "")}</strong> <span class="pv-dezeweek-zin">${esc(week.zin)}</span></p>` : ""}
       ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}

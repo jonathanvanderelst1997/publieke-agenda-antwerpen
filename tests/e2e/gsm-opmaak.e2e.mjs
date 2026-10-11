@@ -617,6 +617,82 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkbevindingen (gsm-kop): een raster gaf het soortlabel een kolom die tot 0 px kromp, zodat "Postcode" of
+  // "Straat" onder Deel en Andere plek verdween (smalle gsm, grotere tekst, na "Link gekopieerd"). En de knoppen
+  // stonden op het scherm boven de naam, maar kwamen in de DOM pas na de wijklink: Tab sprong terug omhoog.
+  const kopLabel = (page) => page.evaluate(() => {
+    const kind = document.querySelector(".pv-place-kind"), top = document.querySelector(".pv-place-top").getBoundingClientRect();
+    const bereik = document.createRange();
+    bereik.selectNodeContents(kind);
+    const tekst = [...bereik.getClientRects()].filter((r) => r.width > 0);
+    const knoppen = [...document.querySelectorAll(".pv-place-actions .pv-btn")].map((b) => ({ naam: b.textContent.trim(), r: b.getBoundingClientRect() }));
+    const raakt = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+    return {
+      label: kind.textContent.trim(),
+      onder: knoppen.filter((k) => tekst.some((t) => raakt(t, k.r))).map((k) => k.naam),
+      binnen: tekst.length > 0 && tekst.every((t) => t.left >= top.left - 0.5 && t.right <= top.right + 0.5),
+      zelfdeRij: knoppen.every((k) => k.r.top < tekst[0].bottom && tekst[0].top < k.r.bottom),
+    };
+  });
+  await t.test("plekkop op gsm: het soortlabel verdwijnt nooit onder Deel en Andere plek (320 px, tekst 150 en 200 %, 'Link gekopieerd')", async () => {
+    const gevallen = [];
+    // Gewone tekst op 390 px: de knoppen staan op de rij van het label, zoals P6 het wil.
+    const gewoon = await openPlace(baseUrl);
+    const g = await kopLabel(gewoon.page);
+    assert.ok(g.zelfdeRij, `390 px: de knoppen staan niet meer op de rij van het label: ${JSON.stringify(g)}`);
+    gevallen.push(["straat op 390 px", g]);
+    for (const grootte of ["150%", "200%"]) {
+      await gewoon.page.evaluate((f) => { document.documentElement.style.fontSize = f; }, grootte);
+      gevallen.push([`straat op 390 px, tekst ${grootte}`, await kopLabel(gewoon.page)]);
+    }
+    await gewoon.context.close();
+    // Een postcode op 320 px: "Postcode" is breder dan "Straat".
+    const smal = await openPlace(baseUrl, { width: 320, height: 780 });
+    await smal.page.locator("#agenda-street-jump").fill("2060");
+    await smal.page.locator("#agenda-street-jump").press("Enter");
+    await smal.page.waitForFunction(() => /postcode/i.test(document.querySelector(".pv-place-kind")?.textContent || ""));
+    gevallen.push(["postcode op 320 px", await kopLabel(smal.page)]);
+    await smal.context.close();
+    // Na een klik op Deel zonder deelvenster (de link gaat naar het klembord) is de knop breder.
+    const klik = await openPlace(baseUrl, { width: 360, height: 780 });
+    await klik.context.grantPermissions(["clipboard-read", "clipboard-write"], { origin: baseUrl });
+    await klik.page.locator(".pv-share").click();
+    await klik.page.locator(".pv-share", { hasText: "Link gekopieerd" }).waitFor({ timeout: 2000 });
+    gevallen.push(["straat op 360 px na 'Link gekopieerd'", await kopLabel(klik.page)]);
+    await klik.context.close();
+    const fout = gevallen.filter(([, m]) => m.onder.length || !m.binnen)
+      .map(([geval, m]) => `${geval}: "${m.label}" ${m.onder.length ? `ligt onder ${m.onder.join(" en ")}` : "loopt buiten de kop"}`);
+    assert.deepEqual(fout, []);
+  });
+
+  await t.test("plekkop op gsm: Tab volgt de volgorde op het scherm (Deel, Andere plek, dan de wijk)", async () => {
+    const { page, context, errors } = await openPlace(baseUrl);
+    // Wachten tot de kop niet meer opnieuw getekend wordt: anders valt de focus tussen twee Tabs weg.
+    await page.evaluate(() => new Promise((klaar) => {
+      let wacht = setTimeout(klaar, 800);
+      new MutationObserver(() => { clearTimeout(wacht); wacht = setTimeout(klaar, 800); }).observe(document.querySelector(".pv-place"), { childList: true });
+    }));
+    await page.locator("#agenda-street-jump").focus();
+    const volgorde = [];
+    for (let i = 0; i < 12; i += 1) {
+      await page.keyboard.press("Tab");
+      const f = await page.evaluate(() => {
+        const e = document.activeElement, r = e.getBoundingClientRect();
+        return { in: Boolean(e.closest(".pv-place-top")), naam: e.textContent.trim(), boven: Math.round(r.top + scrollY), links: Math.round(r.left) };
+      });
+      if (f.in) volgorde.push(f);
+      else if (volgorde.length) break;
+    }
+    assert.deepEqual(volgorde.map((f) => f.naam), ["🔗 Deel", "Andere plek", "Stuivenberg"]);
+    // Elke volgende knop staat lager, of op dezelfde rij rechts ervan: nooit terug omhoog.
+    for (let i = 1; i < volgorde.length; i += 1) {
+      const [a, b] = [volgorde[i - 1], volgorde[i]];
+      assert.ok(b.boven > a.boven + 1 || (Math.abs(b.boven - a.boven) <= 1 && b.links > a.links), `Tab van "${a.naam}" (${a.boven}px) springt terug naar "${b.naam}" (${b.boven}px)`);
+    }
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   await t.test("focus op de kop raakt de regel eronder niet", async () => {
     const { page, context } = await openPlace(baseUrl);
     const input = page.locator("#agenda-street-jump");
