@@ -75,16 +75,6 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
-  "gaston burssenslaan en hanegraefstraat 2050 antwerpen": {
-   "point": [
-    4.38227,
-    51.21863
-   ],
-   "precision": "straat",
-   "street": "Gaston Burssenslaan",
-   "postcode": "2050",
-   "checkedOn": "2026-10-05"
-  },
   "grote markt": {
    "point": [
     4.39989,
@@ -185,16 +175,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "poisson pilote beatrijslaan 32": {
-   "point": [
-    4.38573,
-    51.21884
-   ],
-   "precision": "adres",
-   "street": "Beatrijslaan",
-   "postcode": "2050",
-   "checkedOn": "2026-10-05"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -274,7 +254,6 @@
   "anselmostraat 2018 antwerpen": "2026-10-10",
   "arenaplein 2100 deurne": "2026-10-05",
   "august leyweg 2020 antwerpen": "2026-10-10",
-  "august van cauwelaertlaan 2050 antwerpen": "2026-10-10",
   "begijnenstraat 2000 antwerpen": "2026-10-10",
   "begijnenvest 2000 antwerpen": "2026-10-10",
   "bervoetstraat 2000 antwerpen": "2026-10-10",
@@ -313,7 +292,6 @@
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-10",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-10",
   "provinciehuis antwerpen": "2026-10-05",
-  "regatta": "2026-10-05",
   "rijnkaai 2000 antwerpen": "2026-10-10",
   "scheldestraat 2000 antwerpen": "2026-10-10",
   "schijnpoortweg 2060 antwerpen": "2026-10-10",
