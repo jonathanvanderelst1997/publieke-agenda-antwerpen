@@ -1080,15 +1080,16 @@ function innameWat(f) {
 const zonderLidwoord = (t) => clean(t, 200).replace(/^(?:een|de|het)\s+/i, "");
 const metPlek = (t, plek) => clean(`${t}${plek ? ` ${plek}` : ""}`, 160);
 
+// Een agendapunt over werken, een heraanleg of een schoolstraat is nooit het evenement van een dossier,
+// ook niet uit een kaart-uitleg.json van vóór de strengere koppeling (koppelEvenement): weg ermee.
+const WERK_TITEL = /^(?:werken|heraanleg|schoolstraat|wegenwerken|rioleringswerken)\b/i;
+
 // De kaart van één evenementendossier. Titel en eerste regel zeggen meteen wát (een naam, een soort, of
 // wat er vaststaat), wáár en wannéér, en hoe zeker dat is: "vermoedelijk" alleen met een echt signaal,
 // en zonder signaal nooit alleen "de stad maakt niet bekend wat het is". Daaronder in gewone taal: wat,
 // wanneer, waar, jouw straat en wat je merkt; dan de details en één korte bronregel. identiteit komt uit
 // site/sources/evenement-identiteit.json (met de hand) of evenement-identiteit-auto.json (de herkenner),
 // gekoppeld uit de agenda (koppelEvenement).
-// Een agendapunt over werken, een heraanleg of een schoolstraat is nooit het evenement van een dossier,
-// ook niet uit een kaart-uitleg.json van vóór de strengere koppeling (koppelEvenement): weg ermee.
-const WERK_TITEL = /^(?:werken|heraanleg|schoolstraat|wegenwerken|rioleringswerken)\b/i;
 export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = null, identiteit = null, straat = "", wijkVan } = {}) {
   const f = feiten;
   const gekoppeld = gekoppeldIn?.titel && WERK_TITEL.test(clean(gekoppeldIn.titel, 160)) ? null : gekoppeldIn;
