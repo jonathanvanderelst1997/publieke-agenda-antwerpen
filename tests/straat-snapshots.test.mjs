@@ -198,6 +198,13 @@ test("radar.json: een drukke week (twee verversingen per dag) past in het budget
   assert.equal(radar.runs.at(-1), runs.at(-1));
   assert.equal(Object.keys(radar.straten).length, 420, "elke straat met een wijziging blijft");
   assert.deepEqual(straatBestandenProblemen(root), []);
+  // De voorpagina zegt dan niet meer "laatste 7 dagen", maar hoeveel dagen er nog in staan.
+  const { radarPeriodeTekst } = await import("../site/street-overview.js");
+  const periode = historiekUitRadar(radar).periode;
+  assert.equal(radarPeriodeTekst(periode), `laatste ${periode.dagen} ${periode.dagen === 1 ? "dag" : "dagen"} (ingekort)`);
+  assert.ok(periode.dagen < 7);
+  assert.equal(radarPeriodeTekst(historiekUitRadar(bouwRadar(history)).periode), "laatste 7 dagen", "niet ingekort");
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "street-overview.js"), "utf8"), /radarPeriodeTekst\(state\.history\?\.periode\)/);
 });
 
 test("radar.json: ook een verversing die bijna elke straat raakt, past in het budget (validate-data blijft groen)", async (t) => {
@@ -211,6 +218,8 @@ test("radar.json: ook een verversing die bijna elke straat raakt, past in het bu
   assert.deepEqual(radar.runs, [runs[1]], "alleen de laatste verversing");
   assert.ok(radar.weggelaten > 0 && Object.keys(radar.straten).length + radar.weggelaten === 2500);
   assert.deepEqual(straatBestandenProblemen(root), []);
+  const { radarPeriodeTekst } = await import("../site/street-overview.js");
+  assert.equal(radarPeriodeTekst(historiekUitRadar(radar).periode), `alleen de laatste verversing (ingekort, zonder ${radar.weggelaten} straten met weinig wijzigingen)`);
   // Hetzelfde zonder bouwer.
   assert.ok(Buffer.byteLength(`${JSON.stringify(radarBinnenBudget(history))}\n`) <= MAX_RADAR_BYTES);
 });
