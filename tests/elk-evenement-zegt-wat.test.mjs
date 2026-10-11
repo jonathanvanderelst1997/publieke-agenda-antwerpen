@@ -58,9 +58,13 @@ const GENERIEK = /^Evenement met toelating van de stad$|maakt niet bekend wat he
 
 test("klacht 1: stickers een hele maand op negen plekken: wat, waar en wanneer, geen 'Vandaag' en geen parcours", () => {
   const straten = ["Proefstraat", "Voorbeeldstraat", "Testplein", "Proefmarkt", "Voorbeeldvest", "Testrui", "Proefberg", "Voorbeeldsteeg", "Testlaan"];
-  const rows = straten.map((s, i) => rij("ET2099100001", "Evenement", "Inname", "2026-10-01", "2026-10-29", [s, `${s}-Zuid`], { description: i < 6 ? `Sticker ${s}` : s }));
-  const e = kaart(rows);
-  assert.match(e.title, /^Stickers op straat /);
+  // Zoals in de browser: de live laag laat "Sticker ..." niet door (site/public-space-core.js, alleen
+  // omschrijvingen met een woord uit de lijst); de soort komt uit de fiche van de herkenner, die de
+  // omschrijving wel leest maar alleen het vaste woord bewaart.
+  const rows = straten.map((s) => rij("ET2099100001", "Evenement", "Inname", "2026-10-01", "2026-10-29", [s, `${s}-Zuid`]));
+  const fiche = herken(nep("ET2099100001", straten.map((_, i) => ({ dag: "2026-10-01", eind: "2026-10-29", ring: vierkant(oost(noord(MIDDEN, (i % 3) * 200), Math.floor(i / 3) * 250), 2), beschrijving: i < 6 ? "Sticker Proefstraat" : "Proefstraat" }))));
+  const e = kaart(rows, { identiteit: { dossiers: { ET2099100001: fiche } } });
+  assert.equal(e.title, "Stickers op straat op 9 plekken in de Universiteitsbuurt");
   assert.doesNotMatch(`${e.title} ${e.summary} ${kern(e).Waar}`, GENERIEK);
   assert.match(e.summary, /^De hele maand oktober \(1 tot 29 oktober\)\. Zo staat het in het dossier; het is geen evenement met publiek\./);
   assert.equal(e.uitleg.geenEvenement, true);
@@ -219,8 +223,10 @@ test("regel vaste plek: alleen als de inname er helemaal in ligt, groot genoeg i
   const geheel = herken(nep("ET2099200017", [{ dag: "2026-11-01", ring: vierkant(MIDDEN, 150) }], { vastePlekken }));
   assert.equal(geheel.plek, "op de Proefparking");
   assert.match(geheel.omvang, /^ongeveer 9 ha; het terrein is de parking van de zalen$/);
-  const stukje = herken(nep("ET2099200018", [{ dag: "2026-11-01", ring: vierkant(MIDDEN, 10) }], { vastePlekken }));
+  const stukje = herken(nep("ET2099200018", [{ dag: "2026-11-01", ring: vierkant(MIDDEN, 3), beschrijving: "Pop-up-tentje 3m * 3m" }, { dag: "2026-11-01", ring: vierkant(MIDDEN, 2), beschrijving: "Steunmuur (7m B* 2m H)" }], { vastePlekken }));
   assert.equal(stukje.plek, "in de Proefstraat");
+  // Wat er staat, als het dossier het noemt: vaste woorden, niet de omschrijving.
+  assert.equal(stukje.omvang, "ongeveer 35 m², met een tent en een wand");
   const rand = herken(nep("ET2099200019", [{ dag: "2026-11-01", type: "Parkeerverbod in Straat", ring: vierkant(MIDDEN, 150) }], { vastePlekken }));
   assert.notEqual(rand.plek, "op de Proefparking");
 });

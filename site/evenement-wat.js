@@ -122,7 +122,7 @@ export const DINGEN = Object.freeze([
   { key: "sticker", re: /sticker/i, zonder: "stickers op straat", met: "stickers op straat", evenement: false, zeker: true },
   { key: "bladslag", re: /bladslag|bladhub|bladkorf/i, zonder: "verzamelplek voor herfstbladeren (bladslag)", met: "een verzamelplek voor herfstbladeren (bladslag)", evenement: false, zeker: true },
   { key: "mammobiel", re: /mammobiel/i, zonder: "mammobiel (borstkankeronderzoek)", met: "de mammobiel (borstkankeronderzoek)", evenement: false, zeker: true },
-  { key: "bord", re: /breugelbak|aankondigingsbord|informatiebord/i, zonder: "aankondigingsbord", met: "een aankondigingsbord", evenement: false, zeker: true },
+  { key: "bord", re: /breugelbak|aankondigingsbord|informatiebord/i, zonder: "aankondigingsbord", met: "een aankondigingsbord", evenement: false, zeker: false },
   { key: "oldtimer", re: /oldtimer/i, zonder: "plek voor oldtimers", met: "een plek voor oldtimers", evenement: true, zeker: true },
 ]);
 const DING = Object.fromEntries(DINGEN.map((d) => [d.key, d]));

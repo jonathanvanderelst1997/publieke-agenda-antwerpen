@@ -392,13 +392,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
 
   await t.test("een dossier van een maand: wat het is, geen 'Vandaag' en geen 'Dag N van M', in de groep Doorlopend", async () => {
     const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
-    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000079", dag: addDays(today, -9), tot: addDays(today, 19), type: "Inname", beschrijving: "Sticker" }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
-    const row = page.locator(".pv-row", { hasText: "Stickers op straat" }).first();
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000079", dag: addDays(today, -9), tot: addDays(today, 19), type: "Inname", beschrijving: "Reuzenrad" }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
+    const row = page.locator(".pv-row", { hasText: "Reuzenrad" }).first();
     await row.waitFor({ timeout: 20000 });
     const kop = await row.locator(".pv-row-btn").innerText();
-    assert.doesNotMatch(kop, /Vandaag|Evenement met toelating|maakt niet bekend wat het is/);
+    assert.doesNotMatch(kop, /Vandaag|Evenement met toelating|maakt niet bekend wat het is|Vermoedelijk/);
     assert.match(kop, /Loopt tot /);
-    assert.match(kop, /Inname op straat/i);
+    assert.match(kop, /Zo staat het in het dossier/);
     const sectie = page.locator(".pv-day", { has: row });
     assert.match(await sectie.locator(".pv-day-title").innerText(), /Doorlopend/);
     await row.locator(".pv-row-btn").click();
