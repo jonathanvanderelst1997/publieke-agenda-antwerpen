@@ -35,7 +35,8 @@ test("parkeerverboden: alleen de postcodes van het district, ook in de vraag aan
   assert.deepEqual([...(psc.DISTRICT_POSTCODES || [])], [...LIB_POSTCODES]);
   const where = psc.parkeerverbodWhere("DATE '2026-10-09'");
   assert.match(where, /District='ANTWERPEN' AND Postcode IN \('2000','2018','2020','2030','2050','2060'\)/);
-  assert.match(bron("site/public-space-live.js"), /layer\(20,\{where:parkeerverbodWhere\(dateSql\)/);
+  // De vraag voor laag 20 (ook die op dossiernummer rond één straat, P5) begint bij parkeerverbodWhere.
+  assert.match(bron("site/public-space-live.js"), /\["parking",20,"Dossiernummer",\{where:parkeerverbodWhere\(dateSql\)/);
   assert.match(bron("site/public-space-live.js"), /postcodes:DISTRICT_POSTCODES/);
   const items = psl.collectPublicSpace({
     parkingFeatures: [
