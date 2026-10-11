@@ -404,7 +404,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         // parkeerverbod: vaak buiten het kader. Live op dossiernummer, met de straatassen van het hele district
         // (die laden hierboven al); lukt dat niet, dan vult de stand van de ochtend aan.
         publiekeRuimteInKader(kader, { ...vraag, dossierIndex: volledigeStraatIndex }).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.dossiers === "ok" ? r.items : aanvullenMetOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
-        vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items: metInzage(metStratenVanDeOchtend(items, snel.ochtend.permits), snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
+        vergunningenInKader(kader, { ...vraag, volledigeIndex: volledigeStraatIndex }).then((items) => ({ naam: "permits", ok: true, items: metInzage(metStratenVanDeOchtend(items, snel.ochtend.permits), snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
         terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
       ]);
     })();

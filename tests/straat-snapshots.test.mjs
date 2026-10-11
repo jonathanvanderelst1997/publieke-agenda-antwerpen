@@ -553,6 +553,24 @@ test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken 
   assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /metStratenVanDeOchtend\(items, snel\.ochtend\.permits\)/);
 });
 
+test("live: een vergunning in het kader krijgt haar straten van de straatassen van het hele district (ook zonder stand van de ochtend)", async (t) => {
+  const { vergunningenInKader } = await import("../site/permits-live-core.js");
+  const { buildStreetIndex } = await import("../site/street-core.js");
+  const district = JSON.parse(fs.readFileSync(path.join(repoRoot, "lib", "district-antwerpen-grens.geojson"), "utf8")).features[0].geometry;
+  const as = (ref, x) => ({ type: "Feature", geometry: { type: "LineString", coordinates: [[x, 51.215], [x, 51.216]] }, properties: { LSTRNMID: Number(ref.id), LSTRNM: ref.name, RSTRNMID: Number(ref.id), RSTRNM: ref.name, postcode: 2000, DISTRICT: "Antwerpen" } });
+  const kaderIndex = buildStreetIndex([as(KAM, 4.401)]), heleIndex = buildStreetIndex([as(KAM, 4.401), as(HUIK, 4.409)]);
+  // Een verzonnen leidingwerf: een lang perceel van de Kammenstraat tot de Huikstraat, ver buiten het kader.
+  const perceel = { attributes: { OBJECTID: 1, Dossiernummer: "20990099", DOSSIERTYPE: "OMV2019_AANVRAAG", AardAanvraag: "Aanvraag omgevingsproject", Onderwerp: "aanleg van een leiding", Volledig: "ja", Ontvankelijk: "ja", Ingetrokken: "nee", Stopgezet: "nee", ProjectnummerOmgevingsloket: "OMV_2099000099", behandelendeOverheid: "College van burgemeester en schepenen" }, geometry: { rings: [[[4.4009, 51.2153], [4.4091, 51.2153], [4.4091, 51.2154], [4.4009, 51.2154], [4.4009, 51.2153]]] } };
+  const fetch = async (url) => ({ ok: true, status: 200, json: async () => (new URL(String(url)).searchParams.get("returnIdsOnly") ? { objectIds: [1] } : { features: [perceel] }) });
+  const kader = [4.400, 51.214, 4.402, 51.217];
+  const namen = (items) => items.map((i) => i.streets.map((s) => s.name).sort().join());
+  assert.deepEqual(namen(await vergunningenInKader(kader, { district, streetIndex: kaderIndex, fetch })), [KAM.name], "alleen het kader");
+  assert.deepEqual(namen(await vergunningenInKader(kader, { district, streetIndex: kaderIndex, volledigeIndex: async () => heleIndex, fetch })), [`${HUIK.name},${KAM.name}`]);
+  // Laden de straatassen van het district niet, dan die van het kader (en vult de ochtend aan).
+  assert.deepEqual(namen(await vergunningenInKader(kader, { district, streetIndex: kaderIndex, volledigeIndex: async () => { throw new Error("weg"); }, fetch })), [KAM.name]);
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /vergunningenInKader\(kader, \{ \.\.\.vraag, volledigeIndex: volledigeStraatIndex \}\)/);
+});
+
 test("live: de andere rijen van een dossier in het kader komen op dossiernummer; lukt dat niet, dan vult de ochtend aan", async (t) => {
   const { publiekeRuimteInKader, dossiersVan, dossierStukken, dossierWhere, samenOpOid, MAX_DOSSIERS } = await import("../site/public-space-live.js");
   const { ASIGN_MAX_URL, asignIdsUrl } = await import("../site/asign-query.js");

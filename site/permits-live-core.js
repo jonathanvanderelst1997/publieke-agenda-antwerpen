@@ -104,7 +104,14 @@ export async function haalVergunningenInKader(kader = DISTRICT_KADER, { fetch: f
   return features;
 }
 // Snelheid (P5): de vergunningen in het kader van één straat, voor de plekpagina (site/place-view.js).
-export async function vergunningenInKader(kader, { district = null, streetIndex = null, fetch: fetchImpl } = {}) {
-  const features = await haalVergunningenInKader(kader, fetchImpl ? { fetch: fetchImpl } : {});
-  return collectPermits({ features, districtGeometry: district, streetIndex });
+// `volledigeIndex`: een functie die de straatassen van het hele district geeft (die laden op de plekpagina
+// al). Een aanvraag die ver buiten het kader reikt (een leidingwerf, de Oosterweelverbinding) kent dan al
+// haar straten, in dezelfde volgorde als vroeger ("Amerikadok-Zuidkaai · ook dicht bij … en 39 andere
+// straten"). Lukt dat niet, dan de straatassen van het kader (`streetIndex`).
+export async function vergunningenInKader(kader, { district = null, streetIndex = null, volledigeIndex = null, fetch: fetchImpl } = {}) {
+  const [features, heel] = await Promise.all([
+    haalVergunningenInKader(kader, fetchImpl ? { fetch: fetchImpl } : {}),
+    typeof volledigeIndex === "function" ? Promise.resolve().then(volledigeIndex).catch(() => null) : null,
+  ]);
+  return collectPermits({ features, districtGeometry: district, streetIndex: heel || streetIndex });
 }
