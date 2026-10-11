@@ -3,36 +3,109 @@ import {DISTRICT_POSTCODES,parkeerverbodWhere} from "./public-space-core.js";
 import {parkeerTitel,parkeerUren,statusNl} from "./place-core.js";
 import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
-import {asignLayer} from "./asign-query.js";
+import {ASIGN_MAX_URL,asignIdsUrl,asignLayer} from "./asign-query.js";
+import {isEvenementDossier} from "./kaart-uitleg.js";
 import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
 
 // De A-Sign-lagen van de publieke ruimte, voor het hele district of (met `kader`) rond één straat.
 // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in plaats
 // van 2.875 parkeerverboden), en dat legde een gsm tot een halve minuut stil. Met de lijn van elk
 // parkeerverbod (op 10 cm), voor de knoppen +250 m tot +1 km rond een straat.
+// Per laag: de naam, het laagnummer, het veld met het dossiernummer en de vraag.
 const layer=(nr,opties)=>asignLayer(nr,opties);
-function asignJobs(dateSql,extra={}){
+function asignVragen(dateSql){
   const iod=`faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,iodVelden="dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum";
+  const sgw=`EndDate >= ${dateSql} AND status='vergund'`,sgwVelden="reference_id,phase_id,status,StartDate,EndDate";
   return[
-    ["parking",layer(20,{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",geometry:true,precisie:6,...extra})],
-    ["iod22",layer(22,{where:iod,outFields:iodVelden,geometry:true,spatial:true,...extra})],
-    ["iod23",layer(23,{where:iod,outFields:iodVelden,geometry:true,spatial:true,...extra})],
-    ["sgw47",layer(47,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true,...extra})],
-    ["sgw48",layer(48,{where:`EndDate >= ${dateSql} AND status='vergund'`,outFields:"reference_id,phase_id,status,StartDate,EndDate",geometry:true,spatial:true,...extra})],
+    ["parking",20,"Dossiernummer",{where:parkeerverbodWhere(dateSql),outFields:"Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",geometry:true,precisie:6}],
+    ["iod22",22,"dossierNummer",{where:iod,outFields:iodVelden,geometry:true,spatial:true}],
+    ["iod23",23,"dossierNummer",{where:iod,outFields:iodVelden,geometry:true,spatial:true}],
+    ["sgw47",47,"reference_id",{where:sgw,outFields:sgwVelden,geometry:true,spatial:true}],
+    ["sgw48",48,"reference_id",{where:sgw,outFields:sgwVelden,geometry:true,spatial:true}],
   ];
 }
+// `oid`: ook OBJECTID, om het kader en de dossiers samen te voegen in de volgorde van de bron (de lijst van
+// het hele district komt in die volgorde).
+const metOid=(vraag,oid)=>oid?{...vraag,outFields:`${vraag.outFields},OBJECTID`}:vraag;
+function asignJobs(dateSql,extra={},{oid=false}={}){return asignVragen(dateSql).map(([naam,nr,,vraag])=>[naam,layer(nr,{...metOid(vraag,oid),...extra})])}
 const brusselsDag=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const o=Object.fromEntries(p.map(x=>[x.type,x.value]));return`${o.year}-${o.month}-${o.day}`};
 
-// Snelheid (P5): alleen het kader van één straat, voor de plekpagina (site/place-view.js): elke laag in één
-// of twee kleine verzoeken in plaats van ongeveer 130 blokken voor het hele district. Zelfde verwerking als
-// de lijst hieronder. Geeft { items, mislukt } met de onderdelen die niet laadden (site/live-lagen.js).
-export async function publiekeRuimteInKader(kader,{district=null,streetIndex=null}={}){
-  const settled=await settleSources(asignJobs(`DATE '${brusselsDag()}'`,{spatial:true,kader}));
+// ---- snelheid (P5): het kader van één straat, en de dossiers die erin liggen ----
+// Welke dossiers samen één kaart worden (site/place-core.js): een parkeerverbod op meer plaatsen
+// ("Ankerrui + 10 andere straten"), een werfzone met haar fasen en omleiding, een evenement met opbouw,
+// parcours en afbraak. Hun andere rijen liggen vaak buiten het kader van de straat (of de straal).
+const DOSSIER_GROEP={parking:"parking",iod22:"iod",iod23:"iod",sgw47:"sgw",sgw48:"sgw"};
+// Alleen een gewoon dossiernummer ("2026-051185", "ET2026001217", "GW2026-000123") gaat in de vraag.
+const VEILIG_DOSSIER=/^[A-Za-z0-9][A-Za-z0-9._/-]{0,59}$/;
+export const MAX_DOSSIERS=300;
+export function dossiersVan(items=[]){
+  const uit={parking:new Set(),iod:new Set(),sgw:new Set()};
+  for(const i of items){
+    const ref=String(i?.reference||"");
+    if(!VEILIG_DOSSIER.test(ref))continue;
+    if(i.kind==="parking")uit.parking.add(ref);
+    else if(i.kind==="sgw")uit.sgw.add(ref);
+    else if(i.kind==="iod"&&isEvenementDossier(i))uit.iod.add(ref);
+  }
+  return Object.fromEntries(Object.entries(uit).map(([k,v])=>[k,[...v].sort()]));
+}
+export const dossierWhere=(basis,veld,refs)=>`${basis} AND ${veld} IN (${refs.map(r=>`'${r}'`).join(",")})`;
+// De dossiers van één laag in stukken, zodat elke vraag naar de ids korter blijft dan de grens van de
+// stadsserver (site/asign-query.js: boven ongeveer 2.000 tekens antwoordt hij niet meer).
+export function dossierStukken(nr,vraag,veld,refs=[],{maxUrl=ASIGN_MAX_URL}={}){
+  const stukken=[];let stuk=[];
+  for(const ref of refs){
+    const proef=[...stuk,ref];
+    if(stuk.length&&asignIdsUrl(nr,{where:dossierWhere(vraag.where,veld,proef),spatial:vraag.spatial}).length>=maxUrl){stukken.push(stuk);stuk=[ref]}
+    else stuk=proef;
+  }
+  if(stuk.length)stukken.push(stuk);
+  return stukken;
+}
+// Twee lijsten features van dezelfde laag samen, elke feature één keer, in de volgorde van OBJECTID.
+const oidVan=f=>{const n=Number(f?.attributes?.OBJECTID??f?.properties?.OBJECTID);return Number.isFinite(n)?n:null};
+export function samenOpOid(a=[],b=[]){
+  const gezien=new Map();
+  for(const f of[...a,...b]){const oid=oidVan(f);const k=oid==null?`#${JSON.stringify(f?.attributes||f?.properties||{})}|${JSON.stringify(f?.geometry||null)}`:oid;if(!gezien.has(k))gezien.set(k,f)}
+  const volgorde=f=>oidVan(f)??Infinity;
+  return[...gezien.values()].sort((x,y)=>volgorde(x)===volgorde(y)?0:volgorde(x)<volgorde(y)?-1:1);
+}
+// Alle rijen van die dossiers, op dossiernummer en zonder kader, met dezelfde voorwaarden als de lijst van
+// het hele district. Faalt één vraag, dan faalt alles (een half dossier zou "+ 4 andere straten" tonen).
+async function dossierFeatures(dateSql,refs){
+  const lagen=await Promise.all(asignVragen(dateSql).map(([naam,nr,veld,vraag])=>Promise.all(dossierStukken(nr,vraag,veld,refs[DOSSIER_GROEP[naam]]||[]).map(stuk=>layer(nr,{...metOid(vraag,true),where:dossierWhere(vraag.where,veld,stuk)}))).then(delen=>[naam,delen.flat()])));
+  return Object.fromEntries(lagen);
+}
+const verzamel=(f,{district,streetIndex})=>collectPublicSpaceInStappen({parkingFeatures:f.parking,iodFeatures:[...f.iod22,...f.iod23],sgwFeatures:[...f.sgw47.map(feature=>({feature,kind:"Omleiding"})),...f.sgw48.map(feature=>({feature,kind:"Werfzone"}))],districtGeometry:district,streetIndex,postcodes:DISTRICT_POSTCODES});
+
+// Alleen het kader van één straat, voor de plekpagina (site/place-view.js): elke laag in één of twee kleine
+// verzoeken in plaats van ongeveer 130 blokken voor het hele district. Zelfde verwerking als de lijst
+// hieronder. Daarna, met `dossierIndex` (een functie die de straatassen van het hele district geeft), de
+// andere rijen van de dossiers in het kader (dossierFeatures): dan zijn die dossiers precies zoals in de
+// lijst van het hele district, ook in een buurstraat binnen de straal. Geeft { items, mislukt, dossiers }:
+// `mislukt` de onderdelen van het kader die niet laadden (site/live-lagen.js); `dossiers` "ok" (alle rijen
+// van de dossiers erbij), "geen" (geen dossier in het kader), "mislukt" of "te veel" (dan alleen het kader,
+// en vult de plekpagina aan met de stand van de ochtend), of "niet" (niet gevraagd).
+export async function publiekeRuimteInKader(kader,{district=null,streetIndex=null,dossierIndex=null}={}){
+  const dateSql=`DATE '${brusselsDag()}'`;
+  const settled=await settleSources(asignJobs(dateSql,{spatial:true,kader},{oid:true}));
   const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
   if(!district)fail.push("district");
-  const lijst=n=>v[n] instanceof Error?[]:v[n];
-  const items=await collectPublicSpaceInStappen({parkingFeatures:lijst("parking"),iodFeatures:[...lijst("iod22"),...lijst("iod23")],sgwFeatures:[...lijst("sgw47").map(feature=>({feature,kind:"Omleiding"})),...lijst("sgw48").map(feature=>({feature,kind:"Werfzone"}))],districtGeometry:district,streetIndex,postcodes:DISTRICT_POSTCODES});
-  return{items,mislukt:mislukteOnderdelenPublicSpace(fail)};
+  const kaderFeatures=Object.fromEntries(Object.keys(DOSSIER_GROEP).map(n=>[n,v[n] instanceof Error||!Array.isArray(v[n])?[]:v[n]]));
+  const items=await verzamel(kaderFeatures,{district,streetIndex});
+  const mislukt=mislukteOnderdelenPublicSpace(fail);
+  if(mislukt.length||typeof dossierIndex!=="function")return{items,mislukt,dossiers:"niet"};
+  const refs=dossiersVan(items),aantal=refs.parking.length+refs.iod.length+refs.sgw.length;
+  if(!aantal)return{items,mislukt,dossiers:"geen"};
+  if(aantal>MAX_DOSSIERS)return{items,mislukt,dossiers:"te veel"};
+  try{
+    const[index,extra]=await Promise.all([dossierIndex(),dossierFeatures(dateSql,refs)]);
+    if(!index)throw Error("geen straatassen");
+    const samen=Object.fromEntries(Object.keys(DOSSIER_GROEP).map(n=>[n,samenOpOid(kaderFeatures[n],extra[n])]));
+    return{items:await verzamel(samen,{district,streetIndex:index}),mislukt,dossiers:"ok"};
+  }catch{
+    return{items,mislukt,dossiers:"mislukt"};
+  }
 }
 
 const root=typeof document!=="undefined"?document.getElementById("public-space-live"):null;

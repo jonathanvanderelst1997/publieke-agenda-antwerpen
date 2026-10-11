@@ -336,6 +336,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     districtBelofte ||= getJson(u).then((d) => { const fs = Array.isArray(d?.features) ? d.features : []; if (fs.length !== 1) throw new Error("districtsgrens niet uniek"); return fs[0].geometry; });
     return districtBelofte.catch((error) => { districtBelofte = null; throw error; });
   };
+  // De straatassen van het hele district (dezelfde belofte als hierboven bij het laden van de pagina): voor
+  // de rijen van een dossier buiten het kader (publiekeRuimteInKader).
+  const volledigeStraatIndex = () => import("./street-source.js").then(({ loadStreetIndex }) => loadStreetIndex());
   const levend = () => (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
   function zetSnelLaag(naam, items, mislukt = []) {
     const live = levend();
@@ -397,8 +400,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const vraag = { district, streetIndex };
       return Promise.all([
         werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: true, items: r.items }), () => ({ naam: "works", ok: false })),
-        // Opbouw en afbraak van een evenement, de andere fasen van een werfzone: vaak buiten het kader. Wat de ochtend ervan wist, blijft.
-        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: aanvullenMetOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
+        // Opbouw en afbraak van een evenement, de andere fasen van een werfzone, de andere plaatsen van een
+        // parkeerverbod: vaak buiten het kader. Live op dossiernummer, met de straatassen van het hele district
+        // (die laden hierboven al); lukt dat niet, dan vult de stand van de ochtend aan.
+        publiekeRuimteInKader(kader, { ...vraag, dossierIndex: volledigeStraatIndex }).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.dossiers === "ok" ? r.items : aanvullenMetOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
         vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items: metInzage(metStratenVanDeOchtend(items, snel.ochtend.permits), snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
         terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
       ]);

@@ -521,3 +521,67 @@ test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken 
   // Op de plekpagina gebruikt.
   assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /metStratenVanDeOchtend\(items, snel\.ochtend\.permits\)/);
 });
+
+test("live: de andere rijen van een dossier in het kader komen op dossiernummer; lukt dat niet, dan vult de ochtend aan", async (t) => {
+  const { publiekeRuimteInKader, dossiersVan, dossierStukken, dossierWhere, samenOpOid, MAX_DOSSIERS } = await import("../site/public-space-live.js");
+  const { ASIGN_MAX_URL, asignIdsUrl } = await import("../site/asign-query.js");
+  const { buildStreetIndex } = await import("../site/street-core.js");
+  // Alleen gewone dossiernummers in de vraag; een parkeerverbod, een werfzone en een evenement, geen gewone inname.
+  assert.deepEqual(dossiersVan([
+    { kind: "parking", reference: "PROEF-PV1" }, { kind: "parking", reference: "PROEF-PV1" }, { kind: "parking", reference: "x' OR '1'='1" },
+    { kind: "sgw", reference: "GW2099-000001" }, { kind: "iod", reference: "ET2099000001" }, { kind: "iod", reference: "PROEF-IOD", dossierType: "" },
+  ]), { parking: ["PROEF-PV1"], iod: ["ET2099000001"], sgw: ["GW2099-000001"] });
+  // Veel dossiers: in stukken, elke vraag naar de ids korter dan de grens van de stadsserver, niets kwijt.
+  const veel = Array.from({ length: 250 }, (_, i) => `PROEF-${String(i).padStart(6, "0")}`);
+  const vraag = { where: "faseEindDatum >= DATE '2099-03-10'", spatial: true };
+  const stukken = dossierStukken(22, vraag, "dossierNummer", veel);
+  assert.ok(stukken.length > 1);
+  assert.deepEqual(stukken.flat(), veel);
+  for (const stuk of stukken) assert.ok(asignIdsUrl(22, { where: dossierWhere(vraag.where, "dossierNummer", stuk), spatial: true }).length < ASIGN_MAX_URL);
+  assert.equal(MAX_DOSSIERS, 300);
+  // Samen in de volgorde van de bron (OBJECTID), elke feature één keer.
+  const f = (oid) => ({ attributes: { OBJECTID: oid } });
+  assert.deepEqual(samenOpOid([f(5), f(2)], [f(7), f(2), f(1)]).map((x) => x.attributes.OBJECTID), [1, 2, 5, 7]);
+
+  // Een nagebootste A-Sign: in het kader één plaats van een parkeerverbod (Kammenstraat), op dossiernummer
+  // ook de twee andere plaatsen (Peterseliestraat, Huikstraat), zoals in de lijst van het hele district.
+  const district = JSON.parse(fs.readFileSync(path.join(repoRoot, "lib", "district-antwerpen-grens.geojson"), "utf8")).features[0].geometry;
+  const as = (ref, x) => ({ type: "Feature", geometry: { type: "LineString", coordinates: [[x, 51.215], [x, 51.216]] }, properties: { LSTRNMID: Number(ref.id), LSTRNM: ref.name, RSTRNMID: Number(ref.id), RSTRNM: ref.name, postcode: 2000, DISTRICT: "Antwerpen" } });
+  const kaderIndex = buildStreetIndex([as(KAM, 4.401)]), heleIndex = buildStreetIndex([as(KAM, 4.401), as(PET, 4.405), as(HUIK, 4.409)]);
+  const plaats = (oid, straat, x) => ({ attributes: { OBJECTID: oid, Dossiernummer: "PROEF-PV1", Locatienummer: `L${oid}`, Status: "Goedgekeurd", Adres: `${straat.name}, 2000 Antwerpen`, Postcode: "2000", Reden: "Verhuis", Startdatum: Date.parse("2099-03-12T00:00:00Z"), Einddatum: Date.parse("2099-03-12T00:00:00Z"), Starttijd: null, Eindtijd: null, EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [[[x, 51.2152], [x, 51.2153]]] } });
+  const plaatsen = [plaats(1, KAM, 4.401), plaats(2, PET, 4.405), plaats(3, HUIK, 4.409)];
+  let dossierFout = false;
+  const vragen = [];
+  const echteFetch = globalThis.fetch;
+  t.after(() => { globalThis.fetch = echteFetch; });
+  globalThis.fetch = async (url) => {
+    const u = new URL(String(url));
+    const where = u.searchParams.get("where") || "";
+    vragen.push(where);
+    const antwoord = (body, status = 200) => ({ ok: status === 200, status, json: async () => body });
+    if (!u.pathname.endsWith("/20/query")) return antwoord(u.searchParams.get("returnIdsOnly") ? { objectIds: [] } : { features: [] });
+    if (u.searchParams.get("returnIdsOnly")) {
+      if (/Dossiernummer IN \('PROEF-PV1'\)/.test(where)) return dossierFout ? antwoord({}, 500) : antwoord({ objectIds: [1, 2, 3] });
+      return antwoord({ objectIds: [1] });
+    }
+    const ids = new Set(String(u.searchParams.get("objectIds")).split(",").map(Number));
+    return antwoord({ features: plaatsen.filter((p) => ids.has(p.attributes.OBJECTID)) });
+  };
+  const kader = [4.400, 51.214, 4.402, 51.217];
+  const ok = await publiekeRuimteInKader(kader, { district, streetIndex: kaderIndex, dossierIndex: async () => heleIndex });
+  assert.equal(ok.dossiers, "ok");
+  assert.deepEqual(ok.mislukt, []);
+  assert.deepEqual(ok.items.map((i) => [i.id, i.streets.map((s) => s.name).join()]), [["parking:PROEF-PV1|L1", KAM.name], ["parking:PROEF-PV1|L2", PET.name], ["parking:PROEF-PV1|L3", HUIK.name]]);
+  assert.ok(vragen.some((w) => /Dossiernummer IN \('PROEF-PV1'\)/.test(w)), "op dossiernummer gevraagd");
+  // Faalt de vraag op dossiernummer: alleen het kader, en de plekpagina vult aan met de stand van de ochtend.
+  dossierFout = true;
+  const half = await publiekeRuimteInKader(kader, { district, streetIndex: kaderIndex, dossierIndex: async () => heleIndex });
+  assert.equal(half.dossiers, "mislukt");
+  assert.deepEqual(half.mislukt, [], "het kader zelf lukte");
+  assert.deepEqual(half.items.map((i) => i.id), ["parking:PROEF-PV1|L1"]);
+  // Zonder straatassen van het hele district ook: alleen het kader.
+  dossierFout = false;
+  assert.equal((await publiekeRuimteInKader(kader, { district, streetIndex: kaderIndex, dossierIndex: async () => { throw new Error("geen straatassen"); } })).dossiers, "mislukt");
+  // Op de plekpagina: met "ok" de live rijen, anders de stand van de ochtend erbij (aanvullenMetOchtend).
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /r\.dossiers === "ok" \? r\.items : aanvullenMetOchtend\(r\.items, snel\.ochtend\.publicSpace\)/);
+});

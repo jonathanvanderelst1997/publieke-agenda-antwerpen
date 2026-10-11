@@ -86,7 +86,7 @@ const ELDERS = [[4.4105, 51.2105], [4.4112, 51.2109]];
 // met alle straten van een groot parcours werd te groot; zie scripts/build-straat-snapshots.mjs).
 const ELDERS_EV = [[4.4170, 51.2160], [4.4176, 51.2163]];
 const HIER = [[x1, y1], [x2, y2]];
-const rijenVan = (lijst) => lijst.map(([fase, naam, type, van, tot, pad], i) => ({ id: i + 1, feature: { attributes: { dossierNummer: "ET2099000077", faseId: fase, innameId: `I${i + 1}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: naam, type_dossier: "ETL", innameTypeNaam: type, innameBeschrijving: "", innameHinder: "True", faseStartDatum: ms(van), faseEindDatum: ms(tot) }, geometry: { paths: [pad] } } }));
+const rijenVan = (lijst, { dossier = "ET2099000077", eerste = 1 } = {}) => lijst.map(([fase, naam, type, van, tot, pad], i) => ({ id: eerste + i, feature: { attributes: { OBJECTID: eerste + i, dossierNummer: dossier, faseId: fase, innameId: `I${eerste + i}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: naam, type_dossier: "ETL", innameTypeNaam: type, innameBeschrijving: "", innameHinder: "True", faseStartDatum: ms(van), faseEindDatum: ms(tot) }, geometry: { paths: [pad] } } }));
 // Twee verzonnen evenementen: (1) zaterdag, met het parcours in de straat en de opbouw en de afbraak
 // elders; (2) morgen elders, met in de straat alleen een parkeerverbod tijdens de opbouw (vandaag).
 const EVENEMENTEN = {
@@ -118,7 +118,19 @@ const werfzone = [
 ];
 const UUR = (u) => Date.parse(`1970-01-01T${u}:00Z`);
 const parkeerverbod = [[1, "L1", "Kammenstraat", HIER], [2, "L2", ANDERE[1], ELDERS], [3, "L3", DERDE[1], ELDERS2]].map(([id, locatie, straat, pad]) => ({ laag: 20, id, feature: { attributes: { OBJECTID: id, Dossiernummer: "PROEF-PV77", Locatienummer: locatie, Status: "Goedgekeurd", Adres: `${straat}, 2000 Antwerpen`, Postcode: "2000", Reden: "Verhuis", Startdatum: ms("2099-03-12"), Einddatum: ms("2099-03-12"), Starttijd: UUR("07:00"), Eindtijd: UUR("17:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [pad] } } }));
-const assen = [[kam, [x1, y1], [x2, y2]], [ANDERE, ...ELDERS], [DERDE, ...ELDERS2]].map(([r, a, b]) => ({ type: "Feature", geometry: { type: "LineString", coordinates: [a, b] }, properties: { LSTRNMID: Number(r[0]), LSTRNM: r[1], RSTRNMID: Number(r[0]), RSTRNM: r[1], postcode: 2000, DISTRICT: "Antwerpen" } }));
+// Een buurstraat op ongeveer 150 m van de Kammenstraat (verzonnen as van een echte straat): binnen een
+// straal van 250 m, buiten het kader van de straat zelf. Daar een parkeerverbod dat ook op twee plaatsen
+// ver weg geldt, en een evenement met zijn parcours in de buurstraat en opbouw en afbraak ver weg (een
+// parkeerverbod in de Huikstraat). Alleen voor de toets met een straal (`buren`).
+const BUUR = straten.find((r) => r[1] === "Lombardenvest" && String(r[2]) === "2000");
+const BUUR_AS = [[x2 + 0.0015, (y1 + y2) / 2], [x2 + 0.0015, (y1 + y2) / 2 + 0.0006]];
+const BUUR_EVENEMENT = rijenVan([
+  ["F1", "Evenement", "Parcours", "2099-03-14", "2099-03-14", BUUR_AS],
+  ["F2", "Opbouw", "Parkeerverbod in Straat", "2099-03-12", "2099-03-13", ELDERS2],
+  ["F3", "Afbraak", "Parkeerverbod in Straat", "2099-03-15", "2099-03-16", ELDERS2],
+], { dossier: "ET2099000078", eerste: 11 });
+const BUUR_PARKEERVERBOD = [[11, "L1", BUUR[1], BUUR_AS], [12, "L2", ANDERE[1], ELDERS], [13, "L3", DERDE[1], ELDERS2]].map(([id, locatie, straat, pad]) => ({ laag: 20, id, feature: { attributes: { OBJECTID: id, Dossiernummer: "PROEF-PV78", Locatienummer: locatie, Status: "Goedgekeurd", Adres: `${straat}, 2000 Antwerpen`, Postcode: "2000", Reden: "Verhuis", Startdatum: ms("2099-03-13"), Einddatum: ms("2099-03-13"), Starttijd: UUR("08:00"), Eindtijd: UUR("18:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [pad] } } }));
+const assen = [[kam, [x1, y1], [x2, y2]], [ANDERE, ...ELDERS], [DERDE, ...ELDERS2], [BUUR, ...BUUR_AS]].map(([r, a, b]) => ({ type: "Feature", geometry: { type: "LineString", coordinates: [a, b] }, properties: { LSTRNMID: Number(r[0]), LSTRNM: r[1], RSTRNMID: Number(r[0]), RSTRNM: r[1], postcode: 2000, DISTRICT: "Antwerpen" } }));
 // Het verzonnen dossier loopt in openbaar onderzoek op 10 maart 2099.
 const INZAGE = { schema: "inzage-status/1", uitleg: "verzonnen", dossiers: [{ project: "OMV_2099000077", gevonden: true, toestand: "openbaar onderzoek", bron: "handmatig", nagekeken: "2099-03-05", openbaarOnderzoek: { van: "2099-03-01", totEnMet: "2099-03-30" } }] };
 // De verversing kent het dossier (zoals elk evenementendossier in het district).
@@ -127,19 +139,23 @@ const bboxVan = (pad) => [Math.min(...pad.map((p) => p[0])), Math.min(...pad.map
 const kaderVanFeature = (f) => bboxVan([...(f.geometry.paths || []), ...(f.geometry.rings || [])].flat());
 const raakt = (a, b) => a[0] <= b[2] && b[0] <= a[2] && a[1] <= b[3] && b[1] <= a[3];
 // ArcGIS: eerst de ids (met een kader: alleen wat het kader raakt; met "faseEindDatum >= DATE '…'" of
-// zo: alleen wat dan nog loopt, zoals A-Sign), dan de details per id.
+// zo: alleen wat dan nog loopt, zoals A-Sign; met "dossierNummer IN ('…')" of zo: alleen die dossiers),
+// dan de details per id.
 function arcgis(records, url) {
   const u = new URL(url);
   if (u.searchParams.get("returnIdsOnly") === "true") {
     const env = (u.searchParams.get("geometry") || "").split(",").map(Number);
-    const [, veld, vanaf] = /(faseEindDatum|Einddatum|EndDate) >= DATE '(\d{4}-\d{2}-\d{2})'/.exec(u.searchParams.get("where") || "") || [];
-    return { objectIds: records.filter((r) => (env.length !== 4 || raakt(env, kaderVanFeature(r.feature))) && (!vanaf || r.feature.attributes[veld] >= ms(vanaf))).map((r) => r.id) };
+    const where = u.searchParams.get("where") || "";
+    const [, veld, vanaf] = /(faseEindDatum|Einddatum|EndDate) >= DATE '(\d{4}-\d{2}-\d{2})'/.exec(where) || [];
+    const [, dossierVeld, dossierLijst] = /(Dossiernummer|dossierNummer|reference_id) IN \(([^)]*)\)/.exec(where) || [];
+    const dossiers = dossierLijst ? new Set(dossierLijst.split(",").map((d) => d.trim().replace(/^'|'$/g, ""))) : null;
+    return { objectIds: records.filter((r) => (env.length !== 4 || raakt(env, kaderVanFeature(r.feature))) && (!vanaf || r.feature.attributes[veld] >= ms(vanaf)) && (!dossiers || dossiers.has(String(r.feature.attributes[dossierVeld])))).map((r) => r.id) };
   }
   const ids = new Set(String(u.searchParams.get("objectIds") || "").split(",").map(Number));
   return { features: records.filter((r) => ids.has(r.id)).map((r) => r.feature) };
 }
 
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"] } = {}) {
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(NU);
@@ -165,9 +181,9 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
       if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", links: [], features: [] }));
       if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
       if (url.includes("/MapServer/905/")) return route.fulfill(json({ type: "FeatureCollection", features: assen }));
-      if (url.includes("/P_ASign/ASign/MapServer/23/query")) return route.fulfill(json(arcgis(evenement, url)));
+      if (url.includes("/P_ASign/ASign/MapServer/23/query")) return route.fulfill(json(arcgis([...evenement, ...(buren ? BUUR_EVENEMENT : [])], url)));
       const laag = Number((url.match(/\/P_ASign\/ASign\/MapServer\/(\d+)\/query/) || [])[1]);
-      if ([20, 47, 48].includes(laag)) return route.fulfill(json(arcgis([...werfzone, ...parkeerverbod].filter((r) => r.laag === laag), url)));
+      if ([20, 47, 48].includes(laag)) return route.fulfill(json(arcgis([...werfzone, ...parkeerverbod, ...(buren ? BUUR_PARKEERVERBOD : [])].filter((r) => r.laag === laag), url)));
       if (url.includes("/pip2_vergunningen/MapServer/5/query")) return route.fulfill(json(arcgis(aanvraag, url)));
       if (url.includes("geodata.antwerpen.be")) return route.fulfill(json(url.includes("returnIdsOnly") ? { objectIds: [] } : { features: [] }));
       return route.abort();
@@ -325,6 +341,51 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       assert.deepEqual(snel.errors, []);
       await snel.context.close();
     }
+  });
+
+  await t.test("met een straal van 250 m: dezelfde kaartjes als met alle live lagen, ook voor een parkeerverbod en een evenement in een buurstraat", async (st) => {
+    const query = "?plek=Kammenstraat&straal=250&periode=alles";
+    const opties = { inzage: INZAGE, uitleg: UITLEG, query, buren: true, width: 1280, height: 900 };
+    // 1. Zoals vroeger: alles live voor het hele district.
+    const basis = await openStraat(baseUrl, { ...opties, stand: null, bronnen: "volledig" });
+    const buurVerbod = basis.page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:PROEF-PV78"]');
+    await buurVerbod.first().waitFor({ timeout: 20000 });
+    await basis.page.locator('.pv-results .pv-row[data-uid="publicSpace:dossier:ET2099000078"]').waitFor({ timeout: 20000 });
+    await basis.page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 20000 });
+    await basis.page.waitForTimeout(500);
+    const verwacht = await watJeZiet(basis.page);
+    // Het parkeerverbod in de buurstraat geldt ook op twee plaatsen ver weg; het evenement heeft opbouw en
+    // afbraak ver weg, met een parkeerverbod in de Huikstraat.
+    assert.match(verwacht.open["publicSpace:parking:PROEF-PV78|L1"], /Huikstraat \+ 2 andere straten\nToon alle 3 straten/);
+    const buurEvenement = verwacht.open["publicSpace:dossier:ET2099000078"];
+    assert.match(buurEvenement, /Opbouw vanaf .*12 maart en afbraak tot .*16 maart/, buurEvenement);
+    assert.match(buurEvenement, /Parkeerverbod in Huikstraat/, buurEvenement);
+    const lagen = await basis.page.evaluate(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return { works: l.works, publicSpace: l.publicSpace, permits: l.permits }; });
+    assert.deepEqual(basis.errors, []);
+    await basis.context.close();
+    // 2. De stand van de ochtend: de echte bouwer, op de items die de browser hierboven zelf maakte.
+    const map = fs.mkdtempSync(path.join(os.tmpdir(), "snelheid-e2e-"));
+    st.after(() => fs.rmSync(map, { recursive: true, force: true }));
+    fixture.maakWerkmap(map, { uitleg: UITLEG });
+    await fixture.bouw(map, { bronnenDoc: await fixture.bronnenUitLiveLagen(lagen) });
+    const lees = (rel) => fs.readFileSync(path.join(map, rel), "utf8");
+    const index = JSON.parse(lees("site/straat-index.json"));
+    const stand = { index: lees("site/straat-index.json"), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
+    // 3. Snel, met live het kader van de straat plus de straal: de dossiers in de buurstraat met al hun rijen.
+    const snel = await openStraat(baseUrl, { ...opties, stand, bronnen: "volledig" });
+    await snel.page.waitForFunction(() => { const t = document.querySelector(".pv-place .pv-stand")?.textContent || ""; return /Live nagekeken/.test(t) && !/laadt nog/.test(t); }, null, { timeout: 20000 });
+    await snel.page.waitForTimeout(500);
+    assert.deepEqual(await watJeZiet(snel.page), verwacht);
+    assert.match(await snel.page.locator(".pv-place .pv-stand").innerText(), /^Live nagekeken: niets nieuw sinds 05:22\.$/);
+    // De andere rijen kwamen op dossiernummer, niet met de A-Sign-blokken van het hele district.
+    const vraag = (u) => decodeURIComponent(u.replace(/\+/g, " "));
+    // Eén vraag per laag (20: parkeerverboden, 22 en 23: innames, 47 en 48: werfzones), met de dossiers uit het kader.
+    const dossierVragen = snel.extern.map(vraag).filter((u) => /returnIdsOnly=true/.test(u)).map((u) => [Number(/MapServer\/(\d+)\//.exec(u)?.[1]), /(?:Dossiernummer|dossierNummer|reference_id) IN \(([^)]*)\)/.exec(u)?.[1]]).filter(([, lijst]) => lijst);
+    assert.deepEqual(dossierVragen.sort((a, b) => a[0] - b[0]), [[20, "'PROEF-PV77','PROEF-PV78'"], [22, "'ET2099000077','ET2099000078'"], [23, "'ET2099000077','ET2099000078'"], [47, "'GW2099-000077'"], [48, "'GW2099-000077'"]]);
+    const idsVragen = snel.extern.map(vraag).filter((u) => /\/P_ASign\/ASign\/MapServer\/\d+\/query/.test(u) && /returnIdsOnly=true/.test(u));
+    assert.ok(idsVragen.every((u) => /(Dossiernummer|dossierNummer|reference_id) IN \('/.test(u) || (/geometry=/.test(u) && !u.includes(DISTRICT_BBOX))), `geen A-Sign van het hele district:\n${idsVragen.join("\n")}`);
+    assert.deepEqual(snel.errors, []);
+    await snel.context.close();
   });
 
   await t.test("zonder straatbestanden werkt de plekpagina zoals vroeger (alles live)", async () => {
