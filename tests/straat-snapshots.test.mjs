@@ -10,7 +10,7 @@ import test from "node:test";
 import {
   MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, STRAAT_INDEX, bouwRadar, itemVoorStraat, radarBinnenBudget, straatBestandenProblemen, verzamelStraatBronnen,
 } from "../scripts/build-straat-snapshots.mjs";
-import { kaderRond, laadStraat, lagenUitStand, aanvullenMetOchtend, standZin, straatItems, tijdstipTekst, verschil } from "../site/straat-snapshot.js";
+import { kaderRond, laadStraat, lagenUitStand, aanvullenMetOchtend, metStratenVanDeOchtend, standZin, straatItems, tijdstipTekst, verschil } from "../site/straat-snapshot.js";
 import { buildStreetGroups, historiekUitRadar } from "../site/street-overview.js";
 import { terrasEntries } from "../site/place-core.js";
 import { vergunningBronUrl } from "../site/permits-live-core.js";
@@ -480,4 +480,14 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   assert.equal(fase1.kindLabel, "Omleiding + Werfzone");
   assert.deepEqual(fase1.werfzoneStreets.map((s) => s.name), [PET.name]);
   assert.ok(samen.some((i) => i.id === "sgw:PROEF-GW|2"), "de andere fase blijft");
+});
+
+test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken de straten van de ochtend", () => {
+  const ochtend = [{ id: "permit:20990099", streets: [KAM, PET, HUIK] }];
+  const live = [{ id: "permit:20990099", streets: [KAM] }, { id: "permit:20990100", streets: [KAM] }];
+  const samen = metStratenVanDeOchtend(live, ochtend);
+  assert.deepEqual(samen[0].streets.map((s) => s.name), [KAM.name, PET.name, HUIK.name]);
+  assert.deepEqual(samen[1].streets, [KAM], "een nieuwe aanvraag blijft zoals live");
+  // Op de plekpagina gebruikt.
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /metStratenVanDeOchtend\(items, snel\.ochtend\.permits\)/);
 });

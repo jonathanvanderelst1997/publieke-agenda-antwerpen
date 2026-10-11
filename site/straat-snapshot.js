@@ -122,6 +122,13 @@ function werfzoneSamen(live, ochtend) {
     streets: samenRefs(live.streets, ochtend.streets), werfzoneStreets: samenRefs(live.werfzoneStreets, ochtend.werfzoneStreets), omleidingStreets: samenRefs(live.omleidingStreets, ochtend.omleidingStreets),
   };
 }
+// Een vergunning die ver buiten het kader van de straat reikt (een leidingwerf, de Oosterweelverbinding):
+// live kent de straatas maar in het kader plus 320 m, dus noemt "Waar" minder straten. Dezelfde aanvraag
+// (zelfde id) krijgt de straten van de ochtend erbij.
+export function metStratenVanDeOchtend(live = [], ochtend = []) {
+  const perId = new Map((ochtend || []).map((item) => [item?.id, item]));
+  return live.map((item) => (perId.has(item?.id) ? { ...item, streets: samenRefs(item.streets, perId.get(item.id).streets) } : item));
+}
 export function aanvullenMetOchtend(live = [], ochtend = []) {
   const dossiers = new Set(live.map((item) => item?.reference).filter(Boolean));
   const ids = new Set(live.map((item) => item?.id));
