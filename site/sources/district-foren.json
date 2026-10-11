@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "A-Sign MapServer/0 (foor): periodetekst per foor in district Antwerpen, één item per periode",
-  "retrievedAt": "2026-10-11T03:21:16.974Z",
+  "retrievedAt": "2026-10-11T11:53:53.424Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
@@ -35,7 +35,7 @@
       "info": "Lokale foor op Dageraadplaats, van 3 oktober 2026 tot en met 18 oktober 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-11T03:21:16.974Z",
+      "retrievedAt": "2026-10-11T11:53:53.424Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -56,7 +56,7 @@
       "info": "Lokale foor op Sint-Jansplein, van 21 november 2026 tot en met 13 december 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-11T03:21:16.974Z",
+      "retrievedAt": "2026-10-11T11:53:53.424Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -77,7 +77,7 @@
       "info": "Grote foor (bovenlokaal) op Koningin Astridplein, van 4 december 2026 tot en met 3 januari 2027. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-11T03:21:16.974Z",
+      "retrievedAt": "2026-10-11T11:53:53.424Z",
       "reviewRequired": false,
       "inDistrict": true
     }

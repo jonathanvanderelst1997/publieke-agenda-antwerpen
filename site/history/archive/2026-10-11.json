@@ -5974,6 +5974,72 @@
         "streetDistanceMeters": 5,
         "hindrance": null
       }
+    },
+    {
+      "observedAt": "2026-10-11T11:54:41.797Z",
+      "layer": "works",
+      "id": "work:20090718",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20090718",
+        "gipodId": 20090718,
+        "title": "2020 Antwerpen Sint-Bernardsesteenweg werken distributieleiding)",
+        "status": "In uitvoering",
+        "start": "2026-05-22T08:00:00Z",
+        "end": "2026-10-10T10:06:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Riolering"
+        ],
+        "streets": [
+          {
+            "id": "2615",
+            "name": "Sint-Bernardsesteenweg",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 21,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-11T11:54:41.797Z",
+      "layer": "works",
+      "id": "work:20583149",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-10-09T20:00:00Z",
+          "end": "2026-10-17T04:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-10-12T20:00:00Z",
+          "end": "2026-10-17T04:00:00Z"
+        }
+      }
     }
   ]
 }
