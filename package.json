@@ -26,7 +26,8 @@
     "geo:straten": "node scripts/build-straten.mjs",
     "refresh:manual": "node scripts/check-manual-sources.mjs",
     "refresh:herkenning": "node scripts/herken-parcours.mjs",
-    "refresh": "npm run refresh:fetch && npm run build:sources && npm run refresh:manual && npm run geo:refresh && npm run refresh:herkenning && npm run build:all",
+    "refresh": "npm run refresh:fetch && npm run build:sources && npm run refresh:manual && npm run geo:refresh && npm run refresh:herkenning && npm run build:all && npm run build:straten",
+    "build:straten": "node scripts/build-straat-snapshots.mjs",
     "validate:data": "node scripts/validate-data.mjs",
     "sources:health": "node scripts/sources-health.mjs",
     "check:data-lane": "node scripts/check-data-lane.mjs"

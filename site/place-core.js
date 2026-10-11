@@ -885,7 +885,8 @@ export function waarKort(straten = [], gekozen = "") {
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
-const maatregelSleutel = (row) => (row?.kind === "sgw" && row.reference ? `sgw|${row.reference}`
+// Ook voor scripts/build-straat-snapshots.mjs: welke rijen samen één kaart worden.
+export const maatregelSleutel = (row) => (row?.kind === "sgw" && row.reference ? `sgw|${row.reference}`
   : row?.kind === "parking" && row.reference ? `parking|${row.reference}|${dayOf(row.start)}|${dayOf(row.end)}|${row.startTime || ""}|${row.endTime || ""}|${parkeerReden(row)}`
     : `los|${row?.id}`);
 function bundelMaatregelen(rows, { alle = rows, straat = "", vandaag = "" } = {}) {
@@ -1047,7 +1048,9 @@ export const vergunningWaar = (streets = []) => waarTekst((streets || []).map((s
 export function terrasEntries(rows = []) {
   const groepen = new Map();
   for (const row of rows) {
-    const adres = foldText(row?.address);
+    // Uit de stand van de ochtend (site/straat/<id>.json) komt een terras zonder adres (vaak met
+    // huisnummer), wel met een groep per adres binnen de straat (scripts/build-straat-snapshots.mjs).
+    const adres = foldText(row?.address) || (row?.adresGroep ? `groep:${row.adresGroep}` : "");
     const key = adres ? `${adres}|${foldText(row?.terraceType)}|${foldText(row?.status)}` : `los|${row?.id}`;
     groepen.set(key, [...(groepen.get(key) || []), row]);
   }
