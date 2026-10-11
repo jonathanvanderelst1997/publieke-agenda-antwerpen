@@ -1131,7 +1131,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
     const z = soortIsZeker(fSoort);
     titel = metPlek(z ? fSoort : `Vermoedelijk een ${fSoort.toLowerCase()}`, plek);
     wat = z ? `${fSoort}: zo staat het in het dossier van de stad. De stad maakt de naam niet bekend.` : `Vermoedelijk een ${fSoort.toLowerCase()}: dat staat in de omschrijving van het dossier. De stad maakt de naam niet bekend.`;
-    zeker = z ? `Zo staat het in het dossier${geenEvenement ? "; het is geen evenement met publiek" : ""}.` : "Vermoedelijk: een woord in de omschrijving van het dossier.";
+    zeker = z ? `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : "de naam maakt de stad niet bekend"}.` : "Vermoedelijk: een woord in de omschrijving van het dossier.";
   } else {
     // Niets over wát: dan wat er wél vaststaat (soort inname, plek, periode, omvang, voorwerpen).
     titel = metPlek(/^op \d+ (?:kleine )?plekken/.test(plek) && inname.titel === "Inname" ? "Innames" : inname.titel, plek);
