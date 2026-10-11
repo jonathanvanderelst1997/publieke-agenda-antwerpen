@@ -99,7 +99,7 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
   return { stats, handle };
 }
 
-async function routeSources(page, street, { asign = null, work: withWork = true, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
+async function routeSources(page, street, { asign = null, work: withWork = true, werkStukken = 1, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
   // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
   // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
   await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
@@ -107,9 +107,12 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const [x1, y1, x2, y2] = row[4];
   const mid = [(x1 + x2) / 2, (y1 + y2) / 2];
   const axis = { type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "LineString", coordinates: [[x1, y1], [x2, y2]] }, properties: { LSTRNMID: Number(street.id), LSTRNM: street.name, RSTRNMID: Number(street.id), RSTRNM: street.name, postcode: Number(street.postcode), DISTRICT: "Antwerpen" } }, ...assen] };
+  // Desgewenst één werf in stukken (`werkStukken`): dezelfde omschrijving, beheerder, status en periode,
+  // elk stuk met een eigen GIPOD-nummer en een eigen punt op de straat (zoals de werfzones van Ringpark Zuid).
+  const stukPunt = (i) => [x1 + (x2 - x1) * (0.5 - 0.15 * i), y1 + (y2 - y1) * (0.5 - 0.15 * i)];
   const work = {
     type: "FeatureCollection", links: [],
-    features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: { GipodId: 999999901, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: "https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/999999901" } }],
+    features: Array.from({ length: werkStukken }, (_, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: i ? stukPunt(i) : mid }, properties: { GipodId: 999999901 + i, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: `https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/${999999901 + i}` } })),
   };
   const d = 0.0002;
   const permit = {
@@ -146,7 +149,7 @@ const proefAgendapunt = (dag, straat) => ({
   location: `${straat.name}, ${straat.postcode} Antwerpen`, postcodes: [straat.postcode], info: "Verzonnen agendapunt voor de toets.", infoUrl: "", dateLabel: dagTekst(dag),
 });
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [] } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
@@ -161,7 +164,13 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
   page.on("requestfailed", (request) => { if (/geodata\.antwerpen\.be/.test(request.url())) geodataFouten.push(request.url()); });
-  await routeSources(page, street || pickStreet.fallback, { asign, work, assen, vergunningen, evenement, aanvraag });
+  await routeSources(page, street || pickStreet.fallback, { asign, work, werkStukken, assen, vergunningen, evenement, aanvraag });
+  // Een trage kaart (`kaartLaat`): de module van de buurtkaart komt pas als het plekoverzicht zijn lijst al
+  // toonde (en de kaart dus al gemeld had hoeveel erin staat).
+  if (kaartLaat) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/neighborhood-map.js", async (route) => {
+    await page.waitForFunction(() => /uit officiële bronnen/.test(document.querySelector(".pv-sub")?.textContent || ""), null, { timeout: 15000 }).catch(() => {});
+    await route.continue();
+  });
   // Een vaste nagekeken stand in het Inzageloket voor de verzonnen aanvraag (site/inzage-status.js).
   if (inzage) await page.route((url) => url.pathname === "/sources/inzage-status.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(inzage) }));
   await page.goto(`${baseUrl}/${query}`);
@@ -503,6 +512,9 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   // Een verzonnen agendapunt vandaag in de straat; het nagebootste werk begint pas over 9 dagen en GIPOD meldt
   // geen hinder: het licht is dus "Let op", met het evenement van vandaag in de zin.
   const WEEK_MET_FEEST = /^Let op\s+De komende 7 dagen in jouw straat: (.*, |.* en )?\d+ evenement(en)? \((eerste )?vandaag\)/;
+  // Hoeveel er in de lijst staat: de aantallen naast de koppen van de secties (ook wat achter "Toon alle N"
+  // zit), niet wat "later gepland" is. Een lege lijst heeft geen secties: 0.
+  const inSecties = (page) => page.locator(".pv-results .pv-day-n").evaluateAll((els) => els.reduce((n, el) => n + Number(el.textContent), 0));
   const plekQuery = `?plek=${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
   await t.test("gsm (390×844): straat, 'De komende 7 dagen' met het verwachte licht en de tegels staan boven 600 px; chips tellen de kaarten", async () => {
     const { page, context, errors } = await openPage(baseUrl, { street, query: plekQuery, agendaErbij: [proefAgendapunt(today, street)] });
@@ -519,9 +531,81 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     })));
     t.diagnostic(`onderkant op de pagina: ${JSON.stringify(onder)}`);
     for (const [sel, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${sel} eindigt op ${y}px, niet boven 600px`);
-    // De kaart zegt hoeveel van de lijst erop staat, met hetzelfde aantal als boven de lijst.
-    const inLijst = Number((await page.locator(".pv-sub").innerText()).match(/^(\d+) item/)?.[1]);
+    // De kaart zegt hoeveel er in de lijst eronder staat en hoeveel er op de kaart.
+    const inLijst = await inSecties(page);
     await page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevindingen (kaart-tellers): "X in de lijst, Y op de kaart" onder de kaart. X is wat de lijst echt
+  // toont: met de periode, of de 14 dagen van de tijdlijn en de gekozen dag; de maand heeft geen lijst en
+  // krijgt de gewone zin. Y telt wat de kaart tekent, op dezelfde manier: een werf in stukken één keer.
+  // In de Peterseliestraat staan geen agendapunten (zie "een A-Sign-laag laadt niet" hieronder): de lijst
+  // toont alleen het nagebootste werk en de verzonnen aanvraag.
+  const PETERSELIE = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+  const wachtOpZin = (page, begin) => page.waitForFunction((b) => (document.querySelector(".buurt-status")?.textContent || "").startsWith(b), begin, { timeout: 10000 })
+    .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: "${begin}…"`));
+  const wachtOpLijst = (page, x) => page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in Peterseliestraat`).test(document.querySelector(".buurt-status")?.textContent || ""), x, { timeout: 10000 })
+    .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: ${x} in de lijst`));
+  await t.test("kaart-tellers: 'X in de lijst' is wat de lijst toont, in de tijdlijn, met een gekozen dag en met de periode", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
+    // De tijdlijn toont het werk, niet de aanvraag; het overzicht boven de lijst telt beide.
+    let x = await inSecties(page);
+    assert.equal(x, 1);
+    assert.ok(Number((await page.locator(".pv-sub").innerText()).match(/^(\d+) item/)?.[1]) > x, "de plek telt meer dan de tijdlijn toont");
+    await wachtOpLijst(page, x);
+    // Een dag zonder iets: 0 in de lijst. De startdag van het werk: weer het werk.
+    await page.click(`[data-tl-dag="${today}"]`);
+    assert.equal(await inSecties(page), 0);
+    await wachtOpLijst(page, 0);
+    await page.click(`[data-tl-dag="${addDays(today, 9)}"]`);
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
+    await wachtOpLijst(page, await inSecties(page));
+    // De maand heeft geen lijst: geen "in de lijst".
+    await page.click('[data-mode="maand"]');
+    await page.waitForFunction(() => /^\d+ agendapunten? op de kaart in Peterseliestraat/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 10000 });
+    assert.doesNotMatch(await page.locator(".buurt-status").textContent(), /in de lijst/);
+    // De lijst over 30 dagen: het werk en de aanvraag. Over 7 dagen staat het werk bij "later gepland".
+    await page.click('[data-mode="lijst"]');
+    x = await inSecties(page);
+    assert.equal(x, 2);
+    await wachtOpLijst(page, x);
+    await page.click('[data-period="week"]');
+    await page.locator(".pv-later").waitFor();
+    assert.equal(await page.locator(`.pv-results ${WORK_ROW}`).count(), 0);
+    x = await inSecties(page);
+    assert.equal(x, 1);
+    await wachtOpLijst(page, x);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("kaart-tellers: een werf in twee stukken is één kaart in de lijst en telt één keer op de kaart", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, werkStukken: 2, query: "?plek=Peterseliestraat&weergave=maand" });
+    // Beide stukken zijn binnen, elk met een eigen punt.
+    await page.waitForFunction(() => (window.PUBLIC_AGENDA_LIVE_STREETS?.works || []).filter((w) => w.gipodId >= 999999901 && Array.isArray(w.point)).length === 2, null, { timeout: 15000 });
+    // De maand: de gewone zin, met de werf één keer bij de werken (niet per stuk).
+    await page.waitForFunction(() => /^\d+ agendapunten? op de kaart in Peterseliestraat · \d+ werken en hinder/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 10000 });
+    const agendapunten = Number((await page.locator(".buurt-status").textContent()).match(/^(\d+) agendapunt/)[1]);
+    await wachtOpZin(page, `${agendapunten} agendapunt${agendapunten === 1 ? "" : "en"} op de kaart in Peterseliestraat · 1 werken en hinder`);
+    // De tijdlijn: één kaart voor de werf, en op de kaart de agendapunten plus die ene werf.
+    await page.click('[data-mode="tijdlijn"]');
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid^="works:"]').count(), 1, "één kaart voor de werf");
+    await wachtOpZin(page, `${await inSecties(page)} in de lijst, ${agendapunten + 1} op de kaart in Peterseliestraat`);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("kaart-tellers: een kaart die later laadt dan de lijst, zegt toch hoeveel er in de lijst staat", async () => {
+    // Een rustige straat: de live lagen voegen niets toe, dus de lijst meldt haar aantal maar één keer.
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, work: false, aanvraag: false, kaartLaat: true, query: "?plek=Peterseliestraat" });
+    await page.locator("#buurtkaart .buurt-status").waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return Array.isArray(l.works) && Array.isArray(l.permits); }, null, { timeout: 15000 });
+    await wachtOpLijst(page, await inSecties(page));
     assert.deepEqual(errors, []);
     await context.close();
   });

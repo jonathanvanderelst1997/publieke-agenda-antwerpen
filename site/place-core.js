@@ -494,8 +494,19 @@ export function werkEntries(works = [], opties = {}) {
     // Ernstige hinder bij één van de stukken geldt voor de kaart: anders hing het licht van de weekzin
     // (dezeWeek) af van de volgorde in GIPOD (alleen het eerste stuk telde).
     const ernstig = lijst.some((e) => e.item?.hindrance?.severe === true);
-    return { ...eerste, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, ernstig, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel] } : eerste.uitleg };
+    return { ...eerste, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, gipodIds: ids, ernstig, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel] } : eerste.uitleg };
   });
+}
+// Zo tellen het plekoverzicht en de buurtkaart ("X in de lijst, Y op de kaart"): een agendapunt per
+// activiteit (titel en plek: een weekmarkt met acht marktdagen is er één), een kaart uit de live lagen per uid.
+export const lijstSleutel = (entry = {}) => (entry.source === "agenda" ? `${entry.title}|${entry.location}` : entry.uid);
+export const lijstAantal = (entries = []) => new Set(entries.map(lijstSleutel)).size;
+// Voor de buurtkaart: de kaart tekent een punt per GIPOD-stuk, de lijst een kaart per werf (werkEntries).
+// Per GIPOD-nummer van een stuk het nummer van zijn werf, zodat de kaart per kaart van de lijst telt.
+export function werfPerStuk(entries = []) {
+  const werf = {};
+  for (const entry of entries) for (const id of entry.gipodIds || []) werf[id] = String(entry.gipodIds[0]);
+  return werf;
 }
 // Het label naast de soort. Een werk waarvan de periode loopt maar dat GIPOD nog "concreet gepland"
 // noemt, krijgt "Periode loopt" en niet "Nu bezig": anders spreken label en status elkaar tegen.
