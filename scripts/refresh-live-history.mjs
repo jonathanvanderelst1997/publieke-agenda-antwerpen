@@ -206,6 +206,19 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
   }
 }
 
+// Innames: type_dossier en innameHinder alleen voor de straatbestanden (zoals de browser ze ophaalt:
+// "Dossiertype ETL", "Hinder volgens IOD: True", en "De stad verwacht hinder" op de kaart van een evenement).
+// De historiek en kaart-uitleg.json krijgen ze niet: ze komen in `detail`, en dan zou elke inname één keer
+// als "gewijzigd" tellen.
+const IOD_VELDEN = "dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum";
+const IOD_ALLEEN_STRAAT = Object.freeze(["type_dossier", "innameHinder"]);
+export const zonderStraatVelden = (features = []) => features.map((feature) => {
+  if (!feature?.attributes) return feature;
+  const attributes = { ...feature.attributes };
+  for (const veld of IOD_ALLEEN_STRAAT) delete attributes[veld];
+  return { ...feature, attributes };
+});
+
 export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), streets } = {}) {
   const dateSql = `DATE '${brusselsDate(clock())}'`;
   try {
@@ -220,13 +233,13 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       }, fetchImpl),
       asignLayer(22, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
+        outFields: IOD_VELDEN,
         geometry: true,
         spatial: true,
       }, fetchImpl),
       asignLayer(23, {
         where: `faseEindDatum >= ${dateSql} AND dossierStatus IN ('aanvraag_goedgekeurd','toelating_gegenereerd','toelating_geverifieerd')`,
-        outFields: "dossierNummer,faseId,innameId,dossierStatus,faseNaam,innameTypeNaam,innameBeschrijving,faseStartDatum,faseEindDatum",
+        outFields: IOD_VELDEN,
         geometry: true,
         spatial: true,
       }, fetchImpl),
@@ -248,16 +261,17 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       ...sgw47.map((feature) => ({ feature, kind: "Omleiding" })),
       ...sgw48.map((feature) => ({ feature, kind: "Werfzone" })),
     ];
+    const iodHistoriek = zonderStraatVelden([...iod22, ...iod23]);
     const items = collectPublicSpace({
       parkingFeatures: parking,
-      iodFeatures: [...iod22, ...iod23],
+      iodFeatures: iodHistoriek,
       sgwFeatures: sgw,
       districtGeometry: district,
       // Officiële straatnamen, zodat "De 7 schakenpad" niet als huisnummer wegvalt (site/adres-privacy.js).
       straatnamen: streets?.byName instanceof Map ? [...streets.byName.values()].flat().map((ref) => ref?.name).filter(Boolean) : null,
     });
     // De ruwe features gaan mee voor de straatbestanden (verzamelStraatBronnen); ze komen nooit in de historiek.
-    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: [...iod22, ...iod23], district, features: { parking, iod: [...iod22, ...iod23], sgw } };
+    return { ok: true, items: applyPublicSpaceStreetResolution(items, streets), iodFeatures: iodHistoriek, district, features: { parking, iod: [...iod22, ...iod23], sgw } };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "public_space_fetch_failed") };
   }

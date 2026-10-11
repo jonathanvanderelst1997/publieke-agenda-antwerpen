@@ -28,8 +28,11 @@ export const WEGGELATEN = Object.freeze({
   vergunningen: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });
+// Een samenvatting van de fasen van een evenement (scripts/build-straat-snapshots.mjs) staat kort in het
+// bestand: zonder straat, titel of detail.
+const samenvatting = (item) => ({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [], ...item });
 export function vulAan(item, laag) {
-  if (laag === "publiekeRuimte") return { ...item, ...(VAST[item.kind] || {}) };
+  if (laag === "publiekeRuimte") return { ...(item.faseSamenvatting ? samenvatting(item) : item), ...(VAST[item.kind] || {}) };
   if (laag === "vergunningen") return { ...item, sourceLabel: "Stad Antwerpen · omgevingsvergunningen in behandeling", sourceUrl: vergunningBronUrl(item.dossier, item.project) };
   if (laag === "terrassen") return { ...item, sourceUrl: `${ASIGN}/49` };
   return item;
@@ -100,14 +103,31 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
   return lagen;
 }
 
-// Na het live nakijken van het kader van de straat: de live innames, plus de samenvatting van de fasen
-// van elk evenementendossier dat live nog in het kader staat (`faseSamenvatting`, scripts/build-straat-
-// snapshots.mjs). Opbouw en afbraak liggen vaak buiten het kader; zonder die rijen verdwijnt "opbouw
-// vanaf … en afbraak tot …" van de kaart. Een dossier dat live niet meer in het kader staat, valt weg.
-export function metFasenVanDeOchtend(live = [], ochtend = []) {
-  const dossiers = new Set(live.filter((item) => item?.kind === "iod" && item.reference).map((item) => item.reference));
+// Na het live nakijken van het kader van de straat: de live items, aangevuld met wat buiten dat kader
+// ligt maar wel op de kaart van de straat hoort (scripts/build-straat-snapshots.mjs):
+// - de samenvatting van de fasen van een evenementendossier (`faseSamenvatting`): opbouw en afbraak liggen
+//   vaak elders, en zonder die rijen verdwijnt "opbouw vanaf … en afbraak tot …";
+// - de andere rijen van een werfzone of parkeerverbod (`bundel`): de andere fasen en straten;
+// - een werfzone of omleiding die het kader maar half raakt: live dan alleen "Omleiding", terwijl het een
+//   werfzone met omleiding is. Dan de soorten, straten en periode van de ochtend erbij.
+// Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg.
+const refSleutel = (ref) => [ref?.id || "", ref?.name || "", ref?.postcode || ""].join("|");
+const samenRefs = (a = [], b = []) => [...new Map([...a, ...b].filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
+const vroegste = (a, b) => (!b || (a && Date.parse(a) <= Date.parse(b)) ? a : b);
+const laatste = (a, b) => (!b || (a && Date.parse(a) >= Date.parse(b)) ? a : b);
+function werfzoneSamen(live, ochtend) {
+  const soorten = [...new Set([live.kindLabel, ochtend.kindLabel].flatMap((label) => String(label || "").split(/\s*\+\s*/)).filter(Boolean))].sort().join(" + ");
+  return {
+    ...live, kindLabel: soorten, title: soorten, start: vroegste(live.start, ochtend.start), end: laatste(live.end, ochtend.end),
+    streets: samenRefs(live.streets, ochtend.streets), werfzoneStreets: samenRefs(live.werfzoneStreets, ochtend.werfzoneStreets), omleidingStreets: samenRefs(live.omleidingStreets, ochtend.omleidingStreets),
+  };
+}
+export function aanvullenMetOchtend(live = [], ochtend = []) {
+  const dossiers = new Set(live.map((item) => item?.reference).filter(Boolean));
   const ids = new Set(live.map((item) => item?.id));
-  return [...live, ...(ochtend || []).filter((item) => item?.faseSamenvatting && dossiers.has(item.reference) && !ids.has(item.id))];
+  const perId = new Map((ochtend || []).map((item) => [item?.id, item]));
+  const aangevuld = live.map((item) => (item?.kind === "sgw" && perId.get(item.id)?.kind === "sgw" ? werfzoneSamen(item, perId.get(item.id)) : item));
+  return [...aangevuld, ...(ochtend || []).filter((item) => (item?.faseSamenvatting || item?.bundel) && dossiers.has(item.reference) && !ids.has(item.id))];
 }
 
 // ---------- het kader van een straat ----------

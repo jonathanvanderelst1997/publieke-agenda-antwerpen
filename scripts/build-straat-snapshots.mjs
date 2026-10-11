@@ -41,7 +41,7 @@ import {
 import { loadExpandedAgendaItems } from "./agenda-source.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
 import { collectPermits } from "../site/permits-live-core.js";
-import { dayOf } from "../site/place-core.js";
+import { dayOf, maatregelSleutel } from "../site/place-core.js";
 import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets } from "../site/street-core.js";
@@ -297,7 +297,10 @@ const isEvenementFase = (item) => /^evenement$/i.test(clean(item?.phase)) || /Fa
 // laatste einde van die rijen, zonder straat, vorm of omschrijving (`faseSamenvatting`). Zonder straat
 // verandert ze niets aan "jouw straat" (de eigen rijen van de straat staan er al). Ze komt in elke straat
 // waar het dossier staat; de plekpagina houdt ze ook na het live nakijken van het kader van de straat
-// (metFasenVanDeOchtend in site/straat-snapshot.js).
+// (aanvullenMetOchtend in site/straat-snapshot.js). Bewust zonder de straten van de andere rijen: bij een
+// groot parcours zijn dat er honderden, in elk bestand van dat parcours (gemeten: 7 MB extra over alle
+// straten). Daardoor noemt "Wat merk je" in de snelle weg alleen de straten van de rijen in het bestand
+// of in het kader dat live nagekeken wordt; een nagekeken fiche (evenement-identiteit.json) gaat voor.
 const tijd = (waarde) => Date.parse(waarde || "");
 export function faseSamenvattingen(rijen = []) {
   const perDossier = new Map();
@@ -326,6 +329,59 @@ export function faseSamenvattingen(rijen = []) {
     else if (!huidig.hindrance && rij.hindrance) huidig.hindrance = clean(rij.hindrance);
   }
   return new Map([...perDossier].map(([ref, fasen]) => [ref, [...fasen.values()]]));
+}
+// Een samenvatting die de rijen van de straat zelf al geven (zelfde fase en soort, zelfde begin en einde,
+// "Parcours" en hinder al aanwezig), is overbodig: dan komt ze niet in het bestand.
+const soortVan = (rij) => innameSoort(clean(rij?.innameType || rij?.title));
+const isWaar = (waarde) => clean(waarde).toLowerCase() === "true";
+export function alGedekt(samenvatting, eigenRijen = []) {
+  const groep = eigenRijen.filter((r) => !r.faseSamenvatting && clean(r.phase) === samenvatting.phase && soortVan(r) === soortVan(samenvatting));
+  if (!groep.length) return false;
+  const eigenStraten = new Set(groep.flatMap((r) => (r.streets || []).map(refSleutel)));
+  if ((samenvatting.streets || []).some((ref) => !eigenStraten.has(refSleutel(ref)))) return false;
+  const begin = Math.min(...groep.map((r) => tijd(r.start)));
+  const einde = Math.max(...groep.map((r) => tijd(r.end || r.start)));
+  if (begin !== tijd(samenvatting.start) || einde !== tijd(samenvatting.end)) return false;
+  if (samenvatting.innameType === "Parcours" && !groep.some((r) => clean(r.innameType || r.title) === "Parcours")) return false;
+  return !isWaar(samenvatting.hindrance) || eigenRijen.some((r) => isWaar(r.hindrance));
+}
+// Velden van een samenvatting die altijd gelijk of leeg zijn: weg uit het bestand, vulAan zet ze terug.
+export const SAMENVATTING_WEG = Object.freeze(["kindLabel", "title", "location", "detail", "status"]);
+
+// Werfzones en parkeerverboden: de plekpagina maakt één kaart van alle rijen van hetzelfde dossier (een
+// werfzone met al haar fasen en haar omleiding; een parkeerverbod met al zijn plaatsen op dezelfde dag en
+// uren: bundelMaatregelen in site/place-core.js) en toont dan "Werfzone met omleiding", de hele periode, de
+// fasen en "+ 4 andere straten". Een straatbestand bevat alleen de rijen van de straat zelf. Daarom komen de
+// andere rijen van zo'n bundel er kort bij (`bundel`: zonder vorm, adres of omschrijving): een fase van een
+// werfzone per rij, een parkeerverbod als één rij met de andere straten.
+const BUNDEL_VELDEN = Object.freeze({
+  sgw: ["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"],
+  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "reason", "title", "streets"],
+});
+const refSleutel = (ref) => [ref?.id || "", clean(ref?.name), ref?.postcode || ""].join("|");
+const uniekeRefs = (refs) => [...new Map(refs.filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
+export function bundelRijen(rijen = []) {
+  const perSleutel = new Map();
+  for (const rij of rijen) {
+    if ((rij?.kind !== "sgw" && rij?.kind !== "parking") || rij.bundel) continue;
+    const sleutel = maatregelSleutel(rij);
+    if (sleutel.startsWith("los|")) continue;
+    perSleutel.set(sleutel, [...(perSleutel.get(sleutel) || []), rij]);
+  }
+  return perSleutel;
+}
+const kortVoorBundel = (rij) => ({ ...Object.fromEntries(BUNDEL_VELDEN[rij.kind].filter((veld) => rij[veld] !== undefined).map((veld) => [veld, rij[veld]])), bundel: true });
+export function bundelAanvulling(eigenRijen = [], bundels = new Map()) {
+  const eigen = eigenRijen.filter((rij) => (rij?.kind === "sgw" || rij?.kind === "parking") && !rij.bundel);
+  const ids = new Set(eigen.map((rij) => rij.id));
+  const uit = [];
+  for (const sleutel of new Set(eigen.map(maatregelSleutel))) {
+    const anderen = (bundels.get(sleutel) || []).filter((rij) => !ids.has(rij.id));
+    if (!anderen.length) continue;
+    if (sleutel.startsWith("sgw|")) uit.push(...anderen.map(kortVoorBundel));
+    else uit.push({ ...kortVoorBundel(anderen[0]), id: `${anderen[0].id}|bundel`, streets: uniekeRefs(anderen.flatMap((rij) => rij.streets || [])) });
+  }
+  return uit;
 }
 
 // Alle items per straat-id: elk item in de straten waaraan het hangt (en een werk ook in de straten van
@@ -359,9 +415,19 @@ export function verdeelOverStraten(lagen, { extra = () => [], dossier = () => nu
   }
   // Na de rijen van de straat (de eerste rij van een dossier blijft een echte rij).
   const fasen = faseSamenvattingen(lagen.publiekeRuimte || []);
+  for (const [id, delen] of perStraat) {
+    const eigen = [...delen.publiekeRuimte.values()].filter(isEvenementRij);
+    for (const ref of new Set(eigen.map((item) => clean(item.reference)))) {
+      const rijen = eigen.filter((item) => clean(item.reference) === ref);
+      for (const rij of fasen.get(ref) || []) {
+        const kopie = { ...rij, streets: rij.streets.filter((straat) => straatSleutel(straat) !== id) };
+        if (!alGedekt(kopie, rijen)) delen.publiekeRuimte.set(kopie.id, kopie);
+      }
+    }
+  }
+  const bundels = bundelRijen(lagen.publiekeRuimte || []);
   for (const delen of perStraat.values()) {
-    const dossiers = new Set([...delen.publiekeRuimte.values()].filter(isEvenementRij).map((item) => clean(item.reference)));
-    for (const ref of dossiers) for (const rij of fasen.get(ref) || []) delen.publiekeRuimte.set(rij.id, rij);
+    for (const rij of bundelAanvulling([...delen.publiekeRuimte.values()], bundels)) if (!delen.publiekeRuimte.has(rij.id)) delen.publiekeRuimte.set(rij.id, rij);
   }
   return perStraat;
 }
@@ -396,7 +462,8 @@ export function straatDocument(id, delen, { namen = [], ververst = "", bewaard =
       if (Array.isArray(__kader) && !isEvenementRij(rest) && __kader[2] - __kader[0] < 0.005 && __kader[3] - __kader[1] < 0.005) kaders.push(__kader);
       // Wat voor elk item van die soort gelijk is, zet site/straat-snapshot.js (vulAan) terug.
       for (const veld of WEGGELATEN[naam] || []) delete rest[veld];
-      if (isEvenementRij(rest) && bewaard(rest.reference)) rest.streets = (rest.streets || []).filter((ref) => straatSleutel(ref) === String(id));
+      if (isEvenementRij(rest) && bewaard(rest.reference) && !rest.faseSamenvatting) rest.streets = (rest.streets || []).filter((ref) => straatSleutel(ref) === String(id));
+      if (rest.faseSamenvatting) for (const veld of [...SAMENVATTING_WEG, ...(rest.streets?.length ? [] : ["streets"])]) delete rest[veld];
       return rest;
     });
   }

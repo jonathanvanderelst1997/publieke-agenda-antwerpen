@@ -21,7 +21,7 @@ import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 import { sameStreet } from "./agenda-view.js";
-import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, metFasenVanDeOchtend, verschil, standZin } from "./straat-snapshot.js";
+import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, aanvullenMetOchtend, verschil, standZin } from "./straat-snapshot.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -397,8 +397,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const vraag = { district, streetIndex };
       return Promise.all([
         werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: true, items: r.items }), () => ({ naam: "works", ok: false })),
-        // Opbouw en afbraak van een evenement liggen vaak buiten het kader: hun samenvatting van de ochtend blijft.
-        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: metFasenVanDeOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
+        // Opbouw en afbraak van een evenement, de andere fasen van een werfzone: vaak buiten het kader. Wat de ochtend ervan wist, blijft.
+        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: aanvullenMetOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
         vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items: metInzage(items, snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
         terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
       ]);
