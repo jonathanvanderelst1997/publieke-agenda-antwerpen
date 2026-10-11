@@ -505,12 +505,19 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   assert.ok(samen.some((i) => i.id === "sgw:PROEF-GW|2"), "de andere fase blijft");
 });
 
-test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken de straten van de ochtend", () => {
+test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken de straten van de ochtend", async () => {
   const ochtend = [{ id: "permit:20990099", streets: [KAM, PET, HUIK] }];
   const live = [{ id: "permit:20990099", streets: [KAM] }, { id: "permit:20990100", streets: [KAM] }];
   const samen = metStratenVanDeOchtend(live, ochtend);
   assert.deepEqual(samen[0].streets.map((s) => s.name), [KAM.name, PET.name, HUIK.name]);
   assert.deepEqual(samen[1].streets, [KAM], "een nieuwe aanvraag blijft zoals live");
+  // De ochtend eerst: "Waar" noemt de eerste straat als de plek van de aanvraag. Live (alleen de straatassen
+  // in het kader) zet de gekozen straat vooraan; de ochtend kende de dichtste straat (hier de Peterseliestraat).
+  const { permitEntry } = await import("../site/place-core.js");
+  const [eerst] = metStratenVanDeOchtend([{ id: "permit:20990099", streets: [KAM, PET, { id: "9999", name: "Nieuwe Proefstraat", postcode: "2000" }] }], [{ id: "permit:20990099", streets: [PET, KAM, HUIK] }]);
+  assert.deepEqual(eerst.streets.map((s) => s.name), [PET.name, KAM.name, HUIK.name, "Nieuwe Proefstraat"]);
+  assert.equal(permitEntry(eerst).location, permitEntry({ id: "permit:20990099", streets: [PET, KAM, HUIK, { id: "9999", name: "Nieuwe Proefstraat", postcode: "2000" }] }).location);
+  assert.match(permitEntry(eerst).location, /^Peterseliestraat/);
   // Op de plekpagina gebruikt.
   assert.match(fs.readFileSync(path.join(repoRoot, "site", "place-view.js"), "utf8"), /metStratenVanDeOchtend\(items, snel\.ochtend\.permits\)/);
 });

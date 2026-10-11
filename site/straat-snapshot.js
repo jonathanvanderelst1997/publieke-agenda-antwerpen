@@ -124,10 +124,13 @@ function werfzoneSamen(live, ochtend) {
 }
 // Een vergunning die ver buiten het kader van de straat reikt (een leidingwerf, de Oosterweelverbinding):
 // live kent de straatas maar in het kader plus 320 m, dus noemt "Waar" minder straten. Dezelfde aanvraag
-// (zelfde id) krijgt de straten van de ochtend erbij.
+// (zelfde id) krijgt de straten van de ochtend erbij. De ochtend eerst: die kende alle straatassen, en
+// "Waar" noemt de eerste straat als de plek van de aanvraag (waarTekst in site/permit-clarity.js). Live
+// eerst noemde de Oosterweelverbinding vanuit de Noordersingel "Noordersingel" in plaats van
+// "Amerikadok-Zuidkaai". Een straat die alleen live bestaat, komt achteraan.
 export function metStratenVanDeOchtend(live = [], ochtend = []) {
   const perId = new Map((ochtend || []).map((item) => [item?.id, item]));
-  return live.map((item) => (perId.has(item?.id) ? { ...item, streets: samenRefs(item.streets, perId.get(item.id).streets) } : item));
+  return live.map((item) => (perId.has(item?.id) ? { ...item, streets: samenRefs(perId.get(item.id).streets, item.streets) } : item));
 }
 export function aanvullenMetOchtend(live = [], ochtend = []) {
   const dossiers = new Set(live.map((item) => item?.reference).filter(Boolean));
