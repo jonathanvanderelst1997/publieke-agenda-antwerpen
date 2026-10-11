@@ -1,5 +1,5 @@
 {
-  "uitleg": "Vaste plekken die op de evenementkaart een naam krijgen als een evenementendossier (A-Sign) er helemaal binnen ligt: een terrein zonder straatnaam of met een eigen functie. Het midden en de straal (meter) komen uit de vlakken van A-Sign laag 22 en het studentencharter (geodata.antwerpen.be). Een plek zegt waar iets is, nooit wat er gebeurt: `feit` is wat de plek zelf is (de parking van de zalen), geen soort evenement. `minM2`: alleen een dossier dat samen minstens zoveel m² inneemt (de hele parking, niet een stukje stoep ernaast). `geenCharter`: een plek uit het studentencharter in de buurt zegt hier niets (lib/parcours-herkenning.mjs).",
+  "uitleg": "Vaste plekken die op de evenementkaart een naam krijgen als een evenementendossier (A-Sign) er helemaal binnen ligt: een terrein zonder straatnaam of met een eigen functie. Het midden en de straal (meter) komen uit de vlakken van A-Sign laag 22 en het studentencharter (geodata.antwerpen.be). Een plek zegt waar iets is, nooit wat er gebeurt: `feit` is wat de plek zelf is (de parking van de zalen), geen soort evenement. `minM2`: alleen een dossier dat samen minstens zoveel m² inneemt (de hele parking, niet een stukje stoep ernaast). `geenCharter`: een plek uit het studentencharter in de buurt zegt hier niets (lib/parcours-herkenning.mjs). `charter`: de plek is zelf een plek uit het studentencharter (lib/studentencharter.json), ook waar de straal van het charter het terrein niet helemaal dekt.",
   "bijgewerkt": "2026-10-11",
   "plekken": [
     {
@@ -28,7 +28,8 @@
       "naam": "park Konijnenwei",
       "zin": "in park Konijnenwei (Nieuw Zuid)",
       "punt": [4.38765, 51.20075],
-      "straal": 260
+      "straal": 260,
+      "charter": "Konijnenwei"
     },
     {
       "naam": "Belvédère",

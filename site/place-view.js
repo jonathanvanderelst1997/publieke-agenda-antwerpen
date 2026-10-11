@@ -546,7 +546,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}
       ${radius}
       <ul class="pv-stats" aria-label="Samenvatting">
-        ${tile(summary.evenementen, summary.evenementen === 1 ? "evenement" : "evenementen", "cat-festival", "evenementen")}
+        ${tile(summary.evenementen, `${summary.evenementen === 1 ? "evenement" : "evenementen"}${summary.innamesOpStraat ? ` (+ ${summary.innamesOpStraat} ${summary.innamesOpStraat === 1 ? "inname" : "innames"})` : ""}`, "cat-festival", "evenementen")}
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
         ${tile(summary.werkenGepland, "werken gepland", "cat-works pv-stat-planned", "werken")}
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}

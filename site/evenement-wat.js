@@ -81,25 +81,42 @@ export function patroonTekst(p, vandaag = "") {
   if (!p) return "";
   const v = vandaag || p.eerste;
   if (p.aantal === 1) return dagMetNaam(p.eerste, v);
+  // Over de jaarwissel krijgen beide dagen hun jaar: "van 17 april 2026 tot 30 april 2027", niet "van
+  // 17 april tot 30 april 2027" (dat leest als twee weken in 2027).
+  const anderJaar = p.eerste.slice(0, 4) !== p.laatste.slice(0, 4);
+  const dt = (d) => datum(d, anderJaar ? "" : v);
   const bereik = (a, b) => {
     const zelfdeMaand = a.slice(0, 7) === b.slice(0, 7);
-    const ja = datum(a, v), jb = datum(b, v);
+    const ja = dt(a), jb = dt(b);
     return zelfdeMaand && !/\d{4}$/.test(ja) ? `${Number(a.slice(8, 10))} tot ${jb}` : `${ja} tot ${jb}`;
   };
   if (p.aaneen) {
-    if (p.aantal === 2) return `${dagMetNaam(p.eerste, v).replace(/ \S+( \d{4})?$/, p.eerste.slice(5, 7) === p.laatste.slice(5, 7) ? "" : "$&")} en ${dagMetNaam(p.laatste, v)}`;
+    if (p.aantal === 2) return `${dagMetNaam(p.eerste, anderJaar ? "" : v).replace(/ \S+( \d{4})?$/, p.eerste.slice(5, 7) === p.laatste.slice(5, 7) ? "" : "$&")} en ${dagMetNaam(p.laatste, anderJaar ? "" : v)}`;
     if (p.eerste.slice(5) === "01-01" && p.laatste.slice(5) === "12-31" && p.eerste.slice(0, 4) === p.laatste.slice(0, 4)) return `heel ${p.eerste.slice(0, 4)}`;
-    if (p.eerste.slice(8) === "01" && p.eerste.slice(0, 7) === p.laatste.slice(0, 7) && Number(p.laatste.slice(8)) >= 28) return `de hele maand ${MAANDEN[Number(p.eerste.slice(5, 7)) - 1]} (${bereik(p.eerste, p.laatste)})`;
+    // "De hele maand" alleen tot de echte laatste dag van die maand (1 tot 29 oktober is niet heel oktober).
+    if (p.eerste.slice(8) === "01" && p.eerste.slice(0, 7) === p.laatste.slice(0, 7) && p.laatste === laatsteVanMaand(p.eerste)) return `de hele maand ${MAANDEN[Number(p.eerste.slice(5, 7)) - 1]} (${bereik(p.eerste, p.laatste)})`;
     return `van ${bereik(p.eerste, p.laatste)}`;
   }
   const volgende = p.volgende && p.volgende !== p.eerste && !p.vandaag ? `; de volgende is ${dagMetNaam(p.volgende, v)}` : "";
   if (p.ritme === "wekelijks") return `elke ${WEEKDAGEN[p.weekdag]} van ${bereik(p.eerste, p.laatste)}${volgende}`;
   if (p.ritme === "maandelijks") {
-    const maand = (d) => `${MAANDEN[Number(d.slice(5, 7)) - 1]}${d.slice(0, 4) !== String(v).slice(0, 4) || p.eerste.slice(0, 4) !== p.laatste.slice(0, 4) ? ` ${d.slice(0, 4)}` : ""}`;
+    const maand = (d) => `${MAANDEN[Number(d.slice(5, 7)) - 1]}${d.slice(0, 4) !== String(v).slice(0, 4) || anderJaar ? ` ${d.slice(0, 4)}` : ""}`;
     return `één ${WEEKDAGEN[p.weekdag]} per maand, van ${maand(p.eerste)} tot ${maand(p.laatste)}${volgende}`;
   }
-  if (p.aantal <= 3) return `op ${joinNl([...new Set([p.eerste, ...(p.alle || []), p.laatste])].map((d) => dagMetNaam(d, v)))}`;
-  return `op ${p.aantal} losse dagen tussen ${datum(p.eerste, v)} en ${datum(p.laatste, v)}${volgende}`;
+  if (p.aantal <= 3) return `op ${joinNl([...new Set([p.eerste, ...(p.alle || []), p.laatste])].map((d) => dagMetNaam(d, anderJaar ? "" : v)))}`;
+  return `op ${p.aantal} losse dagen tussen ${dt(p.eerste)} en ${dt(p.laatste)}${volgende}`;
+}
+// De laatste dag van de maand van d ("2026-10-31", "2028-02-29").
+function laatsteVanMaand(d) {
+  const j = Number(d.slice(0, 4)), m = Number(d.slice(5, 7));
+  return new Date(Date.UTC(j, m, 0)).toISOString().slice(0, 10);
+}
+// Elke dag met deze weekdag (0-6) van a tot en met b (hoogstens 120): de marktdagen van een markt.
+export function weekdagenTussen(a, b, wd) {
+  if (!isDag(a) || !isDag(b) || !(wd >= 0 && wd <= 6)) return [];
+  const uit = [];
+  for (let d = plus(a, (wd - weekdag(a) + 7) % 7); d <= b && uit.length < 120; d = plus(d, 7)) uit.push(d);
+  return uit;
 }
 // Patroon met de dagen erbij (voor patroonTekst bij twee of drie losse dagen).
 export function patroonVan(dagen = [], vandaag = "") {
@@ -114,31 +131,82 @@ export function patroonVan(dagen = [], vandaag = "") {
 // herfstbladeren, stickers, een bord). `zeker`: het woord noemt het ding zelf; dan zegt de kaart het zonder
 // "vermoedelijk" (een doopfeest met een scheepsnaam blijft een vermoeden: er staat geen schip).
 // De volgorde telt: de doop van een schip vóór de studentendoop (lib/parcours-herkenning.mjs, SOORTEN).
+// Een schip alleen met een woord dat een schip noemt (MTS, schip, vaartuig, tanker): "met de boot naar de
+// overkant" na een studentendoop is geen scheepsdoop. Een boot telt alleen buiten de doopperiode (de
+// herkenner kent die periode, zie stapRegels). Een foor ook als laatste deel van een woord ("najaarsfoor").
+// Een vlaggenmast is geen vlag boven de straat (nagekeken op 11 oktober 2026: kerstbomen bij een vlaggenmast).
 export const DINGEN = Object.freeze([
-  { key: "schip", re: /\bdoop\w*\b[^|]*\b(?:m\.? ?t\.? ?s|schip|schepen|boot|vaartuig|tanker|binnenschip)\b|\b(?:mts|schip|boot|vaartuig)\b[^|]*\bdoop/i, zonder: "doop van een schip", met: "de doop van een schip", evenement: true, zeker: false },
-  { key: "kermis", re: /\bkermis(?!koers)\w*|\bfoor\b|\bfoorkra\w*|\bfoorterrein\w*|lunapark/i, zonder: "kermis", met: "een kermis", evenement: true, zeker: true },
+  { key: "schip", re: /\bdoop\w*\b[^|]*\b(?:m\.? ?t\.? ?s|\w*schip|schepen|vaartuig|tanker)\b|\b(?:m\.? ?t\.? ?s|\w*schip|vaartuig)\b[^|]*\bdoop/i, zonder: "doop van een schip", met: "de doop van een schip", evenement: true, zeker: false },
+  { key: "kermis", re: /\bkermis(?!koers)\w*|\b(?!(?:sema|meta)foor\b)\w*foor(?:en)?\b|\bfoorkra\w*|\bfoorterrein\w*|lunapark/i, zonder: "kermis", met: "een kermis", evenement: true, zeker: true },
   { key: "reuzenrad", re: /reuzenrad/i, zonder: "reuzenrad", met: "een reuzenrad", evenement: true, zeker: true },
-  { key: "versiering", re: /\bvlag(?:gen)?(?:lijn\w*|mast\w*)?\b|reuzenboek\w*|straatversiering|feestverlichting|kerstverlichting/i, zonder: "straatversiering", met: "straatversiering", evenement: false, zeker: true },
+  { key: "versiering", re: /\bvlag(?:gen)?(?:lijn(?:en)?)?\b|reuzenboek\w*|straatversiering|feestverlichting|kerstverlichting|\bkerstbo(?:om|men)\b/i, zonder: "straatversiering", met: "straatversiering", evenement: false, zeker: true },
   { key: "sticker", re: /sticker/i, zonder: "stickers op straat", met: "stickers op straat", evenement: false, zeker: true },
   { key: "bladslag", re: /bladslag|bladhub|bladkorf/i, zonder: "verzamelplek voor herfstbladeren (bladslag)", met: "een verzamelplek voor herfstbladeren (bladslag)", evenement: false, zeker: true },
   { key: "mammobiel", re: /mammobiel/i, zonder: "mammobiel (borstkankeronderzoek)", met: "de mammobiel (borstkankeronderzoek)", evenement: false, zeker: true },
-  { key: "bord", re: /breugelbak|aankondigingsbord|informatiebord/i, zonder: "aankondigingsbord", met: "een aankondigingsbord", evenement: false, zeker: false },
+  { key: "bord", re: /breugelbak|aankondigingsbord|informatiebord|sandwichbord/i, zonder: "aankondigingsbord", met: "een aankondigingsbord", evenement: false, zeker: false },
   { key: "oldtimer", re: /oldtimer/i, zonder: "plek voor oldtimers", met: "een plek voor oldtimers", evenement: true, zeker: true },
 ]);
 const DING = Object.fromEntries(DINGEN.map((d) => [d.key, d]));
 export const dingVan = (key) => DING[key] || null;
+
+// Een dossier waarvan een fase "Opname" heet (A-Sign: "Opname periode 1", "Opname periode 2" ...) is een
+// opname voor een film, een serie of foto's: een vaste fasenaam, geen vrije tekst. Geen evenement met
+// publiek, en een woord in de omschrijving ("Wandelroute") zegt dan niet wat het is.
+export const OPNAME = Object.freeze({ key: "opname", zonder: "film- of foto-opname", met: "een film- of foto-opname", evenement: false, zeker: true });
+export const isOpnameFase = (naam) => /^opname\b/i.test(clean(naam, 60).replace(/^Fase\s+/i, ""));
+
+// "geen kermis", "zonder stickers": een ontkenning noemt het ding niet. Het ontkende woord valt weg.
+export const zonderOntkenning = (t) => String(t ?? "").replace(/(^|[^\p{L}\d])(?:geen|zonder)\s+[\p{L}\d-]+/giu, "$1 ");
+// Een omschrijving die alleen een plek noemt ("Lange Winkelstraat", "Ossenmarkt tem nr 12"): die zegt niet
+// wat er gebeurt, en spreekt dus ook niet tegen wat een andere inname van hetzelfde dossier noemt.
+const ALLEEN_STRAAT = /^[\p{L}' .-]*(?:straat|laan|lei|plein|plaats|weg|vest|dreef|kaai|hof|steeg|rui|markt|pad|park|berg|dijk|singel|brug|baan|velodroom)$/iu;
+export const alleenStraat = (t) => ALLEEN_STRAAT.test(clean(String(t).replace(/[_\d,/]+|\b(?:tot|tem|t\.?e\.?m\.?|nr|en)\b/gi, " "), 200).replace(/[\s.-]+$/, ""));
+// Een voorwerp van een evenement met publiek: een tent, een podium, een DJ, toiletten, een inschrijving.
+// Staat dat in het dossier, dan is een bord of een vlag erbij niet "wat het is".
+export const EVENEMENT_VOORWERP = /\b(?:\w*tent(?:je|jes|en)?|pagode\w*|podium\w*|dj|toilet\w*|inschrijv\w*|kra(?:am|men)|marktkra\w*|foodtruck\w*|springkasteel\w*|geluidsinstallatie\w*)\b/i;
+// Gaat het hele dossier over dit ding? Elke omschrijving met inhoud noemt het (een ontkenning telt niet),
+// of noemt alleen een plek. Eén inname met een bord tussen tenten en een DJ: nee.
+export function gaatOver(key, teksten = []) {
+  const d = DING[key];
+  const lijst = teksten.map((x) => clean(zonderOntkenning(x), 400)).filter((x) => x && /[\p{L}]/u.test(x));
+  return Boolean(d && lijst.length && lijst.some((x) => d.re.test(x)) && lijst.every((x) => d.re.test(x) || alleenStraat(x)));
+}
+// Opslag of materiaal ("opslag reuzenrad"): het ding staat er niet zelf, dus nooit zonder "vermoedelijk".
+const OPSLAG = /\b(?:opslag\w*|stockage|stapel\w*|materiaal\w*|onderdel\w*|werfkeet|bouwkeet)\b/i;
+// Welk ding is dit dossier, en mag de kaart het zonder "vermoedelijk" zeggen? Eén regel voor de kaart
+// (site/kaart-uitleg.js) en de herkenner (lib/parcours-herkenning.mjs), zodat ze hetzelfde zeggen.
+// - Het ding geldt als er geen andere soort in staat (`andereSoort`: een markt, een loop ...) en, bij iets dat
+//   geen evenement is (een bord, een vlag), ook geen tent, podium of DJ.
+// - Zonder "vermoedelijk" alleen als het hele dossier erover gaat, het woord het ding zelf noemt (zeker in
+//   DINGEN) en er geen opslag of materiaal staat.
+// `uitgesloten`: dingen die de herkenner al afwees (een schip in de doopperiode zonder scheepswoord).
+export function dingKeuze(teksten = [], { andereSoort = false, uitgesloten = [] } = {}) {
+  const tekst = teksten.map((x) => clean(zonderOntkenning(x), 400)).filter(Boolean).join(" | ");
+  if (!tekst) return null;
+  for (const d of DINGEN) {
+    if (uitgesloten.includes(d.key) || !d.re.test(tekst)) continue;
+    // Iets dat geen evenement is (een bord, vlaggen) naast een tent, een podium of een DJ: niet "wat het is".
+    if (!d.evenement && EVENEMENT_VOORWERP.test(tekst)) continue;
+    // Met een andere soort erbij ("kerstmarkt" en "kerstverlichting") gaat het dossier niet alleen over het ding.
+    const over = !andereSoort && gaatOver(d.key, teksten);
+    if (!over && andereSoort) continue;
+    return { key: d.key, over, zeker: Boolean(d.zeker && over && !OPSLAG.test(tekst)) };
+  }
+  return null;
+}
 // Welke dingen staan in deze teksten (de omschrijvingen van één dossier)?
 export function dingenIn(teksten = []) {
-  const tekst = teksten.map((x) => clean(x, 400)).filter(Boolean).join(" | ");
+  const tekst = teksten.map((x) => clean(zonderOntkenning(x), 400)).filter(Boolean).join(" | ");
   return tekst ? DINGEN.filter((d) => d.re.test(tekst)).map((d) => d.key) : [];
 }
 // Straatversiering in detail: "straatversiering: vlaggen boven de straat en reuzenboeken".
 export function versieringTekst(teksten = []) {
-  const tekst = teksten.map((x) => clean(x, 400)).join(" | ");
+  const tekst = teksten.map((x) => clean(zonderOntkenning(x), 400)).join(" | ");
   const delen = [
-    /\bvlag/i.test(tekst) ? "vlaggen boven de straat" : "",
+    /\bvlag(?:gen)?(?:lijn(?:en)?)?\b/i.test(tekst) ? "vlaggen boven de straat" : "",
     /reuzenboek/i.test(tekst) ? "reuzenboeken" : "",
     /feestverlichting|kerstverlichting/i.test(tekst) ? "feestverlichting" : "",
+    /\bkerstbo(?:om|men)\b/i.test(tekst) ? "kerstbomen" : "",
   ].filter(Boolean);
   return delen.length ? `straatversiering: ${joinNl(delen)}` : "straatversiering";
 }
@@ -153,9 +221,11 @@ const VOORWERPEN = Object.freeze([
   [/foodtruck|food truck/i, "een foodtruck"],
   [/toilet/i, "toiletten"],
   [/container/i, "een container"],
+  // Een bord bij een evenement met tenten en een DJ is niet wat het dossier is (dingKeuze), wel iets dat er staat.
+  [/breugelbak|aankondigingsbord|informatiebord|sandwichbord/i, "een aankondigingsbord"],
 ]);
 export function voorwerpenIn(teksten = []) {
-  const tekst = teksten.map((x) => clean(x, 400)).join(" | ");
+  const tekst = teksten.map((x) => clean(zonderOntkenning(x), 400)).join(" | ");
   return VOORWERPEN.filter(([re]) => re.test(tekst)).map(([, naam]) => naam);
 }
 
@@ -187,6 +257,9 @@ const WIJK_LIDWOORD = new Map([
 // Wie zegt men "op": op het Eilandje, op het Kiel, op Linkeroever.
 const WIJK_OP = new Set(["Eilandje", "Kiel", "Zuid", "Linkeroever", "Luchtbal", "Dam", "Nieuw-zuid", "Petroleum-zuid"]);
 export const wijkMetLidwoord = (naam) => WIJK_LIDWOORD.get(clean(naam, 80)) || clean(naam, 80);
+// De naam van een wijk zonder lidwoord, zoals op de kaart: "Nieuw Zuid", "Theaterbuurt en Meir".
+const WIJK_NAAM = new Map([["Nieuw-zuid", "Nieuw Zuid"], ["Petroleum-zuid", "Petroleum Zuid"], ["Amandus & Atheneum", "Amandus-Atheneum"], ["Theaterbuurt & Meir", "Theaterbuurt en Meir"], ["Centraal station", "Centraal Station"]]);
+export const wijkNaam = (naam) => WIJK_NAAM.get(clean(naam, 80)) || clean(naam, 80).replace(/ & /g, " en ");
 export function inWijk(naam) {
   const n = clean(naam, 80);
   return n ? `${WIJK_OP.has(n) ? "op" : "in"} ${wijkMetLidwoord(n)}` : "";

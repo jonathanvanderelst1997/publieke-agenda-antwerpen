@@ -179,8 +179,9 @@ test("site: een handfiche wint altijd, en een automatische fiche zegt dat ze nie
   assert.match(k.voetnoot, /De naam is automatisch gevonden in een agenda met dezelfde dag en plek \(antwerpen\.be\); niet met de hand nagekeken\.$/);
   const regels = LOO.rijen.find((r) => r.dossier === "ET2026004615").auto;
   const k2 = evenementKaartje(evenementFeiten([{ ...rij, reference: "ET2026004615" }]), { vandaag: VANDAAG, identiteit: regels });
-  // De titel zegt ook waar (plekKort in lib/parcours-herkenning.mjs): "... vanaf de Belegstraat".
-  assert.match(k2.titel, /^Vermoedelijk een schoolactiviteit vanaf de /);
+  // De titel zegt ook waar (plekKort in lib/parcours-herkenning.mjs). Een lus zonder vertrekpunt in het
+  // dossier krijgt geen "vanaf" (het begin van de langste lijn is geen vertrekpunt): de wijk.
+  assert.equal(k2.titel, "Vermoedelijk een schoolactiviteit in Brederode");
   assert.match(k2.voetnoot, /automatisch afgeleid uit de omschrijving in het dossier/);
 });
 
@@ -254,7 +255,8 @@ test("een falende bron breekt de verversing niet: zonder straatas, GIPOD, feeds 
 
 test("routezin: vorm, lengte, straten met lidwoord, district en datum", () => {
   const d = F.dossiers.find((x) => x.dossier === "ET2026004615");
-  assert.match(routeZin(d, { vandaag: VANDAAG }), /^Lus van ongeveer 1,[01] km in Brederode \(district Antwerpen\), van de Belegstraat naar de Lange Batterijstraat, op vrijdag 20 november\.$/);
+  // Een lus: geen "van ... naar ..." (dat zou een vertrekpunt beweren), wel waar begin en einde liggen.
+  assert.match(routeZin(d, { vandaag: VANDAAG }), /^Lus van ongeveer 1,[01] km in Brederode \(district Antwerpen\), begin en einde bij de Belegstraat en de Lange Batterijstraat, op vrijdag 20 november\.$/);
   assert.match(kaartzin(d, { vandaag: VANDAAG }), /Stand in A-Sign op 10 oktober 2026: aanvraag goedgekeurd\.$/);
 });
 
