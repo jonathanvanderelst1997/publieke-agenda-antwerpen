@@ -21,7 +21,7 @@ const midden = [(KAM_BOX[0] + KAM_BOX[2]) / 2, (KAM_BOX[1] + KAM_BOX[3]) / 2];
 
 export const WERK_TITEL = "Proefwerk riolering (snel)";
 export const werk = (gipodId = 990001, extra = {}) => ({
-  gipodId, title: `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland",
+  gipodId, title: `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland", // verzonnen adres
   start: "2099-03-19T06:00:00Z", end: "2099-04-09T16:00:00Z", workTypes: [], occupancyTypes: ["Riolering"],
   sourceUrls: [`https://gipod.api.vlaanderen.be/api/v1/groundworks/${gipodId}`], lastModified: "2099-03-01T00:00:00Z",
   point: midden, recordCount: 1, boundaryConfidence: "point_inside_new", hindrance: null, hindranceSourceLoaded: true,
@@ -29,7 +29,7 @@ export const werk = (gipodId = 990001, extra = {}) => ({
 });
 export const parkeerverbod = (n = 1) => ({
   id: `parking:PROEF-${n}|L${n}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", reason: "Verhuis",
-  location: "Proefstraat 12-14, 2000 Antwerpen", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z",
+  location: "Proefstraat 12-14, 2000 Antwerpen", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", // verzonnen adres
   status: "Goedgekeurd", reference: `PROEF-${n}`, detail: "", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, postcode: "2000",
   sourceLabel: "A-Sign parkeerverboden", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",
   streets: [KAM], streetResolution: "official_address_match", streetDistanceMeters: 0,
@@ -43,6 +43,14 @@ const inname = {
   sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22", streets: [KAM],
   streetResolution: "geometry_official_axis", streetDistanceMeters: 2,
 };
+// Een rij van een fase (opbouw of afbraak) van hetzelfde dossier, elders in de stad: zonder straat.
+export const evenementFase = (i, fase, start, end, streets = []) => ({
+  id: `iod:ET2099000001|F${i}|f${i}`, kind: "iod", kindLabel: "Inname openbaar domein", title: "Parkeerverbod in Straat", location: "",
+  start: `${start}T00:00:00.000Z`, end: `${end}T00:00:00.000Z`, status: "toelating_gegenereerd", reference: "ET2099000001",
+  detail: `Fase ${fase}`, phase: fase, dossierType: "ETL", innameType: "Parkeerverbod in Straat", hindrance: "",
+  sourceLabel: "A-Sign IOD", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+  streets, streetResolution: "geometry_official_axis", streetDistanceMeters: 1,
+});
 const evenementRij = (i, streets) => ({
   id: `iod:ET2099000001|EVENT|e${i}`, kind: "iod", kindLabel: "Inname openbaar domein", title: "Parcours", location: "",
   start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "toelating_gegenereerd", reference: "ET2099000001",
@@ -74,19 +82,30 @@ export function bronnen({ werken = [werk()], extraRuimte = [] } = {}) {
       werken: { ok: true, items: werken },
       publiekeRuimte: { ok: true, items: [parkeerverbod(1), inname, evenementRij(1, [KAM, PET]), metMail, ...extraRuimte] },
       vergunningen: { ok: true, items: [vergunning] },
-      terrassen: { ok: true, items: [terras(1, "Proefstraat 5"), terras(2, "Proefstraat 5"), terras(3, "Proefstraat 9")] },
+      terrassen: { ok: true, items: [terras(1, "Proefstraat 5"), terras(2, "Proefstraat 5"), terras(3, "Proefstraat 9")] }, // verzonnen adressen
     },
   };
 }
 // De bronnen gaan in de echte verversing eerst door de privacy-opkuis (verzamelStraatBronnen); hier ook.
-export async function schoneBronnen(opties) {
+async function schoon(b) {
   const { itemVoorStraat, terrassenVoorStraat, kaderVanItem } = await import("../../scripts/build-straat-snapshots.mjs");
-  const b = bronnen(opties);
   for (const naam of ["werken", "publiekeRuimte", "vergunningen"]) {
     b.lagen[naam].items = b.lagen[naam].items.map((item) => { const s = itemVoorStraat(item, { laag: naam }); const k = kaderVanItem(item); return s && k ? { ...s, __kader: k } : s; }).filter(Boolean);
   }
   b.lagen.terrassen.items = terrassenVoorStraat(b.lagen.terrassen.items);
   return b;
+}
+export async function schoneBronnen(opties) {
+  return schoon(bronnen(opties));
+}
+// De bronnen zoals de verversing ze zou maken uit de live lagen die een browser zelf maakte
+// (window.PUBLIC_AGENDA_LIVE_STREETS): dezelfde code (site/*-core.js), dus dezelfde items. Zonder de
+// nagekeken stand van het Inzageloket: die voegt de browser er zelf aan toe (permits-live.js).
+export async function bronnenUitLiveLagen({ works = [], publicSpace = [], permits = [], terraces = [] } = {}) {
+  const lijst = (items) => ({ ok: true, items: JSON.parse(JSON.stringify(items || [])) });
+  const b = { schemaVersion: 1, ververst: VERVERST, lagen: { werken: lijst(works), publiekeRuimte: lijst(publicSpace), vergunningen: lijst(permits), terrassen: lijst(terraces) } };
+  for (const item of b.lagen.vergunningen.items) delete item.inzage;
+  return schoon(b);
 }
 export const agendaItems = [
   { id: "proef-buurtfeest-2099-03-15", title: "Buurtfeest (proef)", date: "2099-03-15", location: "Kammenstraat, 2000 Antwerpen", theme: "Activiteit", timeText: "14.00 uur" },
@@ -95,11 +114,11 @@ export const agendaItems = [
 export const kaartUitleg = { schemaVersion: 1, generatedAt: VERVERST, vanaf: "2099-03-10", tot: "2099-05-09", werken: {}, evenementen: { ET2099000001: { start: "2099-03-14", eind: "2099-03-14", soort: "", soortBron: "", beschrijvingen: [], straten: ["Kammenstraat", "Peterseliestraat", "Huikstraat"], kruist: [], stratenTekst: "", gekoppeld: null, kaart: [] } } };
 
 // Een werkmap met wat de bouwer leest: de echte stratenlijst en een verzonnen kaart-uitleg.
-export function maakWerkmap(root) {
+export function maakWerkmap(root, { uitleg = kaartUitleg } = {}) {
   fs.mkdirSync(path.join(root, "site", "geo"), { recursive: true });
   fs.mkdirSync(path.join(root, "site", "sources"), { recursive: true });
   fs.copyFileSync(path.join(repoRoot, "site", "geo", "straten.json"), path.join(root, "site", "geo", "straten.json"));
-  fs.writeFileSync(path.join(root, "site", "sources", "kaart-uitleg.json"), JSON.stringify(kaartUitleg));
+  fs.writeFileSync(path.join(root, "site", "sources", "kaart-uitleg.json"), JSON.stringify(uitleg));
 }
 
 export async function bouw(root, { bronnenDoc = undefined, history = null, nu = NU } = {}) {

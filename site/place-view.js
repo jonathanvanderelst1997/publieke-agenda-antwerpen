@@ -15,13 +15,13 @@ import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
-import { splitsOpOnderzoek } from "./inzage-status.js";
+import { brusselsVandaag, metInzage, splitsOpOnderzoek } from "./inzage-status.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur,splitsLinks} from "./bezoekers-bronnen.js";
 import {publiekeMarktUur} from "./publieke-markturen.js";
 import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.js";
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 import { sameStreet } from "./agenda-view.js";
-import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, verschil, standZin } from "./straat-snapshot.js";
+import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, metFasenVanDeOchtend, verschil, standZin } from "./straat-snapshot.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -237,7 +237,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       if (map) aside.append(map);
       return pending;
     })
-    .catch(() => { aside.hidden = true; });
+    .catch(() => { aside.hidden = true; view.straalNietBeschikbaar?.(); window.dispatchEvent(new CustomEvent("public-agenda:area-ready")); });
 
   // ---- gegevens: straten, wijken, locaties ----
   let index = null, staticIndex = null, liveIndex = null, wijken = [], geo = { entries: {} }, refsByName = new Map();
@@ -326,7 +326,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // de ochtend staan, met een eerlijke zin. Zonder stand (nog geen straatbestanden) werkt alles zoals vroeger.
   const SNEL_LAGEN = [["works", "werken"], ["publicSpace", "publiekeRuimte"], ["permits", "vergunningen"], ["terraces", "terrassen"]];
   const SNEL_ONDERDEEL = { works: "werken", publicSpace: "parkeerverboden en innames", permits: "vergunningen", terraces: "terrassen" };
-  let snelMogelijk = true, snelBeurt = 0, districtBelofte = null;
+  let snelMogelijk = true, snelBeurt = 0, districtBelofte = null, inzageBelofte = null;
+  // De nagekeken stand van het Inzageloket (zoals permits-live.js): zonder die stand geen "bezwaar
+  // indienen kan nu" bovenaan. Ontbreekt het bestand, dan zegt de kaart niets over een openbaar onderzoek.
+  const inzageStatus = () => (inzageBelofte ||= fetch("/sources/inzage-status.json", { headers: { Accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null));
   const districtsgrens = () => {
     const u = new URL("https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/109/query");
     u.search = new URLSearchParams({ where: "districtnaam='ANTWERPEN'", outFields: "districtcode,districtnaam,afkorting", outSR: "4326", f: "geojson" });
@@ -356,7 +359,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     let snel = state.snel?.straat === place.key ? state.snel : null;
     if (!alleenLive || !snel) {
-      const stand = await laadStraat(place.id).catch(() => null);
+      const [stand, inzage] = await Promise.all([laadStraat(place.id).catch(() => null), inzageStatus()]);
       if (beurt !== snelBeurt) return;
       if (!stand) {
         // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district.
@@ -366,19 +369,18 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         window.dispatchEvent(new CustomEvent("public-agenda:view-change"));
         return;
       }
-      const lagen = lagenUitStand(stand);
+      const lagen = lagenUitStand(stand, { inzage, vandaag: brusselsVandaag() });
       const bruikbaar = (laag) => ["ok", "stale"].includes(stand.index.lagen?.[laag]?.status);
       const tijden = SNEL_LAGEN.filter(([, laag]) => bruikbaar(laag)).map(([, laag]) => stand.index.lagen[laag].sinds).filter(Boolean).sort();
       // Het kader van de straat en van alles wat de verversing eraan hing (een terras met een adres in de
       // straat kan 150 m verder liggen); zonder bestand alleen dat van de straat.
       const k = Array.isArray(stand.doc?.kader) && stand.doc.kader.length === 4 ? stand.doc.kader : null, b = place.box;
       const kader = k && Array.isArray(b) ? [Math.min(k[0], b[0], b[2]), Math.min(k[1], b[1], b[3]), Math.max(k[2], b[0], b[2]), Math.max(k[3], b[1], b[3])] : k || b;
-      snel = { straat: place.key, kader, ochtend: {}, ververst: tijden[0] || stand.index.ververst || "", bezig: true, zin: "" };
+      snel = { straat: place.key, kader, ochtend: {}, ververst: tijden[0] || stand.index.ververst || "", inzage, bezig: true, nieuw: 0, weg: 0, mislukt: false, mislukteDelen: [] };
       for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) { snel.ochtend[naam] = lagen[naam]; zetSnelLaag(naam, lagen[naam]); }
       state.snel = snel;
     }
     snel.bezig = true;
-    snel.zin = standZin({ ververst: snel.ververst, bezig: true });
     schedule();
     // Live: dat kader met de straal en 40 m marge; de straatassen nog 320 m ruimer (een werk hangt aan een
     // genoemde straat tot 300 m ver, site/street-core.js).
@@ -395,8 +397,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const vraag = { district, streetIndex };
       return Promise.all([
         werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: true, items: r.items }), () => ({ naam: "works", ok: false })),
-        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.items }), () => ({ naam: "publicSpace", ok: false })),
-        vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items }), () => ({ naam: "permits", ok: false })),
+        // Opbouw en afbraak van een evenement liggen vaak buiten het kader: hun samenvatting van de ochtend blijft.
+        publiekeRuimteInKader(kader, vraag).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: metFasenVanDeOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
+        vergunningenInKader(kader, vraag).then((items) => ({ naam: "permits", ok: true, items: metInzage(items, snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
         terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
       ]);
     })();
@@ -418,11 +421,17 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       }
       zetSnelLaag(naam, items);
     }
-    snel.bezig = false;
-    snel.zin = mislukt.length === SNEL_LAGEN.length || !kader
-      ? standZin({ ververst: snel.ververst, mislukt: true })
-      : `${standZin({ ververst: snel.ververst, nieuw, weg })}${mislukt.length ? ` Live nakijken lukte nu niet voor ${mislukt.join(", ")}: daarvan zie je de stand van de verversing.` : ""}`;
+    Object.assign(snel, { bezig: false, nieuw, weg, mislukt: mislukt.length === SNEL_LAGEN.length || !kader, mislukteDelen: mislukt });
     schedule();
+  }
+  // De zin onder de tegels, bij elke tekenbeurt opnieuw: met een straal hangt ze ook af van de straatassen
+  // voor die straal (view.straalStand), die vaak na het live nakijken binnenkomen.
+  function snelZin() {
+    const snel = state.snel;
+    if (!snel) return { zin: "", bezig: false };
+    const straal = state.radius || 0, straalStand = view.straalStand || "klaar";
+    const zin = standZin({ ververst: snel.ververst, bezig: snel.bezig, nieuw: snel.nieuw, weg: snel.weg, mislukt: snel.mislukt, mislukteDelen: snel.mislukteDelen, straal, straalStand });
+    return { zin, bezig: snel.bezig || (!snel.mislukt && straal > 0 && straalStand === "laadt") };
   }
 
   // ---- plek kiezen ----
@@ -671,7 +680,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
       ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}
-      ${state.snel?.zin && place.type === "straat" ? `<p class="pv-place-loading pv-stand">${state.snel.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(state.snel.zin)}</p>` : ""}`;
+      ${(() => { const s = place.type === "straat" ? snelZin() : null; return s?.zin ? `<p class="pv-place-loading pv-stand" role="status">${s.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(s.zin)}</p>` : ""; })()}`;
   }
   placeBox.addEventListener("click", (event) => {
     const r = event.target.closest("[data-radius]");

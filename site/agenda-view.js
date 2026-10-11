@@ -28,7 +28,7 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
   let query = "", selected = null, resolver = resolveAddress, place = null;
   // Buurt: een wijk (code uit site/geo/wijken.geojson), een postcode en/of een straal rond de gekozen straat.
   // De kaart (neighborhood-map.js) levert de matcher; zolang die er niet is, filtert de wijk nog niet.
-  let area = { wijk: "", radius: 0, postcode: "" }, areaMatcher = null;
+  let area = { wijk: "", radius: 0, postcode: "" }, areaMatcher = null, straalMislukt = false;
   const allowed = new Set(VIEW_THEMES.map(([key]) => key));
   let themes = new Set(defaultThemes.filter(key => allowed.has(key)));
   // Straten van een item zonder eigen straten: één keer per item opzoeken en onthouden. Elke filter-
@@ -55,6 +55,10 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
     get themes() { return new Set(themes); },
     get area() { return { ...area }; },
     get areaReady() { return Boolean(areaMatcher); },
+    // De straal rond een straat heeft de straatassen nodig (neighborhood-map.js): "laadt", "klaar" of "mislukt".
+    get straalStand() { return areaMatcher?.straal || (straalMislukt ? "mislukt" : "laadt"); },
+    // De kaart of de wijken laadden niet: er komt geen matcher, dus ook geen straal.
+    straalNietBeschikbaar() { straalMislukt = true; },
     get areaLabel() { return area.wijk ? (areaMatcher?.labelFor?.(area.wijk) || area.wijk) : ""; },
     // De gekozen plek uit de zoekbalk (straat, wijk of postcode), met haar kader voor de kaart.
     get place() { return place; },

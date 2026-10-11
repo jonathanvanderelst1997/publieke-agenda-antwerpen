@@ -21,6 +21,7 @@ import { fileURLToPath } from "node:url";
 import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus } from "../lib/source-feed.mjs";
+import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
 export function gitBaseline(rootDir, ref) {
@@ -74,6 +75,12 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     const s = herkenning.samenvatting;
     lines.push(["parcours-herkenning", `zeker=${s.zeker}`, `waarschijnlijk=${s.waarschijnlijk}`, `alleen-kaartzin=${s.alleenKaartzin}`, `met-handfiche=${s.metHandfiche}`, `generatedAt=${herkenning.generatedAt ?? "-"}`, ...(s.bronFouten?.length ? [`bronFouten=${s.bronFouten.length}`] : [])].join("\t"));
   }
+
+  // Straatbestanden (P5, scripts/build-straat-snapshots.mjs): alleen melden, telt niet als fout. Een laag
+  // die niet laadde of een bouw die al meer dan een dag niet lukte, is anders alleen op de plekpagina te zien.
+  const straat = straatIndexStand(fs.existsSync(path.join(rootDir, STRAAT_INDEX)) ? readJson(path.join(rootDir, STRAAT_INDEX)) || {} : null, { at });
+  lines.push(straat.regel);
+  warnings.push(...straat.waarschuwingen);
 
   if (baseline) {
     const today = brusselsDate(new Date(at));

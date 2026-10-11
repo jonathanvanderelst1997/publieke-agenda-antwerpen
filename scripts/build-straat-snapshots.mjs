@@ -36,7 +36,7 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import {
   BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
-  STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, straatBestandenProblemen, straatItemPrivacy,
+  STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
 } from "../lib/straat-bestanden.mjs";
 import { loadExpandedAgendaItems } from "./agenda-source.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
@@ -46,7 +46,7 @@ import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets } from "../site/street-core.js";
 import { collectTerraces } from "../site/terraces-live-core.js";
-import { isEvenementDossier } from "../site/kaart-uitleg.js";
+import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
 import { STRAATVELDEN, WEGGELATEN, straatItems } from "../site/straat-snapshot.js";
 
 export {
@@ -85,7 +85,9 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   }
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
-  const schoon = itemVoorHistoriek(zonder);
+  // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
+  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
+  const schoon = itemZonderPandnummers(itemVoorHistoriek(zonder));
   for (const sleutel of ["sourceUrl", "sourceUrls"]) {
     if (!(sleutel in zonder)) continue;
     schoon[sleutel] = Array.isArray(zonder[sleutel]) ? zonder[sleutel].map(bronUrl).filter(Boolean) : bronUrl(zonder[sleutel]);
@@ -145,7 +147,7 @@ export function agendapuntVoorStraat(item) {
     ...(clean(item?.theme) ? { theme: clean(item.theme) } : {}),
   };
   if (!uit.id || !uit.title || !uit.date) return null;
-  const schoon = itemVoorHistoriek(uit);
+  const schoon = itemZonderPandnummers(itemVoorHistoriek(uit));
   return straatItemPrivacy(schoon).length ? null : schoon;
 }
 
@@ -287,11 +289,50 @@ const straatSleutel = (ref) => String(ref?.id || "");
 const isEvenementRij = (item) => item?.kind === "iod" && isEvenementDossier(item);
 const isEvenementFase = (item) => /^evenement$/i.test(clean(item?.phase)) || /Fase Evenement/i.test(clean(item?.detail));
 
+// Opbouw en afbraak van een evenement liggen vaak elders dan de straat (de start- en aankomstzone van een
+// loop), en een straatbestand bevat alleen de rijen van de straat zelf. De kaart rekent "opbouw vanaf …
+// en afbraak tot …", "Parcours door …" en de hele innameperiode uit alle rijen van het dossier
+// (evenementFeiten in site/kaart-uitleg.js). Daarom per evenementendossier één samenvattende rij per fase
+// en soort inname (parcours, parkeerverbod, verkeersvrij, omleiding, andere): het vroegste begin en het
+// laatste einde van die rijen, zonder straat, vorm of omschrijving (`faseSamenvatting`). Zonder straat
+// verandert ze niets aan "jouw straat" (de eigen rijen van de straat staan er al). Ze komt in elke straat
+// waar het dossier staat; de plekpagina houdt ze ook na het live nakijken van het kader van de straat
+// (metFasenVanDeOchtend in site/straat-snapshot.js).
+const tijd = (waarde) => Date.parse(waarde || "");
+export function faseSamenvattingen(rijen = []) {
+  const perDossier = new Map();
+  for (const rij of rijen) {
+    if (!isEvenementRij(rij) || rij.faseSamenvatting || !clean(rij.reference)) continue;
+    const ref = clean(rij.reference), fase = clean(rij.phase), type = clean(rij.innameType || rij.title), soort = innameSoort(type);
+    const fasen = perDossier.get(ref) || new Map();
+    perDossier.set(ref, fasen);
+    const start = rij.start || "", end = rij.end || rij.start || "";
+    const sleutel = `${fase}|${soort}`;
+    const huidig = fasen.get(sleutel);
+    if (!huidig) {
+      fasen.set(sleutel, {
+        id: `iod:${ref}|fase|${fase || "zonder"}|${soort}`, kind: "iod", kindLabel: rij.kindLabel || "Inname openbaar domein", title: "", location: "",
+        start, end, status: rij.status || "", reference: ref, detail: fase ? `Fase ${fase}` : "", phase: fase,
+        dossierType: rij.dossierType || "", innameType: type, hindrance: clean(rij.hindrance), streets: [], faseSamenvatting: true,
+      });
+      continue;
+    }
+    // "Parcours" telt als parcours (evenementFeiten): die naam wint binnen de soort.
+    if (type === "Parcours") huidig.innameType = type;
+    if (Number.isFinite(tijd(start)) && !(tijd(huidig.start) <= tijd(start))) huidig.start = start;
+    if (Number.isFinite(tijd(end)) && !(tijd(huidig.end) >= tijd(end))) huidig.end = end;
+    // Zoals evenementFeiten: "True" bij één rij met hinder.
+    if (clean(rij.hindrance).toLowerCase() === "true") huidig.hindrance = "True";
+    else if (!huidig.hindrance && rij.hindrance) huidig.hindrance = clean(rij.hindrance);
+  }
+  return new Map([...perDossier].map(([ref, fasen]) => [ref, [...fasen.values()]]));
+}
+
 // Alle items per straat-id: elk item in de straten waaraan het hangt (en een werk ook in de straten van
 // zijn werfzone). Een evenementendossier dat de verversing kent, komt ook in de andere straten van zijn
 // parcours, met één rij (bij voorkeur van de dag zelf): genoeg voor een kaart, die haar straten en
 // uitleg uit kaart-uitleg.json haalt. Alle rijen van een groot parcours in elke straat zou een straatbestand
-// van honderden kB maken.
+// van honderden kB maken. Elke straat met een evenementendossier krijgt er de samenvatting van zijn fasen bij.
 export function verdeelOverStraten(lagen, { extra = () => [], dossier = () => null } = {}) {
   const perStraat = new Map();
   const plaats = (id) => {
@@ -315,6 +356,12 @@ export function verdeelOverStraten(lagen, { extra = () => [], dossier = () => nu
       const deel = plaats(id).publiekeRuimte;
       if (![...deel.values()].some((item) => item.reference === ref)) deel.set(rij.id, rij);
     }
+  }
+  // Na de rijen van de straat (de eerste rij van een dossier blijft een echte rij).
+  const fasen = faseSamenvattingen(lagen.publiekeRuimte || []);
+  for (const delen of perStraat.values()) {
+    const dossiers = new Set([...delen.publiekeRuimte.values()].filter(isEvenementRij).map((item) => clean(item.reference)));
+    for (const ref of dossiers) for (const rij of fasen.get(ref) || []) delen.publiekeRuimte.set(rij.id, rij);
   }
   return perStraat;
 }
@@ -409,6 +456,40 @@ export function bouwRadar(history, { dagen = RADAR_DAGEN } = {}) {
     straten[sleutel] = [...perStraat.get(sleutel)].sort(([a], [b]) => a.localeCompare(b)).map(([run, tel]) => [runIndex.get(run), ...tel]);
   }
   return { schemaVersion: STRAAT_SCHEMA, ververst: observedAt, lagen, runs: runLijst, straten };
+}
+
+// De radar die altijd in het budget past (50 kB, lib/straat-bestanden.mjs). validate-data en de toetsen
+// in `npm run check` kijken dat budget elke ochtend na: een radar die op een drukke dag groter wordt,
+// mag de verversing nooit rood maken. Daarom, in deze volgorde, tot hij past (`ingekort`):
+// 1. de oudste dagen vallen weg (een week met twee verversingen per dag);
+// 2. alleen de laatste verversing blijft (een verversing die bijna elke straat raakt);
+// 3. de straten met de minste wijzigingen vallen weg (`weggelaten`: hoeveel).
+export function radarBinnenBudget(history, { max = MAX_RADAR_BYTES, dagen = RADAR_DAGEN } = {}) {
+  const past = (radar) => Buffer.byteLength(`${JSON.stringify(radar)}\n`) <= max;
+  let radar = bouwRadar(history, { dagen });
+  for (let d = dagen - 1; !past(radar) && d >= 1; d -= 1) radar = { ...bouwRadar(history, { dagen: d }), ingekort: true };
+  if (past(radar)) return radar;
+  const laatste = radar.runs.at(-1);
+  const straten = Object.entries(radar.straten)
+    .map(([sleutel, rijen]) => [sleutel, rijen.filter(([run]) => radar.runs[run] === laatste).map(([, ...tel]) => [0, ...tel])])
+    .filter(([, rijen]) => rijen.length);
+  radar = { ...radar, runs: laatste ? [laatste] : [], straten: Object.fromEntries(straten), ingekort: true };
+  if (past(radar)) return radar;
+  const totaal = ([, rijen]) => rijen.reduce((som, [, a, c, r]) => som + a + c + r, 0);
+  const volgorde = [...straten].sort((a, b) => totaal(b) - totaal(a) || a[0].localeCompare(b[0], "nl"));
+  const met = (n) => { const houd = new Set(volgorde.slice(0, n).map(([sleutel]) => sleutel)); return { ...radar, straten: Object.fromEntries(straten.filter(([sleutel]) => houd.has(sleutel))), weggelaten: volgorde.length - n }; };
+  let n = volgorde.length;
+  while (n > 0 && !past(met(n))) n = Math.min(n - 1, Math.floor(n * 0.9));
+  return met(n);
+}
+
+// Schrijft site/history/radar.json uit de live historiek; geeft het aantal bytes (0 zonder historiek).
+export function schrijfRadar(rootDir, history) {
+  if (!history) return 0;
+  const tekst = `${JSON.stringify(radarBinnenBudget(history))}\n`;
+  fs.mkdirSync(path.dirname(path.join(rootDir, RADAR_BESTAND)), { recursive: true });
+  fs.writeFileSync(path.join(rootDir, RADAR_BESTAND), tekst, "utf8");
+  return Buffer.byteLength(tekst);
 }
 
 // ---------- schrijven ----------
@@ -554,17 +635,7 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
 
   // De radar uit de live historiek (site/history/live-layers.json).
   const geschiedenis = history === undefined ? leesJson(path.join(rootDir, "site", "history", "live-layers.json")) : history;
-  let radarBytes = 0;
-  if (geschiedenis) {
-    // Past de radar niet in 50 kB (een drukke week), dan vallen de oudste dagen weg tot hij past.
-    let dagen = RADAR_DAGEN;
-    let radar = bouwRadar(geschiedenis, { dagen });
-    while (Buffer.byteLength(JSON.stringify(radar)) > MAX_RADAR_BYTES - 1 && dagen > 1) radar = { ...bouwRadar(geschiedenis, { dagen: --dagen }), ingekort: true };
-    const tekst = `${JSON.stringify(radar)}\n`;
-    radarBytes = Buffer.byteLength(tekst);
-    fs.mkdirSync(path.dirname(path.join(rootDir, RADAR_BESTAND)), { recursive: true });
-    fs.writeFileSync(path.join(rootDir, RADAR_BESTAND), tekst, "utf8");
-  }
+  const radarBytes = schrijfRadar(rootDir, geschiedenis);
   const uitslag = { straten: Object.keys(index).length, geschreven, ongewijzigd, weg, teGroot, totaalBytes: totaal, grootsteBytes: grootste, radarBytes, lagen: Object.fromEntries(Object.entries(stand).map(([naam, s]) => [naam, s.status])) };
   log(JSON.stringify({ straatSnapshots: uitslag }));
   return uitslag;
@@ -573,9 +644,15 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
 if (isMainModule(import.meta.url)) {
   const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   try {
-    schrijfStraatSnapshots({ rootDir, log: console.log });
-    // Het tussenbestand is gebruikt; de volgende verversing maakt een nieuw.
-    fs.rmSync(path.join(rootDir, BRONNEN_BESTAND), { force: true });
+    // --alleen-radar: alleen site/history/radar.json opnieuw uit live-layers.json (bv. na een merge van
+    // main met een nieuwere historiek); de straatbestanden blijven zoals ze zijn.
+    if (process.argv.includes("--alleen-radar")) {
+      console.log(JSON.stringify({ radarBytes: schrijfRadar(rootDir, leesJson(path.join(rootDir, "site", "history", "live-layers.json"))) }));
+    } else {
+      schrijfStraatSnapshots({ rootDir, log: console.log });
+      // Het tussenbestand is gebruikt; de volgende verversing maakt een nieuw.
+      fs.rmSync(path.join(rootDir, BRONNEN_BESTAND), { force: true });
+    }
   } catch (error) {
     // Een fout hier maakt de verversing niet rood: de straatbestanden van gisteren blijven staan.
     console.log(JSON.stringify({ straatSnapshots: "niet gelukt", soort: error?.name || "Error" }));

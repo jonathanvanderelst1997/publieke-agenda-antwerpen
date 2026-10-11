@@ -2,6 +2,7 @@
 // (site/straat/<id>.json, gemaakt door scripts/build-straat-snapshots.mjs) en vraagt daarna live alleen het
 // kader van die straat na. Dit bestand: de vorm van die bestanden lezen, het kader van een straat en de
 // zin over wat er live bij kwam ("1 nieuw sinds 05:22"). Zonder DOM, ook voor de toetsen en de bouwer.
+import { metInzage } from "./inzage-status.js";
 import { vergunningBronUrl } from "./permits-live-core.js";
 
 // De lagen in een straatbestand en hun naam als live laag (window.PUBLIC_AGENDA_LIVE_STREETS).
@@ -64,22 +65,49 @@ export function laadStraatIndex({ fetch: fetchImpl = (...a) => globalThis.fetch(
 
 // De stand van één straat bij de ochtendverversing. `{ index, doc }`, met doc null als de straat toen
 // niets had; null als er geen stand is (geen index, of de straat staat bij "alleenLive").
-export async function laadStraat(id, { fetch: fetchImpl = (...a) => globalThis.fetch(...a) } = {}) {
+//
+// De hash in de URL: verandert de inhoud, dan is het een nieuwe URL, en de browser en de CDN mogen elk
+// bestand een jaar bewaren (render.yaml). Met een index van een paar minuten oud kan de browser toch de
+// oude hash vragen en de nieuwe inhoud krijgen (of index.html, als het bestand intussen weg is), en die
+// dan een jaar onder de oude URL bewaren. Daarom kijken we de hash na: klopt ze niet, dan nog één keer
+// vers (een extra parameter voorbij de cache van de CDN, en "reload" voorbij die van de browser). Klopt het dan nog niet, dan
+// alleen een stand die niet ouder is dan de index; anders geen stand (dan alles live, zoals vroeger).
+const leesDoc = async (response) => {
+  if (!response?.ok) return null;
+  try { const doc = await response.json(); return doc?.schemaVersion === 1 ? doc : null; } catch { return null; }
+};
+export async function laadStraat(id, { fetch: fetchImpl = (...a) => globalThis.fetch(...a), nu = () => Date.now() } = {}) {
   const index = await laadStraatIndex({ fetch: fetchImpl });
   if (!index || !/^\d+$/.test(String(id || ""))) return null;
   if (Array.isArray(index.alleenLive) && index.alleenLive.includes(String(id))) return null;
   const hash = index.straten[String(id)];
   if (!hash) return { index, doc: null };
-  // De hash in de URL: verandert de inhoud, dan is het een nieuwe URL; anders mag de browser het bewaren.
-  const response = await fetchImpl(`/straat/${id}.json?v=${encodeURIComponent(hash)}`, { headers: { Accept: "application/json" } });
-  if (!response.ok) return null;
-  const doc = await response.json();
-  return doc?.schemaVersion === 1 ? { index, doc } : null;
+  const url = `/straat/${id}.json?v=${encodeURIComponent(hash)}`;
+  const doc = await leesDoc(await fetchImpl(url, { headers: { Accept: "application/json" } }));
+  if (doc?.inhoud === hash) return { index, doc };
+  const vers = await leesDoc(await fetchImpl(`${url}&vers=${nu()}`, { cache: "reload", headers: { Accept: "application/json" } }).catch(() => null));
+  if (vers?.inhoud === hash) return { index, doc: vers };
+  const nieuwer = [vers, doc].find((d) => d && Date.parse(d.ververst || "") >= Date.parse(index.ververst || ""));
+  return nieuwer ? { index, doc: nieuwer } : null;
 }
 
-// De items per live laag uit een geladen stand (een straat zonder bestand: overal een lege lijst).
-export function lagenUitStand(stand) {
-  return Object.fromEntries(STRAAT_LAGEN.map(([laag, live]) => [live, stand?.doc ? straatItems(stand.doc, laag) : []]));
+// De items per live laag uit een geladen stand (een straat zonder bestand: overal een lege lijst). Met de
+// nagekeken stand van het Inzageloket (site/sources/inzage-status.json) krijgen de vergunningen hun
+// openbaar onderzoek erbij, net als in permits-live.js: anders verdwijnt "bezwaar indienen kan nu".
+export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
+  const lagen = Object.fromEntries(STRAAT_LAGEN.map(([laag, live]) => [live, stand?.doc ? straatItems(stand.doc, laag) : []]));
+  lagen.permits = metInzage(lagen.permits, inzage, vandaag);
+  return lagen;
+}
+
+// Na het live nakijken van het kader van de straat: de live innames, plus de samenvatting van de fasen
+// van elk evenementendossier dat live nog in het kader staat (`faseSamenvatting`, scripts/build-straat-
+// snapshots.mjs). Opbouw en afbraak liggen vaak buiten het kader; zonder die rijen verdwijnt "opbouw
+// vanaf … en afbraak tot …" van de kaart. Een dossier dat live niet meer in het kader staat, valt weg.
+export function metFasenVanDeOchtend(live = [], ochtend = []) {
+  const dossiers = new Set(live.filter((item) => item?.kind === "iod" && item.reference).map((item) => item.reference));
+  const ids = new Set(live.map((item) => item?.id));
+  return [...live, ...(ochtend || []).filter((item) => item?.faseSamenvatting && dossiers.has(item.reference) && !ids.has(item.id))];
 }
 
 // ---------- het kader van een straat ----------
@@ -125,15 +153,24 @@ export function tijdstipTekst(iso, nu = new Date()) {
 }
 
 // De zin onder de plek. `stand`: het tijdstip van de ochtendverversing; `nieuw`/`weg`: wat de live
-// controle anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan).
-export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, nu = new Date() } = {}) {
+// controle anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan);
+// `mislukteDelen`: de lagen die live niet lukten (de rest wel).
+// Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er
+// bij wat rond de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog)
+// of "mislukt" (de straatassen laadden niet: dan blijft het bij de straat zelf).
+export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, mislukteDelen = [], straal = 0, straalStand = "klaar", nu = new Date() } = {}) {
   const om = tijdstipTekst(ververst, nu);
   const sinds = om ? ` sinds ${om}` : "";
+  const vanDeVerversing = om ? ` van de verversing van ${om}` : " van de verversing";
   if (bezig) return om ? `Stand van de verversing van ${om}. Live nakijken…` : "Live nakijken…";
+  if (mislukt && straal > 0) return `Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand${vanDeVerversing}.`;
   if (mislukt) return om ? `Live nakijken lukte nu niet. Je ziet de stand van de verversing van ${om}.` : "Live nakijken lukte nu niet.";
   const delen = [];
   if (nieuw) delen.push(`${nieuw} nieuw`);
   if (weg) delen.push(`${weg} niet meer in de bron`);
-  if (!delen.length) return `Live nagekeken: niets nieuw${sinds}.`;
-  return `Live nagekeken: ${delen.join(", ")}${sinds}.`;
+  const zinnen = [delen.length ? `Live nagekeken: ${delen.join(", ")}${sinds}.` : `Live nagekeken: niets nieuw${sinds}.`];
+  if (mislukteDelen.length) zinnen.push(`Live nakijken lukte nu niet voor ${mislukteDelen.join(", ")}: daarvan zie je ${straal > 0 ? "alleen de straat zelf, met " : ""}de stand${vanDeVerversing}.`);
+  if (straal > 0 && straalStand === "laadt") zinnen.push("De straal rond de straat laadt nog…");
+  if (straal > 0 && straalStand === "mislukt") zinnen.push("De straal rond de straat kon nu niet geladen worden: je ziet alleen de straat zelf.");
+  return zinnen.join(" ");
 }
