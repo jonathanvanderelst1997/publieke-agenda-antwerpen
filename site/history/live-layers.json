@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "observedAt": "2026-10-11T03:22:04.026Z",
+  "observedAt": "2026-10-11T11:54:41.797Z",
   "retentionDays": 90,
   "baselineInitializedAt": "2026-09-29T09:49:22.384Z",
   "layers": {
     "works": {
       "status": "ok",
-      "lastAttemptAt": "2026-10-11T03:22:04.026Z",
-      "lastSuccessAt": "2026-10-11T03:22:04.026Z",
+      "lastAttemptAt": "2026-10-11T11:54:41.797Z",
+      "lastSuccessAt": "2026-10-11T11:54:41.797Z",
       "errorCode": null,
-      "count": 1263,
-      "digest": "1003d3aceb108760c61617f62bcd54a9a9e6df1a6240b3fea9e08cf7b341a88e",
+      "count": 1262,
+      "digest": "22671b7a87d8bac3647c7cfde4711295e490777a785cf1fc1875221a431fd57c",
       "items": [
         {
           "id": "work:11264719",
@@ -12185,31 +12185,6 @@
           "hindrance": null
         },
         {
-          "id": "work:20090718",
-          "gipodId": 20090718,
-          "title": "2020 Antwerpen Sint-Bernardsesteenweg werken distributieleiding)",
-          "status": "In uitvoering",
-          "start": "2026-05-22T08:00:00Z",
-          "end": "2026-10-10T10:06:00Z",
-          "owner": "Water-link",
-          "ownerGroup": "water-link",
-          "boundaryConfidence": "exact_snapshot",
-          "workTypes": [],
-          "occupancyTypes": [
-            "Riolering"
-          ],
-          "streets": [
-            {
-              "id": "2615",
-              "name": "Sint-Bernardsesteenweg",
-              "postcode": "2020"
-            }
-          ],
-          "streetResolution": "nearest_official_axis",
-          "streetDistanceMeters": 21,
-          "hindrance": null
-        },
-        {
           "id": "work:20092335",
           "gipodId": 20092335,
           "title": "N1800001 - Renovatie Havenwegen N180 - Luithagen - Antwerpen",
@@ -18808,7 +18783,7 @@
               "Geen doorgang voor fietsers",
               "Geen doorgang voor gemotoriseerd verkeer"
             ],
-            "start": "2026-10-09T20:00:00Z",
+            "start": "2026-10-12T20:00:00Z",
             "end": "2026-10-17T04:00:00Z"
           }
         },
@@ -33222,8 +33197,8 @@
     },
     "publicSpace": {
       "status": "ok",
-      "lastAttemptAt": "2026-10-11T03:22:04.026Z",
-      "lastSuccessAt": "2026-10-11T03:22:04.026Z",
+      "lastAttemptAt": "2026-10-11T11:54:41.797Z",
+      "lastSuccessAt": "2026-10-11T11:54:41.797Z",
       "errorCode": null,
       "count": 3493,
       "digest": "7657d7856688512a808dd5c86b7ad37605f0d0351602df5d085a39669c19802a",
@@ -281861,6 +281836,72 @@
         "streetResolution": "nearest_official_axis",
         "streetDistanceMeters": 5,
         "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-10-11T11:54:41.797Z",
+      "layer": "works",
+      "id": "work:20090718",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20090718",
+        "gipodId": 20090718,
+        "title": "2020 Antwerpen Sint-Bernardsesteenweg werken distributieleiding)",
+        "status": "In uitvoering",
+        "start": "2026-05-22T08:00:00Z",
+        "end": "2026-10-10T10:06:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Riolering"
+        ],
+        "streets": [
+          {
+            "id": "2615",
+            "name": "Sint-Bernardsesteenweg",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 21,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-11T11:54:41.797Z",
+      "layer": "works",
+      "id": "work:20583149",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-10-09T20:00:00Z",
+          "end": "2026-10-17T04:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-10-12T20:00:00Z",
+          "end": "2026-10-17T04:00:00Z"
+        }
       }
     }
   ]
