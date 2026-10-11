@@ -6,7 +6,7 @@ import {
   foldText, parseQuery, editDistance, buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam,
   periodRange, monthWeeks, startOfWeek, layoutWeekBars, groupForList, overlaps, dayOf,
   agendaEntry, workEntry, publicSpaceEntry, summarize, KIND_GROUPS, DEFAULT_GROUPS, themesForGroups, groupsForThemes, groupOfTheme,
-  plekWaar, legeStaatTekst, voortgangTekst,
+  plekWaar, legeStaatTekst, voortgangTekst, dezeWeek, WEEK_LICHT,
 } from "../site/place-core.js";
 import { createAgendaView, DEFAULT_THEMES, VIEW_THEMES } from "../site/agenda-view.js";
 import { buildStreetList } from "../scripts/build-straten.mjs";
@@ -207,4 +207,37 @@ test("voortgang: de tweede duur is de lengte van de periode", () => {
   assert.equal(voortgangTekst("2026-10-22", "2026-10-29", "2026-10-09"), "Start over 13 dagen · duurt 8 dagen");
   assert.equal(voortgangTekst("2026-10-10", "2026-10-11", "2026-10-09"), "Start over 1 dag · duurt 2 dagen");
   assert.equal(voortgangTekst("2026-10-07", "2026-10-14", "2026-10-09"), "Dag 3 van 8");
+});
+
+test("deze week: één zin met een verkeerslicht, uit dezelfde kaartjes als de lijst", () => {
+  const vandaag = "2026-10-12"; // maandag
+  const werk = (id, start, end, severe = false) => ({ ...workEntry({ gipodId: id, title: "Riolering", status: "In uitvoering", start, end, streets: [{ name: "Voorbeeldstraat" }] }), item: { gipodId: id, hindrance: severe ? { severe: true, consequences: [] } : null } });
+  const parkeer = (id, start, end) => publicSpaceEntry({ id: `parking:${id}`, kind: "parking", title: "Verhuis", start, end, streets: [{ name: "Voorbeeldstraat" }] });
+  const feest = (id, date, endDate = date) => agendaEntry({ id, title: `Buurtfeest ${id}`, date, endDate, location: "Voorbeeldplein" }, "culture");
+
+  assert.deepEqual(dezeWeek([], vandaag), { licht: "rustig", zin: "Deze week in jouw straat: rustig. Geen werken, parkeerverboden of evenementen gepland." });
+  // Niet alles geladen: nooit "rustig".
+  assert.equal(dezeWeek([], vandaag, { onvolledig: true }).licht, "onbekend");
+  assert.doesNotMatch(dezeWeek([], vandaag, { onvolledig: true }).zin, /rustig\./);
+  assert.equal(dezeWeek([], "").licht, "onbekend");
+
+  const week = dezeWeek([werk(1, "2026-10-01", "2026-11-30"), werk(2, "2026-10-14", "2026-10-20"), parkeer(1, "2026-10-14T06:00:00Z", "2026-10-14T16:00:00Z"), feest("a", "2026-10-17"), feest("b", "2026-10-13")], vandaag);
+  assert.equal(week.licht, "let-op");
+  assert.equal(week.zin, "Deze week in jouw straat: 2 werken, 1 parkeerverbod (vanaf wo 14 okt) en 2 evenementen (eerste morgen).");
+
+  // Ernstige hinder kleurt rood; het aantal staat erbij.
+  const hinder = dezeWeek([werk(3, "2026-10-12", "2026-10-30", true), werk(4, "2026-10-12", "2026-10-30")], vandaag);
+  assert.equal(hinder.licht, "hinder");
+  assert.match(hinder.zin, /2 werken \(1 met ernstige hinder\)/);
+
+  // Buiten de zeven dagen telt niet: voorbij zondag, of al afgelopen.
+  assert.equal(dezeWeek([werk(5, "2026-10-19", "2026-10-25"), feest("c", "2026-10-11"), parkeer(2, "2026-10-01", "2026-10-05")], vandaag).licht, "rustig");
+  // Een reeks (elke dinsdag) telt één keer, net als in summarize.
+  const reeks = [feest("d", "2026-10-13"), { ...feest("d", "2026-10-13"), uid: "d2" }];
+  assert.match(dezeWeek(reeks, vandaag).zin, /1 evenement \(morgen\)/);
+  // Parkeerverbod vandaag, en een andere plek in de zin.
+  assert.match(dezeWeek([parkeer(3, "2026-10-12", "2026-10-12")], vandaag, { waar: "in Zurenborg" }).zin, /^Deze week in Zurenborg: 1 parkeerverbod \(vanaf vandaag\)\.$/);
+  // Iets gevonden maar niet alles geladen: dat staat erbij.
+  assert.match(dezeWeek([werk(6, "2026-10-12", "2026-10-13")], vandaag, { onvolledig: true }).zin, /Niet alles laadde\.$/);
+  for (const licht of ["rustig", "let-op", "hinder", "onbekend"]) assert.ok(WEEK_LICHT[licht]);
 });
