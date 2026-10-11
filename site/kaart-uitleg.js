@@ -1000,7 +1000,9 @@ export const AUTO_HERKOMST = Object.freeze({
   organisator: "de agenda van de organisator (zelfde dag en plek)",
   besluit: "een besluit van de stad of het district (zelfde dag en straat)",
   patroon: "dezelfde route als een vorige keer",
-  regels: "de omschrijving in het dossier en het studentencharter",
+  // Algemeen voor elke fiche van de regels (ook een vorige editie op dezelfde plek, of dezelfde route in
+  // vorige jaren); de kaart noemt per fiche de echte grond (veld `grond`). #158 toetst deze zin.
+  regels: "de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter",
 });
 
 // Wat jouw straat met dit evenement te maken heeft, met de dagen van een parkeerverbod of een
