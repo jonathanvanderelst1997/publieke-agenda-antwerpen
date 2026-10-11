@@ -1,29 +1,7 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-10T21:38:16.700Z",
+  "checkedAt": "2026-10-11T03:22:41.363Z",
   "sources": [
-    {
-      "sourceId": "city-gaston-buurtfeest",
-      "url": "https://www.antwerpen.be/info/6149b6f0305f459e313c07cc/voorontwerp-heraanleg-gaston-burssenslaan",
-      "status": "ok",
-      "httpStatus": 200,
-      "missing": [],
-      "items": [
-        "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10"
-      ],
-      "since": null
-    },
-    {
-      "sourceId": "poetische-rimpelingen-regatta",
-      "url": "https://maandvandevoetganger.be/actie/wandelen-met-woorden-poetische-rimpelingen/",
-      "status": "ok",
-      "httpStatus": 200,
-      "missing": [],
-      "items": [
-        "poetische-rimpelingen-2026-06-29-2026-10-10-66473414"
-      ],
-      "since": null
-    },
     {
       "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
       "url": "https://www.antwerpen.be/publiekeruimte",
