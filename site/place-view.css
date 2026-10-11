@@ -87,7 +87,7 @@
 .pv-stat strong { font-size: 1.7rem; line-height: 1; color: var(--cat-ink); letter-spacing: -0.03em; }
 .pv-stat span { font-size: .84rem; color: var(--pa-muted); font-weight: 600; }
 .pv-stat-planned button { box-shadow: inset 4px 0 0 var(--cat), inset 0 0 0 0 transparent; background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--cat) 6%, transparent) 8px 16px); }
-/* "Deze week in jouw straat": het licht is een bolletje plus een woord, nooit kleur alleen. */
+/* "De komende 7 dagen in jouw straat": het licht is een bolletje plus een woord, nooit kleur alleen. */
 .pv-dezeweek {
   margin: 12px 0 0; padding: 10px 12px; border-radius: 14px; font-size: .95rem; line-height: 1.4; color: var(--pa-ink);
   background: var(--pa-surface); border: 1px solid var(--pa-line); box-shadow: inset 4px 0 0 var(--licht);
@@ -350,7 +350,7 @@
   .pv-aside .buurt-map { height: 420px; }
 }
 @media (max-width: 640px) {
-  /* P6: met een gekozen plek wordt de kop één korte regel, zodat straat, "Deze week" en de tegels
+  /* P6: met een gekozen plek wordt de kop één korte regel, zodat straat, "De komende 7 dagen" en de tegels
      zonder scrollen in beeld staan. Het zoeklabel blijft voor schermlezers. */
   .plek-ui.has-place .hero-kicker,
   .plek-ui.has-place .hero-text > p:not(.hero-kicker) { display: none; }

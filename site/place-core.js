@@ -491,7 +491,10 @@ export function werkEntries(works = [], opties = {}) {
     const [eerste] = lijst;
     const ids = lijst.map((e) => e.item?.gipodId).filter(Boolean);
     const regel = ["Aantal", `${lijst.length} dossiers in GIPOD met dezelfde soort, plek en periode`];
-    return { ...eerste, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel] } : eerste.uitleg };
+    // Ernstige hinder bij één van de stukken geldt voor de kaart: anders hing het licht van de weekzin
+    // (dezeWeek) af van de volgorde in GIPOD (alleen het eerste stuk telde).
+    const ernstig = lijst.some((e) => e.item?.hindrance?.severe === true);
+    return { ...eerste, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, ernstig, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel] } : eerste.uitleg };
   });
 }
 // Het label naast de soort. Een werk waarvan de periode loopt maar dat GIPOD nog "concreet gepland"
@@ -1083,10 +1086,11 @@ export function summarize(entries, today) {
   return out;
 }
 
-// ---- "Deze week in jouw straat": één zin met een verkeerslicht ----
-// Uit dezelfde kaartjes als de lijst: wat de komende zeven dagen (vandaag inbegrepen) op straat
-// gebeurt. Hinder = een werk met ernstige hinder volgens GIPOD; let op = werken, parkeerverboden,
-// innames of evenementen; rustig = niets van dat. Laadde niet alles, dan zeggen we nooit "rustig".
+// ---- "De komende 7 dagen in jouw straat": één zin met een verkeerslicht ----
+// Uit dezelfde kaartjes als de lijst: wat de komende 7 dagen (vandaag inbegrepen, zoals de periode
+// "7 dagen") op straat gebeurt. Hinder = een werk met ernstige hinder volgens GIPOD; let op = werken,
+// parkeerverboden, innames of evenementen; rustig = niets van dat. Laadde niet alles, of telt een laag
+// niet mee (`onbekend`), dan zeggen we nooit "rustig".
 const WEEKDAG_KORT = Object.freeze(["zo", "ma", "di", "wo", "do", "vr", "za"]);
 export const WEEK_LICHT = Object.freeze({ rustig: "Rustig", "let-op": "Let op", hinder: "Hinder", onbekend: "Onbekend" });
 function weekDag(dag, today) {
@@ -1095,36 +1099,84 @@ function weekDag(dag, today) {
   return `${WEEKDAG_KORT[new Date(toUtc(dag)).getUTCDay()]} ${kortDatum(dag, today)}`;
 }
 const opsomming = (delen) => (delen.length > 1 ? `${delen.slice(0, -1).join(", ")} en ${delen.at(-1)}` : delen.join(""));
-export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", onvolledig = false } = {}) {
+const metHoofdletter = (tekst) => tekst.charAt(0).toUpperCase() + tekst.slice(1);
+// Wat een kaartje in het venster [today, einde] betekent, met de eerste dag die erin valt (dag) en
+// zijn eigen begin (begin, voor "loopt al"). Een evenement op straat volgt zijn innameperiode
+// (periodeVan): valt alleen de opbouw of de afbraak in het venster, dan staat dat er zo. Losse dagen
+// tellen alleen als er één in het venster valt; een periode van twee weken of langer (een toelating
+// voor een maand of een jaar) is geen evenement van vandaag maar loopt door, zoals "Doorlopend" in de lijst.
+function inWeek(e, today, einde) {
+  const p = periodeVan(e);
+  if (!p.start || p.start > einde || (!e.openEnd && (p.end || p.start) < today)) return null;
+  const vanaf = (d) => (d > today ? d : today);
+  if (e.source === "publicSpace" && e.item?.kind === "parking") return { soort: "parkeren", dag: vanaf(p.start), begin: p.start };
+  if (e.group === "werken") return { soort: "werken", dag: vanaf(p.start), begin: p.start, ernstig: (e.ernstig ?? e.item?.hindrance?.severe) === true };
+  if (e.group !== "evenementen") return null;
+  const es = e.start || p.start, ee = e.end || es;
+  const dag = e.losseDagen?.length ? e.losseDagen.find((d) => d >= today && d <= einde) || ""
+    : es <= einde && ee >= today ? vanaf(es) : "";
+  const inname = Boolean(e.uitleg?.geenEvenement);
+  if (dag) return inname ? { soort: "innames", dag } : langEvenement(e) ? { soort: "doorlopend", dag, begin: es } : { soort: "evenementen", dag };
+  // Geen dag van het evenement zelf in het venster: misschien wel de opbouw of de afbraak.
+  if (p.start < es && p.start <= einde && addDays(es, -1) >= today) return inname ? { soort: "innames", dag: vanaf(p.start) } : { soort: "opbouw", dag: vanaf(p.start), begin: p.start };
+  if (p.end > ee && addDays(ee, 1) <= einde && p.end >= today) return inname ? { soort: "innames", dag: vanaf(addDays(ee, 1)) } : { soort: "afbraak", dag: vanaf(addDays(ee, 1)), eind: p.end };
+  return null;
+}
+// `onbekend`: lagen die niet meetellen, als [{ wat: "werken", uit: true, geladen: false }]. Staat de soort
+// uit of is de laag er niet, dan zeggen we niet dat het rustig is.
+export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", onvolledig = false, onbekend = [] } = {}) {
   if (!isoDay(today)) return { licht: "onbekend", zin: "" };
   const einde = addDays(today, 6);
-  const loopt = (e) => Boolean(e?.start) && e.start <= einde && (e.openEnd || (e.end || e.start) >= today);
-  const gezien = new Set();
-  const tel = { werken: 0, ernstig: 0, parkeren: 0, evenementen: 0, innames: 0 };
-  const eerste = { parkeren: "", evenementen: "" };
-  const vroegst = (huidig, dag) => (!huidig || dag < huidig ? dag : huidig);
+  const kop = `De komende 7 dagen ${waar}`;
+  // Een reeks (elke dinsdag) telt één keer, met haar vroegste dag in het venster (de volgorde van de
+  // invoer is niet gegarandeerd).
+  const gevonden = new Map();
   for (const e of entries) {
-    if (!loopt(e)) continue;
+    const info = inWeek(e, today, einde);
+    if (!info) continue;
     const key = e.source === "agenda" ? `${e.group}|${e.title}|${e.location}` : e.uid;
-    if (gezien.has(key)) continue; // een reeks (elke dinsdag) telt één keer
-    gezien.add(key);
-    const dag = e.start > today ? e.start : today;
-    if (e.source === "publicSpace" && e.item?.kind === "parking") { tel.parkeren += 1; eerste.parkeren = vroegst(eerste.parkeren, dag); }
-    else if (e.group === "werken") { tel.werken += 1; if (e.item?.hindrance?.severe) tel.ernstig += 1; }
-    else if (e.group === "evenementen" && e.uitleg?.geenEvenement) tel.innames += 1;
-    else if (e.group === "evenementen") { tel.evenementen += 1; eerste.evenementen = vroegst(eerste.evenementen, dag); }
+    const oud = gevonden.get(key);
+    if (!oud || info.dag < oud.dag) gevonden.set(key, info);
   }
+  const per = (soort) => [...gevonden.values()].filter((i) => i.soort === soort);
+  const aantal = (lijst, een, meer) => `${lijst.length} ${lijst.length === 1 ? een : meer}`;
+  // "loopt al" als het vóór vandaag begon, "vanaf vandaag" alleen als het vandaag begint.
+  const wanneer = (lijst) => {
+    const al = lijst.filter((i) => i.begin < today).length;
+    if (al === lijst.length) return al === 1 ? "loopt al" : "lopen al";
+    if (al) return `${al} ${al === 1 ? "loopt" : "lopen"} al`;
+    const eerste = lijst.map((i) => i.begin).sort()[0];
+    return eerste === today ? "vanaf vandaag" : `vanaf ${weekDag(eerste, today)}`;
+  };
+  const eersteDag = (lijst) => `${lijst.length === 1 ? "" : "eerste "}${weekDag(lijst.map((i) => i.dag).sort()[0], today)}`;
+  const werken = per("werken"), ernstig = werken.filter((i) => i.ernstig).length;
+  const parkeren = per("parkeren"), evenementen = per("evenementen"), doorlopend = per("doorlopend");
+  const opbouw = per("opbouw"), afbraak = per("afbraak"), innames = per("innames");
   const delen = [];
-  if (tel.werken) delen.push(`${tel.werken} ${tel.werken === 1 ? "werk" : "werken"}${tel.ernstig ? ` (${tel.ernstig} met ernstige hinder)` : ""}`);
-  if (tel.parkeren) delen.push(`${tel.parkeren} ${tel.parkeren === 1 ? "parkeerverbod" : "parkeerverboden"} (${eerste.parkeren === today ? "vanaf vandaag" : `vanaf ${weekDag(eerste.parkeren, today)}`})`);
-  if (tel.evenementen) delen.push(`${tel.evenementen} ${tel.evenementen === 1 ? "evenement" : "evenementen"} (${tel.evenementen === 1 ? "" : "eerste "}${weekDag(eerste.evenementen, today)})`);
-  if (tel.innames) delen.push(`${tel.innames} ${tel.innames === 1 ? "inname" : "innames"} op straat`);
+  const hinder = !ernstig ? "" : ernstig === werken.length ? (ernstig === 1 ? "met ernstige hinder" : "alle met ernstige hinder") : `${ernstig} met ernstige hinder`;
+  if (werken.length) delen.push(`${aantal(werken, "werk", "werken")} (${[hinder, wanneer(werken)].filter(Boolean).join(", ")})`);
+  if (parkeren.length) delen.push(`${aantal(parkeren, "parkeerverbod", "parkeerverboden")} (${wanneer(parkeren)})`);
+  if (evenementen.length) delen.push(`${aantal(evenementen, "evenement", "evenementen")} (${eersteDag(evenementen)})`);
+  if (doorlopend.length) delen.push(`${aantal(doorlopend, "doorlopend evenement", "doorlopende evenementen")} (${wanneer(doorlopend)})`);
+  if (opbouw.length) delen.push(`opbouw voor ${aantal(opbouw, "evenement", "evenementen")} (${wanneer(opbouw)})`);
+  if (afbraak.length) delen.push(`afbraak na ${aantal(afbraak, "evenement", "evenementen")} (tot en met ${weekDag(afbraak.map((i) => i.eind).sort().at(-1), today)})`);
+  if (innames.length) delen.push(`${aantal(innames, "inname", "innames")} op straat`);
+  const lagen = Array.isArray(onbekend) ? onbekend.filter((o) => o?.wat) : [];
   if (!delen.length) {
-    return onvolledig
-      ? { licht: "onbekend", zin: `Deze week ${waar}: niet alles laadde, dus we kunnen niet zeggen dat het rustig is.` }
-      : { licht: "rustig", zin: `Deze week ${waar}: rustig. Geen werken, parkeerverboden of evenementen gepland.` };
+    if (onvolledig) return { licht: "onbekend", zin: `${kop}: niet alles laadde, dus we kunnen niet zeggen dat het rustig is.` };
+    if (lagen.length) {
+      const uit = lagen.filter((o) => o.uit).map((o) => o.wat), weg = lagen.filter((o) => !o.uit).map((o) => o.wat);
+      const redenen = [uit.length ? `${opsomming(uit)} staan uit` : "", weg.length ? `${opsomming(weg)} zijn niet geladen` : ""].filter(Boolean);
+      return { licht: "onbekend", zin: `${kop}: niets gevonden, maar ${redenen.join(" en ")}. Of het rustig is, weten we dus niet.` };
+    }
+    return { licht: "rustig", zin: `${kop}: rustig. Geen werken, parkeerverboden of evenementen gepland.` };
   }
-  return { licht: tel.ernstig ? "hinder" : "let-op", zin: `Deze week ${waar}: ${opsomming(delen)}.${onvolledig ? " Niet alles laadde." : ""}` };
+  // Wat niet geladen is, zeggen we erbij; een laag die wel geladen is maar uit staat, telt gewoon mee.
+  const ontbreekt = lagen.filter((o) => !o.geladen).map((o) => o.wat);
+  return {
+    licht: ernstig ? "hinder" : "let-op",
+    zin: `${kop}: ${opsomming(delen)}.${onvolledig ? " Niet alles laadde." : ""}${ontbreekt.length ? ` ${metHoofdletter(opsomming(ontbreekt))} zijn niet geladen.` : ""}`,
+  };
 }
 
 // ---- lege staat en voortgang: korte, eerlijke zinnen ----

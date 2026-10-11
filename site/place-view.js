@@ -750,8 +750,22 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (wants && (view.enabled("publicSpace") || evenementenOpStraat) && !loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) loading.push(view.enabled("publicSpace") ? "verkeersmaatregelen" : "evenementen op straat");
     if (wants && view.enabled("terraces") && !loadedLayer(live.terraces) && !mislukt.terraces?.length) loading.push("terrassen");
     const failed = ontbrekendeOnderdelen(mislukt, (laag) => view.enabled(laag) || (laag === "publicSpace" && evenementenOpStraat));
-    // De weekzin kijkt naar alles op de plek, ook soorten die uit staan: anders zegt hij "rustig" terwijl er werken zijn.
-    return { entries, loading, failed, opPlek: [...agenda, ...liveEntries] };
+    // De weekzin hangt niet af van de gekozen soorten: alle agendapunten op de plek (niet VISIBLE_ITEMS,
+    // die volgen de soortkeuze), plus alle kaarten van de live lagen die geladen zijn. Alleen evenementen
+    // en werken in de komende 7 dagen; eerst op datum, zodat de plekfilter niet elk punt moet nakijken.
+    const weekEinde = addDays(vandaag, 6);
+    const agendaWeek = !state.place ? [] : (Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : [])
+      .filter((item) => String(item?.date || "").slice(0, 10) <= weekEinde)
+      .map((item) => agendaEntry(item, item.category || "other"))
+      .filter((e) => (e.group === "evenementen" || e.group === "werken") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item));
+    // Een laag die de weekzin nodig heeft en die uit staat of er niet is: dan nooit "rustig". Nog onderweg
+    // (loading) of mislukt (failed) zegt de zin elders; een geladen laag telt mee, ook als ze uit staat.
+    const psAan = view.enabled("publicSpace") || evenementenOpStraat;
+    const weekOnbekend = [
+      ...(!view.enabled("works") || (!loadedLayer(live.works) && !mislukt.works?.length) ? [{ wat: "werken", uit: !view.enabled("works"), geladen: loadedLayer(live.works) }] : []),
+      ...(!psAan || (!loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) ? ["parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, uit: !psAan, geladen: loadedLayer(live.publicSpace) })) : []),
+    ];
+    return { entries, loading, failed, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend };
   }
 
   // ---- weergave ----
@@ -1092,24 +1106,27 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (li) { li.scrollIntoView({ block: "center" }); li.querySelector(".pv-row-btn")?.focus({ preventScroll: true }); }
   };
 
-  // "Deze week in jouw straat": zolang werken of verkeersmaatregelen nog laden, zeggen we dat eerlijk.
-  function weekVoorPlek(entries, today) {
+  // "De komende 7 dagen in jouw straat": zolang werken, verkeersmaatregelen of evenementen op straat nog
+  // laden, zeggen we dat eerlijk.
+  const WEEK_LAGEN = ["werken", "verkeersmaatregelen", "evenementen op straat"];
+  function weekVoorPlek(entries, today, { bezig = [], onbekend = [] } = {}) {
     const place = state.place;
     const waar = place.type === "straat" ? (state.radius ? "in en rond jouw straat" : "in jouw straat") : plekWaar(place);
-    if (state.layersPending) return { licht: "onbekend", zin: `Deze week ${waar}: werken en verkeer worden nog geladen…` };
-    return dezeWeek(entries, today, { waar, onvolledig: Boolean(state.werkenOnvolledig) });
+    if (bezig.length) return { licht: "onbekend", zin: `De komende 7 dagen ${waar}: ${bezig.length > 1 ? `${bezig.slice(0, -1).join(", ")} en ${bezig.at(-1)}` : bezig[0]} worden nog geladen…` };
+    return dezeWeek(entries, today, { waar, onvolledig: Boolean(state.werkenOnvolledig), onbekend });
   }
 
   function render() {
     const today = brusselsToday();
     if (!state.cursor || state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor || today);
-    const { entries, loading, failed, opPlek } = collect();
+    const { entries, loading, failed, opPlek, weekOnbekend } = collect();
     const summary = summarize(entries, today);
-    state.layersPending = loading.includes("werken") || loading.includes("verkeersmaatregelen");
+    const weekBezig = loading.filter((laag) => WEEK_LAGEN.includes(laag));
+    state.layersPending = weekBezig.length > 0;
     state.werkenOnvolledig = failed.some((o) => o !== "terrassen");
     state.onvolledig = onvolledigMelding(failed);
     const opsomming = loading.length > 1 ? `${loading.slice(0, -1).join(", ")} en ${loading.at(-1)}` : loading.join("");
-    state.week = state.place ? weekVoorPlek(opPlek, today) : null;
+    state.week = state.place ? weekVoorPlek(opPlek, today, { bezig: weekBezig, onbekend: weekOnbekend }) : null;
     renderPlace(summary, loading.length ? `${opsomming} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", state.onvolledig, state.week);
     renderToolbar();
     const place = state.place;
