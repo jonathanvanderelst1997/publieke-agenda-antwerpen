@@ -449,6 +449,30 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // P6: wie op een gsm een straat opent, ziet zonder scrollen de straat, de zin van deze week en de tegels.
+  await t.test("gsm (390×844): straat, 'Deze week' met licht en de tegels staan boven 600 px; chips tellen de kaarten", async () => {
+    const query = `?plek=${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, query });
+    await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    const week = page.locator(".pv-dezeweek");
+    assert.match(await week.innerText(), /^(Rustig|Let op|Hinder|Onbekend)\s+Deze week in jouw straat: /);
+    assert.match(await week.getAttribute("class"), /pv-dezeweek-(rustig|let-op|hinder|onbekend)/);
+    // Het nagebootste werk begint pas over 9 dagen: het telt niet mee voor deze week.
+    assert.doesNotMatch(await week.innerText(), /\d+ werk/);
+    const onder = await page.evaluate(() => Object.fromEntries([".pv-place-name", ".pv-dezeweek", ".pv-stats"].map((sel) => {
+      const r = document.querySelector(sel)?.getBoundingClientRect();
+      return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
+    })));
+    t.diagnostic(`onderkant op de pagina: ${JSON.stringify(onder)}`);
+    for (const [sel, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${sel} eindigt op ${y}px, niet boven 600px`);
+    // De kaart zegt hoeveel van de lijst erop staat, met hetzelfde aantal als boven de lijst.
+    const inLijst = Number((await page.locator(".pv-sub").innerText()).match(/^(\d+) item/)?.[1]);
+    await page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Herstelplan O1: de A-Sign-lagen faalden bij elke laadbeurt (URL's van 3.000 tot 4.800 tekens).
   await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod zonder huisnummer en terras in de straat", async () => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];

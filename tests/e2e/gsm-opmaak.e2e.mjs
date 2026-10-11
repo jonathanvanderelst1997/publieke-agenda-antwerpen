@@ -149,8 +149,8 @@ function duidelijkAnderePixelsIn(page, a, b) {
   }, [`data:image/png;base64,${a.toString("base64")}`, `data:image/png;base64,${b.toString("base64")}`]);
 }
 
-async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", dagen = 8, vergunning = false } = {}) {
-  const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
+async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", dagen = 8, vergunning = false, colorScheme = "light" } = {}) {
+  const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
   const page = await context.newPage();
   await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
   const errors = [];
@@ -413,9 +413,11 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("axe: geen overtredingen op de plek met een open kaart", { skip: axePath ? false : "zet AXE_CORE_PATH naar axe.min.js" }, async () => {
-    const { page, context, card } = await openPlace(baseUrl);
+  // Licht en donker: de weekzin met zijn verkeerslicht moet in beide genoeg contrast hebben.
+  for (const colorScheme of ["light", "dark"]) await t.test(`axe (${colorScheme}): geen overtredingen op de plek met een open kaart`, { skip: axePath ? false : "zet AXE_CORE_PATH naar axe.min.js" }, async () => {
+    const { page, context, card } = await openPlace(baseUrl, { colorScheme });
     await card.locator(".pv-row-btn").click();
+    await page.locator(".pv-dezeweek").waitFor();
     await page.addScriptTag({ path: axePath });
     const violations = await page.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`));
     assert.deepEqual(violations, []);

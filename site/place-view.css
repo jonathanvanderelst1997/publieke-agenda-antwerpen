@@ -87,6 +87,17 @@
 .pv-stat strong { font-size: 1.7rem; line-height: 1; color: var(--cat-ink); letter-spacing: -0.03em; }
 .pv-stat span { font-size: .84rem; color: var(--pa-muted); font-weight: 600; }
 .pv-stat-planned button { box-shadow: inset 4px 0 0 var(--cat), inset 0 0 0 0 transparent; background-image: repeating-linear-gradient(135deg, transparent 0 8px, color-mix(in srgb, var(--cat) 6%, transparent) 8px 16px); }
+/* "Deze week in jouw straat": het licht is een bolletje plus een woord, nooit kleur alleen. */
+.pv-dezeweek {
+  margin: 12px 0 0; padding: 10px 12px; border-radius: 14px; font-size: .95rem; line-height: 1.4; color: var(--pa-ink);
+  background: var(--pa-surface); border: 1px solid var(--pa-line); box-shadow: inset 4px 0 0 var(--licht);
+  --licht: var(--pa-line-strong); --licht-ink: var(--pa-muted);
+}
+.pv-dezeweek-rustig { --licht: #1f9d6b; --licht-ink: var(--pa-fresh); }
+.pv-dezeweek-let-op { --licht: #e0a100; --licht-ink: var(--pa-warn); }
+.pv-dezeweek-hinder { --licht: #d13b1f; --licht-ink: var(--pa-accent); }
+.pv-licht { display: inline-block; width: .7em; height: .7em; margin-right: 6px; border-radius: 50%; background: var(--licht); vertical-align: .02em; box-shadow: 0 0 0 2px color-mix(in srgb, var(--licht) 25%, transparent); }
+.pv-licht-label { color: var(--licht-ink); font-weight: 800; }
 .pv-place-loading { margin: 12px 0 0; font-size: .88rem; color: var(--pa-muted); display: flex; align-items: center; gap: 8px; }
 .pv-spinner { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--pa-line-strong); border-top-color: var(--pa-accent); animation: pv-spin .8s linear infinite; display: inline-block; flex: none; }
 @keyframes pv-spin { to { transform: rotate(360deg); } }
@@ -332,6 +343,29 @@
   .pv-aside .buurt-map { height: 420px; }
 }
 @media (max-width: 640px) {
+  /* P6: met een gekozen plek wordt de kop één korte regel, zodat straat, "Deze week" en de tegels
+     zonder scrollen in beeld staan. Het zoeklabel blijft voor schermlezers. */
+  .plek-ui.has-place .hero-kicker,
+  .plek-ui.has-place .hero-text > p:not(.hero-kicker) { display: none; }
+  .plek-ui.has-place .agenda-header h1 { font-size: 1.15rem; line-height: 1.2; margin: 0; }
+  .plek-ui.has-place .hero-meta { margin-top: 6px; gap: 6px; }
+  .plek-ui.has-place .freshness-pill { padding: 4px 10px; font-size: .78rem !important; }
+  .plek-ui.has-place .theme-toggle { min-height: 32px; padding: 4px 10px; font-size: .8rem; }
+  .plek-ui.has-place .agenda-controls.pv-controls { padding: 10px; margin: 10px 0 12px; border-radius: 18px; }
+  .plek-ui.has-place .pv-search-label { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .plek-ui.has-place .pv-search-box { min-height: 48px; }
+  .plek-ui.has-place #agenda-street-jump.pv-search-input { min-height: 44px; font-size: 1.05rem; }
+  .plek-ui.has-place .agenda-page { padding-top: 12px; }
+  .plek-ui.has-place .agenda-header { margin-bottom: 0; }
+  .plek-ui.has-place .agenda-controls.pv-controls { margin: 0; }
+  /* Deel en Andere plek op de rij van "Straat"; de naam houdt de volle breedte. */
+  .plek-ui.has-place .pv-place-top { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; row-gap: 0; }
+  .plek-ui.has-place .pv-place-id { display: contents; }
+  .plek-ui.has-place .pv-place-kind { grid-row: 1; align-self: center; }
+  .plek-ui.has-place .pv-place-actions { grid-row: 1; grid-column: 2; }
+  .plek-ui.has-place .pv-place-actions .pv-btn { min-height: 40px; padding: 6px 10px; }
+  .plek-ui.has-place .pv-place-name,
+  .plek-ui.has-place .pv-place-meta { grid-column: 1 / -1; }
   .pv-place { padding: 16px 14px; border-radius: 18px; }
   /* De straatnaam krijgt de volle breedte (geen woord dat midden in breekt); de knoppen staan eronder. */
   .pv-place-top { flex-direction: column; align-items: flex-start; gap: 10px; }

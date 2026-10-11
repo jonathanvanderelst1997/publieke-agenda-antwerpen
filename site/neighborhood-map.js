@@ -350,6 +350,7 @@ export async function mountNeighborhoodMap(view) {
     for (const s of segments) L.polyline([[s.a[1], s.a[0]], [s.b[1], s.b[0]]], { color: "#b4361b", weight: 6, opacity: 0.75, interactive: false }).addTo(streetLayer);
   }
   let lastFocus = null;
+  let laatste = null, lijstAantal = null; // voor de statusregel onder de kaart (zetStatus)
   function drawAll() {
     radiusGroup.hidden = !view.selected;
     for (const button of radiusGroup.querySelectorAll("button")) button.setAttribute("aria-pressed", String(Number(button.dataset.radius) === view.area.radius));
@@ -361,11 +362,24 @@ export async function mountNeighborhoodMap(view) {
     const focusKey = `${view.selected ? `${view.selected.id}|${view.selected.name}` : ""}|${view.area.wijk}|${view.area.postcode || ""}|${view.place?.key || ""}|${view.area.radius}|${Boolean(matcher?.segmentsFor && view.selected && matcher.segmentsFor(view.selected).length)}`;
     if (map && focusKey !== lastFocus) { focusArea(lastFocus !== ""); lastFocus = focusKey; }
     const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : view.area.postcode ? `postcode ${view.area.postcode}` : "district Antwerpen";
-    const parts = [`${counts.mapped} agendapunt${counts.mapped === 1 ? "" : "en"} op de kaart in ${where}`];
-    if (view.enabled("works")) parts.push(window.PUBLIC_AGENDA_LIVE_STREETS?.works ? `${works} werken en hinder` : "werken en hinder worden geladen…");
-    if (counts.without) parts.push(`${counts.without} zonder vaste plek`);
+    laatste = { where, mapped: counts.mapped, without: counts.without, works, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
+    zetStatus();
+  }
+  // "X in de lijst, Y op de kaart": met een gekozen plek zegt de kaart hoeveel van de lijst erop staat,
+  // zodat een kortere kaart niet als een fout leest. De lijst meldt haar aantal via public-agenda:place-list.
+  function zetStatus() {
+    if (!laatste) return;
+    const { where, mapped, without, works, werkenGeladen } = laatste;
+    const metWerken = view.enabled("works") && werkenGeladen;
+    const opKaart = mapped + (metWerken ? works : 0);
+    const parts = Number.isInteger(lijstAantal) && view.place
+      ? [`${lijstAantal} in de lijst, ${opKaart} op de kaart in ${where}`]
+      : [`${mapped} agendapunt${mapped === 1 ? "" : "en"} op de kaart in ${where}`, ...(metWerken ? [`${works} werken en hinder`] : [])];
+    if (view.enabled("works") && !werkenGeladen) parts.push("werken en hinder worden geladen…");
+    if (without) parts.push(`${without} zonder vaste plek`);
     status.textContent = `${parts.join(" · ")}.`;
   }
+  window.addEventListener("public-agenda:place-list", (event) => { lijstAantal = Number.isInteger(event.detail?.aantal) ? event.detail.aantal : null; zetStatus(); });
   let pending = 0;
   const schedule = () => { cancelAnimationFrame(pending); pending = requestAnimationFrame(drawAll); };
   window.addEventListener("public-agenda:agenda-view", schedule);

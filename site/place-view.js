@@ -6,7 +6,7 @@ import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
-  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize,
+  layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize, dezeWeek, WEEK_LICHT,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen,
 } from "./place-core.js";
@@ -653,7 +653,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   });
 
   // ---- de plekkop ----
-  function renderPlace(summary, loading, failure = "") {
+  function renderPlace(summary, loading, failure = "", week = null) {
     const place = state.place;
     placeBox.hidden = !place;
     if (!place) return;
@@ -676,8 +676,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
       </div>
+      ${week?.zin ? `<p class="pv-dezeweek pv-dezeweek-${week.licht}"><span class="pv-licht" aria-hidden="true"></span><strong class="pv-licht-label">${esc(WEEK_LICHT[week.licht] || "")}</strong> <span class="pv-dezeweek-zin">${esc(week.zin)}</span></p>` : ""}
       ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}
-      ${radius}
       <ul class="pv-stats" aria-label="Samenvatting">
         ${tile(summary.evenementen, `${summary.evenementen === 1 ? "evenement" : "evenementen"}${summary.innamesOpStraat ? ` (+ ${summary.innamesOpStraat} ${summary.innamesOpStraat === 1 ? "inname" : "innames"})` : ""}`, "cat-festival", "evenementen")}
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
@@ -685,6 +685,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
         ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
+      ${radius /* onder de tegels: op een gsm staan straat, weekzin en tellers zo zonder scrollen in beeld */}
       ${loading ? `<p class="pv-place-loading"><span class="pv-spinner" aria-hidden="true"></span> ${esc(loading)}</p>` : ""}
       ${(() => { const s = place.type === "straat" ? snelZin() : null; return s?.zin ? `<p class="pv-place-loading pv-stand" role="status">${s.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(s.zin)}</p>` : ""; })()}`;
   }
@@ -700,7 +701,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (share) {
       const link = window.location.href;
       const done = () => { share.innerHTML = `<span aria-hidden="true">✓</span> Link gekopieerd`; setTimeout(() => { share.innerHTML = `<span aria-hidden="true">🔗</span> Deel`; }, 2400); };
-      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: `${state.place.label} · publieke agenda`, url: link }).catch(() => {});
+      const tekst = state.week?.zin && !state.layersPending ? state.week.zin : undefined;
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: `${state.place.label} · publieke agenda`, ...(tekst ? { text: tekst } : {}), url: link }).catch(() => {});
       else navigator.clipboard?.writeText(link).then(done, () => window.prompt("Kopieer deze link", link));
     }
   });
@@ -746,7 +748,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (wants && (view.enabled("publicSpace") || evenementenOpStraat) && !loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) loading.push(view.enabled("publicSpace") ? "verkeersmaatregelen" : "evenementen op straat");
     if (wants && view.enabled("terraces") && !loadedLayer(live.terraces) && !mislukt.terraces?.length) loading.push("terrassen");
     const failed = ontbrekendeOnderdelen(mislukt, (laag) => view.enabled(laag) || (laag === "publicSpace" && evenementenOpStraat));
-    return { entries, loading, failed };
+    // De weekzin kijkt naar alles op de plek, ook soorten die uit staan: anders zegt hij "rustig" terwijl er werken zijn.
+    return { entries, loading, failed, opPlek: [...agenda, ...liveEntries] };
   }
 
   // ---- weergave ----
@@ -1068,22 +1071,34 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (li) { li.scrollIntoView({ block: "center" }); li.querySelector(".pv-row-btn")?.focus({ preventScroll: true }); }
   };
 
+  // "Deze week in jouw straat": zolang werken of verkeersmaatregelen nog laden, zeggen we dat eerlijk.
+  function weekVoorPlek(entries, today) {
+    const place = state.place;
+    const waar = place.type === "straat" ? (state.radius ? "in en rond jouw straat" : "in jouw straat") : plekWaar(place);
+    if (state.layersPending) return { licht: "onbekend", zin: `Deze week ${waar}: werken en verkeer worden nog geladen…` };
+    return dezeWeek(entries, today, { waar, onvolledig: Boolean(state.werkenOnvolledig) });
+  }
+
   function render() {
     const today = brusselsToday();
     if (!state.cursor) { state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today); }
     if (state.mode === "maand" && state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor);
     if (state.mode === "week" && weekdayMon0(state.cursor) !== 0) state.cursor = startOfWeek(state.cursor);
-    const { entries, loading, failed } = collect();
+    const { entries, loading, failed, opPlek } = collect();
     const summary = summarize(entries, today);
     state.layersPending = loading.includes("werken") || loading.includes("verkeersmaatregelen");
     state.werkenOnvolledig = failed.some((o) => o !== "terrassen");
     state.onvolledig = onvolledigMelding(failed);
     const opsomming = loading.length > 1 ? `${loading.slice(0, -1).join(", ")} en ${loading.at(-1)}` : loading.join("");
-    renderPlace(summary, loading.length ? `${opsomming} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", state.onvolledig);
+    state.week = state.place ? weekVoorPlek(opPlek, today) : null;
+    renderPlace(summary, loading.length ? `${opsomming} ${loading.length > 1 ? "worden" : "wordt"} live opgehaald…` : "", state.onvolledig, state.week);
     renderToolbar();
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
     const n = new Set(entries.map((e) => (e.source === "agenda" ? `${e.title}|${e.location}` : e.uid))).size;
+    // De buurtkaart zegt "X in de lijst, Y op de kaart"; zij hoort hier hoeveel er in de lijst staat.
+    const lijst = place ? n : null;
+    if (lijst !== state.lijstAantal) { state.lijstAantal = lijst; window.dispatchEvent(new CustomEvent("public-agenda:place-list", { detail: { aantal: lijst } })); }
     subEl.textContent = place
       ? `${n} item${n === 1 ? "" : "s"} uit officiële bronnen${place.type === "straat" && state.radius ? `, ook ${state.radius >= 1000 ? "1 km" : `${state.radius} m`} rond de straat (terrassen alleen in de straat zelf)` : ""}.`
       : "Zoek hierboven je straat of wijk om ook werken, verkeer en inspraak in je buurt te zien.";
