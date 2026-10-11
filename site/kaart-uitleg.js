@@ -1086,8 +1086,12 @@ const metPlek = (t, plek) => clean(`${t}${plek ? ` ${plek}` : ""}`, 160);
 // wanneer, waar, jouw straat en wat je merkt; dan de details en één korte bronregel. identiteit komt uit
 // site/sources/evenement-identiteit.json (met de hand) of evenement-identiteit-auto.json (de herkenner),
 // gekoppeld uit de agenda (koppelEvenement).
-export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit = null, straat = "", wijkVan } = {}) {
+// Een agendapunt over werken, een heraanleg of een schoolstraat is nooit het evenement van een dossier,
+// ook niet uit een kaart-uitleg.json van vóór de strengere koppeling (koppelEvenement): weg ermee.
+const WERK_TITEL = /^(?:werken|heraanleg|schoolstraat|wegenwerken|rioleringswerken)\b/i;
+export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = null, identiteit = null, straat = "", wijkVan } = {}) {
   const f = feiten;
+  const gekoppeld = gekoppeldIn?.titel && WERK_TITEL.test(clean(gekoppeldIn.titel, 160)) ? null : gekoppeldIn;
   const id = identiteit && ZEKERHEDEN.includes(identiteit.zekerheid) ? identiteit : null;
   const bekend = id && id.zekerheid !== "onbekend" ? id : null;
   const koppeling = !bekend && gekoppeld?.titel ? gekoppeld : null;
@@ -1154,7 +1158,10 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld = null, identiteit
   ].filter(Boolean).join(" ");
 
   // WAAR en JOUW STRAAT
-  const waar = clean(id?.waar, 400) || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : plek ? `${capital(plek)}${straten && !/^\d/.test(plek) ? ` (${straten}, berekend uit de kaart van de stad)` : ""}.` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
+  // Een fiche van vóór deze versie zei "Evenement zonder parcours, aan ...": wat het níet is. Die zin
+  // niet meer tonen; de volgende verversing schrijft de nieuwe (lib/parcours-herkenning.mjs, plekZin).
+  const idWaar = /^Evenement zonder parcours/i.test(clean(id?.waar, 400)) ? "" : clean(id?.waar, 400);
+  const waar = idWaar || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : plek ? `${capital(plek)}${straten && !/^\d/.test(plek) ? ` (${straten}, berekend uit de kaart van de stad)` : ""}.` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
   const jouw = jouwStraat(f, straat, vandaag);
 
   // WAT MERK JE

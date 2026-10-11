@@ -247,6 +247,14 @@ test("koppeling: geen agendapunt van weken of met het thema Werken, wel een even
   assert.equal(koppelEvenement(f, [{ id: "buurtfeest-proefstraat", title: "Buurtfeest Proefstraat", date: "2026-10-10", location: "Proefstraat", theme: "Activiteit" }])?.titel, "Buurtfeest Proefstraat");
 });
 
+test("koppeling uit een oud bestand: 'Werken ...' of 'Schoolstraat ...' wordt nooit de titel van een dossier", () => {
+  const rows = [rij("ET2099300002", "Evenement", "Inname", "2026-10-10", "2026-10-11", ["Proefstraat"])];
+  const uitleg = { evenementen: { ET2099300002: { straten: ["Proefstraat"], gekoppeld: { titel: "Werken Proefstraat & Voorbeeldweg: fase 2 (tunnel noord)", tijd: "september 2026 - januari 2027 (data bij benadering)", locatie: "Proefstraat", bronUrl: "", agendaId: "werken-proefstraat-fase-2" } } } };
+  const e = kaart(rows, { uitleg });
+  assert.equal(e.title, "Inname in de Proefstraat");
+  assert.doesNotMatch(JSON.stringify(e.uitleg), /Werken Proefstraat/);
+});
+
 // ---------- privacy: wat de herkenner en de kaart schrijven ----------
 
 test("privacy: geen huisnummer, geen persoonsnaam en geen letterlijke omschrijving in de fiche of de kaarttitel", () => {
