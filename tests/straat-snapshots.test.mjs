@@ -355,6 +355,22 @@ test("evenement: een parkeerverbod alleen in een andere straat staat met zijn st
   assert.ok(huik.filter((i) => i.faseSamenvatting).every((i) => !i.streets.some((s) => s.id === HUIK.id)), "de eigen straat staat niet in de samenvatting");
 });
 
+test("privacy: ook 'thv', 'ter hoogte van', 'tegenover', 'naast', 'voor de deur van', 'appartement', 'nr°' en '12 bus 3'; een postcode na een komma en een buslijn blijven", () => {
+  // Verzonnen zinnen.
+  const gevallen = [
+    ["Afsluiting thv 15", "Afsluiting thv"], ["werken ter hoogte van 15", "werken ter hoogte van"], ["container voor de deur van 23", "container voor de deur van"],
+    ["herstel nr°45", "herstel"], ["lift appartement 5", "lift appartement"], ["stelling tegenover 8 en 10", "stelling tegenover"], ["naast 14a", "naast"],
+    ["t.h.v. 21 afgesloten", "t.h.v. afgesloten"], ["stelling aan gevel nummer 12 bus 3", "stelling aan gevel"],
+    // Een postcode na een komma is geen huisnummer, een buslijn of tramlijn zonder huisnummer ervoor ook niet.
+    ["Werken aan nr. 12, 2000 Antwerpen", "Werken aan, 2000 Antwerpen"], ["omleiding bus 30 en 34", "omleiding bus 30 en 34"], ["Fase 1: lijn 4 omgeleid", "Fase 1: lijn 4 omgeleid"],
+    ["nummers 2, 4 en 6", ""],
+  ];
+  for (const [tekst, verwacht] of gevallen) assert.equal(zonderPandnummers(tekst), verwacht, tekst);
+  // De scan van validate-data ziet ze ook.
+  for (const tekst of ["Afsluiting thv 15", "herstel nr°45", "lift appartement 5"]) assert.deepEqual(straatItemPrivacy({ werken: [{ title: tekst }] }).map((v) => v.code), ["huisnummer"], tekst);
+  assert.deepEqual(straatItemPrivacy({ werken: [{ title: "omleiding bus 30 en 34" }] }), []);
+});
+
 test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-hinderfase) valt weg", async (t) => {
   // Verzonnen omschrijvingen van een hinderfase.
   const fasen = [
