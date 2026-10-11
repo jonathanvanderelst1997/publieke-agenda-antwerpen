@@ -1,0 +1,28 @@
+{
+  "uitleg": "Buurtacties van district Antwerpen waarbij bewoners hun straat samen opfrissen (Herfstklaar in het najaar, Lenteklaar in het voorjaar). Elke editie geeft tientallen kleine evenementendossiers in A-Sign, zonder omschrijving of met alleen een straatnaam. De herkenner (lib/parcours-herkenning.mjs) noemt een dossier 'vermoedelijk Herfstklaar' alleen als het in het weekend van de actie valt (een item in het districtsnieuws), het profiel past en er op dezelfde plek in een vorige editie ook zo'n dossier lag. `edities`: de weekends van vorige jaren, uit de seizoenskalender en het districtsnieuws, en uit de reeks kleine dossiers in A-Sign laag 22 die weekends.",
+  "bijgewerkt": "2026-10-11",
+  "acties": [
+    {
+      "naam": "Herfstklaar",
+      "woord": "herfstklaar",
+      "wat": "bewoners maken samen hun straat groener, met steun van het district",
+      "bron": "https://www.antwerpen.be/info/6304b9240106af48e55ac9eb/maak-je-straat-herfstklaar-op-23-24-of-25-oktober",
+      "edities": [
+        { "van": "2023-11-11", "tot": "2023-11-12" },
+        { "van": "2024-11-08", "tot": "2024-11-11" },
+        { "van": "2025-11-07", "tot": "2025-11-11" }
+      ]
+    },
+    {
+      "naam": "Lenteklaar",
+      "woord": "lenteklaar",
+      "wat": "bewoners maken samen hun straat groener, met steun van het district",
+      "edities": [
+        { "van": "2023-03-25", "tot": "2023-03-26" },
+        { "van": "2024-03-22", "tot": "2024-03-24" },
+        { "van": "2025-03-21", "tot": "2025-03-23" },
+        { "van": "2026-03-27", "tot": "2026-03-29" }
+      ]
+    }
+  ]
+}

@@ -88,12 +88,12 @@
   },
   "ET2026004253": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop met een stoet te voet naar het Droogdokkenpark", "organisator": "",
-   "reden": "Het dossier spreekt van een doop en een stoet. De stoet vertrekt naast studentencafé Den Echo en eindigt aan de Belvédère in het Droogdokkenpark, een officiële doopplaats. Dezelfde stoet stond ook in een dossier van 14 oktober 2025. Welke vereniging het is, is niet publiek.",
+   "reden": "Het dossier spreekt van een doop en een stoet. De stoet vertrekt op de Sint-Nicolaasplaats en eindigt aan de Belvédère in het Droogdokkenpark, een officiële doopplaats. Dezelfde stoet stond ook in een dossier van 14 oktober 2025. Welke vereniging het is, is niet publiek.",
    "dagen": ["2026-10-20"], "uren": "", "urenNoot": "Het studentencharter laat een stoet toe tussen 10 en 22 uur, een doop op de doopplaats tot middernacht.",
    "waar": "Van de Sint-Nicolaasplaats via de Minderbroedersrui, de Sint-Paulusbuurt en de Scheldekaaien over de Kattendijkbrug naar de Belvédère in het Droogdokkenpark, ongeveer 2,5 à 3 km.",
    "watMerkJe": "Een groep studenten te voet door de Universiteitsbuurt en langs de kaaien. Straatafsluitingen of parkeerverboden staan niet in het dossier.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
-   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-11"
   },
   "ET2026004329": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentenstoet te voet naar het Fort VI-domein", "organisator": "",
@@ -133,12 +133,12 @@
   },
   "ET2026004449": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop: verwelkoming in het Stadspark, spelletjes op het Theaterplein en een doopstoet naar de Scheldekaai", "organisator": "",
-   "reden": "In oktober 2025 stond bijna dezelfde route in een dossier met 'verwelkoming schachten', spelletjes voor de schachten en een doopceremonie op de kaai. De route eindigt bij de doopplaats op de Scheldekaai ter hoogte van de Sint-Michielskaai, en 27 oktober valt in de doopperiode. Welke vereniging het is, is niet publiek.",
-   "dagen": ["2026-10-27"], "uren": "", "urenNoot": "Het studentencharter laat verwelkoming, spelletjes en stoet toe tussen 10 en 22 uur, de doop op de kaai tot middernacht.",
+   "reden": "In oktober 2025 stond bijna dezelfde route in een dossier met 'verwelkoming schachten', spelletjes voor de schachten en een doopceremonie op de kaai. De route eindigt bij de doopplaats op de Scheldekaai ter hoogte van de Sint-Michielskaai. Een week eerder, op 20 oktober, is er al een inname op het Theaterplein; beide dinsdagen vallen in de doopperiode. Welke vereniging het is, is niet publiek.",
+   "dagen": ["2026-10-20", "2026-10-27"], "uren": "", "urenNoot": "Het studentencharter laat verwelkoming, spelletjes en stoet toe tussen 10 en 22 uur, de doop op de kaai tot middernacht.",
    "waar": "Het Stadspark, dan te voet over de Leien en de Tabakvest naar het Theaterplein, en verder door Sint-Andries (Lange Gasthuisstraat, Prekersstraat, Kloosterstraat) naar de Scheldekaai ter hoogte van de Sint-Michielskaai, samen ongeveer 1,7 km.",
    "watMerkJe": "Een groep studenten in het Stadspark en op het Theaterplein, die daarna te voet naar de Scheldekaai trekt. Daar is vermoedelijk de doop, met lawaai tot uiterlijk middernacht. Een week eerder, op dinsdag 20 oktober, is er al een inname op het Theaterplein; in 2025 was dat een dril.",
    "link": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "linkLabel": "Officiële regels voor studentendopen", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
-   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-11"
   },
   "ET2026004512": {
    "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
@@ -258,13 +258,13 @@
    "bron": ["https://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint"], "bijgewerkt": "2026-10-09"
   },
   "ET2026005479": {
-   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een doopactiviteit van een studentenvereniging: een tocht te voet langs zeven stops met opdrachten", "organisator": "",
-   "reden": "Grotendeels dezelfde pleinen kwamen terug in dossiers op 12 oktober 2023, 8 oktober 2024 en 14 oktober 2025, in 2025 met stops als 'drillen' en 'Ceremonie'. Vijf stops zijn drilplaatsen uit het studentencharter, en 13 oktober valt in de doopperiode. Het dossier noemt geen naam.",
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een welkomstactiviteit van studenten (zoals een dril): een tocht te voet langs zeven stops met opdrachten", "organisator": "",
+   "reden": "Dezelfde pleinen kwamen terug op 12 oktober 2023, 8 oktober 2024 en 14 oktober 2025, in 2025 met stops als 'drillen' en 'Ceremonie'. Vijf stops zijn drilplaatsen uit het studentencharter; 13 oktober valt in de doopperiode. Geen doop: die mag alleen op een doopplaats uit het charter, en daar komt de tocht niet. Het dossier noemt geen naam.",
    "dagen": ["2026-10-13"], "uren": "", "urenNoot": "Het studentencharter laat zulke activiteiten alleen toe tussen 10 en 22 uur.",
    "waar": "Van het Theaterplein langs de Graanmarkt, de Sint-Andriesplaats, de Sint-Jansvliet, de Veemarkt en de Stadswaag naar het Frans Halsplein, ongeveer 3,5 km.",
    "watMerkJe": "Studenten te voet die halt houden op zeven pleinen. Afsluitingen of parkeerverboden staan niet in het dossier. Dezelfde tocht staat ook op dinsdag 20 oktober.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
-   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-11"
   },
   "ET2026005499": {
    "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
@@ -276,13 +276,13 @@
    "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-10"
   },
   "ET2026005502": {
-   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een doopactiviteit van een studentenvereniging: een tocht te voet langs zeven stops met opdrachten", "organisator": "",
-   "reden": "Grotendeels dezelfde pleinen kwamen terug in dossiers op 12 oktober 2023, 8 oktober 2024 en 14 oktober 2025, in 2025 met stops als 'drillen' en 'Ceremonie'. Vijf stops zijn drilplaatsen uit het studentencharter, en 20 oktober valt in de doopperiode. Het dossier noemt geen naam.",
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een welkomstactiviteit van studenten (zoals een dril): een tocht te voet langs zeven stops met opdrachten", "organisator": "",
+   "reden": "Dezelfde pleinen kwamen terug op 12 oktober 2023, 8 oktober 2024 en 14 oktober 2025, in 2025 met stops als 'drillen' en 'Ceremonie'. Vijf stops zijn drilplaatsen uit het studentencharter; 20 oktober valt in de doopperiode. Geen doop: die mag alleen op een doopplaats uit het charter, en daar komt de tocht niet. Het dossier noemt geen naam.",
    "dagen": ["2026-10-20"], "uren": "", "urenNoot": "Het studentencharter laat zulke activiteiten alleen toe tussen 10 en 22 uur.",
    "waar": "Van het Theaterplein langs de Graanmarkt, de Sint-Andriesplaats, de Sint-Jansvliet, de Veemarkt en de Stadswaag naar het Frans Halsplein, ongeveer 3,5 km.",
    "watMerkJe": "Studenten te voet die halt houden op zeven pleinen. Afsluitingen of parkeerverboden staan niet in het dossier. Dezelfde tocht stond ook op dinsdag 13 oktober.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
-   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+   "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-11"
   },
   "ET2026005550": {
    "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
