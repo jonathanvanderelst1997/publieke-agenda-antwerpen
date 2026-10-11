@@ -519,6 +519,12 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   assert.equal(fase1.kindLabel, "Omleiding + Werfzone");
   assert.deepEqual(fase1.werfzoneStreets.map((s) => s.name), [PET.name]);
   assert.ok(samen.some((i) => i.id === "sgw:PROEF-GW|2"), "de andere fase blijft");
+  // Het parkeerverbod: live dezelfde dag, dan de andere plaatsen van de ochtend erbij; live naar een andere
+  // dag geschoven, dan niet (anders bleef de oude dag van de ochtend staan, met "Live nagekeken: niets nieuw").
+  const pvLive = kam.find((i) => i.id === "parking:PROEF-PV|L1");
+  assert.ok(aanvullenMetOchtend([pvLive], kam).some((i) => i.id === "parking:PROEF-PV|L2|bundel"));
+  const verschoven = { ...pvLive, start: "2099-03-13T00:00:00.000Z", end: "2099-03-13T00:00:00.000Z" };
+  assert.deepEqual(aanvullenMetOchtend([verschoven], kam).map((i) => i.id), ["parking:PROEF-PV|L1"]);
 });
 
 test("een vergunning die ver buiten het kader reikt, houdt na het live nakijken de straten van de ochtend", async () => {

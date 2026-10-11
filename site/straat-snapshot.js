@@ -4,6 +4,7 @@
 // zin over wat er live bij kwam ("1 nieuw sinds 05:22"). Zonder DOM, ook voor de toetsen en de bouwer.
 import { metInzage } from "./inzage-status.js";
 import { vergunningBronUrl } from "./permits-live-core.js";
+import { maatregelSleutel } from "./place-core.js";
 
 // De lagen in een straatbestand en hun naam als live laag (window.PUBLIC_AGENDA_LIVE_STREETS).
 export const STRAAT_LAGEN = Object.freeze([
@@ -103,14 +104,17 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
   return lagen;
 }
 
-// Na het live nakijken van het kader van de straat: de live items, aangevuld met wat buiten dat kader
-// ligt maar wel op de kaart van de straat hoort (scripts/build-straat-snapshots.mjs):
+// Als de rijen van de dossiers in het kader live niet geladen konden worden (publiekeRuimteInKader in
+// site/public-space-live.js): de live items van het kader, aangevuld met wat buiten dat kader ligt maar wel
+// op de kaart van de straat hoort (scripts/build-straat-snapshots.mjs):
 // - de samenvatting van de fasen van een evenementendossier (`faseSamenvatting`): opbouw en afbraak liggen
 //   vaak elders, en zonder die rijen verdwijnt "opbouw vanaf … en afbraak tot …";
 // - de andere rijen van een werfzone of parkeerverbod (`bundel`): de andere fasen en straten;
 // - een werfzone of omleiding die het kader maar half raakt: live dan alleen "Omleiding", terwijl het een
 //   werfzone met omleiding is. Dan de soorten, straten en periode van de ochtend erbij.
-// Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg.
+// Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg. Een
+// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dag, uren en reden): een
+// parkeerverbod dat live naar een andere dag schoof, houdt anders de oude dag van de ochtend.
 const refSleutel = (ref) => [ref?.id || "", ref?.name || "", ref?.postcode || ""].join("|");
 const samenRefs = (a = [], b = []) => [...new Map([...a, ...b].filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
 const vroegste = (a, b) => (!b || (a && Date.parse(a) <= Date.parse(b)) ? a : b);
@@ -137,7 +141,9 @@ export function aanvullenMetOchtend(live = [], ochtend = []) {
   const ids = new Set(live.map((item) => item?.id));
   const perId = new Map((ochtend || []).map((item) => [item?.id, item]));
   const aangevuld = live.map((item) => (item?.kind === "sgw" && perId.get(item.id)?.kind === "sgw" ? werfzoneSamen(item, perId.get(item.id)) : item));
-  return [...aangevuld, ...(ochtend || []).filter((item) => (item?.faseSamenvatting || item?.bundel) && dossiers.has(item.reference) && !ids.has(item.id))];
+  const maatregelen = new Set(live.filter((item) => item?.kind === "parking" || item?.kind === "sgw").map(maatregelSleutel));
+  const hoort = (item) => (item?.faseSamenvatting && dossiers.has(item.reference)) || (item?.bundel && maatregelen.has(maatregelSleutel(item)));
+  return [...aangevuld, ...(ochtend || []).filter((item) => hoort(item) && !ids.has(item.id))];
 }
 
 // ---------- het kader van een straat ----------
