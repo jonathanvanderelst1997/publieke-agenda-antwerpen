@@ -280,11 +280,11 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await groot.context.close();
   });
 
-  await t.test("geen pagina die opzij schuift op 360 en 320 px (lijst, week, maand), en de straalknoppen houden hun tekst binnen", async () => {
+  await t.test("geen pagina die opzij schuift op 360 en 320 px (lijst, tijdlijn, maand), en de straalknoppen houden hun tekst binnen", async () => {
     for (const width of [360, 320]) {
-      for (const weergave of ["", "week", "maand"]) {
+      for (const weergave of ["", "tijdlijn", "maand"]) {
         const { page, context } = await openPlace(baseUrl, { width, height: 780, weergave, dagen: 0 });
-        if (weergave) await page.locator(".pv-nav:not([hidden])").waitFor({ timeout: 15000 });
+        if (weergave) await page.locator(weergave === "maand" ? ".pv-nav:not([hidden])" : ".pv-tl-strip").waitFor({ timeout: 15000 });
         const m = await page.evaluate(() => ({
           scroll: [document.documentElement.scrollWidth, document.documentElement.clientWidth],
           straal: [...document.querySelectorAll(".pv-radius button")].map((b) => ({ tekst: b.textContent, sw: b.scrollWidth, cw: b.clientWidth, links: Math.round(b.getBoundingClientRect().left), rechts: Math.round(b.getBoundingClientRect().right) })),
@@ -313,15 +313,25 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("weekweergave: de dagen in de kop staan boven de balkjes, op gsm en desktop", async () => {
+  await t.test("tijdlijn: 14 dagen binnen de breedte, een stip per soort, en tikken op een dag filtert de lijst", async () => {
     for (const width of [390, 1280]) {
-      const { page, context } = await openPlace(baseUrl, { width, height: 900, weergave: "week", dagen: 0 });
-      await page.locator(".pv-track").first().waitFor({ timeout: 15000 });
-      const m = await page.evaluate(() => {
-        const kop = document.querySelector(".pv-week-days").getBoundingClientRect(), balk = document.querySelector(".pv-track").getBoundingClientRect();
-        return { kop: [Math.round(kop.left), Math.round(kop.right)], balk: [Math.round(balk.left), Math.round(balk.right)] };
-      });
-      assert.ok(Math.abs(m.kop[0] - m.balk[0]) <= 1 && Math.abs(m.kop[1] - m.balk[1]) <= 1, `breedte ${width}: kop ${m.kop} tegen balk ${m.balk}`);
+      const { page, context } = await openPlace(baseUrl, { width, height: 900, weergave: "tijdlijn" });
+      await page.locator(".pv-tl-strip").waitFor({ timeout: 15000 });
+      const m = await page.evaluate(() => ({
+        dagen: [...document.querySelectorAll(".pv-tl-dag")].map((b) => { const r = b.getBoundingClientRect(); return { d: b.dataset.tlDag, links: r.left, rechts: r.right, stippen: b.querySelectorAll(".pv-tl-stippen i").length }; }),
+        breed: document.documentElement.clientWidth,
+      }));
+      assert.equal(m.dagen.length, 14);
+      for (const d of m.dagen) assert.ok(d.links >= 0 && d.rechts <= m.breed, `${width} px: ${d.d} valt buiten beeld`);
+      // Het parcours loopt de komende dagen: die dagen hebben een stip, en tikken toont alleen wat die dag loopt.
+      const metStip = m.dagen.find((d) => d.stippen);
+      assert.ok(metStip, "minstens één dag met een stip");
+      await page.click(`[data-tl-dag="${metStip.d}"]`);
+      const rijen = await page.locator(".pv-results .pv-row").count();
+      assert.ok(rijen >= 1, "de gekozen dag toont zijn items");
+      assert.match(await page.locator(".pv-results .pv-day-title").first().innerText(), new RegExp(String(Number(metStip.d.slice(8)))));
+      await page.click(".pv-tl-alle");
+      assert.equal(await page.locator(".pv-tl-dag[aria-pressed=\"true\"]").count(), 0);
       await context.close();
     }
   });

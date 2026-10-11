@@ -265,14 +265,6 @@
 
 /* ---- week ---- */
 /* De weekkop is kleiner gezet (.72rem): 5.2rem is daar even breed als de 5.2em van de tijdkolom (1rem). */
-.pv-week-head { display: grid; grid-template-columns: 5.2rem minmax(0, 1fr) 20px; gap: 10px; padding: 0 13px 0 17px; margin: 0 0 6px; font-size: .72rem; color: var(--pa-muted); text-transform: uppercase; position: sticky; top: 0; z-index: 2; background: var(--pa-bg); }
-.pv-week-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
-.pv-week-head b { text-align: center; font-weight: 700; line-height: 1.25; padding: 4px 0; }
-.pv-week-head b.today { color: var(--pa-accent); }
-.pv-track { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin-top: 6px; height: 8px; }
-.pv-track i { border-radius: 3px; background: var(--pa-surface-2); outline: 1px solid var(--pa-line); outline-offset: -1px; }
-.pv-track i.on { background: var(--cat, var(--pa-accent)); outline: 0; }
-.pv-track i.today:not(.on) { outline-color: var(--pa-accent); }
 
 /* ---- maand ---- */
 .pv-cal { border: 1px solid var(--pa-line); border-radius: 18px; overflow: hidden; background: var(--pa-surface); }
@@ -301,6 +293,21 @@
 .pv-bar.cs { margin-left: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; }
 .pv-bar.ce { margin-right: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; }
 .pv-cal-more { z-index: 1; pointer-events: none; font-size: .64rem; font-weight: 800; color: var(--pa-muted); text-align: center; line-height: 6px; }
+/* Tijdlijn over 14 dagen: op de gsm twee rijen van zeven, breder één rij. Een stip per soort. */
+.pv-tl-strip { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin: 4px 0 0; }
+.pv-tl-dag {
+  min-height: 64px; padding: 6px 2px; border-radius: 12px; border: 1px solid var(--pa-line); background: var(--pa-surface); color: var(--pa-ink);
+  display: flex; flex-direction: column; align-items: center; gap: 2px; cursor: pointer; font: inherit;
+}
+.pv-tl-dag.weekend { background: var(--pa-surface-2); }
+.pv-tl-dag.today { border-color: var(--pa-ink-strong); }
+.pv-tl-dag[aria-pressed="true"] { background: var(--pa-ink-strong); border-color: var(--pa-ink-strong); color: var(--pa-surface); }
+.pv-tl-wd { font-size: .72rem; font-weight: 700; color: inherit; opacity: .85; }
+.pv-tl-n { font-size: 1.05rem; font-weight: 800; line-height: 1; }
+.pv-tl-stippen { display: flex; flex-wrap: wrap; justify-content: center; gap: 3px; min-height: 8px; }
+.pv-tl-stippen i { width: 8px; height: 8px; border-radius: 50%; background: var(--cat); box-shadow: 0 0 0 1.5px var(--pa-surface); }
+.pv-tl-alle { margin: 4px 0 12px; }
+@media (min-width: 900px) { .pv-tl-strip { grid-template-columns: repeat(14, minmax(0, 1fr)); } }
 .pv-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 10px 2px 14px; font-size: .82rem; color: var(--pa-muted); }
 .pv-legend-item { display: inline-flex; align-items: center; gap: 6px; }
 .pv-legend-item i { width: 18px; height: 8px; border-radius: 4px; background: var(--cat); }
@@ -393,7 +400,6 @@
   .pv-nav { flex-wrap: wrap; max-width: 100%; }
   .pv-nav-label { min-width: 0; }
   .pv-row-btn { grid-template-columns: 5.2em minmax(0, 1fr) 16px; gap: 8px; padding-left: 14px; }
-  .pv-week-head { grid-template-columns: 5.2rem minmax(0, 1fr) 16px; gap: 8px; padding-left: 15px; }
 }
 /* Smalle gsm, ook met grotere tekst: de tijd op een eigen regel boven de soort. Zo krijgt de titel de
    volle breedte en breekt er geen woord midden in ("Omgevingsaanvraag", "elektriciteitsnet"). 27,5em is
@@ -404,9 +410,6 @@
   /* De titel loopt ook onder het pijltje door: dat staat alleen naast de tijd. */
   .pv-row-main { grid-column: 1 / -1; grid-row: 2; }
   .pv-row-chevron { grid-column: 2; grid-row: 1; }
-  /* De weekkop volgt: geen lege kolommen voor de tijd en het pijltje, de dagen boven de balkjes. */
-  .pv-week-head { grid-template-columns: minmax(0, 1fr); }
-  .pv-week-head > span:not(.pv-week-days) { display: none; }
 }
 /* Smal scherm: label boven de waarde, zodat de tekst de volle breedte krijgt (geen kolom van 110 px). */
 @media (max-width: 520px) {

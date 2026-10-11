@@ -227,11 +227,19 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.match(await bar.getAttribute("title"), new RegExp(`${Number(start.slice(8))} .* → ${Number(end.slice(8))} `));
     await page.click(`[data-day="${start}"]`);
     await page.locator(`.pv-cal-daypanel ${WORK_ROW}`).waitFor();
-    // Weekweergave: hetzelfde werk met zijn dagen ingekleurd.
-    await page.click('[data-mode="week"]');
-    while (!(await page.locator(WORK_ROW).count())) await page.click(".pv-nav-next");
-    const onDays = await page.locator(WORK_ROW).first().locator(".pv-track i.on").count();
-    assert.ok(onDays >= 1 && onDays <= 7);
+    // Tijdlijn van 14 dagen (vervangt de weekweergave): het werk start over 9 dagen. Tik op die dag en
+    // het staat erin; tik op vandaag en het staat er niet; nog eens tikken toont weer alle 14 dagen.
+    await page.click('[data-mode="tijdlijn"]');
+    assert.equal(await page.locator(".pv-tl-dag").count(), 14);
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
+    assert.ok(await page.locator(`[data-tl-dag="${start}"] .pv-tl-stippen i.cat-works`).count(), "een stip voor het werk op zijn startdag");
+    await page.click(`[data-tl-dag="${start}"]`);
+    assert.equal(await page.locator(`[data-tl-dag="${start}"]`).getAttribute("aria-pressed"), "true");
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
+    await page.click(`[data-tl-dag="${today}"]`);
+    assert.equal(await page.locator(`.pv-results ${WORK_ROW}`).count(), 0, "op vandaag loopt het werk nog niet");
+    await page.click(`[data-tl-dag="${today}"]`);
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -428,7 +436,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("gsm (390 px): geen horizontale scroll in zoeken, plek, lijst, week en maand", async () => {
+  await t.test("gsm (390 px): geen horizontale scroll in zoeken, plek, lijst, tijdlijn en maand", async () => {
     const { page, context } = await openPage(baseUrl, { street });
     const noScroll = async (label) => {
       const [scroll, width] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
@@ -440,8 +448,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.locator("#agenda-street-jump").press("Enter");
     await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
     await noScroll("plek");
-    await page.click('[data-mode="week"]');
-    await noScroll("week");
+    await page.click('[data-mode="tijdlijn"]');
+    await noScroll("tijdlijn");
     await page.click('[data-mode="maand"]');
     await noScroll("maand");
     await page.click(".pv-more > summary");

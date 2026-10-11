@@ -49,15 +49,14 @@ test("de straatnaam krijgt op een gsm de volle breedte; de knoppen staan eronder
   assert.doesNotMatch(regel(gsm, ".pv-place-top"), /nowrap/);
 });
 
-test("de tijdkolom is minstens 5em breed, ook op een gsm, en de weekkop staat er precies boven", () => {
+test("de tijdkolom is minstens 5em breed, ook op een gsm", () => {
   const kolom = (selector) => [...css.matchAll(new RegExp(`\\.${selector}\\s*\\{[^}]*grid-template-columns:\\s*([\\d.]+)(r?em)\\s`, "g"))].map((m) => [Number(m[1]), m[2]]);
-  const knop = kolom("pv-row-btn"), kop = kolom("pv-week-head");
-  assert.ok(knop.length >= 2 && kop.length >= 2, JSON.stringify({ knop, kop }));
+  const knop = kolom("pv-row-btn");
+  assert.ok(knop.length >= 2, JSON.stringify({ knop }));
   for (const [n, eenheid] of knop) assert.ok(n >= 5 && eenheid === "em", `kaartknop: ${n}${eenheid}`);
-  // De weekkop staat in kleinere letters (.72rem): in em zou zijn tijdkolom smaller zijn dan die van
-  // de kaartknop (1rem), en de dagen stonden niet boven de balkjes. Dus in rem, met hetzelfde getal.
   assert.match(regel(css, ".pv-row-btn"), /font:\s*inherit/);
-  assert.deepEqual(kop, knop.map(([n]) => [n, "rem"]));
+  // De weekweergave is vervangen door de tijdlijn van 14 dagen: geen weekkop meer.
+  assert.doesNotMatch(css, /\.pv-week-head|\.pv-track\b/);
 });
 
 test("op een smalle gsm staat de tijd op een eigen regel boven de soort; de titel krijgt de volle breedte", () => {
@@ -66,9 +65,6 @@ test("op een smalle gsm staat de tijd op een eigen regel boven de soort; de tite
   assert.match(regel(smal, ".pv-row-when"), /grid-row:\s*1\b/);
   // De titel loopt ook onder het pijltje door (dat staat alleen naast de tijd).
   assert.match(regel(smal, ".pv-row-main"), /grid-column:\s*1\s*\/\s*-1\s*;\s*grid-row:\s*2\b/);
-  // De weekkop volgt: zonder lege kolommen staan de dagen boven de balkjes.
-  assert.match(regel(smal, ".pv-week-head"), /grid-template-columns:\s*minmax\(0,\s*1fr\)\s*;/);
-  assert.match(regel(smal, ".pv-week-head > span:not(.pv-week-days)"), /display:\s*none/);
 });
 
 test("op een gsm schuift de pagina niet opzij: werkbalk, weeknavigatie, straalknoppen en sectiekoppen", () => {

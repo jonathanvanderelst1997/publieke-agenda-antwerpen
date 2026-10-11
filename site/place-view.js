@@ -5,7 +5,7 @@
 import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, themesForGroups, groupsForThemes,
   buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
-  periodRange, monthWeeks, startOfWeek, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
+  periodRange, monthWeeks, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize, dezeWeek, WEEK_LICHT,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen,
@@ -30,7 +30,8 @@ const MONTHS_SHORT = ["jan", "feb", "mrt", "apr", "mei", "jun", "jul", "aug", "s
 const WEEKDAYS = ["maandag", "dinsdag", "woensdag", "donderdag", "vrijdag", "zaterdag", "zondag"];
 const WEEKDAYS_SHORT = ["ma", "di", "wo", "do", "vr", "za", "zo"];
 const QUICK_WIJKEN = ["ANT09", "ANT24", "ANT25", "ANT10", "ANT05", "ANT11", "ANT20"];
-const MODES = [["lijst", "Lijst"], ["week", "Week"], ["maand", "Maand"]];
+// "14 dagen" (tijdlijn) vervangt de weekweergave; een oude link met weergave=week opent de tijdlijn.
+const MODES = [["lijst", "Lijst"], ["tijdlijn", "14 dagen"], ["maand", "Maand"]];
 const SECTION_LIMIT = 12;
 // Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
 // Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
@@ -113,7 +114,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     groups: new Set(DEFAULT_GROUPS),
     customized: false,
     period: PERIODS.some(([k]) => k === url.searchParams.get("periode")) ? url.searchParams.get("periode") : "maand",
-    mode: MODES.some(([k]) => k === url.searchParams.get("weergave")) ? url.searchParams.get("weergave") : "lijst",
+    mode: url.searchParams.get("weergave") === "week" ? "tijdlijn" : MODES.some(([k]) => k === url.searchParams.get("weergave")) ? url.searchParams.get("weergave") : "lijst",
+    dagFilter: "",
     cursor: "",
     selectedDay: "",
     open: new Set(),
@@ -612,10 +614,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     modesEl.innerHTML = MODES.map(([k, label]) => `<button type="button" data-mode="${k}" aria-pressed="${state.mode === k}">${label}</button>`).join("");
     periodsEl.hidden = state.mode !== "lijst";
     periodsEl.innerHTML = PERIODS.map(([k, label]) => `<button type="button" data-period="${k}" aria-pressed="${state.period === k}">${label}</button>`).join("");
-    navEl.hidden = state.mode === "lijst";
+    navEl.hidden = state.mode !== "maand";
     if (state.mode === "maand") navEl.querySelector(".pv-nav-label").textContent = `${MONTHS[monthOf(state.cursor)]} ${state.cursor.slice(0, 4)}`;
-    if (state.mode === "week") { const end = addDays(state.cursor, 6); navEl.querySelector(".pv-nav-label").textContent = `${shortDate(state.cursor)} – ${shortDate(end)}`; }
-    navEl.querySelector(".pv-nav-today").disabled = state.mode === "maand" ? startOfMonth(today) === state.cursor : startOfWeek(today) === state.cursor;
+    navEl.querySelector(".pv-nav-today").disabled = startOfMonth(today) === state.cursor;
   }
   groupsEl.addEventListener("click", (event) => {
     const button = event.target.closest("[data-group]");
@@ -633,8 +634,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!button) return;
     state.mode = button.dataset.mode;
     const today = brusselsToday();
-    state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today);
+    state.cursor = startOfMonth(today);
     state.selectedDay = today;
+    state.dagFilter = "";
     writeUrl(); render();
   });
   periodsEl.addEventListener("click", (event) => {
@@ -645,8 +647,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   navEl.addEventListener("click", (event) => {
     const step = event.target.closest(".pv-nav-prev") ? -1 : event.target.closest(".pv-nav-next") ? 1 : 0;
     const today = brusselsToday();
-    if (event.target.closest(".pv-nav-today")) state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today);
-    else if (step) state.cursor = state.mode === "maand" ? addMonths(state.cursor, step) : addDays(state.cursor, 7 * step);
+    if (event.target.closest(".pv-nav-today")) state.cursor = startOfMonth(today);
+    else if (step) state.cursor = addMonths(state.cursor, step);
     else return;
     if (state.mode === "maand") state.selectedDay = state.cursor <= today && today < addMonths(state.cursor, 1) ? today : state.cursor;
     render();
@@ -753,7 +755,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
 
   // ---- weergave ----
-  function rowTemplate(entry, { today, context = "list", weekStart = "" } = {}) {
+  function rowTemplate(entry, { today, context = "list" } = {}) {
     const k = kindInfo(entry);
     const uid = cssId(entry.uid);
     const open = state.open.has(entry.uid);
@@ -783,13 +785,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const done = Math.min(total, Math.max(0, daysBetween(entry.start, today) + 1));
       progress = `<div class="pv-progress" aria-hidden="true"><span style="width:${Math.round((done / total) * 100)}%"></span></div><p class="pv-progress-text">${esc(voortgangTekst(entry.start, entry.end, today))}</p>`;
     }
-    let track = "";
-    if (context === "week") {
-      const end = periode.end || (entry.openEnd ? addDays(weekStart, 6) : periode.start);
-      const s = periode.start < weekStart ? 0 : daysBetween(weekStart, periode.start);
-      const e = Math.min(6, daysBetween(weekStart, end));
-      track = `<span class="pv-track" aria-hidden="true">${Array.from({ length: 7 }, (_, i) => `<i class="${i >= s && i <= e ? "on" : ""}${addDays(weekStart, i) === today ? " today" : ""}"></i>`).join("")}</span>`;
-    }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
@@ -815,7 +810,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
-            ${track}
           </span>
           <span class="pv-row-chevron" aria-hidden="true"></span>
         </button>
@@ -989,13 +983,32 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const body = html.filter(Boolean).join("");
     results.innerHTML = body || emptyTemplate(today);
   }
-  function renderWeek(entries, today) {
-    const weekStart = state.cursor, weekEnd = addDays(weekStart, 6);
-    const inWeek = entries.filter((e) => e.start && e.group !== "vergunningen" && overlaps(e, weekStart, weekEnd))
-      .sort((a, b) => a.start.localeCompare(b.start) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl"));
-    const head = `<div class="pv-week-head" aria-hidden="true"><span></span><span class="pv-week-days">${Array.from({ length: 7 }, (_, i) => { const d = addDays(weekStart, i); return `<b class="${d === today ? "today" : ""}">${WEEKDAYS_SHORT[i]}<br>${dayNum(d)}</b>`; }).join("")}</span><span></span></div>`;
-    if (!inWeek.length) { results.innerHTML = `${head}${emptyTemplate(today)}`; return; }
-    results.innerHTML = `<div class="pv-week">${head}${sectionTemplate(`w:${weekStart}`, `Week van ${esc(shortDate(weekStart))}`, inWeek, { today, context: "week", weekStart })}</div>`;
+  // Tijdlijn over 14 dagen (vandaag inbegrepen): per dag een stip per soort. Tik op een dag en de lijst
+  // eronder toont alleen die dag; nog eens tikken (of "Toon alle 14 dagen") toont alles weer.
+  function renderTijdlijn(entries, today) {
+    const einde = addDays(today, 13);
+    const dated = entries.filter((e) => e.start && e.group !== "vergunningen" && overlaps(e, today, einde));
+    if (state.dagFilter && (state.dagFilter < today || state.dagFilter > einde)) state.dagFilter = "";
+    const groepen = KIND_GROUPS.filter((g) => g.key !== "vergunningen");
+    const strip = Array.from({ length: 14 }, (_, i) => {
+      const d = addDays(today, i);
+      const perGroep = groepen.map((g) => [g, dated.filter((e) => e.group === g.key && overlaps(e, d, d)).length]).filter(([, n]) => n);
+      const tekst = perGroep.length ? perGroep.map(([g, n]) => `${n} ${g.label.toLowerCase()}`).join(", ") : "niets gepland";
+      const cls = [d === today ? "today" : "", d === state.dagFilter ? "sel" : "", weekdayMon0(d) >= 5 ? "weekend" : ""].filter(Boolean).join(" ");
+      return `<button type="button" class="pv-tl-dag ${cls}" data-tl-dag="${d}" aria-pressed="${d === state.dagFilter}" aria-label="${esc(longDate(d))}: ${esc(tekst)}"><span class="pv-tl-wd">${d === today ? "vand." : WEEKDAYS_SHORT[weekdayMon0(d)]}</span><span class="pv-tl-n">${dayNum(d)}</span><span class="pv-tl-stippen" aria-hidden="true">${perGroep.map(([g]) => `<i class="cat-${g.cat}"></i>`).join("")}</span></button>`;
+    }).join("");
+    const legend = groepen.filter((g) => state.groups.has(g.key)).map((g) => `<span class="pv-legend-item cat-${g.cat}"><i aria-hidden="true"></i>${esc(g.label)}</span>`).join("");
+    const begin = (e) => (e.start < today ? today : e.start);
+    const lijst = (state.dagFilter ? dated.filter((e) => overlaps(e, state.dagFilter, state.dagFilter)) : dated)
+      .sort((a, b) => begin(a).localeCompare(begin(b)) || String(a.time || "99").localeCompare(String(b.time || "99")) || a.title.localeCompare(b.title, "nl"));
+    const titel = state.dagFilter ? dayTitle(state.dagFilter, today) : `<span aria-hidden="true">🗓️</span> Komende 14 dagen`;
+    results.innerHTML = `
+      <div class="pv-tl">
+        <div class="pv-tl-strip" role="group" aria-label="Tijdlijn: kies een dag">${strip}</div>
+        <p class="pv-legend">${legend}<span class="pv-legend-hint">Een stip per soort. Tik op een dag om alleen die dag te zien.</span></p>
+      </div>
+      ${lijst.length ? sectionTemplate(`tl:${state.dagFilter || "alle"}`, titel, lijst, { today, context: "tijdlijn" }) : emptyTemplate(today)}
+      ${state.dagFilter ? `<button type="button" class="pv-btn pv-btn-ghost pv-tl-alle" data-tl-dag="">Toon alle 14 dagen</button>` : ""}`;
   }
   function renderMonth(entries, today) {
     const month = state.cursor, weeks = monthWeeks(month), nextMonth = addMonths(month, 1);
@@ -1032,6 +1045,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
 
   results.addEventListener("click", (event) => {
+    const dag = event.target.closest("[data-tl-dag]");
+    if (dag) {
+      const d = dag.dataset.tlDag;
+      state.dagFilter = d && d !== state.dagFilter ? d : "";
+      render();
+      results.querySelector(state.dagFilter ? `[data-tl-dag="${state.dagFilter}"]` : ".pv-tl-dag")?.focus({ preventScroll: true });
+      return;
+    }
     const row = event.target.closest(".pv-row-btn");
     if (row) {
       const li = row.closest(".pv-row"), uid = li.dataset.uid, detail = li.querySelector(".pv-detail");
@@ -1081,9 +1102,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   function render() {
     const today = brusselsToday();
-    if (!state.cursor) { state.cursor = state.mode === "maand" ? startOfMonth(today) : startOfWeek(today); }
-    if (state.mode === "maand" && state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor);
-    if (state.mode === "week" && weekdayMon0(state.cursor) !== 0) state.cursor = startOfWeek(state.cursor);
+    if (!state.cursor || state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor || today);
     const { entries, loading, failed, opPlek } = collect();
     const summary = summarize(entries, today);
     state.layersPending = loading.includes("werken") || loading.includes("verkeersmaatregelen");
@@ -1107,7 +1126,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       state.onvolledig ? `<span class="pv-place-failed">${esc(state.onvolledig)}</span>` : "",
     ].filter(Boolean).join(" ");
     if (state.mode === "maand") renderMonth(entries, today);
-    else if (state.mode === "week") renderWeek(entries, today);
+    else if (state.mode === "tijdlijn") renderTijdlijn(entries, today);
     else renderList(entries, today);
   }
   let frame = 0;
