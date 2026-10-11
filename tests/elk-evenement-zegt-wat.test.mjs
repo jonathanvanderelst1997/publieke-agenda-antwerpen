@@ -231,6 +231,33 @@ test("regel vaste plek: alleen als de inname er helemaal in ligt, groot genoeg i
   assert.notEqual(rand.plek, "op de Proefparking");
 });
 
+test("regel buurtactie: Herfstklaar alleen in het weekend, met het profiel en een vorige editie op dezelfde plek", () => {
+  const acties = [{ naam: "Herfstklaar", woord: "herfstklaar", wat: "bewoners maken samen hun straat groener", edities: [{ van: "2025-11-07", tot: "2025-11-11" }] }];
+  const nieuws = { titel: "Maak je straat Herfstklaar op 23, 24 of 25 oktober", dag: "2026-10-23", eind: "2026-10-25", link: "https://www.antwerpen.be/info/voorbeeld/herfstklaar", bron: "kalender" };
+  assert.deepEqual(L.buurtVensters([nieuws], acties).map((v) => [v.naam, v.van, v.tot]), [["Herfstklaar", "2026-10-23", "2026-10-25"]]);
+  const plek = oost(MIDDEN, 1500);
+  const nu = nep("ET2099500001", [{ dag: "2026-10-24", ring: vierkant(plek, 3) }]);
+  // Vorig jaar, tijdens Herfstklaar, een kleine inname die deze plek raakt (een iets ander stukje stoep).
+  const vorig = nep("ET2099500002", [{ dag: "2025-11-08", ring: vierkant(oost(plek, 5), 3), beschrijving: "Proefstraat 2-10" }]);
+  const historiek = L.vatHistoriekSamen(nu, [{ ...vorig, dag: "2025-11-08", eind: "2025-11-08" }], { buurtacties: acties });
+  assert.deepEqual(historiek.map((h) => h.soorten), [["buurtactie"]]);
+  const bouw = (dossiers, h = { ET2099500001: historiek }) => L.bouwHerkenning({ dossiers, kandidaten: [nieuws], historiek: h, charter: CHARTER, vandaag: VANDAAG, buurtacties: acties }).dossiers;
+  const r = bouw([nu]).ET2099500001;
+  assert.deepEqual([r.zekerheid, r.soort, r.geenEvenement, r.link], ["waarschijnlijk", "Herfstklaar (buurtactie van het district)", true, nieuws.link]);
+  assert.match(r.reden, /^Valt in het Herfstklaar-weekend van het district \(23 tot 25 oktober\)/);
+  // Zonder vorige editie op die plek: geen label, wel de feiten.
+  assert.equal(bouw([nu], {}).ET2099500001.zekerheid, "onbekend");
+  // Een podium of een markt valt buiten het profiel, ook in het weekend.
+  const podium = nep("ET2099500003", [{ dag: "2026-10-24", ring: vierkant(plek, 3), beschrijving: "podium en promotruck" }]);
+  assert.equal(bouw([podium], { ET2099500003: historiek }).ET2099500003.zekerheid, "onbekend");
+  // Een reeks op hetzelfde vlak (elke zondag) is geen buurtactie.
+  const reeks = ["2026-10-11", "2026-10-18", "2026-10-25"].map((dag, i) => nep(`ET209950001${i}`, [{ dag, ring: vierkant(plek, 3) }]));
+  assert.equal(bouw(reeks, { ET2099500012: historiek }).ET2099500012.zekerheid, "onbekend");
+  // Buiten het weekend: niets.
+  const later = nep("ET2099500004", [{ dag: "2026-10-31", ring: vierkant(plek, 3) }]);
+  assert.equal(bouw([later], { ET2099500004: historiek }).ET2099500004.zekerheid, "onbekend");
+});
+
 test("straat bij een punt: een tunnel onder een plein is geen plek, dan de straat erboven", () => {
   const as = (naam, a, b) => ({ type: "Feature", properties: { LSTRNMID: naam.length, LSTRNM: naam, RSTRNMID: naam.length, RSTRNM: naam, postcode: 2000, DISTRICT: "Antwerpen" }, geometry: { type: "LineString", coordinates: [a, b] } });
   const index = buildStreetIndex([as("Proeftunnel", oost(MIDDEN, -50), oost(MIDDEN, 50)), as("Voorbeeldplein", oost(noord(MIDDEN, 25), -50), oost(noord(MIDDEN, 25), 50))]);
