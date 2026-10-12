@@ -99,10 +99,12 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   "Loopt nu". In de maandkalender lopen meerdaagse werken als balk over hun periode. Details openen inline.
 - Een plek toont standaard alles wat de site erover heeft (wens van 12 oktober 2026): periode "Alles" (zonder einde),
   alle soorten aan en geen grens per sectie. Alleen een heel lange lijst (meer dan 150 kaartjes, zoals een postcode)
-  tekent per 150 en laadt de volgende vanzelf bij het scrollen; een straat staat er altijd meteen volledig (de drukste
-  straat had er 69 op 12 oktober 2026). De knoppen beperken nog altijd; het getal boven de lijst blijft dan alles en
-  zegt erbij wat de lijst toont. Zonder plek (het hele district) blijft het de komende 30 dagen en de evenementen.
-  De kaart tekent met een plek ook alles; alleen zonder plek houdt ze 600 per soort.
+  tekent per 150 en laadt de volgende vanzelf bij het naar beneden scrollen (elke stap voegt alleen de nieuwe kaartjes
+  toe; staat de knop boven of bovenaan het beeld, zoals na "Toon op de kaart" op een gsm, dan is het een gewone knop);
+  een straat staat er altijd meteen volledig (de drukste straat had er 69 op 12 oktober 2026). De knoppen beperken nog
+  altijd; het getal boven de lijst blijft dan alles en zegt erbij wat de lijst toont, ook in de tijdlijn en de maand
+  (die tonen geen vergunningen en terrassen). Zonder plek (het hele district) blijft het de komende 30 dagen en de
+  evenementen. De kaart tekent met een plek ook alles; alleen zonder plek houdt ze 600 per soort.
 - Eén rij soortchips (evenementen, werken & verkeer, inspraak & info, markten, raad, vergunningen) vervangt de
   losse keuzelijsten. De volledige lijsten per laag, district/stad en de bronstatus staan ingeklapt onderaan.
 - Deelbaar: `?plek=Kammenstraat`, `?plek=Zurenborg`, `?plek=2060` (met `&straal=500`, `&soort=…`,

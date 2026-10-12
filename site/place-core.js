@@ -599,12 +599,18 @@ export function lijstUniversum(entries = [], today = "", { markten = [] } = {}) 
   for (const m of markten) neem(marktBundelEntry(m));
   return uit;
 }
-// Waartoe de knoppen de lijst nu beperken, in één zin; leeg als de lijst alles toont (periode "Alles") en in de
-// maand (die zegt zelf welke maand). `periodeLabel`: het label van de gekozen periode ("7 dagen"); `dagLabel`: de
-// gekozen dag in de tijdlijn ("dinsdag 20 oktober").
-export function beperkingTekst({ mode = "lijst", periode = "alles", periodeLabel = "", dagLabel = "" } = {}) {
-  if (mode === "tijdlijn") return dagLabel ? `De tijdlijn toont alleen ${dagLabel}.` : "De tijdlijn toont alleen de komende 14 dagen.";
-  if (mode !== "lijst" || periode === "alles" || !periodeLabel) return "";
+// Waartoe de knoppen de lijst nu beperken, in één zin; leeg als de lijst alles toont (periode "Alles").
+// `periodeLabel`: het label van de gekozen periode ("7 dagen"); `dagLabel`: de gekozen dag in de tijdlijn
+// ("dinsdag 20 oktober"); `vergunningen`: hoeveel vergunningen en terrassen er op de plek staan (telPerSoort,
+// soort "vergunning"). De tijdlijn en de maand tonen die nooit (renderTijdlijn en renderMonth in place-view.js):
+// staan ze er, dan zegt de zin dat ook (nakijkbevinding: in de Offerandestraat waren 47 van de 49 items
+// vergunningen of terrassen, en de zin gaf alleen de 14 dagen als reden). De maand zegt het altijd: ze toont per
+// dag, en wat bij een dag hoort staat pas onder de kalender als je die dag kiest.
+export function beperkingTekst({ mode = "lijst", periode = "alles", periodeLabel = "", dagLabel = "", vergunningen = 0 } = {}) {
+  const zonder = vergunningen > 0 ? ", zonder vergunningen en terrassen" : "";
+  if (mode === "tijdlijn") return `De tijdlijn toont alleen ${dagLabel || "de komende 14 dagen"}${zonder}; kies “Lijst” voor alles.`;
+  if (mode === "maand") return `De maand toont per dag wat er gebeurt${zonder}; kies “Lijst” voor alles.`;
+  if (periode === "alles" || !periodeLabel) return "";
   return `De lijst toont alleen de komende ${periodeLabel}; kies “Alles” voor de rest.`;
 }
 // De zin onder "Alles op deze plek": hoeveel er op de plek staat (wat de lijst bij periode "Alles" toont,
@@ -616,7 +622,7 @@ export function plekSubTekst({ totaal = 0, straat = false, straal = 0, beperking
   return beperking ? `${basis} ${beperking}` : basis;
 }
 // Wat "Deel" meestuurt (navigator.share) naast de link: de plek, hoeveel er staat, waartoe de link de lijst
-// beperkt (een periode of de tijdlijn die in de link staat; een gekozen dag staat er niet in) en de zin van de
+// beperkt (een periode, de tijdlijn of de maand die in de link staat; een gekozen dag staat er niet in) en de zin van de
 // komende 7 dagen als samenvatting.
 export function deelTekst({ plek = "", totaal = 0, beperking = "", week = "" } = {}) {
   const kop = `${plek ? `${plek}: ` : ""}${totaal} item${totaal === 1 ? "" : "s"} uit officiële bronnen op de publieke agenda.`;

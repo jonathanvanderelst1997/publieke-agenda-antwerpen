@@ -7,7 +7,7 @@ import assert from "node:assert/strict";
 
 import {
   ALLES_TOT, KIND_GROUPS, PERIODS, agendaEntry, beperkingTekst, deelTekst, geldigePeriode, groupForList, lijstUniversum, periodRange,
-  plekSubTekst, standaardPeriode, telPerSoort,
+  permitEntry, plekSubTekst, standaardPeriode, telPerSoort, terrasEntries,
 } from "../site/place-core.js";
 
 const VANDAAG = "2026-10-12";
@@ -53,11 +53,43 @@ test("beperkingTekst: alleen als de knoppen de lijst korter maken", () => {
   assert.equal(beperkingTekst({ mode: "lijst", periode: "alles", periodeLabel: "Alles" }), "");
   assert.equal(beperkingTekst({ mode: "lijst", periode: "maand", periodeLabel: "30 dagen" }), "De lijst toont alleen de komende 30 dagen; kies “Alles” voor de rest.");
   assert.equal(beperkingTekst({ mode: "lijst", periode: "week", periodeLabel: "7 dagen" }), "De lijst toont alleen de komende 7 dagen; kies “Alles” voor de rest.");
-  assert.equal(beperkingTekst({ mode: "tijdlijn", periode: "alles" }), "De tijdlijn toont alleen de komende 14 dagen.");
-  assert.equal(beperkingTekst({ mode: "tijdlijn", periode: "maand", periodeLabel: "30 dagen", dagLabel: "dinsdag 20 oktober" }), "De tijdlijn toont alleen dinsdag 20 oktober.");
-  // De maand zegt zelf welke maand ze toont.
-  assert.equal(beperkingTekst({ mode: "maand", periode: "week", periodeLabel: "7 dagen" }), "");
+  // De lijst toont vergunningen altijd (ook met een kortere periode): daar zegt de zin er niets over.
+  assert.equal(beperkingTekst({ mode: "lijst", periode: "alles", periodeLabel: "Alles", vergunningen: 47 }), "");
+  assert.equal(beperkingTekst({ mode: "lijst", periode: "week", periodeLabel: "7 dagen", vergunningen: 47 }), "De lijst toont alleen de komende 7 dagen; kies “Alles” voor de rest.");
+  // De tijdlijn: 14 dagen of de gekozen dag, ook met periode "alles"; zonder vergunningen op de plek geen woord erover.
+  assert.equal(beperkingTekst({ mode: "tijdlijn", periode: "alles" }), "De tijdlijn toont alleen de komende 14 dagen; kies “Lijst” voor alles.");
+  assert.equal(beperkingTekst({ mode: "tijdlijn", periode: "maand", periodeLabel: "30 dagen", dagLabel: "dinsdag 20 oktober" }), "De tijdlijn toont alleen dinsdag 20 oktober; kies “Lijst” voor alles.");
+  // De maand toont per dag (onder de kalender alleen de gekozen dag): ook die zegt waarom de lijst eronder korter is.
+  assert.equal(beperkingTekst({ mode: "maand", periode: "week", periodeLabel: "7 dagen" }), "De maand toont per dag wat er gebeurt; kies “Lijst” voor alles.");
+  assert.equal(beperkingTekst({ mode: "maand", periode: "alles", periodeLabel: "Alles" }), "De maand toont per dag wat er gebeurt; kies “Lijst” voor alles.");
   assert.equal(beperkingTekst(), "");
+});
+
+// Nakijkbevinding: in de Offerandestraat 2060 (12 oktober 2026) waren 47 van de 49 items terrassen of vergunningen.
+// De tijdlijn toonde er 2, met als enige reden "alleen de komende 14 dagen"; de maand gaf geen reden. Verzonnen
+// plek met vooral vergunningen en terrassen: 3 aanvragen, 4 terrassen en 1 activiteit.
+test("beperkingTekst: een plek met vooral vergunningen en terrassen zegt in de tijdlijn en de maand dat die er niet in staan", () => {
+  const aanvragen = [1, 2, 3].map((i) => permitEntry({ id: `permit:${i}`, dossier: `OMV_20990000${i}0`, streets: [{ name: "Proefstraat" }] }));
+  const terrassen = terrasEntries([1, 2, 3, 4].map((i) => ({ id: `terrace:${i}`, address: `Proefstraat ${i}`, terraceType: "Terras", status: "vergund" })));
+  const entries = [punt("act", "2026-10-14"), ...aanvragen, ...terrassen];
+  const tel = telPerSoort(lijstUniversum(entries, VANDAAG));
+  assert.equal(tel.totaal, 8);
+  assert.equal(tel.per.vergunning, 7);
+  const zonder = "zonder vergunningen en terrassen; kies “Lijst” voor alles.";
+  const tijdlijn = beperkingTekst({ mode: "tijdlijn", periode: "alles", periodeLabel: "Alles", vergunningen: tel.per.vergunning });
+  assert.equal(tijdlijn, `De tijdlijn toont alleen de komende 14 dagen, ${zonder}`);
+  assert.equal(beperkingTekst({ mode: "tijdlijn", dagLabel: "woensdag 14 oktober", vergunningen: tel.per.vergunning }), `De tijdlijn toont alleen woensdag 14 oktober, ${zonder}`);
+  const maand = beperkingTekst({ mode: "maand", periode: "alles", periodeLabel: "Alles", vergunningen: tel.per.vergunning });
+  assert.equal(maand, `De maand toont per dag wat er gebeurt, ${zonder}`);
+  // Het getal blijft alles; de zin zegt waarom de tijdlijn of de maand er minder toont. Zo ook wat "Deel" meestuurt.
+  assert.equal(plekSubTekst({ totaal: tel.totaal, straat: true, beperking: tijdlijn }), `8 items uit officiële bronnen. De tijdlijn toont alleen de komende 14 dagen, ${zonder}`);
+  assert.equal(deelTekst({ plek: "Proefstraat", totaal: tel.totaal, beperking: maand }), `Proefstraat: 8 items uit officiële bronnen op de publieke agenda. De maand toont per dag wat er gebeurt, ${zonder}`);
+  // Alleen terrassen (geen aanvragen): ook die staan niet in de tijdlijn.
+  const alleenTerrassen = telPerSoort(lijstUniversum([punt("act", "2026-10-14"), ...terrassen], VANDAAG));
+  assert.match(beperkingTekst({ mode: "tijdlijn", vergunningen: alleenTerrassen.per.vergunning }), /, zonder vergunningen en terrassen;/);
+  // Zonder vergunningen of terrassen op de plek: geen woord erover.
+  const zonderVergunningen = telPerSoort(lijstUniversum([punt("act", "2026-10-14")], VANDAAG));
+  assert.equal(beperkingTekst({ mode: "tijdlijn", vergunningen: zonderVergunningen.per.vergunning }), "De tijdlijn toont alleen de komende 14 dagen; kies “Lijst” voor alles.");
 });
 
 test("plekSubTekst: het getal is alles op de plek, met de straal en de beperking erbij", () => {

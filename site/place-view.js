@@ -461,7 +461,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function streetRef(place) { return { id: place.id, name: place.name, postcode: place.postcode }; }
   function applyPlace(place, { focusResults = false } = {}) {
     // Rekent de browser een stratenlijst zelf, dan hangt die af van de gekozen straat (filterRefsVan).
-    if ((state.place?.key || "") !== (place?.key || "")) view.resetRefs?.();
+    // Een andere plek: wat de kaart of een link eerder liet openen, trekt de nieuwe lijst niet mee (teTonen).
+    if ((state.place?.key || "") !== (place?.key || "")) { view.resetRefs?.(); teTonen.clear(); }
     state.place = place || null;
     view.setPlace(place ? { key: place.key, type: place.type, label: place.label, box: place.box } : null);
     if (place?.type === "straat") { view.setStreet(place.name, streetRef(place)); view.setArea({ wijk: "", postcode: "", radius: state.radius }); }
@@ -492,6 +493,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
   }
   function announce() {
+    kaartOud = true;
     // A-Sign levert ook evenementen op straat: laden als "Evenementen" of "Werken & verkeer" aan staat.
     view.wantsStreetEvents = state.groups.has("evenementen");
     writeUrl();
@@ -970,34 +972,68 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>Niet in de bron:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
           ${bron.length || technisch ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}</details>` : ""}`;
   }
-  // Per tekenbeurt: hoeveel kaartjes de lijst nog mag tekenen (`rest`, van state.zichtbaar), op welke plaats in de
-  // hele lijst we zijn (`positie`), hoeveel er nog niet getekend is (`verborgen`) en tot waar de lijst moet om elk
-  // open kaartje te tonen (`openTot`).
-  let teller = { rest: Infinity, positie: 0, verborgen: 0, openTot: 0 };
-  // Een sectie toont al haar kaartjes; alleen als de lijst langer is dan wat er nu getekend wordt (LIJST_STAP), stopt
-  // ze waar de stap op is. Het aantal naast de kop is altijd de hele sectie.
-  function sectionTemplate(key, title, entries, options, note = "") {
-    if (!entries.length) return "";
-    const begin = teller.positie;
-    teller.positie += entries.length;
-    const n = Math.max(0, Math.min(entries.length, teller.rest));
-    teller.rest -= n;
-    if (n < entries.length) {
-      teller.verborgen += entries.length - n;
-      // Een open kaartje (van de kaart of een link geopend) zit nooit verborgen: dan tekent render() verder.
-      entries.forEach((e, i) => { if (i >= n && state.open.has(e.uid)) teller.openTot = Math.max(teller.openTot, begin + i + 1); });
-    }
-    if (!n) return "";
+  // ---- de lijst onder de knoppen, per stap ----
+  // Elke weergave beschrijft wat ze onder de knoppen zet als een rij blokken, in de volgorde waarin ze er staan:
+  // een sectie met kaartjes (`sectie`), de wekelijkse markten (een blok van `kaartjes` kaartjes, helemaal of niet)
+  // of een los blok zonder kaartjes ("later gepland", een lege dag). lijstHtml tekent er de eerste state.zichtbaar
+  // kaartjes van en bewaart de blokken (`plan`): laadMeer voegt daarna alleen de volgende stap achteraan toe, zonder
+  // render() (nakijkbevinding: elke stap tekende de hele pagina opnieuw, met de kaart erbij; 1,3 tot 2,5 s per stap
+  // op een trage gsm voor postcode 2000).
+  let plan = null;
+  // Kaartjes die de kaart of een link opent (openUid): die staan er altijd, ook voorbij de stap. Alleen die: een
+  // kaartje dat een bewoner ooit openklapte (state.open) trekt de lijst niet mee (nakijkbevinding: een open terras in
+  // de Oude Koornmarkt liet daarna in postcode 2000 meteen 2.090 kaartjes tekenen). Weg zodra het getekend is.
+  const teTonen = new Set();
+  const sectie = (key, title, entries, options, note = "") => (entries.length ? { sectie: { key, title, entries, options, note }, kaartjes: entries.length } : null);
+  // Een sectie toont al haar kaartjes; alleen als de lijst langer is dan wat er getekend wordt (LIJST_STAP), stopt ze
+  // waar de stap op is. Het aantal naast de kop is altijd de hele sectie.
+  function sectieHtml({ key, title, entries, options, note }, n) {
     // De titel kan een verborgen pictogram in HTML bevatten; de toegankelijke naam is alleen de tekst.
     const naam = String(title).replace(/<span aria-hidden="true">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "").trim();
-    return `<section class="pv-day" aria-label="${esc(naam)}" data-sectie="${esc(key)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${entries.slice(0, n).map((e) => rowTemplate(e, options)).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="${esc(naam)}" data-sectie="${esc(key)}"><h3 class="pv-day-title">${title}<span class="pv-day-n">${entries.length}</span></h3>${note}<ul class="pv-rows">${rijenHtml({ entries, options }, 0, n)}</ul></section>`;
+  }
+  const rijenHtml = ({ entries, options }, van, tot) => entries.slice(van, tot).map((e) => rowTemplate(e, options)).join("");
+  // Hoeveel van een blok er staat als de lijst `tot` kaartjes tekent en er `begin` kaartjes voor het blok staan: van
+  // een sectie tot waar de stap is; de markten als er nog plaats is; een los blok als alles ervoor er staat.
+  function getekend(blok, begin, tot) {
+    if (blok.sectie) return Math.max(0, Math.min(blok.kaartjes, tot - begin));
+    return (blok.kaartjes ? begin < tot : begin <= tot) ? blok.kaartjes || 1 : 0;
+  }
+  // Wat er van alle blokken nog niet staat bij `tot` kaartjes.
+  function nogVerborgen(blokken, tot) {
+    let begin = 0, verborgen = 0;
+    for (const blok of blokken) {
+      const n = getekend(blok, begin, tot);
+      verborgen += blok.sectie ? blok.kaartjes - n : n ? 0 : blok.kaartjes;
+      begin += blok.kaartjes;
+    }
+    return verborgen;
   }
   // Onder een lijst die nog niet volledig getekend is: een knop die de volgende stap tekent. Hij laadt vanzelf als
-  // hij in de buurt van het beeld komt (laadMeerKijker); met het toetsenbord of een schermlezer is het een gewone knop.
-  function laadMeerTemplate() {
-    if (!teller.verborgen) return "";
-    const volgende = Math.min(LIJST_STAP, teller.verborgen);
-    return `<button type="button" class="pv-laad-meer" data-laad-meer>Toon de volgende ${volgende} <span>(nog ${teller.verborgen} in deze lijst)</span></button>`;
+  // hij van onderen in de buurt van het beeld komt (laadMeerKijker); met het toetsenbord of een schermlezer is het
+  // een gewone knop.
+  const laadMeerTekst = (verborgen) => `Toon de volgende ${Math.min(LIJST_STAP, verborgen)} <span>(nog ${verborgen} in deze lijst)</span>`;
+  // De blokken van een weergave als HTML, met hoogstens state.zichtbaar kaartjes en de knop "Toon de volgende N".
+  function lijstHtml(lijstBlokken) {
+    const blokken = lijstBlokken.filter(Boolean);
+    // Een kaartje dat de kaart of een link opent, staat er: tot daar tekenen, op een hele stap.
+    let begin = 0, nodig = 0;
+    for (const blok of blokken) {
+      if (blok.sectie && teTonen.size) blok.sectie.entries.forEach((e, i) => { if (teTonen.has(e.uid)) { nodig = Math.max(nodig, begin + i + 1); teTonen.delete(e.uid); } });
+      begin += blok.kaartjes;
+    }
+    if (nodig > state.zichtbaar) state.zichtbaar = Math.ceil(nodig / LIJST_STAP) * LIJST_STAP;
+    const tot = state.zichtbaar;
+    const html = [];
+    begin = 0;
+    for (const blok of blokken) {
+      const n = getekend(blok, begin, tot);
+      if (n) html.push(blok.sectie ? sectieHtml(blok.sectie, n) : blok.html);
+      begin += blok.kaartjes;
+    }
+    const verborgen = nogVerborgen(blokken, tot);
+    plan = { blokken, tot, lijstStand: state.lijstStand };
+    return `${html.join("")}${verborgen ? `<button type="button" class="pv-laad-meer" data-laad-meer>${laadMeerTekst(verborgen)}</button>` : ""}`;
   }
   function dayTitle(day, today) {
     const rel = day === today ? "Vandaag" : day === addDays(today, 1) ? "Morgen" : "";
@@ -1007,14 +1043,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const items = entries.filter((e) => e.theme === "markets").map((e) => e.item);
     return window.PublicAgendaUitgaan?.bundleWeeklyMarkets?.(items, today) || [];
   }
-  function marketsTemplate(bundles) {
+  // De markten zijn één blok: helemaal, of (als de lijst nog niet tot hier getekend is) nog niet.
+  function marketsBlok(bundles) {
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
-    if (!bundles.length) return "";
-    // De markten zijn één blok: helemaal, of (als de lijst nog niet tot hier getekend is) nog niet.
-    teller.positie += bundles.length;
-    if (teller.rest <= 0) { teller.verborgen += bundles.length; return ""; }
-    teller.rest = Math.max(0, teller.rest - bundles.length);
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets" data-soort="agenda" data-tel="${esc(lijstSleutel(marktBundelEntry(m)))}"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
+    if (!bundles.length) return null;
+    return { kaartjes: bundles.length, html: `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets" data-soort="agenda" data-tel="${esc(lijstSleutel(marktBundelEntry(m)))}"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>` };
   }
   // De tijdlijn geeft een eigen periode (`wanneer`: "op dinsdag 20 oktober", "in de komende 14 dagen") en
   // uitleg mee: een lege dag zegt niets over de hele plek. `later`: de tip "Toon ook wat later komt".
@@ -1043,20 +1076,20 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // bovenaan: bewoners kunnen nu nog reageren. Een termijn die nog moet beginnen, of een openbaar onderzoek
     // zonder afgelezen einddatum, staat eerst bij de andere aanvragen, met de melding in de dichte kaart.
     const { inspraak, overige: permits } = splitsOpOnderzoek(entries.filter((e) => e.group === "vergunningen"));
-    const html = [];
-    html.push(sectionTemplate("openbaar-onderzoek", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }));
     const kop = lopendKop(running, today);
-    html.push(sectionTemplate("running", `<span aria-hidden="true">⏳</span> ${esc(kop.titel)}`, running, { today, context: "running" }, `<p class="pv-day-note">${esc(kop.noot)}</p>`));
-    for (const [day, list] of days) html.push(sectionTemplate(`d:${day}`, dayTitle(day, today), list, { today }));
-    // Toelatingen en evenementen van twee weken of langer: een eigen groep, onder wat vandaag en de komende
-    // dagen echt gebeurt (groupForList in place-core.js).
-    html.push(sectionTemplate("doorlopend", `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend))}</p>`));
-    // Wat na de periode komt (alleen met een kortere periode dan "Alles"): één knop. Pas als de lijst tot hier getekend is.
-    if (later.length && teller.rest > 0) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
-    html.push(marketsTemplate(bundels));
-    html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }));
-    const body = html.filter(Boolean).join("");
-    results.innerHTML = body ? `${body}${laadMeerTemplate()}` : emptyTemplate(today);
+    const blokken = [
+      sectie("openbaar-onderzoek", `<span aria-hidden="true">📢</span> Openbaar onderzoek: bezwaar indienen kan nu`, inspraak, { today, context: "permit" }),
+      sectie("running", `<span aria-hidden="true">⏳</span> ${esc(kop.titel)}`, running, { today, context: "running" }, `<p class="pv-day-note">${esc(kop.noot)}</p>`),
+      ...days.map(([day, list]) => sectie(`d:${day}`, dayTitle(day, today), list, { today })),
+      // Toelatingen en evenementen van twee weken of langer: een eigen groep, onder wat vandaag en de komende
+      // dagen echt gebeurt (groupForList in place-core.js).
+      sectie("doorlopend", `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend))}</p>`),
+      // Wat na de periode komt (alleen met een kortere periode dan "Alles"): één knop. Pas als de lijst tot hier getekend is.
+      later.length ? { kaartjes: 0, html: `<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>` } : null,
+      marketsBlok(bundels),
+      sectie("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }),
+    ];
+    results.innerHTML = blokken.some(Boolean) ? lijstHtml(blokken) : emptyTemplate(today);
     // Wat de lijst toont, in dezelfde eenheid als de aantallen naast de koppen: een kaart per kaart (een
     // activiteit op twee dagen is twee kaarten), ook wat pas bij het scrollen getekend wordt, en een kaart per
     // markt; niet wat "later gepland" is.
@@ -1100,15 +1133,15 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Twee weken of langer, zonder echte dag in de strook (of op de gekozen dag): bij "Doorlopend".
     const doorlopend = binnen.filter((e) => langEvenement(e) && (dag ? overlaps(e, dag, dag) && !opDag(e, dag) : !echt.get(e).length)).sort(sorteer);
     const titel = dag ? dayTitle(dag, today) : `<span aria-hidden="true">🗓️</span> Komende 14 dagen`;
-    // Eerst de dagen, dan "Doorlopend": in die volgorde staan ze er, en in die volgorde tekent de lijst ze (LIJST_STAP).
-    const lijstHtml = lijst.length ? sectionTemplate(`tl:${dag || "alle"}`, titel, lijst, { today, context: "tijdlijn" }) : "";
-    const doorlopendHtml = sectionTemplate(`tl-doorlopend:${dag || "alle"}`, `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend, { tijdlijn: true }))}</p>`);
     // Leeg: eerlijk over die dag of de 14 dagen, niet "niets voor deze straat" (legeTijdlijnTekst).
     let uitleg = legeTijdlijnTekst({ dag: Boolean(dag), bezig, onvolledig, aantalSoorten: state.groups.size, andereDagen: dagen.filter((d) => d !== dag && perDag.get(d).length).length, doorlopend: doorlopend.length });
     if (!dag && state.groups.has("vergunningen") && entries.some((e) => e.group === "vergunningen")) uitleg += " Vergunningen staan niet in de tijdlijn, wel in de lijst.";
-    const inhoud = lijst.length ? `${lijstHtml}${doorlopendHtml}${laadMeerTemplate()}`
-      : doorlopend.length ? `<p class="pv-day-empty">${dag ? `<strong>${esc(longDate(dag))}</strong>: ` : ""}${esc(uitleg)}</p>${doorlopendHtml}${laadMeerTemplate()}`
-      : emptyTemplate(today, { wanneer: dag ? `op ${longDate(dag)}` : "in de komende 14 dagen", uitleg, later: !dated.length });
+    // Eerst de dagen (of de zin dat er die dag niets is), dan "Doorlopend": in die volgorde staan ze er, en in die
+    // volgorde tekent de lijst ze (LIJST_STAP).
+    const inhoud = lijst.length || doorlopend.length ? lijstHtml([
+      lijst.length ? sectie(`tl:${dag || "alle"}`, titel, lijst, { today, context: "tijdlijn" }) : { kaartjes: 0, html: `<p class="pv-day-empty">${dag ? `<strong>${esc(longDate(dag))}</strong>: ` : ""}${esc(uitleg)}</p>` },
+      sectie(`tl-doorlopend:${dag || "alle"}`, `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend, { tijdlijn: true }))}</p>`),
+    ]) : emptyTemplate(today, { wanneer: dag ? `op ${longDate(dag)}` : "in de komende 14 dagen", uitleg, later: !dated.length });
     results.innerHTML = `
       <div class="pv-tl">
         <div class="pv-tl-strip" role="group" aria-label="Tijdlijn: kies een dag">${strip}</div>
@@ -1155,7 +1188,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${rows}
       </div>
       <p class="pv-legend">${legend}<span class="pv-legend-hint">Balken = meerdaagse werken of activiteiten. Tik op een dag voor alles van die dag.</span></p>
-      <div class="pv-cal-daypanel" aria-live="polite">${onDay.length ? `${sectionTemplate(`c:${day}`, dayTitle(day, today), onDay, { today, context: "day" })}${laadMeerTemplate()}` : `<p class="pv-day-empty"><strong>${esc(longDate(day))}</strong>: ${esc(legeTijdlijnTekst({ dag: true, bezig, onvolledig, aantalSoorten: state.groups.size }))}</p>`}</div>`;
+      <div class="pv-cal-daypanel" aria-live="polite">${onDay.length ? lijstHtml([sectie(`c:${day}`, dayTitle(day, today), onDay, { today, context: "day" })]) : `<p class="pv-day-empty"><strong>${esc(longDate(day))}</strong>: ${esc(legeTijdlijnTekst({ dag: true, bezig, onvolledig, aantalSoorten: state.groups.size }))}</p>`}</div>`;
   }
 
   results.addEventListener("click", (event) => {
@@ -1208,6 +1241,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function openUid(uid) {
     if (!uid) return;
     state.open.add(uid);
+    teTonen.add(uid);
     if (state.mode !== "lijst") state.mode = "lijst";
     state.period = "alles";
     render();
@@ -1249,7 +1283,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const markten = marktBundels(entries, today);
     const lijst = lijstUniversum(entries, today, { markten });
     const tel = telPerSoort(lijst);
-    meldKaartItems(lijst, entries, tel);
+    // De kaart alleen opnieuw laten tekenen als wat ze toont kan veranderd zijn (kaartOud): niet na een andere
+    // periode, weergave of dag, want de kaart toont altijd alles van de plek.
+    if (kaartOud) { kaartOud = false; meldKaartItems(lijst, entries, tel); }
     const n = tel.totaal;
     loadingEl.innerHTML = place ? "" : [
       loading.length ? `<span class="pv-spinner" aria-hidden="true"></span> ${esc(opsomming)} laden…` : "",
@@ -1260,18 +1296,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (lijstStand !== state.lijstStand) { state.lijstStand = lijstStand; state.zichtbaar = LIJST_STAP; }
     const getoond = renderResults(entries, today, markten);
     // Het getal is altijd alles op de plek; beperken de knoppen de lijst, dan zegt de zin dat ook (plekSubTekst).
-    const periodeLabel = PERIODS.find(([k]) => k === state.period)?.[1] || "";
+    // De tijdlijn en de maand tonen geen vergunningen en terrassen: staan die er, dan zegt de zin dat ook.
+    const beperking = { mode: state.mode, periode: state.period, periodeLabel: PERIODS.find(([k]) => k === state.period)?.[1] || "", vergunningen: tel.per.vergunning };
     state.totaal = n;
-    state.beperking = beperkingTekst({ mode: state.mode, periode: state.period, periodeLabel });
+    state.beperking = beperkingTekst(beperking);
     subEl.textContent = place
-      ? plekSubTekst({ totaal: n, straat: place.type === "straat", straal: state.radius, beperking: beperkingTekst({ mode: state.mode, periode: state.period, periodeLabel, dagLabel: state.mode === "tijdlijn" && state.dagFilter ? longDate(state.dagFilter) : "" }) })
+      ? plekSubTekst({ totaal: n, straat: place.type === "straat", straal: state.radius, beperking: beperkingTekst({ ...beperking, dagLabel: state.mode === "tijdlijn" && state.dagFilter ? longDate(state.dagFilter) : "" }) })
       : "Zoek hierboven je straat of wijk om ook werken, verkeer en inspraak in je buurt te zien.";
     meldKaart(place ? getoond : null, entries);
   }
   // De lijst, de tijdlijn of de maand tekenen, met hoogstens state.zichtbaar kaartjes (LIJST_STAP per stap). Wat de
   // bewoner openklapte, blijft open: de focus op een kaartje en een open "Toon alle straten" erin overleven het
-  // opnieuw tekenen (een laag die binnenkomt, of de volgende stap bij het scrollen). Geeft het aantal kaartjes in de
-  // lijst of de tijdlijn (ook wat nog niet getekend is), of null in de maand.
+  // opnieuw tekenen (een laag die binnenkomt). Geeft het aantal kaartjes in de lijst of de tijdlijn (ook wat nog niet
+  // getekend is), of null in de maand.
   function renderResults(entries, today, markten) {
     const focus = document.activeElement && results.contains(document.activeElement) ? document.activeElement : null;
     const actief = focus?.closest(".pv-row")?.dataset.uid || "";
@@ -1279,15 +1316,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // het tekenen naar het eerste kaartje dat erbij kwam, op de plek waar de knop stond.
     const naKnop = focus?.closest("[data-laad-meer]") ? results.querySelectorAll(".pv-row").length : -1;
     const openDetails = [...results.querySelectorAll(".pv-row details[open]")].map((d) => { const li = d.closest(".pv-row"); return [li.dataset.uid, [...li.querySelectorAll("details")].indexOf(d)]; });
-    const teken = () => {
-      teller = { rest: state.zichtbaar, positie: 0, verborgen: 0, openTot: 0 };
-      if (state.mode === "maand") { renderMonth(entries, today); return null; }
-      return state.mode === "tijdlijn" ? renderTijdlijn(entries, today) : renderList(entries, today, markten);
-    };
-    let getoond = teken();
-    // Een open kaartje verder dan de stap (van de kaart of een link geopend): tot daar tekenen, op een hele stap.
-    if (teller.openTot > state.zichtbaar) { state.zichtbaar = Math.ceil(teller.openTot / LIJST_STAP) * LIJST_STAP; getoond = teken(); }
-    teller = { rest: Infinity, positie: 0, verborgen: 0, openTot: 0 };
+    plan = null;
+    let getoond = null;
+    if (state.mode === "maand") renderMonth(entries, today);
+    else getoond = state.mode === "tijdlijn" ? renderTijdlijn(entries, today) : renderList(entries, today, markten);
     const rij = (uid) => results.querySelector(`.pv-row[data-uid="${CSS.escape(uid)}"]`);
     for (const [uid, i] of openDetails) { const d = rij(uid)?.querySelectorAll("details")[i]; if (d) d.open = true; }
     if (actief && !results.contains(document.activeElement)) rij(actief)?.querySelector(".pv-row-btn")?.focus({ preventScroll: true });
@@ -1295,19 +1327,54 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     kijkNaarLaadMeer();
     return getoond;
   }
-  // De volgende stap vanzelf, zodra de knop "Toon de volgende N" binnen anderhalf scherm onder het beeld komt (of tot
-  // een scherm erboven: wie snel voorbij scrolt, krijgt ze ook).
+  // De volgende stap vanzelf, zodra de knop "Toon de volgende N" van onderen binnen anderhalf scherm onder het beeld
+  // komt: wie naar beneden scrolt, ziet het einde van de lijst nooit. Niet als de knop boven het beeld of in de
+  // bovenste helft ervan staat: dan kijkt de bewoner naar wat onder de lijst staat, zoals de kaart na "Toon op de
+  // kaart" op een gsm (nakijkbevinding: de volgende stap kwam dan boven de kaart en duwde ze 28.500 px uit beeld).
+  // Dan blijft het een gewone knop. Krijgt de knop de focus (Tab), dan laadt ze wel.
   const laadMeerKijker = typeof IntersectionObserver === "function"
-    ? new IntersectionObserver((items) => { if (items.some((i) => i.isIntersecting)) { laadMeerKijker.disconnect(); laadMeer(); } }, { rootMargin: "100% 0px 150% 0px" })
+    ? new IntersectionObserver((items) => {
+      const i = items.at(-1);
+      if (!i?.isIntersecting || (i.boundingClientRect.top < window.innerHeight / 2 && i.target !== document.activeElement)) return;
+      laadMeerKijker.disconnect();
+      laadMeer();
+    }, { rootMargin: "0px 0px 150% 0px" })
     : null;
   function kijkNaarLaadMeer() {
     laadMeerKijker?.disconnect();
     const knop = results.querySelector("[data-laad-meer]");
     if (knop) laadMeerKijker?.observe(knop);
   }
+  // De volgende stap: alleen de volgende LIJST_STAP kaartjes achteraan erbij (in de sectie waar de stap stopte, en de
+  // secties daarna), uit de blokken van de laatste tekenbeurt (plan). Wat er al staat, blijft staan (ook open kaartjes
+  // en de focus); de kaart en de tellers blijven zoals ze zijn, want die tellen altijd de hele lijst. Is de lijst niet
+  // meer wat lijstHtml tekende (zou niet mogen), dan gewoon opnieuw tekenen.
   function laadMeer() {
-    state.zichtbaar += LIJST_STAP;
-    render();
+    const knop = results.querySelector("[data-laad-meer]");
+    if (!plan || !knop || plan.lijstStand !== state.lijstStand || plan.tot !== state.zichtbaar) { state.zichtbaar += LIJST_STAP; render(); return; }
+    const van = plan.tot, tot = van + LIJST_STAP;
+    const rijenVoor = results.querySelectorAll(".pv-row").length;
+    const hadFocus = knop.contains(document.activeElement);
+    const nieuw = [], aanvullen = [];
+    let begin = 0;
+    for (const blok of plan.blokken) {
+      const oud = getekend(blok, begin, van), n = getekend(blok, begin, tot);
+      begin += blok.kaartjes;
+      if (n <= oud) continue;
+      if (!blok.sectie || !oud) { nieuw.push(blok.sectie ? sectieHtml(blok.sectie, n) : blok.html); continue; }
+      const ul = [...results.querySelectorAll("section[data-sectie]")].find((el) => el.dataset.sectie === blok.sectie.key)?.querySelector(".pv-rows");
+      if (!ul) { state.zichtbaar = tot; render(); return; }
+      aanvullen.push([ul, rijenHtml(blok.sectie, oud, n)]);
+    }
+    for (const [ul, html] of aanvullen) ul.insertAdjacentHTML("beforeend", html);
+    knop.insertAdjacentHTML("beforebegin", nieuw.join(""));
+    state.zichtbaar = plan.tot = tot;
+    const verborgen = nogVerborgen(plan.blokken, tot);
+    if (verborgen) knop.innerHTML = laadMeerTekst(verborgen); else knop.remove();
+    // De focus stond op de knop (toetsenbord, of de knop laadde vanzelf terwijl ze de focus had): naar het eerste
+    // kaartje dat erbij kwam, op de plek waar de knop stond.
+    if (hadFocus) (results.querySelectorAll(".pv-row-btn")[rijenVoor] || (verborgen ? knop : null))?.focus({ preventScroll: true });
+    kijkNaarLaadMeer();
   }
   // De buurtkaart zegt "X in de lijst, Y op de kaart" (neighborhood-map.js). X is wat de lijst hierboven
   // echt toont: met de periode, of de 14 dagen en de gekozen dag van de tijdlijn. De maand heeft geen lijst
@@ -1330,8 +1397,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     window.PUBLIC_AGENDA_KAART = { teken, tel };
     window.dispatchEvent(new CustomEvent("public-agenda:kaart-items", { detail: window.PUBLIC_AGENDA_KAART }));
   }
-  let frame = 0;
-  function schedule() { cancelAnimationFrame(frame); frame = requestAnimationFrame(render); }
+  let frame = 0, kaartOud = true;
+  // Een laag, de agenda of de kaart meldt iets nieuws: ook de kaart moet opnieuw (kaartOud, zie render()).
+  function schedule() { kaartOud = true; cancelAnimationFrame(frame); frame = requestAnimationFrame(render); }
 
   // ---- signalen van de rest van de pagina ----
   window.addEventListener("public-agenda:agenda-view", (event) => { if (event.detail?.categoryCounts) state.agendaCounts = { ...event.detail.categoryCounts }; schedule(); });
