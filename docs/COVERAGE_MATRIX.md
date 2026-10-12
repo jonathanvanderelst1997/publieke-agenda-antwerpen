@@ -49,7 +49,9 @@ Voor 2026 zijn de officiële eBesluit-goedkeuringen en bijlagenamen bewezen, maa
 
 ### Mailsignalen
 
-De lokale mailronde produceert alleen privacyveilige publieke signalen. `mail-district` en `mail-stad` leveren sinds 29 september 2026 echter 0 items, terwijl hun status "ok" bleef. De oorzaak ligt aan de kant van de Gateway en krijgt een aparte PR in die repo. Na 3 dagen zonder items tonen beide bronnen nu "leeg" in plaats van "ok".
+De lokale mailronde produceert alleen privacyveilige publieke signalen. `mail-district` en `mail-stad` leveren sinds 29 september 2026 echter 0 items, terwijl hun status "ok" bleef. Na 3 dagen zonder items tonen beide bronnen nu "leeg" in plaats van "ok".
+
+Meting 12 oktober 2026: de Gateway antwoordt 200 met `generated_on` van die dag en een lege lijst. Het pad staat dus aan en klopt (de Mac schrijft het bestand elke ronde, de companion brengt het over, de Gateway serveert het); de nul ontstaat op de Mac, vóór de paginapoort. Die paginapoort zelf werkt: van 100 publieke berichten van het district liet ze er 5 door (de rest heeft geen Wanneer-, Datum- of Praktisch-regel of ligt voorbij), en alle 5 kwamen hier door de herverificatie. Aan deze kant lag één oorzaak die zo'n signaal alsnog liet vallen: de datumtoets las een afgekorte maand, een datum met punten en het begin van een reeks niet, terwijl de Mac die vormen wel als datum leest. Dat is hersteld (`tests/mail-signalen-oorzaken.test.mjs`). Wat de Mac moet nakijken en veranderen, staat in de overdracht van die dag.
 
 ## Eerstvolgende controles
 

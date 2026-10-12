@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "bijgewerkt": "2026-10-10",
+ "bijgewerkt": "2026-10-12",
  "uitleg": "Wie of wat achter een evenementendossier van de stad (A-Sign) zit, met de publieke bron. Met de hand nagekeken; zie REFRESH_PROCESS.md. Alleen publieke feiten, geen namen van personen en geen huisnummers.",
  "dossiers": {
   "ET2025003100": {
@@ -11,6 +11,15 @@
    "watMerkJe": "Een stoet te voet met een doedelzakband (Red Hackle Pipe Band), tussen 15 en 15.30 uur, en daarna een vendelgroet op de Grote Markt. Afsluitingen of parkeerverboden staan niet in het dossier.",
    "link": "https://ordonobilis.eu/agenda-investituur-2026/", "linkLabel": "", "linkUitleg": "Het volledige programma staat in de agenda (pdf) op die pagina.", "extraLinks": [], "binnenDistrict": true,
    "bron": ["https://ordonobilis.eu/wp-content/uploads/2026/09/Agenda-investituur-2026-NL.pdf", "https://ordonobilis.eu/agenda-investituur-2026/", "https://ordonobilis.eu/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-10"
+  },
+  "ET2026000222": {
+   "zekerheid": "zeker", "naam": "Winter in Antwerpen", "soort": "eindejaarsevenement van de stad, met een kerstmarkt en eetstanden op de Grote Markt, de Groenplaats en de Suikerrui", "organisator": "",
+   "reden": "",
+   "dagen": ["2026-12-04", "2026-12-05", "2026-12-06", "2026-12-07", "2026-12-08", "2026-12-09", "2026-12-10", "2026-12-11", "2026-12-12", "2026-12-13", "2026-12-14", "2026-12-15", "2026-12-16", "2026-12-17", "2026-12-18", "2026-12-19", "2026-12-20", "2026-12-21", "2026-12-22", "2026-12-23", "2026-12-24", "2026-12-25", "2026-12-26", "2026-12-27", "2026-12-28", "2026-12-29", "2026-12-30", "2026-12-31", "2027-01-01", "2027-01-02", "2027-01-03"], "uren": "", "urenNoot": "De besluiten noemen geen openingsuren.",
+   "waar": "Op het Steenplein, de Grote Markt, de Suikerrui en de Groenplaats, met innames tot aan de Ernest Van Dijckkaai en de Handschoenmarkt.",
+   "watMerkJe": "Kramen en een verkeersvrije zone in het historisch centrum, van vrijdag 4 december tot en met zondag 3 januari. De opbouw begint op zondag 15 november. Uren staan niet in het dossier.",
+   "link": "https://ebesluit.antwerpen.be/zittingen/25.0918.0234.7934/agendapunten/26.0630.3532.1854", "linkLabel": "Besluit van het college (eBesluit)", "linkUitleg": "Dit besluit noemt de editie van vrijdag 4 december 2026 tot en met zondag 3 januari 2027.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://ebesluit.antwerpen.be/zittingen/25.0918.0234.7934/agendapunten/26.0630.3532.1854", "https://ebesluit.antwerpen.be/zittingen/25.0918.5043.8457/agendapunten/26.0409.8819.1087", "https://ebesluit.antwerpen.be/zittingen/25.0918.0234.7934/agendapunten/26.0414.5802.1133", "https://ebesluit.antwerpen.be/zittingen/25.0918.5043.8457/agendapunten/26.0605.0193.1345", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-12"
   },
   "ET2026001217": {
    "zekerheid": "zeker", "naam": "TREK Antwerp Marathon", "soort": "loopwedstrijd: marathon, halve marathon en 10 km", "organisator": "Golazo",
