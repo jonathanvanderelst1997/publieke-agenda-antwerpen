@@ -129,6 +129,15 @@ const VERGUNNING_STRATEN = {
   streets: [...naast, STRAAT], decision: "", authority: "", sourceUrl: "https://www.omgevingsloket.be/",
 };
 
+// Een verzonnen parkeerverbod in de straat (A-Sign laag 20), zodat de legenda van de buurtkaart ook "Omleiding,
+// parkeerverbod & inname" toont. Fictief dossier, alleen de straatnaam.
+const PARKEERVERBOD = {
+  id: "parking:E2E-PV-0001|L1", kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", reason: "Verhuis", reference: "E2E-PV-0001",
+  location: STRAAT.name, start: `${addDays(today, 3)}T05:00:00.000Z`, end: `${addDays(today, 3)}T15:00:00.000Z`, startTime: "07:00", endTime: "17:00",
+  status: "Goedgekeurd", streets: [STRAAT], streetResolution: "exact", streetDistanceMeters: 0,
+  sourceLabel: "A-Sign parkeerverboden", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",
+};
+
 // In de pagina: woorden die over twee regels lopen zonder spatie of koppelteken als breekpunt.
 function brokenWordsIn(selector) {
   const out = [];
@@ -745,6 +754,29 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     assert.equal(await page.getByRole("combobox", { name: "Zoek je straat, wijk of postcode", exact: true }).count(), 1);
     assert.ok(veld.breed <= veld.ruimte, `voorbeeldtekst ${Math.round(veld.breed)}px in ${Math.round(veld.ruimte)}px`);
     await context.close();
+  });
+
+  // Nakijkbevinding (P9-review): de legenda van de buurtkaart stond op de gangbare gsm-breedtes in twee kolommen van
+  // 148 tot 174 px, en `overflow-wrap: anywhere` knipte "Evenement", "parkeerverbod" en "Vergunningen" midden door.
+  for (const colorScheme of ["light", "dark"]) await t.test(`legenda van de buurtkaart op gsm (${colorScheme}): geen woord breekt midden in, van 320 tot 430 px`, async () => {
+    const fouten = [];
+    for (const width of [320, 360, 375, 390, 412, 430]) {
+      const { page, context, errors } = await openPlace(baseUrl, { width, colorScheme, vergunning: true, extra: [PARKEERVERBOD] });
+      await page.waitForFunction(() => ["evenement", "verkeer", "vergunning"].every((s) => document.querySelector(`#buurtkaart [data-kaartsoort="${s}"]:not([hidden])`)), null, { timeout: 15000 })
+        .catch(async () => assert.fail(`${width} px: ${await page.evaluate(() => [...document.querySelectorAll("#buurtkaart [data-kaartsoort]")].map((b) => `${b.dataset.kaartsoort}${b.hidden ? " (verborgen)" : ""}`).join(", "))}`));
+      await page.locator("#buurtkaart .buurt-legenda").scrollIntoViewIfNeeded();
+      const gebroken = await page.evaluate(brokenWordsIn, "#buurtkaart .buurt-legenda");
+      if (gebroken.length) fouten.push(`${width} px: ${gebroken.join(", ")}`);
+      // Ook met een verborgen soort (de knop houdt haar tekst).
+      await page.locator('#buurtkaart [data-kaartsoort="verkeer"]').click();
+      const verborgen = await page.evaluate(brokenWordsIn, "#buurtkaart .buurt-legenda");
+      if (verborgen.length) fouten.push(`${width} px, verkeer verborgen: ${verborgen.join(", ")}`);
+      const breedte = await page.evaluate(() => document.documentElement.scrollWidth);
+      if (breedte > width) fouten.push(`${width} px: de pagina schuift opzij (${breedte} px)`);
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+    assert.deepEqual(fouten, []);
   });
 
   await t.test("straatnaam, actieknop, kaartregio en volgorde op gsm", async () => {

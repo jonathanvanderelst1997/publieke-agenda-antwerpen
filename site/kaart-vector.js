@@ -7,10 +7,13 @@
 //   MapLibre niet eens gedownload.
 // - Klaar is de kaart pas als de eerste tegel van de bron "openmaptiles" geladen is en de kaart stil staat
 //   (idle). Een tegelfout vóór die eerste tegel (isTegelFout), een abort of geen WebGL: de kaart ruimt zichzelf
-//   op en de belofte faalt.
+//   op en de belofte faalt. Is de eerste tegel binnen, dan meldt de kaart dat (bijnaKlaar, kiesKaart): ze wordt dan
+//   niet meer op de klok weggegooid.
 // - Tekenen: dezelfde adapter als de Leaflet-kaart (maakLeafletKaart in neighborhood-map.js), uit dezelfde pure
-//   laag (kaartLagen, popupHtml): elk object in de kleur van zijn rij en met een eigen vorm per soort.
-// - Het thema (licht of donker) wordt bij het starten gekozen: positron of dark.
+//   laag (kaartLagen, popupHtml): elk object in de kleur van zijn rij en met een eigen vorm per soort, ook een plek
+//   bij benadering (ring, vierkant of ruit: kaartLagen().ongeveer). De lagen staan in eigenLagen().
+// - Het thema (licht of donker) wordt bij het starten gekozen: positron of dark. De adapter zegt welke onderkaart
+//   het werd (`onderkaart`), zodat de inkt van straat en markering daarbij past, ook na een themawissel.
 // Op het hoogste niveau raakt deze module geen DOM aan (ook in Node te importeren, tests/kaart-lagen.test.mjs).
 import { isTegelFout, popupHtml } from "./kaart-lagen.js";
 
@@ -30,7 +33,6 @@ const STIJL_WACHTTIJD = 4000;
 // De vectorkaart zoomt in stappen van 512 px: één stap minder geeft dezelfde schaal als Leaflet (256 px).
 const ZOOM_VERSCHIL = 1;
 const MAX_ZOOM = 19 - ZOOM_VERSCHIL;
-const ONGEVEER_STRAAL = 60; // meter, zoals de ring op de Leaflet-kaart
 // Nederlandse teksten van MapLibre. "Kaartbeeld" is de naam van het canvas: uniek naast de regio's "Kaart"
 // (de zijkolom) en "Kaart van district …" (de buurtkaart).
 const NL = Object.freeze({
@@ -85,19 +87,52 @@ export function laadMapLibre() {
 const LIJN = ["in", ["geometry-type"], ["literal", ["LineString", "MultiLineString"]]];
 const VLAK = ["in", ["geometry-type"], ["literal", ["Polygon", "MultiPolygon"]]];
 const PUNT = ["in", ["geometry-type"], ["literal", ["Point", "MultiPoint"]]];
-const ITEM_LAGEN = ["pa-vlak", "pa-lijn", "pa-lijn-verkeer", "pa-punt", "pa-ongeveer"];
+const EXACT = ["!=", ["get", "ongeveer"], true];
+const IS_VERKEER = ["==", ["get", "soort"], "verkeer"];
+// Lagen die een tik opvangen. Een plek bij benadering vangt de tik met haar vlak (pa-ongeveer-vlak).
+const ITEM_LAGEN = ["pa-vlak", "pa-lijn", "pa-lijn-verkeer", "pa-punt", "pa-ongeveer-vlak"];
 // De kleur per soort, als expressie (kleuren uit de CSS, kleurenUitCss in neighborhood-map.js).
 const kleurVan = (kleuren = {}) => ["match", ["get", "soort"], ...["evenement", "werken", "verkeer", "vergunning", "agenda"].flatMap((s) => [s, kleuren[s] || "gray"]), "gray"];
-// Een ring van ONGEVEER_STRAAL meter: echte schaal vanaf zoom 15, daaronder klein maar zichtbaar.
-const ringStraal = (meter) => ["interpolate", ["exponential", 2], ["zoom"], 12, 5, 15, meter / 3, 20, (meter / 3) * 32];
+// Een lijst uid's in één eigenschap (een GeoJSON-eigenschap is geen lijst): tussen regeleinden, zodat een filter
+// met "in" een hele uid vindt (uid's bevatten wel "|", nooit een regeleinde).
+const uidLijst = (uids = []) => `\n${uids.join("\n")}\n`;
 const leeg = () => ({ type: "FeatureCollection", features: [] });
+
+// De eigen lagen bovenop de stijl van OpenFreeMap, van onder naar boven. Kleuren zijn hier nog grijs: items() zet
+// de kleur per soort (uit de CSS). Elke soort een eigen vorm, zoals op de Leaflet-kaart: evenement een volle lijn,
+// werken een stip, verkeer een streeplijn of een vlak met een streeprand; een plek bij benadering (bron
+// pa-ongeveer, kaartLagen().ongeveer) een ring (vergunning, gestippeld), een vierkant (verkeer, gestreept) of een
+// ruit (de innames van een evenement, vol).
+export function eigenLagen() {
+  return [
+    { id: "pa-wijken-vlak", type: "fill", source: "pa-wijken", paint: { "fill-color": "gray", "fill-opacity": 0.02 } },
+    { id: "pa-wijken", type: "line", source: "pa-wijken", paint: { "line-color": "gray", "line-width": 1, "line-opacity": 0.8, "line-dasharray": [3, 4] } },
+    { id: "pa-wijk-actief", type: "line", source: "pa-wijken", filter: ["==", ["get", "code"], ""], paint: { "line-color": "gray", "line-width": 3 } },
+    { id: "pa-straat-rand", type: "line", source: "pa-straat", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "white", "line-width": 10, "line-opacity": 0.9 } },
+    { id: "pa-straat", type: "line", source: "pa-straat", layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": 6, "line-opacity": 0.9 } },
+    { id: "pa-vlak", type: "fill", source: "pa-items", filter: ["all", VLAK, EXACT], paint: { "fill-color": "gray", "fill-opacity": 0.16 } },
+    { id: "pa-vlak-rand", type: "line", source: "pa-items", filter: ["all", VLAK, EXACT, ["!=", ["get", "soort"], "verkeer"]], paint: { "line-color": "gray", "line-width": 2 } },
+    { id: "pa-vlak-rand-verkeer", type: "line", source: "pa-items", filter: ["all", VLAK, EXACT, IS_VERKEER], paint: { "line-color": "gray", "line-width": 2.5, "line-dasharray": [3, 2] } },
+    { id: "pa-lijn-rand", type: "line", source: "pa-items", filter: LIJN, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "white", "line-width": ["case", ["==", ["get", "parcours"], true], 9, 8], "line-opacity": 0.9 } },
+    { id: "pa-lijn", type: "line", source: "pa-items", filter: ["all", LIJN, ["!=", ["get", "soort"], "verkeer"]], layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": ["case", ["==", ["get", "parcours"], true], 5, 4] } },
+    { id: "pa-lijn-verkeer", type: "line", source: "pa-items", filter: ["all", LIJN, IS_VERKEER], paint: { "line-color": "gray", "line-width": 4, "line-dasharray": [2, 1.5] } },
+    { id: "pa-ongeveer-vlak", type: "fill", source: "pa-ongeveer", paint: { "fill-color": "gray", "fill-opacity": 0.12 } },
+    { id: "pa-ongeveer-vierkant", type: "line", source: "pa-ongeveer", filter: ["==", ["get", "vorm"], "vierkant"], paint: { "line-color": "gray", "line-width": 2.5, "line-dasharray": [3, 2] } },
+    { id: "pa-ongeveer-ruit", type: "line", source: "pa-ongeveer", filter: ["==", ["get", "vorm"], "ruit"], layout: { "line-join": "round" }, paint: { "line-color": "gray", "line-width": 2.5 } },
+    { id: "pa-ongeveer-ring", type: "line", source: "pa-ongeveer", filter: ["==", ["get", "vorm"], "ring"], layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": 3, "line-dasharray": [0.1, 2] } },
+    { id: "pa-punt", type: "circle", source: "pa-items", filter: ["all", PUNT, EXACT], paint: { "circle-radius": 7, "circle-color": "gray", "circle-stroke-color": "white", "circle-stroke-width": 2 } },
+    { id: "pa-markering", type: "line", source: "pa-items", filter: ["==", ["get", "uid"], ""], layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": 8, "line-opacity": 0.9 } },
+    { id: "pa-markering-punt", type: "circle", source: "pa-items", filter: ["all", PUNT, EXACT, ["==", ["get", "uid"], ""]], paint: { "circle-radius": 11, "circle-opacity": 0, "circle-stroke-color": "gray", "circle-stroke-width": 4 } },
+    { id: "pa-ongeveer-markering", type: "line", source: "pa-ongeveer", filter: ["in", "\n\n", ["get", "uids"]], layout: { "line-join": "round" }, paint: { "line-color": "gray", "line-width": 4 } },
+  ];
+}
 const kaderNaarBounds = (k) => [[k[0], k[1]], [k[2], k[3]]];
 const geldig = (k) => Array.isArray(k) && k.length === 4 && k.every(Number.isFinite);
 
 // Een vectorkaart in een eigen vlak binnen `el`. `kader`: [w, z, o, n] van het eerste beeld (met `maxZoom` in
 // Leaflet-zoom). Geeft een belofte van de adapter { soort: "vector", wijken, straat, items, markeer, kader,
 // inBeeld, verwijder } — dezelfde vorm als de Leaflet-kaart.
-export function maakVectorKaart(maplibregl, el, { stijl, kader = null, maxZoom = null, wijken = [], wijkStijl = () => ({}), onWijk = () => {}, pinHtml = () => "", pinNaam = () => "", signal = null } = {}) {
+export function maakVectorKaart(maplibregl, el, { stijl, thema = "licht", kader = null, maxZoom = null, wijken = [], wijkStijl = () => ({}), onWijk = () => {}, pinHtml = () => "", pinNaam = () => "", signal = null, bijnaKlaar = () => {} } = {}) {
   return new Promise((resolve, reject) => {
     if (signal?.aborted) { reject(new Error("vectorkaart afgebroken")); return; }
     const vlak = document.createElement("div");
@@ -135,7 +170,11 @@ export function maakVectorKaart(maplibregl, el, { stijl, kader = null, maxZoom =
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), "top-left");
     // Alleen fouten van de tegels tellen, en alleen vóór de eerste tegel: daarna blijft de kaart staan.
     map.on("error", (e) => { if (!eersteTegel && isTegelFout(e)) faal(e.error || new Error("de vectortegels laden niet")); });
-    map.on("sourcedata", (e) => { if (e.sourceId === TEGELBRON && e.tile) eersteTegel = true; });
+    map.on("sourcedata", (e) => {
+      if (e.sourceId !== TEGELBRON || !e.tile || eersteTegel) return;
+      eersteTegel = true;
+      if (!klaar) bijnaKlaar();
+    });
     map.on("idle", () => {
       if (klaar || !eersteTegel) return;
       klaar = true;
@@ -144,30 +183,22 @@ export function maakVectorKaart(maplibregl, el, { stijl, kader = null, maxZoom =
     });
 
     // ---- eigen bronnen en lagen, bovenop de stijl ----
-    let kleuren = {}, entryVan = new Map(), today = "", items = leeg(), markers = [], popup = null;
+    let kleuren = {}, entryVan = new Map(), today = "", items = leeg(), ongeveer = [], markers = [], popup = null;
     map.once("load", () => {
       const wijkFc = { type: "FeatureCollection", features: wijken.map((f) => ({ type: "Feature", geometry: f.geometry, properties: { code: f.properties.code, naam: f.properties.naam } })) };
       const aan = wijkStijl("a", "a"), uit = wijkStijl("a", "");
+      for (const bron of ["pa-straat", "pa-items", "pa-ongeveer"]) map.addSource(bron, { type: "geojson", data: leeg() });
       map.addSource("pa-wijken", { type: "geojson", data: wijkFc });
-      map.addSource("pa-straat", { type: "geojson", data: leeg() });
-      map.addSource("pa-items", { type: "geojson", data: leeg() });
-      map.addLayer({ id: "pa-wijken-vlak", type: "fill", source: "pa-wijken", paint: { "fill-color": aan.fillColor || "gray", "fill-opacity": 0.02 } });
-      map.addLayer({ id: "pa-wijken", type: "line", source: "pa-wijken", paint: { "line-color": uit.color || "gray", "line-width": 1, "line-opacity": 0.8, "line-dasharray": [3, 4] } });
-      map.addLayer({ id: "pa-wijk-actief", type: "line", source: "pa-wijken", filter: ["==", ["get", "code"], ""], paint: { "line-color": aan.color || "gray", "line-width": 3 } });
-      map.addLayer({ id: "pa-straat", type: "line", source: "pa-straat", layout: { "line-cap": "round" }, paint: { "line-color": "gray", "line-width": 6, "line-opacity": 0.75 } });
-      map.addLayer({ id: "pa-vlak", type: "fill", source: "pa-items", filter: VLAK, paint: { "fill-color": "gray", "fill-opacity": 0.16, "fill-outline-color": "gray" } });
-      map.addLayer({ id: "pa-lijn-rand", type: "line", source: "pa-items", filter: LIJN, layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "white", "line-width": ["case", ["==", ["get", "parcours"], true], 9, 8], "line-opacity": 0.9 } });
-      map.addLayer({ id: "pa-lijn", type: "line", source: "pa-items", filter: ["all", LIJN, ["!=", ["get", "soort"], "verkeer"]], layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": ["case", ["==", ["get", "parcours"], true], 5, 4] } });
-      map.addLayer({ id: "pa-lijn-verkeer", type: "line", source: "pa-items", filter: ["all", LIJN, ["==", ["get", "soort"], "verkeer"]], paint: { "line-color": "gray", "line-width": 4, "line-dasharray": [2, 1.5] } });
-      map.addLayer({ id: "pa-ongeveer", type: "circle", source: "pa-items", filter: ["all", PUNT, ["==", ["get", "ongeveer"], true]], paint: { "circle-radius": ringStraal(ONGEVEER_STRAAL), "circle-color": "gray", "circle-opacity": 0.14, "circle-stroke-color": "gray", "circle-stroke-width": 2.5 } });
-      map.addLayer({ id: "pa-punt", type: "circle", source: "pa-items", filter: ["all", PUNT, ["!=", ["get", "ongeveer"], true]], paint: { "circle-radius": 7, "circle-color": "gray", "circle-stroke-color": "white", "circle-stroke-width": 2 } });
-      map.addLayer({ id: "pa-markering", type: "line", source: "pa-items", filter: ["==", ["get", "uid"], ""], layout: { "line-cap": "round", "line-join": "round" }, paint: { "line-color": "gray", "line-width": 8, "line-opacity": 0.9 } });
-      map.addLayer({ id: "pa-markering-punt", type: "circle", source: "pa-items", filter: ["all", PUNT, ["==", ["get", "uid"], ""]], paint: { "circle-radius": 11, "circle-opacity": 0, "circle-stroke-color": "gray", "circle-stroke-width": 4 } });
-      // Tikken: een object opent zijn popup; anders kiest een tik de wijk.
+      for (const laag of eigenLagen()) map.addLayer(laag);
+      map.setPaintProperty("pa-wijken-vlak", "fill-color", aan.fillColor || "gray");
+      map.setPaintProperty("pa-wijken", "line-color", uit.color || "gray");
+      map.setPaintProperty("pa-wijk-actief", "line-color", aan.color || "gray");
+      // Tikken: een object opent zijn popup (een plek bij benadering met alle kaartjes op dat punt); anders kiest
+      // een tik de wijk.
       map.on("click", (e) => {
         const raak = map.queryRenderedFeatures(e.point, { layers: ITEM_LAGEN });
         if (raak.length) {
-          const uids = [...new Set(raak.map((f) => f.properties.uid))];
+          const uids = [...new Set(raak.flatMap((f) => (f.layer?.id === "pa-ongeveer-vlak" ? String(f.properties.samen || "").split("\n").filter(Boolean) : [f.properties.uid])))];
           toonPopup(e.lngLat, uids.map((u) => entryVan.get(u)).filter(Boolean));
           return;
         }
@@ -188,27 +219,32 @@ export function maakVectorKaart(maplibregl, el, { stijl, kader = null, maxZoom =
     const kleur = (naam) => kleuren[naam] || "gray";
     const adapter = {
       soort: "vector",
+      // De stijl (positron of dark) blijft die van het starten: de inkt van straat en markering hoort daarbij.
+      onderkaart: thema === "donker" ? "donker" : "licht",
       wijken(actief = "") {
         if (!map.getLayer("pa-wijk-actief")) return;
         map.setFilter("pa-wijk-actief", ["==", ["get", "code"], actief || ""]);
         map.setPaintProperty("pa-wijken", "line-opacity", actief ? 0.35 : 0.8);
       },
-      straat(segmenten = [], kleurStraat = "gray") {
+      straat(segmenten = [], kleurStraat = "gray", randStraat = "white") {
         map.getSource("pa-straat")?.setData({ type: "FeatureCollection", features: segmenten.map((s) => ({ type: "Feature", geometry: { type: "LineString", coordinates: [s.a, s.b] }, properties: {} })) });
         if (map.getLayer("pa-straat")) map.setPaintProperty("pa-straat", "line-color", kleurStraat);
+        if (map.getLayer("pa-straat-rand")) map.setPaintProperty("pa-straat-rand", "line-color", randStraat);
       },
       items({ lagen, entryVan: entries = new Map(), kleuren: k = {}, today: dag = "" }) {
-        kleuren = k; entryVan = entries; today = dag; items = lagen.fc;
+        kleuren = k; entryVan = entries; today = dag; items = lagen.fc; ongeveer = lagen.ongeveer || [];
         popup?.remove();
         map.getSource("pa-items")?.setData(items);
+        map.getSource("pa-ongeveer")?.setData({ type: "FeatureCollection", features: ongeveer.map((g) => ({ type: "Feature", geometry: g.geometry, properties: { soort: g.soort, cat: g.cat, vorm: g.vorm, uids: uidLijst(g.uids), samen: uidLijst(g.samen) } })) });
         const perSoort = kleurVan(kleuren);
-        for (const [laag, eigenschap] of [["pa-vlak", "fill-color"], ["pa-vlak", "fill-outline-color"], ["pa-lijn", "line-color"], ["pa-lijn-verkeer", "line-color"], ["pa-ongeveer", "circle-color"], ["pa-ongeveer", "circle-stroke-color"], ["pa-punt", "circle-color"]]) {
+        for (const [laag, eigenschap] of [["pa-vlak", "fill-color"], ["pa-vlak-rand", "line-color"], ["pa-vlak-rand-verkeer", "line-color"], ["pa-lijn", "line-color"], ["pa-lijn-verkeer", "line-color"], ["pa-ongeveer-vlak", "fill-color"], ["pa-ongeveer-vierkant", "line-color"], ["pa-ongeveer-ruit", "line-color"], ["pa-ongeveer-ring", "line-color"], ["pa-punt", "circle-color"]]) {
           if (map.getLayer(laag)) map.setPaintProperty(laag, eigenschap, perSoort);
         }
         if (map.getLayer("pa-lijn-rand")) map.setPaintProperty("pa-lijn-rand", "line-color", kleur("rand"));
         if (map.getLayer("pa-punt")) map.setPaintProperty("pa-punt", "circle-stroke-color", kleur("rand"));
-        if (map.getLayer("pa-markering")) map.setPaintProperty("pa-markering", "line-color", kleur("straat"));
-        if (map.getLayer("pa-markering-punt")) map.setPaintProperty("pa-markering-punt", "circle-stroke-color", kleur("straat"));
+        for (const [laag, eigenschap] of [["pa-markering", "line-color"], ["pa-markering-punt", "circle-stroke-color"], ["pa-ongeveer-markering", "line-color"]]) {
+          if (map.getLayer(laag)) map.setPaintProperty(laag, eigenschap, kleur("straat"));
+        }
         // Agendapunten: een knop per plek (Marker), met de categorie en het emoji, zoals op de Leaflet-kaart.
         for (const { marker } of markers) marker.remove();
         markers = lagen.pins.map((pin) => {
@@ -227,8 +263,10 @@ export function maakVectorKaart(maplibregl, el, { stijl, kader = null, maxZoom =
       },
       markeer(uid = "") {
         const filter = ["==", ["get", "uid"], uid || ""];
-        if (map.getLayer("pa-markering")) map.setFilter("pa-markering", ["all", ["!", PUNT], filter]);
-        if (map.getLayer("pa-markering-punt")) map.setFilter("pa-markering-punt", ["all", PUNT, filter]);
+        if (map.getLayer("pa-markering")) map.setFilter("pa-markering", ["all", ["!", PUNT], EXACT, filter]);
+        if (map.getLayer("pa-markering-punt")) map.setFilter("pa-markering-punt", ["all", PUNT, EXACT, filter]);
+        // Een plek bij benadering: de rand van haar vorm (een lege uid vindt niets: "\n\n" staat in geen lijst).
+        if (map.getLayer("pa-ongeveer-markering")) map.setFilter("pa-ongeveer-markering", ["in", `\n${uid || ""}\n`, ["get", "uids"]]);
         let gevonden = Boolean(uid) && items.features.some((f) => f.properties.uid === uid);
         for (const { knop, uids } of markers) {
           const aan = Boolean(uid) && uids.has(uid);

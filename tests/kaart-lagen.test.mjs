@@ -13,9 +13,9 @@ import {
   KAART_SOORTEN, agendaEntry, kaartSoort, lijstAantal, lijstSleutel, lijstUniversum, marktBundelEntry, permitEntry, publicSpaceEntries,
   telPerSoort, terrasEntries, werkEntries,
 } from "../site/place-core.js";
-import { ONGEVEER_DECIMALEN, isTegelFout, kaartLagen, kiesKaart, popupHtml, vormVoor } from "../site/kaart-lagen.js";
+import { ONGEVEER_DECIMALEN, ONGEVEER_VORM, isTegelFout, kaartLagen, kiesKaart, magVectorKaart, ongeveerPolygoon, popupHtml, vormVoor } from "../site/kaart-lagen.js";
 import { LEAFLET_DIR, LEAFLET_PREFIX, MAPLIBRE_PREFIX, MAPLIBRE_SRI, kaartAntwoord, sri } from "./helpers/kaart-fixture.mjs";
-import { MAPLIBRE, STIJL } from "../site/kaart-vector.js";
+import { MAPLIBRE, STIJL, eigenLagen } from "../site/kaart-vector.js";
 
 // ---- stap 1: Leaflet byte-exact uit de fixture ----
 test("de Leaflet-fixture is byte-gelijk aan wat de site met SRI vraagt", () => {
@@ -194,14 +194,33 @@ test("vormVoor: een werfzone geeft een vlak (de werfzone) en een lijn (de omleid
   assert.deepEqual(delen[1].geometry.coordinates, [LIJN_HIER, LIJN_ELDERS]);
 });
 
-test("vormVoor: een evenementendossier tekent ook de rijen elders, het parcours met parcours=true", () => {
+// Nakijkbevinding (P9-review, privacy): de parkeerverboden en andere innames van een evenementendossier stonden
+// exact op de kaart (een vlak of lijn, zonder "bij benadering"), ook die buiten de gekozen plek, terwijl de zin
+// onder de kaart zegt dat parkeerverboden en innames er bij benadering staan. Alleen het parcours staat exact.
+test("vormVoor: van een evenementendossier staat alleen het parcours exact; de andere innames, ook elders, zijn een punt bij benadering", () => {
   const parcours = inname("ET2099000601", "Evenement", "Parcours", "2026-10-24", ["Proefstraat"], { vorm: vormLijn(LIJN_HIER), parcours: vormLijn(LIJN_HIER) });
   const opbouw = inname("ET2099000601", "Opbouw", "Parkeerverbod in Straat", "2026-10-23", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
-  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, opbouw] });
+  const afbraak = inname("ET2099000601", "Afbraak", "Parkeerverbod in Straat", "2026-10-25", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
+  const podium = inname("ET2099000601", "Evenement", "Podium", "2026-10-24", ["Proefstraat"], { vorm: { vlakken: [VLAK], lijnen: [] } });
+  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, opbouw, afbraak, podium] });
+  assert.equal(dossier.uid, "publicSpace:dossier:ET2099000601");
   const delen = vormVoor(dossier);
-  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", false, false], ["LineString", true, false]]);
-  assert.deepEqual(delen[0].geometry.coordinates, LIJN_ELDERS, "de opbouw elders staat er ook, exact");
-  assert.deepEqual(delen[1].geometry.coordinates, LIJN_HIER);
+  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["MultiPoint", false, true]]);
+  assert.deepEqual(delen[0].geometry.coordinates, LIJN_HIER, "het parcours exact");
+  // Opbouw en afbraak op dezelfde plek: één punt; het podium (een vlak) een tweede. Afgerond op 3 decimalen.
+  assert.deepEqual(delen[1].geometry.coordinates, [[4.417, 51.216], [4.406, 51.211]]);
+  const { fc } = kaartLagen([dossier]);
+  assert.ok(fc.features.every((f) => f.properties.soort === "evenement"));
+  const origineel = new Set([...LIJN_ELDERS, ...VLAK[0]].flat());
+  assert.deepEqual(coordinaten(fc).filter((n) => origineel.has(n)), [], "geen coördinaat van een inname van het evenement");
+  // De popup zegt het: het parcours exact, de andere innames bij benadering.
+  assert.match(popupHtml([dossier], VANDAAG), /bij benadering \(privacy\)/);
+  // Zonder parcours bij de rijen: de schets van de verversing, en de innames nog altijd bij benadering.
+  const [zonder] = publicSpaceEntries([opbouw], { ...psOpties, alle: [opbouw], uitleg: { evenementen: { ET2099000601: { kaart: [LIJN_HIER], straten: ["Proefstraat"] } } } });
+  assert.deepEqual(vormVoor(zonder).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["Point", false, true]]);
+  // Een evenement met alleen innames (geen parcours, geen schets): één punt bij benadering, geen lijn.
+  assert.deepEqual(vormVoor({ ...zonder, kaart: [] }).map((d) => [d.geometry.type, d.ongeveer]), [["Point", true]]);
+  assert.match(popupHtml([{ ...zonder, kaart: [] }], VANDAAG), /Plek bij benadering \(privacy\)/);
 });
 
 test("vormVoor: zonder live vorm komt de lijn van het evenement uit de schets van de verversing (entry.kaart)", () => {
@@ -269,6 +288,55 @@ test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max e
   assert.equal(twee.perSoort.werken, 2);
 });
 
+// Nakijkbevindingen (P9-review, toegankelijkheid): (1) een parkeerverbod of losse inname bij benadering kreeg
+// dezelfde ring als een vergunning, alleen de kleur verschilde; (2) kaartjes bij benadering op hetzelfde afgeronde
+// punt lagen op Leaflet als identieke paden op elkaar: alleen het bovenste was aan te tikken.
+test("plekken bij benadering: elke soort een eigen vorm (vergunning een ring, verkeer een vierkant, de innames van een evenement een ruit)", () => {
+  assert.deepEqual({ ...ONGEVEER_VORM }, { evenement: "ruit", verkeer: "vierkant", vergunning: "ring" });
+  const p = [4.402, 51.216];
+  const ring = ongeveerPolygoon(p, "vergunning"), vierkant = ongeveerPolygoon(p, "verkeer"), ruit = ongeveerPolygoon(p, "evenement");
+  for (const g of [ring, vierkant, ruit]) {
+    assert.equal(g.type, "Polygon");
+    const r = g.coordinates[0];
+    assert.deepEqual(r[0], r.at(-1), "een gesloten ring");
+  }
+  const hoeken = (g) => g.coordinates[0].length - 1;
+  assert.equal(hoeken(vierkant), 4);
+  assert.equal(hoeken(ruit), 4);
+  assert.ok(hoeken(ring) >= 24, "een ring is rond");
+  // Het vierkant staat recht, de ruit op een punt: geen twee dezelfde vormen.
+  const [[x0, y0], [x1, y1]] = vierkant.coordinates[0];
+  assert.ok(Math.abs(y0 - y1) < 1e-12 && x1 > x0, "een zijde van het vierkant ligt horizontaal");
+  assert.ok(ruit.coordinates[0].some(([x, y]) => Math.abs(x - p[0]) < 1e-12 && y > p[1]), "de ruit heeft een punt recht boven het midden");
+  // Ongeveer ONGEVEER_STRAAL meter rond het punt: zo groot als de ring op de kaart was (60 m).
+  const noord = Math.max(...ring.coordinates[0].map(([, y]) => y));
+  assert.ok(Math.abs((noord - p[1]) * 111320 - 60) < 1, `${(noord - p[1]) * 111320} m`);
+});
+
+test("kaartLagen: kaartjes bij benadering op hetzelfde afgeronde punt staan samen in `ongeveer`; een tik op een van hun vormen noemt ze allemaal", () => {
+  const perceel = { vlakken: [[[[4.401800, 51.215900], [4.402200, 51.215900], [4.402200, 51.216100], [4.401800, 51.215900]]]], lijnen: [] };
+  const aanvraag = permitEntry({ id: "omv:8", dossier: "OMV_2099000008", streets: [straat("Proefstraat")], vorm: perceel });
+  const [parking] = publicSpaceEntries([{ ...parkeer("L1"), vorm: vormLijn(LIJN_HIER) }], psOpties);
+  const [los] = publicSpaceEntries([{ ...losseInname, vorm: { vlakken: [VLAK], lijnen: [] } }], psOpties);
+  const lagen = kaartLagen([aanvraag, parking, los]);
+  // Het perceel en het parkeerverbod liggen allebei bij (4.402, 51.216); de losse inname elders.
+  assert.deepEqual(lagen.ongeveer.map((g) => [g.point, g.soort, g.uids, g.samen]), [
+    [[4.402, 51.216], "vergunning", [aanvraag.uid], [aanvraag.uid, parking.uid]],
+    [[4.402, 51.216], "verkeer", [parking.uid], [aanvraag.uid, parking.uid]],
+    [[4.406, 51.211], "verkeer", [los.uid], [los.uid]],
+  ]);
+  // Elk een eigen vorm, in de soort van het kaartje.
+  assert.deepEqual(lagen.ongeveer.map((g) => g.vorm), ["ring", "vierkant", "vierkant"]);
+  assert.deepEqual(lagen.ongeveer[0].geometry, ongeveerPolygoon([4.402, 51.216], "vergunning"));
+  assert.deepEqual(lagen.ongeveer[1].geometry, ongeveerPolygoon([4.402, 51.216], "verkeer"));
+  // De vormen komen alleen uit het afgeronde punt: geen enkele oorspronkelijke coördinaat.
+  const origineel = new Set([...LIJN_HIER, ...VLAK[0], ...perceel.vlakken[0][0]].flat());
+  assert.deepEqual(coordinaten(lagen.ongeveer).filter((n) => origineel.has(n)), []);
+  // Een verborgen soort valt ook hier weg; de andere kaartjes op dat punt blijven.
+  const zonderVerkeer = kaartLagen([aanvraag, parking, los], { verborgen: new Set(["verkeer"]) });
+  assert.deepEqual(zonderVerkeer.ongeveer.map((g) => [g.soort, g.samen]), [["vergunning", [aanvraag.uid]]]);
+});
+
 test("popupHtml: hoogstens 6, alles geëscaped, een knop naar de lijst en 'plek bij benadering'", () => {
   const boos = agendapunt("x<1>", "2026-10-20", { title: `<script>alert("x")</script>`, location: `Plein "<b>"` });
   const html = popupHtml([boos], VANDAAG);
@@ -315,11 +383,45 @@ test("kiesKaart: de vector lukt, faalt of hangt; zonder vector; ook de basis faa
   assert.equal(opgeruimd, true);
 });
 
+// Nakijkbevinding (P9-review, terugval): op een trage gsm-verbinding haalde de vectorkaart de 8 s niet. kiesKaart
+// gooide dan een kaart weg die bijna klaar was (de eerste tegel was binnen, de letters nog niet) en laadde Leaflet er
+// nog bovenop: beide kaarten gedownload, en de kaart 7 s later dan met Leaflet alleen.
+test("kiesKaart: een vectorkaart met haar eerste tegel binnen wordt niet meer op de klok weggegooid (één keer nog een wachttijd)", async () => {
+  const basis = async () => "basis";
+  let opgeruimd = 0;
+  const kaart = { verwijder: () => { opgeruimd += 1; } };
+  // De wachttijd is 40 ms; de eerste tegel na 25 ms, klaar na 50 ms (vroeger: weggegooid na 40 ms).
+  const bijna = (s, { bijnaKlaar }) => new Promise((r) => { setTimeout(() => bijnaKlaar(), 25); setTimeout(() => r(kaart), 50); });
+  assert.equal(await kiesKaart({ magVector: true, vector: bijna, basis, wachttijd: 40 }), kaart);
+  assert.equal(opgeruimd, 0);
+  // Nog eens bijna klaar zeggen verlengt niet: hangt ze daarna, dan toch de basis (na wachttijd + nawacht).
+  let signaal = null;
+  const hangt = (s, { bijnaKlaar }) => { signaal = s; setTimeout(() => bijnaKlaar(), 5); setTimeout(() => bijnaKlaar(), 30); return new Promise(() => {}); };
+  const start = Date.now();
+  assert.equal(await kiesKaart({ magVector: true, vector: hangt, basis, wachttijd: 20, nawacht: 40 }), "basis");
+  assert.ok(Date.now() - start >= 40, `${Date.now() - start} ms`);
+  assert.equal(signaal.aborted, true);
+});
+
+test("magVectorKaart: niet met ?kaart=leaflet, databesparing, een trage verbinding (lager dan 4g) of zonder WebGL", () => {
+  const webgl = () => true;
+  assert.equal(magVectorKaart({ webgl }), true, "geen Network Information API (Safari, Firefox): de vectorkaart mag");
+  assert.equal(magVectorKaart({ verbinding: { effectiveType: "4g", saveData: false }, webgl }), true);
+  for (const traag of ["3g", "2g", "slow-2g"]) assert.equal(magVectorKaart({ verbinding: { effectiveType: traag }, webgl }), false, traag);
+  assert.equal(magVectorKaart({ verbinding: { effectiveType: "4g", saveData: true }, webgl }), false);
+  assert.equal(magVectorKaart({ kaart: "leaflet", webgl }), false);
+  assert.equal(magVectorKaart({ webgl: () => false }), false);
+  // WebGL wordt pas getoetst (een proefcanvas) als de rest het toelaat.
+  let getoetst = 0;
+  assert.equal(magVectorKaart({ verbinding: { effectiveType: "3g" }, webgl: () => { getoetst += 1; return true; } }), false);
+  assert.equal(getoetst, 0);
+});
+
 test("kaart-lagen.js raakt geen DOM aan en importeert in Node", async () => {
   const bron = fs.readFileSync(new URL("../site/kaart-lagen.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(bron, /\b(document|window)\./);
   const mod = await import("../site/kaart-lagen.js");
-  assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "isTegelFout", "kaartLagen", "kiesKaart", "popupHtml", "vormVoor"]);
+  assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "ONGEVEER_STRAAL", "ONGEVEER_VORM", "isTegelFout", "kaartLagen", "kiesKaart", "magVectorKaart", "ongeveerPolygoon", "popupHtml", "vormVoor"]);
 });
 
 // ---- stap 8: de vectorkaart (site/kaart-vector.js) ----
@@ -344,15 +446,43 @@ test("kaart-vector.js: alleen cdnjs en OpenFreeMap, geen sleutel; geen DOM boven
   const bovenaan = bron.split("\n").filter((r) => /^\S/.test(r) && !/^\/\//.test(r)).join("\n");
   assert.doesNotMatch(bovenaan, /\b(document|window)\./);
   const mod = await import("../site/kaart-vector.js");
-  assert.deepEqual(Object.keys(mod).sort(), ["MAPLIBRE", "STIJL", "haalStijl", "laadMapLibre", "maakVectorKaart"]);
+  assert.deepEqual(Object.keys(mod).sort(), ["MAPLIBRE", "STIJL", "eigenLagen", "haalStijl", "laadMapLibre", "maakVectorKaart"]);
+});
+
+// Nakijkbevinding (P9-review, toegankelijkheid): op de vectorkaart vielen een parkeerverbod en een vergunning bij
+// benadering in één cirkellaag (dezelfde volle ring, alleen de kleur verschilde), en werfzones en evenementen
+// deelden één vullaag zonder streeprand. Elke soort heeft ook hier een eigen vorm, zoals op de Leaflet-kaart.
+test("eigenLagen (vectorkaart): plekken bij benadering als vorm per soort, verkeersvlakken met een streeprand, de straat met een rand", () => {
+  const lagen = eigenLagen();
+  const id = (naam) => lagen.find((l) => l.id === naam);
+  const tekst = (l) => JSON.stringify(l.filter || null);
+  // Geen cirkel meer voor een plek bij benadering: een vlak per vorm, en een rand per vorm met een eigen streep.
+  assert.ok(!lagen.some((l) => l.type === "circle" && /ongeveer/.test(tekst(l)) && !/"!="/.test(tekst(l))), "een cirkel bij benadering");
+  const ongeveer = lagen.filter((l) => l.source === "pa-ongeveer");
+  assert.ok(ongeveer.some((l) => l.type === "fill"), "een vlak (om aan te tikken)");
+  const randen = Object.fromEntries(["ring", "vierkant", "ruit"].map((v) => [v, ongeveer.find((l) => l.type === "line" && tekst(l).includes(`"${v}"`))]));
+  for (const [v, l] of Object.entries(randen)) assert.ok(l, `geen rand voor ${v}`);
+  const streep = (l) => JSON.stringify(l.paint["line-dasharray"] || "vol");
+  assert.equal(new Set(Object.values(randen).map(streep)).size, 3, `elke vorm een eigen rand: ${Object.values(randen).map(streep).join(" | ")}`);
+  // Verkeersvlakken (werfzone) met een streeprand, de andere vlakken met een volle rand.
+  const vlakRand = lagen.filter((l) => l.source === "pa-items" && l.type === "line" && /Polygon/.test(tekst(l)));
+  assert.ok(vlakRand.some((l) => /"verkeer"/.test(tekst(l)) && /"=="/.test(tekst(l)) && l.paint["line-dasharray"]), "een streeprand voor verkeersvlakken");
+  assert.ok(vlakRand.some((l) => /"verkeer"/.test(tekst(l)) && /"!="/.test(tekst(l)) && !l.paint["line-dasharray"]), "een volle rand voor de andere vlakken");
+  // De gekozen straat met een rand eronder, en de markering ook voor een plek bij benadering.
+  const volgorde = lagen.map((l) => l.id);
+  assert.ok(id("pa-straat-rand") && volgorde.indexOf("pa-straat-rand") < volgorde.indexOf("pa-straat"));
+  assert.ok(ongeveer.some((l) => l.id === "pa-ongeveer-markering"));
+  // Allemaal eigen bronnen (geen laag op de tegels van OpenFreeMap), en elke id één keer.
+  assert.ok(lagen.every((l) => /^pa-/.test(l.source)));
+  assert.equal(new Set(volgorde).size, volgorde.length);
 });
 
 test("neighborhood-map.js laadt kaart-vector.js alleen dynamisch, en MapLibre pas na de stijl", () => {
   const bron = fs.readFileSync(new URL("../site/neighborhood-map.js", import.meta.url), "utf8");
   assert.doesNotMatch(bron, /^import[^;]*kaart-vector/m);
   assert.match(bron, /import\("\.\/kaart-vector\.js"\)/);
-  assert.match(bron, /m\.haalStijl\(themaNu\(\), signal\)\s*\.then\(\(stijl\) => m\.laadMapLibre\(\)/);
-  assert.match(bron, /searchParams\.get\("kaart"\) === "leaflet"/);
+  assert.match(bron, /m\.haalStijl\(thema, signal\)\s*\.then\(\(stijl\) => m\.laadMapLibre\(\)/);
+  assert.match(bron, /magVectorKaart\(\{ kaart: new URL\(window\.location\.href\)\.searchParams\.get\("kaart"\)/);
   assert.match(bron, /saveData/);
 });
 

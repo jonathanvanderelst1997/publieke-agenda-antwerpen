@@ -13,7 +13,10 @@
 //   (site/geo/locaties.json, scripts/geocode-locations.mjs). De browser geocodeert nooit zelf.
 // - Items zonder plek staan in een lijst onder de kaart, nooit als gegokte marker.
 // - De legenda (vijf soorten, KAART_SOORTEN in place-core.js) toont of verbergt een soort op de kaart; de lijst
-//   blijft altijd volledig. Ze staat er ook als de kaart niet laadt.
+//   blijft altijd volledig. Ze staat er ook als de kaart niet laadt. Haar getallen tellen wat er op deze plek is
+//   (zoals het getal boven de lijst); "in de lijst" zegt alleen de zin eronder, met wat de lijst nu echt toont.
+// - Straat en markering in de inkt van de onderkaart die je echt ziet (--kaart-inkt, data-onderkaart), niet in die
+//   van het thema: de tegels van OpenStreetMap blijven licht, ook in donkere modus.
 // - De kaartbibliotheek en de tegels worden pas geladen als de kaart in beeld komt en de browser even niets te
 //   doen heeft; met databesparing alleen op vraag (de knop, of "Toon op de kaart"), en dan altijd Leaflet.
 import {
@@ -29,7 +32,7 @@ import {
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
 import { KAART_SOORTEN, kaartSoort, kortBereik, kortDatum, lijstSleutel } from "./place-core.js";
-import { kaartLagen, kiesKaart, popupHtml } from "./kaart-lagen.js";
+import { ONGEVEER_VORM, kaartLagen, kiesKaart, magVectorKaart, popupHtml } from "./kaart-lagen.js";
 
 // Ook voor de toetsen: de e2e serveren Leaflet byte-exact uit tests/fixtures/kaart/ (tests/helpers/kaart-fixture.mjs).
 export const LEAFLET = Object.freeze({
@@ -41,8 +44,6 @@ const TILES = Object.freeze({
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>-bijdragers',
 });
 const DISTRICT_PREFIX = "ANT";
-// Een plek bij benadering (parkeerverbod, losse inname, vergunning): een ring van zoveel meter, geen punt.
-const ONGEVEER_STRAAL = 60;
 // Zo ver zoomt de kaart hoogstens in op één kaartje (Leaflet; de vectorkaart één stap minder).
 const MARKEER_ZOOM = 17;
 const ZONDER_MAX = 40;
@@ -179,10 +180,11 @@ function districtKader(wijken = []) {
 }
 
 // Kleuren uit de CSS, geen eigen hex-waarden: --cat van een verborgen <i class="cat-…"> per soort (dezelfde
-// kleur als de rij in de lijst), de gekozen straat in --pa-ink-strong.
-export function kleurenUitCss(root) {
+// kleur als de rij in de lijst); de gekozen straat en de markering in --kaart-inkt met --kaart-inkt-rand eronder,
+// gelezen op de kaart zelf (`kaartEl`): die volgen de onderkaart (data-onderkaart), niet het thema van de site.
+export function kleurenUitCss(root, kaartEl = root) {
   const lees = (el, naam) => (el ? getComputedStyle(el).getPropertyValue(naam).trim() : "");
-  const kleuren = { rand: "white", straat: lees(root, "--pa-ink-strong") || "currentColor" };
+  const kleuren = { rand: "white", straat: lees(kaartEl, "--kaart-inkt") || "currentColor", straatRand: lees(kaartEl, "--kaart-inkt-rand") || "white" };
   for (const s of KAART_SOORTEN) kleuren[s.key] = lees(root.querySelector(`.buurt-kleuren .cat-${s.cat}`), "--cat") || "gray";
   return kleuren;
 }
@@ -202,20 +204,24 @@ export function pinNaam(entries = []) {
 }
 
 // De stijl van een object op de Leaflet-kaart: de kleur van de soort, en een eigen vorm per soort (kleur is
-// nooit de enige drager): evenement een volle lijn, werken een stip, verkeer een streeplijn of gestreept vlak,
-// een plek bij benadering een gestippelde ring. De klassen laten toetsen en CSS de objecten vinden.
+// nooit de enige drager): evenement een volle lijn, werken een stip, verkeer een streeplijn of gestreept vlak.
+// Een plek bij benadering (ONGEVEER_VORM): een vergunning een gestippelde ring, verkeer een gestreept vierkant, de
+// innames van een evenement een ruit met een volle rand. De klassen laten toetsen en CSS de objecten vinden.
+const ONGEVEER_RAND = Object.freeze({ ring: "1 6", vierkant: "8 6", ruit: null });
 function objStijl(p = {}, kleuren = {}) {
   const kleur = kleuren[p.soort] || "gray";
-  const className = ["kaart-obj", `kaart-${p.soort}`, p.parcours ? "kaart-parcours" : "", p.ongeveer ? "kaart-ongeveer" : ""].filter(Boolean).join(" ");
-  if (p.ongeveer) return { className, radius: ONGEVEER_STRAAL, color: kleur, weight: 2.5, opacity: 1, dashArray: "3 5", fillColor: kleur, fillOpacity: 0.14 };
+  const vorm = p.ongeveer ? ONGEVEER_VORM[p.soort] || "ring" : "";
+  const className = ["kaart-obj", `kaart-${p.soort}`, p.parcours ? "kaart-parcours" : "", p.ongeveer ? `kaart-ongeveer kaart-${vorm}` : ""].filter(Boolean).join(" ");
+  if (p.ongeveer) return { className, color: kleur, weight: vorm === "ring" ? 3 : 2.5, opacity: 1, dashArray: ONGEVEER_RAND[vorm], lineCap: "round", lineJoin: "round", fillColor: kleur, fillOpacity: 0.12 };
   if (p.soort === "werken") return { className, radius: 7, color: kleuren.rand || "white", weight: 2, opacity: 1, fillColor: kleur, fillOpacity: 0.95 };
   return { className, color: kleur, weight: p.parcours ? 5 : 4, opacity: 0.95, fillColor: kleur, fillOpacity: 0.16, dashArray: p.soort === "verkeer" ? "8 6" : null, lineCap: "round", lineJoin: "round" };
 }
 
 // De basiskaart: Leaflet met rastertegels van OpenStreetMap, in een eigen vlak binnen `el`. Geeft de adapter
 // die drawAll gebruikt (dezelfde vorm als de vectorkaart in kaart-vector.js):
-// { soort, wijken(actief), straat(segmenten, kleur), items({lagen, entryVan, kleuren, today}),
+// { soort, onderkaart, wijken(actief), straat(segmenten, kleur, rand), items({lagen, entryVan, kleuren, today}),
 //   markeer(uid) → gevonden, kader([w, z, o, n], {animate, maxZoom}), inBeeld([w, z, o, n]), verwijder() }.
+// `onderkaart`: de tegels van OpenStreetMap zijn licht (in donkere modus alleen gedimd).
 export function maakLeafletKaart(L, el, { wijken = [], onWijk = () => {} } = {}) {
   const vlak = document.createElement("div");
   vlak.className = "buurt-kaartvlak";
@@ -239,38 +245,55 @@ export function maakLeafletKaart(L, el, { wijken = [], onWijk = () => {} } = {})
   const randLaag = L.layerGroup().addTo(map);
   const objLaag = L.layerGroup().addTo(map);
   const pinLaag = L.layerGroup().addTo(map);
+  // Elk getekend object met de kaartjes die het toont (een plek bij benadering kan er meer hebben).
   let objecten = [], pinnen = [];
   const elementen = (layer) => (layer.getLayers ? layer.getLayers() : [layer]).map((l) => l.getElement?.()).filter(Boolean);
   const popupOpties = { maxWidth: 280, autoPanPadding: [16, 16] };
+  const naarLatLng = (ring) => ring.slice(0, -1).map(([x, y]) => [y, x]);
   return {
     soort: "leaflet",
+    onderkaart: "licht",
     wijken(actief = "") { wijkLaag.setStyle((f) => wijkStijl(f.properties.code, actief)); },
-    straat(segmenten = [], kleur = "currentColor") {
+    // De gekozen straat: een pad met een klasse (zoals de objecten), met een rand eronder die bij de onderkaart past.
+    straat(segmenten = [], kleur = "currentColor", rand = "white") {
       straatLaag.clearLayers();
-      for (const s of segmenten) L.polyline([[s.a[1], s.a[0]], [s.b[1], s.b[0]]], { color: kleur, weight: 6, opacity: 0.75, interactive: false }).addTo(straatLaag);
+      for (const [className, color, weight] of [["kaart-straat-rand", rand, 10], ["kaart-straat", kleur, 6]]) {
+        for (const s of segmenten) L.polyline([[s.a[1], s.a[0]], [s.b[1], s.b[0]]], { renderer: svg, className, color, weight, opacity: 0.9, lineCap: "round", interactive: false }).addTo(straatLaag);
+      }
     },
     items({ lagen, entryVan = new Map(), kleuren = {}, today = "" }) {
       randLaag.clearLayers(); objLaag.clearLayers(); pinLaag.clearLayers();
       objecten = []; pinnen = [];
+      const exact = lagen.fc.features.filter((f) => !f.properties.ongeveer);
       // Een witte rand onder de lijnen, zodat ze op elke tegel leesbaar blijven.
-      const lijnen = lagen.fc.features.filter((f) => /LineString$/.test(f.geometry.type));
+      const lijnen = exact.filter((f) => /LineString$/.test(f.geometry.type));
       L.geoJSON({ type: "FeatureCollection", features: lijnen }, {
         renderer: svg, interactive: false,
         style: (f) => ({ className: "kaart-rand", color: kleuren.rand || "white", weight: objStijl(f.properties).weight + 4, opacity: 0.9, lineCap: "round", lineJoin: "round" }),
       }).addTo(randLaag);
       const stijl = (f) => objStijl(f.properties, kleuren);
-      // Vlakken onderaan, dan lijnen, de ringen bij benadering en de werken bovenaan: een stip blijft aantikbaar.
-      const laag = (f) => (/Polygon$/.test(f.geometry.type) ? 0 : /LineString$/.test(f.geometry.type) ? 1 : f.properties.ongeveer ? 2 : 3);
-      const volgorde = [...lagen.fc.features].sort((a, b) => laag(a) - laag(b));
-      L.geoJSON({ type: "FeatureCollection", features: volgorde }, {
+      const geoLaag = (features) => L.geoJSON({ type: "FeatureCollection", features }, {
         renderer: svg,
         style: stijl,
-        pointToLayer: (f, latlng) => (f.properties.ongeveer ? L.circle(latlng, { renderer: svg, ...stijl(f) }) : L.circleMarker(latlng, { renderer: svg, ...stijl(f) })),
+        pointToLayer: (f, latlng) => L.circleMarker(latlng, { renderer: svg, ...stijl(f) }),
         onEachFeature: (f, layer) => {
-          objecten.push(layer);
+          objecten.push({ layer, uids: new Set([f.properties.uid]) });
           layer.bindPopup(() => popupHtml([entryVan.get(f.properties.uid)].filter(Boolean), today), popupOpties);
         },
       }).addTo(objLaag);
+      // Vlakken onderaan, dan lijnen, dan de plekken bij benadering, en de werken bovenaan: een stip blijft aantikbaar.
+      geoLaag(exact.filter((f) => /Polygon$/.test(f.geometry.type)));
+      geoLaag(lijnen);
+      // Een plek bij benadering: één vorm per afgerond punt en soort (ring, vierkant of ruit; de ring bovenaan, het
+      // vierkant eronder steekt er in de hoeken uit). Een tik noemt alle kaartjes op dat punt (`samen`).
+      const orde = { vierkant: 0, ruit: 1, ring: 2 };
+      for (const g of [...(lagen.ongeveer || [])].sort((a, b) => orde[a.vorm] - orde[b.vorm])) {
+        const layer = L.polygon(naarLatLng(g.geometry.coordinates[0]), { renderer: svg, ...objStijl({ soort: g.soort, ongeveer: true }, kleuren) })
+          .bindPopup(() => popupHtml(g.samen.map((u) => entryVan.get(u)).filter(Boolean), today), popupOpties)
+          .addTo(objLaag);
+        objecten.push({ layer, uids: new Set(g.uids) });
+      }
+      geoLaag(exact.filter((f) => /Point$/.test(f.geometry.type)));
       for (const pin of lagen.pins) {
         const icon = L.divIcon({ className: "buurt-pin-wrap", html: pinHtml(pin.entries), iconSize: [38, 38], iconAnchor: [19, 36], popupAnchor: [0, -32] });
         const marker = L.marker([pin.point[1], pin.point[0]], { icon, title: pinNaam(pin.entries), riseOnHover: true, keyboard: true })
@@ -281,8 +304,8 @@ export function maakLeafletKaart(L, el, { wijken = [], onWijk = () => {} } = {})
     },
     markeer(uid = "") {
       let gevonden = false;
-      for (const layer of objecten) {
-        const aan = Boolean(uid) && layer.feature?.properties.uid === uid;
+      for (const { layer, uids } of objecten) {
+        const aan = Boolean(uid) && uids.has(uid);
         for (const node of elementen(layer)) node.classList.toggle("is-gemarkeerd", aan);
         if (aan) { gevonden = true; layer.bringToFront?.(); }
       }
@@ -325,8 +348,9 @@ export async function mountNeighborhoodMap(view) {
       </div>
     </div>
     <div class="buurt-map-wrap">
-      <div class="buurt-map" role="region" aria-label="Kaart van district Antwerpen met de agenda in je buurt" data-kaart="geen" data-op-kaart="0" data-gemarkeerd=""></div>
+      <div class="buurt-map" role="region" aria-label="Kaart van district Antwerpen met de agenda in je buurt" tabindex="-1" data-kaart="geen" data-op-kaart="0" data-gemarkeerd=""></div>
       <div class="buurt-map-veil"><button type="button" class="buurt-map-load">🗺️ Toon de kaart</button></div>
+      <p class="buurt-melding" aria-hidden="true" hidden></p>
     </div>
     <div class="buurt-legenda" role="group" aria-label="Soorten op de kaart tonen of verbergen" hidden>
       <div class="buurt-leg-knoppen"></div>
@@ -337,13 +361,13 @@ export async function mountNeighborhoodMap(view) {
     <p class="buurt-attrib">Wijkgrenzen: <a href="https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/97" target="_blank" rel="noreferrer">stad Antwerpen, open data</a> ·
       locaties: <a href="https://geo.api.vlaanderen.be/geolocation/v4/Location" target="_blank" rel="noreferrer">Basisregisters Vlaanderen</a> · werken: GIPOD ·
       kaart: <a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a>, © <a href="https://openmaptiles.org" target="_blank" rel="noreferrer">OpenMapTiles</a>, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>-bijdragers.
-      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Parkeerverboden, innames en vergunningen staan er bij benadering (privacy).</p>
+      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Werken, werfzones, omleidingen en het parcours van een evenement staan er exact; parkeerverboden, innames (ook die van een evenement) en vergunningen bij benadering (privacy).</p>
     <span class="buurt-kleuren" hidden>${KAART_SOORTEN.map((s) => `<i class="cat-${s.cat}"></i>`).join("")}</span>`;
   anchor.after(section);
   const $ = (s) => section.querySelector(s);
   const select = $("#buurt-wijk"), radiusGroup = $(".buurt-radius"), status = $(".buurt-status");
   const mapEl = $(".buurt-map"), veil = $(".buurt-map-veil"), laadKnop = $(".buurt-map-load"), noGeo = $(".buurt-nogeo");
-  const legenda = $(".buurt-legenda");
+  const legenda = $(".buurt-legenda"), meldingEl = $(".buurt-melding");
   // Voor de statusregel (zetStatus). Het plekoverzicht meldt wat de lijst toont via public-agenda:place-list,
   // alleen als dat verandert, en bewaart de laatste stand op window. Daarom eerst die stand lezen en luisteren
   // vóór het eerste await: anders mist een kaart die later laadt dan de lijst haar aantal voorgoed. Hetzelfde
@@ -356,7 +380,7 @@ export async function mountNeighborhoodMap(view) {
   let kaart = null, lagen = null, entryVan = new Map(), gemarkeerd = "", melding = "";
   const verborgen = new Set();
 
-  // ---- legenda: vijf soorten, elk met tekentje, aantal in de lijst en (verborgen tekst) op de kaart ----
+  // ---- legenda: vijf soorten, elk met tekentje, aantal op deze plek en (verborgen tekst) op de kaart ----
   const legKnoppen = new Map();
   for (const s of KAART_SOORTEN) {
     const knop = document.createElement("button");
@@ -365,7 +389,9 @@ export async function mountNeighborhoodMap(view) {
     knop.dataset.kaartsoort = s.key;
     knop.setAttribute("aria-pressed", "true");
     knop.hidden = true;
-    knop.innerHTML = `<span class="buurt-teken buurt-teken-${s.vorm}" aria-hidden="true"></span><span class="buurt-leg-label">${esc(s.label)}</span> <span class="pv-chip-n">0</span><span class="buurt-vh"> in de lijst, 0 op de kaart</span>`;
+    // Het tekentje: de vorm op de kaart, en voor een soort met plekken bij benadering ook die vorm (vierkant, ruit).
+    const extra = ONGEVEER_VORM[s.key] && ONGEVEER_VORM[s.key] !== s.vorm ? `<span class="buurt-teken buurt-teken-${ONGEVEER_VORM[s.key]}" aria-hidden="true"></span>` : "";
+    knop.innerHTML = `<span class="buurt-tekens"><span class="buurt-teken buurt-teken-${s.vorm}" aria-hidden="true"></span>${extra}</span><span class="buurt-leg-label">${esc(s.label)}</span> <span class="pv-chip-n">0</span><span class="buurt-vh"> op deze plek, 0 op de kaart</span>`;
     knop.addEventListener("click", () => {
       if (verborgen.has(s.key)) verborgen.delete(s.key); else verborgen.add(s.key);
       melding = "";
@@ -375,7 +401,9 @@ export async function mountNeighborhoodMap(view) {
     $(".buurt-leg-knoppen").append(knop);
   }
   // De knoppen blijven staan (alleen hun tekst en toestand veranderen), zodat de focus na het tekenen op
-  // dezelfde knop blijft. Een soort zonder kaartjes in de lijst verdwijnt, tenzij ze verborgen is.
+  // dezelfde knop blijft. Een soort zonder kaartjes op deze plek verdwijnt, tenzij ze verborgen is. Het getal is
+  // wat er op deze plek is (de lijst bij periode "alles", zoals "N items" boven de lijst), niet wat de lijst in
+  // de gekozen periode, weergave of dag toont: dat zegt de zin eronder ("X in de lijst").
   function tekenLegenda(tel) {
     let zichtbaar = 0;
     for (const s of KAART_SOORTEN) {
@@ -386,7 +414,7 @@ export async function mountNeighborhoodMap(view) {
       knop.setAttribute("aria-pressed", String(!uit));
       knop.classList.toggle("pv-chip-zero", !n);
       knop.querySelector(".pv-chip-n").textContent = String(n);
-      knop.querySelector(".buurt-vh").textContent = uit ? " in de lijst, verborgen op de kaart" : ` in de lijst, ${m} op de kaart`;
+      knop.querySelector(".buurt-vh").textContent = uit ? " op deze plek, verborgen op de kaart" : ` op deze plek, ${m} op de kaart`;
     }
     legenda.hidden = !zichtbaar;
   }
@@ -472,17 +500,23 @@ export async function mountNeighborhoodMap(view) {
   }
 
   // ---- kaart (lui) ----
-  // De vectorkaart mag niet zonder WebGL (een proefcanvas, meteen weer vrijgegeven), met databesparing of met
-  // ?kaart=leaflet in de link. Het thema (licht of donker) kiezen we bij het starten.
-  function magVector() {
+  // De vectorkaart mag niet met ?kaart=leaflet in de link, met databesparing, op een trage verbinding (lager dan
+  // 4g, saveData: magVectorKaart in kaart-lagen.js) of zonder WebGL (een proefcanvas, meteen weer vrijgegeven).
+  // Het thema (licht of donker) kiezen we bij het starten.
+  function heeftWebgl() {
     try {
-      if (new URL(window.location.href).searchParams.get("kaart") === "leaflet") return false;
-      if (navigator.connection?.saveData) return false;
       const canvas = document.createElement("canvas");
       const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
       if (!gl) return false;
       gl.getExtension("WEBGL_lose_context")?.loseContext();
       return true;
+    } catch {
+      return false;
+    }
+  }
+  function magVector() {
+    try {
+      return magVectorKaart({ kaart: new URL(window.location.href).searchParams.get("kaart") || "", verbinding: navigator.connection || null, webgl: heeftWebgl });
     } catch {
       return false;
     }
@@ -499,18 +533,20 @@ export async function mountNeighborhoodMap(view) {
     laadKnop.textContent = "Kaart laden…";
     mapEl.dataset.kaart = "laadt";
     const [eersteKader, { maxZoom }] = focusKader();
+    const thema = themaNu();
     starten = kiesKaart({
       magVector: magVector(),
       wachttijd: 8000,
-      // Eerst de stijl (klein); pas als die er is, MapLibre (1 MB).
-      vector: (signal) => import("./kaart-vector.js").then((m) => m.haalStijl(themaNu(), signal)
-        .then((stijl) => m.laadMapLibre().then((maplibregl) => m.maakVectorKaart(maplibregl, mapEl, { stijl, kader: eersteKader, maxZoom, wijken, wijkStijl, onWijk: kiesWijk, pinHtml, pinNaam, signal })))),
+      // Eerst de stijl (klein); pas als die er is, MapLibre (1 MB). Met de eerste tegel binnen is ze bijna klaar.
+      vector: (signal, { bijnaKlaar } = {}) => import("./kaart-vector.js").then((m) => m.haalStijl(thema, signal)
+        .then((stijl) => m.laadMapLibre().then((maplibregl) => m.maakVectorKaart(maplibregl, mapEl, { stijl, thema, kader: eersteKader, maxZoom, wijken, wijkStijl, onWijk: kiesWijk, pinHtml, pinNaam, signal, bijnaKlaar })))),
       basis: () => loadLeaflet().then((L) => maakLeafletKaart(L, mapEl, { wijken, onWijk: kiesWijk })),
     })
       .then((nieuw) => {
         kaart = nieuw;
         veil.hidden = true;
         mapEl.dataset.kaart = kaart.soort;
+        mapEl.dataset.onderkaart = kaart.onderkaart || "licht";
         lastFocus = "";
         drawAll();
         return kaart;
@@ -592,12 +628,15 @@ export async function mountNeighborhoodMap(view) {
   });
   // "Toon op de kaart" (vooral op gsm, waar de kaart onder de lijst staat): de kaart in beeld, starten als dat
   // nog niet gebeurde, en het kaartje markeren. Een soort die de legenda verborg, komt terug. Zonder plek op de
-  // kaart zegt de zin dat eerlijk.
+  // kaart zegt de kaart dat eerlijk, bij de kaart zelf (de zin onder de legenda valt op een kleine gsm of met grote
+  // tekst buiten beeld). De focus gaat mee naar de kaart: anders bleef ze op de knop boven het venster, en sprong
+  // de volgende Tab terug naar de lijst.
   window.addEventListener("public-agenda:kaart-toon", async (event) => {
     const uid = String(event.detail?.uid || "");
     if (!uid) return;
     gemarkeerd = uid;
     $(".buurt-map-wrap").scrollIntoView({ block: "center" });
+    mapEl.focus({ preventScroll: true });
     const entry = entryVan.get(uid);
     const soort = entry ? window.PUBLIC_AGENDA_KAART?.tel?.soortVan?.get?.(lijstSleutel(entry)) || kaartSoort(entry) : "";
     if (verborgen.delete(soort)) drawAll();
@@ -623,9 +662,9 @@ export async function mountNeighborhoodMap(view) {
     tekenLegenda(stand.tel);
     tekenZonder(lagen.zonder, today, stand.tel?.soortVan);
     if (kaart) {
-      const kleuren = kleurenUitCss(section);
+      const kleuren = kleurenUitCss(section, mapEl);
       kaart.wijken(view.area.wijk);
-      kaart.straat(view.selected && matcher?.segmentsFor ? matcher.segmentsFor(view.selected) : [], kleuren.straat);
+      kaart.straat(view.selected && matcher?.segmentsFor ? matcher.segmentsFor(view.selected) : [], kleuren.straat, kleuren.straatRand);
       kaart.items({ lagen, entryVan, kleuren, today });
     }
     const focusKey = `${view.selected ? `${view.selected.id}|${view.selected.name}` : ""}|${view.area.wijk}|${view.area.postcode || ""}|${view.place?.key || ""}|${view.area.radius}|${Boolean(matcher?.segmentsFor && view.selected && matcher.segmentsFor(view.selected).length)}`;
@@ -637,7 +676,12 @@ export async function mountNeighborhoodMap(view) {
     laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
     zetStatus();
   }
+  // De zin onder de kaart (voor schermlezers ook de melding: aria-live). De melding staat daarnaast zichtbaar op de
+  // kaart zelf (.buurt-melding, verborgen voor schermlezers: ze horen ze al in de zin), zodat wie op "Toon op de
+  // kaart" tikte, ze ziet ook als de zin buiten beeld valt.
   function zetStatus() {
+    meldingEl.textContent = melding;
+    meldingEl.hidden = !melding;
     if (!laatste) return;
     const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal });
     status.textContent = melding ? `${zin} ${melding}` : zin;

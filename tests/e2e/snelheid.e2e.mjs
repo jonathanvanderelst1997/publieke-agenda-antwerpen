@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const site = path.join(root, "site");
 const fixture = await import("../helpers/straat-fixture.mjs").catch(() => null);
-const { feedScript, proefFeed } = await import("../helpers/proef-feed.mjs");
+const { feedScript, kalenderItem, proefFeed } = await import("../helpers/proef-feed.mjs");
 const { kaartAntwoord } = await import("../helpers/kaart-fixture.mjs");
 
 async function loadPlaywright() {
@@ -190,12 +190,14 @@ const MAPLIBRE_DIR = process.env.MAPLIBRE_DIR && fs.existsSync(path.join(process
 
 // `kaart`: "geblokkeerd" (standaard: geen kaartbibliotheek, zoals in alle andere toetsen) of "leaflet" (Leaflet uit
 // de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs), en
-// `openfreemap` (zie hierboven) voor de stijl en de tegels.
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false } = {}) {
-  const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
+// `openfreemap` (zie hierboven) voor de stijl en de tegels. `colorScheme`: licht of donker (prefers-color-scheme).
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false, verbinding = null, colorScheme = "light" } = {}) {
+  const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
   const page = await context.newPage();
-  // `zuinig`: de browser meldt databesparing (navigator.connection.saveData).
-  if (zuinig) await page.addInitScript(() => Object.defineProperty(Navigator.prototype, "connection", { configurable: true, get: () => ({ saveData: true }) }));
+  // `zuinig`: de browser meldt databesparing (navigator.connection.saveData); `verbinding`: wat de browser over de
+  // verbinding meldt (navigator.connection, bv. { effectiveType: "3g" }).
+  const connection = verbinding || (zuinig ? { saveData: true } : null);
+  if (connection) await page.addInitScript((c) => Object.defineProperty(Navigator.prototype, "connection", { configurable: true, get: () => c }), connection);
   await page.clock.setFixedTime(NU);
   const errors = [], extern = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -549,7 +551,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       const sub = await page.locator(".pv-sub").innerText();
       await verkeer.click();
       assert.equal(await verkeer.getAttribute("aria-pressed"), "false");
-      assert.equal(await verkeer.locator(".buurt-vh").innerText(), "in de lijst, verborgen op de kaart");
+      assert.equal(await verkeer.locator(".buurt-vh").innerText(), "op deze plek, verborgen op de kaart");
       const na = await legendaEnLijst(page);
       assert.equal(na.rijen, m.rijen, `${weg}: de lijst blijft volledig`);
       assert.equal(await page.locator(".pv-sub").innerText(), sub);
@@ -646,6 +648,219 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // ---- P9-review: nakijkbevindingen bij de buurtkaart ----
+  // (1) De legenda zei "N in de lijst" met N uit de lijst bij periode "alles"; de zin eronder zegt "X in de lijst"
+  // met X wat de lijst nu echt toont. In de week, de tijdlijn of op een gekozen dag stonden er zo twee verschillende
+  // getallen "in de lijst" in één kaartblok. De legenda telt wat er op deze plek is (zoals het getal boven de lijst);
+  // alleen de zin eronder zegt "in de lijst". Verzonnen: een voorstelling op drie avonden in de straat.
+  const kaartTellers = (page) => page.evaluate(() => {
+    const knoppen = [...document.querySelectorAll("#buurtkaart [data-kaartsoort]")].filter((b) => !b.hidden);
+    const zinnen = knoppen.map((b) => `${b.querySelector(".pv-chip-n").textContent}${b.querySelector(".buurt-vh").textContent}`);
+    const status = document.querySelector("#buurtkaart .buurt-status")?.textContent || "";
+    const getallen = [...new Set([...zinnen, status].flatMap((z) => [...z.matchAll(/(\d+) in de lijst/g)].map((m) => Number(m[1]))))];
+    return { zinnen, status, getallen, som: knoppen.reduce((n, b) => n + Number(b.querySelector(".pv-chip-n").textContent), 0), sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]) };
+  });
+  const DRIE_AVONDEN = proefFeed("2099-03-10", (stempel) => ["2099-03-11", "2099-03-12", "2099-03-13"].map((dag, i) => kalenderItem(stempel, {
+    id: `e2e-reeks-${i + 1}`, externalId: `e2e-reeks-${i + 1}`, title: "Proefvoorstelling in de straat (e2e)", date: dag, timeSlot: "20:00",
+    location: "Kammenstraat, 2000 Antwerpen", postcodes: ["2000"],
+  })));
+  await t.test("P9: onder de kaart nooit twee getallen 'in de lijst': in de week, de tijdlijn en op een gekozen dag", async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", inzage: INZAGE, uitleg: UITLEG, feed: DRIE_AVONDEN, width: 1280, height: 900, query: "?plek=Kammenstraat&periode=week" });
+    await page.locator('.pv-results .pv-row[data-uid="publicSpace:dossier:ET2099000077"]').waitFor({ timeout: 20000 });
+    await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-reeks-1"]').waitFor({ timeout: 20000 });
+    await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits) && /in de lijst/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || ""), null, { timeout: 15000 });
+    const stappen = [
+      ["lijst, periode week", async () => {}],
+      ["tijdlijn", () => page.click('[data-mode="tijdlijn"]')],
+      ["tijdlijn, zaterdag 14 maart", () => page.click('[data-tl-dag="2099-03-14"]')],
+      ["lijst, periode alles", async () => { await page.click('[data-mode="lijst"]'); await page.click('[data-period="alles"]'); }],
+    ];
+    for (const [stap, doe] of stappen) {
+      await doe();
+      await page.waitForTimeout(400);
+      const m = await kaartTellers(page);
+      t.diagnostic(`${stap}: ${JSON.stringify(m)}`);
+      assert.ok(m.getallen.length === 1, `${stap}: getallen "in de lijst": ${JSON.stringify(m)}`);
+      assert.match(m.status, /^\d+ in de lijst, \d+ op de kaart in Kammenstraat/, stap);
+      for (const z of m.zinnen) assert.match(z, /^\d+ op deze plek, (\d+|verborgen) op de kaart$/, stap);
+      assert.equal(m.som, m.sub, `${stap}: de legenda telt wat er op deze plek is, zoals het getal boven de lijst`);
+    }
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (2) Privacy, (4) een eigen vorm per soort en (5) kaartjes op hetzelfde punt: het parkeerverbod (PROEF-PV77, L1)
+  // en de aanvraag (20990077) liggen in de nagebootste stad allebei bij het midden van de Kammenstraat. Op de
+  // Leaflet-kaart waren het twee identieke ringen op elkaar: het parkeerverbod was nooit aan te tikken. En de
+  // parkeerverboden van het evenement (opbouw en afbraak elders) stonden er exact.
+  const ongeveerPaden = (page) => page.evaluate(() => Object.fromEntries(["verkeer", "vergunning"].map((s) => {
+    const p = [...document.querySelectorAll(`#buurtkaart path.kaart-${s}.kaart-ongeveer`)].find((el) => el.getBoundingClientRect().width > 0);
+    return [s, p ? { d: p.getAttribute("d"), streep: getComputedStyle(p).strokeDasharray } : null];
+  })));
+  await t.test("P9: op de kaart heeft elke plek bij benadering de vorm van haar soort, elk kaartje op dat punt is aan te tikken, en van een evenement staat alleen het parcours exact", async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
+    await wachtOpDeVier(page);
+    await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.locator(".buurt-map[data-kaart=leaflet] .leaflet-container").waitFor({ timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-verkeer.kaart-ongeveer") && document.querySelector("#buurtkaart path.kaart-vergunning.kaart-ongeveer"), null, { timeout: 15000 });
+    await page.waitForTimeout(600); // het inzoomen op de straat
+    // Een eigen vorm (niet alleen een andere kleur), en een eigen rand.
+    const vormen = await ongeveerPaden(page);
+    assert.ok(vormen.verkeer && vormen.vergunning, JSON.stringify(vormen));
+    assert.notEqual(vormen.verkeer.d, vormen.vergunning.d, "parkeerverbod en vergunning: dezelfde vorm");
+    assert.notEqual(vormen.verkeer.streep, vormen.vergunning.streep, "parkeerverbod en vergunning: dezelfde rand");
+    // De legenda toont die vormen ook.
+    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="verkeer"] .buurt-teken-vierkant').count(), 1);
+    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="evenement"] .buurt-teken-ruit').count(), 1);
+    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="vergunning"] .buurt-teken-ring').count(), 1);
+    // Elk van de twee is ergens zelf aan te tikken, en de popup noemt dan allebei de kaartjes op dat punt.
+    for (const soort of ["verkeer", "vergunning"]) {
+      const punt = await page.evaluate((s) => {
+        const paden = [...document.querySelectorAll(`#buurtkaart path.kaart-${s}.kaart-ongeveer`)];
+        for (const p of paden) {
+          const r = p.getBoundingClientRect();
+          for (let i = 1; i < 12; i += 1) for (let j = 1; j < 12; j += 1) {
+            const x = r.left + (r.width * i) / 12, y = r.top + (r.height * j) / 12;
+            if (document.elementFromPoint(x, y) === p) return [x, y];
+          }
+        }
+        return null;
+      }, soort);
+      assert.ok(punt, `${soort}: nergens aan te tikken (een ander kaartje ligt erover)`);
+      await page.mouse.click(punt[0], punt[1]);
+      const popup = page.locator("#buurtkaart .leaflet-popup");
+      await popup.waitFor({ timeout: 5000 });
+      const uids = await popup.locator("[data-open-uid]").evaluateAll((knoppen) => knoppen.map((k) => k.dataset.openUid));
+      assert.ok(uids.includes("permits:permit:20990077") && uids.some((u) => u.startsWith("publicSpace:parking:PROEF-PV77")), `${soort}: de popup noemt ${uids.join(", ")}`);
+      assert.match(await popup.innerText(), /bij benadering \(privacy\)/);
+      // Sluiten met een klik op het kruisje (dispatchEvent): de klok staat vast in deze toets (setFixedTime), en
+      // Leaflet meet zijn pan-animatie met new Date(), dus autoPan schuift de popup hier nooit helemaal in beeld.
+      await popup.locator(".leaflet-popup-close-button").dispatchEvent("click");
+      await popup.waitFor({ state: "detached", timeout: 5000 });
+    }
+    // Van het evenement staat alleen het parcours exact; de parkeerverboden van opbouw en afbraak bij benadering.
+    const evenement = await page.evaluate(() => [...document.querySelectorAll("#buurtkaart path.kaart-evenement")].map((p) => p.getAttribute("class")));
+    assert.ok(evenement.some((c) => /kaart-parcours/.test(c)), `geen parcours: ${evenement.join(" | ")}`);
+    assert.ok(evenement.some((c) => /kaart-ongeveer/.test(c)), `de innames van het evenement ontbreken: ${evenement.join(" | ")}`);
+    assert.deepEqual(evenement.filter((c) => !/kaart-parcours|kaart-ongeveer/.test(c)), [], "een inname van het evenement staat exact op de kaart");
+    assert.match(await page.locator("#buurtkaart .buurt-attrib").innerText(), /innames \(ook die van een evenement\)[^.]*bij benadering/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (6) In donkere modus was --pa-ink-strong wit: de gekozen straat en de markering werden wit op de lichte tegels
+  // van OpenStreetMap (ook gedimd blijven die licht). De inkt volgt de onderkaart die je ziet, niet het thema.
+  const KAART_LAND = [242, 239, 233]; // land op de tegels van OpenStreetMap (#f2efe9)
+  const lum = ([r, g, b]) => { const c = [r, g, b].map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }); return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]; };
+  const verhouding = (a, b) => { const [h, l] = [lum(a), lum(b)].sort((x, y) => y - x); return (h + 0.05) / (l + 0.05); };
+  // "rgb(18, 24, 33)" of "#121821" (een CSS-variabele) naar [r, g, b].
+  const rgb = (tekst) => {
+    const hex = /^#([0-9a-f]{6})$/i.exec(String(tekst).trim());
+    if (hex) return [0, 2, 4].map((i) => parseInt(hex[1].slice(i, i + 2), 16));
+    return (String(tekst).match(/\d+(\.\d+)?/g) || []).slice(0, 3).map(Number);
+  };
+  await t.test("P9: in donkere modus blijven de gekozen straat en de markering donker (minstens 3:1) op de lichte tegels van Leaflet", async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles", colorScheme: "dark" });
+    await wachtOpDeVier(page);
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.locator(".buurt-map[data-kaart=leaflet] .leaflet-container").waitFor({ timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-werken"), null, { timeout: 15000 });
+    // De site staat echt in donker: de gewone inkt is licht.
+    assert.ok(lum(rgb(await page.evaluate(() => getComputedStyle(document.querySelector(".pv-sub")).color))) > 0.4, "de site staat niet in donker");
+    await page.locator('.pv-results .pv-row[data-uid="works:990001"] .pv-row-btn').click();
+    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-werken.is-gemarkeerd"), null, { timeout: 5000 });
+    const markering = await page.evaluate(() => getComputedStyle(document.querySelector("#buurtkaart path.kaart-werken.is-gemarkeerd")).stroke);
+    assert.ok(verhouding(rgb(markering), KAART_LAND) >= 3, `markering ${markering}: ${verhouding(rgb(markering), KAART_LAND).toFixed(2)}:1`);
+    // De gekozen straat (een pad met een klasse, zodat ze na te meten is), met een lichte rand eronder.
+    const straat = await page.evaluate(() => { const p = document.querySelector("#buurtkaart path.kaart-straat"); return p ? getComputedStyle(p).stroke : ""; });
+    assert.ok(straat, "de gekozen straat staat niet als pad op de kaart");
+    assert.ok(verhouding(rgb(straat), KAART_LAND) >= 3, `straat ${straat}: ${verhouding(rgb(straat), KAART_LAND).toFixed(2)}:1`);
+    assert.ok(await page.locator("#buurtkaart path.kaart-straat-rand").count() > 0, "geen rand onder de straat");
+    assert.equal(await page.locator(".buurt-map").getAttribute("data-onderkaart"), "licht");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (7) Op een laptop werd de vaste zijkolom met de legenda hoger dan het venster: de onderste knoppen kregen de focus
+  // buiten beeld. Verzonnen: 40 activiteiten in de straat, zodat de lijst lang is en de kolom vast staat.
+  const VEEL = proefFeed("2099-03-10", (stempel) => Array.from({ length: 40 }, (_, i) => kalenderItem(stempel, {
+    id: `e2e-lang-${i + 1}`, externalId: `e2e-lang-${i + 1}`, title: `Proefactiviteit ${i + 1} (e2e)`, date: `2099-03-${String(11 + (i % 18)).padStart(2, "0")}`, timeSlot: "19:00",
+    location: "Kammenstraat, 2000 Antwerpen", postcodes: ["2000"],
+  })));
+  for (const [width, height] of [[1366, 650], [1280, 720]]) await t.test(`P9: op een laptop (${width}×${height}) blijft elke knop van de vaste kaartkolom in beeld als ze de focus krijgt`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed: VEEL, width, height });
+    await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-1"]').waitFor({ timeout: 15000 });
+    await page.locator("#buurtkaart .buurt-legenda").waitFor({ state: "visible", timeout: 15000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.evaluate(() => window.scrollTo(0, 1600));
+    await page.waitForTimeout(300);
+    assert.ok(await page.evaluate(() => window.scrollY) > 1000, "de lijst is niet lang genoeg");
+    await page.locator("#buurtkaart [data-kaartsoort]:not([hidden])").first().focus();
+    const buiten = [];
+    let bezocht = 0;
+    for (let i = 0; i < 40; i += 1) {
+      const el = await page.evaluate(() => {
+        const a = document.activeElement;
+        if (!a?.closest(".pv-aside")) return null;
+        const r = a.getBoundingClientRect();
+        return { naam: (a.getAttribute("aria-label") || a.textContent || "").trim().slice(0, 50), top: Math.round(r.top), bottom: Math.round(r.bottom), venster: innerHeight };
+      });
+      if (!el) break;
+      bezocht += 1;
+      if (el.top < 0 || el.bottom > el.venster) buiten.push(el);
+      await page.keyboard.press("Tab");
+    }
+    assert.ok(bezocht >= 5, `${bezocht} knoppen in de kaartkolom bezocht`);
+    assert.deepEqual(buiten, [], "focus buiten beeld");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (8) en (9) "Toon op de kaart" voor een kaartje zonder plek (de stand van de ochtend heeft geen vormen): de uitleg
+  // stond alleen in de zin onder de legenda, op een kleine gsm of met grote tekst buiten beeld; en de focus bleef op
+  // de knop in de lijst, boven het venster: de volgende Tab sprong terug naar de lijst.
+  for (const [width, height, tekst] of [[320, 640, ""], [360, 740, ""], [390, 844, "200%"]]) await t.test(`P9: "Toon op de kaart" zonder plek (${width}×${height}${tekst ? `, tekst ${tekst}` : ""}): de uitleg staat bij de kaart in beeld, en de focus gaat naar de kaart`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width, height });
+    if (tekst) await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, tekst);
+    const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
+    await rij.waitFor({ timeout: 5000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await rij.locator(".pv-row-btn").click();
+    await rij.locator(".pv-op-kaart").focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => /geen plek op de kaart/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || ""), null, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 10000 });
+    await page.waitForTimeout(500);
+    const m = await page.evaluate(() => {
+      const zichtbaar = [...document.querySelectorAll("#buurtkaart *")].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && /geen plek op de kaart/.test(n.data))
+        && !el.closest("[hidden]") && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
+      const inBeeld = zichtbaar.filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.top >= 0 && r.bottom <= innerHeight; });
+      const a = document.activeElement, ra = a?.getBoundingClientRect();
+      return { zichtbaar: zichtbaar.map((el) => el.className), inBeeld: inBeeld.map((el) => el.className), focus: a ? `${a.tagName.toLowerCase()}.${a.className}` : "", focusInKaart: Boolean(a?.closest("#buurtkaart")), focusInBeeld: Boolean(ra && ra.bottom > 0 && ra.top < innerHeight) };
+    });
+    assert.ok(m.inBeeld.length > 0, `de uitleg staat niet in beeld: ${JSON.stringify(m)}`);
+    assert.ok(m.focusInKaart && m.focusInBeeld, `de focus: ${JSON.stringify(m)}`);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (10) Op een trage verbinding haalde de vectorkaart haar wachttijd niet: de bewoner downloadde beide kaarten en zag
+  // de kaart later dan met Leaflet alleen. Meldt de browser een verbinding trager dan 4g, dan meteen Leaflet.
+  await t.test("P9: op een trage verbinding (de browser schat ze lager dan 4g) meteen Leaflet: geen stijl van OpenFreeMap, geen MapLibre", async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height: 1200, verbinding: { effectiveType: "3g", saveData: false, downlink: 1.6, rtt: 550 } });
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 15000 })
+      .catch(async () => assert.fail(`data-kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}`));
+    const webgl = await page.evaluate(() => { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") || c.getContext("webgl")); });
+    t.diagnostic(`trage verbinding: WebGL ${webgl}, ${extern.filter((u) => /openfreemap|maplibre-gl/.test(u)).length} verzoeken voor de vectorkaart`);
+    assert.deepEqual(extern.filter((u) => /openfreemap|maplibre-gl/.test(u)), [], "de vectorkaart werd toch geprobeerd");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Het vectorpad (alleen met MAPLIBRE_DIR: MapLibre staat niet in de repo). Offline toetst de rest van dit bestand
   // alleen de terugval; hier komen MapLibre, de stijl en de tegels uit een nagebootste OpenFreeMap.
   const metMapLibre = MAPLIBRE_DIR ? false : "zet MAPLIBRE_DIR naar de npm-dist van maplibre-gl 5.24.0";
@@ -678,6 +893,14 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const dossier = "publicSpace:dossier:ET2099000077";
     await page.locator(`.pv-results .pv-row[data-uid="${dossier}"] .pv-row-btn`).click();
     await page.waitForFunction((uid) => document.querySelector(".buurt-map")?.dataset.gemarkeerd === uid, dossier, { timeout: 5000 });
+    // P9-review (6): de stijl (positron, licht) blijft na een themawissel; de inkt van straat en markering volgt die
+    // onderkaart, niet het thema van de site (dat wordt wit in donker).
+    await page.evaluate(() => { document.documentElement.dataset.theme = "dark"; });
+    for (let i = 0; i < 2; i += 1) await page.locator('#buurtkaart [data-kaartsoort="werken"]').click();
+    const inkt = await page.evaluate(() => ({ kaart: getComputedStyle(document.querySelector(".buurt-map")).getPropertyValue("--kaart-inkt").trim(), site: getComputedStyle(document.documentElement).getPropertyValue("--pa-ink-strong").trim() }));
+    assert.ok(lum(rgb(inkt.site)) > 0.5, `de site staat niet in donker: ${inkt.site}`);
+    assert.ok(inkt.kaart && verhouding(rgb(inkt.kaart), KAART_LAND) >= 3, `inkt op de lichte vectorkaart na de themawissel: ${JSON.stringify(inkt)}`);
+    assert.equal(await page.locator(".buurt-map").getAttribute("data-onderkaart"), "licht");
     assert.deepEqual(errors, []);
     await context.close();
   });

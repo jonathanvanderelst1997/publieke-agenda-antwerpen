@@ -63,7 +63,18 @@
 }
 .buurt-radius button[aria-pressed="true"] { background: var(--pa-ink-strong, #121821); border-color: var(--pa-ink-strong, #121821); color: var(--pa-bg, #f6f3ee); }
 .buurt-map-wrap { position: relative; isolation: isolate; z-index: 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--pa-line, #e3dcd2); }
-.buurt-map { position: relative; height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); }
+/* De inkt van de gekozen straat en van de markering volgt de onderkaart die je echt ziet, niet het thema van de
+   site: de tegels van OpenStreetMap (Leaflet) blijven licht, ook gedimd in donkere modus; de vectorkaart kiest
+   licht of donker bij het starten (data-onderkaart). Een rand eronder in de tegenkleur. */
+.buurt-map { position: relative; height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); --kaart-inkt: #121821; --kaart-inkt-rand: #ffffff; }
+.buurt-map[data-onderkaart="donker"] { --kaart-inkt: #f6f3ee; --kaart-inkt-rand: #121821; }
+/* "Toon op de kaart" zet de focus op de kaart (tabindex -1): een rand binnenin, de kaart knipt haar inhoud af. */
+.buurt-map:focus { outline: none; }
+.buurt-map:focus-visible { outline: 3px solid var(--pa-focus, #b45309); outline-offset: -3px; }
+/* Een melding bij de kaart zelf ("Dit kaartje heeft (nog) geen plek op de kaart."), over de kaart, naast de
+   zoomknoppen. Schermlezers horen ze in de zin onder de kaart (aria-live). */
+.buurt-melding { position: absolute; z-index: 1100; top: 8px; left: 52px; right: 8px; margin: 0; padding: 6px 10px; border-radius: 10px; background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); border: 1px solid var(--pa-line-strong, #c9bfb2); box-shadow: 0 4px 12px #00000026; font-size: 0.84rem; font-weight: 700; line-height: 1.3; pointer-events: none; }
+.buurt-melding[hidden] { display: none; }
 /* Het vlak van de kaart (Leaflet of MapLibre) binnen .buurt-map: zo kan de ene kaart wijken voor de andere. */
 .buurt-map .buurt-kaartvlak { position: absolute; inset: 0; width: 100%; height: 100%; }
 .buurt-map-veil {
@@ -108,11 +119,16 @@
 .buurt-leg[hidden] { display: none; }
 .buurt-leg-hint { margin: 6px 2px 0; color: var(--pa-muted, #4f5a68); font-size: 0.8rem; }
 .buurt-vh { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.buurt-tekens { flex: none; display: inline-flex; align-items: center; gap: 3px; }
 .buurt-teken { flex: none; display: inline-block; width: 18px; height: 12px; position: relative; }
 .buurt-teken-lijn::before, .buurt-teken-streep::before { content: ""; position: absolute; left: 0; right: 0; top: 4px; border-top: 4px solid currentColor; border-radius: 2px; }
 .buurt-teken-streep::before { border-top-style: dashed; border-top-width: 3px; }
 .buurt-teken-stip::before { content: ""; position: absolute; left: 3px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
 .buurt-teken-ring::before { content: ""; position: absolute; left: 2px; top: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px dotted currentColor; }
+/* Een plek bij benadering: verkeer een gestreept vierkant, de innames van een evenement een ruit. */
+.buurt-teken-vierkant, .buurt-teken-ruit { width: 12px; }
+.buurt-teken-vierkant::before { content: ""; position: absolute; left: 0; top: 0; width: 8px; height: 8px; border: 2px dashed currentColor; }
+.buurt-teken-ruit::before { content: ""; position: absolute; left: 2px; top: 2px; width: 6px; height: 6px; border: 2px solid currentColor; transform: rotate(45deg); }
 .buurt-teken-pin::before { content: ""; position: absolute; left: 4px; top: 0; width: 10px; height: 10px; border-radius: 50% 50% 50% 2px; transform: rotate(-45deg); background: currentColor; }
 
 /* Objecten op de kaart (Leaflet: SVG-paden met een klasse per soort). Gemarkeerd: wat open staat in de lijst.
@@ -120,7 +136,7 @@
 .buurt-map .leaflet-overlay-pane > svg { pointer-events: none; }
 .buurt-map path.kaart-obj { cursor: pointer; }
 .buurt-map path.kaart-obj.is-gemarkeerd { stroke-width: 8px; stroke-opacity: 1; }
-.buurt-map path.kaart-werken.is-gemarkeerd, .buurt-map path.kaart-ongeveer.is-gemarkeerd { stroke: var(--pa-ink-strong, #121821); stroke-width: 4px; stroke-dasharray: none; }
+.buurt-map path.kaart-werken.is-gemarkeerd, .buurt-map path.kaart-ongeveer.is-gemarkeerd { stroke: var(--kaart-inkt, #121821); stroke-width: 4px; stroke-dasharray: none; }
 /* Agendapinnen op de vectorkaart: een knop (MapLibre-marker) met dezelfde pin. */
 .buurt-pin-knop { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .buurt-pin-wrap.is-gemarkeerd .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
@@ -195,11 +211,12 @@
   .buurt { padding: 14px; border-radius: 20px; margin-left: -2px; margin-right: -2px; }
   .buurt-controls { flex-basis: 100%; }
   .buurt-map { height: 300px; }
-  /* De legenda in twee kolommen als ze passen: korter onder de kaart, elke knop nog 44 px hoog. Met grote
-     tekst (200 %) wordt het één kolom: de kolombreedte groeit mee met de tekst (em). */
-  .buurt-leg-knoppen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)); }
+  /* De legenda in twee kolommen alleen als een woord als "parkeerverbod" er heel in past (vanaf ongeveer 430 px);
+     op een gangbare gsm één kolom, elke knop 44 px hoog. Met grote tekst (200 %) groeit de kolom mee (em). Een
+     woord breekt nooit midden in (break-word: alleen een woord dat langer is dan de hele knop). */
+  .buurt-leg-knoppen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 12em), 1fr)); }
   .buurt-legenda .pv-chip.buurt-leg { padding: 6px 10px; font-size: 0.8rem; }
-  .buurt-leg-label { min-width: 0; overflow-wrap: anywhere; }
+  .buurt-leg-label { min-width: 0; overflow-wrap: break-word; }
 }
 @media (prefers-reduced-motion: reduce) {
   .buurt-pin { box-shadow: none; }

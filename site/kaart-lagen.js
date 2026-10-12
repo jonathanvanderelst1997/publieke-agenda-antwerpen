@@ -4,14 +4,23 @@
 //
 // - De kaartjes komen uit de lijst (window.PUBLIC_AGENDA_KAART.teken, site/place-view.js); elk object op de
 //   kaart is een kaartje van de lijst, met dezelfde soort, kleur en telsleutel (lijstSleutel).
-// - Privacy: parkeerverboden, losse innames en vergunningen staan op de kaart als één punt, het midden van
-//   hun kader afgerond op ONGEVEER_DECIMALEN (ongeveer 100 m), met "plek bij benadering". Werken, parcours,
-//   werfzones en omleidingen staan exact op de kaart. Wie ze toch exact wil tonen: één regel in vormVoor().
+// - Privacy: parkeerverboden, innames (ook die van een evenement: opbouw, afbraak, de parkeerverboden erbij) en
+//   vergunningen staan op de kaart als één punt, het midden van hun kader afgerond op ONGEVEER_DECIMALEN (ongeveer
+//   100 m), met "plek bij benadering". Werken, het parcours van een evenement, werfzones en omleidingen staan exact
+//   op de kaart. Wie ze toch exact wil tonen: één regel in vormVoor().
+// - Een plek bij benadering tekent de kaart als een vorm van ONGEVEER_STRAAL meter rond dat punt, met een eigen
+//   vorm per soort (ONGEVEER_VORM): kleur is nooit de enige drager. Kaartjes op hetzelfde afgeronde punt horen bij
+//   elkaar (`ongeveer` in kaartLagen): een tik op een van hun vormen noemt ze allemaal.
 // - Een terras heeft geen vorm (terraces-live-core.js laat ze vallen): het staat in `zonder`.
 import { groupByPoint, isPoint, itemPoint } from "./neighborhood-core.js";
 import { KAART_SOORTEN, kaartSoort, kortBereik, kortDatum, lijstSleutel } from "./place-core.js";
 
 export const ONGEVEER_DECIMALEN = 3;
+// Een plek bij benadering op de kaart: een vorm van zoveel meter rond het afgeronde punt (geen punt: dat zou een
+// plek beloven), per soort een eigen vorm. Een vergunning een ring, verkeer (parkeerverbod, losse inname) een
+// vierkant, de innames van een evenement een ruit.
+export const ONGEVEER_STRAAL = 60;
+export const ONGEVEER_VORM = Object.freeze({ evenement: "ruit", verkeer: "vierkant", vergunning: "ring" });
 // Zoveel kaartjes per soort tekent de kaart hoogstens (een district vol werken blijft vlot).
 export const MAX_PER_SOORT = 600;
 const POPUP_MAX = 6;
@@ -21,7 +30,8 @@ const CAT = Object.freeze(Object.fromEntries(KAART_SOORTEN.map((s) => [s.key, s.
 const rond = (x) => Number(x.toFixed(ONGEVEER_DECIMALEN));
 
 // Een plek bij benadering: een parkeerverbod, een losse inname (geen evenement, geen werfzone) en een
-// vergunning. Hangt alleen af van de soort, niet van de geometrie: de popup zegt het ook zonder vorm.
+// vergunning. Hangt alleen af van de soort, niet van de geometrie: de popup zegt het ook zonder vorm. (Van een
+// evenement zijn de innames naast het parcours bij benadering: dat zegt vormVoor, zie popupHtml.)
 function isOngeveer(entry, soort = kaartSoort(entry)) {
   if (soort === "vergunning") return true;
   return soort === "verkeer" && entry.item?.kind !== "sgw";
@@ -51,6 +61,11 @@ function vlakDeel(vlakken, eigen) {
   return ok.length ? [{ geometry: ok.length === 1 ? { type: "Polygon", coordinates: ok[0] } : { type: "MultiPolygon", coordinates: ok }, ...eigen }] : [];
 }
 const rijenVan = (entry) => (Array.isArray(entry.rijen) && entry.rijen.length ? entry.rijen : entry.item ? [entry.item] : []);
+// Het afgeronde midden van het kader van een vorm (een plek bij benadering), of null zonder vorm.
+function middenBijBenadering(vorm) {
+  const kader = kaderVanPunten(puntenVan(vorm));
+  return kader ? [rond((kader[0] + kader[2]) / 2), rond((kader[1] + kader[3]) / 2)] : null;
+}
 
 // De vorm van een kaartje: een lijst delen { geometry, parcours, ongeveer }, of null (geen plek op de kaart).
 export function vormVoor(entry = {}, { geo = null } = {}) {
@@ -67,22 +82,26 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
     return [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }];
   }
   if (soort === "evenement") {
-    // Het hele dossier, ook buiten de gekozen plek: het parcours apart (parcours=true), de andere innames
-    // (opbouw, parkeerverboden van het evenement) eromheen. Zonder live vorm: de schets van de verversing.
-    const parcours = { lijnen: [], vlakken: [] }, ander = { lijnen: [], vlakken: [] };
+    // Het hele dossier, ook buiten de gekozen plek. Alleen het parcours staat exact (parcours=true); zonder live
+    // vorm de schets van de verversing. De andere innames (opbouw, afbraak, de parkeerverboden van het evenement)
+    // zijn zoals elk parkeerverbod en elke inname: één punt per inname, het midden van haar kader afgerond, bij
+    // benadering (privacy). Innames op hetzelfde afgeronde punt zijn één punt.
+    const parcours = { lijnen: [], vlakken: [] }, punten = new Map();
     for (const r of rijenVan(entry)) {
-      const vorm = r?.parcours || r?.vorm;
-      const doel = r?.parcours ? parcours : ander;
-      doel.lijnen.push(...(vorm?.lijnen || []));
-      doel.vlakken.push(...(vorm?.vlakken || []));
+      if (r?.parcours) {
+        parcours.lijnen.push(...(r.parcours.lijnen || []));
+        parcours.vlakken.push(...(r.parcours.vlakken || []));
+        continue;
+      }
+      const p = middenBijBenadering(r?.vorm);
+      if (p) punten.set(`${p[0]},${p[1]}`, p);
     }
-    const delen = [
-      ...vlakDeel(ander.vlakken, exact), ...lijnDeel(ander.lijnen, exact),
-      ...vlakDeel(parcours.vlakken, { ...exact, parcours: true }), ...lijnDeel(parcours.lijnen, { ...exact, parcours: true }),
-    ];
-    if (delen.length) return delen;
-    const schets = lijnDeel(Array.isArray(entry.kaart) ? entry.kaart : [], { ...exact, parcours: true });
-    return schets.length ? schets : null;
+    const lijn = { ...exact, parcours: true };
+    let delen = [...vlakDeel(parcours.vlakken, lijn), ...lijnDeel(parcours.lijnen, lijn)];
+    if (!delen.length) delen = lijnDeel(Array.isArray(entry.kaart) ? entry.kaart : [], lijn);
+    const ongeveer = [...punten.values()];
+    if (ongeveer.length) delen.push({ geometry: ongeveer.length === 1 ? { type: "Point", coordinates: ongeveer[0] } : { type: "MultiPoint", coordinates: ongeveer }, parcours: false, ongeveer: true });
+    return delen.length ? delen : null;
   }
   if (soort === "verkeer" && entry.item?.kind === "sgw") {
     // Werfzone (vlakken) en omleiding (lijnen), van alle fasen van het dossier.
@@ -95,10 +114,8 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
     // Bij benadering: het midden van het kader van de eigen vorm (de rij op de gekozen plek; een parkeerverbod
     // op drie plaatsen is één punt bij jouw plek, niet ergens ertussen), afgerond. Een terras heeft geen vorm.
     // Exact tonen zou zijn: return [...vlakDeel(vorm.vlakken, exact), ...lijnDeel(vorm.lijnen, exact)].
-    const vorm = entry.item?.vorm || rijenVan(entry).find((r) => r?.vorm)?.vorm;
-    const kader = kaderVanPunten(puntenVan(vorm));
-    if (!kader) return null;
-    return [{ geometry: { type: "Point", coordinates: [rond((kader[0] + kader[2]) / 2), rond((kader[1] + kader[3]) / 2)] }, parcours: false, ongeveer: true }];
+    const p = middenBijBenadering(entry.item?.vorm || rijenVan(entry).find((r) => r?.vorm)?.vorm);
+    return p ? [{ geometry: { type: "Point", coordinates: p }, parcours: false, ongeveer: true }] : null;
   }
   return null;
 }
@@ -112,6 +129,42 @@ function kaderVanGeometrie(g) {
 }
 const samen = (a, b) => (!a ? b : !b ? a : [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.max(a[2], b[2]), Math.max(a[3], b[3])]);
 
+// De vorm van een plek bij benadering: ONGEVEER_STRAAL meter rond het afgeronde punt, per soort een eigen vorm
+// (ONGEVEER_VORM). Alleen uit het afgeronde punt berekend: geen enkele oorspronkelijke coördinaat.
+export function ongeveerPolygoon([x, y], soort, meter = ONGEVEER_STRAAL) {
+  const dy = meter / 111320, dx = meter / (111320 * Math.cos((y * Math.PI) / 180));
+  const vorm = ONGEVEER_VORM[soort] || "ring";
+  let hoeken;
+  if (vorm === "vierkant") hoeken = [[x - dx, y - dy], [x + dx, y - dy], [x + dx, y + dy], [x - dx, y + dy]];
+  // Een ruit: een vierkant op zijn punt, iets groter, zodat ze even zwaar weegt als het vierkant.
+  else if (vorm === "ruit") hoeken = [[x, y - dy * 1.3], [x + dx * 1.3, y], [x, y + dy * 1.3], [x - dx * 1.3, y]];
+  else hoeken = Array.from({ length: 32 }, (_, i) => [x + dx * Math.cos((i * Math.PI) / 16), y + dy * Math.sin((i * Math.PI) / 16)]);
+  return { type: "Polygon", coordinates: [[...hoeken, hoeken[0]]] };
+}
+
+// De plekken bij benadering, per afgerond punt en per soort: één vorm, met de kaartjes van die soort (`uids`) en
+// alle kaartjes op dat punt, van elke soort (`samen`). Een tik op een vorm noemt ze allemaal, ook als een andere
+// vorm erover ligt (Leaflet tekent paden op elkaar; alleen het bovenste vangt de tik).
+function ongeveerGroepen(features) {
+  const perPunt = new Map();
+  const erbij = (lijst, uid) => { if (!lijst.includes(uid)) lijst.push(uid); };
+  for (const f of features) {
+    if (!f.properties.ongeveer) continue;
+    const g = f.geometry;
+    for (const p of g.type === "Point" ? [g.coordinates] : g.type === "MultiPoint" ? g.coordinates : []) {
+      const sleutel = `${p[0]},${p[1]}`;
+      if (!perPunt.has(sleutel)) perPunt.set(sleutel, { point: [p[0], p[1]], perSoort: new Map(), samen: [] });
+      const plek = perPunt.get(sleutel);
+      if (!plek.perSoort.has(f.properties.soort)) plek.perSoort.set(f.properties.soort, []);
+      erbij(plek.perSoort.get(f.properties.soort), f.properties.uid);
+      erbij(plek.samen, f.properties.uid);
+    }
+  }
+  return [...perPunt.values()].flatMap((plek) => [...plek.perSoort].map(([soort, uids]) => ({
+    point: plek.point, soort, cat: CAT[soort], vorm: ONGEVEER_VORM[soort] || "ring", uids, samen: plek.samen, geometry: ongeveerPolygoon(plek.point, soort),
+  })));
+}
+
 // Alles wat de kaart tekent. `teken`: de kaartjes (PUBLIC_AGENDA_KAART.teken); `soortVan`: telsleutel → soort
 // uit de telling van de lijst (telPerSoort), zodat kaart en legenda dezelfde soort geven; `verborgen`: de
 // soorten die de legenda uitzette (alleen de kaart, de lijst blijft volledig). Geeft:
@@ -119,7 +172,9 @@ const samen = (a, b) => (!a ? b : !b ? a : [Math.min(a[0], b[0]), Math.min(a[1],
 // - pins: de agendapunten per plek ({ point, entries, uids }), met hun eigen categorie (entry.theme);
 // - zonder: de kaartjes zonder plek op de kaart (één per telsleutel);
 // - opKaart en perSoort: hoeveel kaartjes (telsleutels) getekend zijn, in totaal en per soort;
-// - kaderVan (uid → [w, z, o, n]) en kader: voor inzoomen en markeren.
+// - kaderVan (uid → [w, z, o, n]) en kader: voor inzoomen en markeren;
+// - ongeveer: de plekken bij benadering per afgerond punt en soort ({ point, soort, cat, vorm, uids, samen,
+//   geometry }), de vormen die de kaart tekent in plaats van die punten.
 export function kaartLagen(teken = [], { geo = null, verborgen = new Set(), soortVan = null, max = MAX_PER_SOORT } = {}) {
   const uit = new Set(verborgen || []);
   const features = [], metPunt = [], zonder = [], zonderGezien = new Set();
@@ -155,7 +210,7 @@ export function kaartLagen(teken = [], { geo = null, verborgen = new Set(), soor
   const pins = groupByPoint(metPunt).map((g) => ({ point: g.point, entries: g.items, uids: [...new Set(g.items.map((e) => e.uid))] }));
   const perSoort = Object.fromEntries(Object.entries(getekend).map(([s, set]) => [s, set.size]));
   const opKaart = new Set(Object.values(getekend).flatMap((set) => [...set])).size;
-  return { fc: { type: "FeatureCollection", features }, pins, zonder, opKaart, perSoort, kaderVan, kader };
+  return { fc: { type: "FeatureCollection", features }, pins, zonder, opKaart, perSoort, kaderVan, kader, ongeveer: ongeveerGroepen(features) };
 }
 
 // De popup van een object of een pin: hoogstens POPUP_MAX kaartjes (één per telsleutel, de eerste datum), alle
@@ -172,9 +227,17 @@ export function popupHtml(entries = [], today = "") {
     const datum = e.end && e.end > e.start ? kortBereik(e.start, e.end, today) : e.start ? kortDatum(e.start, today) : "";
     return [datum, e.time ? e.time.replace(":", ".") : ""].filter(Boolean).join(" · ");
   };
+  // Bij benadering: een parkeerverbod, een losse inname of een vergunning; van een evenement de innames naast het
+  // parcours (kijk naar de delen van de vorm, niet alleen naar de soort).
+  const benadering = (e) => {
+    const delen = vormVoor(e) || [];
+    if (!isOngeveer(e) && !delen.some((d) => d.ongeveer)) return "";
+    return delen.some((d) => !d.ongeveer) ? "Het parcours exact, de andere innames bij benadering (privacy)" : "Plek bij benadering (privacy)";
+  };
   const rijen = uniek.slice(0, POPUP_MAX).map((e) => {
     const regel = [wanneer(e), e.location].filter(Boolean).map(esc).join(" · ");
-    const ongeveer = isOngeveer(e) ? `<br><small class="buurt-pop-ongeveer">Plek bij benadering (privacy)</small>` : "";
+    const tekst = benadering(e);
+    const ongeveer = tekst ? `<br><small class="buurt-pop-ongeveer">${tekst}</small>` : "";
     return `<li><strong>${esc(e.title)}</strong>${regel ? `<br><small>${regel}</small>` : ""}${ongeveer}<br><button type="button" class="buurt-open" data-open-uid="${esc(e.uid)}">Toon in de lijst</button></li>`;
   });
   const meer = uniek.length > POPUP_MAX ? `<li><small>en nog ${uniek.length - POPUP_MAX} …</small></li>` : "";
@@ -191,15 +254,31 @@ export function isTegelFout(e = {}) {
   return /https?:\/\/[^\s/]*openfreemap\.org\//i.test(String(e?.error?.message || ""));
 }
 
+// Mag de vectorkaart? Niet met ?kaart=leaflet (`kaart`), niet met databesparing, niet op een trage verbinding (de
+// browser schat ze lager dan "4g": stijl, MapLibre van 1 MB, tilejson, tegels en letters halen de wachttijd daar
+// niet, en dan downloadt de bewoner beide kaarten) en niet zonder WebGL. `verbinding`: navigator.connection (bestaat
+// niet in elke browser; dan telt alleen WebGL). `webgl()` maakt een proefcanvas: pas als de rest het toelaat.
+export function magVectorKaart({ kaart = "", verbinding = null, webgl = () => false } = {}) {
+  if (kaart === "leaflet") return false;
+  if (verbinding?.saveData) return false;
+  if (verbinding?.effectiveType && verbinding.effectiveType !== "4g") return false;
+  return Boolean(webgl());
+}
+
 // Welke kaart: eerst de vectorkaart (als dat mag), met een wachttijd; lukt die niet of duurt ze te lang, dan de
-// basiskaart (Leaflet). `vector(signal)` en `basis()` geven een belofte van een kaart. Komt de vectorkaart na de
-// wachttijd toch nog, dan ruimen we ze op (verwijder) en blijft de basiskaart. Faalt ook de basis, dan faalt dit.
-export async function kiesKaart({ magVector = false, vector = null, basis, wachttijd = 8000 } = {}) {
+// basiskaart (Leaflet). `vector(signal, { bijnaKlaar })` en `basis()` geven een belofte van een kaart. Komt de
+// vectorkaart na de wachttijd toch nog, dan ruimen we ze op (verwijder) en blijft de basiskaart. Faalt ook de basis,
+// dan faalt dit. `bijnaKlaar()`: de eerste tegel is binnen. Een kaart die zo ver is, gooien we niet op de klok weg
+// terwijl ze haar letters en de rest van de tegels haalt: ze krijgt één keer nog `nawacht` ms.
+export async function kiesKaart({ magVector = false, vector = null, basis, wachttijd = 8000, nawacht = wachttijd } = {}) {
   if (magVector && typeof vector === "function") {
     const ctrl = new AbortController();
-    let klok = null;
-    const poging = Promise.resolve().then(() => vector(ctrl.signal));
-    const teLaat = new Promise((_, weiger) => { klok = setTimeout(() => weiger(new Error(`vectorkaart niet klaar na ${wachttijd} ms`)), wachttijd); });
+    let klok = null, weiger = null, verlengd = false;
+    const teLaat = new Promise((_, nee) => { weiger = nee; });
+    const zetKlok = (ms) => { clearTimeout(klok); klok = setTimeout(() => weiger(new Error(`vectorkaart niet klaar na ${ms} ms`)), ms); };
+    const bijnaKlaar = () => { if (!verlengd && !ctrl.signal.aborted) { verlengd = true; zetKlok(nawacht); } };
+    zetKlok(wachttijd);
+    const poging = Promise.resolve().then(() => vector(ctrl.signal, { bijnaKlaar }));
     try {
       return await Promise.race([poging, teLaat]);
     } catch {
