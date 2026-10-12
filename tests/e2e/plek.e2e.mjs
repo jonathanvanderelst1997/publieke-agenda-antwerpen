@@ -658,8 +658,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   // Een verzonnen agendapunt vandaag in de straat; het nagebootste werk begint pas over 9 dagen en GIPOD meldt
   // geen hinder: het licht is dus "Let op", met het evenement van vandaag in de zin.
   const WEEK_MET_FEEST = /^Let op\s+De komende 7 dagen in jouw straat: (.*, |.* en )?\d+ evenement(en)? \((eerste )?vandaag\)/;
-  // Hoeveel er in de lijst staat: de aantallen naast de koppen van de secties (ook wat achter "Toon alle N"
-  // zit), niet wat "later gepland" is. Een lege lijst heeft geen secties: 0.
+  // Hoeveel er in de lijst staat: de aantallen naast de koppen van de secties (elke sectie toont al haar kaartjes),
+  // niet wat "later gepland" is. Een lege lijst heeft geen secties: 0.
   const inSecties = (page) => page.locator(".pv-results .pv-day-n").evaluateAll((els) => els.reduce((n, el) => n + Number(el.textContent), 0));
   const plekQuery = `?plek=${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
   await t.test("gsm (390×844): straat, 'De komende 7 dagen' met het verwachte licht en de tegels staan boven 600 px; chips tellen de kaarten", async () => {
@@ -704,19 +704,32 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     let x = await inSecties(page);
     assert.equal(x, 1);
     assert.ok(Number((await page.locator(".pv-sub").innerText()).match(/^(\d+) item/)?.[1]) > x, "de plek telt meer dan de tijdlijn toont");
+    // Nakijkbevinding: de zin gaf alleen de 14 dagen als reden; ook de aanvraag staat er niet in, en dat zegt ze nu.
+    const ZONDER = "zonder vergunningen en terrassen; kies “Lijst” voor alles.";
+    assert.equal(await page.locator(".pv-sub").innerText(), `2 items uit officiële bronnen. De tijdlijn toont alleen de komende 14 dagen, ${ZONDER}`);
     await wachtOpLijst(page, x);
     // Een dag zonder iets: 0 in de lijst. De startdag van het werk: weer het werk.
     await page.click(`[data-tl-dag="${today}"]`);
     assert.equal(await inSecties(page), 0);
+    assert.match(await page.locator(".pv-sub").innerText(), new RegExp(`^2 items uit officiële bronnen\\. De tijdlijn toont alleen \\S+ ${Number(today.slice(8))} \\S+, ${ZONDER}$`));
     await wachtOpLijst(page, 0);
     await page.click(`[data-tl-dag="${addDays(today, 9)}"]`);
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
     await wachtOpLijst(page, await inSecties(page));
-    // De maand heeft geen lijst: geen "in de lijst".
+    // De maand heeft geen lijst: geen "in de lijst". De zin zegt waarom het dagpaneel minder toont dan het getal.
     await page.click('[data-mode="maand"]');
     await page.waitForFunction(() => /^\d+ agendapunten? op de kaart in Peterseliestraat/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 10000 });
     assert.doesNotMatch(await page.locator(".buurt-status").textContent(), /in de lijst/);
-    // De lijst over 30 dagen: het werk en de aanvraag. Over 7 dagen staat het werk bij "later gepland".
+    assert.equal(await page.locator(".pv-sub").innerText(), `2 items uit officiële bronnen. De maand toont per dag wat er gebeurt, ${ZONDER}`);
+    // Wat "Deel" meestuurt, zegt hetzelfde (de weergave staat in de link).
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    await page.evaluate(() => { navigator.share = (data) => { window.__gedeeld = data; return Promise.resolve(); }; });
+    await page.locator(".pv-share").click();
+    const gedeeld = await page.evaluate(() => window.__gedeeld);
+    assert.match(gedeeld.text, new RegExp(`^Peterseliestraat: 2 items uit officiële bronnen op de publieke agenda\\. De maand toont per dag wat er gebeurt, ${ZONDER.replace(/[.()]/g, "\\$&")} `));
+    assert.equal(new URL(gedeeld.url).searchParams.get("weergave"), "maand");
+    // De lijst (standaard periode "alles" in een straat): het werk en de aanvraag. Over 7 dagen staat het werk bij
+    // "later gepland".
     await page.click('[data-mode="lijst"]');
     x = await inSecties(page);
     assert.equal(x, 2);
@@ -770,21 +783,253 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: reeks, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
     await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
-    // Wat er echt staat: de kaarten in de lijst (niets zit achter "Toon alle N").
+    // Wat er echt staat: de kaarten in de lijst (geen grens per sectie, niets wacht op "Toon de volgende N").
     const kaarten = () => page.locator(".pv-results .pv-row").count();
     assert.equal(await page.locator('.pv-results .pv-row[data-uid^="agenda:e2e-reeks-"]').count(), 2, "de activiteit staat er op twee dagen");
-    assert.equal(await page.locator(".pv-more-rows").count(), 0);
+    assert.equal(await page.locator(".pv-laad-meer").count(), 0);
     // De tijdlijn: het werk en de activiteit op twee dagen.
     assert.equal(await kaarten(), 3);
     assert.equal(await inSecties(page), 3);
     await wachtOpLijst(page, 3);
-    // De lijst over 30 dagen: ook de aanvraag.
+    // De lijst (standaard alles): ook de aanvraag.
     await page.click('[data-mode="lijst"]');
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
-    assert.equal(await page.locator(".pv-more-rows").count(), 0);
+    assert.equal(await page.locator(".pv-laad-meer").count(), 0);
     assert.equal(await kaarten(), 4);
     assert.equal(await inSecties(page), 4);
     await wachtOpLijst(page, 4);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Wens van 12 oktober 2026 ("de publieke agenda, bij de straat zelf moet niet beperkt zijn, gewoon alle data die je
+  // hebt"): wie een straat kiest, ziet standaard alles. Verzonnen feed in de Peterseliestraat: 20 activiteiten op één dag
+  // (meer dan de oude grens van 12 per sectie) en één over 200 dagen (buiten de oude standaard van 30 dagen), plus het
+  // nagebootste werk en de verzonnen aanvraag: 23 kaartjes.
+  const OP_EEN_DAG = 20;
+  const drukkeDag = addDays(today, 3), verWeg = addDays(today, 200);
+  const inPeterselie = { location: `${PETERSELIE.name}, ${PETERSELIE.postcode} Antwerpen`, postcodes: [PETERSELIE.postcode] };
+  const DRUKKE_FEED = proefFeed(today, (stempel) => [
+    ...Array.from({ length: OP_EEN_DAG }, (_, i) => kalenderItem(stempel, {
+      id: `e2e-druk-${i + 1}`, externalId: `e2e-druk-${i + 1}`, title: `Proefworkshop ${i + 1} voor buren (e2e)`, date: drukkeDag,
+      timeSlot: `${String(8 + (i % 12)).padStart(2, "0")}:00`, dateLabel: dagTekst(drukkeDag), ...inPeterselie,
+    })),
+    kalenderItem(stempel, { id: "e2e-ver-weg", externalId: "e2e-ver-weg", title: "Proefbuurtfeest ver vooruit (e2e)", date: verWeg, timeSlot: "15:00", dateLabel: dagTekst(verWeg), ...inPeterselie }),
+  ]);
+  const DRUKKE_TOTAAL = OP_EEN_DAG + 1 + 2;
+  const periodeInUrl = (page) => page.evaluate(() => new URL(location.href).searchParams.get("periode"));
+  const wachtOpLagen = async (page) => {
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
+  };
+  await t.test("alles standaard: alle soorten aan, periode Alles, >12 op één dag en wat over 200 dagen komt staan er allemaal", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: DRUKKE_FEED, query: "?plek=Peterseliestraat" });
+    await wachtOpLagen(page);
+    // Alle soorten aan, ook raad, inspraak, markten, werken en vergunningen; de URL zegt niets over soort of periode.
+    const chips = await page.locator('.pv-groups [data-group]:not([data-group="*"])').evaluateAll((els) => els.map((b) => [b.dataset.group, b.getAttribute("aria-pressed")]));
+    assert.deepEqual(chips, ["evenementen", "werken", "inspraak", "markten", "raad", "vergunningen"].map((k) => [k, "true"]));
+    assert.equal(await page.locator('[data-period="alles"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await page.locator('.pv-periods [aria-pressed="true"]').count(), 1);
+    assert.equal(await periodeInUrl(page), null);
+    assert.equal(await page.evaluate(() => new URL(location.href).searchParams.has("soort")), false);
+    // De drukke dag: alle 20, zonder "Toon alle 20"; het buurtfeest over 200 dagen staat in de lijst (niet "later gepland").
+    const dag = page.locator(`.pv-results section[data-sectie="d:${drukkeDag}"]`);
+    assert.equal(await dag.locator(".pv-day-n").innerText(), String(OP_EEN_DAG));
+    assert.equal(await dag.locator(".pv-row").count(), OP_EEN_DAG);
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-ver-weg"]').count(), 1);
+    assert.equal(await page.locator(".pv-later, .pv-laad-meer, [data-expand]").count(), 0);
+    assert.equal(await page.locator(".pv-results").getByText(/^Toon alle \d+$/).count(), 0);
+    // Het getal boven de lijst, de lijst zelf en "X in de lijst" onder de kaart zijn hetzelfde: alles.
+    assert.equal(await page.locator(".pv-sub").innerText(), `${DRUKKE_TOTAAL} items uit officiële bronnen.`);
+    assert.equal(await page.locator(".pv-results .pv-row").count(), DRUKKE_TOTAAL);
+    assert.equal(await inSecties(page), DRUKKE_TOTAAL);
+    await wachtOpLijst(page, DRUKKE_TOTAAL);
+    // De deeltekst zegt hoeveel er staat, met de link naar alles (geen periode).
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    assert.equal(await page.evaluate(() => matchMedia("(pointer: coarse)").matches), true, "een gsm deelt met navigator.share");
+    await page.evaluate(() => { navigator.share = (data) => { window.__gedeeld = data; return Promise.resolve(); }; });
+    await page.locator(".pv-share").click();
+    const gedeeld = await page.evaluate(() => window.__gedeeld);
+    assert.match(gedeeld.text, new RegExp(`^Peterseliestraat: ${DRUKKE_TOTAAL} items uit officiële bronnen op de publieke agenda\\. De komende 7 dagen in jouw straat: `));
+    assert.equal(new URL(gedeeld.url).searchParams.get("periode"), null);
+    // Beperken blijft werken: 7 dagen toont het buurtfeest niet meer, het getal zegt waarom; "Alles" zet het terug.
+    await page.click('[data-period="week"]');
+    assert.equal(await periodeInUrl(page), "week");
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-ver-weg"]').count(), 0);
+    assert.match(await page.locator(".pv-sub").innerText(), new RegExp(`^${DRUKKE_TOTAAL} items uit officiële bronnen\\. De lijst toont alleen de komende 7 dagen; kies “Alles” voor de rest\\.$`));
+    await page.click('[data-period="alles"]');
+    assert.equal(await periodeInUrl(page), null);
+    assert.equal(await page.locator(".pv-sub").innerText(), `${DRUKKE_TOTAAL} items uit officiële bronnen.`);
+    // Een soort uit en weer aan: de knoppen blijven werken, "alles" is alleen de vertrekstand.
+    await page.click('.pv-groups [data-group="werken"]');
+    assert.equal(await page.evaluate(() => new URL(location.href).searchParams.get("soort")), "evenementen,inspraak,markten,raad,vergunningen");
+    assert.equal(await page.locator(`.pv-results ${WORK_ROW}`).count(), 0);
+    await page.click('.pv-groups [data-group="werken"]');
+    assert.equal(await page.evaluate(() => new URL(location.href).searchParams.has("soort")), false);
+    assert.equal(await page.locator(`.pv-results ${WORK_ROW}`).count(), 1);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("een oude link met ?periode=maand werkt nog: 30 dagen, de rest bij 'later gepland', en blijft in de link", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: DRUKKE_FEED, query: "?plek=Peterseliestraat&periode=maand" });
+    await wachtOpLagen(page);
+    assert.equal(await page.locator('[data-period="maand"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await periodeInUrl(page), "maand");
+    // Binnen 30 dagen: alle 20 op de drukke dag (geen grens per sectie); het buurtfeest staat bij "later gepland".
+    assert.equal(await page.locator(`.pv-results section[data-sectie="d:${drukkeDag}"] .pv-row`).count(), OP_EEN_DAG);
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-ver-weg"]').count(), 0);
+    assert.match(await page.locator(".pv-later").innerText(), /^1 item later gepland/);
+    assert.equal(await page.locator(".pv-sub").innerText(), `${DRUKKE_TOTAAL} items uit officiële bronnen. De lijst toont alleen de komende 30 dagen; kies “Alles” voor de rest.`);
+    await wachtOpLijst(page, DRUKKE_TOTAAL - 1);
+    // "Later gepland" toont alles: de periode gaat naar "Alles" en uit de link.
+    await page.locator(".pv-later").click();
+    assert.equal(await page.locator('[data-period="alles"]').getAttribute("aria-pressed"), "true");
+    assert.equal(await periodeInUrl(page), null);
+    assert.equal(await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-ver-weg"]').count(), 1);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Een heel lange lijst (een wijk of postcode met de lagen van het hele district: 2.435 items voor 2000 op de echte
+  // feed van 12 oktober 2026) tekent per 150 kaartjes en laadt de volgende vanzelf bij het scrollen. Verzonnen: 200
+  // activiteiten in de Peterseliestraat (5 per dag over 40 dagen), plus het werk en de aanvraag: 202 kaartjes.
+  const LANG = 200;
+  const LANGE_FEED = proefFeed(today, (stempel) => Array.from({ length: LANG }, (_, i) => kalenderItem(stempel, {
+    id: `e2e-lang-${i + 1}`, externalId: `e2e-lang-${i + 1}`, title: `Proefatelier ${i + 1} (e2e)`, date: addDays(today, 1 + Math.floor(i / 5)),
+    timeSlot: `${String(9 + (i % 5)).padStart(2, "0")}:00`, dateLabel: dagTekst(addDays(today, 1 + Math.floor(i / 5))), ...inPeterselie,
+  })));
+  await t.test("een lijst van meer dan 150: de eerste 150 meteen, de rest vanzelf bij het scrollen; het getal is altijd alles", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LANGE_FEED, query: "?plek=Peterseliestraat" });
+    await wachtOpLagen(page);
+    assert.equal(await page.locator(".pv-results .pv-row").count(), 150);
+    assert.equal(await page.locator(".pv-laad-meer").innerText(), `Toon de volgende ${LANG + 2 - 150} (nog ${LANG + 2 - 150} in deze lijst)`);
+    assert.equal(await page.locator(".pv-sub").innerText(), `${LANG + 2} items uit officiële bronnen.`);
+    await wachtOpLijst(page, LANG + 2);
+    // Naar beneden scrollen zoals een bewoner (een scherm per keer): de rest komt vanzelf, en de knop verdwijnt.
+    const rijen = () => page.locator(".pv-results .pv-row").count();
+    for (let i = 0; i < 80 && await rijen() < LANG + 2; i += 1) { await page.mouse.wheel(0, 700); await page.waitForTimeout(50); }
+    await page.waitForFunction((n) => document.querySelectorAll(".pv-results .pv-row").length === n, LANG + 2, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-laad-meer").count(), 0);
+    assert.equal(await inSecties(page), LANG + 2);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("een lijst van meer dan 150 met het toetsenbord, en een kaartje verder in de lijst openen (van de kaart of een link)", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LANGE_FEED, width: 1280, height: 900, query: "?plek=Peterseliestraat" });
+    await wachtOpLagen(page);
+    assert.equal(await page.locator(".pv-results .pv-row").count(), 150);
+    // De knop met het toetsenbord (zonder scrollen, anders laadt hij al vanzelf): de volgende stap, en de focus op het
+    // eerste kaartje dat erbij kwam.
+    await page.evaluate(() => document.querySelector(".pv-laad-meer").focus({ preventScroll: true }));
+    await page.keyboard.press("Enter");
+    assert.equal(await page.locator(".pv-results .pv-row").count(), LANG + 2);
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll(".pv-results .pv-row")].indexOf(document.activeElement.closest(".pv-row"))), 150);
+    // Opnieuw bovenaan (een andere periode en terug): weer 150.
+    const bovenaan = async () => {
+      await page.click('[data-period="kwartaal"]');
+      await page.click('[data-period="alles"]');
+      assert.equal(await page.locator(".pv-results .pv-row").count(), 150);
+    };
+    await bovenaan();
+    // Met Tab naar de knop: ze komt in beeld en laadt vanzelf; de focus gaat mee naar het eerste kaartje dat erbij kwam.
+    await page.locator(".pv-laad-meer").focus();
+    await page.waitForFunction((n) => document.querySelectorAll(".pv-results .pv-row").length === n, LANG + 2, { timeout: 5000 });
+    assert.equal(await page.evaluate(() => [...document.querySelectorAll(".pv-results .pv-row")].indexOf(document.activeElement.closest(".pv-row"))), 150);
+    // Een kaartje verder openen (zoals de kaart doet): het staat er, open, ook al zat het voorbij de stap.
+    await bovenaan();
+    await page.evaluate(() => window.PUBLIC_AGENDA_OPEN("e2e-lang-199"));
+    const rij = page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-199"]');
+    assert.equal(await rij.count(), 1);
+    assert.equal(await rij.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
+    // Alleen die ene keer: daarna begint de lijst weer met 150, ook al staat dat kaartje nog open.
+    await bovenaan();
+    assert.equal(await rij.count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding: een kaartje dat ooit openging, bleef de hele sessie de lijst meetrekken (state.open). Een open
+  // terras in een straat liet daarna in postcode 2000 meteen 2.090 kaartjes tekenen in plaats van 150. Alleen wat
+  // de kaart of een link opent, staat er altijd (en alleen bij die tekenbeurt).
+  await t.test("een kaartje dat een bewoner openklapte, trekt de lijst niet mee: dezelfde plek of een postcode begint weer met 150", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LANGE_FEED, width: 1280, height: 900, query: "?plek=Peterseliestraat" });
+    await wachtOpLagen(page);
+    const rijen = () => page.locator(".pv-results .pv-row").count();
+    await page.evaluate(() => document.querySelector(".pv-laad-meer").click());
+    assert.equal(await rijen(), LANG + 2);
+    const ver = page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-199"]');
+    await ver.locator(".pv-row-btn").click();
+    assert.equal(await ver.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
+    // Dezelfde straat, een andere periode en terug: 150, en het open kaartje (plaats 200) staat er niet.
+    await page.click('[data-period="kwartaal"]');
+    await page.click('[data-period="alles"]');
+    assert.equal(await rijen(), 150);
+    assert.equal(await ver.count(), 0);
+    // Weer tot daar en open laten staan; dan postcode 2000 kiezen, zoals een bewoner (typen en Enter).
+    await page.evaluate(() => document.querySelector(".pv-laad-meer").click());
+    assert.equal(await ver.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
+    await page.locator("#agenda-street-jump").fill("2000");
+    await page.locator("#pv-suggestions [role=option]").first().waitFor();
+    await page.locator("#agenda-street-jump").press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "2000", null, { timeout: 10000 });
+    await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {}).permits), null, { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const telling = Number((await page.locator(".pv-sub").innerText()).match(/^(\d+) items/)?.[1]);
+    assert.ok(telling > 150, `postcode 2000 heeft meer dan 150 kaartjes (${telling})`);
+    assert.equal(await rijen(), 150);
+    assert.equal(await ver.count(), 0);
+    assert.match(await page.locator(".pv-laad-meer").innerText(), new RegExp(`^Toon de volgende \\d+ \\(nog ${telling - 150} in deze lijst\\)$`));
+    // Wie verder scrolt, vindt het kaartje nog open terug.
+    await page.evaluate(() => document.querySelector(".pv-laad-meer").click());
+    assert.equal(await ver.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding (gsm): "Toon op de kaart" scrolt naar de kaart onder de lijst. De knop "Toon de volgende" stond dan
+  // net boven de kaart, de kijker tekende de volgende stap, en die schoof de kaart duizenden pixels uit beeld (in
+  // postcode 2000: 28.500 px). En elke stap tekende de hele pagina opnieuw, met de kaart erbij.
+  await t.test("gsm, een lijst van meer dan 150: 'Toon op de kaart' brengt de kaart in beeld; de volgende stap voegt alleen toe", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LANGE_FEED, query: "?plek=Peterseliestraat" });
+    await wachtOpLagen(page);
+    await wachtOpLijst(page, LANG + 2);
+    const rijen = () => page.locator(".pv-results .pv-row").count();
+    assert.equal(await rijen(), 150);
+    const eerste = page.locator(".pv-results .pv-row").first();
+    await eerste.locator(".pv-row-btn").click();
+    await eerste.locator(".pv-op-kaart").click();
+    const kaartStand = () => page.evaluate(() => {
+      const r = document.querySelector("#buurtkaart .buurt-map").getBoundingClientRect();
+      return { inBeeld: r.top < innerHeight && r.bottom > 0, top: Math.round(r.top), rijen: document.querySelectorAll(".pv-results .pv-row").length, focus: document.activeElement?.classList.contains("buurt-map") };
+    });
+    // Een paar keer kijken (de kijker meldt zich een frame later): de kaart blijft in beeld, met de focus, en de lijst
+    // blijft 150; de knop staat er nog als gewone knop.
+    for (let i = 0; i < 4; i += 1) {
+      await page.waitForTimeout(400);
+      const m = await kaartStand();
+      assert.deepEqual({ inBeeld: m.inBeeld, rijen: m.rijen, focus: m.focus }, { inBeeld: true, rijen: 150, focus: true }, `na ${(i + 1) * 400} ms: ${JSON.stringify(m)}`);
+    }
+    assert.equal(await page.locator(".pv-laad-meer").count(), 1);
+    // Wat niet verandert, gaat niet opnieuw naar de kaart: een andere periode toont dezelfde plek (de kaart toont
+    // altijd alles), een soort uit wel.
+    await page.evaluate(() => { window.__kaartItems = 0; window.addEventListener("public-agenda:kaart-items", () => { window.__kaartItems += 1; }); });
+    // De volgende stap: alleen de nieuwe kaartjes erbij. Het eerste kaartje is hetzelfde element en staat nog open.
+    await page.evaluate(() => { window.__eerste = document.querySelector(".pv-results .pv-row"); document.querySelector(".pv-laad-meer").click(); });
+    assert.equal(await rijen(), LANG + 2);
+    assert.equal(await page.locator(".pv-laad-meer").count(), 0);
+    assert.equal(await page.evaluate(() => document.querySelector(".pv-results .pv-row") === window.__eerste), true, "het eerste kaartje is niet opnieuw getekend");
+    assert.equal(await eerste.locator(".pv-row-btn").getAttribute("aria-expanded"), "true");
+    assert.equal(await inSecties(page), LANG + 2);
+    await wachtOpLijst(page, LANG + 2);
+    await page.click('[data-period="kwartaal"]');
+    await page.click('[data-period="alles"]');
+    assert.equal(await rijen(), 150);
+    assert.equal(await page.evaluate(() => window.__kaartItems), 0, "een andere periode stuurt de kaart niets nieuws");
+    await page.click('.pv-groups [data-group="vergunningen"]');
+    assert.ok(await page.evaluate(() => window.__kaartItems) > 0, "een soort uit: de kaart tekent opnieuw");
     assert.deepEqual(errors, []);
     await context.close();
   });

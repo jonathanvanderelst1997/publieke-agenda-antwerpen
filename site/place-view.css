@@ -253,10 +253,13 @@
 .pv-progress { margin: 14px 0 0; height: 8px; border-radius: 999px; background: var(--cat-soft, var(--pa-surface-2)); overflow: hidden; }
 .pv-progress span { display: block; height: 100%; background: var(--cat, var(--pa-accent)); border-radius: inherit; }
 .pv-progress-text { font-size: .82rem !important; color: var(--pa-muted) !important; margin-top: 6px !important; }
-.pv-more-rows, .pv-later {
+/* "Toon de volgende N": alleen onder een heel lange lijst (een wijk of postcode); laadt ook vanzelf bij het scrollen. */
+.pv-laad-meer, .pv-later {
   margin-top: 8px; width: 100%; min-height: 44px; border-radius: 12px; border: 1px dashed var(--pa-line-strong);
   background: var(--pa-surface-2); color: var(--pa-ink-strong); font-weight: 700; cursor: pointer; font-size: .9rem;
 }
+.pv-laad-meer { margin: 0 0 18px; padding: 10px; }
+.pv-laad-meer span { font-weight: 500; color: var(--pa-muted); }
 .pv-later { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px; margin: 0 0 18px; }
 .pv-later span { font-weight: 500; color: var(--pa-muted); font-size: .85rem; }
 .pv-markets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }

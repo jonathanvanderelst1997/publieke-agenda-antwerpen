@@ -94,13 +94,23 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
 - Een plek kiezen toont één overzicht van alles daar: komende evenementen, lopende en geplande werken (GIPOD),
   parkeerverboden en innames (A-Sign), inspraak en infomomenten, markten en vergunningen. Bovenaan staan de
   aantallen; bij een straat kies je ook de straal (alleen de straat, + 250 m, + 500 m, + 1 km).
-- Lijst, week of maand. De lijst toont "Nu bezig" en dan per dag binnen 7 dagen, 30 dagen, 3 maanden of alles.
-  Staat er een werk bij dat GIPOD nog niet "in uitvoering" meldt ("Periode loopt"), dan heet die kop "Loopt nu".
-  In de week- en maandkalender lopen meerdaagse werken als balk over hun periode. Details openen inline.
+- Lijst, 14 dagen (tijdlijn) of maand. De lijst toont "Nu bezig" en dan per dag binnen 7 dagen, 30 dagen, 3 maanden
+  of alles. Staat er een werk bij dat GIPOD nog niet "in uitvoering" meldt ("Periode loopt"), dan heet die kop
+  "Loopt nu". In de maandkalender lopen meerdaagse werken als balk over hun periode. Details openen inline.
+- Een plek toont standaard alles wat de site erover heeft (wens van 12 oktober 2026): periode "Alles" (zonder einde),
+  alle soorten aan en geen grens per sectie. Alleen een heel lange lijst (meer dan 150 kaartjes, zoals een postcode)
+  tekent per 150 en laadt de volgende vanzelf bij het naar beneden scrollen (elke stap voegt alleen de nieuwe kaartjes
+  toe; staat de knop boven of bovenaan het beeld, zoals na "Toon op de kaart" op een gsm, dan is het een gewone knop);
+  een straat staat er altijd meteen volledig (de drukste straat had er 69 op 12 oktober 2026). De knoppen beperken nog
+  altijd; het getal boven de lijst blijft dan alles en zegt erbij wat de lijst toont, ook in de tijdlijn en de maand
+  (die tonen geen vergunningen en terrassen). Zonder plek (het hele district) blijft het de komende 30 dagen en de
+  evenementen. De kaart tekent met een plek ook alles; alleen zonder plek houdt ze 600 per soort.
 - Eén rij soortchips (evenementen, werken & verkeer, inspraak & info, markten, raad, vergunningen) vervangt de
   losse keuzelijsten. De volledige lijsten per laag, district/stad en de bronstatus staan ingeklapt onderaan.
 - Deelbaar: `?plek=Kammenstraat`, `?plek=Zurenborg`, `?plek=2060` (met `&straal=500`, `&soort=…`,
-  `&periode=…`, `&weergave=maand`). Oude links met `straat=` en `wijk=` werken nog.
+  `&periode=…`, `&weergave=maand`). Alleen wat afwijkt van de vertrekstand staat in de link: met een plek dus geen
+  `periode` voor "Alles", wel `&periode=maand` voor 30 dagen. Oude links met `straat=`, `wijk=` en `&periode=maand`
+  werken nog.
 - "Mijn buurt" vraagt de locatie van het toestel en zoekt er de straat of wijk bij; die locatie verlaat de
   browser niet.
 - Toetsen: `npm test` (zoeken, normaliseren, plekfilter, kalenderbalken) en `npm run test:e2e` (Playwright met

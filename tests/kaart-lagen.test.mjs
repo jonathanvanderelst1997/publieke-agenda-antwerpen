@@ -13,7 +13,7 @@ import {
   KAART_SOORTEN, agendaEntry, kaartSoort, lijstAantal, lijstSleutel, lijstUniversum, marktBundelEntry, permitEntry, publicSpaceEntries,
   telPerSoort, terrasEntries, werkEntries,
 } from "../site/place-core.js";
-import { ONGEVEER_DECIMALEN, ONGEVEER_VORM, isTegelFout, kaartLagen, kiesKaart, magVectorKaart, ongeveerPolygoon, popupHtml, vormVoor } from "../site/kaart-lagen.js";
+import { MAX_PER_SOORT, ONGEVEER_DECIMALEN, ONGEVEER_VORM, isTegelFout, kaartLagen, kaartMax, kiesKaart, magVectorKaart, ongeveerPolygoon, popupHtml, vormVoor } from "../site/kaart-lagen.js";
 import { LEAFLET_DIR, LEAFLET_PREFIX, MAPLIBRE_PREFIX, MAPLIBRE_SRI, kaartAntwoord, sri } from "./helpers/kaart-fixture.mjs";
 import { MAPLIBRE, STIJL, eigenLagen } from "../site/kaart-vector.js";
 
@@ -321,6 +321,26 @@ test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max e
   assert.equal(twee.perSoort.werken, 2);
 });
 
+// Wens van 12 oktober 2026 ("bij de straat zelf ... gewoon alle data die je hebt"): met een gekozen plek tekent de
+// kaart alles van die plek. Alleen het hele district zonder plek houdt MAX_PER_SOORT. Meting op de echte feed: de
+// drukste straat had hoogstens 45 kaartjes van één soort, postcode 2000 met het hele district 1.232 vergunningen.
+test("kaartMax: met een plek geen grens per soort, zonder plek MAX_PER_SOORT", () => {
+  assert.equal(MAX_PER_SOORT, 600);
+  assert.equal(kaartMax(true), Infinity);
+  assert.equal(kaartMax(false), MAX_PER_SOORT);
+  assert.equal(kaartMax(), MAX_PER_SOORT);
+  const n = MAX_PER_SOORT + 50;
+  // Een eigen titel per werk, in letters (cijfers in de titel tellen niet: dan zou het één werf in stukken zijn).
+  const letters = (i) => `${"abcdefghijklmnopqrstuvwxyz"[Math.floor(i / 26)]}${"abcdefghijklmnopqrstuvwxyz"[i % 26]}`;
+  const werken = werkEntries(Array.from({ length: n }, (_, i) => ({ ...werkStuk(90100000 + i, [4.40 + (i % 100) * 0.0001, 51.20 + Math.floor(i / 100) * 0.0001]), title: `Proefwerk ${letters(i)}` })), { vandaag: VANDAAG });
+  assert.equal(werken.length, n, "elk verzonnen werk is een eigen kaart");
+  const metPlek = kaartLagen(werken, { max: kaartMax(true) });
+  assert.equal(metPlek.perSoort.werken, n, "met een plek: alles op de kaart");
+  assert.equal(metPlek.opKaart, n);
+  const district = kaartLagen(werken, { max: kaartMax(false) });
+  assert.equal(district.perSoort.werken, MAX_PER_SOORT, "zonder plek: de grens van het district");
+});
+
 // Nakijkbevindingen (P9-review, toegankelijkheid): (1) een parkeerverbod of losse inname bij benadering kreeg
 // dezelfde ring als een vergunning, alleen de kleur verschilde; (2) kaartjes bij benadering op hetzelfde afgeronde
 // punt lagen op Leaflet als identieke paden op elkaar: alleen het bovenste was aan te tikken.
@@ -482,7 +502,7 @@ test("kaart-lagen.js raakt geen DOM aan en importeert in Node", async () => {
   const bron = fs.readFileSync(new URL("../site/kaart-lagen.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
   assert.doesNotMatch(bron, /\b(document|window)\./);
   const mod = await import("../site/kaart-lagen.js");
-  assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "ONGEVEER_STRAAL", "ONGEVEER_VORM", "isTegelFout", "kaartLagen", "kiesKaart", "magVectorKaart", "ongeveerPolygoon", "popupHtml", "vormVoor"]);
+  assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "ONGEVEER_STRAAL", "ONGEVEER_VORM", "isTegelFout", "kaartLagen", "kaartMax", "kiesKaart", "magVectorKaart", "ongeveerPolygoon", "popupHtml", "vormVoor"]);
 });
 
 // ---- stap 8: de vectorkaart (site/kaart-vector.js) ----
