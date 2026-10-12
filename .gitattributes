@@ -1,0 +1,3 @@
+# Kaartbibliotheken voor de e2e-toetsen, byte-exact zoals op cdnjs (sha512 = de SRI in site/neighborhood-map.js,
+# tests/kaart-lagen.test.mjs): git zet er nooit regeleinden in om en toont er geen diff van (ze hebben CRLF).
+tests/fixtures/kaart/** binary

@@ -22,7 +22,8 @@ import {
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
 
-const LEAFLET = Object.freeze({
+// Ook voor de toetsen: de e2e serveren Leaflet byte-exact uit tests/fixtures/kaart/ (tests/helpers/kaart-fixture.mjs).
+export const LEAFLET = Object.freeze({
   css: { href: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css", integrity: "sha512-Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==" },
   js: { src: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js", integrity: "sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==" },
 });
