@@ -61,3 +61,16 @@ test("werken die nog laden of uit staan: geen getal voor de werken", () => {
   assert.equal(zin(stukken, kaarten, { mapped: 2, werkenGeladen: false, lijstAantal: 5, without: 1 }), "5 in de lijst, 2 op de kaart in Proeflaan · werken en hinder worden geladen… · 1 zonder vaste plek.");
   assert.equal(zin(stukken, kaarten, { mapped: 2, werkenAan: false, lijstAantal: 5, without: 1 }), "5 in de lijst, 2 op de kaart in Proeflaan · 1 zonder vaste plek.");
 });
+
+// P9: de buurtkaart geeft mee wat ze per soort tekende (kaartLagen in site/kaart-lagen.js). "Op de kaart" telt
+// dan elk getekend kaartje van de lijst, ook evenementen op straat, maatregelen en vergunningen.
+test("P9: met de telling van de kaart telt 'op de kaart' alle getekende kaartjes; de maand noemt ze per soort", () => {
+  const basis = { where: "Proeflaan", werkenAan: true, werkenGeladen: true, metPlek: true };
+  assert.equal(kaartStatusZin({ ...basis, mapped: 2, werkenGetekend: 3, ander: 2, opKaart: 7, lijstAantal: 9 }), "9 in de lijst, 7 op de kaart in Proeflaan.");
+  assert.equal(kaartStatusZin({ ...basis, mapped: 2, werkenGetekend: 3, ander: 2, opKaart: 7, lijstAantal: null, without: 2 }), "2 agendapunten op de kaart in Proeflaan · 3 werken en hinder · 2 evenementen en vergunningen · 2 zonder vaste plek.");
+  assert.equal(kaartStatusZin({ ...basis, mapped: 1, werkenGetekend: 0, ander: 1, opKaart: 2, lijstAantal: null }), "1 agendapunt op de kaart in Proeflaan · 0 werken en hinder · 1 evenement of vergunning.");
+  // Werken uit: geen getal voor de werken, tenzij er verkeershinder getekend is.
+  assert.equal(kaartStatusZin({ ...basis, werkenAan: false, mapped: 0, werkenGetekend: 1, opKaart: 1, lijstAantal: null }), "0 agendapunten op de kaart in Proeflaan · 1 werken en hinder.");
+  // De stand van de ochtend heeft geen vormen: niets op de kaart, en eerlijk hoeveel er zonder plek zijn.
+  assert.equal(kaartStatusZin({ ...basis, mapped: 0, werkenGetekend: 0, opKaart: 0, lijstAantal: 7, without: 7 }), "7 in de lijst, 0 op de kaart in Proeflaan · 7 zonder vaste plek.");
+});

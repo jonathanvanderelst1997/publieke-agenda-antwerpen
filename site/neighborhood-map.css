@@ -63,7 +63,9 @@
 }
 .buurt-radius button[aria-pressed="true"] { background: var(--pa-ink-strong, #121821); border-color: var(--pa-ink-strong, #121821); color: var(--pa-bg, #f6f3ee); }
 .buurt-map-wrap { position: relative; isolation: isolate; z-index: 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--pa-line, #e3dcd2); }
-.buurt-map { height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); }
+.buurt-map { position: relative; height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); }
+/* Het vlak van de kaart (Leaflet of MapLibre) binnen .buurt-map: zo kan de ene kaart wijken voor de andere. */
+.buurt-kaartvlak { position: absolute; inset: 0; }
 .buurt-map-veil {
   position: absolute;
   inset: 0;
@@ -97,6 +99,39 @@
 .buurt-attrib { margin: 10px 2px 0; font-size: 0.74rem; }
 .buurt-attrib a { color: inherit; }
 
+/* Legenda (P9): vijf soorten als aan/uit-knoppen (.pv-chip uit place-view.css, in de kleur van de rij), elk met
+   een tekentje in de vorm op de kaart, zodat kleur nooit de enige drager is. Alleen de kaart filtert. */
+.buurt-legenda { margin-top: 10px; }
+.buurt-legenda[hidden] { display: none; }
+.buurt-leg-knoppen { display: flex; flex-wrap: wrap; gap: 6px; }
+.buurt-legenda .pv-chip.buurt-leg { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; max-width: 100%; white-space: normal; text-align: left; line-height: 1.2; }
+.buurt-leg[hidden] { display: none; }
+.buurt-leg-hint { margin: 6px 2px 0; color: var(--pa-muted, #4f5a68); font-size: 0.8rem; }
+.buurt-vh { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.buurt-teken { flex: none; display: inline-block; width: 18px; height: 12px; position: relative; }
+.buurt-teken-lijn::before, .buurt-teken-streep::before { content: ""; position: absolute; left: 0; right: 0; top: 4px; border-top: 4px solid currentColor; border-radius: 2px; }
+.buurt-teken-streep::before { border-top-style: dashed; border-top-width: 3px; }
+.buurt-teken-stip::before { content: ""; position: absolute; left: 3px; top: 0; width: 12px; height: 12px; border-radius: 50%; background: currentColor; }
+.buurt-teken-ring::before { content: ""; position: absolute; left: 2px; top: -1px; width: 10px; height: 10px; border-radius: 50%; border: 2px dotted currentColor; }
+.buurt-teken-pin::before { content: ""; position: absolute; left: 4px; top: 0; width: 10px; height: 10px; border-radius: 50% 50% 50% 2px; transform: rotate(-45deg); background: currentColor; }
+
+/* Objecten op de kaart (Leaflet: SVG-paden met een klasse per soort). Gemarkeerd: wat open staat in de lijst.
+   Het SVG-vlak zelf vangt geen tikken: anders bereikt een tik de wijken eronder (canvas) niet meer. */
+.buurt-map .leaflet-overlay-pane > svg { pointer-events: none; }
+.buurt-map path.kaart-obj { cursor: pointer; }
+.buurt-map path.kaart-obj.is-gemarkeerd { stroke-width: 8px; stroke-opacity: 1; }
+.buurt-map path.kaart-werken.is-gemarkeerd, .buurt-map path.kaart-ongeveer.is-gemarkeerd { stroke: var(--pa-ink-strong, #121821); stroke-width: 4px; stroke-dasharray: none; }
+.buurt-pin-wrap.is-gemarkeerd .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
+.buurt-pin-wrap:focus-visible .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
+
+/* De bronvermelding en de popups op de kaart volgen de site (licht en donker), met genoeg contrast. Eén klasse
+   meer dan leaflet.css, dat later laadt. */
+.buurt-map .leaflet-container .leaflet-control-attribution { background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); }
+.buurt-map .leaflet-container .leaflet-control-attribution a { color: var(--pa-ink, #1b2330); text-decoration: underline; }
+.buurt-map .leaflet-container :is(.leaflet-popup-content-wrapper, .leaflet-popup-tip) { background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); }
+.buurt-map .leaflet-container a.leaflet-popup-close-button { color: var(--pa-muted, #4f5a68); }
+.buurt-pop-ongeveer { color: var(--pa-muted, #4f5a68); }
+
 /* Markers: een bolletje in de kleur van de soort, met het emoji van de soort. */
 .buurt-pin-wrap { background: transparent; border: 0; }
 .buurt-pin {
@@ -128,7 +163,7 @@
 }
 .buurt-pop ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
 .buurt-pop p { margin: 0 0 6px; }
-.buurt-pop-place { color: #4f5a68; font-size: 0.8rem; }
+.buurt-pop-place { color: var(--pa-muted, #4f5a68); font-size: 0.8rem; }
 .buurt-tip { font-weight: 700; }
 
 /* Donker thema: de tegels iets dimmen, de kaartrand volgt de site. */

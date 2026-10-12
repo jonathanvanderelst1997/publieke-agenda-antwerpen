@@ -739,11 +739,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.waitForFunction(() => /^\d+ agendapunten? op de kaart in Peterseliestraat · \d+ werken en hinder/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 10000 });
     const agendapunten = Number((await page.locator(".buurt-status").textContent()).match(/^(\d+) agendapunt/)[1]);
     await wachtOpZin(page, `${agendapunten} agendapunt${agendapunten === 1 ? "" : "en"} op de kaart in Peterseliestraat · 1 werken en hinder`);
-    // De tijdlijn: één kaart voor de werf, en op de kaart de agendapunten plus die ene werf.
+    // De tijdlijn: één kaart voor de werf, en op de kaart de agendapunten plus die ene werf. Sinds P9 tekent de kaart
+    // ook de verzonnen aanvraag (een vergunning, als plek bij benadering): die telt één keer mee.
     await page.click('[data-mode="tijdlijn"]');
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor({ timeout: 15000 });
     assert.equal(await page.locator('.pv-results .pv-row[data-uid^="works:"]').count(), 1, "één kaart voor de werf");
-    await wachtOpZin(page, `${await inSecties(page)} in de lijst, ${agendapunten + 1} op de kaart in Peterseliestraat`);
+    await wachtOpZin(page, `${await inSecties(page)} in de lijst, ${agendapunten + 2} op de kaart in Peterseliestraat`);
     assert.deepEqual(errors, []);
     await context.close();
   });
