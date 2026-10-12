@@ -1,6 +1,7 @@
 // P9 "Een kaart die vertelt": de pure delen van de buurtkaart, zonder browser. Verzonnen gegevens.
 // - de kaartbibliotheken voor de e2e-toetsen (tests/helpers/kaart-fixture.mjs, tests/fixtures/kaart/);
-// - de soorten op de kaart en de telling (site/place-core.js: kaartSoort, telPerSoort, lijstUniversum).
+// - de soorten op de kaart en de telling (site/place-core.js: kaartSoort, telPerSoort, lijstUniversum);
+// - de pure laag van de kaart (site/kaart-lagen.js: vormen, privacy, legendafilter, popup, foutregel, kiesKaart).
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -12,6 +13,7 @@ import {
   KAART_SOORTEN, agendaEntry, kaartSoort, lijstAantal, lijstSleutel, lijstUniversum, marktBundelEntry, permitEntry, publicSpaceEntries,
   telPerSoort, terrasEntries, werkEntries,
 } from "../site/place-core.js";
+import { ONGEVEER_DECIMALEN, isTegelFout, kaartLagen, kiesKaart, popupHtml, vormVoor } from "../site/kaart-lagen.js";
 import { LEAFLET_DIR, LEAFLET_PREFIX, MAPLIBRE_PREFIX, MAPLIBRE_SRI, kaartAntwoord, sri } from "./helpers/kaart-fixture.mjs";
 
 // ---- stap 1: Leaflet byte-exact uit de fixture ----
@@ -164,4 +166,157 @@ test("lijstUniversum: wat de lijst bij 'alles' toont; zonder start en afgelopen 
   assert.equal(tel.totaal, 6);
   assert.deepEqual(tel.per, { evenement: 1, werken: 0, verkeer: 0, vergunning: 2, agenda: 3 });
   assert.equal(lijstAantal(entries), 8, "het oude getal telde ook wat de lijst nooit toont");
+});
+
+// ---- stap 4: de pure laag (site/kaart-lagen.js) ----
+// Verzonnen vormen met zes decimalen, zoals A-Sign ze levert.
+const LIJN_HIER = [[4.401234, 51.215678], [4.402345, 51.216789]];
+const LIJN_ELDERS = [[4.417012, 51.216034], [4.417613, 51.216345]];
+const VLAK = [[[4.405111, 51.210222], [4.405999, 51.210222], [4.405999, 51.210888], [4.405111, 51.210222]]];
+const vormLijn = (l) => ({ vlakken: [], lijnen: [l] });
+const coordinaten = (fc) => JSON.stringify(fc).match(/-?\d+\.\d+/g).map(Number);
+
+test("vormVoor: een werk is een punt; een werf in stukken een punt per stuk", () => {
+  const [werk] = werkEntries([werkStuk(90001001, [4.400111, 51.200222])], { vandaag: VANDAAG });
+  assert.deepEqual(vormVoor(werk), [{ geometry: { type: "Point", coordinates: [4.400111, 51.200222] }, parcours: false, ongeveer: false }]);
+  const [werf] = werkEntries([werkStuk(90001002, [4.40, 51.2]), werkStuk(90001003, [4.401, 51.2]), werkStuk(90001004, null)], { vandaag: VANDAAG });
+  assert.deepEqual(vormVoor(werf)[0].geometry, { type: "MultiPoint", coordinates: [[4.40, 51.2], [4.401, 51.2]] });
+  assert.equal(vormVoor(werkEntries([werkStuk(90001005, null)], { vandaag: VANDAAG })[0]), null);
+});
+
+test("vormVoor: een werfzone geeft een vlak (de werfzone) en een lijn (de omleiding), exact", () => {
+  const rijen = [{ ...fase(1, "2026-10-26T06:00:00Z", "2026-10-26T16:00:00Z"), vorm: { vlakken: [VLAK], lijnen: [LIJN_HIER] } }, { ...fase(2, "2026-10-27T06:00:00Z", "2026-10-28T16:00:00Z"), vorm: { vlakken: [], lijnen: [LIJN_ELDERS] } }];
+  const [werf] = publicSpaceEntries(rijen, psOpties);
+  const delen = vormVoor(werf);
+  assert.deepEqual(delen.map((d) => [d.geometry.type, d.ongeveer]), [["Polygon", false], ["MultiLineString", false]]);
+  assert.deepEqual(delen[0].geometry.coordinates, VLAK);
+  assert.deepEqual(delen[1].geometry.coordinates, [LIJN_HIER, LIJN_ELDERS]);
+});
+
+test("vormVoor: een evenementendossier tekent ook de rijen elders, het parcours met parcours=true", () => {
+  const parcours = inname("ET2099000601", "Evenement", "Parcours", "2026-10-24", ["Proefstraat"], { vorm: vormLijn(LIJN_HIER), parcours: vormLijn(LIJN_HIER) });
+  const opbouw = inname("ET2099000601", "Opbouw", "Parkeerverbod in Straat", "2026-10-23", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
+  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, opbouw] });
+  const delen = vormVoor(dossier);
+  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", false, false], ["LineString", true, false]]);
+  assert.deepEqual(delen[0].geometry.coordinates, LIJN_ELDERS, "de opbouw elders staat er ook, exact");
+  assert.deepEqual(delen[1].geometry.coordinates, LIJN_HIER);
+});
+
+test("vormVoor: zonder live vorm komt de lijn van het evenement uit de schets van de verversing (entry.kaart)", () => {
+  const rij = inname("ET2099000602", "Evenement", "Parcours", "2026-10-24", ["Proefstraat"]);
+  const kaart = [[[4.4, 51.21], [4.401, 51.211], [4.402, 51.211]]];
+  const [dossier] = publicSpaceEntries([rij], { ...psOpties, uitleg: { evenementen: { ET2099000602: { kaart, straten: ["Proefstraat"] } } } });
+  assert.deepEqual(dossier.kaart, kaart);
+  assert.deepEqual(vormVoor(dossier), [{ geometry: { type: "LineString", coordinates: kaart[0] }, parcours: true, ongeveer: false }]);
+  assert.equal(vormVoor({ ...dossier, kaart: [] }), null);
+});
+
+test("privacy: een parkeerverbod en een vergunning zijn één punt met 3 decimalen; geen oorspronkelijke coördinaat in de GeoJSON", () => {
+  const perceel = { vlakken: [[[[4.403456, 51.212345], [4.403987, 51.212345], [4.403987, 51.212876], [4.403456, 51.212345]]]], lijnen: [] };
+  const aanvraag = permitEntry({ id: "omv:7", dossier: "OMV_2099000007", streets: [straat("Proefstraat")], vorm: perceel });
+  const [parking] = publicSpaceEntries([{ ...parkeer("L1"), vorm: vormLijn(LIJN_HIER) }, { ...parkeer("L2"), vorm: vormLijn(LIJN_ELDERS) }], psOpties);
+  const [los] = publicSpaceEntries([{ ...losseInname, vorm: { vlakken: [VLAK], lijnen: [] } }], psOpties);
+  for (const entry of [aanvraag, parking, los]) {
+    const delen = vormVoor(entry);
+    assert.equal(delen.length, 1);
+    assert.equal(delen[0].geometry.type, "Point");
+    assert.equal(delen[0].ongeveer, true);
+    for (const c of delen[0].geometry.coordinates) assert.ok(Math.abs(c * 1000 - Math.round(c * 1000)) < 1e-6, `${c} heeft hoogstens 3 decimalen`);
+  }
+  // Het parkeerverbod op twee plaatsen: één punt bij de rij op de gekozen plek (het midden van LIJN_HIER).
+  assert.deepEqual(vormVoor(parking)[0].geometry.coordinates, [4.402, 51.216]);
+  assert.equal(ONGEVEER_DECIMALEN, 3);
+  const { fc } = kaartLagen([aanvraag, parking, los]);
+  assert.equal(fc.features.length, 3);
+  assert.ok(fc.features.every((f) => f.properties.ongeveer && f.geometry.type === "Point"));
+  const origineel = new Set([...LIJN_HIER, ...LIJN_ELDERS, ...VLAK[0], ...perceel.vlakken[0][0]].flat());
+  const verraden = coordinaten(fc).filter((n) => origineel.has(n));
+  assert.deepEqual(verraden, [], "geen enkele oorspronkelijke coördinaat");
+});
+
+test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max en de agendapinnen", () => {
+  const geo = { entries: { proefplein: { point: [4.4011, 51.2111] } } };
+  const werken = werkEntries([1, 2, 3, 4, 5].map((i) => ({ ...werkStuk(90001100 + i, [[4.401, 4.402, 4.403, 4.404, 4.405][i - 1], 51.2]), title: `Proefwerk ${"abcde"[i - 1]}` })), { vandaag: VANDAAG });
+  assert.equal(werken.length, 5);
+  const [parking] = publicSpaceEntries([{ ...parkeer("L1"), vorm: vormLijn(LIJN_HIER) }], psOpties);
+  const drieData = ["2026-10-20", "2026-10-27", "2026-11-03"].map((d, i) => agendapunt(`p${i}`, d));
+  const zonderPlek = agendapunt("q1", "2026-10-22", { title: "Proefquiz", location: "Onbekende proefzaal" });
+  const teken = [...werken, parking, terras, ...drieData, zonderPlek, zonderPlek];
+  const tel = telPerSoort(teken);
+  const alles = kaartLagen(teken, { geo, soortVan: tel.soortVan });
+  for (const f of alles.fc.features) assert.deepEqual(Object.keys(f.properties).sort(), ["cat", "ongeveer", "parcours", "soort", "tel", "uid"]);
+  assert.deepEqual(alles.fc.features.find((f) => f.properties.soort === "verkeer").properties, { uid: parking.uid, tel: parking.uid, soort: "verkeer", cat: "publicSpace", parcours: false, ongeveer: true });
+  assert.ok(alles.fc.features.filter((f) => f.properties.soort === "werken").every((f) => f.properties.cat === "works"));
+  assert.deepEqual(alles.zonder.map((e) => e.uid), [terras.uid, "agenda:q1"], "het terras en het agendapunt zonder plek (één keer)");
+  assert.equal(alles.pins.length, 1);
+  assert.deepEqual(alles.pins[0].point, [4.4011, 51.2111]);
+  assert.deepEqual(alles.pins[0].uids, ["agenda:p0", "agenda:p1", "agenda:p2"]);
+  assert.deepEqual(alles.perSoort, { evenement: 0, werken: 5, verkeer: 1, vergunning: 0, agenda: 1 });
+  assert.equal(alles.opKaart, 7);
+  assert.deepEqual(alles.kaderVan.get(werken[0].uid), [4.401, 51.2, 4.401, 51.2]);
+  assert.deepEqual(alles.kader, [4.401, 51.2, 4.405, 51.216]);
+  // Verkeer verborgen: weg uit fc, maar de telling van de lijst verandert niet.
+  const zonderVerkeer = kaartLagen(teken, { geo, soortVan: tel.soortVan, verborgen: new Set(["verkeer"]) });
+  assert.equal(zonderVerkeer.fc.features.filter((f) => f.properties.soort === "verkeer").length, 0);
+  assert.equal(zonderVerkeer.perSoort.verkeer, 0);
+  assert.equal(zonderVerkeer.opKaart, 6);
+  assert.deepEqual(telPerSoort(teken), tel);
+  // max=2 bij 5 werken: 2 getekende werken.
+  const twee = kaartLagen(teken, { geo, max: 2 });
+  assert.equal(twee.fc.features.filter((f) => f.properties.soort === "werken").length, 2);
+  assert.equal(twee.perSoort.werken, 2);
+});
+
+test("popupHtml: hoogstens 6, alles geëscaped, een knop naar de lijst en 'plek bij benadering'", () => {
+  const boos = agendapunt("x<1>", "2026-10-20", { title: `<script>alert("x")</script>`, location: `Plein "<b>"` });
+  const html = popupHtml([boos], VANDAAG);
+  assert.doesNotMatch(html, /<script>|<b>/);
+  assert.match(html, /&lt;script&gt;alert\(&quot;x&quot;\)&lt;\/script&gt;/);
+  assert.match(html, /<button type="button" class="buurt-open" data-open-uid="agenda:x&lt;1&gt;">Toon in de lijst<\/button>/);
+  assert.doesNotMatch(html, /bij benadering/);
+  const [parking] = publicSpaceEntries([parkeer("L1")], psOpties);
+  assert.match(popupHtml([parking], VANDAAG), /Plek bij benadering \(privacy\)/);
+  const acht = Array.from({ length: 8 }, (_, i) => agendapunt(`z${i}`, `2026-10-2${i}`, { title: `Proefavond ${i}` }));
+  const veel = popupHtml([...acht, acht[0]], VANDAAG);
+  assert.equal(veel.match(/data-open-uid=/g).length, 6);
+  assert.match(veel, /en nog 2 …/);
+});
+
+test("isTegelFout: alleen fouten van de tegelbron of met een URL van OpenFreeMap", () => {
+  assert.equal(isTegelFout({ sourceId: "openmaptiles", error: new Error("x") }), true);
+  assert.equal(isTegelFout({ error: Object.assign(new Error("Failed to fetch"), { url: "https://tiles.openfreemap.org/planet/20990101_001001_pt/14/8400/5450.pbf" }) }), true);
+  assert.equal(isTegelFout({ error: new Error("AJAXError: Not Found (404): https://tiles.openfreemap.org/planet") }), true);
+  assert.equal(isTegelFout({ error: new Error('Source layer "proef" does not exist on source "openmaptiles" as specified by style layer "x".') }), false);
+  assert.equal(isTegelFout({ error: new Error("Image \"proef\" could not be loaded.") }), false);
+  assert.equal(isTegelFout({ sourceId: "pa-items", error: new Error("x") }), false);
+  assert.equal(isTegelFout({ error: { url: "https://example.invalid/openfreemap.org/x" } }), false);
+  assert.equal(isTegelFout(undefined), false);
+});
+
+test("kiesKaart: de vector lukt, faalt of hangt; zonder vector; ook de basis faalt (wachttijd 20 ms)", async () => {
+  const basis = async () => "basis";
+  let signaal = null, gevraagd = 0;
+  assert.equal(await kiesKaart({ magVector: true, vector: async (s) => { signaal = s; return "vector"; }, basis: () => assert.fail("geen basis"), wachttijd: 20 }), "vector");
+  assert.equal(signaal.aborted, false);
+  assert.equal(await kiesKaart({ magVector: true, vector: async (s) => { signaal = s; throw new Error("geen WebGL"); }, basis, wachttijd: 20 }), "basis");
+  assert.equal(signaal.aborted, true);
+  assert.equal(await kiesKaart({ magVector: true, vector: (s) => { signaal = s; return new Promise(() => {}); }, basis, wachttijd: 20 }), "basis");
+  assert.equal(signaal.aborted, true, "de hangende vector krijgt een abort");
+  assert.equal(await kiesKaart({ magVector: false, vector: () => { gevraagd += 1; return "vector"; }, basis, wachttijd: 20 }), "basis");
+  assert.equal(gevraagd, 0, "zonder WebGL, met databesparing of ?kaart=leaflet: de vector wordt niet eens gevraagd");
+  await assert.rejects(kiesKaart({ magVector: true, vector: async () => { throw new Error("stijl niet bereikbaar"); }, basis: async () => { throw new Error("Leaflet kon niet laden"); }, wachttijd: 20 }), /Leaflet kon niet laden/);
+  // Te laat toch klaar: de vectorkaart wordt opgeruimd, de basis blijft.
+  let opgeruimd = false;
+  const laat = { verwijder: () => { opgeruimd = true; } };
+  assert.equal(await kiesKaart({ magVector: true, vector: () => new Promise((r) => setTimeout(() => r(laat), 60)), basis, wachttijd: 20 }), "basis");
+  await new Promise((r) => setTimeout(r, 80));
+  assert.equal(opgeruimd, true);
+});
+
+test("kaart-lagen.js raakt geen DOM aan en importeert in Node", async () => {
+  const bron = fs.readFileSync(new URL("../site/kaart-lagen.js", import.meta.url), "utf8").replace(/^\s*\/\/.*$/gm, "");
+  assert.doesNotMatch(bron, /\b(document|window)\./);
+  const mod = await import("../site/kaart-lagen.js");
+  assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "isTegelFout", "kaartLagen", "kiesKaart", "popupHtml", "vormVoor"]);
 });
