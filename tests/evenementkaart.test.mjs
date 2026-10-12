@@ -223,7 +223,9 @@ test("identiteitsbestand: geldig, publiek en zonder persoonsgegevens", async () 
   const { validateEvenementIdentiteit } = await import("../lib/evenement-identiteit-validatie.mjs");
   assert.deepEqual(validateEvenementIdentiteit(IDENTITEIT), []);
   assert.deepEqual(privacyFindings(IDENTITEIT), []);
-  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 38);
+  // 38 uit de identificatierondes, plus Winter in Antwerpen (12-10-2026: de naam staat alleen in besluiten over
+  // een bestek en de standplaatsen, met dezelfde periode en pleinen als het dossier).
+  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 39);
   const fout = structuredClone(IDENTITEIT);
   fout.dossiers.ET2026001217.link = "https://example.org/?mail=x";
   fout.dossiers.ET2026001217.waar = "Start aan Voorbeeldstraat 12";

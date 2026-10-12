@@ -59,8 +59,11 @@ test("de kaartzin is er voor elk dossier, zonder huisnummer of gissing", () => {
     assert.ok(r.auto.waar && r.auto.dagen.length, r.dossier);
     if (r.auto.zekerheid === "onbekend") assert.doesNotMatch(`${r.auto.waar} ${r.auto.reden}`, /mogelijk|waarschijnlijk|vermoedelijk/i);
   }
+  // A-Sign tekent voor het criterium drie lijnen vanaf hetzelfde punt (een lus van 1,1 km, een lusje van
+  // 150 m en een lijn van 1,8 km): geen route van hun som, wel hoeveel lijnen en waar ze beginnen.
   const criterium = LOO.rijen.find((r) => r.dossier === "ET2026003440").auto;
-  assert.match(criterium.waar, /^(?:Lus|Route) van ongeveer [\d,]+ km in Linkeroever \(district Antwerpen\), begin en einde aan de Beatrijslaan, op zaterdag 10 oktober\.$/);
+  assert.match(criterium.waar, /^3 parcourslijnen, samen ongeveer 2,0 km, in Linkeroever \(district Antwerpen\), begin aan de Beatrijslaan, op zaterdag 10 oktober\.$/);
+  assert.equal(criterium.omvang, "3 parcourslijnen, samen ongeveer 2,0 km");
 });
 
 test("patroon: volgend jaar op de route van de marathon heet het vanzelf weer TREK Antwerp Marathon", () => {

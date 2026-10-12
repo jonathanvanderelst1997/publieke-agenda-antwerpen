@@ -11,7 +11,7 @@ automatische bron gaat voor.
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
 | `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. |
-| `district-asign-evenementen` | district | de evenementendossiers van de stad op straat (parcours, verkeersvrije zones, innames): één punt per evenementdag, met naam of "naam volgt" | **afgeleid**, geen eigen verzoeken: de dossiers die de parcoursherkenning al uit A-Sign (laag 22 en 23) haalt, in de stap `refresh:herkenning` (zie onder) |
+| `district-asign-evenementen` | district | de evenementendossiers van de stad op straat (parcours, verkeersvrije zones, innames): één punt per evenementdag, met naam, soort, of wat en waar met "naam onbekend" | **afgeleid**, geen eigen verzoeken: de dossiers die de parcoursherkenning al uit A-Sign (laag 22 en 23) haalt, in de stap `refresh:herkenning` (zie onder) |
 | `district-foren` | district | foren en kermissen, één punt per periode | A-Sign `MapServer/0` (foor) van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
@@ -426,7 +426,17 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   van een jaar) is geen evenement en krijgt geen agendapunt.
 - **Titel**, in deze volgorde: de naam uit de handfiche; de automatische naam (bij "zeker" de naam, bij
   "waarschijnlijk" "Vermoedelijk <naam>"); de naam uit een gekoppeld besluit van eBesluit (zie hierboven);
-  de soort ("Studentenactiviteit in de Kerkstraat"); anders "Evenement in de Kerkstraat — naam volgt".
+  de soort ("Studentenactiviteit in de Kerkstraat"); anders wat en waar, zonder belofte: "Evenement in de
+  Kerkstraat: lus van 3,3 km, naam onbekend" (de vorm uit A-Sign: een lus of route met haar getekende
+  lengte als het dossier één lijn heeft of lijnen die een keten vormen zonder dat een ervan zelf een lus
+  is, anders een parcours door N straten, of een verkeersvrije zone). Losse lijnen, of lussen vanaf één
+  punt (twee afstanden van een loop), zijn geen route van hun som; ook de kaart zegt dan "N
+  parcourslijnen, samen ongeveer X km" (`eenRoute` in `lib/parcours-herkenning.mjs`). De tekst zegt
+  waarom er geen naam is (bij een handfiche wat er nagekeken is) en dat een besluit meestal 2 tot 6 weken
+  vooraf komt; een naam wordt nooit verzonnen of op een gok gekoppeld. Tot 12 oktober 2026 heette dat "—
+  naam volgt": 12 van de 68 punten, waarvan er 3 wel een bron hadden (een besluit dat na de
+  ochtendverversing verscheen, "Praalwagens" in de innamebeschrijving, en een naam die alleen in besluiten
+  over een bestek en standplaatsen staat; die laatste kreeg een handfiche).
   Een soort die de herkenning alleen vermoedt (uit de plek, de periode en vroegere dossiers) staat er als
   "Vermoedelijk een studentenactiviteit in de Kerkstraat", met de zin "Soort vermoed via …; niet
   bevestigd." Alleen het trefwoord in het dossier zelf (speelstraat) heet "De soort staat in het dossier".
@@ -447,7 +457,7 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   komt vooraan in de plaats van het agendapunt.
 - **Twee dossiers, één evenement:** dossiers op dezelfde dag met dezelfde titel (alleen als die een eigen
   naam of een straat noemt), hetzelfde besluit of hetzelfde punt uit de kalender worden één agendapunt; de
-  beste titel wint (hand, zeker, besluit, vermoeden, soort, vermoede soort, naam volgt) en de tekst noemt
+  beste titel wint (hand, zeker, besluit, vermoeden, soort, vermoede soort, zonder naam) en de tekst noemt
   het andere dossier. Komen zo dagen samen (de dagen van een festival uit een besluit), dan beslaat het
   agendapunt de ruimste periode.
 - **Straten:** `stratenVanParcours()` uit `site/parcours-straten.js` op de parcoursvormen en apart op de
@@ -561,7 +571,11 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   Dat is een tweede slot naast de Gateway, die als eerste beslist of iets publiek is.
 - Elk item wordt opnieuw opgehaald (hoogstens 3 redirects, alleen naar toegelaten hosts, HTTP 200) en
   alleen weggeschreven als de titel als geheel (woordgrens, niet midden in een langer woord) en de
-  startdatum op de pagina zelf staan.
+  startdatum op de pagina zelf staan. De startdatum telt in dezelfde vormen als in de paginapoort van de
+  Mac (`src/publieke-agenda/datums.ts` in de Gateway): "17 oktober", "17 okt.", "17/10", "2026-10-17",
+  "17.10.2026", en als begin van een reeks "3 tot 25 oktober" of "3 t.e.m. vr 25/10". Tot 12 oktober 2026
+  las deze kant de afgekorte maand, de datum met punten en het begin van een reeks niet, en viel een signaal
+  dat de Mac terecht doorliet hier alsnog weg (`date_not_on_page`).
 - Uur, einduur, einddatum en plaats komen **alleen** uit het signaal als ze ook op die officiële pagina
   staan (een plaats als geheel of elk deel tussen komma's). Anders wordt het uur "Info" en de plaats
   "locatie via de officiële bron", zonder postcodes. Een plaats of uur uit een privémail kan zo nooit op

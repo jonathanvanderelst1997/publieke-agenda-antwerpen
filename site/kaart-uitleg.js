@@ -797,7 +797,7 @@ const SOORTEN_EVENEMENT = [
   [/\b\d+\s?(?:k|km)\b|loopwedstrijd|stratenloop|marathon|jogging|\brun\b|\bloop\b/i, "Loopwedstrijd"],
   [/wieler|koers|criterium|wielren/i, "Wielerwedstrijd"],
   [/fietstocht|fietstoer|fietsrit/i, "Fietstocht"],
-  [/stoet(?:en)?\b|optocht|parade|processie|carnaval/i, "Stoet"],
+  [/stoet(?:en)?\b|optocht|parade|processie|carnaval|\bpraalwagen(?:s)?\b/i, "Stoet"],
   [/(?<!winkel)wandel/i, "Wandeling"],
   // Niet het losse woord "markt": dat is ook een plein (Grote Markt, Veemarkt, Vrijdagmarkt).
   [/braderie|braderij|rommelmarkt|vlooienmarkt|kerstmarkt|jaarmarkt|boekenmarkt|boekenplein|stripmarkt|ambachtenmarkt|boerenmarkt|tweedehandsmarkt|verplaatsbare markt|wekelijkse markt|marktkra(?:am|men)/i, "Markt"],
