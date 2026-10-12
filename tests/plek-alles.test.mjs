@@ -72,9 +72,10 @@ test("beperkingTekst: een plek met vooral vergunningen en terrassen zegt in de t
   const aanvragen = [1, 2, 3].map((i) => permitEntry({ id: `permit:${i}`, dossier: `OMV_20990000${i}0`, streets: [{ name: "Proefstraat" }] }));
   const terrassen = terrasEntries([1, 2, 3, 4].map((i) => ({ id: `terrace:${i}`, address: `Proefstraat ${i}`, terraceType: "Terras", status: "vergund" })));
   const entries = [punt("act", "2026-10-14"), ...aanvragen, ...terrassen];
+  // De drie aanvragen zonder omschrijving en de vier terrassen zijn elk één ingeklapte regel (bundelLijst): 1 + 1 + 1.
   const tel = telPerSoort(lijstUniversum(entries, VANDAAG));
-  assert.equal(tel.totaal, 8);
-  assert.equal(tel.per.vergunning, 7);
+  assert.equal(tel.totaal, 3);
+  assert.equal(tel.per.vergunning, 2);
   const zonder = "zonder vergunningen en terrassen; kies “Lijst” voor alles.";
   const tijdlijn = beperkingTekst({ mode: "tijdlijn", periode: "alles", periodeLabel: "Alles", vergunningen: tel.per.vergunning });
   assert.equal(tijdlijn, `De tijdlijn toont alleen de komende 14 dagen, ${zonder}`);
@@ -82,8 +83,8 @@ test("beperkingTekst: een plek met vooral vergunningen en terrassen zegt in de t
   const maand = beperkingTekst({ mode: "maand", periode: "alles", periodeLabel: "Alles", vergunningen: tel.per.vergunning });
   assert.equal(maand, `De maand toont per dag wat er gebeurt, ${zonder}`);
   // Het getal blijft alles; de zin zegt waarom de tijdlijn of de maand er minder toont. Zo ook wat "Deel" meestuurt.
-  assert.equal(plekSubTekst({ totaal: tel.totaal, straat: true, beperking: tijdlijn }), `8 items uit officiële bronnen. De tijdlijn toont alleen de komende 14 dagen, ${zonder}`);
-  assert.equal(deelTekst({ plek: "Proefstraat", totaal: tel.totaal, beperking: maand }), `Proefstraat: 8 items uit officiële bronnen op de publieke agenda. De maand toont per dag wat er gebeurt, ${zonder}`);
+  assert.equal(plekSubTekst({ totaal: tel.totaal, straat: true, beperking: tijdlijn }), `3 items uit officiële bronnen. De tijdlijn toont alleen de komende 14 dagen, ${zonder}`);
+  assert.equal(deelTekst({ plek: "Proefstraat", totaal: tel.totaal, beperking: maand }), `Proefstraat: 3 items uit officiële bronnen op de publieke agenda. De maand toont per dag wat er gebeurt, ${zonder}`);
   // Alleen terrassen (geen aanvragen): ook die staan niet in de tijdlijn.
   const alleenTerrassen = telPerSoort(lijstUniversum([punt("act", "2026-10-14"), ...terrassen], VANDAAG));
   assert.match(beperkingTekst({ mode: "tijdlijn", vergunningen: alleenTerrassen.per.vergunning }), /, zonder vergunningen en terrassen;/);

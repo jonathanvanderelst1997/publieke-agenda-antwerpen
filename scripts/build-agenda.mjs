@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
+import { onbekendZin } from "../site/onbekend-zinnen.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const items = loadExpandedAgendaItems(rootDir);
@@ -78,8 +79,10 @@ function buildEventRedirectPage(item) {
   const title = escapeHtml(item.title);
   const description = escapeHtml(item.info || `${item.title} in District Antwerpen.`);
   const dateText = escapeHtml(item.dateLabel || item.date);
-  const timeText = escapeHtml(item.timeText || "Uur via de officiële bron");
-  const location = escapeHtml(item.location || "Locatie via de officiële bron");
+  // Zonder uur of plaats in de bron: dat zeggen (onbekend-zinnen.js), geen belofte dat de officiële bron het wel
+  // heeft. Een uur in timeSlot ("14:00") is wel een uur.
+  const timeText = escapeHtml(item.timeText || (/^\d{2}:\d{2}$/.test(String(item.timeSlot || "")) ? item.timeSlot : onbekendZin("eventpagina-uur")));
+  const location = escapeHtml(item.location || onbekendZin("eventpagina-plaats"));
   const sourcePublisher = escapeHtml(item.sourcePublisher || "Publieke organisator");
   const eventJson = jsonForHtml({
     "@context": "https://schema.org",

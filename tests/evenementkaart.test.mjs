@@ -92,7 +92,7 @@ test("13 oktober: een eerlijk vermoeden met de reden, zonder verzonnen naam of u
   assert.equal(e.title, "Vermoedelijk een studententocht te voet tussen Middelheim en Fort VI");
   const k = kern(e.uitleg);
   assert.match(k.Wat, /Fort VI, een officiële doopplaats, en 13 oktober valt in de doopperiode/);
-  assert.match(k.Wanneer, /^Dinsdag 13 oktober; de uren zijn niet gepubliceerd\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
+  assert.match(k.Wanneer, /^Dinsdag 13 oktober\. Het studentencharter laat een stoet toe tussen 10 en 22 uur/);
   assert.equal(e.time, "");
   assert.equal(e.uitleg.links.length, 0); // geen officiële pagina: dan ook geen knop
   assert.match(e.uitleg.voetnoot, /zonder naam\. Het vermoeden steunt op het dossier en op wat we nagekeken hebben op stuvent\.be en antwerpen\.be/);

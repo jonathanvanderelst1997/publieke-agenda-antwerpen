@@ -109,7 +109,7 @@ test("jouw straat bij alleen een zone: de kaart zegt ook dat het om 18 m gaat", 
   const zone = { ...parkeerRij, id: `iod:${DOSSIER}|F1|I3`, innameType: "Zone", title: "Zone", streets: [straat("Buurstraat", 9)] };
   const e = pc.evenementEntry([zone], { ...opties, straat: "Buurstraat" });
   assert.equal(e.jouwStraat, "Een zone van dit evenement ligt in of naast je straat");
-  assert.equal(kern(e)["Jouw straat"], "Jouw straat wordt gebruikt voor dit evenement op dinsdag 13 oktober; waarvoor precies, zegt de stad niet. Die inname ligt in je straat of tot 18 m van de straatas.");
+  assert.equal(kern(e)["Jouw straat"], "Jouw straat wordt gebruikt voor dit evenement op dinsdag 13 oktober. Die inname ligt in je straat of tot 18 m van de straatas.");
 });
 
 test("'Waar' bij een aanvraag: ook dicht bij, geen tunnel, de gekozen straat zichtbaar, en geen '1 andere straten'", () => {

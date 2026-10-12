@@ -161,6 +161,7 @@ test("lijstUniversum: wat de lijst bij 'alles' toont; zonder start en afgelopen 
   assert.ok(!uids.includes("agenda:z1"), "zonder start: niet in de lijst");
   assert.ok(!uids.includes("agenda:v1"), "afgelopen: niet in de lijst");
   assert.ok(!uids.includes("agenda:m2"), "een losse marktdag staat niet in de lijst (alleen wekelijkse markten)");
+  // Eén aanvraag zonder omschrijving en één terras blijven gewone kaarten (een bundel vanaf twee, bundelLijst).
   assert.deepEqual(uids.sort(), ["agenda:m1", "agenda:t1", "markt|Proefmarkt|Proefplein", "permits:omv:1", "publicSpace:dossier:ET2099000504", "terraces:terrace:1"]);
   assert.equal(uit.find((e) => e.uid === losse.uid), losse, "het origineel, niet de kopie van de bak 'later'");
   const tel = telPerSoort(uit);

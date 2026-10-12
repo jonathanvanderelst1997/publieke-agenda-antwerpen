@@ -14,8 +14,11 @@ import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } fro
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
+import { VAAGHEID_FILE } from "../lib/vaagheid.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE } from "../lib/evenement-herkenning-validatie.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
+import { ASIGN_EVENEMENTEN_SOURCE_ID, oudeTekstBijwerken, tekstUitFeiten } from "../lib/asign-evenementen-agenda.mjs";
+import { plekEnUurUitTekst } from "../lib/plek-uit-tekst.mjs";
 
 export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet met de hand wijzigen.";
 
@@ -26,7 +29,8 @@ export function readSources(rootDir) {
   // evenement-patronen.json) zijn geen agendabronnen maar uitleg bij de live lagen (lib/kaart-uitleg-refresh.mjs,
   // de met de hand nagekeken identiteit van evenementendossiers en lib/parcours-herkenning-refresh.mjs);
   // inzage-status.json is de nagekeken stand in het Inzageloket (site/inzage-status.js).
-  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE];
+  // vaagheid.json is de vaagheidsmeting van de verversing (scripts/meet-vaagheid.mjs), geen bron.
+  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE];
   const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && !geenBron.includes(name)).sort();
   let status = null;
   let manualCheck = null;
@@ -66,7 +70,45 @@ function contractSignature(item) {
   return [normalized(item.title), item.date, parseEventTimes(item.timeSlot, item.timeText).startTime || "unknown", normalized(item.location)].join("|");
 }
 
-export function buildFeed({ status, documents, manualCheck = null }, handItems) {
+// Een agendapunt dat alleen uit de evenementendossiers van de stad komt en waarvan de aanvraag nog niet
+// goedgekeurd is. Uit het veld nietGoedgekeurd (lib/asign-evenementen-agenda.mjs), of bij een bronbestand van
+// vóór dat veld uit de vaste slotzin van de info ("...: aanvraag nog niet goedgekeurd."). Samengevoegd met een
+// andere bron (een kalender, een besluit) is het een aangekondigd evenement: dan geen label.
+const NIET_GOEDGEKEURD_ZIN = /\(A-Sign\)(?:, laatst gewijzigd op [^:]+)?: aanvraag nog niet goedgekeurd\.(?: Ook dossier ET\d{10}\.)*$/;
+const alleenDossiers = (item = {}) => (Array.isArray(item.sources) && item.sources.length ? item.sources.map((s) => s?.sourceId) : [item.sourceId]).every((id) => id === "district-asign-evenementen");
+export function nietGoedgekeurd(item = {}) {
+  if (!alleenDossiers(item)) return false;
+  return item.nietGoedgekeurd === true || NIET_GOEDGEKEURD_ZIN.test(String(item.info || ""));
+}
+// De straten van een goedgekeurd agendapunt die alleen een dossier raakt dat nog niet goedgekeurd is
+// (lib/asign-evenementen-agenda.mjs, samenVoegen): de straatpagina toont daar het label. Niet bij een
+// aangekondigd evenement (samengevoegd met een andere bron) en niet als het hele punt al het label heeft.
+export function nietGoedgekeurdStraten(item = {}) {
+  if (!alleenDossiers(item) || nietGoedgekeurd(item) || !Array.isArray(item.nietGoedgekeurdStraten)) return [];
+  const straten = new Set(Array.isArray(item.straten) ? item.straten : []);
+  return item.nietGoedgekeurdStraten.filter((s) => straten.has(s));
+}
+
+// Tekst bij de build (vaagheidsplan van 12 oktober 2026, stap 6): titel en info van een agendapunt uit de
+// evenementendossiers komen opnieuw uit zijn bewaarde feiten, met de code van nu (tekstUitFeiten); een bronbestand van
+// vóór die feiten krijgt alleen de zinnen van nu in plaats van die van oudere code (oudeTekstBijwerken). `tekst`: de
+// fiches en besluiten uit site/sources (laadTekstBronnen).
+export function tekstBijDeBuild(item, tekst = null) {
+  const nieuw = tekstUitFeiten(item, tekst || {});
+  return nieuw ? { ...item, ...nieuw } : oudeTekstBijwerken(item);
+}
+export function laadTekstBronnen(rootDir) {
+  const lees = (naam) => { try { return JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", naam), "utf8")); } catch { return null; } };
+  const besluiten = lees(EVENEMENT_BESLUITEN_FILE);
+  return { hand: lees(EVENEMENT_IDENTITEIT_FILE), auto: lees(HERKENNING_FILE), besluiten: Array.isArray(besluiten?.besluiten) ? besluiten.besluiten : [] };
+}
+
+export function buildFeed({ status, documents: bronnen, manualCheck = null, tekst = null }, handItems) {
+  // Plek en uur uit de tekst van een artikel zonder vaste plek (stap 7, lib/plek-uit-tekst.mjs).
+  const documents = bronnen.map((document) => ({
+    ...document,
+    items: document.items.map((item) => (document.sourceId === ASIGN_EVENEMENTEN_SOURCE_ID ? tekstBijDeBuild(item, tekst) : plekEnUurUitTekst(item, document.sourceId))),
+  }));
   const itemsBySource = Object.fromEntries(documents.map((document) => [document.sourceId, { scope: document.scope, items: document.items }]));
   const suppressions = documents.flatMap((document) => Array.isArray(document.suppressions) ? document.suppressions : []);
   const merged = mergeEvents(itemsBySource, handItems, suppressions);
@@ -82,10 +124,12 @@ export function buildFeed({ status, documents, manualCheck = null }, handItems) 
       continue;
     }
     signatures.add(signature);
-    // De straten en fasen van een evenement op straat (district-asign-evenementen) blijven in het
-    // bronbestand; de site leest ze niet uit de feed, en de voorpagina laadt de feed bij elk bezoek.
-    const { straten: _straten, fasen: _fasen, ...feedItem } = item;
-    items.push({ ...feedItem, dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
+    // De fasen van een evenement op straat (district-asign-evenementen) blijven in het bronbestand. De
+    // straten gaan mee: de plekpagina koppelt een agendapunt aan al zijn straten, niet alleen aan de drie
+    // in de locatietekst ("X, Y, Z en 8 andere straten"; place-view.js, setStreetLists).
+    const { fasen: _fasen, feiten: _feiten, nietGoedgekeurd: _status, nietGoedgekeurdStraten: _aanvraagStraten, ...feedItem } = item;
+    const aanvraagStraten = nietGoedgekeurdStraten(item);
+    items.push({ ...feedItem, ...(nietGoedgekeurd(item) ? { nietGoedgekeurd: true } : {}), ...(aanvraagStraten.length ? { nietGoedgekeurdStraten: aanvraagStraten } : {}), dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
   }
   const statusBySource = new Map((status?.sources ?? []).map((entry) => [entry.sourceId, entry]));
   const sources = documents
@@ -129,7 +173,7 @@ const isMain = process.argv[1] && fs.realpathSync(process.argv[1]) === fs.realpa
 if (isMain) {
   const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
   const sources = readSources(rootDir);
-  const { feed, droppedDuplicates, suppressed } = buildFeed(sources, loadHandAgendaItems(rootDir));
+  const { feed, droppedDuplicates, suppressed } = buildFeed({ ...sources, tekst: laadTekstBronnen(rootDir) }, loadHandAgendaItems(rootDir));
   const file = path.join(rootDir, "site", "agenda-feed.js");
   const text = renderFeedScript(feed);
   if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== text) fs.writeFileSync(file, text, "utf8");

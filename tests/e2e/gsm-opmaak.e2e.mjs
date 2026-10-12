@@ -124,8 +124,10 @@ const VERGUNNING = {
 // Een aanvraag over vier straten, de gekozen straat als laatste: op 360 px kapte de regel "Waar"
 // (twee regels) die straat af toen de tijdkolom ernaast stond. Fictief dossier, alleen straatnamen.
 const naast = ["Beatrijslaan", "Blancefloerlaan", "Sint-Annatunnel"].map((naam) => ref(straten.find((r) => r[1] === naam)));
+// Met een onderwerp: twee aanvragen zonder omschrijving in dezelfde straat zijn één ingeklapte regel (bundelLijst),
+// en deze toets gaat over de opmaak van gewone kaarten.
 const VERGUNNING_STRATEN = {
-  id: "permit:E2E-OMV-2099-0002", dossier: "OMV_2099000002", dossierType: "Omgevingsvergunning", address: "",
+  id: "permit:E2E-OMV-2099-0002", dossier: "OMV_2099000002", dossierType: "Omgevingsvergunning", address: "", purpose: "Verbouwing of uitbreiding",
   streets: [...naast, STRAAT], decision: "", authority: "", sourceUrl: "https://www.omgevingsloket.be/",
 };
 

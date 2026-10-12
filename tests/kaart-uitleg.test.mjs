@@ -114,7 +114,9 @@ test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk ov
   assert.equal(k.titel, "Vermoedelijk een loopwedstrijd door 5 straten in Centrum en Zuid"); // wat en waar
   const kern = Object.fromEntries(k.kern);
   assert.match(kern.Wat, /omschrijving van het dossier/);
-  assert.equal(kern.Wanneer, "Dinsdag 13 oktober; de uren zijn niet gepubliceerd.");
+  // Zonder uren: één keer boven de sectie (onbekend-zinnen.js); de kaart draagt het als veld.
+  assert.equal(kern.Wanneer, "Dinsdag 13 oktober.");
+  assert.deepEqual(k.onbekend.map((o) => o.id), ["evenement-uren"]);
   assert.match(kern.Waar, /^Parcours door 5 straten in Centrum en Zuid \(berekend/);
   assert.ok(k.ontbreekt.includes("naam van het evenement niet gepubliceerd door de stad"));
   assert.ok(k.ontbreekt.includes("uren niet gepubliceerd"));

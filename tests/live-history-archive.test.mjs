@@ -129,6 +129,8 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "site", "kaart-uitleg.js"), path.join(root, "site", "kaart-uitleg.js"));
       // ... en die haalt de vaste woorden en de dagen van een evenementendossier uit site/evenement-wat.js.
       fs.copyFileSync(path.join(repoRoot, "site", "evenement-wat.js"), path.join(root, "site", "evenement-wat.js"));
+      // ... en de vaste lijst onbekend-zinnen (site/onbekend-zinnen.js).
+      fs.copyFileSync(path.join(repoRoot, "site", "onbekend-zinnen.js"), path.join(root, "site", "onbekend-zinnen.js"));
 
       const baseline = { schemaVersion: 1, layers: { works: { observedAt: T1, items: [{ id: "work:1" }] }, publicSpace: null } };
       const day = updateHistoryArchiveDay(null, T2, [event(T2, "work:2")]);

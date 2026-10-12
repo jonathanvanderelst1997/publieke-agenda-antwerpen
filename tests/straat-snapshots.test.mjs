@@ -513,13 +513,14 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   const bundel = kam.filter((i) => i.bundel);
   assert.deepEqual(bundel.map((i) => i.id).sort(), ["parking:PROEF-PV|L2|bundel", "sgw:PROEF-GW|2"]);
   assert.deepEqual(bundel.find((i) => i.kind === "parking").streets.map((s) => s.name).sort(), [HUIK.name, PET.name]);
-  // Zoals de plekpagina ze toont: de werfzone met haar twee fasen, het parkeerverbod met de andere straten.
+  // Zoals de plekpagina ze toont: de werfzone met de fase waarin de Kammenstraat op de omleiding ligt (fase 2 is alleen
+  // de werfzone in de Peterseliestraat) en de hele werfzone in één regel; het parkeerverbod met de andere straten.
   const inStraat = kam.filter((i) => (i.streets || []).some((s) => s.id === KAM.id));
   const kaarten = publicSpaceEntries(inStraat, { vandaag: "2099-03-10", alle: kam, straat: KAM.name });
   const werfzone = kaarten.find((k) => k.item?.kind === "sgw");
   assert.equal(werfzone.title, "Werfzone met omleiding");
-  assert.deepEqual(werfzone.regels.find(([dt]) => /fasen/.test(dt))?.[0], "2 fasen");
-  assert.equal(werfzone.end, "2099-04-10");
+  assert.equal(werfzone.end, "2099-03-20");
+  assert.match(werfzone.regels.find(([dt]) => dt === "Hele werfzone")?.[1] || "", /^8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart\)$/);
   assert.match(kaarten.find((k) => k.item?.reference === "PROEF-PV").location, /^Kammenstraat \+ 2 andere straten/);
   // Live raakt het kader van de straat de werfzone van fase 1 niet: live alleen "Omleiding". De ochtend vult aan.
   const live = [{ ...kam.find((i) => i.id === "sgw:PROEF-GW|1"), kindLabel: "Omleiding", title: "Omleiding", streets: [KAM], werfzoneStreets: [] }];

@@ -3,6 +3,10 @@
 // gecontroleerd op de officiële pagina zelf: HTTP 200, een specifieke titel (minstens 12 tekens en
 // 2 woorden, als geheel) en de startdatum staan op de pagina. Uur, einddatum en plaats worden alleen
 // overgenomen als ze óók op die pagina staan; anders "Info" en "locatie via de officiële bron".
+// Een link naar uitinvlaanderen.be wordt nooit opgehaald (isUitLink in lib/mail-signals.mjs), ook niet als een
+// officiële pagina ernaar doorverwijst: dan is er geen pagina om titel en datum op na te kijken, en het signaal
+// wordt niet gepubliceerd (reden uit_niet_nagekeken of uit_not_fetched in de log). Zo blijft de bronvermelding
+// van mail-district en mail-stad ("opnieuw gecontroleerd") waar voor elk item.
 // Een titel die zichzelf privé noemt ("persoonlijke uitnodiging", "besloten", …) wordt nooit publiek.
 // Schrijft site/sources/mail-district.json en site/sources/mail-stad.json; raakt geen andere bronnen.
 //
@@ -12,7 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule, readSourceDocument, screenItems, statusEntry, writeSourceDocument } from "../lib/fetch-util.mjs";
 import { addDaysIso, brusselsDate } from "../lib/html-text.mjs";
-import { allowedSignalUrl, dateOnPage, hasPrivateMarker, pageText, placeOnPage, timeOnPage, titleOnPage, titleSpecificEnough, validateMailSignals } from "../lib/mail-signals.mjs";
+import { dateOnPage, fetchableSignalUrl, hasPrivateMarker, isUitLink, pageText, placeOnPage, timeOnPage, titleOnPage, titleSpecificEnough, validateMailSignals } from "../lib/mail-signals.mjs";
 import { parseEventTimes } from "../lib/event-contract.mjs";
 import { postcodesInText } from "../lib/postcodes.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
@@ -63,11 +67,13 @@ export function itemFromSignal(signal, { url, retrievedAt, text = "" }) {
   };
 }
 
-// Haalt een officiële pagina op met hoogstens 3 redirects, elk op een toegelaten host.
+// Haalt een officiële pagina op met hoogstens 3 redirects, elk op een toegelaten host. Nooit UiT: ook een
+// doorverwijzing naar uitinvlaanderen.be stopt vóór het verzoek (uit_not_fetched).
 export async function fetchOfficialPage(fetchImpl, startUrl) {
   let url = startUrl;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
-    if (!allowedSignalUrl(url)) throw new FetchError("redirect_not_allowed");
+    if (isUitLink(url)) throw new FetchError("uit_not_fetched");
+    if (!fetchableSignalUrl(url)) throw new FetchError("redirect_not_allowed");
     const response = await fetchWithTimeout(fetchImpl, url, {
       headers: { "user-agent": USER_AGENT, accept: "text/html" },
       redirect: "manual",
@@ -86,8 +92,10 @@ export async function fetchOfficialPage(fetchImpl, startUrl) {
   throw new FetchError("too_many_redirects");
 }
 
-// Herverifieert één signaal. Resultaat: { item } of { reason }.
+// Herverifieert één signaal. Resultaat: { item } of { reason }. Een UiT-link wordt niet opgehaald en dus ook niet
+// nagekeken: geen item, reden uit_niet_nagekeken (alleen geteld in de log en de status).
 export async function reverify(fetchImpl, signal, retrievedAt) {
+  if (isUitLink(signal.url)) return { reason: "uit_niet_nagekeken" };
   let page;
   try {
     page = await fetchOfficialPage(fetchImpl, signal.url);

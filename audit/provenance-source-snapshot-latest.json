@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-12",
   "sourceItemCount": 929,
-  "sourceDigest": "cd284256266d6abb9c25957c8178f482cec3f85770cce02ffccbf302d6fc5d23",
+  "sourceDigest": "b94a3d0e9b1c26d524a868af45c8ffeb2f39c6a15e4babaf92ebde363fcfcd3d",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -436,7 +436,7 @@
     },
     {
       "id": "asign-ev-et2025005965-2026-10-23",
-      "title": "Evenement op het Theaterplein — naam volgt",
+      "title": "Evenement op het Theaterplein",
       "eventDate": "2026-10-23",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -514,7 +514,7 @@
     },
     {
       "id": "asign-ev-et2025007162-2026-10-18",
-      "title": "Evenement in de Amsterdamstraat — naam volgt",
+      "title": "Evenement in de Amsterdamstraat",
       "eventDate": "2026-10-18",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -527,7 +527,7 @@
     },
     {
       "id": "asign-ev-et2026000222-2026-12-04",
-      "title": "Evenement op het Steenplein — naam volgt",
+      "title": "Evenement op het Steenplein",
       "eventDate": "2026-12-04",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -553,7 +553,7 @@
     },
     {
       "id": "asign-ev-et2026001197-2026-11-14",
-      "title": "Evenement op de Ernest Van Dijckkaai — naam volgt",
+      "title": "Evenement op de Ernest Van Dijckkaai",
       "eventDate": "2026-11-14",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -579,7 +579,7 @@
     },
     {
       "id": "asign-ev-et2026003067-2026-10-17",
-      "title": "Evenement in de Carnotstraat — naam volgt",
+      "title": "Evenement in de Carnotstraat",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1060,7 +1060,7 @@
     },
     {
       "id": "asign-ev-et2026005103-2026-10-17",
-      "title": "Evenement in de Miraeusstraat — naam volgt",
+      "title": "Evenement in de Miraeusstraat",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1073,7 +1073,7 @@
     },
     {
       "id": "asign-ev-et2026005154-2026-10-25",
-      "title": "Evenement in de Van Campstraat — naam volgt",
+      "title": "Evenement in de Van Campstraat",
       "eventDate": "2026-10-25",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1112,7 +1112,7 @@
     },
     {
       "id": "asign-ev-et2026005298-2026-11-17",
-      "title": "Evenement in de Lange Sint-Annastraat — naam volgt",
+      "title": "Evenement in de Lange Sint-Annastraat",
       "eventDate": "2026-11-17",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1177,7 +1177,7 @@
     },
     {
       "id": "asign-ev-et2026005499-2026-11-29",
-      "title": "Evenement in de Beukenlaan — naam volgt",
+      "title": "Evenement in de Beukenlaan",
       "eventDate": "2026-11-29",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1190,7 +1190,7 @@
     },
     {
       "id": "asign-ev-et2026005554-2026-10-17",
-      "title": "Evenement in de Kronenburgstraat — naam volgt",
+      "title": "Evenement in de Kronenburgstraat",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1203,7 +1203,7 @@
     },
     {
       "id": "asign-ev-et2026005665-2026-11-15",
-      "title": "Evenement in de Floraliënlaan — naam volgt",
+      "title": "Evenement in de Floraliënlaan",
       "eventDate": "2026-11-15",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
@@ -1242,7 +1242,7 @@
     },
     {
       "id": "asign-ev-et2026005821-2026-12-06",
-      "title": "Evenement in de Argentiniëlaan — naam volgt",
+      "title": "Evenement in de Argentiniëlaan",
       "eventDate": "2026-12-06",
       "classification": "future",
       "classificationAsOf": "2026-10-12",
