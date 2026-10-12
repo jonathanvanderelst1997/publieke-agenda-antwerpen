@@ -78,7 +78,8 @@
 }
 /* "Dit kaartje heeft (nog) geen plek op de kaart." na "Toon op de kaart": een balk vlak boven de kaart, in de flow,
    nooit over de kaart (niet over een popup, niet over de knop in de sluier). Schermlezers horen ze in de zin onder
-   de kaart (aria-live). */
+   de kaart (aria-live). Een tik op de legenda of de kaart ruimt ze niet op (dan schoof alles onder de vinger
+   omhoog); alleen een actie in de lijst doet dat. */
 .buurt-melding { margin: 0 0 8px; padding: 8px 12px; border-radius: 12px; background: var(--pa-surface-2, #fbf8f4); color: var(--pa-ink, #1b2330); border: 1px solid var(--pa-line-strong, #c9bfb2); font-size: 0.86rem; font-weight: 700; line-height: 1.35; }
 .buurt-melding[hidden] { display: none; }
 /* Het vlak van de kaart (Leaflet of MapLibre) binnen .buurt-map: zo kan de ene kaart wijken voor de andere. */

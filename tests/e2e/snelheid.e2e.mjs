@@ -1039,6 +1039,62 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // ---- P9b, ronde 2 ----
+  // (1) Na "Toon op de kaart" voor een kaartje zonder plek staat de balk "geen plek" in de flow boven de kaart. Een tik
+  // op de legenda ruimde ze op: kaart en legenda schoven meteen omhoog (op 390×844 63 px, met tekst 200 % 137 px),
+  // terwijl de vinger nog op de knop lag. Een tweede tik op dezelfde plek, om de soort terug te zetten, zette zo een
+  // andere soort uit. Nu verandert een tik op de legenda niets boven de knoppen: de balk blijft staan tot een rij in de
+  // lijst open- of dichtgaat, of tot een nieuwe "Toon op de kaart". Stand van de ochtend (geen enkel kaartje heeft er
+  // een vorm, dus elke "Toon op de kaart" eindigt op die balk), alles geblokkeerd behalve Leaflet uit de fixture.
+  const legendaStand = (page) => page.evaluate(() => Object.fromEntries([...document.querySelectorAll("#buurtkaart [data-kaartsoort]")]
+    .filter((b) => !b.hidden).map((b) => [b.dataset.kaartsoort, b.getAttribute("aria-pressed")])));
+  for (const [width, height, tekst] of [[320, 640, ""], [390, 844, ""], [412, 915, ""], [390, 844, "200%"]]) await t.test(`P9b ronde 2 (1): na "geen plek" zetten twee tikken op dezelfde plek van de legenda dezelfde soort uit en weer aan (${width}×${height}${tekst ? `, tekst ${tekst}` : ""})`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width, height });
+    if (tekst) await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, tekst);
+    const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
+    await rij.waitFor({ timeout: 5000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await rij.locator(".pv-row-btn").tap();
+    await rij.locator(".pv-op-kaart").tap();
+    await page.waitForFunction(() => /geen plek op de kaart/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || "")
+      && document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 15000 });
+    await page.waitForTimeout(600);
+    // De bovenste knop van de legenda die helemaal in beeld staat en waar nog een knop onder staat; tikken in het midden.
+    const doel = await page.evaluate(() => {
+      const knoppen = [...document.querySelectorAll("#buurtkaart [data-kaartsoort]")].filter((b) => !b.hidden);
+      const b = knoppen.find((k, i) => { const r = k.getBoundingClientRect(); return i < knoppen.length - 1 && r.top >= 0 && r.bottom <= innerHeight; });
+      if (!b) return null;
+      const r = b.getBoundingClientRect();
+      return { soort: b.dataset.kaartsoort, x: Math.round(r.left + r.width / 2), y: Math.round(r.top + r.height / 2), top: Math.round(r.top) };
+    });
+    assert.ok(doel, `geen legendaknop in beeld: ${JSON.stringify(await legendaStand(page))}`);
+    const plekVan = (soort) => page.evaluate((s) => Math.round(document.querySelector(`#buurtkaart [data-kaartsoort="${s}"]`).getBoundingClientRect().top), doel.soort);
+    const balk = () => page.evaluate(() => [...document.querySelectorAll("#buurtkaart *")].some((el) => [...el.childNodes].some((n) => n.nodeType === 3 && /geen plek op de kaart/.test(n.data))
+      && !el.closest("[hidden]") && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden" && el.getBoundingClientRect().bottom <= document.querySelector("#buurtkaart .buurt-map").getBoundingClientRect().top));
+    const voor = await legendaStand(page);
+    assert.equal(voor[doel.soort], "true");
+    assert.equal(await balk(), true, "de balk \"geen plek\" staat boven de kaart");
+    await page.touchscreen.tap(doel.x, doel.y);
+    await page.waitForTimeout(400);
+    const na1 = await legendaStand(page), top1 = await plekVan(doel.soort);
+    await page.touchscreen.tap(doel.x, doel.y);
+    await page.waitForTimeout(400);
+    const na2 = await legendaStand(page), top2 = await plekVan(doel.soort);
+    st.diagnostic(`${width}×${height}${tekst ? ` ${tekst}` : ""}: tik op ${doel.soort} (${doel.x},${doel.y}), top ${doel.top} → ${top1} → ${top2}; ${JSON.stringify({ voor, na1, na2 })}`);
+    assert.deepEqual(na1, { ...voor, [doel.soort]: "false" }, "de eerste tik zet alleen die soort uit");
+    assert.equal(top1, doel.top, "de knop schoof weg onder de vinger");
+    assert.deepEqual(na2, voor, "de tweede tik op dezelfde plek zet dezelfde soort terug, de andere blijven");
+    assert.equal(top2, doel.top);
+    assert.equal(await balk(), true, "de balk blijft staan tot de volgende actie in de lijst");
+    // De rij dichtklappen (in de lijst, op gsm boven de kaart) ruimt de balk op.
+    await rij.locator(".pv-row-btn").tap();
+    await page.waitForFunction(() => !/geen plek op de kaart/.test(document.querySelector("#buurtkaart")?.innerText || ""), null, { timeout: 5000 })
+      .catch(() => assert.fail("de balk \"geen plek\" bleef staan nadat de rij dichtging"));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Het vectorpad (alleen met MAPLIBRE_DIR: MapLibre staat niet in de repo). Offline toetst de rest van dit bestand
   // alleen de terugval; hier komen MapLibre, de stijl en de tegels uit een nagebootste OpenFreeMap.
   const metMapLibre = MAPLIBRE_DIR ? false : "zet MAPLIBRE_DIR naar de npm-dist van maplibre-gl 5.24.0";

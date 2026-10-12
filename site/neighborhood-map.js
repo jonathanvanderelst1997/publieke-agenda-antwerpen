@@ -380,7 +380,9 @@ export async function mountNeighborhoodMap(view) {
 
   let wijken = [], geo = { entries: {} }, matcher = null, streetIndex = null, straatasMislukt = false;
   // De kaart (een adapter, zie maakLeafletKaart), wat ze tekent (kaartLagen) en wat de bewoner koos.
-  let kaart = null, lagen = null, entryVan = new Map(), gemarkeerd = "", melding = "";
+  // `melding`: wat de laatste actie zei, achter de zin onder de kaart (aria-live). `balk`: "geen plek" na "Toon op
+  // de kaart", zichtbaar boven de kaart (zie zetStatus).
+  let kaart = null, lagen = null, entryVan = new Map(), gemarkeerd = "", melding = "", balk = "";
   const verborgen = new Set();
 
   // ---- legenda: vijf soorten, elk met tekentje, aantal op deze plek en (verborgen tekst) op de kaart ----
@@ -395,6 +397,9 @@ export async function mountNeighborhoodMap(view) {
     // Het tekentje: de vorm op de kaart, en voor een soort met plekken bij benadering ook die vorm (vierkant, ruit).
     const extra = ONGEVEER_VORM[s.key] && ONGEVEER_VORM[s.key] !== s.vorm ? `<span class="buurt-teken buurt-teken-${ONGEVEER_VORM[s.key]}" aria-hidden="true"></span>` : "";
     knop.innerHTML = `<span class="buurt-tekens"><span class="buurt-teken buurt-teken-${s.vorm}" aria-hidden="true"></span>${extra}</span><span class="buurt-leg-label">${esc(s.label)}</span> <span class="pv-chip-n">0</span><span class="buurt-vh"> op deze plek, 0 op de kaart</span>`;
+    // Een tik op de legenda verandert niets boven de knoppen: de balk "geen plek" boven de kaart blijft staan. Ruimde
+    // de tik ze op, dan schoven kaart en legenda omhoog terwijl de vinger nog op de knop lag, en zette een tweede tik
+    // op dezelfde plek (de soort terugzetten) een andere soort uit.
     knop.addEventListener("click", () => {
       if (verborgen.has(s.key)) verborgen.delete(s.key); else verborgen.add(s.key);
       melding = "";
@@ -637,6 +642,7 @@ export async function mountNeighborhoodMap(view) {
     else if (gemarkeerd === uid) gemarkeerd = "";
     else return;
     melding = "";
+    balk = "";
     markeer("buiten-beeld");
     zetStatus();
   });
@@ -655,6 +661,7 @@ export async function mountNeighborhoodMap(view) {
     const soort = entry ? window.PUBLIC_AGENDA_KAART?.tel?.soortVan?.get?.(lijstSleutel(entry)) || kaartSoort(entry) : "";
     if (verborgen.delete(soort)) drawAll();
     melding = lagen?.kaderVan?.has(uid) ? `Gemarkeerd op de kaart: ${entry?.title || "dit kaartje"}.` : GEEN_PLEK;
+    balk = melding === GEEN_PLEK ? GEEN_PLEK : "";
     zetStatus();
     $(".buurt-map-wrap").scrollIntoView({ block: "center" });
     if (!meldingEl.hidden) meldingEl.scrollIntoView({ block: "nearest" });
@@ -693,9 +700,10 @@ export async function mountNeighborhoodMap(view) {
   }
   // De zin onder de kaart (voor schermlezers ook de melding: aria-live). "Geen plek" staat daarnaast zichtbaar in
   // een balk vlak boven de kaart (.buurt-melding, verborgen voor schermlezers: ze horen ze al in de zin), zodat wie
-  // op "Toon op de kaart" tikte, ze ziet ook als de zin buiten beeld valt.
+  // op "Toon op de kaart" tikte, ze ziet ook als de zin buiten beeld valt. De balk staat in de flow: alleen een actie
+  // in de lijst ruimt ze op (een rij open- of dichtklappen, een nieuwe "Toon op de kaart"; op gsm staan die knoppen
+  // boven de kaart), nooit een tik onder de balk (de legenda, de kaart): dan schoof alles onder de vinger omhoog.
   function zetStatus() {
-    const balk = melding === GEEN_PLEK ? melding : "";
     meldingEl.textContent = balk;
     meldingEl.hidden = !balk;
     if (!laatste) return;
