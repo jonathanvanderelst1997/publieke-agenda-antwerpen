@@ -242,6 +242,8 @@
 .pv-links a, .pv-ics { color: var(--pa-accent); font-weight: 700; font-size: .9rem; text-underline-offset: 3px; }
 .pv-links .pv-bron-bezoeker { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--pa-line-strong); border-radius: 10px; background: var(--pa-surface-2); }
 .pv-links .pv-bron-technisch { font-size: .8rem; color: var(--pa-muted); font-weight: 500; }
+/* "Toon op de kaart" in een open kaartje (P9): van de lijst naar de buurtkaart. */
+.pv-detail p.pv-op-kaart-rij { margin: 12px 0 0; }
 /* Ruwe stadsgegevens: ingeklapt, zodat de eerste link een pagina voor bewoners is. */
 .pv-tech { margin-top: 8px; font-size: .85rem; color: var(--pa-muted); }
 .pv-tech summary { cursor: pointer; min-height: 32px; display: inline-flex; align-items: center; }
@@ -368,7 +370,9 @@
 }
 @media (min-width: 1040px) {
   .pv-layout { grid-template-columns: minmax(0, 1fr) 380px; align-items: start; }
-  .pv-aside { position: sticky; top: 16px; }
+  /* De kaartkolom staat vast naast de lijst, maar nooit hoger dan het venster: met de legenda is ze op een laptop
+     hoger dan het scherm, en dan kreeg een knop onderaan de focus buiten beeld. Ze scrolt dan zelf. */
+  .pv-aside { position: sticky; top: 16px; max-height: calc(100vh - 32px); overflow-y: auto; }
   .pv-aside .buurt-map { height: 420px; }
 }
 @media (max-width: 640px) {

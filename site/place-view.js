@@ -9,7 +9,8 @@ import {
   layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize, dezeWeek, WEEK_LICHT,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
-  periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, lijstAantal, werfPerStuk,
+  periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
+  kaartSoort, lijstSleutel, lijstUniversum, marktBundelEntry, telPerSoort,
 } from "./place-core.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -818,8 +819,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const bronHint = bezoekersHint(entry);
     if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
     if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
+    // Van de lijst naar de kaart (neighborhood-map.js, public-agenda:kaart-toon). Niet bij een terras of een markt.
+    // Of de kaart er een plek voor heeft, zegt de kaart zelf: de knop hangt niet af van de geometrie, zodat het
+    // kaartje uit de stand van de ochtend en het live nagekeken kaartje er hetzelfde uitzien.
+    const opKaart = entry.source !== "terraces" && entry.theme !== "markets" ? `<p class="pv-op-kaart-rij"><button type="button" class="pv-btn pv-btn-ghost pv-op-kaart" data-op-kaart="${esc(entry.uid)}">Toon op de kaart</button></p>` : "";
     return `
-      <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}${entry.uitleg?.kern ? " pv-row-kern" : ""}" data-uid="${esc(entry.uid)}">
+      <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}${entry.uitleg?.kern ? " pv-row-kern" : ""}" data-uid="${esc(entry.uid)}" data-soort="${kaartSoort(entry)}" data-tel="${esc(lijstSleutel(entry))}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
           <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
@@ -848,6 +853,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${bronHint ? `<p class="pv-bron-hint">${esc(bronHint)}</p>` : ""}
           ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
+          ${opKaart}
           ${technischBlok}
         </div>
       </li>`;
@@ -947,7 +953,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
   function sectionTemplate(key, title, entries, options, note = "") {
     if (!entries.length) return "";
-    const all = state.expanded.has(key);
+    // Een open kaartje (van de kaart of een link geopend) zit nooit verborgen achter "Toon alle N".
+    const all = state.expanded.has(key) || entries.slice(SECTION_LIMIT).some((e) => state.open.has(e.uid));
     const shown = all ? entries : entries.slice(0, SECTION_LIMIT);
     // De titel kan een verborgen pictogram in HTML bevatten; de toegankelijke naam is alleen de tekst.
     const naam = String(title).replace(/<span aria-hidden="true">[^<]*<\/span>/g, "").replace(/<[^>]*>/g, "").trim();
@@ -964,7 +971,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function marketsTemplate(bundles) {
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return "";
-    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
+    return `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets" data-soort="agenda" data-tel="${esc(lijstSleutel(marktBundelEntry(m)))}"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>`;
   }
   // De tijdlijn geeft een eigen periode (`wanneer`: "op dinsdag 20 oktober", "in de komende 14 dagen") en
   // uitleg mee: een lege dag zegt niets over de hele plek. `later`: de tip "Toon ook wat later komt".
@@ -985,7 +992,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const onvolledig = state.onvolledig ? `<p class="pv-empty-warn"><span aria-hidden="true">⚠️</span> ${esc(state.onvolledig)}</p>` : "";
     return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3>${onvolledig}<p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
   }
-  function renderList(entries, today) {
+  function renderList(entries, today, bundels = []) {
     const { from, to } = periodRange(state.period, today);
     const dated = entries.filter((e) => e.theme !== "markets" && e.group !== "vergunningen");
     const { running, days, later, doorlopend } = groupForList(dated, { from, to, today });
@@ -1002,7 +1009,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // dagen echt gebeurt (groupForList in place-core.js).
     html.push(sectionTemplate("doorlopend", `<span aria-hidden="true">📆</span> Doorlopend: twee weken of langer`, doorlopend, { today, context: "running" }, `<p class="pv-day-note">${esc(doorlopendNoot(doorlopend))}</p>`));
     if (later.length) html.push(`<button type="button" class="pv-later" data-period-tip="alles"><strong>${later.length} item${later.length === 1 ? "" : "s"} later gepland</strong><span>vanaf ${esc(longDate(later[0].start))} · toon alles</span></button>`);
-    const bundels = marktBundels(entries, today);
     html.push(marketsTemplate(bundels));
     html.push(sectionTemplate("permits", `<span aria-hidden="true">📄</span> Omgevingsaanvragen en besluiten`, permits, { today, context: "permit" }));
     const body = html.filter(Boolean).join("");
@@ -1119,6 +1125,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       else doel?.focus();
       return;
     }
+    const opKaart = event.target.closest("[data-op-kaart]");
+    if (opKaart) { window.dispatchEvent(new CustomEvent("public-agenda:kaart-toon", { detail: { uid: opKaart.dataset.opKaart } })); return; }
     const row = event.target.closest(".pv-row-btn");
     if (row) {
       const li = row.closest(".pv-row"), uid = li.dataset.uid, detail = li.querySelector(".pv-detail");
@@ -1127,6 +1135,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       li.classList.toggle("open", open); row.setAttribute("aria-expanded", String(open)); detail.hidden = !open;
       const leeg = open ? detail.querySelector("figure[data-schets]") : null;
       if (leeg && kaartPerUid.has(uid)) leeg.outerHTML = schetsFiguur(kaartPerUid.get(uid));
+      // De kaart markeert wat open staat (neighborhood-map.js).
+      window.dispatchEvent(new CustomEvent("public-agenda:rij-open", { detail: { uid, open } }));
       return;
     }
     const ics = event.target.closest("[data-ics]");
@@ -1147,16 +1157,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (event.target.closest("[data-all-tip]")) { state.groups = new Set(KIND_GROUPS.map((g) => g.key)); state.customized = true; view.wantsLiveLayers = true; view.setThemes(themesForGroups([...state.groups])); announce(); }
   });
 
-  // Kaartmarker of deeplink: het item openklappen in het overzicht.
-  window.PUBLIC_AGENDA_OPEN = (id) => {
-    const uid = `agenda:${id}`;
+  // Kaart of deeplink: een kaartje openklappen in de lijst, met periode "alles", in het midden van het scherm en
+  // met de focus op de knop van de rij. Elke soort (agenda, werken, publieke ruimte, vergunningen): op uid.
+  function openUid(uid) {
+    if (!uid) return;
     state.open.add(uid);
     if (state.mode !== "lijst") state.mode = "lijst";
     state.period = "alles";
     render();
-    const li = results.querySelector(`[data-uid="${CSS.escape(uid)}"]`);
+    const li = results.querySelector(`.pv-row[data-uid="${CSS.escape(uid)}"]`);
     if (li) { li.scrollIntoView({ block: "center" }); li.querySelector(".pv-row-btn")?.focus({ preventScroll: true }); }
-  };
+  }
+  window.PUBLIC_AGENDA_OPEN = (id) => openUid(`agenda:${id}`);
+  window.addEventListener("public-agenda:open", (event) => openUid(event.detail?.uid));
 
   // "De komende 7 dagen in jouw straat": zolang werken, verkeersmaatregelen of evenementen op straat nog
   // laden, zeggen we dat eerlijk.
@@ -1185,7 +1198,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     renderToolbar();
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
-    const n = lijstAantal(entries);
+    // Hoeveel items: wat de lijst bij periode "alles" toont (lijstUniversum), per soort van de kaart geteld
+    // (telPerSoort). De legenda van de kaart telt hetzelfde, dus de som van de legenda is dit getal.
+    const markten = marktBundels(entries, today);
+    const lijst = lijstUniversum(entries, today, { markten });
+    const tel = telPerSoort(lijst);
+    meldKaartItems(lijst, entries, tel);
+    const n = tel.totaal;
     subEl.textContent = place
       ? `${n} item${n === 1 ? "" : "s"} uit officiële bronnen${place.type === "straat" && state.radius ? `, ook ${state.radius >= 1000 ? "1 km" : `${state.radius} m`} rond de straat (terrassen alleen in de straat zelf)` : ""}.`
       : "Zoek hierboven je straat of wijk om ook werken, verkeer en inspraak in je buurt te zien.";
@@ -1195,7 +1214,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     ].filter(Boolean).join(" ");
     let getoond = null;
     if (state.mode === "maand") renderMonth(entries, today);
-    else getoond = state.mode === "tijdlijn" ? renderTijdlijn(entries, today) : renderList(entries, today);
+    else getoond = state.mode === "tijdlijn" ? renderTijdlijn(entries, today) : renderList(entries, today, markten);
     meldKaart(place ? getoond : null, entries);
   }
   // De buurtkaart zegt "X in de lijst, Y op de kaart" (neighborhood-map.js). X is wat de lijst hierboven
@@ -1209,6 +1228,15 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     state.kaartMelding = sleutel;
     window.PUBLIC_AGENDA_PLACE_LIST = stand;
     window.dispatchEvent(new CustomEvent("public-agenda:place-list", { detail: stand }));
+  }
+  // Wat de kaart tekent (neighborhood-map.js): het universum van de lijst, zonder de kaartjes van de wekelijkse
+  // markten maar met hun marktdagen (die hebben een plek, en zo blijven de marktpins), en de telling per soort
+  // voor de legenda. Ook op window: de kaart mount later en mist anders de eerste tekenbeurt.
+  function meldKaartItems(lijst, entries, tel) {
+    const weekmarkt = window.PublicAgendaUitgaan?.isWeeklyMarket;
+    const teken = [...lijst.filter((e) => e.source !== "markt"), ...entries.filter((e) => e.theme === "markets" && e.start && weekmarkt?.(e.item))];
+    window.PUBLIC_AGENDA_KAART = { teken, tel };
+    window.dispatchEvent(new CustomEvent("public-agenda:kaart-items", { detail: window.PUBLIC_AGENDA_KAART }));
   }
   let frame = 0;
   function schedule() { cancelAnimationFrame(frame); frame = requestAnimationFrame(render); }

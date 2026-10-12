@@ -516,13 +516,15 @@ export function werkEntries(works = [], opties = {}) {
     const deel = `bij ${ernstigeStukken} van de ${lijst.length} stukken`;
     const info = ernstig && eerste.item?.hindrance?.severe !== true ? [eerste.info, `Ernstige hinder ${deel}`].filter(Boolean).join(" · ") : eerste.info;
     const hinderRegel = ernstig && ernstigeStukken < lijst.length ? [["Ernstige hinder", `${deel}, volgens GIPOD`]] : [];
-    return { ...eerste, info, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, gipodIds: ids, ernstig, uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel, ...hinderRegel] } : eerste.uitleg };
+    // `rijen`: alle stukken, voor de buurtkaart (een punt per stuk). Alleen voor de kaart, niet voor de tekst.
+    return { ...eerste, info, reference: `GIPOD ${ids.join(", ")}`, werfzones: lijst.length, gipodIds: ids, ernstig, rijen: lijst.map((e) => e.item), uitleg: eerste.uitleg ? { ...eerste.uitleg, regels: [...eerste.uitleg.regels, regel, ...hinderRegel] } : eerste.uitleg };
   });
 }
 // Zo telt het plekoverzicht ("N items uit officiële bronnen"): een agendapunt per activiteit (titel en plek:
 // een weekmarkt met acht marktdagen is er één), een kaart uit de live lagen per uid. "X in de lijst" onder de
 // buurtkaart telt anders: de kaarten die de lijst echt toont, zoals de aantallen naast de koppen (place-view.js).
-export const lijstSleutel = (entry = {}) => (entry.source === "agenda" ? `${entry.title}|${entry.location}` : entry.uid);
+// Een kaartje van een wekelijkse markt (marktBundelEntry) telt zoals zijn marktdagen: per titel en plek.
+export const lijstSleutel = (entry = {}) => (entry.source === "agenda" || entry.source === "markt" ? `${entry.title}|${entry.location}` : entry.uid);
 export const lijstAantal = (entries = []) => new Set(entries.map(lijstSleutel)).size;
 // Voor de buurtkaart: de kaart tekent een punt per GIPOD-stuk, de lijst een kaart per werf (werkEntries).
 // Per GIPOD-nummer van een stuk het nummer van zijn werf, zodat de kaart per kaart van de lijst telt.
@@ -530,6 +532,64 @@ export function werfPerStuk(entries = []) {
   const werf = {};
   for (const entry of entries) for (const id of entry.gipodIds || []) werf[id] = String(entry.gipodIds[0]);
   return werf;
+}
+
+// ---- soorten op de buurtkaart (P9) ----
+// De legenda van de kaart: vijf soorten. De kleur is die van de rij in de lijst (kindInfo in place-view.js),
+// en elke soort heeft ook een eigen vorm: kleur is nooit de enige drager. Agendapunten blijven pins in hun
+// eigen categoriekleur; `cat` is daar alleen de kleur van de legendaknop.
+export const KAART_SOORTEN = Object.freeze([
+  Object.freeze({ key: "evenement", label: "Evenement & parcours", cat: "festival", vorm: "lijn" }),
+  Object.freeze({ key: "werken", label: "Werken", cat: "works", vorm: "stip" }),
+  Object.freeze({ key: "verkeer", label: "Omleiding, parkeerverbod & inname", cat: "publicSpace", vorm: "streep" }),
+  Object.freeze({ key: "vergunning", label: "Vergunningen", cat: "permits", vorm: "ring" }),
+  Object.freeze({ key: "agenda", label: "Agendapunten", cat: "other", vorm: "pin" }),
+]);
+// De soort van een kaart van de lijst. Een evenementendossier (ook een inname die geen evenement met publiek
+// is) is een evenement; de andere publieke ruimte (parkeerverbod, werfzone, omleiding, losse inname) is verkeer.
+// Een marktbundel (marktBundelEntry) is een agendapunt.
+export function kaartSoort(e = {}) {
+  if (e.source === "works") return "werken";
+  if (e.source === "publicSpace") return String(e.uid || "").startsWith("publicSpace:dossier:") || e.item?.kind === "event" ? "evenement" : "verkeer";
+  if (e.source === "permits" || e.source === "terraces") return "vergunning";
+  return "agenda";
+}
+// Eén kaartje van de lijst per wekelijkse markt (bundleWeeklyMarkets in agenda-uitgaan.js), om te tellen. Het
+// telt met dezelfde sleutel als de marktdagen zelf (lijstSleutel), die als pins op de kaart staan.
+export const marktBundelEntry = (m = {}) => {
+  const title = cleanText(m.title), location = cleanText(m.location);
+  return { uid: `markt|${title}|${location}`, source: "markt", theme: "markets", group: "markten", title, location };
+};
+// Tellen per soort, met dezelfde sleutel als het plekoverzicht (lijstSleutel): een agendapunt op drie data is
+// één, een kaart uit de live lagen per uid. Bij dezelfde sleutel wint het eerste voorkomen, zodat de som per
+// soort altijd het totaal is. `soortVan`: sleutel → soort, voor de kaart.
+export function telPerSoort(lijst = []) {
+  const per = Object.fromEntries(KAART_SOORTEN.map((s) => [s.key, 0]));
+  const soortVan = new Map();
+  for (const e of lijst) {
+    const sleutel = lijstSleutel(e);
+    if (soortVan.has(sleutel)) continue;
+    const soort = kaartSoort(e);
+    soortVan.set(sleutel, soort);
+    per[soort] += 1;
+  }
+  return { per, soortVan, totaal: soortVan.size };
+}
+// Wat de lijst toont bij periode "alles" (renderList in place-view.js): alle bakken van groupForList (wat
+// "later gepland" is ook), elke kaart één keer (de bak "later" maakt een kopie met de volgende losse dag),
+// de vergunningen, en één kaartje per wekelijkse markt (`markten`: de bundels die de lijst toont). Niet: een
+// item zonder datum, een afgelopen item, een losse marktdag die geen wekelijkse markt is.
+export function lijstUniversum(entries = [], today = "", { markten = [] } = {}) {
+  const dated = entries.filter((e) => e.theme !== "markets" && e.group !== "vergunningen");
+  const eigen = new Map();
+  for (const e of dated) if (!eigen.has(e.uid)) eigen.set(e.uid, e);
+  const { running, days, later, doorlopend } = groupForList(dated, { ...periodRange("alles", today), today });
+  const uit = [], gezien = new Set();
+  const neem = (e) => { if (!gezien.has(e.uid)) { gezien.add(e.uid); uit.push(eigen.get(e.uid) || e); } };
+  for (const e of [...running, ...days.flatMap(([, lijst]) => lijst), ...doorlopend, ...later]) neem(e);
+  for (const e of entries) if (e.group === "vergunningen") neem(e);
+  for (const m of markten) neem(marktBundelEntry(m));
+  return uit;
 }
 // Het label naast de soort. Een werk waarvan de periode loopt maar dat GIPOD nog "concreet gepland"
 // noemt, krijgt "Periode loopt" en niet "Nu bezig": anders spreken label en status elkaar tegen.
@@ -631,6 +691,8 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
     evenementLinks: k.links, straten: feiten.straten, kruist: stratenLijst.kruist, jouwStraat: jouwStraat?.kort || "", kaart, kaartDeel,
     // De echte dagen als die los liggen (een maandag per maand), voor de lijst en de badge (groupForList).
     losseDagen: k.losseDagen || [],
+    // Alle innames van het dossier, ook buiten de gekozen plek: de buurtkaart tekent het hele parcours.
+    rijen: alle,
   };
 }
 
@@ -947,6 +1009,8 @@ function bundelMaatregelen(rows, { alle = rows, straat = "", vandaag = "" } = {}
     const straten = stratenVan(dossierRijen);
     const entry = publicSpaceEntry(first);
     entry.straten = straten;
+    // De rijen van het dossier (alle plaatsen van het parkeerverbod, alle fasen van de werfzone), voor de buurtkaart.
+    entry.rijen = dossierRijen;
     const plaatsen = [...new Set(groep.map((r) => cleanText(r.location)).filter(Boolean))];
     entry.location = straten.length > 2 ? waarKort(straten, straat) : plaatsen.length === 1 ? plaatsen[0] : waarKort(straten.length ? straten : plaatsen, straat);
     if (first.kind === "sgw") Object.assign(entry, werfzoneEntry(dossierRijen, { vandaag, straat }));

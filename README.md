@@ -113,8 +113,26 @@ Naast (of op gsm boven) het plekoverzicht staat de kaart (`site/neighborhood-map
 - De 24 officiële wijken van district Antwerpen (`site/geo/wijken.geo.json`, vereenvoudigde kopie van de
   wijkindeling van stad Antwerpen, met bron en licentie in het bestand; opnieuw ophalen met
   `npm run geo:wijken`). Op een wijk tikken kiest die wijk als plek; de kaart zoomt in op de gekozen plek.
-- De kaart (Leaflet via cdnjs, met SRI, en OpenStreetMap-tegels) laadt pas als ze in beeld komt. Markers hebben de
-  kleur en het emoji van hun soort; werken staan er als stippen bij als "Werken & hinder" aanstaat.
+- De kaart: MapLibre + OpenFreeMap als het kan, anders Leaflet + OSM; de legenda filtert de kaart. In detail
+  (P9, `site/kaart-lagen.js`, `site/kaart-vector.js`): de kaart tekent wat de lijst toont, elk object in de kleur
+  van zijn rij en met een eigen vorm (evenement en parcours een lijn, werken een stip, omleiding en werfzone een
+  streeplijn of een vlak met een streeprand, vergunningen een ring). Als het kan is het een vectorkaart (MapLibre
+  5.24.0 van cdnjs met SRI, tegels van OpenFreeMap, geen sleutel); zonder WebGL, met databesparing, op een trage
+  verbinding (de browser schat ze lager dan 4g), met `?kaart=leaflet` of als de stijl of de eerste tegel niet op
+  tijd komt (8 s per stap, zolang de stijl en MapLibre binnenkomen hoogstens 16 s), Leaflet 1.9.4 (cdnjs, SRI) met
+  OpenStreetMap-tegels. Beide laden pas als de kaart in beeld komt en de browser even niets te doen heeft. De
+  legenda (vijf soorten, met het aantal op deze plek, zoals het getal boven de lijst) toont of verbergt een soort
+  alleen op de kaart; de lijst blijft volledig. "X in de lijst" zegt alleen de zin onder de kaart: wat de lijst in
+  de gekozen periode, weergave of dag echt toont; wat er zonder vaste plek is, telt "hier". Parkeerverboden,
+  losse innames (ook die van een evenement: opbouw, afbraak en de parkeerverboden erbij) en vergunningen staan er
+  als één punt bij benadering (afgerond op 0,001°), nooit exact; van een evenement staan het parcours, de
+  omleidingen en de verkeersvrije zones exact.
+  Zo'n plek tekent de kaart als een vorm van 60 m met een eigen vorm per soort (een vergunning een gestippelde
+  ring, verkeer een gestreept vierkant, de innames van een evenement een ruit); een tik op een vorm noemt alle
+  kaartjes op dat punt. De gekozen straat en de markering staan in de inkt van de onderkaart (de tegels van
+  OpenStreetMap blijven licht, ook in donkere modus). "Toon op de kaart" in een open kaartje (de focus gaat mee
+  naar de kaart; zonder plek zegt een balk vlak boven de kaart dat, nooit over de kaart) en "Toon in de lijst" in
+  een popup wijzen kaart en lijst naar elkaar.
 - Coördinaten van agendapunten komen uit `site/geo/locaties.json`, bij het verversen gemaakt door
   `npm run geo:refresh` (Geolocation-API van Digitaal Vlaanderen). Een punt telt alleen als de straatnaam
   (en het huisnummer) letterlijk in de locatietekst staat. Plaatsen zonder straat ("Bib Permeke",
