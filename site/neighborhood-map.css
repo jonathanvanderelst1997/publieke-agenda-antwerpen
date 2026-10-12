@@ -68,12 +68,18 @@
    licht of donker bij het starten (data-onderkaart). Een rand eronder in de tegenkleur. */
 .buurt-map { position: relative; height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); --kaart-inkt: #121821; --kaart-inkt-rand: #ffffff; }
 .buurt-map[data-onderkaart="donker"] { --kaart-inkt: #f6f3ee; --kaart-inkt-rand: #121821; }
-/* "Toon op de kaart" zet de focus op de kaart (tabindex -1): een rand binnenin, de kaart knipt haar inhoud af. */
-.buurt-map:focus { outline: none; }
-.buurt-map:focus-visible { outline: 3px solid var(--pa-focus, #b45309); outline-offset: -3px; }
-/* Een melding bij de kaart zelf ("Dit kaartje heeft (nog) geen plek op de kaart."), over de kaart, naast de
-   zoomknoppen. Schermlezers horen ze in de zin onder de kaart (aria-live). */
-.buurt-melding { position: absolute; z-index: 1100; top: 8px; left: 52px; right: 8px; margin: 0; padding: 6px 10px; border-radius: 10px; background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); border: 1px solid var(--pa-line-strong, #c9bfb2); box-shadow: 0 4px 12px #00000026; font-size: 0.84rem; font-weight: 700; line-height: 1.3; pointer-events: none; }
+/* "Toon op de kaart" zet de focus op de kaart (tabindex -1). De rand staat rond de kaart, buiten haar lagen: een
+   rand binnenin tekenden de tegels, de paden en het canvas van Leaflet en MapLibre over (onzichtbaar, WCAG 2.4.7).
+   Zonder :has() (oudere browsers) een rand binnenin, boven alle lagen en knoppen van de kaart (z-index 1000). */
+.buurt-map:focus, .buurt-map:focus-visible { outline: none; }
+.buurt-map-wrap:has(> .buurt-map:focus-visible) { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
+@supports not selector(:has(a)) {
+  .buurt-map:focus-visible::after { content: ""; position: absolute; inset: 0; z-index: 1001; border-radius: 17px; box-shadow: inset 0 0 0 3px var(--pa-focus, #b45309); pointer-events: none; }
+}
+/* "Dit kaartje heeft (nog) geen plek op de kaart." na "Toon op de kaart": een balk vlak boven de kaart, in de flow,
+   nooit over de kaart (niet over een popup, niet over de knop in de sluier). Schermlezers horen ze in de zin onder
+   de kaart (aria-live). */
+.buurt-melding { margin: 0 0 8px; padding: 8px 12px; border-radius: 12px; background: var(--pa-surface-2, #fbf8f4); color: var(--pa-ink, #1b2330); border: 1px solid var(--pa-line-strong, #c9bfb2); font-size: 0.86rem; font-weight: 700; line-height: 1.35; }
 .buurt-melding[hidden] { display: none; }
 /* Het vlak van de kaart (Leaflet of MapLibre) binnen .buurt-map: zo kan de ene kaart wijken voor de andere. */
 .buurt-map .buurt-kaartvlak { position: absolute; inset: 0; width: 100%; height: 100%; }

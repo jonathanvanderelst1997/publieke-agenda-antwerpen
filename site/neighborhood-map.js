@@ -47,6 +47,7 @@ const DISTRICT_PREFIX = "ANT";
 // Zo ver zoomt de kaart hoogstens in op één kaartje (Leaflet; de vectorkaart één stap minder).
 const MARKEER_ZOOM = 17;
 const ZONDER_MAX = 40;
+const GEEN_PLEK = "Dit kaartje heeft (nog) geen plek op de kaart.";
 // Als er geen wijkgrenzen zijn: ruwweg de binnenstad, zodat de kaart toch een beeld heeft.
 const ANTWERPEN = Object.freeze([4.38, 51.19, 4.44, 51.24]);
 // Een pictogram per soort voor de lijst "zonder vaste plek" (agendapunten: dat van hun categorie).
@@ -156,7 +157,9 @@ export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [
       ...(ander > 0 ? [ander === 1 ? "1 evenement of vergunning" : `${ander} evenementen en vergunningen`] : []),
     ];
   if (werkenAan && !werkenGeladen) parts.push("werken en hinder worden geladen…");
-  if (without) parts.push(`${without} zonder vaste plek`);
+  // Wat zonder vaste plek is, telt (zoals "op de kaart" en de legenda) wat er hier is, niet wat de lijst nu toont:
+  // "hier", zodat het niet leest als een deel van "X in de lijst".
+  if (without) parts.push(`${without} hier zonder vaste plek`);
   return `${parts.join(" · ")}.`;
 }
 
@@ -347,10 +350,10 @@ export async function mountNeighborhoodMap(view) {
         <div class="buurt-radius" role="group" aria-label="Straal rond je straat" hidden></div>
       </div>
     </div>
+    <p class="buurt-melding" aria-hidden="true" hidden></p>
     <div class="buurt-map-wrap">
       <div class="buurt-map" role="region" aria-label="Kaart van district Antwerpen met de agenda in je buurt" tabindex="-1" data-kaart="geen" data-op-kaart="0" data-gemarkeerd=""></div>
       <div class="buurt-map-veil"><button type="button" class="buurt-map-load">🗺️ Toon de kaart</button></div>
-      <p class="buurt-melding" aria-hidden="true" hidden></p>
     </div>
     <div class="buurt-legenda" role="group" aria-label="Soorten op de kaart tonen of verbergen" hidden>
       <div class="buurt-leg-knoppen"></div>
@@ -361,7 +364,7 @@ export async function mountNeighborhoodMap(view) {
     <p class="buurt-attrib">Wijkgrenzen: <a href="https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/97" target="_blank" rel="noreferrer">stad Antwerpen, open data</a> ·
       locaties: <a href="https://geo.api.vlaanderen.be/geolocation/v4/Location" target="_blank" rel="noreferrer">Basisregisters Vlaanderen</a> · werken: GIPOD ·
       kaart: <a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a>, © <a href="https://openmaptiles.org" target="_blank" rel="noreferrer">OpenMapTiles</a>, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>-bijdragers.
-      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Werken, werfzones, omleidingen en het parcours van een evenement staan er exact; parkeerverboden, innames (ook die van een evenement) en vergunningen bij benadering (privacy).</p>
+      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Werken, werfzones en omleidingen, en van een evenement ook het parcours en de verkeersvrije zones, staan er exact; parkeerverboden, losse innames (ook die van een evenement) en vergunningen bij benadering (privacy).</p>
     <span class="buurt-kleuren" hidden>${KAART_SOORTEN.map((s) => `<i class="cat-${s.cat}"></i>`).join("")}</span>`;
   anchor.after(section);
   const $ = (s) => section.querySelector(s);
@@ -422,7 +425,9 @@ export async function mountNeighborhoodMap(view) {
   // ---- kaartjes zonder plek op de kaart: een lijst met knoppen naar het kaartje in de lijst ----
   const wanneer = (e, today) => (e.end && e.end > e.start ? kortBereik(e.start, e.end, today) : e.start ? kortDatum(e.start, today) : "");
   function tekenZonder(zonder, today, soortVan) {
-    // Een marktdag heeft geen eigen rij (de lijst bundelt de markt); hij telt wel mee.
+    // Een marktdag heeft geen eigen rij (de lijst bundelt de markt); hij telt wel mee. De kop en de rest ("en nog N")
+    // tellen, zoals de legenda, wat er op deze plek is (de lijst bij "alles"), niet wat de lijst nu toont: dat zegt
+    // alleen de zin onder de kaart ("X in de lijst").
     const lijst = zonder.filter((e) => e.theme !== "markets");
     const getoond = lijst.slice(0, ZONDER_MAX);
     noGeo.hidden = !zonder.length;
@@ -431,7 +436,7 @@ export async function mountNeighborhoodMap(view) {
       const emoji = e.source === "agenda" ? categorie(e).emoji : SOORT_EMOJI[soortVan?.get?.(lijstSleutel(e)) || kaartSoort(e)];
       const regel = [wanneer(e, today), e.location || "locatie via de bron"].filter(Boolean).map(esc).join(" · ");
       return `<li><button type="button" class="buurt-open" data-open-uid="${esc(e.uid)}"><span aria-hidden="true">${esc(emoji)}</span> ${esc(e.title)}</button> <small>${regel}</small></li>`;
-    }).join("") + (lijst.length > getoond.length ? `<li><small>en nog ${lijst.length - getoond.length} in de lijst</small></li>` : "");
+    }).join("") + (lijst.length > getoond.length ? `<li><small>en nog ${lijst.length - getoond.length} op deze plek</small></li>` : "");
   }
 
   // Klikken in de kaart, een popup of de lijst eronder: een kaartje openen in de lijst (place-view.js).
@@ -536,10 +541,19 @@ export async function mountNeighborhoodMap(view) {
     const thema = themaNu();
     starten = kiesKaart({
       magVector: magVector(),
+      // 8 s per stap; zolang de stappen binnenkomen (de stijl, MapLibre: voortgang) hoogstens 16 s tot de eerste tegel,
+      // daarna nog één keer 8 s (bijnaKlaar).
       wachttijd: 8000,
+      maxWacht: 16000,
       // Eerst de stijl (klein); pas als die er is, MapLibre (1 MB). Met de eerste tegel binnen is ze bijna klaar.
-      vector: (signal, { bijnaKlaar } = {}) => import("./kaart-vector.js").then((m) => m.haalStijl(thema, signal)
-        .then((stijl) => m.laadMapLibre().then((maplibregl) => m.maakVectorKaart(maplibregl, mapEl, { stijl, thema, kader: eersteKader, maxZoom, wijken, wijkStijl, onWijk: kiesWijk, pinHtml, pinNaam, signal, bijnaKlaar })))),
+      vector: (signal, { voortgang, bijnaKlaar } = {}) => import("./kaart-vector.js").then((m) => m.haalStijl(thema, signal)
+        .then((stijl) => {
+          voortgang?.();
+          return m.laadMapLibre().then((maplibregl) => {
+            voortgang?.();
+            return m.maakVectorKaart(maplibregl, mapEl, { stijl, thema, kader: eersteKader, maxZoom, wijken, wijkStijl, onWijk: kiesWijk, pinHtml, pinNaam, signal, bijnaKlaar });
+          });
+        })),
       basis: () => loadLeaflet().then((L) => maakLeafletKaart(L, mapEl, { wijken, onWijk: kiesWijk })),
     })
       .then((nieuw) => {
@@ -628,22 +642,23 @@ export async function mountNeighborhoodMap(view) {
   });
   // "Toon op de kaart" (vooral op gsm, waar de kaart onder de lijst staat): de kaart in beeld, starten als dat
   // nog niet gebeurde, en het kaartje markeren. Een soort die de legenda verborg, komt terug. Zonder plek op de
-  // kaart zegt de kaart dat eerlijk, bij de kaart zelf (de zin onder de legenda valt op een kleine gsm of met grote
-  // tekst buiten beeld). De focus gaat mee naar de kaart: anders bleef ze op de knop boven het venster, en sprong
-  // de volgende Tab terug naar de lijst.
+  // kaart zegt de kaart dat eerlijk, in een balk vlak boven de kaart (de zin onder de legenda valt op een kleine gsm
+  // of met grote tekst buiten beeld). Die balk ligt nooit over de kaart: niet over een popup, niet over de knop in
+  // de sluier. Lukt het markeren, dan zegt alleen de zin onder de kaart het (aria-live): de markering is zichtbaar.
+  // De focus gaat mee naar de kaart: anders bleef ze op de knop boven het venster, en sprong de volgende Tab terug
+  // naar de lijst.
   window.addEventListener("public-agenda:kaart-toon", async (event) => {
     const uid = String(event.detail?.uid || "");
     if (!uid) return;
     gemarkeerd = uid;
-    $(".buurt-map-wrap").scrollIntoView({ block: "center" });
-    mapEl.focus({ preventScroll: true });
     const entry = entryVan.get(uid);
     const soort = entry ? window.PUBLIC_AGENDA_KAART?.tel?.soortVan?.get?.(lijstSleutel(entry)) || kaartSoort(entry) : "";
     if (verborgen.delete(soort)) drawAll();
-    melding = lagen?.kaderVan?.has(uid)
-      ? `Gemarkeerd op de kaart: ${entry?.title || "dit kaartje"}.`
-      : "Dit kaartje heeft (nog) geen plek op de kaart.";
+    melding = lagen?.kaderVan?.has(uid) ? `Gemarkeerd op de kaart: ${entry?.title || "dit kaartje"}.` : GEEN_PLEK;
     zetStatus();
+    $(".buurt-map-wrap").scrollIntoView({ block: "center" });
+    if (!meldingEl.hidden) meldingEl.scrollIntoView({ block: "nearest" });
+    mapEl.focus({ preventScroll: true });
     if (await startMap()) markeer("altijd");
   });
 
@@ -676,12 +691,13 @@ export async function mountNeighborhoodMap(view) {
     laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
     zetStatus();
   }
-  // De zin onder de kaart (voor schermlezers ook de melding: aria-live). De melding staat daarnaast zichtbaar op de
-  // kaart zelf (.buurt-melding, verborgen voor schermlezers: ze horen ze al in de zin), zodat wie op "Toon op de
-  // kaart" tikte, ze ziet ook als de zin buiten beeld valt.
+  // De zin onder de kaart (voor schermlezers ook de melding: aria-live). "Geen plek" staat daarnaast zichtbaar in
+  // een balk vlak boven de kaart (.buurt-melding, verborgen voor schermlezers: ze horen ze al in de zin), zodat wie
+  // op "Toon op de kaart" tikte, ze ziet ook als de zin buiten beeld valt.
   function zetStatus() {
-    meldingEl.textContent = melding;
-    meldingEl.hidden = !melding;
+    const balk = melding === GEEN_PLEK ? melding : "";
+    meldingEl.textContent = balk;
+    meldingEl.hidden = !balk;
     if (!laatste) return;
     const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal });
     status.textContent = melding ? `${zin} ${melding}` : zin;

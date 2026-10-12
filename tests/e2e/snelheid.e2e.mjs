@@ -697,7 +697,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const p = [...document.querySelectorAll(`#buurtkaart path.kaart-${s}.kaart-ongeveer`)].find((el) => el.getBoundingClientRect().width > 0);
     return [s, p ? { d: p.getAttribute("d"), streep: getComputedStyle(p).strokeDasharray } : null];
   })));
-  await t.test("P9: op de kaart heeft elke plek bij benadering de vorm van haar soort, elk kaartje op dat punt is aan te tikken, en van een evenement staat alleen het parcours exact", async () => {
+  await t.test("P9: op de kaart heeft elke plek bij benadering de vorm van haar soort, elk kaartje op dat punt is aan te tikken, en van een evenement staan de parkeerverboden bij benadering", async () => {
     const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
     await wachtOpDeVier(page);
     await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
@@ -739,7 +739,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       await popup.locator(".leaflet-popup-close-button").dispatchEvent("click");
       await popup.waitFor({ state: "detached", timeout: 5000 });
     }
-    // Van het evenement staat alleen het parcours exact; de parkeerverboden van opbouw en afbraak bij benadering.
+    // Van het evenement staat het parcours exact; de parkeerverboden van opbouw en afbraak bij benadering (een
+    // omleiding en een verkeersvrije zone van een evenement staan ook exact: tests/kaart-lagen.test.mjs).
     const evenement = await page.evaluate(() => [...document.querySelectorAll("#buurtkaart path.kaart-evenement")].map((p) => p.getAttribute("class")));
     assert.ok(evenement.some((c) => /kaart-parcours/.test(c)), `geen parcours: ${evenement.join(" | ")}`);
     assert.ok(evenement.some((c) => /kaart-ongeveer/.test(c)), `de innames van het evenement ontbreken: ${evenement.join(" | ")}`);
@@ -857,6 +858,183 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const webgl = await page.evaluate(() => { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") || c.getContext("webgl")); });
     t.diagnostic(`trage verbinding: WebGL ${webgl}, ${extern.filter((u) => /openfreemap|maplibre-gl/.test(u)).length} verzoeken voor de vectorkaart`);
     assert.deepEqual(extern.filter((u) => /openfreemap|maplibre-gl/.test(u)), [], "de vectorkaart werd toch geprobeerd");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // ---- P9b, ronde 1: nakijkbevindingen bij de buurtkaart ----
+  // (1) De melding bij de kaart (.buurt-melding, z-index 1100, over de kaart) verscheen ook bij een gelukte markering,
+  // bleef staan tot een andere rij openging en lag boven de popups van Leaflet (z-index 700) en boven de knop in de
+  // sluier: op gsm bedekte ze de titel van een popup, en offline met grote tekst de enige knop om de kaart opnieuw te
+  // laden. Nu ligt er niets van het kaartblok over de kaart: de melding "geen plek" staat erboven, in de flow.
+  // Tekst van #buurtkaart buiten de kaart zelf (en buiten de sluier, die bewust over de kaart ligt) die zichtbaar
+  // over `vak` ligt (standaard: het kaartvlak).
+  const tekstOver = (page, vak = ".buurt-map") => page.evaluate((sel) => {
+    const v = document.querySelector(`#buurtkaart ${sel}`).getBoundingClientRect();
+    const raakt = (r) => r.width > 0 && r.height > 0 && r.left < v.right && v.left < r.right && r.top < v.bottom && v.top < r.bottom;
+    return [...document.querySelectorAll("#buurtkaart *")]
+      .filter((el) => !el.closest(".buurt-map, .buurt-map-veil") && [...el.childNodes].some((n) => n.nodeType === 3 && n.data.trim())
+        && getComputedStyle(el).visibility !== "hidden" && [...el.getClientRects()].some(raakt))
+      .map((el) => `${el.className}: ${el.textContent.trim().slice(0, 60)}`);
+  }, vak);
+  await t.test("P9b (1): na een gelukte \"Toon op de kaart\" ligt er geen melding over de kaart, en niets ligt over de popup van een werk (390×844)", async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
+    await wachtOpDeVier(page);
+    await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
+    const dossier = "publicSpace:dossier:ET2099000077";
+    const rij = page.locator(`.pv-results .pv-row[data-uid="${dossier}"]`);
+    await rij.locator(".pv-row-btn").click();
+    await rij.locator(".pv-op-kaart").click();
+    await page.waitForFunction((u) => { const m = document.querySelector(".buurt-map"); return m?.dataset.kaart === "leaflet" && m.dataset.gemarkeerd === u; }, dossier, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-werken"), null, { timeout: 10000 });
+    await page.waitForTimeout(600);
+    // De zin onder de kaart zegt het (aria-live); over de kaart zelf ligt niets.
+    assert.match(await page.locator(".buurt-status").innerText(), /Gemarkeerd op de kaart: /);
+    const naToon = await tekstOver(page);
+    // Een werk aantikken: niets van het kaartblok ligt over zijn popup.
+    // (Een plek op de stip waar niets anders bovenop ligt: het gemarkeerde parcours loopt erdoor.)
+    const punt = await page.evaluate(() => {
+      for (const p of document.querySelectorAll("#buurtkaart path.kaart-werken")) {
+        const r = p.getBoundingClientRect();
+        for (let i = 1; i < 12; i += 1) for (let j = 1; j < 12; j += 1) {
+          const x = r.left + (r.width * i) / 12, y = r.top + (r.height * j) / 12;
+          if (document.elementFromPoint(x, y) === p) return [x, y];
+        }
+      }
+      return null;
+    });
+    assert.ok(punt, `het werk is niet aan te tikken: ${await page.evaluate(() => JSON.stringify({ kaart: document.querySelector("#buurtkaart .buurt-map").getBoundingClientRect(), werken: [...document.querySelectorAll("#buurtkaart path.kaart-werken")].map((p) => { const r = p.getBoundingClientRect(); const el = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2); return [Math.round(r.left), Math.round(r.top), Math.round(r.width), el?.className?.baseVal ?? el?.className]; }) }))}`);
+    await page.mouse.click(punt[0], punt[1]);
+    await page.locator("#buurtkaart .leaflet-popup").waitFor({ timeout: 5000 });
+    await page.waitForTimeout(300);
+    const overPopup = await tekstOver(page, ".leaflet-popup-content-wrapper");
+    t.diagnostic(`na "Toon op de kaart": ${JSON.stringify(naToon)}; over de popup: ${JSON.stringify(overPopup)}`);
+    assert.deepEqual(overPopup, [], "tekst van het kaartblok ligt over de popup");
+    assert.deepEqual(naToon, [], "na een gelukte markering ligt er een melding over de kaart");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  for (const [width, height] of [[320, 640], [360, 740], [390, 844], [412, 915]]) await t.test(`P9b (1): offline met tekst 200 % (${width}×${height}): "geen plek" ligt niet over de knop om de kaart opnieuw te laden, en staat in beeld`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width, height });
+    await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
+    const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
+    await rij.waitFor({ timeout: 5000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await rij.locator(".pv-row-btn").click();
+    await rij.locator(".pv-op-kaart").focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => /geen plek op de kaart/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || "")
+      && document.querySelector("#buurtkaart .buurt-map-load")?.textContent === "Kaart niet beschikbaar · opnieuw proberen", null, { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const m = await page.evaluate(() => {
+      const knop = document.querySelector("#buurtkaart .buurt-map-load"), r = knop.getBoundingClientRect();
+      // Op negen punten in de knop is het bovenste element de knop zelf (tikbaar). Dat volstaat niet: de oude melding
+      // had pointer-events: none, dus een tik ging erdoor, maar ze lag wel zichtbaar over de knop (opKnop hieronder).
+      const bedekt = [];
+      for (const fx of [0.1, 0.5, 0.9]) for (const fy of [0.15, 0.5, 0.85]) {
+        const x = r.left + r.width * fx, y = r.top + r.height * fy, el = document.elementFromPoint(x, y);
+        if (!el || !(el === knop || knop.contains(el))) bedekt.push(`${Math.round(x)},${Math.round(y)}: ${el ? el.className || el.tagName : "buiten beeld"}`);
+      }
+      const uitleg = [...document.querySelectorAll("#buurtkaart *")].filter((el) => [...el.childNodes].some((n) => n.nodeType === 3 && /geen plek op de kaart/.test(n.data))
+        && !el.closest("[hidden]") && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden");
+      const inBeeld = uitleg.filter((el) => { const q = el.getBoundingClientRect(); return q.width > 0 && q.top >= 0 && q.bottom <= innerHeight; }).map((el) => el.className);
+      // En geen enkele uitleg ligt (ook maar deels) op de knop.
+      const opKnop = uitleg.filter((el) => [...el.getClientRects()].some((q) => q.left < r.right && r.left < q.right && q.top < r.bottom && r.top < q.bottom)).map((el) => el.className);
+      const rh = (q) => [q.left, q.top, q.right, q.bottom].map(Math.round);
+      return { bedekt, opKnop, knop: rh(r), uitleg: uitleg.map((el) => rh(el.getBoundingClientRect())), venster: innerHeight, inBeeld };
+    });
+    t.diagnostic(`${width}×${height}, 200 %: ${JSON.stringify(m)}`);
+    assert.deepEqual(m.bedekt, [], `de knop "opnieuw proberen" is bedekt: ${JSON.stringify(m)}`);
+    assert.deepEqual(m.opKnop, [], `de uitleg ligt op de knop: ${JSON.stringify(m)}`);
+    assert.ok(m.inBeeld.length > 0, `de uitleg staat niet in beeld: ${JSON.stringify(m)}`);
+    assert.deepEqual(await tekstOver(page), [], "tekst van het kaartblok over de kaart");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (2) "Toon op de kaart" zet de focus op de kaart (tabindex -1), maar de focusrand lag binnen de kaart, onder de lagen
+  // van Leaflet (of het canvas van MapLibre): onzichtbaar (WCAG 2.4.7). Gemeten in pixels: twee schermafdrukken van
+  // de rand van de kaart (8 px erbinnen en erbuiten), met en zonder focus.
+  const RAND = 8, MARGE = 12;
+  const randPixels = (page, { met, zonder, clip, kaart }) => page.evaluate(async ({ met, zonder, clip, kaart, RAND }) => {
+    const lees = async (b64) => {
+      const bmp = await createImageBitmap(new Blob([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))], { type: "image/png" }));
+      const doek = new OffscreenCanvas(bmp.width, bmp.height), ctx = doek.getContext("2d");
+      ctx.drawImage(bmp, 0, 0);
+      return ctx.getImageData(0, 0, bmp.width, bmp.height);
+    };
+    const [a, b] = [await lees(met), await lees(zonder)];
+    const s = a.width / clip.width;
+    let verschil = 0;
+    for (let y = 0; y < a.height; y += 1) for (let x = 0; x < a.width; x += 1) {
+      // Afstand (CSS-px) tot de rand van de kaart, binnen of buiten.
+      const cx = clip.x + x / s - kaart.x, cy = clip.y + y / s - kaart.y;
+      const dx = Math.max(-cx, 0, cx - kaart.w), dy = Math.max(-cy, 0, cy - kaart.h);
+      const afstand = dx || dy ? Math.hypot(dx, dy) : Math.min(cx, kaart.w - cx, cy, kaart.h - cy);
+      if (afstand > RAND) continue;
+      const i = (y * a.width + x) * 4;
+      if (Math.max(Math.abs(a.data[i] - b.data[i]), Math.abs(a.data[i + 1] - b.data[i + 1]), Math.abs(a.data[i + 2] - b.data[i + 2])) > 32) verschil += 1;
+    }
+    return Math.round(verschil / (s * s));
+  }, { met, zonder, clip, kaart, RAND });
+  for (const [width, height] of [[390, 844], [1280, 900]]) await t.test(`P9b (2): met het toetsenbord "Toon op de kaart" (${width}×${height}): de focusrand van de kaart is te zien`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width, height });
+    const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
+    await rij.waitFor({ timeout: 5000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await rij.locator(".pv-row-btn").focus();
+    await page.keyboard.press("Enter");
+    await rij.locator(".pv-op-kaart").focus();
+    await page.keyboard.press("Enter");
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet" && document.activeElement?.matches(".buurt-map:focus-visible"), null, { timeout: 15000 })
+      .catch(async () => assert.fail(`focus: ${await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 120))}`));
+    await page.waitForTimeout(500);
+    const kaart = await page.evaluate(() => { const q = document.querySelector("#buurtkaart .buurt-map-wrap").getBoundingClientRect(); return { x: q.left, y: q.top, w: q.width, h: q.height }; });
+    const venster = page.viewportSize();
+    const x0 = Math.max(0, Math.floor(kaart.x - MARGE)), y0 = Math.max(0, Math.floor(kaart.y - MARGE));
+    const clip = { x: x0, y: y0, width: Math.min(venster.width, Math.ceil(kaart.x + kaart.w + MARGE)) - x0, height: Math.min(venster.height, Math.ceil(kaart.y + kaart.h + MARGE)) - y0 };
+    const met = (await page.screenshot({ clip })).toString("base64");
+    await page.evaluate(() => document.activeElement?.blur());
+    await page.waitForTimeout(200);
+    const zonder = (await page.screenshot({ clip })).toString("base64");
+    const verschil = await randPixels(page, { met, zonder, clip, kaart });
+    const omtrek = Math.round(2 * (kaart.w + kaart.h));
+    t.diagnostic(`${width}×${height}: ${verschil} pixels verschillen aan de rand van de kaart (omtrek ${omtrek} px)`);
+    // Een rand van minstens 2 px rondom (een rand van 3 px geeft ongeveer 3 × de omtrek).
+    assert.ok(verschil >= 1.5 * omtrek, `focusrand niet te zien: ${verschil} pixels verschillen, omtrek ${omtrek}`);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // (3) Meer dan 40 kaartjes zonder vaste plek (periode week): onder "Zonder vaste plek" stond "en nog N in de lijst",
+  // met N geteld op deze plek (de lijst bij "alles"), niet wat de lijst toont: een tweede getal "in de lijst". En de zin
+  // onder de kaart mengde "X in de lijst" (wat de lijst toont) met "Z zonder vaste plek" (op deze plek).
+  await t.test("P9b (3): meer dan 40 kaartjes zonder vaste plek (periode week): één getal 'in de lijst'; wat er zonder plek is, telt hier", async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed: VEEL, width: 1280, height: 900, query: "?plek=Kammenstraat&periode=week" });
+    await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-1"]').waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /in de lijst/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForTimeout(300);
+    const m = await page.evaluate(() => {
+      const nogeo = document.querySelector("#buurtkaart .buurt-nogeo");
+      const status = document.querySelector("#buurtkaart .buurt-status").textContent;
+      const teksten = [status, nogeo.textContent, ...[...document.querySelectorAll("#buurtkaart [data-kaartsoort]:not([hidden])")].map((b) => b.textContent)];
+      return {
+        status, kop: nogeo.querySelector("summary").textContent, knoppen: nogeo.querySelectorAll("[data-open-uid]").length, rest: nogeo.querySelector("li:last-child")?.textContent || "",
+        getallen: [...new Set(teksten.flatMap((z) => [...z.matchAll(/(\d+) in de lijst/g)].map((x) => Number(x[1]))))],
+      };
+    });
+    t.diagnostic(JSON.stringify(m));
+    assert.equal(m.knoppen, 40, JSON.stringify(m));
+    assert.match(m.rest, /^en nog \d+/);
+    assert.doesNotMatch(m.rest, /in de lijst/, "het getal onder de 40 kaartjes zonder plek is niet wat de lijst toont");
+    assert.equal(m.getallen.length, 1, `getallen "in de lijst": ${JSON.stringify(m)}`);
+    const z = Number(m.kop.match(/\((\d+)\)/)?.[1]);
+    assert.match(m.status, new RegExp(`^\\d+ in de lijst, \\d+ op de kaart in Kammenstraat · ${z} hier zonder vaste plek\\.$`));
     assert.deepEqual(errors, []);
     await context.close();
   });

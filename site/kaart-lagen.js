@@ -4,10 +4,11 @@
 //
 // - De kaartjes komen uit de lijst (window.PUBLIC_AGENDA_KAART.teken, site/place-view.js); elk object op de
 //   kaart is een kaartje van de lijst, met dezelfde soort, kleur en telsleutel (lijstSleutel).
-// - Privacy: parkeerverboden, innames (ook die van een evenement: opbouw, afbraak, de parkeerverboden erbij) en
+// - Privacy: parkeerverboden, losse innames (ook die van een evenement: opbouw, afbraak, de parkeerverboden erbij) en
 //   vergunningen staan op de kaart als één punt, het midden van hun kader afgerond op ONGEVEER_DECIMALEN (ongeveer
-//   100 m), met "plek bij benadering". Werken, het parcours van een evenement, werfzones en omleidingen staan exact
-//   op de kaart. Wie ze toch exact wil tonen: één regel in vormVoor().
+//   100 m), met "plek bij benadering". Werken, werfzones en omleidingen, en van een evenement ook het parcours en de
+//   verkeersvrije zones (EVENEMENT_EXACT), staan exact op de kaart. Wie de rest toch exact wil tonen: één regel in
+//   vormVoor().
 // - Een plek bij benadering tekent de kaart als een vorm van ONGEVEER_STRAAL meter rond dat punt, met een eigen
 //   vorm per soort (ONGEVEER_VORM): kleur is nooit de enige drager. Kaartjes op hetzelfde afgeronde punt horen bij
 //   elkaar (`ongeveer` in kaartLagen): een tik op een van hun vormen noemt ze allemaal.
@@ -21,6 +22,11 @@ export const ONGEVEER_DECIMALEN = 3;
 // vierkant, de innames van een evenement een ruit.
 export const ONGEVEER_STRAAL = 60;
 export const ONGEVEER_VORM = Object.freeze({ evenement: "ruit", verkeer: "vierkant", vergunning: "ring" });
+// Van een evenement staan naast het parcours ook deze rijen exact op de kaart (innameType, A-Sign laag 22 en 23):
+// verkeersmaatregelen van het evenement op de openbare weg, geen inname van een plek door iemand. Al de rest
+// (parkeerverboden, "Inname", "Blokken op shot", een soort die de kaart niet kent) staat er bij benadering.
+const EVENEMENT_EXACT = Object.freeze(["omleiding", "verkeersvrije zone"]);
+const exactBijEvenement = (r) => EVENEMENT_EXACT.includes(String(r?.innameType || "").trim().toLowerCase());
 // Zoveel kaartjes per soort tekent de kaart hoogstens (een district vol werken blijft vlot).
 export const MAX_PER_SOORT = 600;
 const POPUP_MAX = 6;
@@ -82,15 +88,21 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
     return [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }];
   }
   if (soort === "evenement") {
-    // Het hele dossier, ook buiten de gekozen plek. Alleen het parcours staat exact (parcours=true); zonder live
-    // vorm de schets van de verversing. De andere innames (opbouw, afbraak, de parkeerverboden van het evenement)
-    // zijn zoals elk parkeerverbod en elke inname: één punt per inname, het midden van haar kader afgerond, bij
-    // benadering (privacy). Innames op hetzelfde afgeronde punt zijn één punt.
-    const parcours = { lijnen: [], vlakken: [] }, punten = new Map();
+    // Het hele dossier, ook buiten de gekozen plek. Exact: het parcours (parcours=true; zonder live vorm de schets
+    // van de verversing), en de omleidingen en verkeersvrije zones (EVENEMENT_EXACT). De andere innames (opbouw,
+    // afbraak, de parkeerverboden van het evenement) zijn zoals elk parkeerverbod en elke losse inname: één punt per
+    // inname, het midden van haar kader afgerond, bij benadering (privacy). Innames op hetzelfde afgeronde punt zijn
+    // één punt.
+    const parcours = { lijnen: [], vlakken: [] }, verkeer = { lijnen: [], vlakken: [] }, punten = new Map();
     for (const r of rijenVan(entry)) {
       if (r?.parcours) {
         parcours.lijnen.push(...(r.parcours.lijnen || []));
         parcours.vlakken.push(...(r.parcours.vlakken || []));
+        continue;
+      }
+      if (exactBijEvenement(r)) {
+        verkeer.lijnen.push(...(r?.vorm?.lijnen || []));
+        verkeer.vlakken.push(...(r?.vorm?.vlakken || []));
         continue;
       }
       const p = middenBijBenadering(r?.vorm);
@@ -99,6 +111,7 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
     const lijn = { ...exact, parcours: true };
     let delen = [...vlakDeel(parcours.vlakken, lijn), ...lijnDeel(parcours.lijnen, lijn)];
     if (!delen.length) delen = lijnDeel(Array.isArray(entry.kaart) ? entry.kaart : [], lijn);
+    delen.push(...vlakDeel(verkeer.vlakken, exact), ...lijnDeel(verkeer.lijnen, exact));
     const ongeveer = [...punten.values()];
     if (ongeveer.length) delen.push({ geometry: ongeveer.length === 1 ? { type: "Point", coordinates: ongeveer[0] } : { type: "MultiPoint", coordinates: ongeveer }, parcours: false, ongeveer: true });
     return delen.length ? delen : null;
@@ -228,11 +241,11 @@ export function popupHtml(entries = [], today = "") {
     return [datum, e.time ? e.time.replace(":", ".") : ""].filter(Boolean).join(" · ");
   };
   // Bij benadering: een parkeerverbod, een losse inname of een vergunning; van een evenement de innames naast het
-  // parcours (kijk naar de delen van de vorm, niet alleen naar de soort).
+  // parcours, de omleidingen en de verkeersvrije zones (kijk naar de delen van de vorm, niet alleen naar de soort).
   const benadering = (e) => {
     const delen = vormVoor(e) || [];
     if (!isOngeveer(e) && !delen.some((d) => d.ongeveer)) return "";
-    return delen.some((d) => !d.ongeveer) ? "Het parcours exact, de andere innames bij benadering (privacy)" : "Plek bij benadering (privacy)";
+    return delen.some((d) => !d.ongeveer) ? "Parcours, omleidingen en verkeersvrije zones exact; parkeerverboden en andere innames bij benadering (privacy)" : "Plek bij benadering (privacy)";
   };
   const rijen = uniek.slice(0, POPUP_MAX).map((e) => {
     const regel = [wanneer(e), e.location].filter(Boolean).map(esc).join(" · ");
@@ -266,19 +279,26 @@ export function magVectorKaart({ kaart = "", verbinding = null, webgl = () => fa
 }
 
 // Welke kaart: eerst de vectorkaart (als dat mag), met een wachttijd; lukt die niet of duurt ze te lang, dan de
-// basiskaart (Leaflet). `vector(signal, { bijnaKlaar })` en `basis()` geven een belofte van een kaart. Komt de
-// vectorkaart na de wachttijd toch nog, dan ruimen we ze op (verwijder) en blijft de basiskaart. Faalt ook de basis,
-// dan faalt dit. `bijnaKlaar()`: de eerste tegel is binnen. Een kaart die zo ver is, gooien we niet op de klok weg
-// terwijl ze haar letters en de rest van de tegels haalt: ze krijgt één keer nog `nawacht` ms.
-export async function kiesKaart({ magVector = false, vector = null, basis, wachttijd = 8000, nawacht = wachttijd } = {}) {
+// basiskaart (Leaflet). `vector(signal, { voortgang, bijnaKlaar })` en `basis()` geven een belofte van een kaart.
+// Komt de vectorkaart na de wachttijd toch nog, dan ruimen we ze op (verwijder) en blijft de basiskaart. Faalt ook de
+// basis, dan faalt dit.
+// - `voortgang()`: een stap is binnen (de stijl, MapLibre). Zolang de vectorkaart zo aantoonbaar vordert, krijgt de
+//   volgende stap opnieuw `wachttijd` ms, tot hoogstens `maxWacht` ms in totaal: een trage maar werkende verbinding
+//   (ook in Safari en Firefox, die de browser niet laten schatten: magVectorKaart) downloadt dan niet beide kaarten.
+// - `bijnaKlaar()`: de eerste tegel is binnen. Een kaart die zo ver is, gooien we niet op de klok weg terwijl ze haar
+//   letters en de rest van de tegels haalt: ze krijgt één keer nog `nawacht` ms, ook voorbij `maxWacht`.
+export async function kiesKaart({ magVector = false, vector = null, basis, wachttijd = 8000, nawacht = wachttijd, maxWacht = 2 * wachttijd } = {}) {
   if (magVector && typeof vector === "function") {
     const ctrl = new AbortController();
-    let klok = null, weiger = null, verlengd = false;
+    let klok = null, grens = null, weiger = null, verlengd = false;
     const teLaat = new Promise((_, nee) => { weiger = nee; });
-    const zetKlok = (ms) => { clearTimeout(klok); klok = setTimeout(() => weiger(new Error(`vectorkaart niet klaar na ${ms} ms`)), ms); };
-    const bijnaKlaar = () => { if (!verlengd && !ctrl.signal.aborted) { verlengd = true; zetKlok(nawacht); } };
+    const stop = () => weiger(new Error("vectorkaart niet op tijd klaar"));
+    const zetKlok = (ms) => { clearTimeout(klok); klok = setTimeout(stop, ms); };
+    const voortgang = () => { if (!verlengd && !ctrl.signal.aborted) zetKlok(wachttijd); };
+    const bijnaKlaar = () => { if (!verlengd && !ctrl.signal.aborted) { verlengd = true; clearTimeout(grens); zetKlok(nawacht); } };
     zetKlok(wachttijd);
-    const poging = Promise.resolve().then(() => vector(ctrl.signal, { bijnaKlaar }));
+    grens = setTimeout(stop, Math.max(maxWacht, wachttijd));
+    const poging = Promise.resolve().then(() => vector(ctrl.signal, { voortgang, bijnaKlaar }));
     try {
       return await Promise.race([poging, teLaat]);
     } catch {
@@ -286,6 +306,7 @@ export async function kiesKaart({ magVector = false, vector = null, basis, wacht
       poging.then((kaart) => kaart?.verwijder?.(), () => {});
     } finally {
       clearTimeout(klok);
+      clearTimeout(grens);
     }
   }
   return basis();
