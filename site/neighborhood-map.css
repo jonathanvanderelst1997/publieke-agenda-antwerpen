@@ -65,7 +65,7 @@
 .buurt-map-wrap { position: relative; isolation: isolate; z-index: 0; border-radius: 18px; overflow: hidden; border: 1px solid var(--pa-line, #e3dcd2); }
 .buurt-map { position: relative; height: clamp(260px, 52vh, 440px); background: var(--pa-surface-2, #fbf8f4); }
 /* Het vlak van de kaart (Leaflet of MapLibre) binnen .buurt-map: zo kan de ene kaart wijken voor de andere. */
-.buurt-kaartvlak { position: absolute; inset: 0; }
+.buurt-map .buurt-kaartvlak { position: absolute; inset: 0; width: 100%; height: 100%; }
 .buurt-map-veil {
   position: absolute;
   inset: 0;
@@ -121,6 +121,8 @@
 .buurt-map path.kaart-obj { cursor: pointer; }
 .buurt-map path.kaart-obj.is-gemarkeerd { stroke-width: 8px; stroke-opacity: 1; }
 .buurt-map path.kaart-werken.is-gemarkeerd, .buurt-map path.kaart-ongeveer.is-gemarkeerd { stroke: var(--pa-ink-strong, #121821); stroke-width: 4px; stroke-dasharray: none; }
+/* Agendapinnen op de vectorkaart: een knop (MapLibre-marker) met dezelfde pin. */
+.buurt-pin-knop { display: grid; place-items: center; width: 38px; height: 38px; padding: 0; border: 0; background: transparent; cursor: pointer; }
 .buurt-pin-wrap.is-gemarkeerd .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
 .buurt-pin-wrap:focus-visible .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
 

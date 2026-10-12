@@ -14,18 +14,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { LEAFLET } from "../../site/neighborhood-map.js";
+import { MAPLIBRE } from "../../site/kaart-vector.js";
 
 export const KAART_FIXTURES = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../fixtures/kaart");
 export const LEAFLET_DIR = path.join(KAART_FIXTURES, "leaflet-1.9.4");
 const map = (url) => url.slice(0, url.lastIndexOf("/") + 1);
 // Dezelfde map als in site/neighborhood-map.js: wie de versie daar verandert, moet ook de fixture vervangen.
 export const LEAFLET_PREFIX = map(LEAFLET.js.src);
-export const MAPLIBRE_PREFIX = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/";
-// De vaste SRI van MapLibre 5.24.0 op cdnjs (plan P9). Laadt de site MapLibre, dan met precies deze waarden.
-export const MAPLIBRE_SRI = Object.freeze({
-  "maplibre-gl.js": "sha512-rOFgoUgWaVi69JW1dzBu6PWF9xKW9rxYfY5u2SexFABHhWk0qUWkJoWNz4UuZRMvSXsNZG66+tU5B+HlwWF5kA==",
-  "maplibre-gl.css": "sha512-KIMsMWIdnoG9OwZa+oaIafmbDonqck1UCmq+/zcUi2aaZ97N9QE6TqpTM+n36EO40HGh64hU/375zxtjx7WTyQ==",
-});
+// MapLibre: dezelfde map en dezelfde vaste SRI als in site/kaart-vector.js (5.24.0 op cdnjs).
+export const MAPLIBRE_PREFIX = map(MAPLIBRE.js.src);
+export const MAPLIBRE_SRI = Object.freeze({ "maplibre-gl.js": MAPLIBRE.js.integrity, "maplibre-gl.css": MAPLIBRE.css.integrity });
 const LEAFLET_SRI = Object.freeze({ "leaflet.js": LEAFLET.js.integrity, "leaflet.css": LEAFLET.css.integrity });
 const TYPES = Object.freeze({ ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8" });
 

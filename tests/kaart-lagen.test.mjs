@@ -15,6 +15,7 @@ import {
 } from "../site/place-core.js";
 import { ONGEVEER_DECIMALEN, isTegelFout, kaartLagen, kiesKaart, popupHtml, vormVoor } from "../site/kaart-lagen.js";
 import { LEAFLET_DIR, LEAFLET_PREFIX, MAPLIBRE_PREFIX, MAPLIBRE_SRI, kaartAntwoord, sri } from "./helpers/kaart-fixture.mjs";
+import { MAPLIBRE, STIJL } from "../site/kaart-vector.js";
 
 // ---- stap 1: Leaflet byte-exact uit de fixture ----
 test("de Leaflet-fixture is byte-gelijk aan wat de site met SRI vraagt", () => {
@@ -319,4 +320,58 @@ test("kaart-lagen.js raakt geen DOM aan en importeert in Node", async () => {
   assert.doesNotMatch(bron, /\b(document|window)\./);
   const mod = await import("../site/kaart-lagen.js");
   assert.deepEqual(Object.keys(mod).sort(), ["MAX_PER_SOORT", "ONGEVEER_DECIMALEN", "isTegelFout", "kaartLagen", "kiesKaart", "popupHtml", "vormVoor"]);
+});
+
+// ---- stap 8: de vectorkaart (site/kaart-vector.js) ----
+test("MAPLIBRE: precies 5.24.0 van cdnjs (de laatste met een JS-bestand), met de vaste SRI, crossOrigin en geen referrer", () => {
+  assert.equal(MAPLIBRE.versie, "5.24.0");
+  assert.equal(MAPLIBRE.js.src, "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.js");
+  assert.equal(MAPLIBRE.css.href, "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/maplibre-gl.css");
+  assert.equal(MAPLIBRE.js.integrity, "sha512-rOFgoUgWaVi69JW1dzBu6PWF9xKW9rxYfY5u2SexFABHhWk0qUWkJoWNz4UuZRMvSXsNZG66+tU5B+HlwWF5kA==");
+  assert.equal(MAPLIBRE.css.integrity, "sha512-KIMsMWIdnoG9OwZa+oaIafmbDonqck1UCmq+/zcUi2aaZ97N9QE6TqpTM+n36EO40HGh64hU/375zxtjx7WTyQ==");
+  assert.equal(MAPLIBRE.crossOrigin, "anonymous");
+  assert.equal(MAPLIBRE.referrerPolicy, "no-referrer");
+  assert.equal(MAPLIBRE_PREFIX, "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/5.24.0/");
+  assert.deepEqual(STIJL, { licht: "https://tiles.openfreemap.org/styles/positron", donker: "https://tiles.openfreemap.org/styles/dark" });
+});
+
+test("kaart-vector.js: alleen cdnjs en OpenFreeMap, geen sleutel; geen DOM bovenaan en te importeren in Node", async () => {
+  const bron = fs.readFileSync(new URL("../site/kaart-vector.js", import.meta.url), "utf8");
+  const hosts = [...new Set([...bron.matchAll(/https?:\/\/([^/"'`\s)]+)/g)].map((m) => m[1]))].sort();
+  assert.deepEqual(hosts, ["cdnjs.cloudflare.com", "tiles.openfreemap.org"]);
+  assert.doesNotMatch(bron, /key=|api[_-]?key|access[_-]?token/i);
+  // Bovenaan (buiten functies) geen document of window: alleen binnen de functies die de kaart maken.
+  const bovenaan = bron.split("\n").filter((r) => /^\S/.test(r) && !/^\/\//.test(r)).join("\n");
+  assert.doesNotMatch(bovenaan, /\b(document|window)\./);
+  const mod = await import("../site/kaart-vector.js");
+  assert.deepEqual(Object.keys(mod).sort(), ["MAPLIBRE", "STIJL", "haalStijl", "laadMapLibre", "maakVectorKaart"]);
+});
+
+test("neighborhood-map.js laadt kaart-vector.js alleen dynamisch, en MapLibre pas na de stijl", () => {
+  const bron = fs.readFileSync(new URL("../site/neighborhood-map.js", import.meta.url), "utf8");
+  assert.doesNotMatch(bron, /^import[^;]*kaart-vector/m);
+  assert.match(bron, /import\("\.\/kaart-vector\.js"\)/);
+  assert.match(bron, /m\.haalStijl\(themaNu\(\), signal\)\s*\.then\(\(stijl\) => m\.laadMapLibre\(\)/);
+  assert.match(bron, /searchParams\.get\("kaart"\) === "leaflet"/);
+  assert.match(bron, /saveData/);
+});
+
+test("haalStijl: de stijl van OpenFreeMap met een wachttijd; zonder bron openmaptiles of met een fout faalt ze", async (t) => {
+  const { haalStijl } = await import("../site/kaart-vector.js");
+  const echt = globalThis.fetch;
+  t.after(() => { globalThis.fetch = echt; });
+  const gevraagd = [];
+  globalThis.fetch = async (url, opties) => { gevraagd.push([url, opties.credentials]); return { ok: true, json: async () => ({ version: 8, sources: { openmaptiles: { type: "vector" } }, layers: [] }) }; };
+  assert.equal((await haalStijl("donker")).version, 8);
+  assert.deepEqual(gevraagd, [["https://tiles.openfreemap.org/styles/dark", "omit"]]);
+  globalThis.fetch = async () => ({ ok: true, json: async () => ({ version: 8, sources: {}, layers: [] }) });
+  await assert.rejects(haalStijl("licht"), /openmaptiles/);
+  globalThis.fetch = async () => ({ ok: false, status: 503 });
+  await assert.rejects(haalStijl("licht"), /503/);
+  // Het signaal van kiesKaart breekt het ophalen af.
+  globalThis.fetch = (url, { signal }) => new Promise((_, nee) => signal.addEventListener("abort", () => nee(new Error("afgebroken"))));
+  const ctrl = new AbortController();
+  const bezig = haalStijl("licht", ctrl.signal);
+  ctrl.abort();
+  await assert.rejects(bezig, /afgebroken/);
 });

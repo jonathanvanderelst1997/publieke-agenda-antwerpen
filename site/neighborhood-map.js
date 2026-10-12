@@ -4,15 +4,18 @@
 //
 // - Wat de kaart tekent, komt uit de lijst van het plekoverzicht (window.PUBLIC_AGENDA_KAART, place-view.js):
 //   elk object op de kaart is een kaartje van de lijst, in de kleur van zijn rij. De pure laag (vormen,
-//   privacy, popup) staat in kaart-lagen.js; deze module tekent ze met Leaflet.
+//   privacy, popup) staat in kaart-lagen.js.
+// - Twee kaarten met dezelfde adapter: als het kan een vectorkaart (MapLibre + OpenFreeMap, kaart-vector.js,
+//   alleen dynamisch geladen), anders Leaflet met rastertegels van OpenStreetMap (maakLeafletKaart hieronder).
+//   kiesKaart (kaart-lagen.js) kiest; ?kaart=leaflet in de link dwingt Leaflet af.
 // - Wijken: site/geo/wijken.geo.json (vereenvoudigd, met bron en licentie in "metadata").
 // - Punten: werken hebben hun GIPOD-punt; agendapunten krijgen het hunne bij het verversen
 //   (site/geo/locaties.json, scripts/geocode-locations.mjs). De browser geocodeert nooit zelf.
 // - Items zonder plek staan in een lijst onder de kaart, nooit als gegokte marker.
 // - De legenda (vijf soorten, KAART_SOORTEN in place-core.js) toont of verbergt een soort op de kaart; de lijst
 //   blijft altijd volledig. Ze staat er ook als de kaart niet laadt.
-// - Leaflet en de kaarttegels (OpenStreetMap) worden pas geladen als de kaart in beeld komt en de browser even
-//   niets te doen heeft; met databesparing alleen op vraag (de knop, of "Toon op de kaart").
+// - De kaartbibliotheek en de tegels worden pas geladen als de kaart in beeld komt en de browser even niets te
+//   doen heeft; met databesparing alleen op vraag (de knop, of "Toon op de kaart"), en dan altijd Leaflet.
 import {
   RADIUS_OPTIONS,
   bboxOf,
@@ -26,7 +29,7 @@ import {
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
 import { KAART_SOORTEN, kaartSoort, kortBereik, kortDatum, lijstSleutel } from "./place-core.js";
-import { kaartLagen, popupHtml } from "./kaart-lagen.js";
+import { kaartLagen, kiesKaart, popupHtml } from "./kaart-lagen.js";
 
 // Ook voor de toetsen: de e2e serveren Leaflet byte-exact uit tests/fixtures/kaart/ (tests/helpers/kaart-fixture.mjs).
 export const LEAFLET = Object.freeze({
@@ -468,14 +471,41 @@ export async function mountNeighborhoodMap(view) {
   }
 
   // ---- kaart (lui) ----
+  // De vectorkaart mag niet zonder WebGL (een proefcanvas, meteen weer vrijgegeven), met databesparing of met
+  // ?kaart=leaflet in de link. Het thema (licht of donker) kiezen we bij het starten.
+  function magVector() {
+    try {
+      if (new URL(window.location.href).searchParams.get("kaart") === "leaflet") return false;
+      if (navigator.connection?.saveData) return false;
+      const canvas = document.createElement("canvas");
+      const gl = canvas.getContext("webgl2") || canvas.getContext("webgl");
+      if (!gl) return false;
+      gl.getExtension("WEBGL_lose_context")?.loseContext();
+      return true;
+    } catch {
+      return false;
+    }
+  }
+  function themaNu() {
+    const gekozen = document.documentElement.dataset.theme;
+    if (gekozen === "dark" || gekozen === "light") return gekozen === "dark" ? "donker" : "licht";
+    return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "donker" : "licht";
+  }
   let starten = null;
   function startMap() {
     if (kaart) return Promise.resolve(kaart);
     if (starten) return starten;
     laadKnop.textContent = "Kaart laden…";
     mapEl.dataset.kaart = "laadt";
-    starten = loadLeaflet()
-      .then((L) => maakLeafletKaart(L, mapEl, { wijken, onWijk: kiesWijk }))
+    const [eersteKader, { maxZoom }] = focusKader();
+    starten = kiesKaart({
+      magVector: magVector(),
+      wachttijd: 8000,
+      // Eerst de stijl (klein); pas als die er is, MapLibre (1 MB).
+      vector: (signal) => import("./kaart-vector.js").then((m) => m.haalStijl(themaNu(), signal)
+        .then((stijl) => m.laadMapLibre().then((maplibregl) => m.maakVectorKaart(maplibregl, mapEl, { stijl, kader: eersteKader, maxZoom, wijken, wijkStijl, onWijk: kiesWijk, pinHtml, pinNaam, signal })))),
+      basis: () => loadLeaflet().then((L) => maakLeafletKaart(L, mapEl, { wijken, onWijk: kiesWijk })),
+    })
       .then((nieuw) => {
         kaart = nieuw;
         veil.hidden = true;

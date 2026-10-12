@@ -160,9 +160,38 @@ function arcgis(records, url) {
   return { features: records.filter((r) => ids.has(r.id)).map((r) => r.feature) };
 }
 
+// Een nagebootste OpenFreeMap voor de vectorkaart (alleen met MAPLIBRE_DIR): een kleine eigen stijl met de bron
+// "openmaptiles", een tilejson met de laag-id's van het echte schema (OpenMapTiles) en lege vectortegels.
+const OFM = "https://tiles.openfreemap.org";
+const PROEF_STIJL = {
+  version: 8, name: "proef (e2e)",
+  sources: { openmaptiles: { type: "vector", url: `${OFM}/planet` } },
+  layers: [
+    { id: "achtergrond", type: "background", paint: { "background-color": "#f2efe9" } },
+    { id: "water", type: "fill", source: "openmaptiles", "source-layer": "water", paint: { "fill-color": "#aad3df" } },
+    { id: "wegen", type: "line", source: "openmaptiles", "source-layer": "transportation", paint: { "line-color": "#ffffff", "line-width": 2 } },
+  ],
+};
+const PROEF_TILEJSON = {
+  tilejson: "3.0.0", minzoom: 0, maxzoom: 14, tiles: [`${OFM}/planet/proef-e2e/{z}/{x}/{y}.pbf`],
+  vector_layers: ["aerodrome_label", "aeroway", "boundary", "building", "housenumber", "landcover", "landuse", "mountain_peak", "park", "place", "poi", "transportation", "transportation_name", "water", "water_name", "waterway"].map((id) => ({ id, fields: {}, minzoom: 0, maxzoom: 14 })),
+};
+const cors = (type, body) => ({ status: 200, headers: { "access-control-allow-origin": "*", "content-type": type }, body });
+// `openfreemap`: "stijl" (alleen de stijl; de tilejson faalt) of "tegels" (stijl, tilejson en lege tegels).
+function openfreemapAntwoord(url, openfreemap) {
+  if (!openfreemap || !url.startsWith(`${OFM}/`)) return null;
+  if (url.startsWith(`${OFM}/styles/`)) return cors("application/json", JSON.stringify(PROEF_STIJL));
+  if (openfreemap !== "tegels") return null;
+  if (url === `${OFM}/planet`) return cors("application/json", JSON.stringify(PROEF_TILEJSON));
+  if (url.startsWith(`${OFM}/planet/proef-e2e/`)) return cors("application/x-protobuf", Buffer.alloc(0));
+  return null;
+}
+const MAPLIBRE_DIR = process.env.MAPLIBRE_DIR && fs.existsSync(path.join(process.env.MAPLIBRE_DIR, "maplibre-gl.js")) ? process.env.MAPLIBRE_DIR : "";
+
 // `kaart`: "geblokkeerd" (standaard: geen kaartbibliotheek, zoals in alle andere toetsen) of "leaflet" (Leaflet uit
-// de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs).
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", zuinig = false } = {}) {
+// de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs), en
+// `openfreemap` (zie hierboven) voor de stijl en de tegels.
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   // `zuinig`: de browser meldt databesparing (navigator.connection.saveData).
@@ -186,7 +215,7 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
     const url = route.request().url();
     extern.push(url);
     // De kaartbibliotheek uit de fixture, vóór de bronnen: `extern` blijft alles tellen.
-    const bibliotheek = kaart === "geblokkeerd" ? null : kaartAntwoord(url, { maplibreDir });
+    const bibliotheek = kaart === "geblokkeerd" ? null : kaartAntwoord(url, { maplibreDir }) || openfreemapAntwoord(url, openfreemap);
     if (bibliotheek) return route.fulfill(bibliotheek);
     if (bronnen === "geblokkeerd") return route.abort();
     // "volledig": de hele nagebootste stad hierboven, met het kader nagekeken.
@@ -549,6 +578,10 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     t.diagnostic(`kaartverzoeken naar buiten: ${kaartVerzoeken.length} (${extern.length} in totaal)`);
     assert.ok(kaartVerzoeken.length <= 20, kaartVerzoeken.join("\n"));
     assert.equal(extern.filter((u) => /maplibre-gl/.test(u)).length, 0, "MapLibre gedownload");
+    // Met WebGL probeerde de pagina eerst de vectorkaart: de stijl van OpenFreeMap (die faalt hier), en dan
+    // niet eens MapLibre. Zonder WebGL meteen Leaflet.
+    const webgl = await page.evaluate(() => { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") || c.getContext("webgl")); });
+    if (webgl) assert.ok(extern.some((u) => u.startsWith("https://tiles.openfreemap.org/styles/")), "geen poging tot de vectorkaart");
     // Van de kaart naar de lijst: het werk aantikken, dan "Toon in de lijst".
     await page.locator("#buurtkaart path.kaart-werken").first().click();
     await page.locator('#buurtkaart .leaflet-popup [data-open-uid="works:990001"]').click();
@@ -597,6 +630,41 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const inBeeld = await page.evaluate(() => { const r = document.querySelector("#buurtkaart .buurt-map").getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; });
     assert.equal(inBeeld, true, "de kaart staat in beeld");
     assert.match(await page.locator(".buurt-status").innerText(), /Gemarkeerd op de kaart: /);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Het vectorpad (alleen met MAPLIBRE_DIR: MapLibre staat niet in de repo). Offline toetst de rest van dit bestand
+  // alleen de terugval; hier komen MapLibre, de stijl en de tegels uit een nagebootste OpenFreeMap.
+  const metMapLibre = MAPLIBRE_DIR ? false : "zet MAPLIBRE_DIR naar de npm-dist van maplibre-gl 5.24.0";
+  await t.test("P9 (MAPLIBRE_DIR): de stijl komt, de tilejson niet: MapLibre werd gevraagd, en de kaart valt terug op Leaflet", { skip: metMapLibre }, async () => {
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", maplibreDir: MAPLIBRE_DIR, openfreemap: "stijl", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG });
+    await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 20000 });
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.locator(".buurt-map[data-kaart=leaflet] .leaflet-container").waitFor({ timeout: 15000 });
+    assert.ok(extern.some((u) => u.endsWith("/maplibre-gl.js")), "MapLibre werd gevraagd");
+    assert.equal(await page.locator("#buurtkaart .buurt-vector").count(), 0, "de vectorkaart ruimde zich op");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("P9 (MAPLIBRE_DIR): met stijl, tilejson en (lege) tegels wordt het de vectorkaart, met \"Kaartbeeld\" en de legenda", { skip: metMapLibre }, async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", maplibreDir: MAPLIBRE_DIR, openfreemap: "tegels", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
+    await wachtOpDeVier(page);
+    await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "vector", null, { timeout: 15000 })
+      .catch(async () => assert.fail(`data-kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}`));
+    assert.equal(await page.locator('#buurtkaart canvas[aria-label="Kaartbeeld"]').count(), 1);
+    assert.equal(await page.locator("#buurtkaart .leaflet-container").count(), 0);
+    const opKaart = Number(await page.locator(".buurt-map").getAttribute("data-op-kaart"));
+    assert.ok(opKaart > 0);
+    await page.locator('#buurtkaart [data-kaartsoort="verkeer"]').click();
+    await page.waitForFunction((voor) => Number(document.querySelector(".buurt-map")?.dataset.opKaart) < voor, opKaart, { timeout: 5000 });
+    // Van de lijst naar de kaart werkt ook hier.
+    const dossier = "publicSpace:dossier:ET2099000077";
+    await page.locator(`.pv-results .pv-row[data-uid="${dossier}"] .pv-row-btn`).click();
+    await page.waitForFunction((uid) => document.querySelector(".buurt-map")?.dataset.gemarkeerd === uid, dossier, { timeout: 5000 });
     assert.deepEqual(errors, []);
     await context.close();
   });
