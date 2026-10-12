@@ -497,6 +497,75 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // Vaagheidsplan van 12 oktober 2026, stap 2: één kaart per dossiernummer, een aanvraag die nog niet goedgekeurd
+  // is met een label en zonder .ics, en een agendapunt uit de dossiers in al zijn straten.
+  await t.test("stap 2: één kaart per dossier, een aanvraag met label en zonder .ics, een agendapunt in al zijn straten", async () => {
+    const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
+    const ASIGN_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22";
+    const ander = straten.streets.map((r) => r[1]).filter((n) => n !== street.name && !n.includes(street.name) && !street.name.includes(n)).slice(0, 3);
+    const uitDossier = (dossier, dag, eigen = {}) => ({
+      id: `asign-ev-${dossier.toLowerCase()}-${dag}`, externalId: dossier, date: dag, dateLabel: dagTekst(dag), timeSlot: "Info", location: street.name,
+      info: `Evenementendossier ${dossier} van de stad (A-Sign): aanvraag goedgekeurd.`, sourceId: "district-asign-evenementen", sourceUrl: ASIGN_URL, link: ASIGN_URL,
+      sources: [{ sourceId: "district-asign-evenementen", url: ASIGN_URL, retrievedAt: `${today}T05:00:00.000Z`, scope: "district" }], ...eigen,
+    });
+    const dag = addDays(today, 5);
+    const agendaErbij = [
+      // Hetzelfde dossier als de kaart van de live laag: geen tweede kaart.
+      uitDossier("ET2099000081", dag, { title: "Proefstoet van het dossier (e2e)" }),
+      // Een aanvraag die nog niet goedgekeurd is.
+      uitDossier("ET2099000082", addDays(today, 6), { title: "Proefoptocht in aanvraag (e2e)", nietGoedgekeurd: true, info: "Evenementendossier ET2099000082 van de stad (A-Sign): aanvraag nog niet goedgekeurd." }),
+      // Een agendapunt waarvan de locatietekst de gekozen straat niet noemt, maar zijn volledige stratenlijst wel.
+      uitDossier("ET2099000083", addDays(today, 7), { title: "Proefronde door vijf straten (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name], stratenVolledig: true }),
+      // Nakijkronde #170: een lijst uit een ouder bronbestand (zonder stratenVolledig) telt niet; het punt houdt
+      // zich aan zijn locatie.
+      uitDossier("ET2099000086", addDays(today, 8), { title: "Proefronde van een oud bestand (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name] }),
+      // Nakijkronde #170: één evenement uit twee dossiers, één goedgekeurd; deze straat raakt alleen het dossier in
+      // aanvraag: label en geen .ics op deze straat.
+      uitDossier("ET2099000084", addDays(today, 9), { title: "Proeftocht deels in aanvraag (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name], stratenVolledig: true, ookDossiers: ["ET2099000085"], nietGoedgekeurdStraten: [street.name] }),
+    ];
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000081", dag }, agendaErbij, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
+    const kaart = page.locator(".pv-row", { hasText: "Evenement op straat" }).first();
+    await kaart.waitFor({ timeout: 20000 });
+    await page.locator(".pv-results .pv-row", { hasText: "Proefronde door vijf straten (e2e)" }).waitFor({ timeout: 15000 });
+    // b. Eén kaart: het agendapunt van ET2099000081 staat er niet naast; de kaart deelt het agendapunt.
+    assert.equal(await page.locator(".pv-results .pv-row", { hasText: "Proefstoet van het dossier (e2e)" }).count(), 0);
+    await kaart.locator(".pv-row-btn").click();
+    assert.equal(await kaart.locator('a[href^="/event/asign-ev-et2099000081-"]').count(), 1, "de kaart deelt het agendapunt");
+    // c. De aanvraag: een label in de rij, geen .ics.
+    const aanvraag = page.locator(".pv-results .pv-row", { hasText: "Proefoptocht in aanvraag (e2e)" }).first();
+    assert.match(await aanvraag.locator(".pv-row-kind").innerText(), /Aanvraag, nog niet goedgekeurd/);
+    await aanvraag.locator(".pv-row-btn").click();
+    assert.equal(await aanvraag.locator(".pv-ics").count(), 0, "geen .ics voor een aanvraag");
+    // f. Het agendapunt met de lange stratenlijst staat bij de gekozen straat, en heeft wel een .ics.
+    const ronde = page.locator(".pv-results .pv-row", { hasText: "Proefronde door vijf straten (e2e)" }).first();
+    await ronde.locator(".pv-row-btn").click();
+    assert.equal(await ronde.locator(".pv-ics").count(), 1);
+    // Nakijkronde #170: de lijst van een oud bestand telt niet, en het label per straat.
+    assert.equal(await page.locator(".pv-results .pv-row", { hasText: "Proefronde van een oud bestand (e2e)" }).count(), 0);
+    const deels = page.locator(".pv-results .pv-row", { hasText: "Proeftocht deels in aanvraag (e2e)" }).first();
+    assert.match(await deels.locator(".pv-row-kind").innerText(), /Aanvraag, nog niet goedgekeurd/);
+    await deels.locator(".pv-row-btn").click();
+    assert.equal(await deels.locator(".pv-ics").count(), 0, "geen .ics op een straat van de aanvraag");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("stap 2: Enter opent geen gok ('Bedoelde je…'), wel na een keuze met de pijltjes", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street });
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("Kammenstrat");
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    await input.press("Enter");
+    assert.doesNotMatch(page.url(), /plek=/, "Enter opent de gok niet");
+    assert.match(await page.locator("#pv-search-help").innerText(), /Kies een suggestie met de pijltjes/);
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"));
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Kammenstraat");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   await t.test("gsm (390 px): geen horizontale scroll in zoeken, plek, lijst, tijdlijn en maand", async () => {
     const { page, context } = await openPage(baseUrl, { street });
     const noScroll = async (label) => {

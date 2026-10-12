@@ -11,6 +11,7 @@ import {
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
+  eenKaartPerDossier, dossiersVanAgendapunt, stratenVanAgendapunt, nietGoedgekeurdOp, enterOpent,
 } from "./place-core.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
 import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
@@ -322,6 +323,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   const lijstVan = (dossier) => stratenFilter.lijstVan(dossier);
   view.setStreetLists?.((item) => {
     if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) return stratenFilter.refsVan(item.reference, state.place?.type === "straat" ? state.place.name : "");
+    // Een agendapunt uit de evenementendossiers: al zijn straten (de locatietekst noemt er hoogstens drie,
+    // "X, Y, Z en 8 andere straten"), plus wat de locatie zelf noemt.
+    const agendaStraten = stratenVanAgendapunt(item);
+    if (agendaStraten.length) return stratenFilter.naarRefs(agendaStraten);
     const vlak = !item?.kind && item?.gipodId != null ? kaartUitleg?.werken?.[item.gipodId]?.vlakStraten : null;
     if (Array.isArray(vlak) && vlak.length) {
       const eigen = Array.isArray(item.streets) ? item.streets : [];
@@ -571,15 +576,21 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     search.setAttribute("aria-activedescendant", `pv-opt-${active}`);
     listbox.querySelector(`#pv-opt-${active}`)?.scrollIntoView({ block: "nearest" });
   }
-  search.addEventListener("input", renderSuggestions);
+  // Kwam de actieve suggestie van de pijltjes (een bewuste keuze), of staat ze er alleen als eerste?
+  let gekozenMetPijltjes = false;
+  search.addEventListener("input", () => { gekozenMetPijltjes = false; renderSuggestions(); });
   search.addEventListener("focus", () => { if (search.value && !state.place) renderSuggestions(); });
   search.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowDown") { event.preventDefault(); if (listbox.hidden) renderSuggestions(); else moveActive(1); }
-    else if (event.key === "ArrowUp") { event.preventDefault(); moveActive(-1); }
+    if (event.key === "ArrowDown") { event.preventDefault(); if (listbox.hidden) renderSuggestions(); else { moveActive(1); gekozenMetPijltjes = true; } }
+    else if (event.key === "ArrowUp") { event.preventDefault(); moveActive(-1); gekozenMetPijltjes = true; }
     else if (event.key === "Enter") {
       event.preventDefault();
       if (!suggestions.length && search.value.trim()) renderSuggestions();
-      if (suggestions[active]) applyPlace(suggestions[active].place, { focusResults: true });
+      // Enter opent nooit een gok ("Bedoelde je…": Vosstraat werd zo de Gasstraat). Alleen met de pijltjes of
+      // een klik; anders zegt de hulptekst hoe je kiest.
+      const keuze = suggestions[active];
+      if (keuze && enterOpent(keuze, { pijltjes: gekozenMetPijltjes })) applyPlace(keuze.place, { focusResults: true });
+      else if (keuze) { help.classList.remove("pv-sr"); help.textContent = "Geen straat met precies die naam. Kies een suggestie met de pijltjes of klik erop."; }
     } else if (event.key === "Escape") {
       if (!listbox.hidden) closeSuggestions(); else if (search.value) clearBtn.click();
     }
@@ -741,14 +752,18 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
     if (Array.isArray(live.works) || Array.isArray(live.publicSpace)) vraagKaartUitleg();
     const vandaag = brusselsToday();
-    const agenda = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
+    const agendaRuw = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
     const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
-    const liveEntries = [
+    const liveRuw = [
       ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg }),
       ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: identiteitSamen(evenementIdentiteit, evenementAuto), agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...terrasEntries(inPlace(live.terraces)),
     ];
+    // Eén kaart per dossiernummer: een agendapunt uit de evenementendossiers en de kaart van hetzelfde dossier
+    // (live of uit de stand van de ochtend) worden één kaart (place-core.js).
+    const { agenda: agendaUniek, live: liveEntries } = eenKaartPerDossier(agendaRuw, liveRuw);
+    const agenda = agendaUniek;
     const entries = [...agenda, ...liveEntries.filter((entry) => state.groups.has(entry.group))];
     // Chips: tellen binnen de plek, ook voor soorten die uit staan. agenda.js telt de agendapunten per
     // soort; de live lagen tellen we hier per kaart (een dossier met 5 innames is 1 kaart).
@@ -782,7 +797,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const agendaWeek = !state.place ? [] : (Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : [])
       .filter((item) => String(item?.date || "").slice(0, 10) <= weekEinde)
       .map((item) => agendaEntry(item, item.category || "other"))
-      .filter((e) => (e.group === "evenementen" || e.group === "werken") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item));
+      .filter((e) => (e.group === "evenementen" || e.group === "werken") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item))
+      .filter((e) => { const dossiers = dossiersVanAgendapunt(e.item); return !dossiers.length || !liveEntries.some((l) => dossiers.includes(l.id) && String(l.uid || "").startsWith("publicSpace:dossier:")); });
     // Een laag die de weekzin nodig heeft en die uit staat of er niet is: dan nooit "rustig". Nog onderweg
     // (loading) of mislukt (failed) zegt de zin elders; een geladen laag telt mee, ook als ze uit staat. Een
     // laag die uit staat en (deels) mislukte, staat niet in `failed` (dat volgt de soortkeuze): die zeggen we
@@ -828,6 +844,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       progress = `<div class="pv-progress" aria-hidden="true"><span style="width:${Math.round((done / total) * 100)}%"></span></div><p class="pv-progress-text">${esc(voortgangTekst(entry.start, entry.end, today))}</p>`;
     }
     const item = entry.item || {};
+    // Het label per straat: ook een goedgekeurd punt toont het op een straat die alleen een dossier raakt dat nog
+    // niet goedgekeurd is (nietGoedgekeurdOp in place-core.js).
+    const straatNu = state.place?.type === "straat" ? state.place.name : "";
+    const nietGoedgekeurd = entry.source === "agenda" && nietGoedgekeurdOp(item, straatNu);
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
@@ -838,8 +858,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const links = gewoon.filter((l) => !bovenaan.includes(l)).map(linkHtml);
     const technischBlok = technisch.length ? `<details class="pv-tech"><summary>Technische details</summary><p>Ruwe gegevens van de stad, zonder uitleg voor bewoners.</p><p class="pv-links">${technisch.map(linkHtml).join("")}</p></details>` : "";
     const bronHint = bezoekersHint(entry);
-    if (entry.source === "agenda" && !item.noEventPage && item.feed) links.push(`<a href="/event/${encodeURIComponent(entry.id)}">Deel dit agendapunt</a>`);
-    if (entry.source === "agenda" && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(entry.id)}">Zet in je agenda (.ics)</button>`);
+    // Het agendapunt van een evenementendossier staat niet apart naast de kaart van datzelfde dossier
+    // (eenKaartPerDossier in place-core.js): de kaart krijgt zijn deellink en zijn .ics.
+    const agendaPunt = entry.source === "agenda" ? item : entry.agendaPunt || null;
+    if (agendaPunt && !agendaPunt.noEventPage && agendaPunt.feed) links.push(`<a href="/event/${encodeURIComponent(agendaPunt.id)}">Deel dit agendapunt</a>`);
+    // Geen .ics voor een aanvraag die de stad nog niet goedkeurde.
+    if (agendaPunt && !nietGoedgekeurdOp(agendaPunt, straatNu) && window.AgendaIcs?.downloadIndividualIcs) links.push(`<button type="button" class="pv-ics" data-ics="${esc(agendaPunt.id)}">Zet in je agenda (.ics)</button>`);
     // Van de lijst naar de kaart (neighborhood-map.js, public-agenda:kaart-toon). Niet bij een terras of een markt.
     // Of de kaart er een plek voor heeft, zegt de kaart zelf: de knop hangt niet af van de geometrie, zodat het
     // kaartje uit de stand van de ochtend en het live nagekeken kaartje er hetzelfde uitzien.
@@ -849,7 +873,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
           <span class="pv-row-when">${esc(duidelijk.tijd || when)}</span>
           <span class="pv-row-main">
-            <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}${duidelijk.badge ? `<span class="pv-badge pv-badge-now">${esc(duidelijk.badge)}</span>` : ""}</span>
+            <span class="pv-row-kind"><span aria-hidden="true">${k.emoji}</span> ${esc(k.label)}${badge}${duidelijk.badge ? `<span class="pv-badge pv-badge-now">${esc(duidelijk.badge)}</span>` : ""}${nietGoedgekeurd ? `<span class="pv-badge pv-badge-aanvraag">Aanvraag, nog niet goedgekeurd</span>` : ""}</span>
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.melding ? `<span class="pv-row-alert">${esc(duidelijk.melding)}</span>` : ""}
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}

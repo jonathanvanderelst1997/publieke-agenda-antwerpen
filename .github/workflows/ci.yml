@@ -57,6 +57,19 @@ jobs:
             exit 1
           fi
 
+      # Vaagheidsratel met twee metingen op dezelfde data: de code van de basis
+      # (de branch waarop deze PR landt) en de code van de PR, allebei op de
+      # data van de PR (scripts/vaagheid-tegen-basis.mjs). Zo telt een stijging
+      # ook als de PR zelf data wijzigt; de ratel in npm test slaat dan over.
+      # Een bewuste stijging staat met een reden in site/sources/vaagheid.json.
+      - name: Vaagheid tegen de basis (zelfde data)
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags --depth=1 origin "refs/heads/${BASE_REF}"
+          node scripts/vaagheid-tegen-basis.mjs --basis FETCH_HEAD
+
   # data-only: een toekomstige verplichte controle (ruleset op main). De job
   # draait altijd en wordt nooit overgeslagen via een if: op de job; de keuze
   # valt binnen de stappen.

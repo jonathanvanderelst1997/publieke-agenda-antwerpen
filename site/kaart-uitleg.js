@@ -89,6 +89,9 @@ const NUTSWERK = "Werken aan nutsleidingen";
 const HOOGTEWERKER = "Werk met een hoogtewerker";
 const WEGENWERKEN = "Wegenwerken";
 const SOORTEN_WERK = [
+  // Een cabine van het net ("HS cabine", stratentoets van 12 oktober 2026): vóór de andere, want specifieker
+  // dan "hoogspanning".
+  [/\b(?:hs|ms|hoogspannings|middenspannings)[- ]?cabine\b|\bcabine\b/i, "Werken aan een elektriciteitscabine"],
   [/riolering|\briool|afvoerleiding/i, "Rioleringswerken"],
   [/bemaling/i, "Bemaling (grondwater wegpompen)"],
   [/warmtenet|warmteleiding|stadsverwarming/i, "Werken aan het warmtenet"],
@@ -117,6 +120,15 @@ const SOORTEN_WERK = [
   [/\bverhuis/i, "Verhuis"],
   [/\bcontainers?\b/i, "Container"],
   [/\bsnoei|\bboom\b|\bbomen\b|groenaanleg|beplanting/i, "Groenwerken"],
+  // Woorden die beheerders vaak alleen in de fasenaam zetten (stratentoets van 12 oktober 2026): "Bijkomende
+  // betonstort plan 16B", "Fase 1 : Maaien", "Afsluiten tunnel", "Onderhoudssluiting ... tunnel nacht 1",
+  // vegen en kolken, zwerfvuil, "stockagezone". Achteraan: een ander, specifieker woord gaat voor.
+  [/betonstort/i, "Betonstort"],
+  [/\bmaai(?:en|werk(?:en)?|beurt(?:en)?)\b/i, "Maaien (groenonderhoud)"],
+  [/(?:afsluit\w*|sluiting)\b[^.;|]*tunnel|tunnel\w*\b[^.;|]*\b(?:afsluit\w*|sluiting|dicht)\b/i, "Tunnelafsluiting"],
+  [/tunnel/i, "Tunnelwerken"],
+  [/\bvegen\b|\bveeg\w*|\bkolken\b|kolkenreiniging|zwerfvuil|straatreiniging/i, "Straatreiniging (vegen, kolken of zwerfvuil)"],
+  [/stockage/i, "Opslagzone (stockage)"],
 ];
 // Eén soort uit vrije tekst: de eerste bron met een herkend woord wint. `zonder`: soorten die niet tellen.
 export function soortWerk(bronnen = [], { zonder = [] } = {}) {
@@ -659,7 +671,9 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   // De hinder kan vroeger stoppen dan het werk; voor "tot wanneer" telt het werk zelf.
   const duur = resterendeDuur({ start, eind, vandaag });
   let wanneer = "";
-  if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
+  // Een werk van één dag: "op 26 oktober" of "vandaag", niet "vanaf" of "tot" (alsof het dagen duurt).
+  if (start && eind && start === eind) wanneer = duur.toestand === "gepland" ? `op ${dt(start)} (${duur.tekst})` : duur.toestand === "bezig" ? "vandaag" : "";
+  else if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
   else if (duur.toestand === "gepland") wanneer = `vanaf ${dt(start)} (${duur.tekst})`;
   // Gevolgen in een fase buiten het district (bv. postcode 2070) horen niet in de titel of de samenvatting.
   const titelGevolgen = f.titelGevolgen || f.gevolgen;
@@ -778,11 +792,122 @@ export function isEvenementDossier(row = {}) {
 
 // Vrije tekst uit het dossier tonen we alleen als ze over het evenement gaat: een richting, een
 // halte, een afstand of een woord uit de lijst. Een losse naam ("maurits") kan een persoon zijn.
-const EVENEMENT_WOORDEN = /\b(?:van|naar|stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
-export function bruikbareBeschrijving(tekst) {
-  const t = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 140);
-  if (!t || CONTACT.test(t)) return "";
-  return EVENEMENT_WOORDEN.test(t) ? t : "";
+const EVENEMENT_WOORDEN = /\b(?:stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
+// Geen persoonsnaam (docs/PUBLIC_SPACE_SOURCE_POLICY.md). Een woord met een hoofdletter dat geen trefwoord
+// ("Start", "Doopfeest", "Tweede"), geen plek met een zekere uitgang ("Falconplein", "Groenplaats") en geen klein
+// woord ("Van", "De" tussen twee namen) is, kan een naam zijn. Zo'n naam mag alleen als eerste woord van een zin
+// staan ("Startlocatie doop"), nooit twee na elkaar, tenzij de straatas ze dekt: een hele straatnaam
+// (`isStraat`, "Quinten Matsijslei", "Meir", "Stadswaag") of een straat van de inname zelf (`straten`, ook een
+// deel: "Gummarus" bij de Sint-Gummarusstraat). Dus weg: "Feest Maurits", "Doopfeest Jan Peeters",
+// "Startlocatie doop Jan Van Dijk", "Start Mieke Vandenberg". Een achternaam op een plaatsuitgang (-dijk, -berg,
+// -veld, -hof, -laan, -weg: "Van Dijk", "Vandenberg") telt als naam, niet als plek. Afkortingen in hoofdletters
+// ("MAS", "MTS") en woorden zonder hoofdletter zijn geen naam.
+const NAAMWOORD = /^\p{Lu}\p{Ll}+(?:[-'’]\p{L}+)*$/u;
+// Een plek op een uitgang die geen gewone achternaam is (zie ZEKER_EINDE in lib/plaatsnaam.mjs), als samengesteld woord.
+const ZEKERE_PLAATS = /^\p{Lu}[\p{L}'’-]{2,}(?:st?traat|plein|pleintje|plaats|markt|kaai|kaaien|dok|dokken|park|station|terminus|tunnel|kerk|school|zaal|centrum)$/u;
+// Gewone woorden die met een hoofdletter kunnen staan (een trefwoord als stam, een rangtelwoord, een soort plek).
+const GEWOON_WOORD = /^(?:start|stop|aankomst|finish|eind|einde|verzamel|parcours|wandel|loop|run|jogging|marathon|fiets|wieler|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadar|dranghek|parkeer|verkeersvrij|omleiding|doop|spel|drill|dril|halte|jeugd|volwassen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator|locatie|inname|opbouw|afbraak|zone|ingang|uitgang|verkoop|tweede|eerste|derde|vierde|vijfde|zesde|zevende|achtste|negende|tiende|laatste|grote|kleine|oude|nieuwe|plein|pleintje|park|kaai|dok|station|halte|metrostation|premetrostation|parking|hoek|buurt|kruispunt|zijde|kant|deel|fase|dag|nacht|avond|ochtend|middag|animatie|verkeersvrije|enkel|alleen|tijdens|ook)/i;
+const NAAM_PARTIKEL = /^(?:van|de|der|den|ten|ter|le|la|du|des|vande|vander|vanden|het|'t|en|op|aan|naar|tot|in|bij)$/i;
+const straatSleutel = (v) => clean(v, 200).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+export function lijktPersoonsnaam(tekst, { straten = [], isStraat = null } = {}) {
+  const woorden = [];
+  // Woorden met hun plaats in de zin: na ". " of ": " begint een nieuwe zin (een hoofdletter is daar gewoon).
+  for (const [i, deel] of clean(tekst, 400).split(/(?<=[.!?:])\s+/).entries()) {
+    deel.split(/[\s,;()/]+|\s[–—-]\s/).filter(Boolean).forEach((ruw, k) => {
+      const w = ruw.replace(/^['’"(]+|['’".!?:)]+$/g, "");
+      if (w) woorden.push({ w, zinBegin: k === 0, zin: i });
+    });
+  }
+  const eigen = (Array.isArray(straten) ? straten : []).map((s) => straatSleutel(typeof s === "string" ? s : s?.name)).filter(Boolean);
+  // Dekt de straatas deze reeks woorden? Een hele straatnaam, of (één naam) het begin van een woord in een straat
+  // van de inname zelf.
+  const gedekt = (reeks, namen) => {
+    const sl = straatSleutel(reeks.join(" "));
+    if (!sl) return false;
+    if (typeof isStraat === "function" && isStraat(reeks.join(" "))) return true;
+    if (eigen.some((s) => s === sl)) return true;
+    return namen === 1 && sl.replace(/ /g, "").length >= 4 && eigen.some((s) => ` ${s}`.includes(` ${sl}`));
+  };
+  const naam = woorden.map((x) => NAAMWOORD.test(x.w) && !NAAM_PARTIKEL.test(x.w) && !GEWOON_WOORD.test(x.w) && !ZEKERE_PLAATS.test(x.w));
+  const open = new Set(naam.flatMap((v, k) => (v ? [k] : [])));
+  // Eerst de langste reeksen (binnen één zin), zodat "Theodoor Van Rijswijckplaats" als geheel telt.
+  for (let lengte = Math.min(woorden.length, 5); lengte >= 1 && open.size; lengte -= 1) {
+    for (let i = 0; i + lengte <= woorden.length; i += 1) {
+      const reeks = woorden.slice(i, i + lengte);
+      if (reeks.some((x) => x.zin !== reeks[0].zin)) continue;
+      const hier = [...open].filter((k) => k >= i && k < i + lengte);
+      if (hier.length && gedekt(reeks.map((x) => x.w), hier.length)) for (const k of hier) open.delete(k);
+    }
+  }
+  // Wat niet gedekt is: een naam midden in een zin, of twee namen na elkaar (kleine woorden ertussen tellen niet).
+  let reeks = 0;
+  for (const [k, x] of woorden.entries()) {
+    if (NAAM_PARTIKEL.test(x.w)) continue;
+    if (!open.has(k)) { reeks = 0; continue; }
+    reeks += 1;
+    if (reeks >= 2 || !x.zinBegin) return true;
+  }
+  return false;
+}
+
+// Een richting ("van de Stadswaag naar het Falconplein", "van X tot Y"): met kleine letters, zodat "Van" in een
+// naam ("Jan Van Dijk", "Van Eycklei") geen trefwoord is.
+const RICHTING = /\bvan\b.+\b(?:naar|tot)\b/;
+
+// Huisnummers in een omschrijving (docs/PUBLIC_SPACE_SOURCE_POLICY.md: nooit een huisnummer). Weg met een nummer
+// na een aanwijzer ("tegenover nr 12", "t.o.v. 34", "thv 5", "huisnummer 1 - 26"), na een straatwoord
+// (zonderHuisnummer), na een woord met een hoofdletter ("Proefplein 12") en na "tot" of "vanaf" ("...straat
+// tot 40"). Wat er daarna nog aan getallen staat, moet een afstand ("10K", "5 km"), een maat ("3mx3m"), een uur, een
+// datum, een volgnummer ("stop 2", "fase 3") of een aantal ("12 fietsennadars") zijn: anders is de hele omschrijving
+// niet bruikbaar (veiligNummer).
+const NR = String.raw`\d{1,4}\s?[a-z]?\b`;
+const REEKS_NR = String.raw`(?:\s*(?:[-–\/&+]|\ben\b|\btot(?:\s+en\s+met)?\b|\bt\.?e\.?m\.?)\s*\d{1,4}\s?[a-z]?\b)*`;
+// Een getal dat geen huisnummer is: een uur, een datum of een maat erna.
+const GEEN_HUISNUMMER_NA = String.raw`(?!\s*(?:km|k|m|meter|u|uur|h|min)\b|[:.\/]\d|\s?[x×]\s?\d)`;
+const AANWIJZER_NUMMER = new RegExp(String.raw`\s*(?:\b(?:van|vanaf|tot|aan|bij)\s+)?(?:\bt\.?\s?o\.?\s?v\.?|\btov\b|\btegenover\b|\bthv\b|\bt\.?\s?h\.?\s?v\.?|\bter hoogte van\b|\bhuisnummers?\b|\bhuisnr\.?|\bnrs?\b\.?|\bnummers?\b)\s*(?:nr\.?\s*)?${NR}${REEKS_NR}`, "gi");
+const TOT_NUMMER = new RegExp(String.raw`\s*\b(?:tot(?:\s+en\s+met)?|t\.?e\.?m\.?|vanaf)\s+\d{1,4}[a-z]?\b${GEEN_HUISNUMMER_NA}`, "gi");
+const VOLGWOORD = String.raw`(?:stop|halte|fase|deel|zone|vak|sector|podium|ronde|dag|groep|tent|post|locatie|stand|wave|nadar|nacht|week|stap|editie|sketch|plan)s?`;
+const NA_HOOFDLETTER = new RegExp(String.raw`(\p{Lu}[\p{L}'’-]*)\s+\d{1,4}[a-z]?\b${GEEN_HUISNUMMER_NA}(?:\s*[-–\/]\s*\d{1,4}[a-z]?\b)?`, "gu");
+const MAAND = String.raw`(?:jan|feb|maa|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\p{L}*`;
+const VEILIG_NUMMER = new RegExp([
+  String.raw`\d+(?:[.,]\d+)?\s?m?\s?[x×]\s?\d+(?:[.,]\d+)?\s?m?\b`, // maat ("3mx3m", "4 x 6 m")
+  String.raw`\d+(?:[.,]\d+)?\s?(?:km|k|m|meter|kilometer|cm|u|uur|h|min|x|%|e|ste|de|kv|ton)\b`, // afstand, maat, uur, rangtelwoord
+  String.raw`\d{1,2}[:.u]\d{2}`, // uur
+  String.raw`\d{1,2}(?:\s?[-–]\s?\d{1,2})?\s?${MAAND}`, // datum met maand ("12-14 okt")
+  String.raw`\d{1,2}[\/-]\d{1,2}(?:[\/-]\d{2,4})?`, // datum
+  String.raw`(?:19|20)\d{2}`, // jaartal
+  String.raw`(?<=\b${VOLGWOORD}\s*#?\s*)\d{1,3}[a-z]?\b`, // volgnummer
+  String.raw`(?<=(?:^|[\s(:,]|\b(?:de|het|een|met|op|en|voor)\s))\d{1,3}(?=\s+(?!(?:tot|tem|en|of|t\.e\.m)\b)\p{Ll}{3,})`, // aantal ("op de 3 parkeerstroken"), geen "4 tot"
+].map((x) => `(?:${x})`).join("|"), "giu");
+const VOLGNUMMER_VOOR = new RegExp(String.raw`\b${VOLGWOORD}$`, "i");
+export const zonderAdresNummers = (t) => zonderHuisnummer(clean(t, 300).replace(AANWIJZER_NUMMER, "").replace(TOT_NUMMER, ""))
+  .replace(NA_HOOFDLETTER, (m, woord) => (VOLGNUMMER_VOOR.test(woord) ? m : woord))
+  .replace(/\s+([,.;:])/g, "$1").replace(/\s{2,}/g, " ").trim();
+export const veiligNummer = (t) => !/\d/.test(String(t ?? "").replace(VEILIG_NUMMER, " "));
+// De privacyfilter zelf: geen contactgegevens, geen naam, geen huisnummer. Geeft de tekst (hoogstens 140 tekens)
+// zonder huisnummers, of "" als ze niet veilig te tonen is. `straten`: de straten van de inname (namen of
+// { name }); `isStraat(naam)`: staat die hele naam in de straatas?
+export function veiligeTekst(tekst, { straten = [], isStraat = null } = {}) {
+  // De namen en de contactgegevens op de hele tekst (een afgeknipt woord als "Paardenmark" is geen plek meer).
+  const heel = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 400);
+  if (!heel || CONTACT.test(heel) || lijktPersoonsnaam(heel, { straten, isStraat })) return "";
+  const zonder = zonderAdresNummers(clean(heel, 140));
+  return zonder && veiligNummer(zonder) ? zonder : "";
+}
+// Een omschrijving die de kaart toont: veilig (veiligeTekst) en over het evenement (een trefwoord of een richting).
+export function bruikbareBeschrijving(tekst, opties = {}) {
+  const t = veiligeTekst(tekst, opties);
+  return t && (EVENEMENT_WOORDEN.test(t) || RICHTING.test(t)) ? t : "";
+}
+
+// Een bewaarde omschrijving ("Parkeerverbod in Straat: parkeerverbod t.o.v. 12" in kaart-uitleg.json, van een
+// verversing met oudere code) opnieuw door de privacyfilter (veiligeTekst: geen naam, geen huisnummer): de soort
+// blijft, of "" als de tekst niet veilig te tonen is. Het trefwoord keek de verversing al na.
+export function veiligeOmschrijving(regel, opties = {}) {
+  const m = clean(regel, 400).match(/^([^:]{2,60}): (.+)$/);
+  if (!m) return veiligeTekst(regel, opties);
+  const b = veiligeTekst(m[2], opties);
+  return b ? `${m[1]}: ${zonderHuisnummer(b)}` : "";
 }
 
 // "Grote Markt" is een plein, geen markt: alleen woorden die echt een markt noemen tellen.
@@ -889,7 +1014,7 @@ export function evenementFeiten(rows = []) {
       if (re > p.eind) p.eind = re;
       perSoortDagen[soortInname][naam] = p;
     }
-    const b = bruikbareBeschrijving(r.description);
+    const b = bruikbareBeschrijving(r.description, { straten: r.streets || [] });
     if (b) onderdelen.push(`${type === "Parcours" ? "Parcours" : type || "Inname"}: ${zonderHuisnummer(b)}`);
   }
   const starts = rows.map((r) => dagVan(r.start)).filter(Boolean).sort();
@@ -1240,6 +1365,10 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   // (de knop "Toon alle N straten"): niet nog eens herhalen. De uitleg bij die stratenlijst: bij een
   // parcours de straten langs het parcours; zonder parcours de straten rond de plekken, geen parcours.
   const regels = [];
+  // Een dossier met meer plekken: hun namen, zoals de aanvrager ze in het dossier zette (alleen plaatsnamen,
+  // na de privacyfilter van lib/plaatsnaam.mjs; zie docs/PUBLIC_SPACE_SOURCE_POLICY.md).
+  const plekNamen = (Array.isArray(id?.plekNamen) ? id.plekNamen : []).map((n) => clean(n, 80)).filter((n) => n && !/[\d@]/.test(n));
+  if (plekNamen.length >= 2) regels.push(["Plekken", `${plekNamen.length} plekken met een naam in het dossier: ${plekNamen.join(", ")}.`]);
   const stratenNoot = f.straten.length > 3 ? (f.parcours ? "Straten langs het parcours, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht." : "Straten tot 18 m van de plekken in het dossier, berekend uit de kaart van de stad. Het is geen parcours: deze straten gaan niet dicht volgens het dossier.") : "";
 
   // Eén korte bronregel in gewone taal, zonder codes.

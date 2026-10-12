@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, koppelEvenement, soortEvenementMet, statusTekst, werkFeiten, werkKaartje, zonderHuisnummer } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, geldigeHuisnummers, isEvenementDossier, koppelEvenement, soortEvenementMet, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
@@ -444,6 +444,25 @@ export function dayOf(value) {
   return BRUSSELS_DAY.format(new Date(ms));
 }
 const cleanText = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
+// Het uur in Brussel van een tijdstip ("2026-10-13T05:00:00Z" → "07:00"); "" zonder uur in de bron.
+const BRUSSELS_TIME = typeof Intl !== "undefined" ? new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Brussels", hour: "2-digit", minute: "2-digit", hourCycle: "h23" }) : null;
+export function uurOf(value) {
+  const text = String(value ?? "");
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(text) || !BRUSSELS_TIME) return "";
+  const ms = Date.parse(text);
+  return Number.isFinite(ms) ? BRUSSELS_TIME.format(new Date(ms)) : "";
+}
+// De uren van een werk of een werfzone van één dag, uit het begin- en eindtijdstip van de bron (GIPOD,
+// A-Sign): { time: "07:00", timeText: "van 7.00 tot 18.00 uur" }, of { time: "", timeText: "hele dag" } voor
+// 0.00 tot 23.59. null als de bron geen uur geeft, of als het niet binnen één dag valt. Zo staat er geen
+// "Uur onbekend" bij een werfzone van 9 tot 15 uur.
+export function urenVanDag(start, end) {
+  const van = uurOf(start), tot = uurOf(end);
+  if (!van || !tot || dayOf(start) !== dayOf(end)) return null;
+  if (van <= "00:01" && tot >= "23:59") return { time: "", timeText: "hele dag" };
+  if (tot <= van) return null;
+  return { time: van, timeText: `van ${uurKort(van)} tot ${uurKort(tot)} uur` };
+}
 const streetNames = (item) => [...new Set((item?.streets || []).map((s) => s?.name).filter(Boolean))].join(", ");
 const safeUrl = (value) => (/^https:\/\//i.test(String(value || "")) ? String(value) : "");
 
@@ -672,6 +691,66 @@ export function alleenUitDossiers(item = {}) {
   return bronnen.every((id) => id === "district-asign-evenementen");
 }
 
+// ---- één kaart per dossiernummer ----
+// Het dossiernummer van een agendapunt uit de evenementendossiers van de stad (lib/asign-evenementen-agenda.mjs),
+// ook als het samengevoegd is met een andere bron; anders "".
+export function dossierVanAgendapunt(item = {}) {
+  const id = cleanText(item?.externalId);
+  const uitDossiers = item?.sourceId === "district-asign-evenementen" || (Array.isArray(item?.sources) && item.sources.some((s) => s?.sourceId === "district-asign-evenementen"));
+  return uitDossiers && /^ET\d{10}$/.test(id) ? id : "";
+}
+// Alle dossiers van zo'n agendapunt: het eigen nummer en de dossiers waarmee het samengevoegd is (`ookDossiers`
+// uit lib/asign-evenementen-agenda.mjs; bij een bronbestand van vóór dat veld de zin "Ook dossier ET..." in de info).
+const OOK_DOSSIER = /\bOok dossier (ET\d{10})\b/g;
+export function dossiersVanAgendapunt(item = {}) {
+  const eigen = dossierVanAgendapunt(item);
+  if (!eigen) return [];
+  const ook = Array.isArray(item?.ookDossiers) ? item.ookDossiers : [...cleanText(item?.info).matchAll(OOK_DOSSIER)].map((m) => m[1]);
+  return [...new Set([eigen, ...ook.map(cleanText).filter((id) => /^ET\d{10}$/.test(id))])];
+}
+// De straten van zo'n agendapunt (het veld straten uit de feed), om het aan al zijn straten te koppelen. Alleen
+// als de verversing zegt dat de lijst volledig en per dossier juist is (`stratenVolledig`, lib/asign-evenementen-
+// agenda.mjs). Een ouder bronbestand voegde dossiers samen op een gegokte titel (de straten van het ene dossier
+// bij het andere), nam het middelpunt van een reuzenvlak als straat (de Groenplaats bij ET2025007162) en kapte de
+// zone af achter het parcours: dan geen lijst, en het punt hangt aan de straten uit zijn locatie, zoals vroeger.
+export function stratenVanAgendapunt(item = {}) {
+  if (!dossierVanAgendapunt(item) || !Array.isArray(item?.straten) || item?.stratenVolledig !== true) return [];
+  return [...new Set(item.straten.map(cleanText).filter(Boolean))];
+}
+// Toont dit agendapunt op deze straat het label "Aanvraag, nog niet goedgekeurd"? Het hele punt (geen dossier
+// goedgekeurd), of een straat die alleen een dossier raakt dat nog niet goedgekeurd is (`nietGoedgekeurdStraten`:
+// de lus van ET2026005657 bij het goedgekeurde ET2026004212). Zonder straat (een wijk): zoals de lijst.
+export function nietGoedgekeurdOp(item = {}, straat = "") {
+  if (item?.nietGoedgekeurd === true) return true;
+  const naam = cleanText(straat);
+  return Boolean(naam) && Array.isArray(item?.nietGoedgekeurdStraten) && item.nietGoedgekeurdStraten.some((s) => cleanText(s) === naam);
+}
+// Eén kaart per dossiernummer: staat de kaart van een evenementendossier er al (live of uit de stand van de
+// ochtend), dan valt het agendapunt van datzelfde dossier weg uit de lijst; de kaart krijgt het agendapunt mee
+// (`agendaPunt`, voor de deellink en de .ics). Zo stond de Najaarsfoor op de Dageraadplaats er twee keer, en een
+// studentenactiviteit op de Groenplaats als kaart én als "markt". Een samengevoegd agendapunt telt voor al zijn
+// dossiers (dossiersVanAgendapunt): de kaart van het partnerdossier is hetzelfde evenement. Geeft { agenda, live }
+// terug, nieuwe lijsten.
+export function eenKaartPerDossier(agenda = [], live = []) {
+  const kaarten = new Map();
+  for (const e of live) if (String(e?.uid || "").startsWith("publicSpace:dossier:") && e.id) kaarten.set(e.id, e);
+  if (!kaarten.size) return { agenda, live };
+  const punten = new Map();
+  const blijft = agenda.filter((e) => {
+    const dossier = e?.source === "agenda" ? dossiersVanAgendapunt(e.item).find((id) => kaarten.has(id)) : "";
+    if (!dossier) return true;
+    // Het eerste agendapunt (de vroegste dag) van het dossier gaat mee met de kaart.
+    if (!punten.has(dossier) || String(e.item?.date) < String(punten.get(dossier)?.date)) punten.set(dossier, e.item);
+    return false;
+  });
+  return { agenda: blijft, live: live.map((e) => (punten.has(e.id) && kaarten.get(e.id) === e ? { ...e, agendaPunt: punten.get(e.id) } : e)) };
+}
+
+// ---- zoeken: Enter ----
+// Enter opent een suggestie alleen als ze echt overeenkomt (niet "Bedoelde je…"), of als de bewoner ze met de
+// pijltjes koos. Zo werd "Vosstraat" (Borgerhout) met Enter de Gasstraat (vaagheidsplan 12-10-2026).
+export const enterOpent = (suggestie, { pijltjes = false } = {}) => Boolean(suggestie?.place) && (pijltjes || suggestie.match !== "fuzzy");
+
 export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [] } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
@@ -685,7 +764,9 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : null;
   // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de
   // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
-  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map(zonderHuisnummer)].filter(Boolean))];
+  // Bewaarde omschrijvingen gaan opnieuw door de filter (geen huisnummer, geen naam), met de straten van het dossier.
+  const bewaardeStraten = [...(bewaard?.straten || []), ...live.straten];
+  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten }))].filter(Boolean))];
   // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
   // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet).
   const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(beschrijvingen);
@@ -1095,10 +1176,15 @@ function werfzoneEntry(dossierRijen, { vandaag = "", straat = "" } = {}) {
     ...(omlStraten.length ? [["Omleiding via", waarKort(omlStraten, straat)]] : []),
     ...(perioden.length > 1 ? [[`${perioden.length} fasen`, `${lijst}${rest}`]] : []),
   ];
+  // Een werfzone van één dag: de uren uit A-Sign (begin en einde van de fasen), zoals "van 9.00 tot 15.00 uur".
+  // Meer vensters op die dag: het vroegste uur, en ze allemaal in de tekst.
+  const vensters = !einde || einde === begin ? [...new Map(dossierRijen.map((r) => urenVanDag(r.start, r.end)).filter(Boolean).map((u) => [u.timeText, u])).values()] : [];
+  const uren = vensters.length ? { time: vensters.map((u) => u.time).filter(Boolean).sort()[0] || "", timeText: vensters.slice(0, 3).map((u) => u.timeText).join(" · ") } : null;
   return {
     title: titel,
     summary: `${wat} Vergund door de stad. ${waarom}`,
     start: begin, end: einde && einde > begin ? einde : "",
+    ...(uren ? uren : {}),
     // Alle fasen (niet alleen de eerste zes van de tekst): de tijdlijn en de weekzin tellen alleen de dagen
     // van een fase, niet het gat ertussen (opDag en dezeWeek).
     fasen: perioden,
@@ -1109,10 +1195,12 @@ function werfzoneEntry(dossierRijen, { vandaag = "", straat = "" } = {}) {
 }
 function workEntryBasis(work) {
   const consequences = work?.hindrance?.consequences || [];
+  // Een werk van één dag: de uren uit GIPOD (begin en einde), of "hele dag".
+  const uren = urenVanDag(work?.start, work?.end);
   return {
     uid: `works:${work?.gipodId}`, id: `gipod-${work?.gipodId}`, source: "works", theme: "works", group: "werken",
     title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
-    time: "", timeText: "", location: streetNames(work), status: cleanText(work?.status),
+    time: uren?.time || "", timeText: uren?.timeText || "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
     reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: safeUrl(work?.sourceUrls?.[0]), item: work,
   };

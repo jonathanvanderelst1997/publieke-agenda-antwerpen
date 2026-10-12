@@ -1,10 +1,21 @@
 # Publieke ruimte — broncontract parkeerverbod, IOD en SGW
 
-Stand: 28 september 2026.
+Stand: 28 september 2026; innameBeschrijving, dossierBeheerder en Shape_Area bijgewerkt op 12 oktober 2026.
 
 Parkeerverboden: laag 20 is canoniek voor dossierinformatie; laag 21 is een geometrievariant en wordt niet opgeteld. Deduplicatie: Dossiernummer + Locatienummer. Publiek bevestigd: Goedgekeurd en In effect. Voorbereidende, afgekeurde of lege statussen zijn geen bevestigde publieke impact. Geen aanvrager-/contactmetadata of adminlinks publiceren.
 
-IOD: polygonen en lijnen zijn onderdelen/geometrievarianten. Deduplicatie: dossierNummer + faseId + innameId. Publiek bevestigd: aanvraag_goedgekeurd, toelating_gegenereerd, toelating_geverifieerd. Publiek bruikbare structurele verrijking: faseNaam, type_dossier en innameHinder. dossierBeheerder en innameBeschrijving worden bewust niet opgehaald of gepubliceerd: dossierBeheerder kan naar een medewerker verwijzen en innameBeschrijving is vrije tekst.
+IOD: polygonen en lijnen zijn onderdelen/geometrievarianten. Deduplicatie: dossierNummer + faseId + innameId. Publiek bevestigd: aanvraag_goedgekeurd, toelating_gegenereerd, toelating_geverifieerd. Publiek bruikbare structurele verrijking: faseNaam, type_dossier, innameHinder en Shape_Area (de oppervlakte die A-Sign zelf berekent, alleen laag 22).
+
+dossierBeheerder wordt nooit opgehaald, bewaard of getoond: het is een personeelscode van de stad en kan naar een medewerker verwijzen. Ook geen gegevens van de aanvrager.
+
+innameBeschrijving (stand 12 oktober 2026) is vrije tekst van de aanvrager. Ze wordt opgehaald, maar nooit als vrije tekst gepubliceerd. De site toont er alleen dit uit, en altijd pas na een privacyfilter (geen e-mailadres, telefoonnummer, link, huisnummer of iets dat op een persoonsnaam lijkt; wat de filter niet doorlaat, verschijnt niet):
+
+- **een plaatsnaam**: een omschrijving die niets anders noemt dan een plek, zoals "Teniersplaats", "Metrostation Handel" of "Scheldekaaien (buurt Steenplein)" (`lib/plaatsnaam.mjs`). Elk woord met een hoofdletter dat geen soort plek ("Metrostation", "Pleintje", "Hoek", "Parking") en geen klein woord ("Van", "De", "Sint") is, moet bewezen zijn door de straatas van de stad: een hele straatnaam ("Quinten Matsijslei"), of een straat binnen 150 m die dat woord in haar naam draagt ("Gummarus" bij de Sint-Gummarusstraat, "Handel" bij de Handelstraat), of één samengesteld woord op een uitgang die alleen een plek is ("-plein", "-plaats", "-straat", "-markt", "-kaai", "-dok", "-park", "-station"). Een uitgang die ook een achternaam kan zijn ("-dijk", "-berg", "-veld", "-hof", "-weg", "-laan": "Van Dijk", "Vandenberg") telt niet vanzelf. Dat geldt ook voor één naam vóór een plaatswoord ("Marie Groenplaats") en voor de naam na "Parking", "Hoek" of "Buurt". Een woord zonder hoofdletter moet zelf een soort plek of een klein woord zijn ("catering", "voetpad" en "verkoop" zijn geen plaatsnaam). Zo toont de kaart de 26 plekken van een jaardossier bij naam;
+- **een letterlijk trefwoord**: een soort of een voorwerp uit een vaste lijst ("buurtfeest", "tent", "reuzenrad"), en de korte omschrijvingen van het parcours of de opstelling die zo'n trefwoord of een richting ("van ... naar ...") bevatten ("Startlocatie doop", "Wandelen van X naar Y"; hoogstens 140 tekens, `bruikbareBeschrijving` in `site/kaart-uitleg.js`). Een woord met een hoofdletter dat geen trefwoord, geen plek en geen klein woord is, mag alleen als eerste woord van een zin staan, tenzij de straatas het dekt (een hele straatnaam, of een straat van de inname zelf); twee namen na elkaar nooit. Dus niet: "Feest Maurits", "Startlocatie doop Jan Van Dijk".
+
+Huisnummers: een nummer na een aanwijzer ("nr", "t.o.v.", "tegenover", "thv", "ter hoogte van", "huisnummer"), na "tot" of "vanaf", na een straatwoord ("Voorbeeldlaan 12") of na een woord met een hoofdletter valt weg. Blijft er daarna een getal staan dat geen afstand ("10K", "5 km"), maat ("3mx3m"), uur, datum, volgnummer ("stop 2", "fase 3") of aantal ("12 fietsennadars") is, dan wordt de hele omschrijving niet getoond. `validateKaartUitleg` (`lib/kaart-uitleg-validatie.mjs`) keurt een `site/sources/kaart-uitleg.json` met een nummer na een aanwijzer of een straatwoord af, en een bewaarde omschrijving gaat bij het tonen opnieuw door de filter (`veiligeOmschrijving`).
+
+Een omschrijving die alleen een naam is ("maurits") of die een soort trefwoord mist, wordt niet getoond. De soort zelf wordt uit alle omschrijvingen afgeleid, maar alleen als vast woord uit de lijst: de tekst gaat dan nergens heen.
 
 SGW: meerdere geometrieën kunnen dezelfde fase voorstellen. Deduplicatie: reference_id + phase_id. Alleen vergund geldt als publiek bevestigd.
 

@@ -155,7 +155,7 @@ test("M1: een buurtfeest uit het Districtsfonds krijgt zijn naam; een stoet die 
   const per = Object.fromEntries(items.map((i) => [i.externalId, i]));
   assert.equal(items.length, 2, "twee evenementen blijven twee agendapunten");
   assert.equal(per.ET2099100021.title, "Buurtfeest Feestgang");
-  assert.equal(per.ET2099100020.title, "Evenement in de Eerstelaan: parcours door 5 straten, naam onbekend", "de stoet krijgt de naam van het buurtfeest niet");
+  assert.equal(per.ET2099100020.title, "Evenement in de Eerstelaan: parcours door 5 straten", "de stoet krijgt de naam van het buurtfeest niet");
   assert.equal(koppelBesluiten([stoet], [fonds]).size, 0, "ook zonder het buurtfeestdossier niet");
   const tweede = feit("ET2099100022", { dagen: [dag], fasen, beginStraat: "Feestgang", kernStraten: ["Feestgang"] });
   assert.equal(koppelBesluiten([feest, tweede], [fonds]).size, 0, "twee dossiers met hun eigen plek in die straat: twijfel, geen naam");
@@ -172,7 +172,7 @@ test("M1: een buurtfeest uit het Districtsfonds krijgt zijn naam; een stoet die 
   assert.deepEqual([...koppelBesluiten([parcours, zone], [marathon], { naamVan }).keys()], ["ET2099100023"]);
   const hand = { dossiers: { ET2099100023: fiche({ zekerheid: "zeker", naam: "Proefmarathon van de Stad" }) } };
   const metZone = bouw({ feiten: [parcours, zone], hand, besluiten: [marathon] }).items;
-  assert.deepEqual(metZone.map((i) => [i.externalId, i.title]), [["ET2099100023", "Proefmarathon van de Stad"], ["ET2099100024", "Evenement in de Dokstraat: verkeersvrije zone in 2 straten, naam onbekend"]]);
+  assert.deepEqual(metZone.map((i) => [i.externalId, i.title]), [["ET2099100023", "Proefmarathon van de Stad"], ["ET2099100024", "Evenement in de Dokstraat: verkeersvrije zone in 2 straten"]]);
 });
 
 // ---------- M2: een vermoede soort is geen feit ----------
@@ -253,7 +253,7 @@ test("L6: begint een parcours aan een kruispunt, dan heet het naar de straat van
   const f = dossierFeiten(dossier, { index });
   assert.deepEqual(f.langs, ["Proefstraat", "Voorbeeldlaan"]);
   assert.equal(f.beginStraat, "Proefstraat");
-  assert.equal(bouw({ feiten: [f] }).items[0].title, "Evenement in de Proefstraat: parcours door 2 straten, naam onbekend");
+  assert.equal(bouw({ feiten: [f] }).items[0].title, "Evenement in de Proefstraat: parcours door 2 straten");
 });
 
 // ---------- M3: de bron is zichtbaar in refresh-status.json en sources:health ----------
@@ -284,9 +284,11 @@ test("M3: elke melding van sources:health heeft haar eigen titel (verouderd is n
 
 // ---------- L3: de feed draagt geen velden die de site niet leest ----------
 
-test("L3: de straten en fasen blijven in het bronbestand, niet in de feed", () => {
+// Sinds het vaagheidsplan van 12 oktober 2026 (stap 2) gaan de straten wel mee: de plekpagina koppelt een
+// agendapunt aan al zijn straten, niet alleen aan de drie in de locatietekst. De fasen blijven in het bronbestand.
+test("L3: de fasen blijven in het bronbestand; de straten gaan mee naar de feed", () => {
   const item = {
-    id: "asign-ev-et2099100080-2026-10-18", externalId: "ET2099100080", title: "Evenement in de Proefstraat: parcours door 2 straten, naam onbekend", theme: "Activiteit", className: "activity",
+    id: "asign-ev-et2099100080-2026-10-18", externalId: "ET2099100080", title: "Evenement in de Proefstraat: parcours door 2 straten", theme: "Activiteit", className: "activity",
     date: "2026-10-18", endDate: null, timeSlot: "Info", timeText: "", location: "Proefstraat en Voorbeeldlaan", postcodes: ["2000"], info: "Parcours door 2 straten.",
     kind: "activity", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22", retrievedAt: RETRIEVED, reviewRequired: false, inDistrict: true,
     fasen: [{ naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }], straten: ["Proefstraat", "Voorbeeldlaan"],
@@ -295,7 +297,7 @@ test("L3: de straten en fasen blijven in het bronbestand, niet in de feed", () =
   assert.deepEqual(document.items[0].straten, ["Proefstraat", "Voorbeeldlaan"]);
   const { feed } = buildFeed({ status: null, documents: [document] }, []);
   assert.equal(feed.items.length, 1);
-  assert.equal("straten" in feed.items[0], false);
+  assert.deepEqual(feed.items[0].straten, ["Proefstraat", "Voorbeeldlaan"]);
   assert.equal("fasen" in feed.items[0], false);
 });
 

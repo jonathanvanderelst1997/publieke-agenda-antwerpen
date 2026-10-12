@@ -38,11 +38,33 @@
   }
 
   // Een gewone weekmarkt (GIPOD-marktdagen van de stad) is geen uitgaansmoment op zich:
-  // die worden gebundeld getoond, niet als honderden losse items.
+  // die worden gebundeld getoond, niet als honderden losse items. "Wekelijkse markt" alleen voor een echte
+  // stadsmarkt (stad-markten), of voor een markt die minstens MIN_REEKS keer op dezelfde weekdag terugkomt
+  // (markeerWekelijkseReeksen zet dan weeklySeries). Een losse markt of een periode (Winter in Antwerpen van
+  // 4 december tot 3 januari) is geen weekmarkt, en een studentenactiviteit nooit.
+  const NOOIT_WEEKMARKT = /\b(?:student\w*|doop\w*|dril\w*|schacht\w*|winter in antwerpen)\b/;
+  const MIN_REEKS = 3;
+  function kanReeksZijn(item) {
+    if (item?.sourceId === "stad-markten" || eventTypeOf(item) !== "market_fair" || !isoDay(item?.date)) return false;
+    const tekst = clean(`${item?.title || ""} ${item?.info || ""}`);
+    return !FESTIVAL.test(tekst) && !NOOIT_WEEKMARKT.test(tekst);
+  }
   function isWeeklyMarket(item) {
     if (item?.sourceId === "stad-markten") return true;
-    if (eventTypeOf(item) !== "market_fair") return false;
-    return !FESTIVAL.test(clean(`${item?.title || ""} ${item?.info || ""}`));
+    return kanReeksZijn(item) && item?.weeklySeries === true;
+  }
+  // Zet weeklySeries op elk marktitem (niet van stad-markten) dat met dezelfde titel en plek minstens
+  // MIN_REEKS keer op dezelfde weekdag staat. Geeft een nieuwe lijst; de items zelf blijven ongewijzigd.
+  const reeksSleutel = (item) => `${clean(item.title)}|${clean(item.location)}|${weekday(item.date)}`;
+  function markeerWekelijkseReeksen(items = []) {
+    const tel = new Map();
+    for (const item of items) if (kanReeksZijn(item)) tel.set(reeksSleutel(item), (tel.get(reeksSleutel(item)) || 0) + 1);
+    return items.map((item) => {
+      const reeks = kanReeksZijn(item) && (tel.get(reeksSleutel(item)) || 0) >= MIN_REEKS;
+      if (reeks === Boolean(item?.weeklySeries)) return item;
+      const { weeklySeries, ...rest } = item;
+      return reeks ? { ...rest, weeklySeries: true } : rest;
+    });
   }
 
   function hasConcreteMoment(item) {
@@ -127,7 +149,8 @@
   function pickHighlights(items, range, limit = 6) {
     const chosen = (items || [])
       // Alleen evenementen: raad, oproepen, werken en weekmarkten (gewicht 0) nooit in de bovenrij.
-      .filter((item) => overlaps(item, range) && categoryFor(item.category || categoryOf(item)).weight > 0)
+      // Een aanvraag die de stad nog niet goedkeurde, is (nog) geen uitstap: niet in de bovenrij of "Dit weekend".
+      .filter((item) => overlaps(item, range) && item?.nietGoedgekeurd !== true && categoryFor(item.category || categoryOf(item)).weight > 0)
       .map((item) => ({ item, score: highlightScore(item) }))
       .filter(({ score }) => score > 0)
       .sort((a, b) => b.score - a.score || String(a.item.date).localeCompare(String(b.item.date)) || String(a.item.title).localeCompare(String(b.item.title), "nl"))
@@ -199,6 +222,7 @@
     categoryOf,
     categoryFor,
     isWeeklyMarket,
+    markeerWekelijkseReeksen,
     hasConcreteMoment,
     rangesFor,
     weekendRange,

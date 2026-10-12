@@ -23,10 +23,10 @@ test("herkent cultuur en participatie breder zonder algemene woorden te gokken",
 });
 test("een evenement op straat uit de dossiers van de stad zonder herkenbare soort hoort bij buurt & straat",()=>{
   const s="district-asign-evenementen";
-  assert.equal(c({title:"Evenement in de Proefstraat: parcours door 2 straten, naam onbekend",sourceId:s}),"neighborhood");
+  assert.equal(c({title:"Evenement in de Proefstraat: parcours door 2 straten",sourceId:s}),"neighborhood");
   // Wat en waar zonder naam: een lus, een route of een zone is nog geen sport of stoet.
-  assert.equal(c({title:"Evenement in de Proefstraat: lus van 3,3 km, naam onbekend",sourceId:s}),"neighborhood");
-  assert.equal(c({title:"Evenement op het Proefplein: verkeersvrije zone in 2 straten, naam onbekend",sourceId:s}),"neighborhood");
+  assert.equal(c({title:"Evenement in de Proefstraat: lus van 3,3 km",sourceId:s}),"neighborhood");
+  assert.equal(c({title:"Evenement op het Proefplein: verkeersvrije zone in 2 straten",sourceId:s}),"neighborhood");
   assert.equal(c({title:"Studentenactiviteit op het Proefplein",sourceId:s}),"neighborhood");
   assert.equal(c({title:"Speelstraat in de Proefstraat",sourceId:s}),"playstreet");
   assert.equal(c({title:"Proefloop Zuid",theme:"Sport",sourceId:s}),"sport");

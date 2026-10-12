@@ -55,7 +55,7 @@ test("fixture: zeker, waarschijnlijk, onbekend-groot, onbekend-klein en geweiger
   assert.equal(per.ET2099000001.theme, "Sport");
   assert.equal(per.ET2099000002.title, "Vermoedelijk Lichtjesstoet Noord");
   assert.match(per.ET2099000002.info, /niet bevestigd/);
-  assert.equal(per.ET2099000003.title, "Evenement in de Ruwe Laan: parcours door 3 straten, naam onbekend");
+  assert.equal(per.ET2099000003.title, "Evenement in de Ruwe Laan: parcours door 3 straten");
   assert.equal(per.ET2099000004, undefined, "onbekend en klein (één straat, geen naam of soort): niet in de districtslijst");
   assert.equal(per.ET2099000005, undefined, "geweigerd: geen agendapunt");
   assert.equal(per.ET2099000006, undefined, "afgelast: geen agendapunt");
@@ -71,7 +71,7 @@ test("fixture: zeker, waarschijnlijk, onbekend-groot, onbekend-klein en geweiger
   }
 });
 
-test("titel: handfiche, dan automatisch, dan het besluit, dan de soort, dan wat en waar met 'naam onbekend'", () => {
+test("titel: handfiche, dan automatisch, dan het besluit, dan de soort, dan wat en waar (zonder 'naam onbekend' in de titel)", () => {
   const f = feit("ET2099000010", { langs: ["Proefstraat", "Voorbeeldlaan"] });
   const hand = fiche({ zekerheid: "zeker", naam: "Handnaam Proeffeest" });
   const auto = fiche({ zekerheid: "zeker", naam: "Autonaam Proeffeest" });
@@ -83,8 +83,8 @@ test("titel: handfiche, dan automatisch, dan het besluit, dan de soort, dan wat 
   assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", soort: "een wielerwedstrijd" }) }).titel, "Vermoedelijk een wielerwedstrijd in de Proefstraat");
   assert.equal(titelVan(f, { hand: fiche({ zekerheid: "zeker", soort: "een wielerwedstrijd" }) }).titel, "Wielerwedstrijd in de Proefstraat", "met de hand nagekeken: geen voorbehoud");
   assert.equal(titelVan(f, { auto: fiche({ zekerheid: "waarschijnlijk", soort: "een halloween-activiteit" }) }).titel, "Vermoedelijk een Halloween-activiteit in de Proefstraat");
-  assert.equal(titelVan(f, {}).titel, "Evenement in de Proefstraat: parcours door 2 straten, naam onbekend");
-  assert.equal(titelVan(feit("ET2099000011", { beginStraat: "Testplein" }), {}).titel, "Evenement op het Testplein, naam onbekend");
+  assert.equal(titelVan(f, {}).titel, "Evenement in de Proefstraat: parcours door 2 straten");
+  assert.equal(titelVan(feit("ET2099000011", { beginStraat: "Testplein" }), {}).titel, "Evenement op het Testplein");
   // Een speelstraat via het trefwoord in het dossier, ook zonder fiche.
   assert.equal(titelVan(feit("ET2099000012", { speelstraat: true }), {}).titel, "Speelstraat in de Proefstraat");
 });
