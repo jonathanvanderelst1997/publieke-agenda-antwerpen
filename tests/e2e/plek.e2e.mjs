@@ -55,6 +55,10 @@ function serve() {
 const straten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten.json"), "utf8"));
 const byName = new Map();
 for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name), [...(byName.get(locationKey(name)) || []), { id: String(id), name, postcode }]);
+// De straatnamen van de andere districten (site/geo/straten-stad.json): een straat met een naamgenoot elders in de
+// stad laat met Enter kiezen (bouwplan stap 3). De toetsen die gewoon een straat openen, nemen er een zonder.
+const stadStraten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten-stad.json"), "utf8"));
+const elders = new Set(stadStraten.straten.map((r) => locationKey(r[0])));
 const feedText = fs.readFileSync(path.join(site, "agenda-feed.js"), "utf8");
 const generatedAt = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1)).generatedAt;
 const today = generatedAt.slice(0, 10);
@@ -232,7 +236,7 @@ async function pickStreet(baseUrl) {
   for (const item of items.sort((a, b) => a.date.localeCompare(b.date))) {
     if (item.date < today || item.date > horizon || item.endDate || ["markets", "meetings", "works"].includes(item.category)) continue;
     const streets = resolveAddressStreets(item.location, { byName }).streets;
-    if (streets.length === 1) return { event: item, street: streets[0] };
+    if (streets.length === 1 && !elders.has(locationKey(streets[0].name))) return { event: item, street: streets[0] };
   }
   return null;
 }
@@ -435,6 +439,171 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.click('[data-group="*"]');
     await page.locator(".pv-empty").waitFor();
     assert.ok(await page.locator(".pv-empty-tips button").count() >= 1);
+    await context.close();
+  });
+
+  // Bouwplan stap 3, zoeken in heel de stad: de 15 zoekopdrachten die in de stratentest van 12 oktober 2026 mislukten
+  // ("Geen straat gevonden… probeer Zuid of Kiel", Enter opende de Walenstraat of de Gasstraat, de Statiestraat van
+  // Berchem opende die van 2018). Nu: één straat opent de uitleg "ligt in district X, deze agenda volgt district
+  // Antwerpen" met wat de site daar kent; naamgenoten zijn een keuze; Enter opent nooit een gok.
+  const STRATENTEST = [
+    ["De Villegasstraat", "Berchem", ["2600"]], ["Walemstraat", "Berchem", ["2600"]], ["Turnhoutsebaan", "Borgerhout", ["2100", "2140"]],
+    ["Vosstraat", "Borgerhout", ["2100", "2140", "2600"]], ["Generaal De Wetstraat", "Borgerhout", ["2140"]], ["Herentalsebaan", "Deurne", ["2100", "2140", "2150"]],
+    ["Arenaplein", "Deurne", ["2100"]], ["Bist", "Wilrijk", ["2180", "2610"]], ["Boomsesteenweg", "Wilrijk", ["2020", "2610"]],
+    ["Kioskplaats", "Hoboken", ["2660"]], ["Sint-Bernardsesteenweg", "Hoboken", ["2020", "2660"]], ["Statiestraat", "Berchem", ["2018", "2180", "2600"]],
+    ["Bredabaan", "Merksem", ["2170"]], ["Kristus-Koningplein", "Ekeren", ["2180"]], ["Botermarkt", "Berendrecht-Zandvliet-Lillo", ["2040"]],
+  ];
+  // Een verzonnen markt en een verzonnen activiteit uit het districtsnieuws van Hoboken (vaste basis, geen echte items).
+  const HOBOKEN = (stempel) => [
+    marktItem(stempel, { id: "e2e-markt-kiosk", externalId: "e2e-1", title: "Proefmarkt Kioskplaats", date: addDays(today, 3), location: "Kioskplaats, 2660 Hoboken", postcodes: ["2660"], inDistrict: false }),
+    kalenderItem(stempel, { id: "stad-news-hoboken-e2e1-x", title: "VOLZET - Proeflezing in de bib", date: addDays(today, 4), timeSlot: "19:30", timeText: "19.30 uur", location: "District Hoboken, locatie via de officiële bron", postcodes: ["2660"], sourceId: "stad-districten", scope: "stad", inDistrict: false, link: "https://www.antwerpen.be/info/e2e1/proeflezing", sourceUrl: "https://www.antwerpen.be/info/e2e1/proeflezing", sources: [{ sourceId: "stad-districten", url: "https://www.antwerpen.be/info/e2e1/proeflezing", retrievedAt: stempel, scope: "stad" }] }),
+  ];
+  await t.test("zoeken in heel de stad: de 15 straten uit de stratentest, naamgenoten als keuze, Enter gokt nooit", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { feed: proefFeed(today, HOBOKEN) });
+    const input = page.locator("#agenda-street-jump");
+    const buiten = page.locator(".pv-buiten");
+    for (const [naam, district, postcodes] of STRATENTEST) {
+      const vorige = new URL(page.url()).searchParams.get("plek");
+      await input.fill(naam);
+      // Alle naamgenoten staan in de suggesties, met hun postcode (en hun district als het een ander is).
+      await page.waitForFunction(([n, pcs]) => {
+        const opties = [...document.querySelectorAll("#pv-suggestions [role=option]")].filter((o) => o.querySelector("strong")?.textContent === n);
+        return pcs.every((pc) => opties.some((o) => o.textContent.includes(` ${pc}`)));
+      }, [naam, postcodes], { timeout: 10000 }).catch(async () => assert.fail(`${naam}: ${await page.locator("#pv-suggestions").innerText()}`));
+      await input.press("Enter");
+      const pc = postcodes.length === 1 ? postcodes[0] : null;
+      if (pc) {
+        await buiten.waitFor({ state: "visible", timeout: 5000 });
+      } else {
+        // Naamgenoten: Enter opent niets en zegt waarom; dan kiest de bewoner zelf (hier: tikken op het district).
+        await page.locator("#pv-suggestions .pv-sugg-note", { hasText: `${postcodes.length} plekken heten` }).waitFor({ timeout: 5000 });
+        assert.equal(new URL(page.url()).searchParams.get("plek"), vorige, `${naam}: Enter opende toch iets`);
+        await page.locator("#pv-suggestions [role=option]", { hasText: `district ${district}` }).filter({ has: page.locator("strong", { hasText: new RegExp(`^${naam}$`) }) }).first().click();
+        await buiten.waitFor({ state: "visible", timeout: 5000 });
+      }
+      const tekst = await buiten.innerText();
+      assert.match(tekst, new RegExp(`${naam} \\(\\d{4}\\) ligt in district ${district}, deze agenda volgt district Antwerpen\\.`), naam);
+      assert.match(tekst, new RegExp(`Wat deze site wel kent in ${district}`));
+      assert.match(tekst, /Straatnaam en district: Stad Antwerpen, wegenregister/);
+      const plek = new URL(page.url()).searchParams.get("plek");
+      assert.match(plek, new RegExp(`^${naam} \\d{4}$`), `${naam}: de link noemt de straat en haar postcode`);
+      assert.equal(await page.locator(".pv-layout").isVisible(), false, `${naam}: de lijst van district Antwerpen staat er niet onder`);
+      assert.doesNotMatch(tekst, /Walenstraat|Gasstraat/);
+    }
+    // Hoboken: de verzonnen markt in deze straat bovenaan, en de activiteit uit het districtsnieuws met "volzet".
+    await input.fill("Kioskplaats");
+    await page.locator("#pv-suggestions [role=option]").first().waitFor();
+    await input.press("Enter");
+    await page.locator(".pv-buiten", { hasText: "Proefmarkt Kioskplaats" }).waitFor({ timeout: 5000 });
+    const markt = page.locator(".pv-buiten li", { hasText: "Proefmarkt Kioskplaats" });
+    assert.match(await markt.innerText(), /in deze straat/);
+    assert.match(await markt.locator("a").getAttribute("href"), /^https:\/\/geo\.api\.vlaanderen\.be\//);
+    const lezing = page.locator(".pv-buiten li", { hasText: "Proeflezing in de bib" });
+    assert.match(await lezing.innerText(), /volzet/);
+    assert.match(await lezing.innerText(), /19\.30 uur/);
+    assert.doesNotMatch(await lezing.innerText(), /VOLZET -|locatie via de officiële bron/);
+    assert.equal(await lezing.locator("a").getAttribute("href"), "https://www.antwerpen.be/info/e2e1/proeflezing");
+    assert.equal(await page.locator('.pv-buiten a[href="https://www.antwerpen.be/nl/overzicht/district-hoboken-1"]').count(), 1);
+    // Een tikfout: "Bedoelde je…", en Enter opent niets (geen gok).
+    await input.fill("Schrijfstraat 105");
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
+    assert.match(await page.locator("#pv-search-help").innerText(), /Enter opent geen gok/);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Kioskplaats 2660", "de vorige plek bleef staan");
+    // Met de pijltjes kiezen mag wel: dan is het de keuze van de bewoner.
+    await input.press("ArrowDown");
+    await input.press("ArrowUp");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Schijfstraat", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Schijfstraat");
+    // Statiestraat met het toetsenbord: Enter laat kiezen, ↓ en Enter opent de tweede (Ekeren); van daar naar de
+    // Statiestraat van district Antwerpen, met dezelfde naam.
+    await input.fill("Statiestraat");
+    await page.locator("#pv-suggestions [role=option]").nth(2).waitFor();
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "3 plekken heten" }).waitFor({ timeout: 5000 });
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Statiestraat 2180", null, { timeout: 5000 });
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "pv-buiten-naam", "de focus springt naar de naam");
+    await page.locator(".pv-buiten [data-place]", { hasText: "Statiestraat (2018" }).click();
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Statiestraat", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Statiestraat");
+    assert.equal(await buiten.isVisible(), false);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("deellink buiten district Antwerpen: ?plek=Bist 2610 opent de uitleg, ?plek=Bist laat kiezen, 'Andere plek' sluit", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { query: `?plek=${encodeURIComponent("Bist 2610")}` });
+    const buiten = page.locator(".pv-buiten");
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.equal(await page.locator("#pv-buiten-naam").innerText(), "Bist");
+    assert.match(await buiten.innerText(), /Bist \(2610\) ligt in district Wilrijk, deze agenda volgt district Antwerpen\./);
+    assert.match(await buiten.innerText(), /Ook in een ander district: Bist \(2180, district Ekeren\)/);
+    await page.locator(".pv-buiten-sluit").click();
+    assert.equal(await buiten.isVisible(), false);
+    assert.equal(await page.locator(".pv-layout").isVisible(), true);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), null);
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "agenda-street-jump");
+    await page.goto(`${baseUrl}/?plek=Bist`);
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "2 plekken heten" }).waitFor({ timeout: 10000 });
+    assert.equal(await buiten.isVisible(), false);
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("district:Berchem")}`);
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.match(await buiten.innerText(), /Berchem is een ander district, deze agenda volgt district Antwerpen\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkronde van 12 oktober 2026: (1) een tikfout die midden in een straat van een ander district zit, opende die
+  // straat; (2) "Maria-Theresialei" opende die van Ekeren (straten.json noemt die van 2018 "Maria-Theresialei_AN");
+  // (3) een straatnaam met een cijfer vond haar eigen deellink niet terug.
+  await t.test("nakijkronde: tikfout geen gok, Maria-Theresialei een keuze, straatnaam met cijfer in de link", async () => {
+    const { page, context, errors } = await openPage(baseUrl);
+    const input = page.locator("#agenda-street-jump");
+    const buiten = page.locator(".pv-buiten");
+    const opties = () => page.locator("#pv-suggestions [role=option]").evaluateAll((os) => os.map((o) => `${o.querySelector("strong")?.textContent} · ${o.querySelector("small")?.textContent}`));
+    // (1) "Stenplein": het Steenplein vooraan, het Kunstenplein (Berchem) erna; Enter opent geen van beide.
+    await input.fill("Stenplein");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Kunstenplein" }).waitFor({ timeout: 10000 });
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    assert.match((await opties())[0], /^Steenplein · straat · 2000/, (await opties()).join(" | "));
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
+    assert.equal(new URL(page.url()).searchParams.get("plek"), null, "Enter opende toch iets");
+    assert.equal(await buiten.isVisible(), false);
+    // (2) Maria-Theresialei: twee naamgenoten, die van district Antwerpen eerst, nergens "_AN".
+    await input.fill("Maria-Theresialei");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Ekeren" }).waitFor({ timeout: 10000 });
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "2 plekken heten" }).waitFor({ timeout: 5000 });
+    const mt = await opties();
+    assert.match(mt[0], /^Maria-Theresialei · straat · 2018 .*· district Antwerpen$/, mt.join(" | "));
+    assert.ok(!mt.some((o) => /_AN/.test(o)), mt.join(" | "));
+    await page.locator("#pv-suggestions [role=option]", { hasText: "district Ekeren" }).click();
+    await buiten.waitFor({ state: "visible", timeout: 5000 });
+    assert.match(await buiten.innerText(), /Maria-Theresialei \(2180\) ligt in district Ekeren/);
+    assert.match(await buiten.innerText(), /Met dezelfde naam in district Antwerpen: Maria-Theresialei \(2018/);
+    await page.locator(".pv-buiten [data-place]", { hasText: "Maria-Theresialei (2018" }).click();
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Maria-Theresialei", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Maria-Theresialei");
+    // (3) De deellink van een straat met een cijfer opent haar uitleg (buiten) of haar overzicht (district Antwerpen).
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("Fort 7-straat 2610")}`);
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.match(await buiten.innerText(), /Fort 7-straat \(2610\) ligt in district Wilrijk, deze agenda volgt district Antwerpen\./);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Fort 7-straat 2610");
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("De 7 schakenpad")}`);
+    await page.locator(".pv-place-name", { hasText: "De 7 schakenpad" }).waitFor({ timeout: 10000 });
+    assert.doesNotMatch(await page.locator("#pv-search-help").innerText(), /heet precies|geen straat/i);
+    await page.click(".pv-close");
+    await input.fill("Pad nr. 25");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Borsbeek" }).waitFor({ timeout: 10000 });
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Pad nr. 25 2150", null, { timeout: 5000 });
+    assert.match(await buiten.innerText(), /Pad nr\. 25 \(2150\) ligt in district Borsbeek/);
+    assert.deepEqual(errors, []);
     await context.close();
   });
 

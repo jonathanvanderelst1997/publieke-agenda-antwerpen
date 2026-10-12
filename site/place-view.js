@@ -4,7 +4,7 @@
 // publicatieregels komen ongewijzigd uit agenda.js en de live lagen; de filter is agenda-view.js.
 import {
   KIND_GROUPS, DEFAULT_GROUPS, PERIODS, standaardPeriode, geldigePeriode, themesForGroups, groupsForThemes,
-  buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
+  buildPlaceIndex, searchPlaces, enterKeuze, otherDistrictFor, placeParam, resolvePlaceParam, parseQuery,
   periodRange, monthWeeks, startOfMonth, addDays, addMonths, daysBetween, weekdayMon0,
   layoutWeekBars, groupForList, overlaps, agendaEntry, werkEntries, publicSpaceEntries, permitEntry, terrasEntries, summarize, dezeWeek, WEEK_LICHT,
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
@@ -120,6 +120,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   const url = new URL(window.location.href);
   const state = {
     place: null,
+    // Een straat of district buiten district Antwerpen (site/stad-zoeken.js): geen plekoverzicht, wel waar ze ligt
+    // en wat de site daar kent. Nooit samen met `place`.
+    buiten: null,
     groups: new Set(DEFAULT_GROUPS),
     customized: false,
     // De periode uit de URL (ook een oude link met ?periode=maand) gaat voor; anders de vertrekstand van de plek
@@ -193,6 +196,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   section.setAttribute("aria-labelledby", "pv-title");
   section.innerHTML = `
     <div class="pv-place" hidden></div>
+    <div class="pv-buiten" role="region" aria-labelledby="pv-buiten-naam" hidden></div>
     <div class="pv-layout">
       <div class="pv-main">
         <div class="pv-head">
@@ -213,7 +217,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       <div class="pv-aside" role="region" aria-label="Kaart"></div>
     </div>`;
   const $ = (s) => section.querySelector(s);
-  const placeBox = $(".pv-place"), titleEl = $("#pv-title"), subEl = $(".pv-sub"), groupsEl = $(".pv-groups"), modesEl = $(".pv-modes"), periodsEl = $(".pv-periods"), navEl = $(".pv-nav"), results = $(".pv-results"), loadingEl = $(".pv-loading"), aside = $(".pv-aside");
+  const placeBox = $(".pv-place"), buitenBox = $(".pv-buiten"), layoutEl = $(".pv-layout"), titleEl = $("#pv-title"), subEl = $(".pv-sub"), groupsEl = $(".pv-groups"), modesEl = $(".pv-modes"), periodsEl = $(".pv-periods"), navEl = $(".pv-nav"), results = $(".pv-results"), loadingEl = $(".pv-loading"), aside = $(".pv-aside");
   // Een stille focus (zonder kader) geldt alleen voor de sprong na het kiezen van een plek (applyPlace).
   titleEl?.addEventListener("blur", () => titleEl.classList.remove("pv-stil"));
   controls.after(section);
@@ -281,6 +285,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     refsByName = byName;
   } catch {
     help.textContent = "De straatnamen konden nu niet geladen worden. De agenda hieronder werkt gewoon; probeer straks opnieuw te zoeken.";
+  }
+  // ---- heel de stad (bouwplan stap 3) ----
+  // De straatnamen van de 9 andere districten (site/geo/straten-stad.json, ~16 kB gezipt) en de module die erin zoekt,
+  // pas als iemand begint te typen of een link een plek buiten district Antwerpen noemt: de eerste weergave wacht er
+  // nooit op. Lukt het laden niet, dan zoekt de balk zoals vroeger in district Antwerpen (en na 10 s opnieuw).
+  let stad = null, stadBelofte = null, stadMislukt = 0;
+  function laadStad() {
+    if (stad || !index) return Promise.resolve(stad);
+    if (stadMislukt && Date.now() - stadMislukt < 10000) return Promise.resolve(null);
+    return (stadBelofte ||= Promise.all([import("./stad-zoeken.js"), getJson("/geo/straten-stad.json")])
+      .then(([mod, doc]) => { stad = { mod, index: mod.zoekIndex(index, doc), doc }; return stad; })
+      .catch(() => { stadMislukt = Date.now(); return null; })
+      .finally(() => { stadBelofte = null; }));
   }
   view.setResolver((address, item) => {
     const idx = liveIndex || staticIndex;
@@ -463,6 +480,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Rekent de browser een stratenlijst zelf, dan hangt die af van de gekozen straat (filterRefsVan).
     // Een andere plek: wat de kaart of een link eerder liet openen, trekt de nieuwe lijst niet mee (teTonen).
     if ((state.place?.key || "") !== (place?.key || "")) { view.resetRefs?.(); teTonen.clear(); }
+    zetBuiten(null);
     state.place = place || null;
     view.setPlace(place ? { key: place.key, type: place.type, label: place.label, box: place.box } : null);
     if (place?.type === "straat") { view.setStreet(place.name, streetRef(place)); view.setArea({ wijk: "", postcode: "", radius: state.radius }); }
@@ -505,6 +523,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const next = new URL(window.location.href);
     for (const key of ["straat", "straatzoek", "themas", "wijk", "straal", "plek", "soort", "periode", "weergave"]) next.searchParams.delete(key);
     if (state.place && index) next.searchParams.set("plek", placeParam(state.place, index));
+    else if (state.buiten && stad) next.searchParams.set("plek", stad.mod.buitenParam(state.buiten));
     if (state.place?.type === "straat" && state.radius) next.searchParams.set("straal", String(state.radius));
     const defaults = state.place ? KIND_GROUPS.map((g) => g.key) : DEFAULT_GROUPS;
     const current = KIND_GROUPS.map((g) => g.key).filter((k) => state.groups.has(k));
@@ -517,7 +536,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
 
   // ---- zoeksuggesties (combobox) ----
-  let suggestions = [], active = -1;
+  // `gekozen`: de bewoner koos zelf een suggestie met de pijltjes. Alleen dan, of als precies één plek zo heet,
+  // opent Enter iets (enterKeuze in place-core.js): nooit een gok, en bij naamgenoten een keuze.
+  let suggestions = [], active = -1, gekozen = false;
   function highlight(label, query) {
     const q = parseQuery(query).text;
     if (!q) return esc(label);
@@ -527,67 +548,119 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const len = q.split(" ")[0].length;
     return `${esc(label.slice(0, at))}<mark>${esc(label.slice(at, at + len))}</mark>${esc(label.slice(at + len))}`;
   }
-  function placeIcon(place) { return place.type === "wijk" ? "🏘️" : place.type === "postcode" ? "✉️" : "📍"; }
-  function renderSuggestions() {
+  function placeIcon(place) { return place.type === "wijk" ? "🏘️" : place.type === "postcode" ? "✉️" : place.type === "district" ? "🏙️" : "📍"; }
+  // Wat onder de naam staat. Een straat van een ander district zegt dat ze buiten deze agenda valt; heet een straat
+  // van district Antwerpen ook zo in een ander district, dan zegt ze er "district Antwerpen" bij.
+  function suggestieSub(place, naamgenoot) {
+    if (place.type === "buiten") return `straat · ${place.sub} · buiten deze agenda`;
+    if (place.type === "straat") return `straat · ${place.sub}${naamgenoot ? " · district Antwerpen" : ""}`;
+    return place.sub;
+  }
+  const notitie = (html) => `<li class="pv-sugg-note" role="presentation">${html}</li>`;
+  function zoek(query) {
+    return stad ? stad.mod.zoekOveral(stad.index, query, { limit: 8 }) : searchPlaces(index, query, { limit: 8 });
+  }
+  // `melding`: wat Enter niet opende en waarom (keuzeMelding), bovenaan de lijst. `behoud`: dezelfde vraag opnieuw
+  // tekenen (de straten van de stad kwamen binnen) zonder de suggestie te vergeten die de bewoner met de pijltjes koos.
+  function renderSuggestions({ melding = "", behoud = false } = {}) {
+    const vorige = behoud && gekozen ? suggestions[active]?.place?.key : "";
     const query = search.value;
     clearBtn.hidden = !query;
     if (!index || !query.trim()) { closeSuggestions(); help.textContent = index ? "" : help.textContent; return; }
+    // De straten van heel de stad: pas nu laden, en de lijst opnieuw tekenen als ze er zijn (als er niet verder getypt
+    // werd en het veld de focus nog heeft).
+    const laadt = !stad && index && !(stadMislukt && Date.now() - stadMislukt < 10000);
+    // Ook als het laden mislukt: dan staat er "Geen straat gevonden" in plaats van "wordt doorzocht".
+    if (laadt) laadStad().then(() => { if (search.value === query && document.activeElement === search && !listbox.hidden) renderSuggestions({ behoud: true }); });
     const other = otherDistrictFor(query);
-    suggestions = searchPlaces(index, query, { limit: 8 });
-    active = suggestions.length ? 0 : -1;
-    const fuzzy = suggestions.length && suggestions.every((s) => s.match === "fuzzy");
-    if (other) {
-      listbox.innerHTML = `<li class="pv-sugg-note" role="presentation">${esc(other)} is een ander district. Deze agenda gaat over district Antwerpen (2000, 2018, 2020, 2030, 2050 en 2060).</li>`;
-      listbox.hidden = false; search.setAttribute("aria-expanded", "false"); search.removeAttribute("aria-activedescendant");
-      help.textContent = `${other} ligt buiten district Antwerpen.`;
-      return;
-    }
+    suggestions = zoek(query);
+    const terug = vorige ? suggestions.findIndex((r) => r.place.key === vorige) : -1;
+    active = terug >= 0 ? terug : suggestions.length ? 0 : -1;
+    gekozen = terug >= 0;
+    // Alleen gokken (een tikfout, of een stuk midden in een naam): "Bedoelde je…", en Enter opent er geen (enterKeuze).
+    const fuzzy = suggestions.length && suggestions.every((s) => s.match === "fuzzy" || s.match === "contains");
+    const notes = [];
+    if (melding) notes.push(melding);
+    if (other) notes.push(`${esc(other)} is een ander district. Deze agenda gaat over district Antwerpen (2000, 2018, 2020, 2030, 2050 en 2060).`);
+    else if (fuzzy && !melding) notes.push("Bedoelde je…");
     if (!suggestions.length) {
-      listbox.innerHTML = `<li class="pv-sugg-note" role="presentation">Geen straat, wijk of postcode gevonden voor “${esc(query.trim())}”. Probeer alleen de straatnaam (zonder nummer), of een wijk zoals <strong>Zuid</strong> of <strong>Kiel</strong>.</li>`;
+      if (!other) {
+        notes.push(laadt
+          ? `<span class="pv-spinner" aria-hidden="true"></span> Ook de straten van de andere districten worden doorzocht…`
+          : `Geen straat, wijk of postcode gevonden voor “${esc(query.trim())}”${stad ? ", ook niet in de andere districten van de stad" : ""}. Probeer alleen de straatnaam (zonder nummer), of een wijk zoals <strong>Zuid</strong> of <strong>Kiel</strong>.`);
+      }
+      listbox.innerHTML = notes.map(notitie).join("");
       listbox.hidden = false; search.setAttribute("aria-expanded", "false"); search.removeAttribute("aria-activedescendant");
-      help.textContent = "Geen suggesties.";
+      help.textContent = other ? `${other} ligt buiten district Antwerpen.` : laadt ? "Zoeken in heel de stad…" : "Geen suggesties.";
       return;
     }
-    listbox.innerHTML = (fuzzy ? `<li class="pv-sugg-note" role="presentation">Bedoelde je…</li>` : "") + suggestions.map(({ place }, i) => `
+    const elders = new Set(suggestions.filter(({ place }) => place.type === "buiten").map(({ place }) => place.compact));
+    listbox.innerHTML = notes.map(notitie).join("") + suggestions.map(({ place }, i) => `
       <li id="pv-opt-${i}" role="option" class="pv-sugg pv-sugg-${place.type}" aria-selected="${i === active}" data-index="${i}">
         <span class="pv-sugg-icon" aria-hidden="true">${placeIcon(place)}</span>
-        <span class="pv-sugg-text"><strong>${highlight(place.label, query)}</strong><small>${esc(place.type === "straat" ? `straat · ${place.sub}` : place.sub)}</small></span>
+        <span class="pv-sugg-text"><strong>${highlight(place.label, query)}</strong><small>${esc(suggestieSub(place, elders.has(place.compact)))}</small></span>
       </li>`).join("");
     listbox.hidden = false;
     search.setAttribute("aria-expanded", "true");
-    search.setAttribute("aria-activedescendant", "pv-opt-0");
-    help.textContent = `${suggestions.length} suggestie${suggestions.length === 1 ? "" : "s"}. Pijltjes om te kiezen, Enter om te openen.`;
-    help.classList.add("pv-sr");
+    search.setAttribute("aria-activedescendant", `pv-opt-${active}`);
+    const plain = (html) => html.replace(/<[^>]+>/g, "").replace(/&[a-z#0-9]+;/gi, (e) => ({ "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#039;": "'" })[e] || e);
+    help.textContent = melding ? plain(melding) : `${suggestions.length} suggestie${suggestions.length === 1 ? "" : "s"}. Pijltjes om te kiezen, Enter om te openen.`;
+    help.classList.toggle("pv-sr", !melding);
   }
   function closeSuggestions() {
     help.classList.remove("pv-sr");
-    listbox.hidden = true; listbox.innerHTML = ""; suggestions = []; active = -1;
+    listbox.hidden = true; listbox.innerHTML = ""; suggestions = []; active = -1; gekozen = false;
     search.setAttribute("aria-expanded", "false"); search.removeAttribute("aria-activedescendant");
   }
   function moveActive(delta) {
     if (!suggestions.length) return;
     active = (active + delta + suggestions.length) % suggestions.length;
+    gekozen = true;
     for (const el of listbox.querySelectorAll("[role=option]")) el.setAttribute("aria-selected", String(Number(el.dataset.index) === active));
     search.setAttribute("aria-activedescendant", `pv-opt-${active}`);
     listbox.querySelector(`#pv-opt-${active}`)?.scrollIntoView({ block: "nearest" });
   }
-  search.addEventListener("input", renderSuggestions);
-  search.addEventListener("focus", () => { if (search.value && !state.place) renderSuggestions(); });
+  // Een gekozen plek openen: in district Antwerpen het plekoverzicht, daarbuiten de uitleg (applyBuiten).
+  function kies(place) {
+    if (!place) return;
+    if (place.type === "buiten" || place.type === "district") applyBuiten(place, { focus: true });
+    else applyPlace(place, { focusResults: true });
+  }
+  function keuzeMelding(keuze, query) {
+    const q = esc(query.trim());
+    if (keuze.keuze === "naamgenoten") return `${keuze.n} plekken heten “${q}”. Kies de juiste: tik erop, of kies met de pijltjes en Enter.`;
+    if (keuze.keuze === "meerdere") return `Meer dan één plek past bij “${q}”. Kies er een: tik erop, of kies met de pijltjes en Enter.`;
+    if (keuze.keuze === "gok") return `Geen straat, wijk of postcode heet precies “${q}”. Enter opent geen gok: kies hieronder een suggestie, of typ verder.`;
+    return "";
+  }
+  // Enter: eerst de straten van heel de stad (anders lijkt "Statiestraat" alleen die van district Antwerpen), hoogstens
+  // 2,5 s wachten; lukt dat niet, dan beslist de lijst van district Antwerpen alleen.
+  let enterBeurt = 0;
+  async function enter() {
+    const query = search.value;
+    if (!query.trim() || !index) return;
+    const beurt = ++enterBeurt;
+    if (!stad) await Promise.race([laadStad(), new Promise((ok) => setTimeout(ok, 2500))]);
+    if (beurt !== enterBeurt || search.value !== query) return; // intussen verder getypt
+    renderSuggestions({ behoud: true });
+    const keuze = enterKeuze(suggestions, { actief: active, gekozen });
+    if (keuze.place) { kies(keuze.place); return; }
+    if (keuze.keuze !== "niets") renderSuggestions({ melding: keuzeMelding(keuze, query) });
+  }
+  search.addEventListener("input", () => { enterBeurt += 1; renderSuggestions(); });
+  search.addEventListener("focus", () => { if (search.value && !state.place && !state.buiten) renderSuggestions(); });
   search.addEventListener("keydown", (event) => {
     if (event.key === "ArrowDown") { event.preventDefault(); if (listbox.hidden) renderSuggestions(); else moveActive(1); }
     else if (event.key === "ArrowUp") { event.preventDefault(); moveActive(-1); }
-    else if (event.key === "Enter") {
-      event.preventDefault();
-      if (!suggestions.length && search.value.trim()) renderSuggestions();
-      if (suggestions[active]) applyPlace(suggestions[active].place, { focusResults: true });
-    } else if (event.key === "Escape") {
+    else if (event.key === "Enter") { event.preventDefault(); enter(); }
+    else if (event.key === "Escape") {
       if (!listbox.hidden) closeSuggestions(); else if (search.value) clearBtn.click();
     }
   });
   listbox.addEventListener("mousedown", (event) => event.preventDefault()); // focus blijft in het zoekveld
   listbox.addEventListener("click", (event) => {
     const option = event.target.closest("[role=option]");
-    if (option) applyPlace(suggestions[Number(option.dataset.index)]?.place, { focusResults: true });
+    if (option) kies(suggestions[Number(option.dataset.index)]?.place);
   });
   search.addEventListener("blur", () => setTimeout(() => { if (document.activeElement !== search) closeSuggestions(); }, 150));
   clearBtn.addEventListener("click", () => {
@@ -733,6 +806,110 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       else navigator.clipboard?.writeText(link).then(done, () => window.prompt("Kopieer deze link", link));
     }
   });
+
+  // ---- een straat of district buiten district Antwerpen (bouwplan stap 3) ----
+  // Geen plekoverzicht (de lagen van deze agenda gaan alleen over district Antwerpen), wel: waar de straat ligt, dat
+  // deze agenda district Antwerpen volgt, een straat met dezelfde naam in district Antwerpen of elders, en wat de site
+  // in dat district wel kent: de markten van de stad en het districtsnieuws, zoals ze in de agenda staan, met hun bron.
+  function zetBuiten(place) {
+    const wasVerborgen = layoutEl.hidden;
+    state.buiten = place || null;
+    buitenBox.hidden = !place;
+    layoutEl.hidden = Boolean(place);
+    if (!place) {
+      buitenBox.innerHTML = "";
+      // De kaart stond verborgen: laat haar haar maat opnieuw nemen.
+      if (wasVerborgen) requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+      return;
+    }
+    renderBuiten();
+  }
+  function applyBuiten(place, { focus = false } = {}) {
+    if (!place || !stad) return;
+    applyPlace(null);
+    zetBuiten(place);
+    search.value = place.type === "buiten" ? `${place.label} (${place.postcode} ${place.district.label})` : place.label;
+    clearBtn.hidden = false;
+    closeSuggestions();
+    help.textContent = "";
+    document.body.classList.add("has-place");
+    writeUrl();
+    if (focus) {
+      section.scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+      const kop = buitenBox.querySelector("#pv-buiten-naam");
+      kop?.classList.add("pv-stil");
+      kop?.focus({ preventScroll: true });
+    }
+  }
+  const externeLink = (url, label) => (url ? `<a href="${esc(url)}" target="_blank" rel="noopener noreferrer">${esc(label)} <span aria-hidden="true">↗</span></a>` : "");
+  function renderBuiten() {
+    const place = state.buiten;
+    if (!place || !stad) return;
+    const d = place.district;
+    const today = brusselsToday();
+    const items = Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : [];
+    const straat = place.type === "buiten" ? place.name : "";
+    const { markten, nieuws } = stad.mod.watDeSiteKent(d, items, today, { index: stad.index, straat });
+    const genoten = stad.mod.naamgenoten(stad.index, place);
+    const wijkLabel = (p) => (p.wijken?.[0] && index.byKey.get(`wijk:${p.wijken[0]}`)?.label) || "";
+    const kern = place.type === "buiten"
+      ? `<strong>${esc(place.name)} (${esc(place.postcode)}) ligt in district ${esc(d.label)}, deze agenda volgt district Antwerpen.</strong> Werken, verkeer, vergunningen en evenementen op straat zoekt deze site alleen in district Antwerpen op.`
+      : `<strong>${esc(d.label)} is een ander district, deze agenda volgt district Antwerpen.</strong> Werken, verkeer, vergunningen en evenementen op straat zoekt deze site alleen in district Antwerpen op.`;
+    const ookDistrict = genoten.district.length
+      ? `<p class="pv-buiten-ook">Met dezelfde naam in district Antwerpen: ${genoten.district.map((p) => `<button type="button" class="pv-link" data-place="${esc(p.key)}">${esc(p.label)} (${esc([p.postcode, wijkLabel(p) ? `wijk ${wijkLabel(p)}` : ""].filter(Boolean).join(", "))})</button>`).join(", ")}</p>`
+      : "";
+    const ookElders = genoten.buiten.length
+      ? `<p class="pv-buiten-ook">Ook in ${genoten.buiten.length === 1 ? "een ander district" : "andere districten"}: ${genoten.buiten.map((p) => `<button type="button" class="pv-link" data-buiten="${esc(p.key)}">${esc(p.name)} (${esc(p.postcode)}, district ${esc(p.district.label)})</button>`).join(", ")}</p>`
+      : "";
+    // De eerstvolgende marktdagen zoals GIPOD ze geeft (geen regelmaat afgeleid); één uur als het voor alle drie hetzelfde is.
+    const kortDag = (iso) => `${WEEKDAYS_SHORT[weekdayMon0(iso)]} ${shortDate(iso)}`;
+    const dagen = (m) => {
+      const drie = m.dagen.slice(0, 3);
+      const uren = new Set(drie.map((x) => x.uur));
+      return uren.size === 1 ? `${drie.map((x) => kortDag(x.date)).join(", ")}${drie[0].uur ? ` · ${drie[0].uur}` : ""}` : drie.map((x) => `${kortDag(x.date)}${x.uur ? ` ${x.uur}` : ""}`).join(" · ");
+    };
+    const marktLijst = markten.length
+      ? `<ul class="pv-markets pv-buiten-lijst">${markten.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}${m.inStraat ? ` <span class="pv-buiten-hier">in deze straat</span>` : ""}</strong><span>${m.dagen.length > 3 ? "Eerstvolgende marktdagen" : m.dagen.length > 1 ? "Marktdagen" : "Marktdag"}: ${esc(dagen(m))}</span><small>${esc(m.location)}</small>${externeLink(m.bron, "Bron: GIPOD (stad Antwerpen)")}</li>`).join("")}</ul>`
+      : `<p class="pv-day-empty">Geen komende markten van de stad in district ${esc(d.label)} in de gegevens van deze site.</p>`;
+    const nieuwsLijst = nieuws.length
+      ? `<ul class="pv-markets pv-buiten-lijst">${nieuws.map((n) => `<li class="cat-other"><strong>${esc(n.title)}${n.volzet ? ` <span class="pv-buiten-volzet">volzet</span>` : ""}</strong><span>${esc(longDate(n.date))}${n.endDate && n.endDate !== n.date ? ` tot ${esc(longDate(n.endDate))}` : ""}${n.uur ? `, ${esc(n.uur)}` : ""}</span>${n.location ? `<small>${esc(n.location)}</small>` : ""}${externeLink(n.bron, "Bron: antwerpen.be")}</li>`).join("")}</ul>`
+      : `<p class="pv-day-empty">Geen komende activiteiten uit het districtsnieuws van ${esc(d.label)} in de gegevens van deze site.</p>`;
+    const bronnen = (stad.doc?.metadata?.bronnen || []).filter((b) => b.sleutel === "as" || (b.sleutel === "register" && place.bron === "register"));
+    buitenBox.innerHTML = `
+      <div class="pv-place-top">
+        <span class="pv-place-kind">${place.type === "buiten" ? "📍 Straat buiten district Antwerpen" : "🏙️ Ander district"}</span>
+        <h2 class="pv-buiten-naam" id="pv-buiten-naam" tabindex="-1">${esc(place.type === "buiten" ? place.name : `District ${d.label}`)}</h2>
+        <div class="pv-place-actions">
+          <button type="button" class="pv-btn pv-buiten-deel" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
+          <button type="button" class="pv-btn pv-btn-ghost pv-buiten-sluit">Andere plek</button>
+        </div>
+        <p class="pv-place-meta">${place.type === "buiten" ? `postcode ${esc(place.postcode)} · district ${esc(d.label)}` : `postcode ${esc(d.postcodes.join(", "))}`}</p>
+      </div>
+      <p class="pv-buiten-zin">${kern}</p>
+      ${ookDistrict}${ookElders}
+      <h3 class="pv-buiten-kop">Wat deze site wel kent in ${esc(d.label)}</h3>
+      <section class="pv-day" aria-label="Markten van de stad in ${esc(d.label)}"><h4 class="pv-day-title"><span aria-hidden="true">🧺</span> Markten van de stad<span class="pv-day-n">${markten.length}</span></h4>${marktLijst}</section>
+      <section class="pv-day" aria-label="Districtsnieuws van ${esc(d.label)}"><h4 class="pv-day-title"><span aria-hidden="true">📰</span> Districtsnieuws<span class="pv-day-n">${nieuws.length}</span></h4>${nieuwsLijst}</section>
+      <p class="pv-buiten-links">${externeLink(d.url, `District ${d.label} op antwerpen.be`)}</p>
+      <p class="pv-buiten-bron">Straatnaam en district: ${bronnen.map((b) => `${esc(b.naam)} (${externeLink(b.licentieUrl, b.licentie)}; ${esc(b.bronvermelding)})`).join("; ")}.</p>`;
+  }
+  buitenBox.addEventListener("click", (event) => {
+    const p = event.target.closest("[data-place]");
+    if (p) { applyPlace(index.byKey.get(p.dataset.place), { focusResults: true }); return; }
+    const b = event.target.closest("[data-buiten]");
+    if (b) { applyBuiten(stad?.index.byKey.get(b.dataset.buiten), { focus: true }); return; }
+    if (event.target.closest(".pv-buiten-sluit")) { search.value = ""; clearBtn.hidden = true; applyPlace(null); search.focus(); return; }
+    const share = event.target.closest(".pv-buiten-deel");
+    if (share) {
+      const link = window.location.href;
+      const done = () => { share.innerHTML = `<span aria-hidden="true">✓</span> Link gekopieerd`; setTimeout(() => { share.innerHTML = `<span aria-hidden="true">🔗</span> Deel`; }, 2400); };
+      if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: `${state.buiten?.label || ""} · publieke agenda`, url: link }).catch(() => {});
+      else navigator.clipboard?.writeText(link).then(done, () => window.prompt("Kopieer deze link", link));
+    }
+  });
+  buitenBox.addEventListener("focusout", (event) => event.target.classList?.remove("pv-stil"));
+  // De agenda (en dus de markten en het nieuws) kan na de uitleg binnenkomen: dan opnieuw tekenen.
+  window.addEventListener("public-agenda:agenda-view", () => { if (state.buiten) renderBuiten(); });
 
   // ---- entries verzamelen ----
   // Eerst alle kaarten op de plek (ook van soorten die uit staan), zodat de chips kaarten tellen en
@@ -1421,8 +1598,24 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     else if (url.searchParams.get("straat")) initial = index.byKey.get(`straat:${url.searchParams.get("straat")}`) || resolvePlaceParam(index, url.searchParams.get("straat").split("|")[1] || "");
     else if (url.searchParams.get("wijk")) initial = index.byKey.get(`wijk:${url.searchParams.get("wijk")}`) || null;
     else if (url.searchParams.get("straatzoek")) { search.value = url.searchParams.get("straatzoek"); }
-    if (!initial && url.searchParams.get("plek")) { search.value = url.searchParams.get("plek"); help.textContent = `“${url.searchParams.get("plek")}” is geen straat, wijk of postcode van district Antwerpen. Kies een suggestie.`; }
   }
   applyPlace(initial);
+  // Een plek die district Antwerpen niet kent: misschien een straat of district elders in de stad (?plek=Bist 2610,
+  // ?plek=district:Berchem). Alleen dan laadt de stratenlijst van de stad meteen. Eén exacte plek: de uitleg; meer
+  // naamgenoten (?plek=Bist): de keuze in de suggesties; niets: zeggen dat het geen plek van de stad is.
+  const gevraagd = url.searchParams.get("plek");
+  if (index && !initial && gevraagd) {
+    search.value = gevraagd.replace(/^district:/i, "");
+    clearBtn.hidden = false;
+    help.textContent = "Zoeken in heel de stad…";
+    laadStad().then((s) => {
+      if (search.value !== gevraagd.replace(/^district:/i, "") || state.place) return; // intussen iets anders gekozen
+      const buiten = s ? s.mod.resolveBuiten(s.index, gevraagd) : null;
+      if (buiten) { applyBuiten(buiten); return; }
+      help.textContent = `“${gevraagd}” is geen straat, wijk of postcode van district Antwerpen${s ? " en ook niet één straat elders in de stad" : ""}. Kies een suggestie.`;
+      const keuze = s ? enterKeuze(zoek(gevraagd)) : null;
+      if (keuze && keuze.keuze !== "niets") { search.focus({ preventScroll: true }); renderSuggestions({ melding: keuzeMelding(keuze, search.value) }); }
+    });
+  }
   if (state.eventId) setTimeout(() => window.PUBLIC_AGENDA_OPEN(decodeURIComponent(state.eventId)), 120);
 }
