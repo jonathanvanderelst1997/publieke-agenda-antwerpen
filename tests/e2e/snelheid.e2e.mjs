@@ -6,6 +6,9 @@
 // Op de basistak bestaan de bouwer en de straatbestanden niet: dan draait dit bestand toch, zonder
 // straatbestanden, en faalt het op wat de bewoner merkt (geen tegels binnen 3 s, live-layers.json opgevraagd).
 // Zonder Playwright of Chromium wordt de toets overgeslagen (CI installeert geen browser).
+// P9 ("een kaart die vertelt"): de legenda telt wat de lijst toont, en de buurtkaart valt terug op Leaflet. De
+// e2e weigeren alles naar buiten, dus ook cdnjs; met `kaart: "leaflet"` antwoordt de vangnetroute Leaflet 1.9.4
+// byte-exact uit tests/fixtures/kaart/ (tests/helpers/kaart-fixture.mjs), zodat de SRI klopt en de kaart echt laadt.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -19,6 +22,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..")
 const site = path.join(root, "site");
 const fixture = await import("../helpers/straat-fixture.mjs").catch(() => null);
 const { feedScript, proefFeed } = await import("../helpers/proef-feed.mjs");
+const { kaartAntwoord } = await import("../helpers/kaart-fixture.mjs");
 
 async function loadPlaywright() {
   for (const spec of [process.env.PLAYWRIGHT_MODULE, "playwright"].filter(Boolean)) {
@@ -156,7 +160,9 @@ function arcgis(records, url) {
   return { features: records.filter((r) => ids.has(r.id)).map((r) => r.feature) };
 }
 
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null } = {}) {
+// `kaart`: "geblokkeerd" (standaard: geen kaartbibliotheek, zoals in alle andere toetsen) of "leaflet" (Leaflet uit
+// de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs).
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "" } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   await page.clock.setFixedTime(NU);
@@ -177,6 +183,9 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
   await page.route((url) => url.hostname !== "127.0.0.1", (route) => {
     const url = route.request().url();
     extern.push(url);
+    // De kaartbibliotheek uit de fixture, vóór de bronnen: `extern` blijft alles tellen.
+    const bibliotheek = kaart === "geblokkeerd" ? null : kaartAntwoord(url, { maplibreDir });
+    if (bibliotheek) return route.fulfill(bibliotheek);
     if (bronnen === "geblokkeerd") return route.abort();
     // "volledig": de hele nagebootste stad hierboven, met het kader nagekeken.
     if (bronnen === "volledig") {
@@ -416,6 +425,143 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.ok(idsVragen.every((u) => /(Dossiernummer|dossierNummer|reference_id) IN \('/.test(u) || (/geometry=/.test(u) && !u.includes(DISTRICT_BBOX))), `geen A-Sign van het hele district:\n${idsVragen.join("\n")}`);
     assert.deepEqual(snel.errors, []);
     await snel.context.close();
+  });
+
+  // ---- P9: de legenda en de buurtkaart ----
+  const CAT_VAN = { evenement: "cat-festival", werken: "cat-works", verkeer: "cat-publicSpace", vergunning: "cat-permits" };
+  // Het werk, het evenement, de werfzone en het parkeerverbod (de laatste twee met een fase of plaats achter de uid).
+  const VIER = ['[data-uid="works:990001"]', '[data-uid="publicSpace:dossier:ET2099000077"]', '[data-uid^="publicSpace:sgw:GW2099-000077"]', '[data-uid^="publicSpace:parking:PROEF-PV77"]'];
+  const wachtOpDeVier = async (page) => {
+    for (const rij of VIER) await page.locator(`.pv-results .pv-row${rij}`).first().waitFor({ timeout: 20000 });
+  };
+  // Wat de legenda zegt en wat de lijst toont (alles uitgeklapt), per soort.
+  const legendaEnLijst = (page) => page.evaluate(() => {
+    const knoppen = [...document.querySelectorAll("#buurtkaart [data-kaartsoort]")].filter((b) => !b.hidden);
+    const legenda = Object.fromEntries(knoppen.map((b) => [b.dataset.kaartsoort, Number(b.querySelector(".pv-chip-n").textContent)]));
+    const soorten = [...new Set([...document.querySelectorAll(".pv-results [data-soort]")].map((el) => el.dataset.soort))];
+    const lijst = Object.fromEntries(soorten.map((s) => [s, new Set([...document.querySelectorAll(`.pv-results [data-soort="${s}"]`)].map((el) => el.dataset.tel)).size]));
+    return {
+      legenda, lijst,
+      sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]),
+      cats: [...document.querySelectorAll(".pv-results .pv-row[data-soort]")].filter((r) => r.dataset.soort !== "agenda").map((r) => [r.dataset.soort, [...r.classList].find((c) => c.startsWith("cat-"))]),
+      rijen: document.querySelectorAll(".pv-results .pv-row").length,
+      hint: document.querySelector("#buurtkaart .buurt-leg-hint")?.textContent || "",
+    };
+  });
+  await t.test("P9: de tellers in de legenda zijn gelijk aan de lijst, volledig live en met de stand van de ochtend; de legenda filtert alleen de kaart", async (st) => {
+    // Langs twee wegen met dezelfde items: eerst alles live, dan de stand van de ochtend die de echte bouwer maakt
+    // uit wat de browser live zag (zoals "dezelfde kaartjes" hierboven), met alles naar buiten geblokkeerd.
+    let stand = null;
+    for (const [weg, opties] of [["volledig live", { bronnen: "volledig" }], ["stand van de ochtend, alles geblokkeerd", { bronnen: "geblokkeerd" }]]) {
+      const { page, context, errors } = await openStraat(baseUrl, { ...opties, stand, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
+      await wachtOpDeVier(page);
+      if (opties.bronnen === "geblokkeerd") await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+      else await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
+      await page.waitForTimeout(300);
+      // Alles uitklappen: wat achter "Toon alle N" zit, telt ook.
+      for (let i = 0; i < 10 && await page.locator(".pv-results [data-expand]").count(); i += 1) await page.locator(".pv-results [data-expand]").first().click();
+      const m = await legendaEnLijst(page);
+      t.diagnostic(`${weg}: ${JSON.stringify({ legenda: m.legenda, sub: m.sub })}`);
+      assert.deepEqual(m.legenda, m.lijst, `${weg}: legenda en lijst per soort`);
+      assert.equal(Object.values(m.legenda).reduce((a, b) => a + b, 0), m.sub, `${weg}: de som van de legenda is het getal boven de lijst`);
+      if (opties.bronnen === "volledig") for (const s of ["evenement", "werken", "verkeer", "vergunning"]) assert.ok(m.legenda[s] > 0, `${weg}: ${s}`);
+      for (const [soort, cat] of m.cats) assert.equal(cat, CAT_VAN[soort], `${weg}: een rij ${soort} heeft de kleur van de legenda`);
+      assert.match(m.hint, /De lijst blijft volledig/);
+      // Verkeer uit: alleen de kaart verandert, de lijst en het getal erboven niet.
+      const verkeer = page.locator('#buurtkaart [data-kaartsoort="verkeer"]');
+      const sub = await page.locator(".pv-sub").innerText();
+      await verkeer.click();
+      assert.equal(await verkeer.getAttribute("aria-pressed"), "false");
+      assert.equal(await verkeer.locator(".buurt-vh").innerText(), "in de lijst, verborgen op de kaart");
+      const na = await legendaEnLijst(page);
+      assert.equal(na.rijen, m.rijen, `${weg}: de lijst blijft volledig`);
+      assert.equal(await page.locator(".pv-sub").innerText(), sub);
+      assert.deepEqual(na.legenda, m.legenda, `${weg}: de tellers in de lijst blijven`);
+      const breedte = await page.evaluate(() => document.documentElement.scrollWidth);
+      assert.ok(breedte <= 390, `${weg}: horizontale scroll (${breedte} px)`);
+      if (!stand) {
+        const lagen = await page.evaluate(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return { works: l.works, publicSpace: l.publicSpace, permits: l.permits }; });
+        const map = fs.mkdtempSync(path.join(os.tmpdir(), "snelheid-e2e-"));
+        st.after(() => fs.rmSync(map, { recursive: true, force: true }));
+        fixture.maakWerkmap(map, { uitleg: UITLEG });
+        await fixture.bouw(map, { bronnenDoc: await fixture.bronnenUitLiveLagen(lagen) });
+        const lees = (rel) => fs.readFileSync(path.join(map, rel), "utf8");
+        const index = JSON.parse(lees("site/straat-index.json"));
+        stand = { index: lees("site/straat-index.json"), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
+      }
+      assert.deepEqual(errors, []);
+      await context.close();
+    }
+  });
+
+  await t.test("P9: de kaart valt terug op Leaflet als de tegels niet laden; kaart en lijst wijzen naar elkaar", async () => {
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
+    await wachtOpDeVier(page);
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.locator(".buurt-map[data-kaart=leaflet] .leaflet-container").waitFor({ timeout: 10000 });
+    await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
+    // Elke soort van de live lagen staat op de kaart, als SVG-pad met een klasse per soort.
+    await page.waitForFunction(() => ["werken", "evenement", "verkeer", "vergunning"].every((s) => document.querySelector(`#buurtkaart path.kaart-${s}`)), null, { timeout: 15000 })
+      .catch(async () => assert.fail(`niet elke soort op de kaart: ${await page.evaluate(() => [...document.querySelectorAll("#buurtkaart path.kaart-obj")].map((p) => p.getAttribute("class")).join(" | "))}`));
+    const zin = await page.locator(".buurt-status").innerText();
+    assert.match(zin, /^\d+ in de lijst, \d+ op de kaart in /);
+    const opKaart = Number(await page.locator(".buurt-map").getAttribute("data-op-kaart"));
+    assert.ok(opKaart > 0, `data-op-kaart ${opKaart}`);
+    // Kaartverzoeken naar buiten: Leaflet (2) en de tegels van OpenStreetMap (geweigerd). Geen MapLibre.
+    const kaartVerzoeken = extern.filter((u) => /openfreemap|maplibre-gl|leaflet|tile\.openstreetmap/.test(u));
+    t.diagnostic(`kaartverzoeken naar buiten: ${kaartVerzoeken.length} (${extern.length} in totaal)`);
+    assert.ok(kaartVerzoeken.length <= 20, kaartVerzoeken.join("\n"));
+    assert.equal(extern.filter((u) => /maplibre-gl/.test(u)).length, 0, "MapLibre gedownload");
+    // Van de kaart naar de lijst: het werk aantikken, dan "Toon in de lijst".
+    await page.locator("#buurtkaart path.kaart-werken").first().click();
+    await page.locator('#buurtkaart .leaflet-popup [data-open-uid="works:990001"]').click();
+    await page.waitForFunction(() => document.querySelector('.pv-results .pv-row.open[data-uid="works:990001"]') && document.activeElement?.matches('.pv-row[data-uid="works:990001"] .pv-row-btn'), null, { timeout: 5000 })
+      .catch(async () => assert.fail(`niet open of geen focus: ${await page.evaluate(() => document.activeElement?.outerHTML.slice(0, 120))}`));
+    // Van de lijst naar de kaart: het evenement openklappen markeert het op de kaart.
+    const dossier = "publicSpace:dossier:ET2099000077";
+    await page.locator(`.pv-results .pv-row[data-uid="${dossier}"] .pv-row-btn`).click();
+    await page.waitForFunction((uid) => document.querySelector(".buurt-map")?.dataset.gemarkeerd === uid, dossier, { timeout: 5000 });
+    assert.ok(await page.locator("#buurtkaart .is-gemarkeerd").count() >= 1);
+    // De legenda: verkeer uit haalt het van de kaart, en er staat minder op de kaart.
+    await page.locator('#buurtkaart [data-kaartsoort="verkeer"]').click();
+    await page.waitForFunction(() => !document.querySelector("#buurtkaart path.kaart-verkeer"), null, { timeout: 5000 });
+    assert.ok(Number(await page.locator(".buurt-map").getAttribute("data-op-kaart")) < opKaart);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("P9: zonder kaartbestanden staat de legenda er toch, met haar tellers", async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width: 1280, height: 900 });
+    // De kaart staat onder de kop van de plek: de bewoner scrolt erheen, en dan probeert ze te laden.
+    await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector(".buurt-map-load")?.textContent === "Kaart niet beschikbaar · opnieuw proberen", null, { timeout: 15000 })
+      .catch(async () => assert.fail(await page.evaluate(() => JSON.stringify({ knop: document.querySelector(".buurt-map-load")?.textContent, kaart: document.querySelector(".buurt-map")?.dataset.kaart }))));
+    await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
+    const legenda = page.locator("#buurtkaart .buurt-legenda");
+    await legenda.waitFor({ state: "visible", timeout: 5000 });
+    assert.equal(await legenda.getAttribute("role"), "group");
+    assert.ok(await legenda.locator("[data-kaartsoort]:not([hidden]) .pv-chip-n").count() > 0);
+    assert.equal(await page.locator(".buurt-map").getAttribute("data-kaart"), "geen");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("P9: \"Toon op de kaart\" op gsm: de kaart komt in beeld, laadt en markeert het kaartje", async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", inzage: INZAGE, uitleg: UITLEG });
+    const rij = page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:PROEF-PV77"]').first();
+    await rij.waitFor({ timeout: 20000 });
+    const uid = await rij.getAttribute("data-uid");
+    await rij.locator(".pv-row-btn").click();
+    await rij.locator(".pv-op-kaart").click();
+    await page.waitForFunction((u) => { const m = document.querySelector(".buurt-map"); return m?.dataset.kaart === "leaflet" && m.dataset.gemarkeerd === u; }, uid, { timeout: 10000 })
+      .catch(async () => assert.fail(`kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}, gemarkeerd "${await page.locator(".buurt-map").getAttribute("data-gemarkeerd")}"`));
+    const inBeeld = await page.evaluate(() => { const r = document.querySelector("#buurtkaart .buurt-map").getBoundingClientRect(); return r.top < innerHeight && r.bottom > 0; });
+    assert.equal(inBeeld, true, "de kaart staat in beeld");
+    assert.match(await page.locator(".buurt-status").innerText(), /Gemarkeerd op de kaart: /);
+    assert.deepEqual(errors, []);
+    await context.close();
   });
 
   await t.test("zonder straatbestanden werkt de plekpagina zoals vroeger (alles live)", async () => {
