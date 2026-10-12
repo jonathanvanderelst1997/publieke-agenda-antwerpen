@@ -427,13 +427,16 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - **Titel**, in deze volgorde: de naam uit de handfiche; de automatische naam (bij "zeker" de naam, bij
   "waarschijnlijk" "Vermoedelijk <naam>"); de naam uit een gekoppeld besluit van eBesluit (zie hierboven);
   de soort ("Studentenactiviteit in de Kerkstraat"); anders wat en waar, zonder belofte: "Evenement in de
-  Kerkstraat: lus van 3,3 km, naam onbekend" (de vorm uit A-Sign: lus of route met haar lengte, een
-  parcours door N straten of een verkeersvrije zone). De tekst zegt waarom er geen naam is (bij een
-  handfiche wat er nagekeken is) en dat een besluit meestal 2 tot 6 weken vooraf komt; een naam wordt nooit
-  verzonnen of op een gok gekoppeld. Tot 12 oktober 2026 heette dat "— naam volgt": 12 van de 68 punten,
-  waarvan er 3 wel een bron hadden (een besluit dat na de ochtendverversing verscheen, "Praalwagens" in de
-  innamebeschrijving, en een naam die alleen in besluiten over een bestek en standplaatsen staat; die laatste
-  kreeg een handfiche).
+  Kerkstraat: lus van 3,3 km, naam onbekend" (de vorm uit A-Sign: een lus of route met haar getekende
+  lengte als het dossier één lijn heeft of lijnen die een keten vormen zonder dat een ervan zelf een lus
+  is, anders een parcours door N straten, of een verkeersvrije zone). Losse lijnen, of lussen vanaf één
+  punt (twee afstanden van een loop), zijn geen route van hun som; ook de kaart zegt dan "N
+  parcourslijnen, samen ongeveer X km" (`eenRoute` in `lib/parcours-herkenning.mjs`). De tekst zegt
+  waarom er geen naam is (bij een handfiche wat er nagekeken is) en dat een besluit meestal 2 tot 6 weken
+  vooraf komt; een naam wordt nooit verzonnen of op een gok gekoppeld. Tot 12 oktober 2026 heette dat "—
+  naam volgt": 12 van de 68 punten, waarvan er 3 wel een bron hadden (een besluit dat na de
+  ochtendverversing verscheen, "Praalwagens" in de innamebeschrijving, en een naam die alleen in besluiten
+  over een bestek en standplaatsen staat; die laatste kreeg een handfiche).
   Een soort die de herkenning alleen vermoedt (uit de plek, de periode en vroegere dossiers) staat er als
   "Vermoedelijk een studentenactiviteit in de Kerkstraat", met de zin "Soort vermoed via …; niet
   bevestigd." Alleen het trefwoord in het dossier zelf (speelstraat) heet "De soort staat in het dossier".
