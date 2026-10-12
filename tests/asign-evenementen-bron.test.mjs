@@ -19,7 +19,7 @@ const SOURCE_ID = "district-asign-evenementen";
 const RETRIEVED = "2026-10-10T05:20:00.000Z";
 const ASIGN = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22";
 const item = (velden = {}) => ({
-  id: "asign-ev-et2099000001-2026-10-18", externalId: "ET2099000001", title: "Evenement in de Proefstraat — naam volgt", theme: "Activiteit", className: "activity",
+  id: "asign-ev-et2099000001-2026-10-18", externalId: "ET2099000001", title: "Evenement in de Proefstraat: parcours door 2 straten, naam onbekend", theme: "Activiteit", className: "activity",
   date: "2026-10-18", endDate: null, timeSlot: "Info", timeText: "", location: "Proefstraat en Voorbeeldlaan", postcodes: ["2000"],
   info: "Parcours door 2 straten: Proefstraat en Voorbeeldlaan.", kind: "activity", sourceUrl: ASIGN, retrievedAt: RETRIEVED, reviewRequired: false, inDistrict: true,
   fasen: [{ naam: "Opbouw", start: "2026-10-17", eind: "2026-10-17" }, { naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }],
