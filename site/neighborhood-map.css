@@ -134,6 +134,23 @@
 .buurt-map .leaflet-container a.leaflet-popup-close-button { color: var(--pa-muted, #4f5a68); }
 .buurt-pop-ongeveer { color: var(--pa-muted, #4f5a68); }
 
+/* Vectorkaart (MapLibre): de pinknoppen krijgen een zichtbare focus, de popups en de bronvermelding volgen de
+   site (licht en donker). Eén klasse meer dan maplibre-gl.css, dat later laadt. */
+.buurt-pin-knop:focus { outline: none; }
+.buurt-pin-knop:focus-visible .buurt-pin { outline: 3px solid var(--pa-focus, #b45309); outline-offset: 2px; }
+.buurt-map .maplibregl-popup .maplibregl-popup-content { background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); border-radius: 12px; padding: 12px 34px 12px 14px; box-shadow: var(--pa-shadow, 0 6px 18px #0000002e); font: inherit; font-size: 0.86rem; }
+.buurt-map .maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.buurt-map .maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.buurt-map .maplibregl-popup-anchor-top-right .maplibregl-popup-tip { border-bottom-color: var(--pa-surface, #ffffff); }
+.buurt-map .maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.buurt-map .maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.buurt-map .maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip { border-top-color: var(--pa-surface, #ffffff); }
+.buurt-map .maplibregl-popup-anchor-left .maplibregl-popup-tip { border-right-color: var(--pa-surface, #ffffff); }
+.buurt-map .maplibregl-popup-anchor-right .maplibregl-popup-tip { border-left-color: var(--pa-surface, #ffffff); }
+.buurt-map .maplibregl-popup .maplibregl-popup-close-button { min-width: 32px; min-height: 32px; color: var(--pa-muted, #4f5a68); font-size: 1.2rem; }
+.buurt-map .maplibregl-ctrl.maplibregl-ctrl-attrib { font-size: 0.68rem; background: var(--pa-surface, #ffffff); color: var(--pa-ink, #1b2330); }
+.buurt-map .maplibregl-ctrl.maplibregl-ctrl-attrib a { color: var(--pa-ink, #1b2330); text-decoration: underline; }
+
 /* Markers: een bolletje in de kleur van de soort, met het emoji van de soort. */
 .buurt-pin-wrap { background: transparent; border: 0; }
 .buurt-pin {
@@ -178,6 +195,11 @@
   .buurt { padding: 14px; border-radius: 20px; margin-left: -2px; margin-right: -2px; }
   .buurt-controls { flex-basis: 100%; }
   .buurt-map { height: 300px; }
+  /* De legenda in twee kolommen als ze passen: korter onder de kaart, elke knop nog 44 px hoog. Met grote
+     tekst (200 %) wordt het één kolom: de kolombreedte groeit mee met de tekst (em). */
+  .buurt-leg-knoppen { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9em), 1fr)); }
+  .buurt-legenda .pv-chip.buurt-leg { padding: 6px 10px; font-size: 0.8rem; }
+  .buurt-leg-label { min-width: 0; overflow-wrap: anywhere; }
 }
 @media (prefers-reduced-motion: reduce) {
   .buurt-pin { box-shadow: none; }

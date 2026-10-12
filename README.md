@@ -113,8 +113,16 @@ Naast (of op gsm boven) het plekoverzicht staat de kaart (`site/neighborhood-map
 - De 24 officiële wijken van district Antwerpen (`site/geo/wijken.geo.json`, vereenvoudigde kopie van de
   wijkindeling van stad Antwerpen, met bron en licentie in het bestand; opnieuw ophalen met
   `npm run geo:wijken`). Op een wijk tikken kiest die wijk als plek; de kaart zoomt in op de gekozen plek.
-- De kaart (Leaflet via cdnjs, met SRI, en OpenStreetMap-tegels) laadt pas als ze in beeld komt. Markers hebben de
-  kleur en het emoji van hun soort; werken staan er als stippen bij als "Werken & hinder" aanstaat.
+- De kaart: MapLibre + OpenFreeMap als het kan, anders Leaflet + OSM; de legenda filtert de kaart. In detail
+  (P9, `site/kaart-lagen.js`, `site/kaart-vector.js`): de kaart tekent wat de lijst toont, elk object in de kleur
+  van zijn rij en met een eigen vorm (evenement en parcours een lijn, werken een stip, omleiding, parkeerverbod en
+  inname een streeplijn of vlak, vergunningen een ring). Als het kan is het een vectorkaart (MapLibre 5.24.0 van
+  cdnjs met SRI, tegels van OpenFreeMap, geen sleutel); zonder WebGL, met databesparing, met `?kaart=leaflet` of
+  als de stijl of de eerste tegel niet op tijd komt, Leaflet 1.9.4 (cdnjs, SRI) met OpenStreetMap-tegels. Beide
+  laden pas als de kaart in beeld komt en de browser even niets te doen heeft. De legenda (vijf soorten, met het
+  aantal in de lijst) toont of verbergt een soort alleen op de kaart; de lijst blijft volledig. Parkeerverboden,
+  losse innames en vergunningen staan er als één punt bij benadering (afgerond op 0,001°), nooit exact.
+  "Toon op de kaart" in een open kaartje en "Toon in de lijst" in een popup wijzen kaart en lijst naar elkaar.
 - Coördinaten van agendapunten komen uit `site/geo/locaties.json`, bij het verversen gemaakt door
   `npm run geo:refresh` (Geolocation-API van Digitaal Vlaanderen). Een punt telt alleen als de straatnaam
   (en het huisnummer) letterlijk in de locatietekst staat. Plaatsen zonder straat ("Bib Permeke",

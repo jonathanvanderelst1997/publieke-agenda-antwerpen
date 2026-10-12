@@ -4,7 +4,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
-import { KIND_GROUPS } from "../site/place-core.js";
+import { KAART_SOORTEN, KIND_GROUPS } from "../site/place-core.js";
 
 const css = (naam) => fs.readFileSync(new URL(`../site/${naam}`, import.meta.url), "utf8");
 
@@ -93,6 +93,34 @@ test("2. het getal op een onderwerpchip haalt minstens 4,5:1, voor elke soort, g
     }
   }
   assert.equal(uitkomsten.length, KIND_GROUPS.length * 2 * 3);
+});
+
+// P9: de legenda van de buurtkaart gebruikt dezelfde chips (.pv-chip.buurt-leg.cat-<cat>), ook in de kleuren van
+// verkeer (publicSpace) en agenda (other) die geen onderwerpchip hebben. Tekst en getal halen 4,5:1, aan en uit.
+test("2b. de legendaknoppen van de kaart: tekst en getal halen minstens 4,5:1, voor elke soort, aan en uit, licht en donker", () => {
+  const thema = {
+    licht: declaraties(blok(uitgaan, ":root {")),
+    donker: { ...declaraties(blok(uitgaan, ":root {")), ...declaraties(blok(uitgaan, ':root[data-theme="dark"] {')) },
+  };
+  const catDonker = declaraties(blok(uitgaan, ':root[data-theme="dark"] :is([class*="cat-"]) {'));
+  const chip = regel(".pv-chip"), gekozen = regel('.pv-chip[aria-pressed="true"]');
+  const getal = regel(".pv-chip-n"), getalUit = regel('.pv-chip[aria-pressed="false"] .pv-chip-n');
+  let n = 0;
+  for (const s of KAART_SOORTEN) {
+    for (const [naam, basis] of Object.entries(thema)) {
+      const vars = { ...basis, ...declaraties(blok(uitgaan, `.cat-${s.cat} {`)), ...(naam === "donker" ? catDonker : {}) };
+      const pagina = kleur(vars["--pa-bg"], vars);
+      for (const [staat, c, g] of [["aan", gekozen, getal], ["uit", chip, getalUit]]) {
+        const chipAchter = over(kleur(c.background, vars), pagina);
+        const tekst = contrast(kleur(c.color, vars), chipAchter);
+        const cijfer = contrast(kleur(g.color || c.color, vars), over(kleur(g.background, vars), chipAchter));
+        assert.ok(tekst >= 4.5, `${s.label}, ${naam}, ${staat}: tekst ${tekst.toFixed(2)}:1`);
+        assert.ok(cijfer >= 4.5, `${s.label}, ${naam}, ${staat}: getal ${cijfer.toFixed(2)}:1`);
+        n += 1;
+      }
+    }
+  }
+  assert.equal(n, KAART_SOORTEN.length * 2 * 2);
 });
 
 // ---------- 3. privacy: een reeks huisnummers is nooit één huisnummer ----------

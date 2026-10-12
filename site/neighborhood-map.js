@@ -336,7 +336,8 @@ export async function mountNeighborhoodMap(view) {
     <details class="buurt-nogeo" hidden><summary></summary><ul></ul></details>
     <p class="buurt-attrib">Wijkgrenzen: <a href="https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/97" target="_blank" rel="noreferrer">stad Antwerpen, open data</a> ·
       locaties: <a href="https://geo.api.vlaanderen.be/geolocation/v4/Location" target="_blank" rel="noreferrer">Basisregisters Vlaanderen</a> · werken: GIPOD ·
-      kaart: © OpenStreetMap-bijdragers. De kaart laadt bij OpenStreetMap en cdnjs.</p>
+      kaart: <a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a>, © <a href="https://openmaptiles.org" target="_blank" rel="noreferrer">OpenMapTiles</a>, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>-bijdragers.
+      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Parkeerverboden, innames en vergunningen staan er bij benadering (privacy).</p>
     <span class="buurt-kleuren" hidden>${KAART_SOORTEN.map((s) => `<i class="cat-${s.cat}"></i>`).join("")}</span>`;
   anchor.after(section);
   const $ = (s) => section.querySelector(s);

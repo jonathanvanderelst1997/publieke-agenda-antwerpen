@@ -514,6 +514,17 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       hint: document.querySelector("#buurtkaart .buurt-leg-hint")?.textContent || "",
     };
   });
+  // Toegankelijkheid van de geladen kaart: axe (met AXE_CORE_PATH) en unieke namen voor de regio's: "Kaart" (de
+  // zijkolom), "Kaart van district …" (de buurtkaart) en, op de vectorkaart, "Kaartbeeld" (het canvas).
+  const kaartToegankelijk = async (page, verwacht) => {
+    const regios = await page.evaluate(() => [...document.querySelectorAll('[role="region"]')].map((r) => r.getAttribute("aria-label")).filter((n) => /kaart/i.test(n || "")));
+    assert.deepEqual(regios.sort(), [...verwacht].sort());
+    if (!axePath) return;
+    await page.addScriptTag({ path: axePath });
+    const violations = await page.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`));
+    assert.deepEqual(violations, []);
+  };
+  const REGIO_KAART = ["Kaart", "Kaart van district Antwerpen met de agenda in je buurt"];
   await t.test("P9: de tellers in de legenda zijn gelijk aan de lijst, volledig live en met de stand van de ochtend; de legenda filtert alleen de kaart", async (st) => {
     // Langs twee wegen met dezelfde items: eerst alles live, dan de stand van de ochtend die de echte bouwer maakt
     // uit wat de browser live zag (zoals "dezelfde kaartjes" hierboven), met alles naar buiten geblokkeerd.
@@ -582,6 +593,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     // niet eens MapLibre. Zonder WebGL meteen Leaflet.
     const webgl = await page.evaluate(() => { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") || c.getContext("webgl")); });
     if (webgl) assert.ok(extern.some((u) => u.startsWith("https://tiles.openfreemap.org/styles/")), "geen poging tot de vectorkaart");
+    await kaartToegankelijk(page, REGIO_KAART);
     // Van de kaart naar de lijst: het werk aantikken, dan "Toon in de lijst".
     await page.locator("#buurtkaart path.kaart-werken").first().click();
     await page.locator('#buurtkaart .leaflet-popup [data-open-uid="works:990001"]').click();
@@ -657,6 +669,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       .catch(async () => assert.fail(`data-kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}`));
     assert.equal(await page.locator('#buurtkaart canvas[aria-label="Kaartbeeld"]').count(), 1);
     assert.equal(await page.locator("#buurtkaart .leaflet-container").count(), 0);
+    await kaartToegankelijk(page, [...REGIO_KAART, "Kaartbeeld"]);
     const opKaart = Number(await page.locator(".buurt-map").getAttribute("data-op-kaart"));
     assert.ok(opKaart > 0);
     await page.locator('#buurtkaart [data-kaartsoort="verkeer"]').click();
