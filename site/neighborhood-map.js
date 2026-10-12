@@ -32,7 +32,7 @@ import {
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
 import { KAART_SOORTEN, kaartSoort, kortBereik, kortDatum, lijstSleutel } from "./place-core.js";
-import { ONGEVEER_VORM, kaartLagen, kiesKaart, magVectorKaart, popupHtml } from "./kaart-lagen.js";
+import { ONGEVEER_VORM, kaartLagen, kaartMax, kiesKaart, magVectorKaart, popupHtml } from "./kaart-lagen.js";
 
 // Ook voor de toetsen: de e2e serveren Leaflet byte-exact uit tests/fixtures/kaart/ (tests/helpers/kaart-fixture.mjs).
 export const LEAFLET = Object.freeze({
@@ -678,7 +678,9 @@ export async function mountNeighborhoodMap(view) {
     // Wat de lijst toont (place-view.js), per soort geteld; de legenda zet soorten alleen op de kaart uit.
     const stand = window.PUBLIC_AGENDA_KAART || { teken: [], tel: null };
     const teken = Array.isArray(stand.teken) ? stand.teken : [];
-    lagen = kaartLagen(teken, { geo, verborgen, soortVan: stand.tel?.soortVan });
+    // Met een gekozen plek tekent de kaart alles van die plek (zoals de lijst); alleen het hele district zonder plek
+    // houdt een grens per soort (MAX_PER_SOORT en kaartMax in kaart-lagen.js).
+    lagen = kaartLagen(teken, { geo, verborgen, soortVan: stand.tel?.soortVan, max: kaartMax(Boolean(view.place)) });
     entryVan = new Map();
     for (const e of teken) if (e?.uid && !entryVan.has(e.uid)) entryVan.set(e.uid, e);
     tekenLegenda(stand.tel);

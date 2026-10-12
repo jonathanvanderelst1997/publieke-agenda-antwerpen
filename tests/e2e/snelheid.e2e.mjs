@@ -537,8 +537,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       if (opties.bronnen === "geblokkeerd") await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
       else await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
       await page.waitForTimeout(300);
-      // Alles uitklappen: wat achter "Toon alle N" zit, telt ook.
-      for (let i = 0; i < 10 && await page.locator(".pv-results [data-expand]").count(); i += 1) await page.locator(".pv-results [data-expand]").first().click();
+      // Geen grens per sectie meer (wens van 12 oktober 2026): alles staat er, niets wacht op een knop.
+      assert.equal(await page.locator(".pv-results [data-expand], .pv-results [data-laad-meer]").count(), 0, `${weg}: alles staat in de lijst`);
       const m = await legendaEnLijst(page);
       t.diagnostic(`${weg}: ${JSON.stringify({ legenda: m.legenda, sub: m.sub })}`);
       assert.deepEqual(m.legenda, m.lijst, `${weg}: legenda en lijst per soort`);

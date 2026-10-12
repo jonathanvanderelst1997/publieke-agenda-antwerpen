@@ -27,8 +27,12 @@ export const ONGEVEER_VORM = Object.freeze({ evenement: "ruit", verkeer: "vierka
 // (parkeerverboden, "Inname", "Blokken op shot", een soort die de kaart niet kent) staat er bij benadering.
 const EVENEMENT_EXACT = Object.freeze(["omleiding", "verkeersvrije zone"]);
 const exactBijEvenement = (r) => EVENEMENT_EXACT.includes(String(r?.innameType || "").trim().toLowerCase());
-// Zoveel kaartjes per soort tekent de kaart hoogstens (een district vol werken blijft vlot).
+// Zoveel kaartjes per soort tekent de kaart hoogstens zonder gekozen plek (het hele district, met werken aan: een
+// district vol werken blijft vlot). Met een plek geen grens (neighborhood-map.js): de kaart toont alles van die plek,
+// zoals de lijst. Meting op de echte feed van 12 oktober 2026: de drukste straat heeft hoogstens 45 kaartjes van één
+// soort, postcode 2000 met de lagen van het hele district 1.232 vergunningen en 703 keer verkeer (meer dan 600).
 export const MAX_PER_SOORT = 600;
+export const kaartMax = (metPlek = false) => (metPlek ? Infinity : MAX_PER_SOORT);
 const POPUP_MAX = 6;
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);

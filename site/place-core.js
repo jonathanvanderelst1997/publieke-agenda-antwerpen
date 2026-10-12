@@ -238,16 +238,24 @@ export function addMonths(iso, n) {
   return d.toISOString().slice(0, 10);
 }
 
+// "Alles" heeft geen einde: alle bekende komende en lopende items, hoe ver ze ook vooruit liggen.
 export const PERIODS = Object.freeze([
   ["week", "7 dagen", 7],
   ["maand", "30 dagen", 30],
   ["kwartaal", "3 maanden", 92],
-  ["alles", "Alles", 3650],
+  ["alles", "Alles", Infinity],
 ]);
+export const ALLES_TOT = "9999-12-31";
 export function periodRange(key, today) {
   const days = (PERIODS.find(([k]) => k === key) || PERIODS[1])[2];
-  return { from: today, to: addDays(today, days - 1) };
+  return { from: today, to: Number.isFinite(days) ? addDays(today, days - 1) : ALLES_TOT };
 }
+// De vertrekstand van de periode (wens van 12 oktober 2026: "bij de straat zelf moet niet beperkt zijn, gewoon
+// alle data die je hebt"). Wie een straat, wijk of postcode kiest, ziet alles; zonder plek (het overzicht van het
+// hele district) blijft het de komende 30 dagen. Een periode uit de URL of een knop gaat altijd voor, ook in een
+// oude link met ?periode=maand.
+export const standaardPeriode = (place = null) => (place ? "alles" : "maand");
+export const geldigePeriode = (key) => (PERIODS.some(([k]) => k === key) ? key : "");
 
 // Maandrooster: weken van maandag t/m zondag die de maand raken.
 export function monthWeeks(monthIso) {
@@ -590,6 +598,29 @@ export function lijstUniversum(entries = [], today = "", { markten = [] } = {}) 
   for (const e of entries) if (e.group === "vergunningen") neem(e);
   for (const m of markten) neem(marktBundelEntry(m));
   return uit;
+}
+// Waartoe de knoppen de lijst nu beperken, in één zin; leeg als de lijst alles toont (periode "Alles") en in de
+// maand (die zegt zelf welke maand). `periodeLabel`: het label van de gekozen periode ("7 dagen"); `dagLabel`: de
+// gekozen dag in de tijdlijn ("dinsdag 20 oktober").
+export function beperkingTekst({ mode = "lijst", periode = "alles", periodeLabel = "", dagLabel = "" } = {}) {
+  if (mode === "tijdlijn") return dagLabel ? `De tijdlijn toont alleen ${dagLabel}.` : "De tijdlijn toont alleen de komende 14 dagen.";
+  if (mode !== "lijst" || periode === "alles" || !periodeLabel) return "";
+  return `De lijst toont alleen de komende ${periodeLabel}; kies “Alles” voor de rest.`;
+}
+// De zin onder "Alles op deze plek": hoeveel er op de plek staat (wat de lijst bij periode "Alles" toont,
+// lijstUniversum en telPerSoort), met de straal, en als de knoppen de lijst beperken ook dat (beperkingTekst).
+// Zo kloppen het getal en de lijst eronder altijd: alles, of een zin die zegt waarom het er minder zijn.
+export function plekSubTekst({ totaal = 0, straat = false, straal = 0, beperking = "" } = {}) {
+  const rond = straat && straal ? `, ook ${straal >= 1000 ? "1 km" : `${straal} m`} rond de straat (terrassen alleen in de straat zelf)` : "";
+  const basis = `${totaal} item${totaal === 1 ? "" : "s"} uit officiële bronnen${rond}.`;
+  return beperking ? `${basis} ${beperking}` : basis;
+}
+// Wat "Deel" meestuurt (navigator.share) naast de link: de plek, hoeveel er staat, waartoe de link de lijst
+// beperkt (een periode of de tijdlijn die in de link staat; een gekozen dag staat er niet in) en de zin van de
+// komende 7 dagen als samenvatting.
+export function deelTekst({ plek = "", totaal = 0, beperking = "", week = "" } = {}) {
+  const kop = `${plek ? `${plek}: ` : ""}${totaal} item${totaal === 1 ? "" : "s"} uit officiële bronnen op de publieke agenda.`;
+  return [kop, beperking, week].filter(Boolean).join(" ");
 }
 // Het label naast de soort. Een werk waarvan de periode loopt maar dat GIPOD nog "concreet gepland"
 // noemt, krijgt "Periode loopt" en niet "Nu bezig": anders spreken label en status elkaar tegen.
