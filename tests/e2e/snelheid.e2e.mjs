@@ -162,9 +162,11 @@ function arcgis(records, url) {
 
 // `kaart`: "geblokkeerd" (standaard: geen kaartbibliotheek, zoals in alle andere toetsen) of "leaflet" (Leaflet uit
 // de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs).
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "" } = {}) {
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", zuinig = false } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
+  // `zuinig`: de browser meldt databesparing (navigator.connection.saveData).
+  if (zuinig) await page.addInitScript(() => Object.defineProperty(Navigator.prototype, "connection", { configurable: true, get: () => ({ saveData: true }) }));
   await page.clock.setFixedTime(NU);
   const errors = [], extern = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -272,6 +274,40 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.equal(await page.locator(".pv-place .pv-stand").getAttribute("role"), "status");
     assert.equal(await page.locator('.pv-results .pv-row[data-uid="works:990001"]').count(), 1, "het werk van de ochtend blijft staan");
     assert.equal(await page.locator(".pv-place .pv-place-failed").count(), 0, "geen melding 'onvolledig': de stand van de ochtend is er");
+    // P9: op een gsm staat de kaart onder de lijst; ze laadt pas als je erheen scrolt. Geen kaartbibliotheek,
+    // geen stijl en geen tegels tijdens het eerste scherm.
+    assert.deepEqual(extern.filter((u) => /openfreemap|maplibre-gl|leaflet|tile\.openstreetmap/.test(u)), [], "kaartverzoeken op het eerste scherm");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // P9 en het budget van P5: op een groot scherm laadt de kaart naast de lijst, maar pas als de browser even
+  // niets te doen heeft. De tegels halen hun 3 s, en daarna staat de kaart er (Leaflet uit de fixture). Op
+  // 1280×900 staat de kaart nog net onder het beeld (de bewoner scrolt), op 1280×1200 meteen in beeld.
+  for (const height of [900, 1200]) await t.test(`P9: de kaart vertraagt de tegels niet (1280×${height}, stand van de ochtend, alles geblokkeerd behalve Leaflet)`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors, start } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height });
+    await page.waitForFunction(() => document.querySelector(".pv-place .pv-stat.pv-stat-planned strong")?.textContent.trim() === "3", null, { timeout: Math.max(1, 3000 - (Date.now() - start)) }).catch(() => {});
+    const duur = Date.now() - start;
+    assert.ok(duur < 3000, `tegels na ${duur} ms`);
+    assert.equal(await page.locator(".pv-place .pv-stat.pv-stat-planned strong").innerText(), "3");
+    if (height === 900) await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 10000 })
+      .catch(async () => assert.fail(`data-kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}`));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("P9: met databesparing laadt de kaart alleen met de knop", async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height: 1200, zuinig: true });
+    await page.waitForFunction(() => /databesparing/.test(document.querySelector(".buurt-map-load")?.textContent || ""), null, { timeout: 10000 });
+    await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
+    await page.waitForTimeout(2000);
+    assert.equal(await page.locator(".buurt-map").getAttribute("data-kaart"), "geen");
+    assert.deepEqual(extern.filter((u) => /openfreemap|maplibre-gl|leaflet|tile\.openstreetmap/.test(u)), []);
+    await page.locator(".buurt-map-load").click();
+    await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 10000 });
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -289,6 +325,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     // Alleen het kader van de straat: geen GIPOD-pagina's of A-Sign-blokken van het hele district.
     const gipod = extern.filter((u) => u.includes("/GIPOD/"));
     assert.ok(gipod.length > 0 && gipod.every((u) => !decodeURIComponent(u).includes(DISTRICT_BBOX)), gipod.join("\n"));
+    t.diagnostic(`live: ${extern.length} verzoeken naar buiten`);
     assert.ok(extern.length < 30, `${extern.length} verzoeken naar buiten`);
     assert.deepEqual(errors, []);
     await context.close();

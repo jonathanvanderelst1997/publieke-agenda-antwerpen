@@ -11,7 +11,8 @@
 // - Items zonder plek staan in een lijst onder de kaart, nooit als gegokte marker.
 // - De legenda (vijf soorten, KAART_SOORTEN in place-core.js) toont of verbergt een soort op de kaart; de lijst
 //   blijft altijd volledig. Ze staat er ook als de kaart niet laadt.
-// - Leaflet en de kaarttegels (OpenStreetMap) worden pas geladen als de kaart in beeld komt.
+// - Leaflet en de kaarttegels (OpenStreetMap) worden pas geladen als de kaart in beeld komt en de browser even
+//   niets te doen heeft; met databesparing alleen op vraag (de knop, of "Toon op de kaart").
 import {
   RADIUS_OPTIONS,
   bboxOf,
@@ -492,9 +493,15 @@ export async function mountNeighborhoodMap(view) {
     return starten;
   }
   laadKnop.addEventListener("click", () => { startMap(); });
-  if ("IntersectionObserver" in window) {
+  // Het snelheidsbudget (P5): de kaart start pas als ze bijna in beeld komt (200 px), en dan nog pas als de
+  // browser even niets te doen heeft (hoogstens 1,5 s later), zodat ze de lijst en de tegels niet vertraagt.
+  // Met databesparing start ze alleen met de knop.
+  const zuinig = Boolean(navigator.connection?.saveData);
+  const alsHetRustigIs = (fn) => ("requestIdleCallback" in window ? window.requestIdleCallback(fn, { timeout: 1500 }) : setTimeout(fn, 1200));
+  if (zuinig) laadKnop.textContent = "🗺️ Toon de kaart (databesparing staat aan)";
+  else if ("IntersectionObserver" in window) {
     const observer = new IntersectionObserver((entries) => {
-      if (entries.some((e) => e.isIntersecting)) { observer.disconnect(); startMap(); }
+      if (entries.some((e) => e.isIntersecting)) { observer.disconnect(); alsHetRustigIs(() => startMap()); }
     }, { rootMargin: "200px" });
     observer.observe(mapEl);
   }
