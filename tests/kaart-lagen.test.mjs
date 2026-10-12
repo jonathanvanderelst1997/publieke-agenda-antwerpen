@@ -137,7 +137,8 @@ test("telPerSoort: een agendapunt op 3 data telt 1 keer; de som per soort is het
   assert.equal(tel.totaal, 10);
   assert.equal(tel.soortVan.get(lijstSleutel(drieData[1])), "agenda");
   assert.equal(tel.soortVan.get("publicSpace:dossier:ET2099000503"), "evenement");
-  assert.equal(tel.soortVan.get("markt|Proefmarkt|Proefplein"), "agenda");
+  assert.equal(tel.soortVan.get("Proefmarkt|Proefplein"), "agenda", "een markt telt per titel en plek, zoals haar marktdagen");
+  assert.equal(lijstSleutel(marktBundelEntry({ title: "Proefmarkt ", location: "Proefplein" })), lijstSleutel(agendapunt("md1", "2026-10-14", { title: "Proefmarkt", category: "markets" })));
   // Dezelfde sleutel bij twee soorten: het eerste voorkomen wint, de som blijft het totaal.
   const dubbel = telPerSoort([{ uid: "x:1", source: "works" }, { uid: "x:1", source: "permits" }]);
   assert.deepEqual([dubbel.per.werken, dubbel.per.vergunning, dubbel.totaal], [1, 0, 1]);

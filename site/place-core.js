@@ -523,7 +523,8 @@ export function werkEntries(works = [], opties = {}) {
 // Zo telt het plekoverzicht ("N items uit officiële bronnen"): een agendapunt per activiteit (titel en plek:
 // een weekmarkt met acht marktdagen is er één), een kaart uit de live lagen per uid. "X in de lijst" onder de
 // buurtkaart telt anders: de kaarten die de lijst echt toont, zoals de aantallen naast de koppen (place-view.js).
-export const lijstSleutel = (entry = {}) => (entry.source === "agenda" ? `${entry.title}|${entry.location}` : entry.uid);
+// Een kaartje van een wekelijkse markt (marktBundelEntry) telt zoals zijn marktdagen: per titel en plek.
+export const lijstSleutel = (entry = {}) => (entry.source === "agenda" || entry.source === "markt" ? `${entry.title}|${entry.location}` : entry.uid);
 export const lijstAantal = (entries = []) => new Set(entries.map(lijstSleutel)).size;
 // Voor de buurtkaart: de kaart tekent een punt per GIPOD-stuk, de lijst een kaart per werf (werkEntries).
 // Per GIPOD-nummer van een stuk het nummer van zijn werf, zodat de kaart per kaart van de lijst telt.
@@ -553,7 +554,8 @@ export function kaartSoort(e = {}) {
   if (e.source === "permits" || e.source === "terraces") return "vergunning";
   return "agenda";
 }
-// Eén kaartje van de lijst per wekelijkse markt (bundleWeeklyMarkets in agenda-uitgaan.js), om te tellen.
+// Eén kaartje van de lijst per wekelijkse markt (bundleWeeklyMarkets in agenda-uitgaan.js), om te tellen. Het
+// telt met dezelfde sleutel als de marktdagen zelf (lijstSleutel), die als pins op de kaart staan.
 export const marktBundelEntry = (m = {}) => {
   const title = cleanText(m.title), location = cleanText(m.location);
   return { uid: `markt|${title}|${location}`, source: "markt", theme: "markets", group: "markten", title, location };
