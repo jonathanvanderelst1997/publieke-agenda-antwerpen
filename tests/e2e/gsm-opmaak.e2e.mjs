@@ -916,4 +916,52 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     assert.deepEqual(violations, []);
     await context.close();
   });
+
+  // Bouwplan stap 3: een straat buiten district Antwerpen (hier de Sint-Bernardsesteenweg van Hoboken, met een
+  // naamgenoot in district Antwerpen en markten en nieuws van het district) op een smalle gsm en met grote tekst:
+  // niets schuift opzij, het label ligt niet onder de knoppen; en axe in licht en donker.
+  const openBuiten = async ({ width = 390, height = 844, colorScheme = "light" } = {}) => {
+    const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
+    const page = await context.newPage();
+    await page.clock.setFixedTime(new Date(`${today}T10:00:00+02:00`));
+    const errors = [];
+    page.on("pageerror", (error) => errors.push(error.message));
+    await page.route((url) => url.hostname !== "127.0.0.1", (route) => route.abort());
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("Sint-Bernardsesteenweg 2660")}`);
+    await page.locator(".pv-buiten").waitFor({ state: "visible", timeout: 10000 });
+    return { page, context, errors };
+  };
+  for (const [width, height, tekst] of [[320, 640, ""], [360, 740, ""], [390, 844, "200%"]]) await t.test(`straat buiten district Antwerpen op ${width} px${tekst ? `, tekst ${tekst}` : ""}: niets schuift opzij, het label ligt niet onder de knoppen`, async () => {
+    const { page, context, errors } = await openBuiten({ width, height });
+    if (tekst) await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, tekst);
+    const m = await page.evaluate(() => {
+      const box = document.querySelector(".pv-buiten"), kind = box.querySelector(".pv-place-kind");
+      const bereik = document.createRange();
+      bereik.selectNodeContents(kind);
+      const label = [...bereik.getClientRects()].filter((r) => r.width > 0);
+      const raakt = (a, b) => a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
+      const knoppen = [...box.querySelectorAll(".pv-place-actions .pv-btn")].map((b) => b.getBoundingClientRect());
+      const buiten = [...box.querySelectorAll("*")].filter((el) => { const r = el.getBoundingClientRect(); return r.width && (r.right > innerWidth + 0.5 || r.left < -0.5); }).map((el) => el.className || el.tagName);
+      return { scroll: document.documentElement.scrollWidth, breedte: innerWidth, onder: knoppen.filter((k) => label.some((t) => raakt(t, k))).length, buiten };
+    });
+    assert.ok(m.scroll <= m.breedte, `de pagina schuift opzij: ${m.scroll} > ${m.breedte}`);
+    assert.equal(m.onder, 0, "het label ligt onder Deel of Andere plek");
+    assert.deepEqual(m.buiten, []);
+    assert.match(await page.locator(".pv-buiten").innerText(), /ligt in district Hoboken, deze agenda volgt district Antwerpen/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+  for (const colorScheme of ["light", "dark"]) await t.test(`axe (${colorScheme}): geen overtredingen bij een straat buiten district Antwerpen, ook niet in de keuze tussen naamgenoten`, { skip: axePath ? false : "zet AXE_CORE_PATH naar axe.min.js" }, async () => {
+    const { page, context } = await openBuiten({ colorScheme });
+    await page.addScriptTag({ path: axePath });
+    const axe = () => page.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`));
+    assert.deepEqual(await axe(), []);
+    // De keuze tussen naamgenoten (Enter opende niets): de melding en de opties.
+    await page.locator("#agenda-street-jump").fill("Statiestraat");
+    await page.locator("#pv-suggestions [role=option]").nth(2).waitFor();
+    await page.locator("#agenda-street-jump").press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "3 plekken heten" }).waitFor({ timeout: 5000 });
+    assert.deepEqual(await axe(), []);
+    await context.close();
+  });
 });

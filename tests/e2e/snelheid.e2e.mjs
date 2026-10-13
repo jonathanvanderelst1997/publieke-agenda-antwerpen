@@ -283,6 +283,34 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await page.waitForTimeout(1500);
     assert.equal(gevraagd.filter((p) => p === "/history/live-layers.json").length, 0, "live-layers.json opgevraagd");
     assert.ok(gevraagd.includes("/history/radar.json"), "de radar komt uit radar.json");
+    // Bouwplan stap 3: de straten van de andere districten laden pas als iemand typt.
+    assert.deepEqual(gevraagd.filter((p) => /^\/geo\/straten-stad\.json$|^\/stad-zoeken\.js$/.test(p)), [], "zoeklijst van de stad op de voorpagina");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Bouwplan stap 3 (zoeken in heel de stad): de straatnamen van de 9 andere districten (site/geo/straten-stad.json) en
+  // de module die erin zoekt, vertragen de eerste weergave niet. Ze laden pas bij de eerste letter in het zoekveld.
+  await t.test("zoeken in heel de stad laadt lui: niet bij de eerste weergave van een straat, wel bij het typen; de tegels halen hun 3 s", async (st) => {
+    const stand = await standVanDeOchtend(st);
+    gevraagd.length = 0;
+    const { page, context, errors, start } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd" });
+    await page.waitForFunction(() => /^\d+$/.test(document.querySelector(".pv-place .pv-stat.pv-stat-planned strong")?.textContent.trim() || ""), null, { timeout: Math.max(1, 3000 - (Date.now() - start)) }).catch(() => {});
+    const duur = Date.now() - start;
+    assert.ok(duur < 3000, `tegels na ${duur} ms`);
+    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    const lui = () => gevraagd.filter((p) => /^\/geo\/straten-stad\.json$|^\/stad-zoeken\.js$/.test(p)).sort();
+    assert.deepEqual(lui(), [], "de zoeklijst van de stad laadde bij de eerste weergave");
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("Bredabaan");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "district Merksem" }).waitFor({ timeout: 5000 });
+    assert.deepEqual(lui(), ["/geo/straten-stad.json", "/stad-zoeken.js"], "één keer, bij het typen");
+    await input.press("Enter");
+    await page.locator(".pv-buiten", { hasText: "ligt in district Merksem, deze agenda volgt district Antwerpen" }).waitFor({ timeout: 5000 });
+    // Nog eens typen laadt niets opnieuw.
+    await input.fill("Kammenstraat");
+    await page.locator("#pv-suggestions [role=option]").first().waitFor();
+    assert.equal(lui().length, 2);
     assert.deepEqual(errors, []);
     await context.close();
   });

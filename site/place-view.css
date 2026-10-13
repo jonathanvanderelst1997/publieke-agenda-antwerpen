@@ -461,3 +461,33 @@
 .plek-ui .buurt-intro h2 { display: none; }
 .pv-sr { position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 .pv-hero:has(.pv-suggestions:not([hidden])) .pv-quick { display: none; }
+
+/* ---- een straat of district buiten district Antwerpen (site/place-view.js, applyBuiten) ---- */
+.pv-buiten {
+  position: relative; overflow: hidden; margin: 0 0 18px; padding: 20px 18px; border-radius: 22px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--pa-accent) 6%, var(--pa-surface)), var(--pa-surface) 60%);
+  border: 1px solid var(--pa-line); box-shadow: var(--pa-shadow);
+}
+.pv-buiten[hidden] { display: none; }
+/* Lange straatnamen ("Sint-Bernardsesteenweg") bij grote tekst op een smalle gsm: alleen breken als het echt moet. */
+.pv-buiten { overflow-wrap: break-word; }
+.pv-buiten .pv-link { max-width: 100%; overflow-wrap: break-word; }
+/* De naam zoals in de plekkop (.pv-place-name): volle breedte, geen woordbreuk midden in een woord. */
+.pv-buiten-naam { flex-basis: 100%; min-width: 0; order: 1; overflow-wrap: break-word; margin: 4px 0 2px; font-size: clamp(1.7rem, 6vw, 2.5rem); line-height: 1.08; letter-spacing: -0.035em; color: var(--pa-ink-strong); }
+.pv-buiten-naam.pv-stil:focus { outline: none; }
+.pv-buiten-zin { margin: 14px 0 0; padding: 12px 14px; border-radius: 14px; background: var(--pa-surface); border: 1px solid var(--pa-line); box-shadow: inset 4px 0 0 var(--pa-line-strong); line-height: 1.5; color: var(--pa-ink); }
+.pv-buiten-zin strong { color: var(--pa-ink-strong); }
+.pv-buiten-ook { margin: 10px 0 0; line-height: 1.6; color: var(--pa-ink); }
+.pv-buiten-ook .pv-link { text-align: left; }
+.pv-buiten-kop { margin: 22px 0 10px; font-size: 1.1rem; color: var(--pa-ink-strong); }
+.pv-buiten-lijst li { overflow-wrap: break-word; }
+.pv-buiten-lijst a { align-self: flex-start; margin-top: 4px; font-size: .86rem; font-weight: 700; color: var(--pa-accent); text-underline-offset: 3px; }
+.pv-buiten-hier, .pv-buiten-volzet { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: .74rem; font-weight: 800; vertical-align: .1em; }
+.pv-buiten-hier { background: color-mix(in srgb, var(--pa-accent) 14%, var(--pa-surface)); color: var(--pa-accent); }
+.pv-buiten-volzet { background: var(--pa-warn-soft); color: var(--pa-warn); border: 1px solid var(--pa-warn-line); }
+.pv-buiten-links { margin: 6px 0 0; font-weight: 700; }
+.pv-buiten-links a { color: var(--pa-accent); text-underline-offset: 3px; }
+.pv-buiten-bron { margin: 12px 0 0; font-size: .8rem; line-height: 1.5; color: var(--pa-muted); overflow-wrap: anywhere; }
+.pv-buiten-bron a { color: inherit; }
+.pv-layout[hidden] { display: none; }
+.pv-sugg-buiten .pv-sugg-icon, .pv-sugg-district .pv-sugg-icon { background: transparent; border: 1px dashed var(--pa-line-strong); }

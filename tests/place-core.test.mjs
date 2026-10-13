@@ -20,8 +20,11 @@ const top = (query) => searchPlaces(index, query, { limit: 5 })[0]?.place;
 
 test("normaliseren: hoofdletters, accenten, huisnummers, postcode en afkortingen", () => {
   assert.equal(foldText("  Één-Café’s  "), "een cafes");
-  assert.deepEqual(parseQuery("Kammenstr. 12"), { text: "kammenstraat", compact: "kammenstraat", postcode: "" });
-  assert.deepEqual(parseQuery("Gaston Burssenslaan 12 bus 3, 2050 Antwerpen"), { text: "gaston burssenslaan", compact: "gastonburssenslaan", postcode: "2050" });
+  assert.deepEqual(parseQuery("Kammenstr. 12"), { text: "kammenstraat", compact: "kammenstraat", postcode: "", ruw: "kammenstr12" });
+  assert.deepEqual(parseQuery("Gaston Burssenslaan 12 bus 3, 2050 Antwerpen"), { text: "gaston burssenslaan", compact: "gastonburssenslaan", postcode: "2050", ruw: "gastonburssenslaan12bus3antwerpen" });
+  // `ruw` houdt de cijfers (een straatnaam kan er een hebben), zonder de postcode (nakijkronde 12 oktober 2026).
+  assert.deepEqual(parseQuery("Fort 7-straat 2610"), { text: "fortstraat", compact: "fortstraat", postcode: "2610", ruw: "fort7straat" });
+  assert.equal(parseQuery("2610 Pad nr. 25").ruw, "padnr25");
   assert.equal(parseQuery("St.-Jansplein").compact, "sintjansplein");
   assert.equal(parseQuery("Nationale str").compact, "nationalestraat");
   assert.equal(parseQuery("Lange Elzenstr 5A").compact, "langeelzenstraat");

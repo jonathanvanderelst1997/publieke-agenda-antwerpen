@@ -50,7 +50,7 @@ const WORD_ABBREVIATIONS = new Map([
 const NOISE = new Set(["antwerpen", "antwerp", "anvers", "belgie", "belgium", "bus", "nr", "nummer", "district", "wijk"]);
 
 // Een zoekvraag ontleden: postcode apart, huisnummers weg, afkortingen uitgeschreven.
-// Geeft { text, compact, postcode } terug; compact is zonder spaties ("de coninckplein" → "deconinckplein").
+// Geeft { text, compact, postcode, ruw } terug; compact is zonder spaties ("de coninckplein" → "deconinckplein").
 export function parseQuery(value) {
   let postcode = "";
   const words = [];
@@ -70,7 +70,10 @@ export function parseQuery(value) {
     words.push(token);
   }
   const text = words.join(" ");
-  return { text, compact: text.replace(/ /g, ""), postcode };
+  // `ruw`: de vraag zonder de postcode, maar met haar cijfers en zonder afkortingen uit te schrijven. Een straatnaam
+  // met een cijfer ("Fort 7-straat", "De 7 schakenpad", "Pad nr. 25") vindt zo ook zichzelf terug.
+  const ruw = postcode ? tokens.filter((t, i) => i !== tokens.indexOf(postcode)).join("") : tokens.join("");
+  return { text, compact: text.replace(/ /g, ""), postcode, ruw };
 }
 
 // Damerau-Levenshtein, afgebroken zodra de afstand groter wordt dan max.
@@ -97,15 +100,24 @@ export function editDistance(a, b, max = 2) {
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
+// De straatas zet een homoniemtoevoeging achter een straatnaam die ook in een ander district bestaat
+// ("Maria-Theresialei_AN" in 2018, naast de Maria-Theresialei in Ekeren). Zo heet geen straat: de bewoner ziet en
+// zoekt "Maria-Theresialei" (zoals scripts/build-straten-stad.mjs voor de andere districten).
+export const zonderHomoniem = (naam) => String(naam ?? "").replace(/_[A-Z]{2}$/, "");
+
 // Index van alle plekken. streets: rijen uit straten.json ([id, naam, postcode, wijken, kader]);
 // wijken: [{ code, naam, box }]; counts: optioneel aantal items per straat-/wijksleutel (voor de rangorde).
+// Een straat houdt in `name` en `key` de naam uit de straatas: daarmee koppelt de site haar aan de live lagen en de
+// ochtendstand. `label`, `compact` en `words` (wat de bewoner ziet en intypt) zijn zonder homoniemtoevoeging; de
+// naam met toevoeging blijft een alias, zodat een oude link (?plek=Maria-Theresialei_AN) blijft werken.
 export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
   const wijkByCode = new Map(wijken.map((w) => [w.code, w]));
   const nameCount = new Map();
-  for (const row of streets) nameCount.set(row[1], (nameCount.get(row[1]) || 0) + 1);
+  for (const row of streets) nameCount.set(zonderHomoniem(row[1]), (nameCount.get(zonderHomoniem(row[1])) || 0) + 1);
   const places = [];
   for (const [id, name, postcode, codes = [], box = null] of streets) {
     const wijk = wijkByCode.get(codes[0]);
+    const label = zonderHomoniem(name);
     places.push({
       type: "straat",
       key: `straat:${id}|${name}|${postcode}`,
@@ -114,11 +126,12 @@ export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
       postcode: String(postcode || ""),
       wijken: codes,
       box,
-      label: name,
+      label,
       sub: [postcode, wijk ? `wijk ${wijk.naam}` : ""].filter(Boolean).join(" · "),
-      ambiguous: nameCount.get(name) > 1,
-      compact: compactOf(name),
-      words: foldText(name).split(" "),
+      ambiguous: nameCount.get(label) > 1,
+      compact: compactOf(label),
+      words: foldText(label).split(" "),
+      ...(label !== name ? { aliases: [compactOf(name)] } : {}),
     });
   }
   for (const w of wijken) {
@@ -150,9 +163,14 @@ function wijkAliases(name) {
   return out;
 }
 
-const TYPE_RANK = { wijk: 0, postcode: 1, straat: 2 };
+// Bij een gelijke score: eerst wat deze agenda volgt (district Antwerpen), dan een ander district (site/stad-zoeken.js).
+const TYPE_RANK = { wijk: 0, postcode: 1, straat: 2, district: 3, buiten: 4 };
+// Zekere treffers: de naam is de vraag, begint ermee, of een woord van de naam begint ermee. "contains" (een stuk
+// midden in een naam) en "fuzzy" (tikfout) zijn een gok.
+const ZEKER = new Set(["exact", "prefix", "word"]);
 
-// Suggesties voor wat iemand typt. Rangorde: exact, begint met, woord begint met, bevat, tikfout.
+// Suggesties voor wat iemand typt. Rangorde: exact, begint met, woord begint met; dan (als niets daarvan past) een
+// tikfout in de hele naam, bevat, andere tikfouten.
 export function searchPlaces(index, query, { limit = 8, counts = null } = {}) {
   const q = parseQuery(query);
   const places = index?.places || [];
@@ -160,35 +178,83 @@ export function searchPlaces(index, query, { limit = 8, counts = null } = {}) {
   if (!q.compact) return [];
   const results = [];
   const fuzzyMax = q.compact.length >= 9 ? 2 : q.compact.length >= 5 ? 1 : 0;
+  // De vraag ook zoals getypt, met haar cijfers: parseQuery laat een huisnummer weg, maar sommige straten hebben een
+  // cijfer in hun naam ("Fort 7-straat", "De 7 schakenpad", "Pad nr. 25").
+  // `v` is de ontlede vraag, `r` die met haar cijfers (leeg als ze gelijk zijn); een lege `r` past nergens.
+  const v = q.compact;
+  const r = q.ruw && q.ruw !== q.compact ? q.ruw : "";
+  const begint = (n) => n.startsWith(v) || (r && n.startsWith(r));
+  // Tikfoutsuggesties alleen als niets zeker past: eerst exact, begint met, woord en bevat voor alle plekken; de
+  // (duurdere) tikfoutafstand pas daarna. Met de straten van heel de stad (site/stad-zoeken.js) zijn dat er bijna
+  // 4.000. Een "bevat" is niet zeker: "Stenplein" zit in het Kunstenplein (Berchem), maar is een tikfout voor het
+  // Steenplein. Passen er alleen zulke stukken, dan komen de tikfouten er ook bij (nakijkronde 12 oktober 2026).
+  const rest = [];
+  const neem = (place, score, match) => results.push({ place, score: counts ? score + Math.min(6, counts.get(place.key) || 0) : score, match });
   for (const place of places) {
     if (place.type === "postcode") {
       if (place.code.startsWith(q.compact)) results.push({ place, score: place.code === q.compact ? 100 : 70, match: "prefix" });
       continue;
     }
-    if (q.postcode && place.type === "straat" && place.postcode && place.postcode !== q.postcode) continue;
-    let score = 0, match = "";
-    const names = [place.compact, ...(place.aliases || [])];
-    if (names.includes(q.compact)) { score = 100; match = "exact"; }
-    else if (names.some((n) => n.startsWith(q.compact))) { score = 80 - Math.min(20, place.compact.length - q.compact.length) / 2; match = "prefix"; }
-    else if (place.words.some((w, i) => compactOf(place.words.slice(i).join(" ")).startsWith(q.compact))) { score = 62; match = "word"; }
-    else if (q.compact.length >= 3 && place.compact.includes(q.compact)) { score = 45; match = "contains"; }
-    else if (fuzzyMax) {
+    if (q.postcode && (place.type === "straat" || place.type === "buiten") && place.postcode && place.postcode !== q.postcode) continue;
+    const c = place.compact;
+    const al = place.aliases;
+    if (c === v || (r && c === r) || (al && (al.includes(v) || (r && al.includes(r))))) neem(place, 100, "exact");
+    else if (begint(c) || (al && al.some(begint))) {
+      // Hoe langer het stuk dat past, hoe hoger (de langste vorm die past).
+      const lang = Math.max(...[v, r].filter((x) => x && (c.startsWith(x) || (al && al.some((n) => n.startsWith(x))))).map((x) => x.length));
+      neem(place, 80 - Math.min(20, c.length - lang) / 2, "prefix");
+    }
+    // De woorden zijn al gevouwen (foldText): de staarten van de naam ("kristuskoningplein", "koningplein") één keer.
+    else if ((place.staarten ||= place.words.map((w, i) => place.words.slice(i).join(""))).some(begint)) neem(place, 62, "word");
+    else if ((v.length >= 3 && c.includes(v)) || (r.length >= 3 && c.includes(r))) neem(place, 45, "contains");
+    else if (fuzzyMax) rest.push(place);
+  }
+  if (!results.some((r) => r.match !== "contains")) {
+    for (const place of rest) {
       const d = Math.min(editDistance(q.compact, place.compact, fuzzyMax), ...((place.aliases || []).map((a) => editDistance(q.compact, a, fuzzyMax))));
-      if (d <= fuzzyMax) { score = 35 - d * 5; match = "fuzzy"; }
+      if (d <= fuzzyMax) neem(place, d <= 1 ? 50 : 25, "fuzzy");
       else if (q.compact.length >= 6 && place.compact.length > q.compact.length) {
         // Tikfout in het begin van een langere naam ("schrijfstr" → "schijfstraat").
         const head = place.compact.slice(0, q.compact.length);
-        if (editDistance(q.compact, head, 1) <= 1) { score = 28; match = "fuzzy"; }
+        if (editDistance(q.compact, head, 1) <= 1) neem(place, 28, "fuzzy");
       }
     }
-    if (!score) continue;
-    if (counts) score += Math.min(6, counts.get(place.key) || 0);
-    results.push({ place, score, match });
   }
-  // Tikfoutsuggesties alleen als er niets beters is.
-  if (results.some((r) => r.match !== "fuzzy")) results.splice(0, results.length, ...results.filter((r) => r.match !== "fuzzy"));
-  results.sort((a, b) => b.score - a.score || TYPE_RANK[a.place.type] - TYPE_RANK[b.place.type] || a.place.label.localeCompare(b.place.label, "nl") || String(a.place.postcode || "").localeCompare(String(b.place.postcode || "")));
+  // Een tikfout in de hele naam ("Stenplein" voor Steenplein) ligt dichter bij de vraag dan een stuk midden uit een
+  // langere naam (het Kunstenplein): daarom 50 tegen 45. Bij zulke halve treffers eerst de plekken van district
+  // Antwerpen (die volgt deze agenda), dan de rest van de stad. Een zekere treffer (exact, begint met, woord: 62 of
+  // meer) gaat altijd voor, ook in een ander district.
+  const elders = (r) => (ZEKER.has(r.match) ? 0 : TYPE_RANK[r.place.type] >= TYPE_RANK.district ? 2 : 1);
+  results.sort((a, b) => elders(a) - elders(b) || b.score - a.score || TYPE_RANK[a.place.type] - TYPE_RANK[b.place.type] || a.place.label.localeCompare(b.place.label, "nl") || String(a.place.postcode || "").localeCompare(String(b.place.postcode || "")));
   return results.slice(0, limit);
+}
+
+// Enter in de zoekbalk opent nooit een gok (stratentest van 12 oktober 2026: "Walemstraat" opende met Enter de
+// Walenstraat, "Statiestraat" opende die van 2018 terwijl de bewoner die van Berchem zocht). Enter opent alleen:
+// - de suggestie die de bewoner zelf koos (met de pijltjes: `gekozen`);
+// - of de enige plek die precies zo heet (straatnaam, wijk of postcode), of de enige suggestie als die met de vraag
+//   begint of een woord van haar naam ermee begint ("kammenstr" is de Kammenstraat).
+// Heten meer plekken precies zo (dezelfde straatnaam in een andere postcode of een ander district), dan is het een
+// keuze ("naamgenoten"); passen er meer ("meerdere"), dan ook. Past de vraag alleen ergens midden in een naam
+// ("bevat": "Stenplein" in het Kunstenplein) of alleen met een tikfout, dan is elke suggestie een gok ("gok"): ook
+// als het er maar één is (nakijkronde 12 oktober 2026). `resultaten`: wat searchPlaces teruggaf, in die volgorde.
+// Twee stukken van dezelfde straat met dezelfde naam, postcode en wijk (twee ids in de straatas) zijn voor de bewoner
+// één plek: daar is niets te kiezen.
+const zelfdeVoorDeBewoner = (p) => [p.type, p.label, p.postcode || "", p.sub || ""].join("|");
+export function enterKeuze(resultaten = [], { actief = -1, gekozen = false } = {}) {
+  if (gekozen && resultaten[actief]) return { place: resultaten[actief].place };
+  const uniek = (lijst) => {
+    const gezien = new Map();
+    for (const r of lijst) if (!gezien.has(zelfdeVoorDeBewoner(r.place))) gezien.set(zelfdeVoorDeBewoner(r.place), r);
+    return [...gezien.values()];
+  };
+  const exact = uniek(resultaten.filter((r) => r.match === "exact"));
+  if (exact.length === 1) return { place: exact[0].place };
+  if (exact.length > 1) return { keuze: "naamgenoten", n: exact.length };
+  const zeker = uniek(resultaten.filter((r) => ZEKER.has(r.match)));
+  if (zeker.length === 1 && uniek(resultaten).length === 1) return { place: zeker[0].place };
+  if (zeker.length) return { keuze: "meerdere", n: zeker.length };
+  return { keuze: resultaten.length ? "gok" : "niets", n: resultaten.length };
 }
 
 // Wie "Berchem" of "Deurne" typt, zoekt buiten het district: zeg dat eerlijk.
@@ -206,8 +272,8 @@ export function placeParam(place, index) {
   if (place.type === "postcode") return place.code;
   const clash = (index?.places || []).some((p) => p !== place && p.type !== place.type && p.compact === place.compact);
   const prefix = clash ? `${place.type}:` : "";
-  if (place.type === "straat" && place.ambiguous) return `${prefix}${place.name} ${place.postcode}`;
-  return `${prefix}${place.name}`;
+  if (place.type === "straat" && place.ambiguous) return `${prefix}${place.label} ${place.postcode}`;
+  return `${prefix}${place.type === "straat" ? place.label : place.name}`;
 }
 
 export function resolvePlaceParam(index, value) {
@@ -220,9 +286,17 @@ export function resolvePlaceParam(index, value) {
   const q = parseQuery(body);
   const candidates = index.places.filter((p) => (!type || p.type === type));
   if (!q.compact && q.postcode) return candidates.find((p) => p.type === "postcode" && p.code === q.postcode) || null;
-  const exact = candidates.filter((p) => p.compact === q.compact && p.type !== "postcode" && (!q.postcode || p.type !== "straat" || p.postcode === q.postcode));
-  exact.sort((a, b) => TYPE_RANK[a.type] - TYPE_RANK[b.type]);
-  return exact[0] || null;
+  // Eerst de naam zoals in de link, met haar cijfers ("De 7 schakenpad", "4 septemberpad"): parseQuery laat die als
+  // huisnummer weg. Dan de ontlede vraag (straat zonder huisnummer). Een straat ook bij haar naam met
+  // homoniemtoevoeging.
+  const heet = (p, vorm) => p.compact === vorm || (p.type === "straat" && (p.aliases || []).includes(vorm));
+  for (const vorm of [q.ruw, q.compact]) {
+    if (!vorm) continue;
+    const exact = candidates.filter((p) => p.type !== "postcode" && heet(p, vorm) && (!q.postcode || p.type !== "straat" || p.postcode === q.postcode));
+    exact.sort((a, b) => TYPE_RANK[a.type] - TYPE_RANK[b.type]);
+    if (exact[0]) return exact[0];
+  }
+  return null;
 }
 
 // ---- datums ----

@@ -91,6 +91,25 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   `npm run geo:straten`), de 24 wijken en de zes postcodes. Hoofdletters, accenten, huisnummers, "str." en
   "st." maken niet uit; bij een tikfout volgt "Bedoelde je …?", bij een ander district (Berchem, Deurne …) een
   uitleg. De suggesties staan in de pagina zelf (geen pop-up) en werken met pijltjes en Enter.
+- Zoeken in heel de stad (bouwplan stap 3, `site/stad-zoeken.js`): ook de straatnamen van de 9 andere districten
+  (`site/geo/straten-stad.json`: alleen naam, district en postcode; opnieuw ophalen met `npm run geo:straten-stad`).
+  Bron: de straatas per postzone van stad Antwerpen (wegenregister, laag 905 op geodata.antwerpen.be), onder de
+  [Gratis Open Data Licentie](https://www.antwerpen.be/info/gratis-open-data-licentie) van stad Antwerpen ("bron stad
+  Antwerpen"); een straatnaam zonder stuk straat in die laag (het Arenaplein) komt uit het Gebouwen- en
+  adressenregister van Basisregisters Vlaanderen (straatnaam en de postcode van haar adressen), onder de
+  [Modellicentie voor gratis hergebruik v1.0](https://data.vlaanderen.be/id/licentie/modellicentie-gratis-hergebruik/v1.0).
+  Elke naamgenoot staat erin (dezelfde naam in een andere postcode of een ander district). Een straat buiten district
+  Antwerpen zegt "ligt in district X, deze agenda volgt district Antwerpen" en toont wat de site daar wel kent: de
+  markten van de stad (GIPOD) en het districtsnieuws (antwerpen.be), met hun bron, plus een straat met dezelfde naam
+  in district Antwerpen. De lijst en de module laden pas bij de eerste letter in het zoekveld (of bij een link als
+  `?plek=Bist 2610` of `?plek=district:Berchem`): de eerste weergave wacht er niet op.
+- Enter opent nooit een gok: alleen de suggestie die je met de pijltjes koos, of de enige plek die precies zo heet.
+  Heten meer plekken zo (de Statiestraat in 2018, Berchem en Ekeren), of past er alleen iets met een tikfout of
+  midden in een naam ("Stenplein" zit in het Kunstenplein van Berchem, maar je bedoelde het Steenplein), dan zegt de
+  lijst dat en kies je zelf (`enterKeuze` in `site/place-core.js`). Bij zo'n gok staan de plekken van district
+  Antwerpen vooraan. Een straatnaam met een cijfer ("Fort 7-straat", "De 7 schakenpad") en haar deellink werken ook;
+  de zoekbalk en de link noemen de straat van 2018 gewoon "Maria-Theresialei", zonder de homoniemtoevoeging van de
+  straatas ("Maria-Theresialei_AN").
 - Een plek kiezen toont één overzicht van alles daar: komende evenementen, lopende en geplande werken (GIPOD),
   parkeerverboden en innames (A-Sign), inspraak en infomomenten, markten en vergunningen. Bovenaan staan de
   aantallen; bij een straat kies je ook de straal (alleen de straat, + 250 m, + 500 m, + 1 km).
