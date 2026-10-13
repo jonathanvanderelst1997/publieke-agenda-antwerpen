@@ -24,7 +24,9 @@ const bron=(status="In effect")=>({
   Startdatum:Date.parse("2026-10-08T00:00:00Z"),Einddatum:Date.parse("2026-10-23T00:00:00Z"),
 });
 test("live is precies, openbare snapshot en archief zijn nog steeds volledig nummerloos", () => {
-  const [rij]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen});
+  const [rij]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen,alleenLive:true});
+  const [zonderOptIn]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen});
+  assert.equal(zonderOptIn.location,straat,"zonder live-opt-in nooit een huisnummer in de bronverwerking");
   assert.equal(rij.location,"Cockerillkaai 18, 2000 Antwerpen");
   const kaarten=publicSpaceEntries([rij],{vandaag:"2026-10-13"});
   assert.ok(kaarten.some(c=>c.location.includes("Cockerillkaai 18")));
