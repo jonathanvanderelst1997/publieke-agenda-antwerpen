@@ -752,8 +752,10 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await input.fill("Kammenstrat");
     await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
     await input.press("Enter");
+    // Enter wacht eerst op de straten van heel de stad (deel B) en zegt dan waarom het niets opent.
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
     assert.doesNotMatch(page.url(), /plek=/, "Enter opent de gok niet");
-    assert.match(await page.locator("#pv-search-help").innerText(), /Kies een suggestie met de pijltjes/);
+    assert.match(await page.locator("#pv-search-help").innerText(), /Enter opent geen gok/);
     await input.press("ArrowDown");
     await input.press("Enter");
     await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"));

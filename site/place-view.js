@@ -881,6 +881,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ? `<ul class="pv-markets pv-buiten-lijst">${nieuws.map((n) => `<li class="cat-other"><strong>${esc(n.title)}${n.volzet ? ` <span class="pv-buiten-volzet">volzet</span>` : ""}</strong><span>${esc(longDate(n.date))}${n.endDate && n.endDate !== n.date ? ` tot ${esc(longDate(n.endDate))}` : ""}${n.uur ? `, ${esc(n.uur)}` : ""}</span>${n.location ? `<small>${esc(n.location)}</small>` : ""}${externeLink(n.bron, "Bron: antwerpen.be")}</li>`).join("")}</ul>`
       : `<p class="pv-day-empty">Geen komende activiteiten uit het districtsnieuws van ${esc(d.label)} in de gegevens van deze site.</p>`;
     const bronnen = (stad.doc?.metadata?.bronnen || []).filter((b) => b.sleutel === "as" || (b.sleutel === "register" && place.bron === "register"));
+    // Hertekenen (bv. als de agenda later binnenkomt) mag de focus niet wegnemen: wie op de kop of een knop van de
+    // uitleg stond, staat er na het hertekenen weer.
+    const actief = buitenBox.contains(document.activeElement) ? document.activeElement : null;
+    const terug = actief ? (actief.id ? `#${actief.id}` : actief.classList[1] ? `.${actief.classList[1]}` : "") : "";
     buitenBox.innerHTML = `
       <div class="pv-place-top">
         <span class="pv-place-kind">${place.type === "buiten" ? "📍 Straat buiten district Antwerpen" : "🏙️ Ander district"}</span>
@@ -898,6 +902,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       <section class="pv-day" aria-label="Districtsnieuws van ${esc(d.label)}"><h4 class="pv-day-title"><span aria-hidden="true">📰</span> Districtsnieuws<span class="pv-day-n">${nieuws.length}</span></h4>${nieuwsLijst}</section>
       <p class="pv-buiten-links">${externeLink(d.url, `District ${d.label} op antwerpen.be`)}</p>
       <p class="pv-buiten-bron">Straatnaam en district: ${bronnen.map((b) => `${esc(b.naam)} (${externeLink(b.licentieUrl, b.licentie)}; ${esc(b.bronvermelding)})`).join("; ")}.</p>`;
+    const opnieuw = terug ? buitenBox.querySelector(terug) : null;
+    if (opnieuw) { if (actief.classList.contains("pv-stil")) opnieuw.classList.add("pv-stil"); opnieuw.focus({ preventScroll: true }); }
   }
   buitenBox.addEventListener("click", (event) => {
     const p = event.target.closest("[data-place]");
