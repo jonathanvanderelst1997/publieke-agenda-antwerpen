@@ -18,7 +18,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { VAAGHEID_FILE, isAanvaard, vergelijk } from "../lib/vaagheid.mjs";
+import { METINGEN, VAAGHEID_FILE, isAanvaard, vergelijk } from "../lib/vaagheid.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = ["site/sources", "site/geo", "site/straat", "site/straat-index.json"];
@@ -27,7 +27,8 @@ const METER = ["scripts/meet-vaagheid.mjs", "lib/vaagheid.mjs"];
 // De vergelijking zelf: per plek (agenda, eventpaginas, straten) zonder marge; elke stijging die niet aanvaard is.
 export function stijgingenTegenBasis(tak, basis, aanvaard = []) {
   const uit = [];
-  for (const k of ["agenda", "eventpaginas", "straten"]) {
+  // "buiten" alleen als de basis die uitleg ook kent (anders is er niets om mee te vergelijken).
+  for (const k of METINGEN.filter((x) => tak[x] && basis[x])) {
     const v = vergelijk(tak[k], basis[k], { marge: 0, patroonMarge: 0 });
     const gestegen = v.gestegen.length ? v.gestegen : v.ok ? [] : [{ id: "aandeel", van: basis[k]?.aandeel ?? null, naar: v.stijging }];
     for (const g of gestegen) uit.push({ waar: k, ...g, aanvaard: isAanvaard(aanvaard, k, g) });
@@ -90,7 +91,7 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const stijgingen = stijgingenTegenBasis(tak, basis.meting, aanvaard);
     const regels = stijgingen.map((g) => `${g.waar}: ${g.id} ${g.van ?? ""}->${g.naar}${g.aanvaard ? " (aanvaard)" : ""}`);
     console.log(`vaagheid tegen ${basisRef} (zelfde data ${tak.invoer}): ${regels.length ? regels.join("; ") : "geen stijging"}`);
-    for (const k of ["agenda", "eventpaginas", "straten"]) console.log(`  ${k}: basis ${basis.meting[k].vaag}/${basis.meting[k].items}, tak ${tak[k].vaag}/${tak[k].items}, detail meer dan één ${basis.meting[k].detail.meerDanEen} -> ${tak[k].detail.meerDanEen}`);
+    for (const k of METINGEN.filter((x) => tak[x] && basis.meting[x])) console.log(`  ${k}: basis ${basis.meting[k].vaag}/${basis.meting[k].items}, tak ${tak[k].vaag}/${tak[k].items}, detail meer dan één ${basis.meting[k].detail.meerDanEen} -> ${tak[k].detail.meerDanEen}`);
     if (arg("--uit")) fs.writeFileSync(arg("--uit"), `${JSON.stringify({ basis: basisRef, invoer: tak.invoer, stijgingen }, null, 1)}\n`);
     if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### Vaagheid tegen ${basisRef}\n\n${regels.length ? regels.map((r) => `- ${r}`).join("\n") : "Geen stijging."}\n`);
     const fout = stijgingen.filter((g) => !g.aanvaard);

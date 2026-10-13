@@ -42,10 +42,18 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "organisator-ontbreekt": { zin: "organisator niet gepubliceerd", meter: "organisator-niet-gepubliceerd", kern: false, waar: "detail" },
   "voetnoot-soort": { zin: "maar zegt niet wie het organiseert of op welke uren", meter: "organisator-niet-gepubliceerd", kern: false, waar: "detail" },
   "voetnoot-leeg": { zin: "maar zegt niet wat het is, wie het organiseert of op welke uren", meter: "wat-zegt-stad-niet", kern: false, waar: "detail" },
+  // Een kaart die alleen uit een evenementendossier van A-Sign komt: één regel die zegt welke bron wat niet geeft
+  // (nakijkronde 13 oktober 2026: "precies welke bron wat niet zegt", in plaats van drie zinnen die hetzelfde zeggen).
+  "niet-in-dossier-kop": { zin: "Niet in het evenementendossier {dossier} (A-Sign)", meter: "niet-in-de-bron", kern: false, waar: "detail" },
+  "dossier-wat-ontbreekt": { zin: "wat er gebeurt en de naam (geen omschrijving die dat zegt)", meter: "wat-zegt-stad-niet", kern: true, waar: "detail" },
+  "dossier-naam-ontbreekt": { zin: "de naam", meter: "naam-stad-niet", kern: false, waar: "detail" },
+  "dossier-uren-ontbreekt": { zin: "uren (A-Sign geeft alleen {dagen})", meter: "uren-niet-gepubliceerd", kern: false, waar: "detail" },
+  "dossier-organisator-ontbreekt": { zin: "organisator", meter: "organisator-niet-gepubliceerd", kern: false, waar: "detail" },
   // De agendapunten uit de evenementendossiers (lib/asign-evenementen-agenda.mjs).
   "naam-dossier": { zin: "De stad publiceert bij dit dossier geen naam.", meter: "naam-stad-niet", kern: false, waar: "agenda" },
   "naam-onbekend": { zin: "Naam onbekend.", meter: "naam-stad-niet", kern: false, waar: "agenda" },
-  "naam-onbekend-lang": { zin: "Naam onbekend: het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken noemt met zekerheid een evenement op die dag en plek.", meter: "naam-stad-niet", kern: false, waar: "agenda" },
+  // Eén zin die zegt wat ontbreekt (niet "Naam onbekend: ... noemt geen naam": dat telde de meter twee keer).
+  "naam-onbekend-lang": { zin: "Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is.", meter: "naam-stad-niet", kern: false, waar: "agenda" },
   "naam-dossier-route": { zin: "De stad noemt geen naam bij dit dossier.", meter: "naam-stad-niet", kern: false, waar: "kaart" },
 
   // ---- omgevingsaanvragen ----

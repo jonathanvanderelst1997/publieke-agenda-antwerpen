@@ -456,7 +456,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     // De Kammenstraat ligt alleen in fase P1 op de omleiding (P2 is alleen de werfzone elders): de kaart toont die
     // fase, en de hele werfzone in één regel (vaagheidsplan 12-10-2026, stap 4).
     assert.match(alles, /Hele werfzone/i);
-    assert.match(alles, /8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart\)/);
+    assert.match(alles, /8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart; andere fasen: 1–10 apr\)/);
     assert.match(alles, /Kammenstraat \+ 2 andere straten/);
     // 2. De stand van de ochtend: de echte bouwer, op de items die de browser hierboven zelf maakte.
     const lagen = await basis.page.evaluate(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return { works: l.works, publicSpace: l.publicSpace, permits: l.permits }; });

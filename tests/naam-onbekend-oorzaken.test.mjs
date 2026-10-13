@@ -252,7 +252,8 @@ test("oorzaak 4: bij een lange tekst blijft er een korte reden staan, en het dos
   const hand = { dossiers: { ET2099700008: fiche({ reden: "Proefreden ".repeat(35).trim(), dagen: ["2026-10-17", "2026-10-18"] }) } };
   for (const item of bouw({ feiten: [f], hand }).items) {
     assert.ok(item.info.length <= 600, item.info.length);
-    assert.match(item.info, /Naam onbekend/);
+    // Eén zin die zegt dat de naam ontbreekt ("Naam onbekend." of de lange zin "Het dossier noemt geen naam, ...").
+    assert.match(item.info, /Naam onbekend|Het dossier noemt geen naam/);
     assert.match(item.info, /Evenementendossier ET2099700008 van de stad \(A-Sign\): aanvraag goedgekeurd\.$/);
   }
 });

@@ -76,17 +76,42 @@ function contractSignature(item) {
 // andere bron (een kalender, een besluit) is het een aangekondigd evenement: dan geen label.
 const NIET_GOEDGEKEURD_ZIN = /\(A-Sign\)(?:, laatst gewijzigd op [^:]+)?: aanvraag nog niet goedgekeurd\.(?: Ook dossier ET\d{10}\.)*$/;
 const alleenDossiers = (item = {}) => (Array.isArray(item.sources) && item.sources.length ? item.sources.map((s) => s?.sourceId) : [item.sourceId]).every((id) => id === "district-asign-evenementen");
-export function nietGoedgekeurd(item = {}) {
-  if (!alleenDossiers(item)) return false;
-  return item.nietGoedgekeurd === true || NIET_GOEDGEKEURD_ZIN.test(String(item.info || ""));
+// Een evenement dat een publieke bron aankondigt (de handfiche zegt "zeker", met een publieke link: AAAntwerp, de
+// Papegay, Winter in Antwerpen) is ook een aangekondigd evenement, zoals bij een kalender of een besluit: geen label,
+// wel een .ics en "Dit weekend". Alleen de inname op straat wacht in A-Sign; dat zegt de info (nakijkbevinding).
+const aangekondigdInFiche = (item = {}, hand = null) => {
+  const h = hand?.dossiers?.[String(item?.externalId || "").trim()];
+  return h?.zekerheid === "zeker" && /^https:\/\//.test(String(h.link || "").trim());
+};
+export function nietGoedgekeurd(item = {}, hand = null) {
+  if (!alleenDossiers(item) || aangekondigdInFiche(item, hand)) return false;
+  // De slotzin van de info alleen bij een bronbestand van vóór het veld (zonder bewaarde feiten): een nieuwer bestand
+  // zegt het met het veld, en samenVoegen haalt het weg als een dossier van de groep goedgekeurd is (nakijkbevinding:
+  // de slotzin van het hoofddossier zette het label anders toch).
+  return item.nietGoedgekeurd === true || (!item.feiten && NIET_GOEDGEKEURD_ZIN.test(String(item.info || "")));
 }
 // De straten van een goedgekeurd agendapunt die alleen een dossier raakt dat nog niet goedgekeurd is
 // (lib/asign-evenementen-agenda.mjs, samenVoegen): de straatpagina toont daar het label. Niet bij een
 // aangekondigd evenement (samengevoegd met een andere bron) en niet als het hele punt al het label heeft.
-export function nietGoedgekeurdStraten(item = {}) {
-  if (!alleenDossiers(item) || nietGoedgekeurd(item) || !Array.isArray(item.nietGoedgekeurdStraten)) return [];
+export function nietGoedgekeurdStraten(item = {}, hand = null) {
+  if (!alleenDossiers(item) || aangekondigdInFiche(item, hand) || nietGoedgekeurd(item, hand) || !Array.isArray(item.nietGoedgekeurdStraten)) return [];
   const straten = new Set(Array.isArray(item.straten) ? item.straten : []);
   return item.nietGoedgekeurdStraten.filter((s) => straten.has(s));
+}
+
+// De straten van een agendapunt uit de evenementendossiers die een publieke bron zelf noemt: de handfiche van dat
+// dossier (met de hand nagekeken: waar, uren en soort; niet "wat merk je", dat ook vergelijkt met elders) of het uur van het punt ("kratstapelen op de
+// Groenplaats van 12 tot 17 uur"). Alleen voor een bronbestand van vóór `stratenVolledig` (dan hangt het punt anders
+// alleen aan de straten uit zijn locatie): zo staat Winter in Antwerpen al op de Groenplaats, waar de fiche de
+// kerstmarkt noemt, zonder de straten van een ouder bestand blind te vertrouwen (nakijkronde 13 oktober 2026).
+export function stratenUitFiche(item = {}, hand = null) {
+  if (item?.stratenVolledig === true || !Array.isArray(item?.straten) || !item.straten.length) return [];
+  const h = hand?.dossiers?.[String(item?.externalId || "").trim()];
+  const tekst = [h && h.zekerheid !== "onbekend" ? [h.waar, h.uren, h.soort].join(" ") : "", item.timeText].join(" ");
+  const plat = (t) => ` ${String(t ?? "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim()} `;
+  const bron = plat(tekst);
+  if (!bron.trim()) return [];
+  return [...new Set(item.straten.filter((n) => plat(n).trim() && bron.includes(plat(n))))];
 }
 
 // Tekst bij de build (vaagheidsplan van 12 oktober 2026, stap 6): titel en info van een agendapunt uit de
@@ -95,7 +120,7 @@ export function nietGoedgekeurdStraten(item = {}) {
 // fiches en besluiten uit site/sources (laadTekstBronnen).
 export function tekstBijDeBuild(item, tekst = null) {
   const nieuw = tekstUitFeiten(item, tekst || {});
-  return nieuw ? { ...item, ...nieuw } : oudeTekstBijwerken(item);
+  return nieuw ? { ...item, ...nieuw } : oudeTekstBijwerken(item, { hand: tekst?.hand || null });
 }
 export function laadTekstBronnen(rootDir) {
   const lees = (naam) => { try { return JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", naam), "utf8")); } catch { return null; } };
@@ -128,8 +153,9 @@ export function buildFeed({ status, documents: bronnen, manualCheck = null, teks
     // straten gaan mee: de plekpagina koppelt een agendapunt aan al zijn straten, niet alleen aan de drie
     // in de locatietekst ("X, Y, Z en 8 andere straten"; place-view.js, setStreetLists).
     const { fasen: _fasen, feiten: _feiten, nietGoedgekeurd: _status, nietGoedgekeurdStraten: _aanvraagStraten, ...feedItem } = item;
-    const aanvraagStraten = nietGoedgekeurdStraten(item);
-    items.push({ ...feedItem, ...(nietGoedgekeurd(item) ? { nietGoedgekeurd: true } : {}), ...(aanvraagStraten.length ? { nietGoedgekeurdStraten: aanvraagStraten } : {}), dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
+    const aanvraagStraten = nietGoedgekeurdStraten(item, tekst?.hand || null);
+    const bevestigd = stratenUitFiche(item, tekst?.hand || null);
+    items.push({ ...feedItem, ...(nietGoedgekeurd(item, tekst?.hand || null) ? { nietGoedgekeurd: true } : {}), ...(aanvraagStraten.length ? { nietGoedgekeurdStraten: aanvraagStraten } : {}), ...(bevestigd.length ? { stratenBevestigd: bevestigd } : {}), dateLabel: dutchDateLabel(item.date, item.endDate), feed: true });
   }
   const statusBySource = new Map((status?.sources ?? []).map((entry) => [entry.sourceId, entry]));
   const sources = documents

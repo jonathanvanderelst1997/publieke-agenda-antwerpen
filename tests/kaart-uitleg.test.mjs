@@ -118,13 +118,14 @@ test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk ov
   assert.equal(kern.Wanneer, "Dinsdag 13 oktober.");
   assert.deepEqual(k.onbekend.map((o) => o.id), ["evenement-uren"]);
   assert.match(kern.Waar, /^Parcours door 5 straten in Centrum en Zuid \(berekend/);
-  assert.ok(k.ontbreekt.includes("naam van het evenement niet gepubliceerd door de stad"));
-  assert.ok(k.ontbreekt.includes("uren niet gepubliceerd"));
-  assert.ok(k.ontbreekt.includes("organisator niet gepubliceerd"));
+  // Alles komt uit het evenementendossier: één regel die die bron noemt en zegt wat ze niet geeft.
+  assert.match(k.ontbreektKop, /^Niet in het evenementendossier \S+ \(A-Sign\)$/);
+  assert.deepEqual(k.ontbreekt, ["de naam", "uren (A-Sign geeft alleen de dag)", "organisator"]);
+  assert.doesNotMatch(k.voetnoot, /zegt niet/);
   // Geen codes meer, ook niet in een aparte regel: één korte bronzin in gewone taal.
   assert.doesNotMatch(`${k.titel} ${k.samenvatting} ${k.kern.flat().join(" ")} ${k.regels.flat().join(" ")} ${k.voetnoot}`, /ETL|IOD|True|maurits/);
   assert.equal(k.technisch, "");
-  assert.match(k.voetnoot, /^De stad gaf toelating voor dit evenement \(dossier ET2099000001\), maar zegt niet wie het organiseert of op welke uren\.$/);
+  assert.match(k.voetnoot, /^De stad gaf toelating voor dit evenement \(dossier ET2099000001\)\. Bron: A-Sign, de databank van de stad\.$/);
 });
 
 test("parcours gekoppeld aan een bekend evenement via datum en straat", () => {

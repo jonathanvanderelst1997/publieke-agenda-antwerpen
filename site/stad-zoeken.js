@@ -4,7 +4,7 @@
 // plekoverzicht: de pagina zegt in welk district ze ligt, dat deze agenda district Antwerpen volgt, en wat de site
 // daar wel kent (de markten van de stad en het districtsnieuws, uit de agenda zelf, met hun bron).
 // Deze module en de lijst laden pas als iemand begint te typen (site/place-view.js): de eerste weergave wacht er niet op.
-import { foldText, parseQuery, searchPlaces } from "./place-core.js";
+import { editDistance, foldText, parseQuery, searchPlaces } from "./place-core.js";
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
@@ -156,6 +156,13 @@ export function districtVanMarkt(item, index) {
   return keys.size === 1 ? districten.find((d) => keys.has(d.key)) || null : null;
 }
 
+// Dezelfde straat, ook met één letter verschil: GIPOD schrijft de markt als "Ten Eeckhovelei", de straatas als
+// "Ten Eekhovelei" (nakijkbevinding). Alleen binnen hetzelfde district (watDeSiteKent kijkt dat eerst na) en voor
+// namen vanaf 6 letters, zodat twee korte namen niet samenvallen.
+function zelfdeStraat(a, b) {
+  if (!a || !b) return false;
+  return a === b || (Math.min(a.length, b.length) >= 6 && editDistance(a, b, 1) <= 1);
+}
 export function watDeSiteKent(district, items = [], today = "", { index = null, straat = "" } = {}) {
   if (!district) return { markten: [], nieuws: [] };
   const komend = (item) => (isoDag(item?.endDate) || isoDag(item?.date)) >= today;
@@ -165,7 +172,7 @@ export function watDeSiteKent(district, items = [], today = "", { index = null, 
     if (item?.sourceId !== "stad-markten" || !isoDag(item.date) || !komend(item)) continue;
     if (districtVanMarkt(item, index)?.key !== district.key) continue;
     const sleutel = `${item.title}|${item.location}`;
-    const g = groepen.get(sleutel) || { title: String(item.title || ""), location: String(item.location || ""), dagen: [], inStraat: Boolean(straatCompact) && compactOf(marktPlaats(item.location).straat) === straatCompact };
+    const g = groepen.get(sleutel) || { title: String(item.title || ""), location: String(item.location || ""), dagen: [], inStraat: zelfdeStraat(compactOf(marktPlaats(item.location).straat), straatCompact) };
     // De bron is die van de eerstvolgende marktdag (elke marktdag heeft in GIPOD een eigen record).
     g.dagen.push({ date: isoDag(item.date), uur: uurVan(item), bron: veiligeLink(item.link || item.sourceUrl) });
     groepen.set(sleutel, g);

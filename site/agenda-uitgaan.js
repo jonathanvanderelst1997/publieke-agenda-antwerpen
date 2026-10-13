@@ -90,7 +90,10 @@
       case "flea_braderie": return "flea";
       case "parade": return "parade";
       case "shopping": return "shopping";
-      case "market_fair": return isWeeklyMarket(item) ? "markets" : "festival";
+      // Een markt die niet elke week terugkomt: "Feest & festival" alleen met een feestwoord (een kerstmarkt, een
+      // jaarmarkt); anders zegt de bron alleen "markt", en dat is geen feest (nakijkbevinding: "Vermoedelijk een markt
+      // op het De Coninckplein" stond onder Feest & festival en in "Dit weekend").
+      case "market_fair": return isWeeklyMarket(item) ? "markets" : FESTIVAL.test(text) ? "festival" : "other";
       case "culture": case "commemoration": return FESTIVAL.test(text) ? "festival" : "culture";
       case "demonstration": return "other";
       default: return FESTIVAL.test(text) ? "festival" : "other";

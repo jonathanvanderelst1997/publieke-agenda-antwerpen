@@ -190,7 +190,7 @@ test("0.3 privacyfilter: geen e-mail, telefoon, link, huisnummer of persoonsnaam
   // straten in de buurt.
   const isStraat = (n) => ["quinten matsijslei", "van eycklei"].includes(n.toLowerCase());
   assert.equal(plaatsnaamVan("Quinten Matsijslei - Van Eycklei", { rond: [], isStraat }), "Quinten Matsijslei - Van Eycklei");
-  for (const t of ["Jan Peeters", "Proefkring Jan Peeters", "info@voorbeeld.invalid", "bel 0470 12 34 56", "www.voorbeeld.invalid", "Proefstraat 12", "grote markt, verkoop", "Startlocatie doop", "Marie Proef Kerkstraat"]) assert.equal(plaatsnaamVan(t, { rond: ["Proefstraat"] }), "", t);
+  for (const t of ["Testpersoon Voorbeeld", "Proefkring Testpersoon Voorbeeld", "info@voorbeeld.test", "bel 0470 12 34 56", "www.voorbeeld.test", "Proefstraat 12", "grote markt, verkoop", "Startlocatie doop", "Testpersoon Proef Kerkstraat"]) assert.equal(plaatsnaamVan(t, { rond: ["Proefstraat"] }), "", t);
   // "Elisabeth" alleen kan een voornaam zijn: zonder een Elisabethstraat in de buurt geen plaatsnaam.
   assert.equal(plaatsnaamVan("Elisabeth", { rond: ["Greinstraat", "Diepestraat"] }), "");
   assert.equal(plaatsnaamVan("Elisabeth", { rond: ["Sint-Elisabethstraat"] }), "Elisabeth");
@@ -201,14 +201,14 @@ test("0.3 privacyfilter: geen e-mail, telefoon, link, huisnummer of persoonsnaam
   // De omschrijvingen met een trefwoord (de kaart van een evenement) krijgen dezelfde filter op persoonsnamen.
   assert.equal(bruikbareBeschrijving("Startlocatie doop"), "Startlocatie doop");
   assert.equal(bruikbareBeschrijving("Tweede Stop (Falconplein)"), "Tweede Stop (Falconplein)");
-  assert.equal(bruikbareBeschrijving("Doopfeest Jan Peeters"), "");
+  assert.equal(bruikbareBeschrijving("Doopfeest Testpersoon Voorbeeld"), "");
 });
 
 // Nakijkronde van tak #170: de filter hield zich niet aan zijn eigen contract. Verzonnen proefteksten.
 test("0.3 privacyfilter (nakijk): elke naam moet in de straatas staan, ook één naam voor een plaatswoord of na Parking, Hoek of Buurt", () => {
   // Zonder straten rond (of alleen een straat zonder die namen) geeft geen enkele hiervan een plaatsnaam.
-  const proef = ["Marie Groenplaats", "Peeters Kerkstraat", "Hoek Janssens", "Buurt Peeters", "Hoek Jan", "Parking Maurits",
-    "Familie Van Dijk", "Jan Van Dijk", "Peter Vandenberg", "Mieke Berg", "Tine De Laan", "Jef Vandeveld", "Van Dijk", "Vandenberg",
+  const proef = ["Testpersoon Groenplaats", "Voorbeeld Kerkstraat", "Hoek Voorbeeldmans", "Buurt Voorbeeld", "Hoek Testpersoon", "Parking Testpersoon",
+    "Familie Van Proefdijk", "Testpersoon Van Proefdijk", "Testpersoon Voorbeeldberg", "Testpersoon Proefberg", "Testpersoon De Proeflaan", "Testpersoon Vandeproefveld", "Van Proefdijk", "Voorbeeldberg",
     "Sticker Koningstraat", "Sticker plein Mutsaard", "Sticker Varkensmarkt", "Demo's Kattendijkdok", "Demo's Bonapartedok",
     "Feestverlichting Galifortlei", "Opbouw Gallifortlei", "Parking catering", "Parkeerverbod op plein", "voetpad", "catering"];
   for (const t of proef) {
@@ -221,20 +221,20 @@ test("0.3 privacyfilter (nakijk): elke naam moet in de straatas staan, ook één
   assert.equal(plaatsnaamVan("Metrostation Handel", { rond: ["Handelstraat"] }), "Metrostation Handel");
   assert.equal(plaatsnaamVan("Metrostation Handel", { rond: ["Proefstraat"] }), "");
   assert.equal(plaatsnaamVan("Middelheimpark", { rond: [] }), "Middelheimpark");
-  // Volledig nagespeeld: De Coninckplein wordt "Familie Van Dijk". Die naam komt nergens in de fiche of de kaart.
-  const metNaam = plekFeatures.map((f) => (f.attributes.innameBeschrijving === "De Coninckplein" ? { ...f, attributes: { ...f.attributes, innameBeschrijving: "Familie Van Dijk" } } : f));
+  // Volledig nagespeeld: De Coninckplein wordt "Familie Van Proefdijk". Die naam komt nergens in de fiche of de kaart.
+  const metNaam = plekFeatures.map((f) => (f.attributes.innameBeschrijving === "De Coninckplein" ? { ...f, attributes: { ...f.attributes, innameBeschrijving: "Familie Van Proefdijk" } } : f));
   const d = verrijk(dossiersUitAsign(metNaam).get("ET2025006923"), { districten: F.districten, stratenRond });
   assert.equal(d.plekken.aantal, 26);
-  assert.ok(!d.plekken.namen.includes("Familie Van Dijk"));
+  assert.ok(!d.plekken.namen.includes("Familie Van Proefdijk"));
   const r = herkenDossier(d, { vandaag: "2026-10-12" });
-  assert.doesNotMatch(JSON.stringify(r), /Familie Van Dijk/);
+  assert.doesNotMatch(JSON.stringify(r), /Familie Van Proefdijk/);
   assert.match(r.plek, /^op 26 plekken: Teniersplaats, Elisabeth, Groenplaats en 23 andere$/);
   const rows = metNaam.map(() => ({ reference: "ET2025006923", kind: "iod", dossierType: "ETL", phase: "Evenement", innameType: "Inname", start: "2026-01-01", end: "2026-12-31", streets: [] }));
-  assert.doesNotMatch(JSON.stringify(evenementKaartje(evenementFeiten(rows), { vandaag: "2026-10-12", identiteit: r })), /Familie Van Dijk/);
+  assert.doesNotMatch(JSON.stringify(evenementKaartje(evenementFeiten(rows), { vandaag: "2026-10-12", identiteit: r })), /Familie Van Proefdijk/);
 });
 
 test("0.3 omschrijvingen (nakijk): een losse naam naast een trefwoord, 'Van' of 'De' tussen namen en een achternaam op -dijk of -berg", () => {
-  for (const t of ["Feest Maurits", "Startlocatie doop Jan Van Dijk", "Start Mieke Vandenberg", "Doopfeest Jan Peeters", "Wandelen van Zomaar een Dak naar de Proefstraat", "Stop bij Familie De Laan"]) assert.equal(bruikbareBeschrijving(t), "", t);
+  for (const t of ["Feest Testpersoon", "Startlocatie doop Testpersoon Van Proefdijk", "Start Testpersoon Voorbeeldberg", "Doopfeest Testpersoon Voorbeeld", "Wandelen van Zomaar een Dak naar de Proefstraat", "Stop bij Familie De Laan"]) assert.equal(bruikbareBeschrijving(t), "", t);
   // "Van" is geen trefwoord: een straatnaam alleen is geen omschrijving van het evenement.
   assert.equal(bruikbareBeschrijving("Van Eycklei"), "");
   // Een plek die de straatas kent, telt niet als naam: als hele straatnaam (isStraat) of als straat van de inname.

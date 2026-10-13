@@ -21,6 +21,9 @@ test("soorten: buurtfeesten, stoeten, rommelmarkten, koopzondagen en feesten", (
   assert.equal(U.categoryOf(item("Koopzondag", { sourceId: "stad-koopzondagen" })), "shopping");
   assert.equal(U.categoryOf(item("Zomerfestival in het park")), "festival");
   assert.equal(U.categoryOf(item("Kerstmarkt op de Grote Markt")), "festival");
+  // Een markt die niet elke week terugkomt en geen feestwoord heeft: geen "Feest & festival" (nakijkbevinding 13-10-2026).
+  assert.equal(T.classifyEventType(item("Vermoedelijk een markt op het Voorbeeldplein", { sourceId: "district-asign-evenementen" })), "market_fair");
+  assert.equal(U.categoryOf(item("Vermoedelijk een markt op het Voorbeeldplein", { sourceId: "district-asign-evenementen" })), "other");
   assert.equal(U.categoryOf(item("Openluchtconcert")), "culture");
   assert.equal(U.categoryOf(item("Familiedag in de bib")), "family");
   assert.equal(U.categoryOf(item("Stratenloop", { theme: "Sport" })), "sport");

@@ -254,7 +254,7 @@ test("één rij per parkeerverbod-dossier en per werfzone-dossier, met jouw stra
   // De Proefstraat ligt alleen in fase 1 en 2 op de omleiding (fase 3 is alleen de werfzone): de kaart toont die dagen,
   // de hele werfzone staat in één regel (vaagheidsplan 12-10-2026, stap 4).
   assert.deepEqual([werf[0].start, werf[0].end], ["2026-10-26", "2026-10-28"]);
-  assert.deepEqual(werf[0].regels, [["Werfzone in", "Astraat en Bstraat"], ["Omleiding via", "Proefstraat + 3 andere straten"], ["2 fasen in je straat", "26 okt · 27–28 okt"], ["Hele werfzone", "26–31 okt (in je straat alleen op de dagen van deze kaart)"]]);
+  assert.deepEqual(werf[0].regels, [["Werfzone in", "Astraat en Bstraat"], ["Omleiding via", "Proefstraat + 3 andere straten"], ["2 fasen in je straat", "26 okt · 27–28 okt"], ["Hele werfzone", "26–31 okt (in je straat alleen op de dagen van deze kaart; andere fasen: 29–31 okt)"]]);
   assert.doesNotMatch(JSON.stringify([werf[0].title, werf[0].info, werf[0].regels]), /Fase \d/);
   assert.equal(werf[0].straten.length, 5);
   assert.deepEqual(pk.duidelijkeKaart(werf[0], werf[0].item).regels, werf[0].regels, "de regels komen op de kaart");

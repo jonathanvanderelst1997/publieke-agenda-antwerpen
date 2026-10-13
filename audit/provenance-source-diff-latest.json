@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-10-12",
-  "sourceDigest": "b94a3d0e9b1c26d524a868af45c8ffeb2f39c6a15e4babaf92ebde363fcfcd3d",
-  "matrixDigest": "b94a3d0e9b1c26d524a868af45c8ffeb2f39c6a15e4babaf92ebde363fcfcd3d",
+  "sourceDigest": "028bde47afd5e60e7abeea61b3130840c6e96fc333f174d2d7bd7adf6f0d9ffc",
+  "matrixDigest": "028bde47afd5e60e7abeea61b3130840c6e96fc333f174d2d7bd7adf6f0d9ffc",
   "counts": {
     "add": 0,
     "change": 0,
@@ -256,8 +256,8 @@
     {
       "id": "asign-ev-et2026000222-2026-12-04",
       "action": "unchanged",
-      "sourceDigest": "9e4205f87eabdcd57b65fe5cf2232326e0b19bc96ba0e39b7332226cd8090e02",
-      "matrixDigest": "9e4205f87eabdcd57b65fe5cf2232326e0b19bc96ba0e39b7332226cd8090e02"
+      "sourceDigest": "e01af480cf9fcbdbae6d8b1385b19e6c51a431c235b454122f99135fd21dc5a0",
+      "matrixDigest": "e01af480cf9fcbdbae6d8b1385b19e6c51a431c235b454122f99135fd21dc5a0"
     },
     {
       "id": "asign-ev-et2026000445-2026-11-15",

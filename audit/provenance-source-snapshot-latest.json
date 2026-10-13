@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-12",
   "sourceItemCount": 929,
-  "sourceDigest": "b94a3d0e9b1c26d524a868af45c8ffeb2f39c6a15e4babaf92ebde363fcfcd3d",
+  "sourceDigest": "028bde47afd5e60e7abeea61b3130840c6e96fc333f174d2d7bd7adf6f0d9ffc",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -527,7 +527,7 @@
     },
     {
       "id": "asign-ev-et2026000222-2026-12-04",
-      "title": "Evenement op het Steenplein",
+      "title": "Winter in Antwerpen",
       "eventDate": "2026-12-04",
       "classification": "future",
       "classificationAsOf": "2026-10-12",

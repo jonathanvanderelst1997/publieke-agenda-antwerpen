@@ -80,8 +80,10 @@ test("werfzone, GIPOD-werk en parkeerverboden met dezelfde fasen: één werfkaar
   assert.match(k.title, /^Bouwwerf in de Proefstraat/, "onderbouw en bovenbouw: een bouwwerf, afgeleid uit de fasen");
   assert.doesNotMatch(JSON.stringify(k), /Werken van Stad Antwerpen|Opdrachtgever/);
   const regels = Object.fromEntries(k.uitleg.regels);
-  assert.match(regels.Werfzone, /^Werfzone in Proefstraat · Omleiding via Anderestraat · 2 fasen: .* · A-Sign, dossier GW2099-000501$/);
-  assert.match(regels.Parkeerverbod, /\(2099-000001\) · .*\(2099-000002\)\. Zelfde straat en dezelfde dagen als een fase van de werfzone/);
+  // Wat de losse kaarten zeiden, blijft (nakijkronde 13 oktober 2026): hoe de werfzone de straat raakt, haar status, en
+  // bij de parkeerverboden hun status en de reden van de stad.
+  assert.match(regels.Werfzone, /^De werfzone ligt in je straat; het verkeer wordt omgeleid · Werfzone in Proefstraat · Omleiding via Anderestraat · 2 fasen: .* · status in A-Sign: vergund door de stad · A-Sign, dossier GW2099-000501$/);
+  assert.match(regels.Parkeerverbod, /\(2099-000001, [^)]+\) · .*\(2099-000002, [^)]+\)\. Reden volgens de stad: [^.]*werfsignalisaties\. Zelfde straat en dezelfde dagen als een fase van de werfzone/);
   assert.equal(regels["Beheerder in GIPOD"], "Stad Antwerpen - Stadsontwikkeling");
   assert.deepEqual(k.werf, { dossier: "GW2099-000501", werfzone: "publicSpace:sgw:GW2099-000501|1", parkeerverboden: ["2099-000001", "2099-000002"] });
   assert.equal(k.onbekend, undefined, "het waarvoor staat in de fasen");

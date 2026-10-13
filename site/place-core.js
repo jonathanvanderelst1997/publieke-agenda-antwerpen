@@ -565,6 +565,12 @@ function samenWerk(live, bewaard) {
   return {
     ...live,
     soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "",
+    // De soort inname die de verversing bewaarde, als de soort nu uit iets anders komt (de fasen): die blijft erbij.
+    ...(() => {
+      const bewaardInname = bewaard.soort && /^soort inname\b/.test(String(bewaard.soortBron || "")) ? bewaard.soort : "";
+      const inname = live.innameSoort || bewaard.innameSoort || (bewaardInname && live.soort && bewaardInname !== live.soort ? bewaardInname : "");
+      return inname ? { innameSoort: inname } : {};
+    })(),
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
     // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
@@ -795,9 +801,17 @@ export function dossiersVanAgendapunt(item = {}) {
 // agenda.mjs). Een ouder bronbestand voegde dossiers samen op een gegokte titel (de straten van het ene dossier
 // bij het andere), nam het middelpunt van een reuzenvlak als straat (de Groenplaats bij ET2025007162) en kapte de
 // zone af achter het parcours: dan geen lijst, en het punt hangt aan de straten uit zijn locatie, zoals vroeger.
+// Een ouder bronbestand wel met `stratenBevestigd` (scripts/build-sources.mjs, stratenUitFiche: de straten die de
+// handfiche of het uur van het punt zelf noemt): dan die straten plus de straten uit de locatie, nooit de rest van de
+// oudere lijst (nakijkronde 13 oktober 2026: Winter in Antwerpen op de Groenplaats, het kratstapelen van AAAntwerp).
 export function stratenVanAgendapunt(item = {}) {
-  if (!dossierVanAgendapunt(item) || !Array.isArray(item?.straten) || item?.stratenVolledig !== true) return [];
-  return [...new Set(item.straten.map(cleanText).filter(Boolean))];
+  if (!dossierVanAgendapunt(item) || !Array.isArray(item?.straten)) return [];
+  if (item?.stratenVolledig === true) return [...new Set(item.straten.map(cleanText).filter(Boolean))];
+  const bevestigd = Array.isArray(item?.stratenBevestigd) ? item.stratenBevestigd.map(cleanText).filter(Boolean) : [];
+  if (!bevestigd.length) return [];
+  const locatie = ` ${foldText(item.location)} `;
+  const uitLocatie = item.straten.map(cleanText).filter((n) => n && locatie.includes(` ${foldText(n)} `));
+  return [...new Set([...uitLocatie, ...bevestigd])];
 }
 // Toont dit agendapunt op deze straat het label "Aanvraag, nog niet goedgekeurd"? Het hele punt (geen dossier
 // goedgekeurd), of een straat die alleen een dossier raakt dat nog niet goedgekeurd is (`nietGoedgekeurdStraten`:
@@ -821,11 +835,28 @@ export function eenKaartPerDossier(agenda = [], live = []) {
   const blijft = agenda.filter((e) => {
     const dossier = e?.source === "agenda" ? dossiersVanAgendapunt(e.item).find((id) => kaarten.has(id)) : "";
     if (!dossier) return true;
-    // Het eerste agendapunt (de vroegste dag) van het dossier gaat mee met de kaart.
-    if (!punten.has(dossier) || String(e.item?.date) < String(punten.get(dossier)?.date)) punten.set(dossier, e.item);
+    if (!punten.has(dossier)) punten.set(dossier, []);
+    punten.get(dossier).push(e.item);
     return false;
   });
-  return { agenda: blijft, live: live.map((e) => (punten.has(e.id) && kaarten.get(e.id) === e ? { ...e, agendaPunt: punten.get(e.id) } : e)) };
+  // Alle agendapunten van het dossier gaan mee met de kaart (`agendaPunten`, per dag een deellink en een .ics; een
+  // nakijkbevinding: met alleen het eerste viel de tweede dag uit de .ics). `agendaPunt` is het vroegste.
+  // Wat het agendapunt over het dossier zei en de kaart niet ("laatst gewijzigd op 8 september 2026: aanvraag
+  // goedgekeurd"), blijft op de kaart staan: het agendapunt verdwijnt uit de lijst (nakijkronde 13 oktober 2026).
+  const metPunten = (e) => {
+    const lijst = [...new Map(punten.get(e.id).map((i) => [String(i?.id ?? ""), i])).values()].sort((a, b) => String(a?.date).localeCompare(String(b?.date)));
+    const stand = lijst.map((i) => cleanText(i?.info).match(/\(A-Sign\), (laatst gewijzigd op [^:]+: [^.]+)\./)?.[1]).find(Boolean) || "";
+    const kaartTekst = JSON.stringify(e.uitleg || {});
+    // De organisatie zoals het agendapunt ze noemt (uit een besluit of een fiche), als de kaart ze niet al zo noemt.
+    const organisatie = lijst.map((i) => cleanText(i?.info).match(/\bOrganisatie: ([^.]{2,120}(?:\.(?! )[^.]*)*)\./)?.[1]).find(Boolean) || "";
+    const erbij = [
+      ...(stand && !kaartTekst.includes("laatst gewijzigd") ? [["Dossier in A-Sign", stand]] : []),
+      ...(organisatie && !kaartTekst.includes(organisatie) ? [["Organisatie volgens het agendapunt", organisatie]] : []),
+    ];
+    const uitleg = erbij.length && e.uitleg ? { ...e.uitleg, regels: [...(e.uitleg.regels || []), ...erbij] } : e.uitleg;
+    return { ...e, ...(uitleg ? { uitleg } : {}), agendaPunt: lijst[0], agendaPunten: lijst };
+  };
+  return { agenda: blijft, live: live.map((e) => (punten.has(e.id) && kaarten.get(e.id) === e ? metPunten(e) : e)) };
 }
 
 // ---- één werfkaart per dossiernummer (vaagheidsplan van 12 oktober 2026, stap 4) ----
@@ -878,14 +909,19 @@ export function parkeerverbodVoorWerf(parkeer, sgw = []) {
   return [...dossiers];
 }
 const uurKortTekst = (row) => parkeerUren(row);
+// Wat de losse kaart van een parkeerverbod zei, blijft in de werfkaart staan (nakijkronde 13 oktober 2026: geen kaart
+// mag minder feiten tonen dan vroeger): de periode, de uren, het nummer, de status in A-Sign en de reden van de stad.
 function parkeerRegel(lijst, vandaag) {
   const delen = lijst.map((p) => {
     const r = p.item || {};
     const uren = uurKortTekst(r);
     const periode = kortePeriode(dayOf(r.start), dayOf(r.end), vandaag);
-    return `${periode}${uren ? `, ${uren}` : ""}${alleenWeekdagen(r) ? ", alleen op weekdagen" : ""} (${cleanText(r.reference) || "A-Sign"})`;
+    const status = cleanText(p.status || statusNl(r.status));
+    return `${periode}${uren ? `, ${uren}` : ""}${alleenWeekdagen(r) ? ", alleen op weekdagen" : ""} (${[cleanText(r.reference) || "A-Sign", status ? kleineLetter(status) : ""].filter(Boolean).join(", ")})`;
   });
-  return ["Parkeerverbod", `${delen.join(" · ")}. Zelfde straat en dezelfde dagen als een fase van de werfzone; A-Sign zet bij een parkeerverbod geen dossiernummer.`];
+  const redenen = [...new Set(lijst.map((p) => redenZin(parkeerReden(p.item || {}))).filter(Boolean))];
+  const reden = redenen.length ? ` Reden volgens de stad: ${redenen.join("; ")}.` : "";
+  return ["Parkeerverbod", `${delen.join(" · ")}.${reden} Zelfde straat en dezelfde dagen als een fase van de werfzone; A-Sign zet bij een parkeerverbod geen dossiernummer.`];
 }
 // Wat GIPOD over de werf van een werfzone zegt: de soort uit de tekst van de beheerder of de fasen, anders de fasen
 // die iets zeggen (faseDoelen). Leeg als GIPOD alleen genummerde fasen heeft.
@@ -1001,20 +1037,36 @@ function werfKaartBewaard(e, opties) {
 function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag = "" }) {
   const work = e.item || {};
   const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]));
-  // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing), anders geen.
+  // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
+  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Verhuislift of levering"), zoals op de losse
+  // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
+  // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
+  const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";
   const opnieuw = echteSoort(f) ? null : soortVanWerk({ omschrijving: f.omschrijving, fasen: (f.fasen || []).map((x) => x.naam), eigenaar: f.opdrachtgever });
-  const feiten = !opnieuw ? f : { ...f, soort: opnieuw.soort, soortBron: opnieuw.soort ? opnieuw.bron : "" };
+  const feiten = !opnieuw ? f : opnieuw.soort ? { ...f, soort: opnieuw.soort, soortBron: opnieuw.bron, ...(innameSoort && innameSoort !== opnieuw.soort ? { innameSoort } : {}) }
+    : innameSoort ? f : { ...f, soort: "", soortBron: "" };
   const k = werkKaartje(work, { vandaag, feiten, werf: { dossier: dossiers[0] } });
-  const doel = werfDoel(feiten);
-  const werfzoneRegel = (z) => ["Werfzone", [...(z.regels || []).map(([a, b]) => (/ (?:in|via)$/.test(a) ? `${a} ${b}` : `${a}: ${b}`)), z.time ? z.timeText : "", `A-Sign, dossier ${cleanText(z.item?.reference)}`].filter(Boolean).join(" · ")];
+  const doel = werfDoel(feiten) || (innameSoort && feiten.soort === innameSoort ? { kort: kleineLetter(innameSoort), lijst: [innameSoort], bron: f.soortBron } : null);
+  // De werfzone zoals haar losse kaart ze beschreef: hoe ze de straat raakt ("De werfzone ligt in je straat; het verkeer
+  // wordt omgeleid"), waar, de fasen, de uren, de status in A-Sign en het dossiernummer.
+  const relatie = (z) => cleanText(z.summary).split(/(?<=\.)\s+/)[0].replace(/\.$/, "");
+  const werfzoneRegel = (z) => ["Werfzone", [relatie(z), ...(z.regels || []).map(([a, b]) => (/ (?:in|via)$/.test(a) ? `${a} ${b}` : `${a}: ${b}`)), z.time ? z.timeText : "",
+    z.status ? `status in A-Sign: ${kleineLetter(cleanText(z.status))}` : "", `A-Sign, dossier ${cleanText(z.item?.reference)}`].filter(Boolean).join(" · ")];
   const extra = [...sgw.map(werfzoneRegel), ...(parkeer.length ? [parkeerRegel(parkeer, vandaag)] : [])];
   const titels = new Set(sgw.map((z) => z.title));
   const zone = !sgw.length ? "" : titels.has("Werfzone met omleiding") || (titels.has("Werfzone") && titels.has("Omleiding")) ? "werfzone en omleiding" : titels.has("Omleiding") ? "omleiding" : "werfzone";
   const met = [zone, parkeer.length ? (parkeer.length === 1 ? "parkeerverbod" : "parkeerverboden") : ""].filter(Boolean);
   const samenvatting = [k.samenvatting, met.length ? `Met ${met.join(" en ")} (A-Sign).` : ""].filter(Boolean).join(" ");
+  // Alle straten van de losse kaarten samen (het werk, de werfzone en de omleiding, de parkeerverboden): de losse kaarten
+  // toonden ze ("Toon alle 25 straten"); de werfkaart toont ze ingeklapt (uitlegTemplate in site/place-view.js).
+  const alleStraten = sorteerNl([...(feiten.straten || []), ...(e.straten || []), ...sgw.flatMap((z) => z.straten || []), ...parkeer.flatMap((p) => p.straten || (p.item?.streets || []).map((x) => x?.name))]);
+  const samengevoegd = (sgw.length || parkeer.length) && alleStraten.length > 1;
+  const stratenErbij = samengevoegd && alleStraten.length > 3 ? { straten: alleStraten } : {};
+  // Tot drie straten toont de kaart geen ingeklapte lijst: dan staan ze in een eigen regel.
+  if (samengevoegd && alleStraten.length <= 3) extra.push(["Straten", `${alleStraten.join(", ")} (het werk, de werfzone en de parkeerverboden samen)`]);
   return {
-    ...e, title: k.titel, summary: samenvatting, location: k.plek || e.location,
-    uitleg: { ...k, samenvatting, regels: [...k.regels, ...extra] },
+    ...e, title: k.titel, summary: samenvatting, location: k.plek || e.location, ...stratenErbij,
+    uitleg: { ...k, samenvatting, regels: [...k.regels, ...extra], ...(stratenErbij.straten ? { stratenNoot: "De straten van het werk, van de werfzone en de omleiding, en van de parkeerverboden." } : {}) },
     werf: { dossier: dossiers[0], ...(dossiers.length > 1 ? { dossiers } : {}), werfzone: sgw[0]?.uid || "", parkeerverboden: parkeer.map((p) => cleanText(p.item?.reference)).filter(Boolean) },
     // Voor de buurtkaart: de vorm van de werfzone en de plaatsen van de parkeerverboden bij het punt van het werk.
     werfRijen: [...sgw.flatMap((z) => z.rijen || [z.item]), ...parkeer.flatMap((p) => p.rijen || [p.item])].filter(Boolean),
@@ -1032,6 +1084,11 @@ function werfzoneMetWerf(e, { dossier, gipod = null, parkeer = [], vandaag = "" 
   if (parkeer.length) regels.push(parkeerRegel(parkeer, vandaag));
   const uit = { ...e, regels, werf: { dossier, gipodId: gipod?.gipodId || null, parkeerverboden: parkeer.map((p) => cleanText(p.item?.reference)).filter(Boolean) } };
   if (parkeer.length) uit.rijen = [...(e.rijen || []), ...parkeer.flatMap((p) => p.rijen || [p.item])];
+  // De straten van de parkeerverboden erbij (hun losse kaart toonde ze).
+  if (parkeer.length) {
+    const samen = sorteerNl([...(e.straten || []), ...parkeer.flatMap((p) => p.straten || (p.item?.streets || []).map((x) => x?.name))]);
+    if (samen.length > (e.straten || []).length) uit.straten = samen;
+  }
   if (!doel) return uit;
   // Het waarvoor staat in GIPOD: geen zin meer dat de stad het niet publiceert.
   // Ligt de straat alleen op de omleiding, dan is het voor die straat een omleiding (werfzoneEntry zet dan de locatie
@@ -1464,7 +1521,8 @@ export function verrijkMetContext(entries = [], { straat = "", vandaag = "", age
 // pijltjes koos. Zo werd "Vosstraat" (Borgerhout) met Enter de Gasstraat (vaagheidsplan 12-10-2026).
 export const enterOpent = (suggestie, { pijltjes = false } = {}) => Boolean(suggestie?.place) && (pijltjes || suggestie.match !== "fuzzy");
 
-export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [] } = {}) {
+const straatasVan = (index) => (index?.byName instanceof Map ? (naam) => index.byName.has(locationKey(naam)) || index.byName.has(foldText(naam)) : null);
+export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [], isStraat = null } = {}) {
   const first = rows[0] || {};
   const live = evenementFeiten(alle);
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
@@ -1479,7 +1537,10 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
   // Bewaarde omschrijvingen gaan opnieuw door de filter (geen huisnummer, geen naam), met de straten van het dossier.
   const bewaardeStraten = [...(bewaard?.straten || []), ...live.straten];
-  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten }))].filter(Boolean))];
+  // Met de straatas (isStraat), zoals de verversing ze filterde: anders viel een plek met twee straatnamen weg
+  // ("Quinten Matsijslei - Van Eycklei", nakijkronde 13 oktober 2026).
+  const straatas = typeof isStraat === "function" ? isStraat : straatasVan(index);
+  const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten, isStraat: straatas }))].filter(Boolean))];
   // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
   // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet).
   const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(beschrijvingen);
@@ -1674,6 +1735,27 @@ export function maakStratenFilter({ bron, refsVoorNaam = () => null, tel = null 
     },
   };
 }
+// Eén stratenlijst per item voor tonen én filteren (agenda-view.js, setStreetLists), voor de plekpagina en de
+// vaagheidsmeter samen (nakijkbevinding: de meter telde de werken langs hun werfzone en de evenementendossiers langs
+// hun parcours niet mee, de browser wel). Een evenementendossier: de straten van zijn dossier (stratenFilter.refsVan);
+// een agendapunt uit de dossiers: al zijn straten (stratenVanAgendapunt); een werk: de straat van zijn punt plus die
+// van zijn werfzone (kaart-uitleg.json, vlakStraten). Anders null: dan de straten van het item zelf.
+// `uitleg` en `straat` mogen functies zijn (de browser laadt kaart-uitleg.json later; de gekozen straat verandert).
+export function straatLijstenVoor({ stratenFilter, uitleg = null, straat = "" } = {}) {
+  const waarde = (v) => (typeof v === "function" ? v() : v);
+  return (item) => {
+    if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) return stratenFilter.refsVan(item.reference, waarde(straat) || "");
+    const agendaStraten = stratenVanAgendapunt(item);
+    if (agendaStraten.length) return stratenFilter.naarRefs(agendaStraten);
+    const vlak = !item?.kind && item?.gipodId != null ? waarde(uitleg)?.werken?.[item.gipodId]?.vlakStraten : null;
+    if (Array.isArray(vlak) && vlak.length) {
+      const eigen = Array.isArray(item.streets) ? item.streets : [];
+      const al = new Set(eigen.map((r) => locationKey(r?.name)));
+      return [...eigen, ...stratenFilter.naarRefs(vlak.filter((n) => !al.has(locationKey(n))))];
+    }
+    return null;
+  };
+}
 // "langs", "kruist" of "" voor de gekozen straat.
 export function straatRelatie(straat, lijst) {
   const eigen = foldText(straat);
@@ -1758,12 +1840,14 @@ const rowsStreets = (rows) => [...new Map(rows.flatMap((r) => r?.streets || []).
 // per werfzone-dossier (alle fasen samen). `straat`: de gekozen straat, die komt eerst bij "Waar".
 // `lijstVan(dossier)`: de stratenlijst die de filter ook gebruikt (place-view.js); `straal`: de straal
 // rond de gekozen straat, voor de regel "jouw straat". identiteit en agendaItems: zie evenementEntry().
-export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "", straal = 0, index = null, lijstVan = null, identiteit = null, agendaItems = [] } = {}) {
+// `isStraat(naam)`: staat die hele naam in de straatas? Voor de privacyfilter op de bewaarde omschrijvingen (een plek als
+// "Quinten Matsijslei - Van Eycklei" is een straatnaam, geen persoon). Zonder: de straatas van `index` (byName).
+export function publicSpaceEntries(rows = [], { vandaag = "", alle = rows, uitleg = null, wijkVan, straat = "", straal = 0, index = null, lijstVan = null, identiteit = null, agendaItems = [], isStraat = null } = {}) {
   if (!vandaag) return rows.map(publicSpaceEntry);
   const perDossier = bundelInnames(alle);
   const out = [];
   for (const [dossier, groep] of bundelInnames(rows)) {
-    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, straat, straal, index, lijst: lijstVan ? lijstVan(dossier) : null, identiteit, agendaItems }));
+    if (isEvenementDossier(groep[0])) out.push(evenementEntry(groep, { vandaag, alle: perDossier.get(dossier) || groep, uitleg, wijkVan, straat, straal, index, lijst: lijstVan ? lijstVan(dossier) : null, identiteit, agendaItems, isStraat }));
     else out.push(...groep.map(publicSpaceEntry));
   }
   out.push(...bundelMaatregelen(rows.filter((r) => r?.kind !== "iod"), { alle, straat, vandaag }));
@@ -1811,9 +1895,10 @@ const STATUS_NL = Object.freeze({ "in effect": "Van kracht", goedgekeurd: "Goedg
 export const statusNl = (status) => STATUS_NL[cleanText(status).toLowerCase()] || cleanText(status);
 // "Waar" bij veel straten: de gekozen straat eerst, de rest als telling ("Lange Leemstraat + 12 andere straten").
 export function waarKort(straten = [], gekozen = "") {
-  const namen = [...new Set(straten.map(cleanText).filter(Boolean))];
+  // Zonder de toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN"): die is geen deel van de naam.
+  const namen = [...new Set(straten.map((n) => zonderHomoniem(cleanText(n))).filter(Boolean))];
   if (namen.length <= 2) return namen.join(" en ");
-  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(gekozen)) : "";
+  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(zonderHomoniem(gekozen))) : "";
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
@@ -1897,11 +1982,21 @@ function werfzoneEntry(dossierRijen, { vandaag = "", straat = "" } = {}) {
     : opOmleiding ? "Je straat ligt op de omleiding; de werfzone zelf ligt elders."
       : werfzone && omleiding ? "Een werfzone op straat, met een omleiding voor het verkeer." : omleiding ? "Een omleiding voor het verkeer." : "Een werfzone op straat.";
   const deel = hier.length && hier.length < dossierRijen.length && (heelBegin !== begin || heelEinde !== einde);
+  // De fasen die de straat niet raken, blijven genoemd (nakijkronde 13 oktober 2026: de kaart zei vroeger alle fasen).
+  const hierSleutels = new Set(perioden.map(([van, tot]) => `${van}|${tot}`));
+  const andere = hier.length && hier.length < dossierRijen.length ? [...new Map(dossierRijen.map((r) => [dayOf(r.start), dayOf(r.end)]).filter(([van]) => van).map(([van, tot]) => [`${van}|${tot}`, [van, tot]])).entries()]
+    .filter(([k]) => !hierSleutels.has(k)).map(([, v]) => v)
+    // Een fase over de hele periode van de werfzone zegt niets meer dan "Hele werfzone".
+    .filter(([van, tot]) => !(deel && van === heelBegin && (tot || van) === heelEinde))
+    .sort((a, b) => a[0].localeCompare(b[0]) || a[1].localeCompare(b[1])) : [];
+  const andereLijst = `${andere.slice(0, MAX_FASEN).map(([van, tot]) => kortePeriode(van, tot, vandaag)).join(" · ")}${andere.length > MAX_FASEN ? ` · en nog ${andere.length - MAX_FASEN}` : ""}`;
+  const andereTekst = deel && andere.length ? `; andere fasen: ${andereLijst}` : "";
   const regels = [
     ...(werfStraten.length ? [["Werfzone in", waarKort(werfStraten, straat)]] : []),
     ...(omlStraten.length ? [["Omleiding via", waarKort(omlStraten, straat)]] : []),
     ...(perioden.length > 1 ? [[`${perioden.length} fasen${deel ? " in je straat" : ""}`, `${lijst}${rest}`]] : []),
-    ...(deel ? [["Hele werfzone", `${kortePeriode(heelBegin, heelEinde, vandaag)} (in je straat alleen op de dagen van deze kaart)`]] : []),
+    ...(deel ? [["Hele werfzone", `${kortePeriode(heelBegin, heelEinde, vandaag)} (in je straat alleen op de dagen van deze kaart${andereTekst})`]] : []),
+    ...(!deel && andere.length ? [["Andere fasen van de werfzone", `${andereLijst} (niet in je straat)`]] : []),
   ];
   // Een werfzone van één dag: de uren uit A-Sign (begin en einde van de fasen), zoals "van 9.00 tot 15.00 uur".
   // Meer vensters op die dag: het vroegste uur, en ze allemaal in de tekst.

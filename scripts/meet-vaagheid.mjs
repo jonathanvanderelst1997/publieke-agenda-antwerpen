@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { VAAGHEID_FILE, nietAanvaardeStijgingen, vaagheidVanAgendapunt, vaagheidVanKaart, vatSamen, vergelijk } from "../lib/vaagheid.mjs";
+import { METINGEN, VAAGHEID_FILE, nietAanvaardeStijgingen, vaagheidVanAgendapunt, vaagheidVanKaart, vatSamen, vergelijk } from "../lib/vaagheid.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lees = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
@@ -58,7 +58,7 @@ export function invoerVingerafdruk({ straten = STRATEN_TOETS } = {}) {
   };
   const bronnen = fs.readdirSync(path.join(root, "site", "sources")).filter((n) => n.endsWith(".json") && n !== VAAGHEID_FILE).sort();
   for (const n of bronnen) voeg(`site/sources/${n}`);
-  for (const rel of ["site/geo/straten.json", "site/geo/wijken.geo.json", "site/geo/locaties.json", "site/straat-index.json"]) voeg(rel);
+  for (const rel of ["site/geo/straten.json", "site/geo/wijken.geo.json", "site/geo/locaties.json", "site/straat-index.json", "site/geo/straten-stad.json"]) voeg(rel);
   const stratenDoc = JSON.parse(fs.readFileSync(path.join(root, "site", "geo", "straten.json"), "utf8"));
   for (const [naam, postcode] of straten) {
     const ref = stratenDoc.streets.find(([, n, p]) => n === naam && String(p) === postcode) || stratenDoc.streets.find(([, n]) => n === naam);
@@ -111,7 +111,7 @@ export function detailVanKaart(e, d = {}, { kaartIndeling, bezoekersHint }) {
   if (u) {
     const { regels, dossier, bron, technisch } = kaartIndeling(u, { reference: e.reference, straten: (e.straten || []).length });
     uit.push(...regels.map(([k, v]) => `${k}: ${v}`), ...dossier.zichtbaar, ...dossier.dicht, ...bron.map(([k, v]) => `${k}: ${v}`), technisch, u.stratenNoot, u.voetnoot, u.bronTekst);
-    if (u.ontbreekt?.length) uit.push(`Niet in de bron: ${u.ontbreekt.join(" · ")}.`);
+    if (u.ontbreekt?.length) uit.push(`${u.ontbreektKop || "Niet in de bron"}: ${u.ontbreekt.join(" · ")}.`);
   } else if (!d.eigenDetail) {
     uit.push(e.info, e.timeText, e.status ? `Status: ${e.status}` : "");
   }
@@ -125,6 +125,21 @@ const soortVan = (e) => (e.source === "publicSpace" ? `publicSpace:${e.item?.kin
 
 export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
   const PC = await import("../site/place-core.js");
+  const { isEvenementDossier } = await import("../site/kaart-uitleg.js");
+  // De stratenlijsten zoals de plekpagina van een oudere code ze maakte (de basis in scripts/vaagheid-tegen-basis.mjs):
+  // dezelfde regels als straatLijstenVoor in place-core.js, inline in place-view.js van toen.
+  const straatLijstenZoalsVroeger = ({ stratenFilter, uitleg: u, straat }) => (item) => {
+    if (item?.kind === "iod" && isEvenementDossier(item) && item.reference) return stratenFilter.refsVan(item.reference, straat);
+    const agendaStraten = typeof PC.stratenVanAgendapunt === "function" ? PC.stratenVanAgendapunt(item) : [];
+    if (agendaStraten.length) return stratenFilter.naarRefs(agendaStraten);
+    const vlak = !item?.kind && item?.gipodId != null ? u?.werken?.[item.gipodId]?.vlakStraten : null;
+    if (Array.isArray(vlak) && vlak.length) {
+      const eigen = Array.isArray(item.streets) ? item.streets : [];
+      const al = new Set(eigen.map((r) => locationKey(r?.name)));
+      return [...eigen, ...stratenFilter.naarRefs(vlak.filter((n) => !al.has(locationKey(n))))];
+    }
+    return null;
+  };
   const { lagenUitStand } = await import("../site/straat-snapshot.js");
   const { duidelijkeKaart } = await import("../site/permit-clarity.js");
   const { leesbaarUur, bezoekersHint } = await import("../site/bezoekers-bronnen.js");
@@ -153,7 +168,7 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
   const agendaItems = (typeof U.markeerWekelijkseReeksen === "function" ? U.markeerWekelijkseReeksen(metSoort) : metSoort).map((i) => ({ ...i, category: U.categoryOf(i) }));
   const straatIndex = lees("site/straat-index.json");
 
-  const perStraat = {}, alle = [], regelsIngeklapt = [];
+  const perStraat = {}, alle = [], regelsIngeklapt = [], dagRijen = [];
   for (const [naam, postcode] of straten) {
     const ref = (byName.get(locationKey(naam)) || []).find((r) => r.postcode === postcode) || (byName.get(locationKey(naam)) || [])[0];
     if (!ref) { perStraat[naam] = { fout: "straat niet in de straatas" }; continue; }
@@ -164,21 +179,25 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
       const e = geo.entries?.[locationKey(address || item?.address || "")];
       return e?.street ? (byName.get(locationKey(e.street)) || []).filter((r) => !e.postcode || r.postcode === String(e.postcode)) : [];
     });
-    // Zoals place-view.js (setStreetLists): een agendapunt uit de evenementendossiers hangt aan al zijn straten.
-    // Een oudere code (de basis in scripts/vaagheid-tegen-basis.mjs) kent die functie misschien niet: dan niet.
-    if (typeof PC.stratenVanAgendapunt === "function") view.setStreetLists((item) => {
+    const bestand = path.join(root, "site", "straat", `${ref.id}.json`);
+    const doc = straatIndex.straten?.[ref.id] && fs.existsSync(bestand) ? JSON.parse(fs.readFileSync(bestand, "utf8")) : null;
+    const live = lagenUitStand(doc ? { doc } : null, { inzage, vandaag });
+    // Zoals place-view.js (setStreetLists, straatLijstenVoor): een evenementendossier langs zijn dossierstraten, een
+    // agendapunt uit de dossiers aan al zijn straten, een werk ook langs zijn werfzone. Een oudere code (de basis in
+    // scripts/vaagheid-tegen-basis.mjs) kent die functies misschien niet: dan wat ze wel kent.
+    if (typeof PC.maakStratenFilter === "function") {
+      const stratenFilter = PC.maakStratenFilter({ bron: () => ({ rijen: live.publicSpace, uitleg, index: null, klaar: true }), refsVoorNaam: (k) => byName.get(k) });
+      view.setStreetLists((typeof PC.straatLijstenVoor === "function" ? PC.straatLijstenVoor : straatLijstenZoalsVroeger)({ stratenFilter, uitleg, straat: naam }));
+    } else if (typeof PC.stratenVanAgendapunt === "function") view.setStreetLists((item) => {
       const namen = PC.stratenVanAgendapunt(item);
       return namen.length ? namen.flatMap((n) => byName.get(locationKey(n)) || []) : null;
     });
     view.setStreet(naam, ref);
-    const bestand = path.join(root, "site", "straat", `${ref.id}.json`);
-    const doc = straatIndex.straten?.[ref.id] && fs.existsSync(bestand) ? JSON.parse(fs.readFileSync(bestand, "utf8")) : null;
-    const live = lagenUitStand(doc ? { doc } : null, { inzage, vandaag });
     const inPlace = (rows) => rows.filter((row) => view.matchesStreet(row));
     const agendaHier = agendaItems.filter((i) => view.matchesStreet(i)).map((i) => PC.agendaEntry(i, agendaTheme(i)));
     const liveRuw = [
       ...PC.werkEntries(inPlace(live.works), { vandaag, uitleg }),
-      ...PC.publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace, uitleg, wijkVan, identiteit, agendaItems, straat: naam, straal: 0, index: null, lijstVan: null }),
+      ...PC.publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace, uitleg, wijkVan, identiteit, agendaItems, straat: naam, straal: 0, index: null, lijstVan: null, isStraat: (n) => byName.has(locationKey(n)) }),
       ...inPlace(live.permits).map((row) => PC.permitEntry(row)),
       ...PC.terrasEntries(inPlace(live.terraces)),
     ];
@@ -209,7 +228,12 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
     for (const e of lijst.losse) res.push(meet(e));
     const ledenVan = (b) => b.bundel?.leden || b.leden || [];
     for (const b of lijst.bundels) for (const lid of ledenVan(b)) res.push(meet(lid, b.uid));
-    const losse = res.filter((r) => !r.bundel);
+    // Een regel vermoedelijke studentenactiviteiten staat als één rij in de lijst van haar dag (geen ingeklapte regel
+    // onderaan): die rij telt als losse kaart, vaag zoals ze is (nakijkbevinding: een bundel van één lid telde nergens).
+    // Alleen bij de losse kaarten (de leden tellen al bij de kaarten), onder de soort van hun leden.
+    const rijen = lijst.bundels.filter((b) => (b.bundel?.soort || "") === "studenten").map((b) => ({ ...meet(b), soort: soortVan(ledenVan(b)[0] || b), rij: true }));
+    dagRijen.push(...rijen);
+    const losse = [...res.filter((r) => !r.bundel), ...rijen];
     perStraat[naam] = { kaarten: res.length, vaag: res.filter((r) => r.kern).length, losseKaarten: losse.length, losseVaag: losse.filter((r) => r.kern).length, ingeklapt: lijst.bundels.length };
     regelsIngeklapt.push(...lijst.bundels.map((b) => ({ straat: naam, uid: b.uid, soort: b.bundel?.soort || "?", titel: b.title, leden: ledenVan(b).length })));
     alle.push(...res);
@@ -219,7 +243,7 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
   const uniek = new Map(alle.map((r) => [r.uid, r]));
   sam.uniek = { kaarten: uniek.size, vaag: [...uniek.values()].filter((r) => r.kern).length };
   // Wat de bewoner als losse kaart ziet (niet in een ingeklapte bundel), per soort; en de ingeklapte regels.
-  const losse = alle.filter((r) => !r.bundel);
+  const losse = [...alle.filter((r) => !r.bundel), ...dagRijen];
   sam.losse = { kaarten: losse.length, vaag: losse.filter((r) => r.kern).length };
   for (const [soort, groep] of Object.entries(sam.perGroep)) {
     const eigen = losse.filter((r) => r.soort === soort);
@@ -234,6 +258,40 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
   return { ...sam, perStraat, voorbeelden: vb, kaarten: alle.map((r) => ({ straat: r.straat, uid: r.uid, titel: r.titel, soort: r.soort, patronen: r.patronen, kern: r.kern, ontbreekt: r.detail?.ontbreekt || 0, ...(r.bundel ? { bundel: r.bundel } : {}) })), regels: regelsIngeklapt };
 }
 
+// De straten buiten district Antwerpen uit de stratentest van 12 oktober 2026 (plan 2): de uitleg die de plekpagina
+// daar toont (site/stad-zoeken.js, watDeSiteKent): de markten van de stad en het districtsnieuws van dat district, met
+// hun titel, uur en plaats. Een oudere code (de basis in scripts/vaagheid-tegen-basis.mjs) kent die uitleg niet: dan
+// geen meting (null), en de vergelijking slaat ze over.
+export const BUITEN_TOETS = Object.freeze([
+  ["De Villegasstraat", "2600"], ["Walemstraat", "2600"], ["Turnhoutsebaan", "2100"], ["Vosstraat", "2140"], ["Generaal De Wetstraat", "2140"],
+  ["Herentalsebaan", "2100"], ["Arenaplein", "2100"], ["Bist", "2610"], ["Boomsesteenweg", "2610"], ["Kioskplaats", "2660"],
+  ["Sint-Bernardsesteenweg", "2660"], ["Statiestraat", "2180"], ["Bredabaan", "2170"], ["Kristus-Koningplein", "2180"], ["Botermarkt", "2040"],
+]);
+export async function meetBuiten(feed, vandaag, { straten = BUITEN_TOETS } = {}) {
+  if (!fs.existsSync(path.join(root, "site", "stad-zoeken.js")) || !fs.existsSync(path.join(root, "site", "geo", "straten-stad.json"))) return null;
+  const SZ = await import("../site/stad-zoeken.js");
+  const PC = await import("../site/place-core.js");
+  const { wijkFeatures, bboxOf } = await import("../site/neighborhood-core.js");
+  if (typeof SZ.watDeSiteKent !== "function" || typeof SZ.resolveBuiten !== "function") return null;
+  const wijken = wijkFeatures(lees("site/geo/wijken.geo.json")).filter((f) => f.properties.code.startsWith("ANT"));
+  const index = PC.buildPlaceIndex({ streets: lees("site/geo/straten.json").streets, wijken: wijken.map((f) => ({ code: f.properties.code, naam: f.properties.naam, box: bboxOf(f.geometry) })) });
+  const stad = SZ.zoekIndex(index, lees("site/geo/straten-stad.json"));
+  const items = feed.items || [];
+  const res = [], perStraat = {};
+  for (const [naam, postcode] of straten) {
+    const place = SZ.resolveBuiten(stad, `${naam} ${postcode}`);
+    if (!place?.district) { perStraat[naam] = { fout: "niet gevonden" }; continue; }
+    const { markten, nieuws } = SZ.watDeSiteKent(place.district, items, vandaag, { index: stad, straat: place.type === "buiten" ? place.name : "" });
+    const eigen = [
+      ...markten.map((m) => ({ ...vaagheidVanKaart({ titel: m.title, uur: m.dagen?.[0]?.uur || "", regels: [m.location] }), sourceId: "stad-markten" })),
+      ...nieuws.map((n) => ({ ...vaagheidVanKaart({ titel: n.title, uur: n.uur || "", regels: [n.location].filter(Boolean) }), sourceId: "stad-districten" })),
+    ];
+    perStraat[naam] = { items: eigen.length, vaag: eigen.filter((r) => r.kern).length };
+    res.push(...eigen);
+  }
+  return { ...vatSamen(res), perStraat };
+}
+
 // De hele meting, deterministisch: "vandaag" is de classificatiedag van de feed (geen klok).
 export async function meetAlles({ vandaag = null } = {}) {
   const feed = feedItems();
@@ -245,18 +303,19 @@ export async function meetAlles({ vandaag = null } = {}) {
   const t2 = performance.now();
   const eventpaginas = meetEventpaginas(feed, dag);
   const t3 = performance.now();
-  return { schema: "vaagheid/1", vandaag: dag, invoer: invoerVingerafdruk(), code: codeVingerafdruk(), agenda, eventpaginas, straten, duur: { agendaMs: Math.round(t1 - t0), stratenMs: Math.round(t2 - t1), eventpaginasMs: Math.round(t3 - t2) } };
+  const buiten = await meetBuiten(feed, dag);
+  return { schema: "vaagheid/1", vandaag: dag, invoer: invoerVingerafdruk(), code: codeVingerafdruk(), agenda, eventpaginas, straten, ...(buiten ? { buiten } : {}), duur: { agendaMs: Math.round(t1 - t0), stratenMs: Math.round(t2 - t1), eventpaginasMs: Math.round(t3 - t2) } };
 }
 
 // De vergelijking met een vorige meting, met de vingerafdrukken van die meting (vorige.invoer en vorige.code).
 export function vergelijkMet(uit, vorige) {
   if (!vorige) return null;
-  return { vorige: { invoer: vorige.invoer || null, code: vorige.code || null }, ...Object.fromEntries(["agenda", "eventpaginas", "straten"].map((k) => [k, vergelijk(uit[k], vorige[k])])) };
+  return { vorige: { invoer: vorige.invoer || null, code: vorige.code || null }, ...Object.fromEntries(METINGEN.filter((k) => uit[k]).map((k) => [k, vergelijk(uit[k], vorige[k])])) };
 }
 // Elke stijging uit een vergelijking als aanvaarde stijging met dezelfde reden (--aanvaard "<reden>").
 export function aanvaardAlles(vergelijking, reden) {
   const uit = [];
-  for (const k of ["agenda", "eventpaginas", "straten"]) {
+  for (const k of METINGEN) {
     const v = vergelijking?.[k];
     if (!v || v.ok) continue;
     for (const g of v.gestegen || []) uit.push({ waar: k, id: g.id, van: g.van, naar: g.naar, reden });
@@ -268,7 +327,7 @@ export function aanvaardAlles(vergelijking, reden) {
 // geen duur (die verschilt per machine). Zo blijft het bestand klein en zonder vrije brontekst.
 export function opslagVorm(meting) {
   const kort = ({ voorbeelden, kaarten, regels, ...rest }) => rest;
-  return { schema: meting.schema, vandaag: meting.vandaag, invoer: meting.invoer, ...(meting.code ? { code: meting.code } : {}), agenda: kort(meting.agenda), eventpaginas: kort(meting.eventpaginas), straten: kort(meting.straten) };
+  return { schema: meting.schema, vandaag: meting.vandaag, invoer: meting.invoer, ...(meting.code ? { code: meting.code } : {}), agenda: kort(meting.agenda), eventpaginas: kort(meting.eventpaginas), straten: kort(meting.straten), ...(meting.buiten ? { buiten: kort(meting.buiten) } : {}) };
 }
 
 // Eén markdowntabel voor de PR-tekst en de samenvatting van de run (en voor brain_status via de Gateway).
@@ -281,7 +340,8 @@ export function meldingTabel(doc) {
     return `| ${naam} | ${m.vaag}/${m.items} (${m.aandeel}%) | ${v?.stijging == null ? "eerste meting" : `${v.stijging >= 0 ? "+" : ""}${v.stijging} pp${v.gestegen?.length ? `; ${v.gestegen.map((g) => `${g.id} ${g.van}->${g.naar}`).join(", ")}` : ""}`} | ${top} | ${detail} | ${verboden} |`;
   };
   return ["| Waar | Vaag | T.o.v. vorige verversing | Grootste patronen | Detail | Verboden zinnen |", "|---|---|---|---|---|---|",
-    rij("agenda", "Agendalijst"), rij("eventpaginas", "Eventpagina's"), rij("straten", `Plekpagina (${Object.keys(doc.straten.perStraat || {}).length} vaste straten)`)].join("\n");
+    rij("agenda", "Agendalijst"), rij("eventpaginas", "Eventpagina's"), rij("straten", `Plekpagina (${Object.keys(doc.straten.perStraat || {}).length} vaste straten)`),
+    ...(doc.buiten ? [rij("buiten", `Uitleg buiten district Antwerpen (${Object.keys(doc.buiten.perStraat || {}).length} straten)`)] : [])].join("\n");
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url) && process.argv.includes("--melding")) {
@@ -290,9 +350,9 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const tabel = meldingTabel(doc);
   console.log(tabel);
   if (process.env.GITHUB_STEP_SUMMARY) fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `### Vaagheid\n\n${tabel}\n`);
-  for (const k of ["agenda", "eventpaginas", "straten"]) { const v = doc.vergelijking?.[k]; if (v && v.ok === false) console.log(`::warning title=Vaagheid gestegen (${k})::+${v.stijging} pp; ${(v.gestegen || []).map((g) => `${g.id} ${g.van}->${g.naar}`).join(", ")}`); }
+  for (const k of METINGEN) { const v = doc.vergelijking?.[k]; if (v && v.ok === false) console.log(`::warning title=Vaagheid gestegen (${k})::+${v.stijging} pp; ${(v.gestegen || []).map((g) => `${g.id} ${g.van}->${g.naar}`).join(", ")}`); }
   // Een verboden zin ("naam volgt", "volgt zodra", "naam onbekend" in een titel) hoort nergens te staan.
-  for (const k of ["agenda", "eventpaginas", "straten"]) {
+  for (const k of METINGEN) {
     const v = Object.entries(doc[k]?.verboden || {});
     if (v.length) console.log(`::warning title=Verboden zinnen (${k})::${v.map(([id, n]) => `${id} ${n}`).join(", ")}`);
   }
@@ -321,13 +381,13 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     const tekst = JSON.stringify(uit, null, 1);
     if (arg("--uit")) fs.writeFileSync(arg("--uit"), `${tekst}\n`); else if (!process.argv.includes("--schrijf")) console.log(tekst);
     // Eén regel per meting, voor de log van de verversing en de PR-tekst.
-    for (const k of ["agenda", "eventpaginas", "straten"]) {
+    for (const k of METINGEN.filter((x) => uit[x])) {
       const v = uit.vergelijking?.[k];
       const verboden = Object.entries(uit[k].verboden || {}).map(([id, n]) => `${id} ${n}`).join(", ");
       console.error(`vaagheid ${k}: ${uit[k].vaag}/${uit[k].items} vaag (${uit[k].aandeel}%), detail: ${uit[k].detail.meerDanEen} met meer dan één ontbreekt-zin${verboden ? `, verboden: ${verboden}` : ""}${v?.stijging != null ? `, ${v.stijging >= 0 ? "+" : ""}${v.stijging} pp` : ""}${v?.gestegen?.length ? `; gestegen: ${v.gestegen.map((g) => `${g.id} ${g.van}->${g.naar}`).join(", ")}` : ""}`);
     }
     // --streng (CI): exitcode 1 bij een stijging. Zonder: alleen melden (de verversing gaat altijd door).
-    if (process.argv.includes("--streng") && uit.vergelijking && ["agenda", "eventpaginas", "straten"].some((k) => uit.vergelijking[k] && !uit.vergelijking[k].ok)) process.exitCode = 1;
+    if (process.argv.includes("--streng") && uit.vergelijking && METINGEN.some((k) => uit.vergelijking[k] && !uit.vergelijking[k].ok)) process.exitCode = 1;
   } catch (error) {
     // Een fout in de meter breekt de verversing niet: de vorige meting blijft staan (de ratel ziet dan aan de
     // vingerafdruk dat ze niet bij deze data hoort).
