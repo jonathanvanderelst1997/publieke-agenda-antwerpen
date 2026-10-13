@@ -31,6 +31,20 @@ function zonderNummerwoord(straat){
   return uit;
 }
 // `straatnamen`: optioneel, de officiële straatnamen (bv. uit de stratenlijst van het district).
+// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod kan preciezer zijn dan het
+// bewaarde straatbestand. Dit adres wordt alleen live getoond; de historiek en snapshots
+// blijven verplicht geschoond. Geen naam, bus, hoekwaarde of onzekere bron erbij verzinnen.
+export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = null) {
+  const raw = String(bronAdres ?? "").replace(/\s+/g, " ").trim().slice(0, 220);
+  const m = /^(.*?)\s+([1-9]\d{0,3}[a-z]{0,2})\s*[-–]\s*([1-9]\d{0,3}[a-z]{0,2})\s+(\d{4})\s+Antwerpen$/i.exec(raw);
+  if (!m || adresZonderHuisnummer(raw, straatnamen) !== geschoondAdres) return "";
+  const begin = Number(m[2].match(/^\d+/)[0]), eind = Number(m[3].match(/^\d+/)[0]);
+  if (eind < begin || eind - begin > 300) return "";
+  const bereik = m[2].toLowerCase() === m[3].toLowerCase() ? m[2] : `${m[2]}–${m[3]}`;
+  const leesbaar = `${m[1]} ${bereik}, ${m[4]} Antwerpen`;
+  return adresZonderHuisnummer(leesbaar, straatnamen) === geschoondAdres ? leesbaar : "";
+}
+
 export function adresZonderHuisnummer(adres,straatnamen=null){
   const tekst=String(adres??"").replace(/\s+/g," ").trim().slice(0,220);if(!tekst)return"";
   const bekendeStraat=(straat)=>{const v=vouw(straat);return cijferStraten(straatnamen).find(([sleutel])=>v===sleutel||v.startsWith(`${sleutel} `))?.[1]||""};

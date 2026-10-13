@@ -1,4 +1,5 @@
-import {dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
+import {PUBLIC_PARKING_STATUSES,dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
+import { publiekParkeerAdres } from "./adres-privacy.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -86,12 +87,22 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
   const perAdres=new Map();
   const straatVan=adres=>{if(!streetIndex)return{streets:[],confidence:"unresolved",distanceMeters:null};if(!perAdres.has(adres))perAdres.set(adres,resolveAddressStreet(adres,streetIndex));return perAdres.get(adres)};
   const out=[],vormen=vormenPerSleutel(features,parkingKey);
+  // Alleen de officiële goedgekeurde bronrijen tellen. Dit adres komt niet in opslag:
+  // de archief- en straatbouwers maken de locatie direct weer nummerloos.
+  const liveAdres = new Map();
+  for (const f of features) {
+    const r = attrs(f), key = parkingKey(r);
+    if (!key || !PUBLIC_PARKING_STATUSES.has(String(r.Status || "").trim())) continue;
+    const geschoond = normalizeParking(r, { straatnamen });
+    const specifiek = publiekParkeerAdres(r.Adres, geschoond.address, straatnamen);
+    if (specifiek && !liveAdres.has(key)) liveAdres.set(key, specifiek);
+  }
   for(const n of publicOnly(dedupeByKey(features.map(attrs),r=>normalizeParking(r,{straatnamen})))){
     if(binnen&&n.postcode&&!binnen.has(n.postcode))continue;
     const r=straatVan(n.address);
     out.push({
       id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:n.reason||"Tijdelijk parkeerverbod",
-      location:n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
+      location:liveAdres.get(n.key)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
       detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
       // Voor de kaart in gewone taal (place-core.js): de reden zoals de stad ze schrijft, de uren en een
       // GIPOD-id als de stad er een geeft. De historiek (lib/live-history.mjs) bewaart deze velden niet.
