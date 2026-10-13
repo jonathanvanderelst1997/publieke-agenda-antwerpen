@@ -12,7 +12,8 @@ test("dubbel of ongeldig blokkeert, lopend meerdaags item telt mee",()=>{
 });
 test("technische links en onbekende tijd worden gemeten, nooit verzonnen",()=>{
  const i=event({sourceId:"district-asign-evenementen",title:"naam onbekend",timeText:"",
-   sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"});
+   sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+   link:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"});
  const r=controleerAgendaInhoud(data([i]));assert.equal(r.ok,true);
  assert.equal(r.metrieken.technischeLinkZonderBezoekerslink,1);
  assert.equal(r.metrieken.onbekendeUren,1);assert.equal(r.metrieken.onzekereTitels,1);
