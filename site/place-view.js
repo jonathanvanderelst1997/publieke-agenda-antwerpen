@@ -24,6 +24,7 @@ import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.j
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 import { sameStreet } from "./agenda-view.js";
 import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, aanvullenMetOchtend, metStratenVanDeOchtend, verschil, standZin } from "./straat-snapshot.js";
+import { bewaardeStraten, isBewaardeStraat, wisselBewaardeStraat } from "./bewaarde-straten.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -173,6 +174,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     <div class="pv-quick" aria-label="Snel kiezen">
       <button type="button" class="pv-quick-locate"><span aria-hidden="true">◎</span> Mijn buurt</button>
       <span class="pv-quick-list"></span>
+    </div>
+    <div class="pv-bewaard" aria-label="Mijn bewaarde straten">
+      <strong class="pv-bewaard-kop">Bewaarde straten</strong>
+      <div class="pv-bewaard-list"></div>
+      <p class="pv-bewaard-status" aria-live="polite">Hier bewaren we alleen officiële straatnamen op je toestel. Geen huisnummer of account.</p>
     </div>`;
   controls.replaceChildren(hero);
   controls.classList.add("pv-controls");
@@ -186,6 +192,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   hero.querySelector(".pv-search-slot").replaceWith(search);
   const $h = (s) => hero.querySelector(s);
   const listbox = $h("#pv-suggestions"), help = $h("#pv-search-help"), clearBtn = $h(".pv-search-clear"), quickList = $h(".pv-quick-list"), locateBtn = $h(".pv-quick-locate");
+  const bewaardList = $h(".pv-bewaard-list"), bewaardStatus = $h(".pv-bewaard-status");
+  const plaatsOpslag = (() => { try { return window.localStorage; } catch { return null; } })();
 
   const section = document.createElement("section");
   section.id = "plek";
@@ -259,6 +267,31 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   // ---- gegevens: straten, wijken, locaties ----
   let index = null, staticIndex = null, liveIndex = null, wijken = [], geo = { entries: {} }, refsByName = new Map();
+  function toonBewaardeStraten() {
+    bewaardList.replaceChildren();
+    const plekken = bewaardeStraten(index, plaatsOpslag);
+    if (!plekken.length) {
+      const leeg = document.createElement("span");
+      leeg.className = "pv-bewaard-leeg";
+      leeg.textContent = "Nog geen straten bewaard.";
+      bewaardList.append(leeg);
+      return;
+    }
+    for (const plek of plekken) {
+      const knop = document.createElement("button");
+      knop.type = "button";
+      knop.className = "pv-bewaard-chip";
+      knop.dataset.plekKey = plek.key;
+      knop.textContent = plek.label + " · " + plek.postcode;
+      knop.setAttribute("aria-label", "Ga naar bewaarde straat " + plek.label + ", " + plek.postcode);
+      bewaardList.append(knop);
+    }
+  }
+  bewaardList.addEventListener("click", (event) => {
+    const knop = event.target.closest("[data-plek-key]");
+    const plek = index?.byKey?.get(knop?.dataset.plekKey);
+    if (plek?.type === "straat") applyPlace(plek, { focusResults: true });
+  });
   try {
     const [straten, wijkDoc, geoDoc] = await Promise.all([
       getJson("/geo/straten.json"),
@@ -696,6 +729,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
         <h2 class="pv-place-name">${esc(place.label)}</h2>
         <div class="pv-place-actions">
+          ${place.type === "straat" ? '<button type="button" class="pv-btn pv-btn-ghost pv-save" aria-pressed="' + isBewaardeStraat(plaatsOpslag, place) + '">' + (isBewaardeStraat(plaatsOpslag, place) ? "Bewaard ✓" : "Bewaar straat") + '</button>' : ""}
           <button type="button" class="pv-btn pv-share" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
@@ -715,6 +749,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ${(() => { const s = place.type === "straat" ? snelZin() : null; return s?.zin ? `<p class="pv-place-loading pv-stand" role="status">${s.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(s.zin)}</p>` : ""; })()}`;
   }
   placeBox.addEventListener("click", (event) => {
+    if (event.target.closest(".pv-save")) {
+      const uitkomst = wisselBewaardeStraat(index, plaatsOpslag, state.place);
+      bewaardStatus.textContent = uitkomst.message;
+      toonBewaardeStraten();
+      render();
+      return;
+    }
     const r = event.target.closest("[data-radius]");
     if (r) { state.radius = Number(r.dataset.radius); view.setArea({ radius: state.radius }); announce(); snelVoorStraat(state.place, { alleenLive: true }); return; }
     const p = event.target.closest("[data-place]");
@@ -1415,6 +1456,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   // ---- startplek uit de URL ----
   renderQuick();
+  toonBewaardeStraten();
   let initial = null;
   if (index) {
     if (url.searchParams.get("plek")) initial = resolvePlaceParam(index, url.searchParams.get("plek"));
