@@ -131,14 +131,15 @@ test("open evenementkaart: het parcours vooraan in 'In het dossier', de parkeerv
   assert.equal(typeof pv.kaartIndeling, "function", "place-view.js kent kaartIndeling");
   const rijen = [
     { ...parkeerRij, description: "Parkeerverbod langs het parcours" },
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "Parcours volwassenen 10 km" },
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "Parcours jeugd 5 km" },
+    // Kleine letters: "Parcours" met een hoofdletter vooraan kan een naam zijn (tests/vaag-eind-slot.test.mjs).
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "parcours volwassenen 10 km" },
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "parcours jeugd 5 km" },
     { ...parkeerRij, id: `iod:${DOSSIER}|F1|I6`, description: "Parkeerverbod aan de start" },
     { ...parkeerRij, id: `iod:${DOSSIER}|F1|I7`, description: "Parkeerverbod aan de finish" },
   ];
   const e = pc.evenementEntry(rijen, opties);
   assert.ok(Array.isArray(e.uitleg.kern), "de evenementkaart van #140");
   const { dossier } = pv.kaartIndeling(e.uitleg, { reference: e.reference, straten: e.straten.length });
-  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: Parcours volwassenen 10 km", "Parcours: Parcours jeugd 5 km"]);
+  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: parcours volwassenen 10 km", "Parcours: parcours jeugd 5 km"]);
   assert.ok(dossier.dicht.length >= 2 && dossier.dicht.every((b) => /^Parkeerverbod/.test(b)), JSON.stringify(dossier));
 });

@@ -92,6 +92,10 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   // officiële bron het wel heeft (bij de evenementendossiers van A-Sign staat er nooit een uur).
   "eventpagina-uur": { zin: "Geen uur in de bron.", meter: "uur-niet-in-bron", kern: true, waar: "agenda" },
   "eventpagina-plaats": { zin: "Geen plaats in de bron.", meter: "plek-niet-in-bron", kern: true, waar: "agenda" },
+  // Bij een bericht, een kalender of een besluit vond onze lezer geen uur of plaats; of de officiële pagina er een
+  // noemt, is niet nagekeken. Dan alleen wat vaststaat, en waar het staat (eventpaginaZin).
+  "eventpagina-uur-gezocht": { zin: "Geen uur gevonden; zie de officiële bron.", meter: "uur-niet-in-bron", kern: true, waar: "agenda" },
+  "eventpagina-plaats-gezocht": { zin: "Geen plaats gevonden; zie de officiële bron.", meter: "plek-niet-in-bron", kern: true, waar: "agenda" },
   // Het districtsnieuws van een ander district (site/stad-zoeken.js): een bericht zonder plaats of uur zegt dat (nakijkronde
   // 13 oktober 2026: "Ontdek de pracht van Muisbroek tijdens de EkeRun!" stond er zonder plaats, uur of zin).
   "nieuws-plaats-uur": { zin: "Plaats en uur staan niet in het bericht.", meter: "plek-niet-in-bron", kern: true, waar: "lijst" },
@@ -103,6 +107,16 @@ export const ONBEKEND_ZINNEN = Object.freeze({
 
 // De zin met een id, met {naam} ingevuld. Een onbekend id is een fout in de code: dan gooit de functie, zodat een
 // toets het meteen ziet (en de site nooit een lege of verzonnen zin toont).
+// Bronnen die nooit een uur of een plaats geven (het veld bestaat er niet): de evenementendossiers van A-Sign (alleen
+// dagen) en de lijst van de koopzondagen. Alleen daar zegt een eventpagina "Geen uur in de bron."; bij elke andere bron
+// (een bericht, een kalender, een besluit) is het alleen zeker dat onze lezer er geen vond (laatste nakijkronde van 13
+// oktober 2026: "Geen uur in de bron." stond ook bij artikels waarvan niemand de officiële pagina had nagekeken).
+export const BRONNEN_ZONDER_UUR = Object.freeze(["district-asign-evenementen", "stad-koopzondagen"]);
+// De zin voor een eventpagina zonder uur (`soort` "uur") of plaats ("plaats"), voor een item van bron `bronId`.
+export function eventpaginaZin(soort, bronId = "") {
+  const vast = BRONNEN_ZONDER_UUR.includes(String(bronId || ""));
+  return onbekendZin(`eventpagina-${soort === "plaats" ? "plaats" : "uur"}${vast ? "" : "-gezocht"}`);
+}
 export function onbekendZin(id, vars = {}) {
   const z = ONBEKEND_ZINNEN[id];
   if (!z) throw new Error(`onbekende onbekend-zin: ${id}`);

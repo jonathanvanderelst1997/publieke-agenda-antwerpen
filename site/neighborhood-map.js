@@ -145,12 +145,19 @@ export function werkKaarten(werken = [], werfPerStuk = null) {
 // De buurtkaart (P9) geeft wat ze tekende per soort mee (kaartLagen in kaart-lagen.js): `opKaart` (alle
 // getekende kaartjes), `werkenGetekend` (werken en verkeershinder) en `ander` (evenementen op straat en
 // vergunningen). Zonder die getallen telt de zin de werken zelf (`werken`, `werfPerStuk`).
-export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, metPlek = false, lijstAantal = null } = {}) {
+// `lijstItems`: hoeveel items die regels samen zijn (een ingeklapte regel "4 terrassen" is 4 items, lijstTelling in
+// place-core.js). Verschilt dat van het aantal regels, dan zegt de zin beide, in de eenheid van het getal boven de lijst
+// ("N items uit officiële bronnen"): anders stonden er twee getallen voor dezelfde lijst (nakijkronde 13 oktober 2026:
+// "49 items uit officiële bronnen" boven de lijst en "21 in de lijst" onder de kaart).
+export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, metPlek = false, lijstAantal = null, lijstItems = null } = {}) {
   const metWerken = werkenAan && werkenGeladen;
   const works = Number.isInteger(werkenGetekend) ? werkenGetekend : werkKaarten(werken, werfPerStuk);
   const totaal = Number.isInteger(opKaart) ? opKaart : mapped + (metWerken ? works : 0) + ander;
+  const inLijst = Number.isInteger(lijstItems) && lijstItems !== lijstAantal
+    ? `${lijstAantal} ${lijstAantal === 1 ? "regel" : "regels"} in de lijst (samen ${lijstItems} ${lijstItems === 1 ? "item" : "items"})`
+    : `${lijstAantal} in de lijst`;
   const parts = Number.isInteger(lijstAantal) && metPlek
-    ? [`${lijstAantal} in de lijst, ${totaal} op de kaart in ${where}`]
+    ? [`${inLijst}, ${totaal} op de kaart in ${where}`]
     : [
       `${mapped} agendapunt${mapped === 1 ? "" : "en"} op de kaart in ${where}`,
       ...(metWerken || (Number.isInteger(werkenGetekend) && works > 0) ? [`${works} werken en hinder`] : []),
@@ -709,7 +716,7 @@ export async function mountNeighborhoodMap(view) {
     meldingEl.textContent = balk;
     meldingEl.hidden = !balk;
     if (!laatste) return;
-    const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal });
+    const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal, lijstItems: lijstStand?.items });
     status.textContent = melding ? `${zin} ${melding}` : zin;
   }
   let pending = 0;

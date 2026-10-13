@@ -542,8 +542,12 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     return {
       legenda, lijst,
       sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]),
-      // Een ingeklapte bundel is één kaart in de legenda, maar haar leden zijn elk een item boven de lijst ("4×").
-      bundelExtra: (window.PUBLIC_AGENDA_KAART?.tel?.items ?? 0) - (window.PUBLIC_AGENDA_KAART?.tel?.totaal ?? 0),
+      // Een ingeklapte bundel is één kaart in de legenda, maar haar leden zijn elk een item boven de lijst. Los nageteld uit
+      // de lijst zelf, niet uit hetzelfde tel-object (laatste nakijkronde van 13 oktober 2026): de "N×" van elke bundel.
+      bundelExtra: [...new Map([...document.querySelectorAll(".pv-results .pv-row.pv-bundel")].map((b) => [b.dataset.tel, Number((b.querySelector(".pv-row-when")?.textContent || "").match(/^(\d+)×/)?.[1] || 1)])).values()].reduce((n, x) => n + x - 1, 0),
+      itemsUitLijst: new Set([...document.querySelectorAll(".pv-results [data-soort]")].filter((el) => !el.closest(".pv-bundel-leden") && !el.classList.contains("pv-bundel")).map((el) => el.dataset.tel)).size
+        + [...new Map([...document.querySelectorAll(".pv-results .pv-row.pv-bundel")].map((b) => [b.dataset.tel, Number((b.querySelector(".pv-row-when")?.textContent || "").match(/^(\d+)×/)?.[1] || 1)])).values()].reduce((n, x) => n + x, 0),
+      status: document.querySelector("#buurtkaart .buurt-status")?.textContent || "",
       cats: [...document.querySelectorAll(".pv-results .pv-row[data-soort]")].filter((r) => r.dataset.soort !== "agenda").map((r) => [r.dataset.soort, [...r.classList].find((c) => c.startsWith("cat-"))]),
       rijen: document.querySelectorAll(".pv-results .pv-row").length,
       hint: document.querySelector("#buurtkaart .buurt-leg-hint")?.textContent || "",
@@ -577,6 +581,10 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       assert.deepEqual(m.legenda, m.lijst, `${weg}: legenda en lijst per soort`);
       // De legenda telt kaarten (een bundel één keer), het getal boven de lijst items (de leden van een bundel apart).
       assert.equal(Object.values(m.legenda).reduce((a, b) => a + b, 0) + m.bundelExtra, m.sub, `${weg}: de som van de legenda, met de leden van de bundels, is het getal boven de lijst`);
+      // Het getal boven de lijst, los nageteld uit wat de lijst toont: elke regel één keer, een bundel met haar leden.
+      assert.equal(m.itemsUitLijst, m.sub, `${weg}: het getal boven de lijst is wat de lijst toont, met de leden van de bundels`);
+      // Onder de kaart dezelfde items: met een bundel "N regels in de lijst (samen M items)", met M het getal boven de lijst.
+      if (m.bundelExtra > 0) assert.match(m.status, new RegExp(`^\\d+ regels in de lijst \\(samen ${m.sub} items\\), `), `${weg}: ${m.status}`);
       if (opties.bronnen === "volledig") for (const s of ["evenement", "werken", "verkeer", "vergunning"]) assert.ok(m.legenda[s] > 0, `${weg}: ${s}`);
       for (const [soort, cat] of m.cats) assert.equal(cat, CAT_VAN[soort], `${weg}: een rij ${soort} heeft de kleur van de legenda`);
       assert.match(m.hint, /De lijst blijft volledig/);
@@ -617,7 +625,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await page.waitForFunction(() => ["werken", "evenement", "verkeer", "vergunning"].every((s) => document.querySelector(`#buurtkaart path.kaart-${s}`)), null, { timeout: 15000 })
       .catch(async () => assert.fail(`niet elke soort op de kaart: ${await page.evaluate(() => [...document.querySelectorAll("#buurtkaart path.kaart-obj")].map((p) => p.getAttribute("class")).join(" | "))}`));
     const zin = await page.locator(".buurt-status").innerText();
-    assert.match(zin, /^\d+ in de lijst, \d+ op de kaart in /);
+    assert.match(zin, /^\d+ (?:in de lijst|regels? in de lijst \(samen \d+ items?\)), \d+ op de kaart in /);
     const opKaart = Number(await page.locator(".buurt-map").getAttribute("data-op-kaart"));
     assert.ok(opKaart > 0, `data-op-kaart ${opKaart}`);
     // Kaartverzoeken naar buiten: Leaflet (2) en de tegels van OpenStreetMap (geweigerd). Geen MapLibre.
@@ -691,7 +699,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const knoppen = [...document.querySelectorAll("#buurtkaart [data-kaartsoort]")].filter((b) => !b.hidden);
     const zinnen = knoppen.map((b) => `${b.querySelector(".pv-chip-n").textContent}${b.querySelector(".buurt-vh").textContent}`);
     const status = document.querySelector("#buurtkaart .buurt-status")?.textContent || "";
-    const getallen = [...new Set([...zinnen, status].flatMap((z) => [...z.matchAll(/(\d+) in de lijst/g)].map((m) => Number(m[1]))))];
+    // "N in de lijst", of met een ingeklapte regel "N regels in de lijst (samen M items)": één getal "in de lijst".
+    const getallen = [...new Set([...zinnen, status].flatMap((z) => [...z.matchAll(/(\d+) (?:regels? )?in de lijst/g)].map((m) => Number(m[1]))))];
     // Een ingeklapte bundel is één kaart in de legenda; boven de lijst telt elk lid als item (telPerSoort: items).
     const bundelExtra = (window.PUBLIC_AGENDA_KAART?.tel?.items ?? 0) - (window.PUBLIC_AGENDA_KAART?.tel?.totaal ?? 0);
     return { zinnen, status, getallen, som: knoppen.reduce((n, b) => n + Number(b.querySelector(".pv-chip-n").textContent), 0) + bundelExtra, sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]) };
@@ -717,7 +726,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       const m = await kaartTellers(page);
       t.diagnostic(`${stap}: ${JSON.stringify(m)}`);
       assert.ok(m.getallen.length === 1, `${stap}: getallen "in de lijst": ${JSON.stringify(m)}`);
-      assert.match(m.status, /^\d+ in de lijst, \d+ op de kaart in Kammenstraat/, stap);
+      assert.match(m.status, /^\d+ (?:in de lijst|regels? in de lijst \(samen \d+ items?\)), \d+ op de kaart in Kammenstraat/, stap);
       for (const z of m.zinnen) assert.match(z, /^\d+ op deze plek, (\d+|verborgen) op de kaart$/, stap);
       assert.equal(m.som, m.sub, `${stap}: de legenda telt wat er op deze plek is, zoals het getal boven de lijst`);
     }
@@ -1061,7 +1070,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       const teksten = [status, nogeo.textContent, ...[...document.querySelectorAll("#buurtkaart [data-kaartsoort]:not([hidden])")].map((b) => b.textContent)];
       return {
         status, kop: nogeo.querySelector("summary").textContent, knoppen: nogeo.querySelectorAll("[data-open-uid]").length, rest: nogeo.querySelector("li:last-child")?.textContent || "",
-        getallen: [...new Set(teksten.flatMap((z) => [...z.matchAll(/(\d+) in de lijst/g)].map((x) => Number(x[1]))))],
+        getallen: [...new Set(teksten.flatMap((z) => [...z.matchAll(/(\d+) (?:regels? )?in de lijst/g)].map((x) => Number(x[1]))))],
       };
     });
     t.diagnostic(JSON.stringify(m));
@@ -1070,7 +1079,18 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.doesNotMatch(m.rest, /in de lijst/, "het getal onder de 40 kaartjes zonder plek is niet wat de lijst toont");
     assert.equal(m.getallen.length, 1, `getallen "in de lijst": ${JSON.stringify(m)}`);
     const z = Number(m.kop.match(/\((\d+)\)/)?.[1]);
-    assert.match(m.status, new RegExp(`^\\d+ in de lijst, \\d+ op de kaart in Kammenstraat · ${z} hier zonder vaste plek\\.$`));
+    // Met een ingeklapte regel (een bundel) zegt de zin ook hoeveel items de regels samen zijn (kaartStatusZin), los
+    // nageteld uit de lijst: elke regel, en een bundel met haar "N×" leden (laatste nakijkronde van 13 oktober 2026).
+    const lijst = await page.evaluate(() => {
+      const rijen = [...document.querySelectorAll(".pv-results .pv-row, .pv-results .pv-markets > li")].filter((el) => !el.closest(".pv-bundel-leden"));
+      const bundels = rijen.filter((el) => el.classList.contains("pv-bundel")).map((b) => Number((b.querySelector(".pv-row-when")?.textContent || "").match(/^(\d+)×/)?.[1] || 1));
+      return { regels: rijen.length, items: rijen.length + bundels.reduce((n, x) => n + x - 1, 0), bundels: bundels.length, meer: document.querySelectorAll(".pv-results [data-laad-meer]").length };
+    });
+    t.diagnostic(JSON.stringify(lijst));
+    assert.equal(lijst.meer, 0, "de hele lijst staat er");
+    assert.ok(lijst.bundels > 0, "deze proef heeft een ingeklapte regel");
+    assert.ok(m.status.startsWith(`${lijst.regels} regels in de lijst (samen ${lijst.items} items), `), `${m.status} | ${JSON.stringify(lijst)}`);
+    assert.match(m.status, new RegExp(`^\\d+ (?:in de lijst|regels? in de lijst \\(samen \\d+ items?\\)), \\d+ op de kaart in Kammenstraat · ${z} hier zonder vaste plek\\.$`));
     assert.deepEqual(errors, []);
     await context.close();
   });

@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-12",
  "invoer": "07c8f77742a9b100",
- "code": "07a00be736267905",
+ "code": "b7249beb98259831",
  "agenda": {
   "items": 806,
   "vaag": 82,
@@ -683,7 +683,7 @@
  "vergelijking": {
   "vorige": {
    "invoer": "07c8f77742a9b100",
-   "code": "a4eee6972f8814ae"
+   "code": "07a00be736267905"
   },
   "agenda": {
    "ok": true,
@@ -697,24 +697,13 @@
   },
   "straten": {
    "ok": true,
-   "stijging": -1.3,
+   "stijging": 0,
    "gestegen": []
   },
   "buiten": {
-   "ok": false,
-   "stijging": 42.9,
-   "gestegen": [
-    {
-     "id": "plek-niet-in-bron",
-     "van": 0,
-     "naar": 30
-    },
-    {
-     "id": "uur-niet-in-bron",
-     "van": 0,
-     "naar": 18
-    }
-   ]
+   "ok": true,
+   "stijging": 0,
+   "gestegen": []
   }
  },
  "aanvaard": [
@@ -723,7 +712,7 @@
    "id": "uur-niet-in-bron",
    "van": 0,
    "naar": 84,
-   "reden": "Stap 6 van het vaagheidsplan: een eventpagina zonder uur in de bron zegt \"Geen uur in de bron.\" (site/onbekend-zinnen.js) in plaats van de belofte \"Uur via de officiële bron\" (uur-via-bron 84 -> 0); dezelfde 84 pagina's, even vaag, zonder belofte."
+   "reden": "Stap 6 van het vaagheidsplan: een eventpagina zonder uur in de bron zegt \"Geen uur in de bron.\" (site/onbekend-zinnen.js) in plaats van de belofte \"Uur via de officiële bron\" (uur-via-bron 84 -> 0); dezelfde 84 pagina's, even vaag, zonder belofte. Sinds de laatste nakijkronde van 13 oktober 2026 zegt een pagina van een bericht, kalender of besluit \"Geen uur gevonden; zie de officiële bron.\" (zelfde patroon, zelfde pagina's): alleen A-Sign en de koopzondagen geven nooit een uur."
   },
   {
    "waar": "straten",

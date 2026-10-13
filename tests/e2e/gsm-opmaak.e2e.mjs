@@ -67,8 +67,9 @@ const parcoursStraten = [STRAAT, ...straten.filter((r) => r[2] === "2060" && r[1
 function parcoursRijen(dagen = 8) {
   const dag = addDays(today, dagen);
   const onderdelen = [
-    ["Parcours", "Parcours volwassenen 10 km"], ["Parcours", "Parcours jeugd 5 km"], ["Parkeerverbod", "Parkeerverbod langs het parcours"],
-    ["Omleiding", "Omleiding voor fietsers tijdens de wedstrijd"], ["Parkeerverbod", "Servicepunt aan de start"], ["Parcours", "Ronde voor de jeugd, halve ronde"],
+    // Kleine letters: een gewoon woord met een hoofdletter vooraan ("Parcours", "Ronde") kan een naam zijn (privacyfilter).
+    ["Parcours", "parcours volwassenen 10 km"], ["Parcours", "parcours jeugd 5 km"], ["Parkeerverbod", "Parkeerverbod langs het parcours"],
+    ["Omleiding", "omleiding voor fietsers tijdens de wedstrijd"], ["Parkeerverbod", "Servicepunt aan de start"], ["Parcours", "ronde voor de jeugd, halve ronde"],
   ];
   return onderdelen.map(([type, beschrijving], i) => ({
     id: `iod:${DOSSIER}|${i + 1}|${i + 1}`, kind: "iod", kindLabel: "Inname openbaar domein", title: type, innameType: type,
@@ -264,7 +265,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     }, DOSSIER);
     // Welk parcours: elk parcoursdeel uit het dossier staat zichtbaar (Jonathan: "welke race, welk parcours"),
     // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt.
-    for (const deel of ["Parcours volwassenen 10 km", "Parcours jeugd 5 km", "Ronde voor de jeugd, halve ronde", "Omleiding voor fietsers tijdens de wedstrijd"]) assert.match(zicht.tekst, new RegExp(deel), deel);
+    for (const deel of ["parcours volwassenen 10 km", "parcours jeugd 5 km", "ronde voor de jeugd, halve ronde", "omleiding voor fietsers tijdens de wedstrijd"]) assert.match(zicht.tekst, new RegExp(deel), deel);
     assert.doesNotMatch(zicht.tekst, /Parkeerverbod langs het parcours|Servicepunt aan de start/);
     assert.ok(zicht.knoppen.includes("Toon de 2 parkeerverboden uit het dossier"), zicht.knoppen.join(" | "));
     for (const label of ["Wat", "Wanneer", "Waar"]) assert.ok(zicht.labels.includes(label), `${label} zichtbaar: ${zicht.labels.join(", ")}`);

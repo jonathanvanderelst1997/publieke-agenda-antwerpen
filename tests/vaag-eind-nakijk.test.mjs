@@ -10,7 +10,7 @@ import fs from "node:fs";
 
 import {
   agendaEntry, agendaStraten, bundelLijst, bundelSoort, dezeWeek, groupForList, lijstUniversum, parkeerKopZin, periodRange, permitEntry,
-  plekSubTekst, publicSpaceEntries, publicSpaceEntry, samenWerven, telPerSoort, terrasEntries, urenVanDag, verrijkMetContext, werkEntries,
+  plekSubTekst, publicSpaceEntries, publicSpaceEntry, samenWerven, telPerSoort, terrasEntries, urenVanDag, urenVanWerk, verrijkMetContext, werkEntries,
 } from "../site/place-core.js";
 import { leesbaarUur } from "../site/bezoekers-bronnen.js";
 import { bruikbareBeschrijving, evenementFeiten, evenementKaartje, lijktPersoonsnaam } from "../site/kaart-uitleg.js";
@@ -120,10 +120,13 @@ test("wat niet in het evenementendossier staat: ook op een kaart met een kern, e
 
 test("een uur in de tekst is nooit 'Uur onbekend'", () => {
   const punt = (timeText, extra = {}) => ({ start: "2099-03-14", timeText, item: { timeSlot: "Info", timeText }, ...extra });
-  assert.equal(leesbaarUur(punt("kratstapelen op het Proefplein van 12 tot 17 uur; muzikanten in de namiddag")), "12.00");
-  assert.equal(leesbaarUur(punt("optocht van 15 tot 15.30 uur")), "15.00");
-  assert.equal(leesbaarUur(punt("9 tot 12 uur, met aansluitend een toonmoment")), "9.00");
-  assert.equal(leesbaarUur(punt("deuren om 20u30")), "20.30");
+  // Een uur van een deel van het item ("kratstapelen op het Proefplein") is geen beginuur van het hele item: "Zie uren"
+  // (laatste nakijkronde, tests/vaag-eind-slot.test.mjs). Nooit "Uur onbekend".
+  assert.equal(leesbaarUur(punt("kratstapelen op het Proefplein van 12 tot 17 uur; muzikanten in de namiddag")), "Zie uren");
+  assert.equal(leesbaarUur(punt("optocht van 15 tot 15.30 uur")), "Zie uren");
+  assert.equal(leesbaarUur(punt("9 tot 12 uur, met aansluitend een toonmoment")), "09.00");
+  assert.equal(leesbaarUur(punt("deuren om 20u30")), "Zie uren");
+  assert.equal(leesbaarUur(punt("om 20u30")), "20.30");
   assert.equal(leesbaarUur(punt("")), "Uur onbekend");
   assert.equal(leesbaarUur(punt("op 3 plekken in 2099")), "Uur onbekend", "een aantal of een jaartal is geen uur");
   assert.equal(leesbaarUur(punt("van 12 tot 17 uur", { time: "10:00" })), "10.00", "een echt uur van de bron gaat voor");
@@ -139,8 +142,9 @@ test("ook gepland hier die dag: geen jaardossier (60 dagen of langer) als contex
 });
 
 test("een werk dat om middernacht UTC begint, krijgt geen verzonnen beginuur", () => {
-  assert.equal(urenVanDag("2099-12-01T00:00:00Z", "2099-12-01T18:00:00Z"), null);
-  assert.equal(urenVanDag("2099-11-04T00:00:00.000Z", "2099-11-04T21:59:00Z"), null);
+  // Alleen voor GIPOD-werken (urenVanWerk); een A-Sign-fase om 00:00Z houdt haar nachtuur (tests/vaag-eind-slot.test.mjs).
+  assert.equal(urenVanWerk("2099-12-01T00:00:00Z", "2099-12-01T18:00:00Z"), null);
+  assert.equal(urenVanWerk("2099-11-04T00:00:00.000Z", "2099-11-04T21:59:00Z"), null);
   const [w] = werkEntries([{ gipodId: 19176027, title: "Gasleiding", owner: "Proefnet", status: "Concreet gepland", start: "2099-12-01T00:00:00Z", end: "2099-12-01T18:00:00Z", streets: [PROEF] }]);
   assert.deepEqual([w.time, w.timeText], ["", ""]);
   assert.equal(leesbaarUur(w), "Uur onbekend");
@@ -192,7 +196,8 @@ test("privacyfilter: een achternaam die met een gewoon woord begint, of een naam
     assert.equal(lijktPersoonsnaam(t), true, t);
   }
   // Trefwoorden, samenstellingen en plekken blijven.
-  for (const t of ["Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Spelletjeslocatie -> dooplocatie", "Verzamelpunt", "Tweede halte", "Kraam Proefplein", "Voor de trappen: doop", "Parkeerverbod voor hub bladslag"]) assert.equal(bruikbareBeschrijving(t), t, t);
+  // (Een los gewoon woord met een hoofdletter, "Tweede halte" of "Kraam Proefplein", kan een naam zijn: tests/vaag-eind-slot.test.mjs.)
+  for (const t of ["Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Spelletjeslocatie -> dooplocatie", "Verzamelpunt", "tweede halte", "kraam Proefplein", "Voor de trappen: doop", "Parkeerverbod voor hub bladslag"]) assert.equal(bruikbareBeschrijving(t), t, t);
   // Twee plekken met een koppelteken, met een straatnaam die met "Van" begint.
   assert.equal(bruikbareBeschrijving("Inname: Proefplein-Van De Testerstraat"), "");
   assert.equal(lijktPersoonsnaam("Proefplein-Van De Teststraat"), false);

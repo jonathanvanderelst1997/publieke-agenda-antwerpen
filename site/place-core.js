@@ -532,17 +532,20 @@ export function uurOf(value) {
 // A-Sign): { time: "07:00", timeText: "van 7.00 tot 18.00 uur" }, of { time: "", timeText: "hele dag" } voor
 // 0.00 tot 23.59. null als de bron geen uur geeft, of als het niet binnen één dag valt. Zo staat er geen
 // "Uur onbekend" bij een werfzone van 9 tot 15 uur.
-// Een begin om precies middernacht UTC ("2026-12-01T00:00:00Z") is een datum zonder uur: in Brussel werd dat
-// "01.00" of "02.00" 's nachts, een uur dat de bron niet geeft (nakijkronde 13 oktober 2026, GIPOD 19176027 op het
-// Steenplein). Dan geen uren, zoals vroeger.
-const MIDDERNACHT_UTC = /T00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)$/;
 export function urenVanDag(start, end) {
-  if (MIDDERNACHT_UTC.test(String(start ?? ""))) return null;
   const van = uurOf(start), tot = uurOf(end);
   if (!van || !tot || dayOf(start) !== dayOf(end)) return null;
   if (van <= "00:01" && tot >= "23:59") return { time: "", timeText: "hele dag" };
   if (tot <= van) return null;
   return { time: van, timeText: `van ${uurKort(van)} tot ${uurKort(tot)} uur` };
+}
+// Een GIPOD-werk: een begin om precies middernacht UTC ("2026-12-01T00:00:00Z") is daar een datum zonder uur. In Brussel
+// werd dat "01.00" of "02.00" 's nachts, een uur dat de bron niet geeft (nakijkronde 13 oktober 2026, GIPOD 19176027 op
+// het Steenplein). Dan geen uren, zoals vroeger. Niet voor A-Sign (werfzones): daar is 00:00Z in de winter een echt
+// nachtuur ("van 1.00 tot 5.00 uur", laatste nakijkronde van 13 oktober 2026).
+const MIDDERNACHT_UTC = /T00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)$/;
+export function urenVanWerk(start, end) {
+  return MIDDERNACHT_UTC.test(String(start ?? "")) ? null : urenVanDag(start, end);
 }
 const streetNames = (item) => [...new Set((item?.streets || []).map((s) => s?.name).filter(Boolean))].join(", ");
 const safeUrl = (value) => (/^https:\/\//i.test(String(value || "")) ? String(value) : "");
@@ -638,6 +641,17 @@ export function werkEntries(works = [], opties = {}) {
 // een weekmarkt met acht marktdagen is er één), een kaart uit de live lagen per uid. "X in de lijst" onder de
 // buurtkaart telt anders: de kaarten die de lijst echt toont, zoals de aantallen naast de koppen (place-view.js).
 // Een kaartje van een wekelijkse markt (marktBundelEntry) telt zoals zijn marktdagen: per titel en plek.
+// Wat de lijst toont, in regels en in items (de zin onder de buurtkaart): elke kaart is één regel; een bundel
+// (bundelLijst) is één regel en zoveel items als ze leden heeft, zoals telPerSoort ze telt voor het getal boven de lijst.
+// `lijsten`: de lijsten van kaarten die de lijst tekent (secties, markten).
+export function lijstTelling(lijsten = []) {
+  let regels = 0, items = 0;
+  for (const lijst of lijsten) for (const e of lijst || []) {
+    regels += 1;
+    items += e?.bundel?.leden?.length ? new Set(e.bundel.leden.map((l) => l?.uid || l)).size : 1;
+  }
+  return { regels, items };
+}
 export const lijstSleutel = (entry = {}) => entry.telSleutel || (entry.source === "agenda" || entry.source === "markt" ? `${entry.title}|${entry.location}` : entry.uid);
 export const lijstAantal = (entries = []) => new Set(entries.map(lijstSleutel)).size;
 // Voor de buurtkaart: de kaart tekent een punt per GIPOD-stuk, de lijst een kaart per werf (werkEntries).
@@ -1047,11 +1061,15 @@ export function samenWerven(entries = [], { uitleg = null, straat = "", vandaag 
   }
   return vervolg.length ? [...uit, ...vervolg] : uit;
 }
+// De titel van een kaart zonder de relatieve tijd achteraan ("(nog 32 dagen)", "(start over 9 dagen)", "(laatste dag
+// vandaag)", resterendeDuur in kaart-uitleg.js): op een kaart van een andere dag klopt die niet (nakijkronde 13 oktober
+// 2026, de Kammenstraat: "… tot 13 november (nog 32 dagen)" op de kaart van 31 oktober).
+export const zonderDuurStaart = (titel) => cleanText(titel).replace(/\s*\((?:nog [^()]*|start (?:over [^()]*|morgen)|laatste dag vandaag)\)\s*$/i, "").trim();
 // De kaart van een parkeerverbod dat later begint dan zijn werfkaart: wat het losse parkeerverbod zei, met de werf
 // erbij (welke, en waarom die: dezelfde straat en dagen als een fase van de werfzone).
 function vervolgParkeerverbod(p, kaart) {
   const dossier = cleanText(kaart.werf?.dossier);
-  const titel = cleanText(kaart.title);
+  const titel = zonderDuurStaart(kaart.title);
   return {
     ...p,
     title: `Parkeerverbod voor ${kaart.werfNaam || `de werf van dossier ${dossier}`}`,
@@ -1661,8 +1679,10 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   const straatas = typeof isStraat === "function" ? isStraat : straatasVan(index);
   const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten, isStraat: straatas }))].filter(Boolean))];
   // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
-  // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet).
-  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(beschrijvingen);
+  // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet). Ook uit de bewaarde
+  // omschrijvingen die de filter nu niet meer toont ("Startlocatie Doop": "Doop" kan een naam zijn): de soort is een vast
+  // woord uit de lijst, de tekst zelf gaat nergens heen (zoals de verversing de ruwe omschrijvingen leest).
+  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet([...beschrijvingen, ...(bewaard?.beschrijvingen || [])]);
   const soort = sm.soort || live.soort || bewaard?.soort || "";
   const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
   const feiten = bewaard
@@ -2138,8 +2158,8 @@ function werfzoneEntry(dossierRijen, { vandaag = "", straat = "" } = {}) {
 }
 function workEntryBasis(work) {
   const consequences = work?.hindrance?.consequences || [];
-  // Een werk van één dag: de uren uit GIPOD (begin en einde), of "hele dag".
-  const uren = urenVanDag(work?.start, work?.end);
+  // Een werk van één dag: de uren uit GIPOD (begin en einde), of "hele dag"; middernacht UTC is een datum (urenVanWerk).
+  const uren = urenVanWerk(work?.start, work?.end);
   return {
     uid: `works:${work?.gipodId}`, id: `gipod-${work?.gipodId}`, source: "works", theme: "works", group: "werken",
     title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,

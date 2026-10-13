@@ -10,7 +10,7 @@ import {
   plekWaar, legeStaatTekst, voortgangTekst, maakStratenFilter, periodeVan, evenementFase, evenementBadge, losseDagenTekst,
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
-  kaartSoort, lijstSleutel, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
+  kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
   eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, zonderHomoniem, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
@@ -1386,7 +1386,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Wat de lijst toont, in dezelfde eenheid als de aantallen naast de koppen: een kaart per kaart (een
     // activiteit op twee dagen is twee kaarten), ook wat pas bij het scrollen getekend wordt, en een kaart per
     // markt; niet wat "later gepland" is.
-    return [inspraak, running, ...days.map(([, list]) => list), doorlopend, leeg, permits, terrassen].reduce((n, lijst) => n + lijst.length, 0) + bundels.length;
+    // Een bundel is één regel maar zoveel items als ze leden heeft (lijstTelling): de buurtkaart zegt beide, zoals het
+    // getal boven de lijst items telt.
+    return lijstTelling([inspraak, running, ...days.map(([, list]) => list), doorlopend, leeg, permits, terrassen, bundels]);
   }
   // Tijdlijn over 14 dagen (vandaag inbegrepen): per dag een teken per soort, alleen op de dagen waarop er
   // echt iets gebeurt (opDag in place-core.js: losse dagen alleen op die dagen, een werfzone alleen in haar
@@ -1680,8 +1682,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // echt toont: met de periode, of de 14 dagen en de gekozen dag van de tijdlijn. De maand heeft geen lijst
   // en geeft geen aantal. Daarbij welke GIPOD-stukken samen één werf zijn, zodat de kaart haar punten per
   // kaart van de lijst telt. De laatste stand staat ook op window: een kaart die later laadt, leest ze daar.
-  function meldKaart(aantal, entries) {
-    const stand = { aantal, werfPerStuk: werfPerStuk(entries) };
+  function meldKaart(telling, entries) {
+    // `telling`: { regels, items } uit de lijst (lijstTelling), een getal uit de tijdlijn, of null in de maand.
+    const aantal = telling && typeof telling === "object" ? telling.regels : telling;
+    const items = telling && typeof telling === "object" ? telling.items : aantal;
+    const stand = { aantal, items, werfPerStuk: werfPerStuk(entries) };
     const sleutel = JSON.stringify(stand);
     if (sleutel === state.kaartMelding) return;
     state.kaartMelding = sleutel;

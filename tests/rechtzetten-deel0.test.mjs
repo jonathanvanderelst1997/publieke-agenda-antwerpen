@@ -200,7 +200,9 @@ test("0.3 privacyfilter: geen e-mail, telefoon, link, huisnummer of persoonsnaam
   assert.deepEqual(d.plekken.namen.filter((n) => ["Elisabeth", "Gummarus", "Offerande-Dambrugge"].includes(n)), []);
   // De omschrijvingen met een trefwoord (de kaart van een evenement) krijgen dezelfde filter op persoonsnamen.
   assert.equal(bruikbareBeschrijving("Startlocatie doop"), "Startlocatie doop");
-  assert.equal(bruikbareBeschrijving("Tweede Stop (Falconplein)"), "Tweede Stop (Falconplein)");
+  assert.equal(bruikbareBeschrijving("tweede stop (Falconplein)"), "tweede stop (Falconplein)");
+  // Een gewoon woord met een hoofdletter ("Tweede", "Stop") kan een achternaam zijn (nakijkronde 13 oktober 2026).
+  assert.equal(bruikbareBeschrijving("Tweede Stop (Falconplein)"), "");
   assert.equal(bruikbareBeschrijving("Doopfeest Testpersoon Voorbeeld"), "");
 });
 
@@ -238,11 +240,13 @@ test("0.3 omschrijvingen (nakijk): een losse naam naast een trefwoord, 'Van' of 
   // "Van" is geen trefwoord: een straatnaam alleen is geen omschrijving van het evenement.
   assert.equal(bruikbareBeschrijving("Van Eycklei"), "");
   // Een plek die de straatas kent, telt niet als naam: als hele straatnaam (isStraat) of als straat van de inname.
-  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)"), "");
-  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "Eerste Stop (Proefwaag)");
-  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)", { straten: [{ name: "Proefwaag" }] }), "Eerste Stop (Proefwaag)");
-  assert.equal(bruikbareBeschrijving("Wandelen van de Proefwaag naar het Falconplein", { straten: ["Proefwaag"] }), "Wandelen van de Proefwaag naar het Falconplein");
-  // Een zin die met een hoofdletter begint, is geen naam.
+  assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)"), "");
+  assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "eerste stop (Proefwaag)");
+  assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)", { straten: [{ name: "Proefwaag" }] }), "eerste stop (Proefwaag)");
+  // "Eerste" en "Stop" met een hoofdletter kunnen achternamen zijn: de straatas bewijst alleen de plek.
+  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "");
+  assert.equal(bruikbareBeschrijving("wandelen van de Proefwaag naar het Falconplein", { straten: ["Proefwaag"] }), "wandelen van de Proefwaag naar het Falconplein");
+  // Een samenstelling van gewone woorden ("Verkeersvrije": verkeer-s-vrij-e) en een klein woord ("Enkel") zijn geen naam.
   assert.equal(bruikbareBeschrijving("Verkeersvrije zone. Enkel tijdens de stoet"), "Verkeersvrije zone. Enkel tijdens de stoet");
 });
 

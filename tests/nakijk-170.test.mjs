@@ -165,7 +165,8 @@ test("7. geen huisnummer in een omschrijving: na nr, t.o.v., tegenover, thv, hui
   // Een los getal zonder uitleg: de hele omschrijving valt weg.
   assert.equal(bruikbareBeschrijving("parkeerverbod Proefstraat van 4 tot"), "");
   // Wat geen huisnummer is, blijft.
-  for (const t of ["Wandelen 5 km · stop 2 stadspark", "Parcours 10K", "parkeerverbod 12-14 okt generator", "parkeerverbod van 9u30 tot 17 uur", "kraam van 3mx3m", "12 fietsennadars"]) assert.equal(bruikbareBeschrijving(t), t, t);
+  // (Kleine letters: een gewoon woord met een hoofdletter vooraan kan een naam zijn, tests/vaag-eind-slot.test.mjs.)
+  for (const t of ["wandelen 5 km · stop 2 stadspark", "parcours 10K", "parkeerverbod 12-14 okt generator", "parkeerverbod van 9u30 tot 17 uur", "kraam van 3mx3m", "12 fietsennadars"]) assert.equal(bruikbareBeschrijving(t), t, t);
   // Een bewaarde omschrijving (kaart-uitleg.json van een oudere verversing) gaat opnieuw door de filter.
   assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"), "Parkeerverbod in Straat: parkeerverbod");
   // Het vangnet in de validatie keurt een bestand met zo'n nummer af, en het bestand van nu heeft er geen.

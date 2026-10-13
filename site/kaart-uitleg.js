@@ -869,48 +869,88 @@ export function isEvenementDossier(row = {}) {
 // Vrije tekst uit het dossier tonen we alleen als ze over het evenement gaat: een richting, een
 // halte, een afstand of een woord uit de lijst. Een losse naam ("maurits") kan een persoon zijn.
 const EVENEMENT_WOORDEN = /\b(?:stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
-// Geen persoonsnaam (docs/PUBLIC_SPACE_SOURCE_POLICY.md). Een woord met een hoofdletter dat geen trefwoord
-// ("Start", "Doopfeest", "Tweede"), geen plek met een zekere uitgang ("Falconplein", "Groenplaats") en geen klein
-// woord ("Van", "De" tussen twee namen, "Voor" aan het begin van een zin) is, kan een naam zijn. Zo'n naam mag nergens
-// staan, ook niet als eerste woord van een zin, tenzij de straatas ze dekt: een hele straatnaam
-// (`isStraat`, "Quinten Matsijslei", "Meir", "Stadswaag") of een straat van de inname zelf (`straten`, ook een
-// deel: "Gummarus" bij de Sint-Gummarusstraat). Dus weg: "Feest Testpersoon", "Doopfeest Testpersoon Voorbeeld",
-// "Startlocatie doop Testpersoon Van Proefdijk", "Start Testpersoon Voorbeeldberg". Een achternaam op een plaatsuitgang (-dijk, -berg,
-// -veld, -hof, -laan, -weg: "Van Proefdijk", "Voorbeeldberg") telt als naam, niet als plek. Afkortingen in hoofdletters
-// ("MAS", "MTS") en woorden zonder hoofdletter zijn geen naam.
+// Geen persoonsnaam (docs/PUBLIC_SPACE_SOURCE_POLICY.md). Liever een naam te veel weg dan één door: elk woord met een
+// hoofdletter kan een naam zijn, tenzij het een samenstelling van gewone woorden is ("Startlocatie", "Doopfeest",
+// "Verkeersvrije"), een plek met een zekere uitgang ("Falconplein", "Groenplaats") of een klein woord ("Van", "De" tussen
+// twee namen, "Voor" aan het begin van een zin). Ook een woord dat zelf een gewoon woord is ("Groot", "Klein", "Bus",
+// "Werf", "Doop", "Stoet", "Tweede") telt als mogelijke naam, overal in de zin: "De Groot", "familie Klein" en "Tent De
+// Bus" zijn achternamen (nakijkronde 13 oktober 2026). Zo'n naam mag nergens staan, tenzij hij als plek bewezen is: een
+// hele straatnaam in de straatas (`isStraat`, "Quinten Matsijslei", "Grote Markt", "Stadswaag"), een straat van de inname
+// zelf (`straten`; een woord dat geen gewoon woord is, ook als deel: "Gummarus" bij de Sint-Gummarusstraat, maar "Kerk"
+// is geen Kerkstraat), of een plek uit de lijst van bekende plaatsnamen (BEKENDE_PLAATSNAMEN). Dus weg: "Feest
+// Testpersoon", "Doopfeest Testpersoon Voorbeeld", "Feest bij De Groot", "Doop", "Tweede halte". Een achternaam op een
+// plaatsuitgang (-dijk, -berg, -veld, -hof, -laan, -weg: "Van Proefdijk", "Voorbeeldberg") telt als naam, niet als plek.
+// Afkortingen in hoofdletters ("MAS", "MTS") en woorden zonder hoofdletter ("doop", "grote tent") zijn geen naam.
 const NAAMWOORD = /^\p{Lu}\p{Ll}+(?:[-'’]\p{L}+)*$/u;
 // Een plek op een uitgang die geen gewone achternaam is (zie ZEKER_EINDE in lib/plaatsnaam.mjs), als samengesteld woord.
 const ZEKERE_PLAATS = /^\p{Lu}[\p{L}'’-]{2,}(?:st?traat|plein|pleintje|plaats|markt|kaai|kaaien|dok|dokken|park|station|terminus|tunnel|kerk|school|zaal|centrum)$/u;
-// Gewone woorden die met een hoofdletter kunnen staan: een trefwoord, een rangtelwoord, een soort plek. Een woord telt
-// alleen als het helemaal uit zulke stammen bestaat, met een tussenstuk ("-s-", "-en-", "-letjes-") en een uitgang
-// ("-en", "-s", "-e", "-je"): "Startlocatie", "Doopfeest", "Wandelroute", "Spelletjeslocatie". Een woord dat alleen met
-// een stam begint, is mogelijk een naam (nakijkronde 13 oktober 2026: verzonnen achternamen als "Standproefaert",
-// "Dagtesteaux" en "Parktester" begonnen met "stand", "dag" en "park" en gingen door).
+// Gewone woorden: een trefwoord, een rangtelwoord, een soort plek. Een woord met een hoofdletter telt alleen als gewoon
+// woord als het een samenstelling is van twee of meer zulke stammen, met een tussenstuk ("-s-", "-en-", "-letjes-") en
+// een uitgang ("-en", "-s", "-e", "-je"): "Startlocatie", "Doopfeest", "Wandelroute", "Spelletjeslocatie",
+// "Verkeersvrije" (verkeer-s-vrij-e). Eén stam met een uitgang ("Groot", "Groote", "Ouden", "Kleine", "Bus") is een
+// mogelijke naam. Een woord dat alleen met een stam begint, is dat ook ("Standproefaert", "Parktester").
 const STAMMEN = new Set(`start stop aankomst finish eind einde verzamel parcours wandel loop run jogging marathon fiets wieler koers stoet
-  optocht parade processie markt braderie feest kermis podium tent nadar dranghek hek parkeer verkeersvrij verkeer omleiding doop spel
-  drill dril halte jeugd volwassen ronde stand bar toog reuzenrad reuzen rad kraam kramen servicepunt service punt generator locatie
-  inname opbouw afbraak zone ingang uitgang verkoop tweede eerste derde vierde vijfde zesde zevende achtste negende tiende laatste grote
-  groot kleine klein oude oud nieuwe nieuw plein pleintje park kaai dok station metrostation premetrostation parking hoek buurt kruispunt
-  zijde kant deel fase dag nacht avond ochtend middag animatie verkeersvrije enkel alleen tijdens ook route verbod event evenement team
-  building strook wagen zaal school kerk plaats straat trap trappen pijl teken tafel stoel stoelen container lift ladder werf werken
-  correct volledig volledige hele heel tijdelijk tijdelijke bus fietsen auto`.split(/\s+/).filter(Boolean));
+  optocht parade processie markt braderie feest kermis podium tent nadar dranghek drang hek parkeer verkeersvrij verkeer vrij omleiding
+  doop spel drill dril halte jeugd volwassen ronde stand bar toog reuzenrad reuzen rad kraam kramen servicepunt service punt generator
+  locatie inname opbouw afbraak zone ingang uitgang verkoop tweede eerste derde vierde vijfde zesde zevende achtste negende tiende
+  laatste grote groot kleine klein oude oud nieuwe nieuw plein pleintje park kaai dok station metro premetro metrostation
+  premetrostation parking hoek buurt kruis kruispunt zijde kant deel fase dag nacht avond ochtend middag animatie verkeersvrije enkel
+  alleen tijdens ook route verbod event evenement team building strook wagen zaal school kerk plaats straat trap trappen pijl teken
+  tafel stoel stoelen container lift ladder werf werken correct volledig volledige hele heel tijdelijk tijdelijke bus fietsen
+  auto`.split(/\s+/).filter(Boolean));
 const TUSSEN = ["", "s", "en", "e", "letjes", "etjes", "tjes", "jes"];
 const UITGANG = new Set(["", "s", "e", "en", "n", "je", "jes", "tje", "tjes", "etje", "etjes", "letje", "letjes"]);
-function gewoonWoord(woord, diepte = 0) {
+// Uit hoeveel stammen een woord bestaat (de langste ontleding), of 0 als het geen gewoon woord is.
+function stamDelen(woord, diepte = 0) {
   const w = String(woord || "").toLowerCase();
-  if (!w || diepte > 4) return false;
+  if (!w || diepte > 4) return 0;
+  let best = 0;
   for (let i = Math.min(w.length, 16); i >= 2; i -= 1) {
     if (!STAMMEN.has(w.slice(0, i))) continue;
     const rest = w.slice(i);
-    if (UITGANG.has(rest)) return true;
-    if (TUSSEN.some((t) => rest.startsWith(t) && rest.length > t.length && gewoonWoord(rest.slice(t.length), diepte + 1))) return true;
+    if (UITGANG.has(rest)) best = Math.max(best, 1);
+    for (const t of TUSSEN) {
+      if (!rest.startsWith(t) || rest.length <= t.length) continue;
+      const n = stamDelen(rest.slice(t.length), diepte + 1);
+      if (n) best = Math.max(best, 1 + n);
+    }
   }
-  return false;
+  return best;
 }
+// Een bijvoeglijk naamwoord vooraan maakt van een samenstelling geen gewoon woord: "Oudkerk" of "Grootwerf" kan een
+// achternaam zijn.
+const BIJVOEGLIJK_VOORAAN = /^(?:groot|grote|klein|kleine|oud|oude|nieuw|nieuwe)/i;
+const samenstelling = (w) => stamDelen(w) >= 2 && !BIJVOEGLIJK_VOORAAN.test(w);
 // Kleine woorden die een zin kunnen beginnen ("Voor de trappen", "Langs de kaai"): geen naam.
-const GEEN_NAAM = /^(?:voor|achter|naast|tussen|langs|tegenover|met|zonder|na|rond|richting|via|een|alle|geen|deze|die|dit|dat|er|hier|daar|zie|enkel|alleen|ook|tot|vanaf|over|onder|boven|binnen|buiten|aan|bij|naar|op|in|uit|of|tegen|per)$/i;
+const GEEN_NAAM = /^(?:voor|achter|naast|tussen|langs|tegenover|met|zonder|na|rond|richting|via|een|alle|geen|deze|die|dit|dat|er|hier|daar|zie|enkel|alleen|ook|tot|vanaf|over|onder|boven|binnen|buiten|aan|bij|naar|op|in|uit|of|tegen|per|tijdens)$/i;
 const NAAM_PARTIKEL = /^(?:van|de|der|den|ten|ter|le|la|du|des|vande|vander|vanden|het|'t|en|op|aan|naar|tot|in|bij)$/i;
+// Een voorvoegsel van een achternaam: wat er met een hoofdletter op volgt, is altijd een mogelijke naam, ook een
+// samenstelling ("Van Standbar", "De Werfkant").
+const NAAM_VOORVOEGSEL = /^(?:van|de|der|den|ten|ter|te|le|la|du|des|vande|vander|vanden|'t)$/i;
 const straatSleutel = (v) => clean(v, 200).toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^a-z0-9]+/g, " ").trim();
+// Bekende plaatsnamen zonder straatnaam: de vaste plekken (lib/vaste-plekken.json) en de plekken van het studentencharter
+// (lib/studentencharter.json). Hier als lijst, want de filter draait ook in de browser; tests/vaag-eind-slot.test.mjs
+// houdt ze gelijk. Alleen een hele naam telt ("Park Spoor Noord"), geen los woord eruit ("Park").
+export const BEKENDE_PLAATSNAMEN = Object.freeze([
+  "Parking Spoor Oost", "Olympisch Stadion", "park Den Brandt", "park Konijnenwei", "Belvédère",
+  "Scheldekaai", "Sint-Michielskaai", "Voorplein Belvedère", "Officiersplein Fort VI", "Konijnenwei", "Luifel Schengenplein",
+  "Falconplein", "Frans Halsplein", "Veemarkt", "Ossenmarkt", "Sint-Jansplein", "Plein aan de Mutsaardstraat", "Park Spoor Noord",
+  "Spoor Oost", "Stadspark", "Theaterplein", "Sint-Jansvliet", "Sportterrein aan de Kielsevest", "Grasveld Van der Sweepstraat",
+  "Stadswaag",
+]);
+const BEKEND = new Set(BEKENDE_PLAATSNAMEN.map(straatSleutel));
+// Voor lib/plaatsnaam.mjs (dezelfde regel): is dit (ook) een gewoon woord ("Klein", "Werf", "Startlocatie")? Is dit een
+// bekende plaatsnaam ("Park Spoor Noord")?
+export const isGewoonWoord = (woord) => stamDelen(woord) > 0;
+export const isBekendePlaatsnaam = (naam) => BEKEND.has(straatSleutel(naam));
+// Een woord dat naar een persoon wijst: wat erna komt, is een naam, ook in kleine letters ("tent familie klein").
+const PERSOON_WOORD = /^(?:familie|fam|gezin|dhr|mevr|mevrouw|meneer|mijnheer|mr|mw|mej|mejuffrouw|juffrouw)$/i;
+// Een naam in hoofdletters ("TESTPERSOON", "GROOT"): als een naam met één hoofdletter nagekeken. Een afkorting van
+// hoogstens drie letters ("MAS", "MTS") blijft een afkorting.
+const HOOFDLETTERS = /^\p{Lu}{4,}(?:[-'’]\p{Lu}+)*$/u;
+// Achternamen die ook een bijvoeglijk naamwoord zijn (De Groot, De Kleine, Den Ouden, De Laatste), in kleine letters.
+const KLEINE_ACHTERNAAM = /^(?:groot|groote|grote|klein|kleine|oud|oude|ouden|nieuw|nieuwe|laatste|jong|jonge|lange|korte|wit|witte|zwart|bruin|bruyn|bruyne|rooij|rode)$/;
+const alsNaam = (w) => (HOOFDLETTERS.test(w) ? w.replace(/\p{Lu}+/gu, (d) => d[0] + d.slice(1).toLowerCase()) : w);
 export function lijktPersoonsnaam(tekst, { straten = [], isStraat = null } = {}) {
   const woorden = [];
   // Twee plekken met een koppelteken aan elkaar ("Sint-Jansplein-Van De Wervestraat"): eerst de plek, dan de rest als
@@ -922,24 +962,37 @@ export function lijktPersoonsnaam(tekst, { straten = [], isStraat = null } = {})
     }
     return [w];
   };
-  // Woorden met hun plaats in de zin: na ". " of ": " begint een nieuwe zin (een hoofdletter is daar gewoon).
+  // Woorden met hun plaats in de zin: na ". " of ": " begint een nieuwe zin.
+  // Een voorletter met punt vóór een naam ("J.Groot", "A.B.Voorbeeld") wordt los van de naam gelezen; een naam in
+  // hoofdletters als naam (alsNaam).
   for (const [i, deel] of clean(tekst, 400).split(/(?<=[.!?:])\s+/).entries()) {
-    deel.split(/[\s,;()/]+|\s[–—-]\s/).filter(Boolean).forEach((ruw, k) => {
+    deel.split(/[\s,;()/]+|\s[–—-]\s|\.(?=\p{L})/u).filter(Boolean).forEach((ruw, k) => {
       const w = ruw.replace(/^['’"(]+|['’".!?:)]+$/g, "");
-      if (w) knip(w).forEach((x, j) => woorden.push({ w: x, zinBegin: k === 0 && j === 0, zin: i }));
+      if (w) knip(alsNaam(w)).forEach((x, j) => woorden.push({ w: x, zinBegin: k === 0 && j === 0, zin: i }));
     });
   }
+  if (woorden.some((x) => PERSOON_WOORD.test(x.w))) return true;
+  // Een achternaam in kleine letters na een naampartikel, als laatste woord: "feest bij de groot", "tent van de kleine".
+  // Vóór een ander woord is het een bijvoeglijk naamwoord ("naar de grote tent").
+  if (woorden.some((x, k) => KLEINE_ACHTERNAAM.test(x.w) && /^(?:de|den|der|van|vande|vander|vanden|ter|ten)$/.test(woorden[k - 1]?.w || "")
+    && woorden[k - 1].zin === x.zin && woorden[k + 1]?.zin !== x.zin)) return true;
   const eigen = (Array.isArray(straten) ? straten : []).map((s) => straatSleutel(typeof s === "string" ? s : s?.name)).filter(Boolean);
-  // Dekt de straatas deze reeks woorden? Een hele straatnaam, of (één naam) het begin van een woord in een straat
-  // van de inname zelf.
-  const gedekt = (reeks, namen) => {
+  // Dekt de straatas of de lijst van bekende plaatsnamen deze reeks woorden? Een hele straatnaam of plaatsnaam; alleen
+  // een woord dat geen gewoon woord is (`deel`), ook als begin van een woord in een straat van de inname zelf.
+  const gedekt = (reeks, namen, deel) => {
     const sl = straatSleutel(reeks.join(" "));
     if (!sl) return false;
     if (typeof isStraat === "function" && isStraat(reeks.join(" "))) return true;
-    if (eigen.some((s) => s === sl)) return true;
-    return namen === 1 && sl.replace(/ /g, "").length >= 4 && eigen.some((s) => ` ${s}`.includes(` ${sl}`));
+    if (eigen.some((s) => s === sl) || BEKEND.has(sl)) return true;
+    return deel && namen === 1 && sl.replace(/ /g, "").length >= 4 && eigen.some((s) => ` ${s}`.includes(` ${sl}`));
   };
-  const naam = woorden.map((x) => NAAMWOORD.test(x.w) && !NAAM_PARTIKEL.test(x.w) && !GEEN_NAAM.test(x.w) && !gewoonWoord(x.w) && !ZEKERE_PLAATS.test(x.w));
+  const naam = woorden.map((x, k) => {
+    if (!NAAMWOORD.test(x.w) || NAAM_PARTIKEL.test(x.w) || GEEN_NAAM.test(x.w) || ZEKERE_PLAATS.test(x.w)) return false;
+    // Na "De", "Van", "Den" ... met een hoofdletter: een achternaam, ook als het een samenstelling is.
+    const vorige = woorden[k - 1];
+    if (vorige && vorige.zin === x.zin && /^\p{Lu}/u.test(vorige.w) && NAAM_VOORVOEGSEL.test(vorige.w)) return true;
+    return !samenstelling(x.w);
+  });
   const open = new Set(naam.flatMap((v, k) => (v ? [k] : [])));
   // Eerst de langste reeksen (binnen één zin), zodat "Theodoor Van Rijswijckplaats" als geheel telt.
   for (let lengte = Math.min(woorden.length, 5); lengte >= 1 && open.size; lengte -= 1) {
@@ -947,11 +1000,11 @@ export function lijktPersoonsnaam(tekst, { straten = [], isStraat = null } = {})
       const reeks = woorden.slice(i, i + lengte);
       if (reeks.some((x) => x.zin !== reeks[0].zin)) continue;
       const hier = [...open].filter((k) => k >= i && k < i + lengte);
-      if (hier.length && gedekt(reeks.map((x) => x.w), hier.length)) for (const k of hier) open.delete(k);
+      const deel = hier.length === 1 && stamDelen(woorden[hier[0]].w) === 0;
+      if (hier.length && gedekt(reeks.map((x) => x.w), hier.length, deel)) for (const k of hier) open.delete(k);
     }
   }
-  // Wat niet gedekt is, kan een naam zijn, ook als eerste woord van een zin (nakijkronde 13 oktober 2026: "Testpersoon
-  // feest" ging door). Een woord met een hoofdletter mag dus alleen als het een trefwoord, een plek of een klein woord is.
+  // Wat niet gedekt is, kan een naam zijn, ook als eerste woord van een zin ("Testpersoon feest", "Doop").
   return open.size > 0;
 }
 
