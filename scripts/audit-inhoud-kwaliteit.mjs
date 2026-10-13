@@ -38,8 +38,9 @@ export function controleerAgendaInhoud({feed={},werken={},status={}}={}){
 }
 export function leesInhoudBronnen(root){
  const script=fs.readFileSync(path.join(root,"site/agenda-feed.js"),"utf8");
- const prefix="window.PUBLIC_AGENDA_FEED = ";if(!script.startsWith(prefix))throw new Error("onbekend formaat agenda-feed.js");
- const feed=JSON.parse(script.slice(prefix.length).trim().replace(/;\s*$/,""));
+ const prefix="window.PUBLIC_AGENDA_FEED = ", offset=script.indexOf(prefix);
+ if(offset<0)throw new Error("onbekend formaat agenda-feed.js");
+ const feed=JSON.parse(script.slice(offset+prefix.length).trim().replace(/;\s*$/,""));
  const read=p=>JSON.parse(fs.readFileSync(path.join(root,p),"utf8"));
  return {feed,werken:read("site/sources/kaart-uitleg.json"),status:read("site/sources/refresh-status.json")};
 }
