@@ -25,7 +25,7 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "argentinielaan belfaststraat bostonstraat en 23 andere straten": {
+  "argentinielaan belfaststraat bostonstraat en 24 andere straten": {
    "point": [
     4.42611,
     51.2608
@@ -33,7 +33,7 @@
    "precision": "straat",
    "street": "Argentiniëlaan",
    "postcode": "2030",
-   "checkedOn": "2026-10-12"
+   "checkedOn": "2026-10-13"
   },
   "belegstraat broederminstraat haantjeslei en 4 andere straten": {
    "point": [
@@ -134,6 +134,16 @@
    "street": "De Coninckplein",
    "postcode": "2060",
    "checkedOn": "2026-10-12"
+  },
+  "de groene waterman wolstraat 2000 antwerpen": {
+   "point": [
+    4.40352,
+    51.22155
+   ],
+   "precision": "straat",
+   "street": "Wolstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-13"
   },
   "de villegasstraat 2600 berchem": {
    "point": [
@@ -315,16 +325,6 @@
    "postcode": "2660",
    "checkedOn": "2026-10-05"
   },
-  "kleine kauwenberg bataviastraat bonapartedok en 21 andere straten": {
-   "point": [
-    4.41202,
-    51.22418
-   ],
-   "precision": "straat",
-   "street": "Kleine Kauwenberg",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "kloosterstraat arenbergstraat armeduivelstraat en 31 andere straten": {
    "point": [
     4.3942,
@@ -425,16 +425,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "ossenmarkt hendrik conscienceplein hanzestedenplaats en 6 andere straten": {
-   "point": [
-    4.4135,
-    51.22207
-   ],
-   "precision": "straat",
-   "street": "Ossenmarkt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
     4.40911,
@@ -504,16 +494,6 @@
    "street": "Rooiplein",
    "postcode": "2600",
    "checkedOn": "2026-10-05"
-  },
-  "singel amerikalei amsterdamstraat en 42 andere straten": {
-   "point": [
-    4.39172,
-    51.20559
-   ],
-   "precision": "straat",
-   "street": "Amerikalei",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "sint franciscusplein 2170 merksem": {
    "point": [
@@ -593,16 +573,6 @@
    "precision": "straat",
    "street": "Sint-Nicolaasplaats",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "sloepenweg": {
-   "point": [
-    4.40221,
-    51.23539
-   ],
-   "precision": "straat",
-   "street": "Sloepenweg",
-   "postcode": "2030",
    "checkedOn": "2026-10-12"
   },
   "stadswaag": {
@@ -794,6 +764,7 @@
   "district antwerpen locatie via de officiele bron": "2026-10-06",
   "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-05",
   "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district deurne locatie via de officiele bron": "2026-10-13",
   "district ekeren locatie via de officiele bron": "2026-10-05",
   "district hoboken locatie via de officiele bron": "2026-10-05",
   "district merksem locatie via de officiele bron": "2026-10-05",

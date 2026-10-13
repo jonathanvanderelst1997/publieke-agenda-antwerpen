@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "eBesluit Antwerpen: goedgekeurde besluiten over evenementen, muziekactiviteiten en het Districtsfonds met een plaats in district Antwerpen, gelezen met vaste zinpatronen",
   "retrievedAt": "2026-10-12T03:23:31.289Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-evenementen-v2|2026-08-13|36|7",
   "items": [
