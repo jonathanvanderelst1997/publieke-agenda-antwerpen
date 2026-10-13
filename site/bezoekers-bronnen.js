@@ -133,11 +133,27 @@ export function bezoekersHint(e={}) {
   }
   return "";
 }
+// Het eerste uur in een tekst ("kratstapelen op de Groenplaats van 12 tot 17 uur" → "12.00", "optocht van 15 tot 15.30
+// uur" → "15.00", "om 20u30" → "20.30"), zoals UUR_IN_TEKST in lib/vaagheid.mjs een uur herkent; "" zonder uur. Eerst
+// het begin van een reeks ("12 tot 17 uur": 12, niet 17), dan een los uur.
+const UUR_REEKS=/\b(\d{1,2})(?:[.:u](\d{2}))?\s*(?:uur|u)?\s*(?:tot|-|–)\s*\d{1,2}(?:[.:u]\d{2})?\s*(?:uur|u)\b/i;
+const UUR_LOS=/\b(\d{1,2})(?:[.:u](\d{2}))?\s*(?:uur|u)\b|\b(\d{1,2})[.:u](\d{2})\b/i;
+export function eersteUurInTekst(tekst=""){
+  const t=String(tekst||"");
+  const m=UUR_REEKS.exec(t)||UUR_LOS.exec(t);
+  if(!m)return "";
+  const uur=Number(m[1]??m[3]),min=m[2]??m[4]??"00";
+  return Number.isInteger(uur)&&uur<=24&&Number(min)<60?`${uur}.${min}`:"";
+}
 export function leesbaarUur(entry={}, {multi=false,running=false}={}) {
   if(entry.time)return String(entry.time).replace(":",".");
   if(multi)return running?"Loopt":"Start";
   const slot=String(entry.item?.timeSlot||"");
   const text=String(entry.timeText||entry.item?.timeText||"");
   if(/^(hele dag|heel de dag|all day)$/i.test(slot.trim())||/^(hele dag|heel de dag)\b/i.test(text.trim()))return "Hele dag";
+  // Nooit "Uur onbekend" als de tekst een uur geeft (nakijkronde 13 oktober 2026: AAAntwerp zei "Uur onbekend" naast
+  // "kratstapelen op de Groenplaats van 12 tot 17 uur"); de hele tekst staat bij "Wanneer".
+  const uit=eersteUurInTekst(text);
+  if(uit)return uit;
   return entry.start?"Uur onbekend":"";
 }

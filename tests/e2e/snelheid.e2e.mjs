@@ -542,6 +542,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     return {
       legenda, lijst,
       sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]),
+      // Een ingeklapte bundel is één kaart in de legenda, maar haar leden zijn elk een item boven de lijst ("4×").
+      bundelExtra: (window.PUBLIC_AGENDA_KAART?.tel?.items ?? 0) - (window.PUBLIC_AGENDA_KAART?.tel?.totaal ?? 0),
       cats: [...document.querySelectorAll(".pv-results .pv-row[data-soort]")].filter((r) => r.dataset.soort !== "agenda").map((r) => [r.dataset.soort, [...r.classList].find((c) => c.startsWith("cat-"))]),
       rijen: document.querySelectorAll(".pv-results .pv-row").length,
       hint: document.querySelector("#buurtkaart .buurt-leg-hint")?.textContent || "",
@@ -573,7 +575,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       const m = await legendaEnLijst(page);
       t.diagnostic(`${weg}: ${JSON.stringify({ legenda: m.legenda, sub: m.sub })}`);
       assert.deepEqual(m.legenda, m.lijst, `${weg}: legenda en lijst per soort`);
-      assert.equal(Object.values(m.legenda).reduce((a, b) => a + b, 0), m.sub, `${weg}: de som van de legenda is het getal boven de lijst`);
+      // De legenda telt kaarten (een bundel één keer), het getal boven de lijst items (de leden van een bundel apart).
+      assert.equal(Object.values(m.legenda).reduce((a, b) => a + b, 0) + m.bundelExtra, m.sub, `${weg}: de som van de legenda, met de leden van de bundels, is het getal boven de lijst`);
       if (opties.bronnen === "volledig") for (const s of ["evenement", "werken", "verkeer", "vergunning"]) assert.ok(m.legenda[s] > 0, `${weg}: ${s}`);
       for (const [soort, cat] of m.cats) assert.equal(cat, CAT_VAN[soort], `${weg}: een rij ${soort} heeft de kleur van de legenda`);
       assert.match(m.hint, /De lijst blijft volledig/);
@@ -689,7 +692,9 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const zinnen = knoppen.map((b) => `${b.querySelector(".pv-chip-n").textContent}${b.querySelector(".buurt-vh").textContent}`);
     const status = document.querySelector("#buurtkaart .buurt-status")?.textContent || "";
     const getallen = [...new Set([...zinnen, status].flatMap((z) => [...z.matchAll(/(\d+) in de lijst/g)].map((m) => Number(m[1]))))];
-    return { zinnen, status, getallen, som: knoppen.reduce((n, b) => n + Number(b.querySelector(".pv-chip-n").textContent), 0), sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]) };
+    // Een ingeklapte bundel is één kaart in de legenda; boven de lijst telt elk lid als item (telPerSoort: items).
+    const bundelExtra = (window.PUBLIC_AGENDA_KAART?.tel?.items ?? 0) - (window.PUBLIC_AGENDA_KAART?.tel?.totaal ?? 0);
+    return { zinnen, status, getallen, som: knoppen.reduce((n, b) => n + Number(b.querySelector(".pv-chip-n").textContent), 0) + bundelExtra, sub: Number((document.querySelector(".pv-sub")?.textContent || "").match(/^(\d+) item/)?.[1]) };
   });
   const DRIE_AVONDEN = proefFeed("2099-03-10", (stempel) => ["2099-03-11", "2099-03-12", "2099-03-13"].map((dag, i) => kalenderItem(stempel, {
     id: `e2e-reeks-${i + 1}`, externalId: `e2e-reeks-${i + 1}`, title: "Proefvoorstelling in de straat (e2e)", date: dag, timeSlot: "20:00",

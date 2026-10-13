@@ -10,7 +10,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { VAAGHEID_FILE, VERBODEN_ZINNEN, ontbreektZinnen, vaagheidVanAgendapunt, vaagheidVanKaart, validateVaagheid, vatSamen, verbodenIn, vergelijk } from "../lib/vaagheid.mjs";
+import { VAAGHEID_FILE, VERBODEN_ZINNEN, ontbreektZinnen, ratelFouten, vaagheidVanAgendapunt, vaagheidVanKaart, validateVaagheid, vatSamen, verbodenIn, vergelijk } from "../lib/vaagheid.mjs";
 import { titelVan } from "../lib/asign-evenementen-agenda.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -160,12 +160,21 @@ test("ratel: deze code maakt de agenda op dezelfde data niet vager (vaste strate
     return;
   }
   const nu = opslagVorm(await meetAlles({ vandaag: opgeslagen.vandaag }));
-  for (const k of ["agenda", "eventpaginas", "straten"]) {
-    const v = vergelijk(nu[k], opgeslagen[k], { marge: 0, patroonMarge: 0 });
-    assert.ok(v.ok, `${k}: vager dan de meting in site/sources/${VAAGHEID_FILE}: ${JSON.stringify(v)}`);
-    // Minder vaag? Dan het bestand bijwerken (npm run meet:vaagheid), zodat de ratel meezakt.
-    assert.ok(nu[k].vaag >= opgeslagen[k].vaag, `${k}: minder vaag (${opgeslagen[k].vaag} -> ${nu[k].vaag}); werk site/sources/${VAAGHEID_FILE} bij met npm run meet:vaagheid`);
-  }
-  // Ook de losse vage kaarten van de plekpagina (vergelijk hierboven faalt bij een stijging): minder, dan het bestand mee.
-  if (opgeslagen.straten.losse) assert.ok(nu.straten.losse.vaag >= opgeslagen.straten.losse.vaag, `straten: minder losse vage kaarten (${opgeslagen.straten.losse.vaag} -> ${nu.straten.losse.vaag}); werk site/sources/${VAAGHEID_FILE} bij met npm run meet:vaagheid`);
+  // Elke meting in het bestand, ook "buiten" (ratelFouten in lib/vaagheid.mjs): vager faalt, minder vaag ook (dan het
+  // bestand bijwerken met npm run meet:vaagheid, zodat de ratel meezakt), ook voor de losse vage kaarten.
+  assert.deepEqual(ratelFouten(nu, opgeslagen), []);
+});
+
+test("ratel: ook de uitleg buiten district Antwerpen telt, en een meting die wegvalt faalt", () => {
+  const meting = (vaag, perPatroon = {}) => ({ items: 70, vaag, aandeel: Math.round((1000 * vaag) / 70) / 10, perPatroon, perGroep: {}, detail: { metOntbreekt: 0, meerDanEen: 0, zinnen: 0, perPatroon: {} }, verboden: {} });
+  const leeg = meting(0);
+  const opgeslagen = { agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(0) };
+  assert.deepEqual(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(0) }, opgeslagen), []);
+  // Nakijkronde 13 oktober 2026: "locatie via de officiële bron" als plaats maakte 30 van de 70 vaag, en de ratel bleef groen.
+  const fouten = ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(30, { "plek-via-bron": 30 }) }, opgeslagen);
+  assert.equal(fouten.length, 1);
+  assert.match(fouten[0], /^buiten: vager dan de meting/);
+  assert.match(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg }, opgeslagen)[0], /^buiten: staat in site\/sources\/vaagheid\.json, maar/);
+  // Een bestand zonder "buiten" (van voor die meting): niets te vergelijken.
+  assert.deepEqual(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(30) }, { agenda: leeg, eventpaginas: leeg, straten: leeg }), []);
 });

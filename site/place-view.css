@@ -485,6 +485,7 @@
 .pv-buiten-hier, .pv-buiten-volzet { display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 999px; font-size: .74rem; font-weight: 800; vertical-align: .1em; }
 .pv-buiten-hier { background: color-mix(in srgb, var(--pa-accent) 14%, var(--pa-surface)); color: var(--pa-accent); }
 .pv-buiten-volzet { background: var(--pa-warn-soft); color: var(--pa-warn); border: 1px solid var(--pa-warn-line); }
+.pv-buiten-ontbreekt { color: var(--pa-muted); font-style: italic; }
 .pv-buiten-links { margin: 6px 0 0; font-weight: 700; }
 .pv-buiten-links a { color: var(--pa-accent); text-underline-offset: 3px; }
 .pv-buiten-bron { margin: 12px 0 0; font-size: .8rem; line-height: 1.5; color: var(--pa-muted); overflow-wrap: anywhere; }

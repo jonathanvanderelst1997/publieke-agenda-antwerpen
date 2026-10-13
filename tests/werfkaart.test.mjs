@@ -68,7 +68,10 @@ test("werfzone, GIPOD-werk en parkeerverboden met dezelfde fasen: één werfkaar
   ];
   const works = [werk(501, "", { start: "2099-02-01T06:00:00Z" })];
   const kaarten = bouw({ works, rows, uitleg });
-  assert.equal(kaarten.length, 2, "één werfkaart en het parkeerverbod voor een verhuis");
+  // Eén werfkaart, het parkeerverbod voor een verhuis, en het parkeerverbod van de tweede fase op zijn eerste dag (11 april,
+  // later dan de werfkaart: nakijkronde 13 oktober 2026), met de werf erbij.
+  assert.equal(kaarten.length, 3, "één werfkaart, het parkeerverbod voor een verhuis en dat van de tweede fase");
+  assert.deepEqual(kaarten.filter((e) => e.bijWerf).map((e) => [e.uid, e.start, e.bijWerf]), [["publicSpace:parking:2099-000002|1", "2099-04-11", "works:501"]]);
   // Een volgende tekenbeurt (nieuwe kaarten uit dezelfde rijen): dezelfde werfkaart, niet opnieuw gemaakt. Een ander
   // parkeerverbod: een nieuwe.
   assert.equal(bouw({ works, rows, uitleg }).find((e) => e.source === "works"), kaarten.find((e) => e.source === "works"));

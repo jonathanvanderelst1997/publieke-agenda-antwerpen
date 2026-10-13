@@ -11,7 +11,7 @@ import {
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
-  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, zonderHomoniem, samenWerven, bundelLijst, verrijkMetContext,
+  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, zonderHomoniem, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
@@ -84,6 +84,32 @@ export function kaartIndeling(uitleg = {}, { reference = "", straten = 0 } = {})
     technisch: uitleg.technisch || "",
   };
 }
+
+// De regel die zegt wat niet in de bron staat ("Niet in het evenementendossier ET… (A-Sign): uren (A-Sign geeft alleen
+// de dag) · organisator"), in beide takken van uitlegTemplate: een kaart met een kern (elke kaart van een
+// evenementendossier) toonde ze niet (nakijkronde 13 oktober 2026). De vaagheidsmeter (scripts/meet-vaagheid.mjs) telt
+// dezelfde tekst, zodat hij meet wat de pagina toont. null als er niets ontbreekt.
+export function ontbreektRegel(uitleg = {}) {
+  const lijst = (Array.isArray(uitleg?.ontbreekt) ? uitleg.ontbreekt : []).map((x) => String(x ?? "").trim()).filter(Boolean);
+  return lijst.length ? { kop: uitleg.ontbreektKop || onbekendZin("niet-in-de-bron-kop"), tekst: `${lijst.join(" · ")}.` } : null;
+}
+// Zinnen die voor meer kaarten van een sectie gelden (onbekend-zinnen.js), één keer boven de sectie en niet op elke
+// kaart (vaagheidsplan van 12 oktober 2026, stap 5): een kaart draagt dan het id in `onbekend`. Ook de leden van een
+// bundel in die sectie tellen (nakijkronde 13 oktober 2026: in "Zonder omschrijving in de bron" stond de zin over de
+// uren van een evenementendossier nergens). De meter gebruikt dezelfde functie.
+const SECTIE_ZIN = Object.freeze({ "evenement-uren": "evenementen-uren", "aanvragen-start": "aanvragen-start", "aanvraag-ontvankelijk": "aanvragen-ontvankelijk" });
+export function sectieZinIds(entries = []) {
+  const ids = new Set();
+  for (const e of entries || []) {
+    for (const k of [e, ...(Array.isArray(e?.bundel?.leden) ? e.bundel.leden : [])]) {
+      for (const o of k?.onbekend || []) if (SECTIE_ZIN[o?.id]) ids.add(SECTIE_ZIN[o.id]);
+    }
+  }
+  return [...ids];
+}
+// Draagt de sectie van deze kaarten de zin voor dit veld (onbekend-zinnen.js, `onbekend` van een kaart)? Voor de meter:
+// een veld dat één keer per sectie staat, telt alleen als die zin er echt staat.
+export const sectieZinVoor = (o) => SECTIE_ZIN[o?.id] || "";
 
 const dayNum = (iso) => Number(iso.slice(8, 10));
 const monthOf = (iso) => Number(iso.slice(5, 7)) - 1;
@@ -875,7 +901,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ? `<ul class="pv-markets pv-buiten-lijst">${markten.map((m) => `<li class="cat-markets"><strong>${esc(m.title)}${m.inStraat ? ` <span class="pv-buiten-hier">in deze straat</span>` : ""}</strong><span>${m.dagen.length > 3 ? "Eerstvolgende marktdagen" : m.dagen.length > 1 ? "Marktdagen" : "Marktdag"}: ${esc(dagen(m))}</span><small>${esc(m.location)}</small>${marktBron(m.bron)}</li>`).join("")}</ul>`
       : `<p class="pv-day-empty">Geen komende markten van de stad in district ${esc(d.label)} in de gegevens van deze site.</p>`;
     const nieuwsLijst = nieuws.length
-      ? `<ul class="pv-markets pv-buiten-lijst">${nieuws.map((n) => `<li class="cat-other"><strong>${esc(n.title)}${n.volzet ? ` <span class="pv-buiten-volzet">volzet</span>` : ""}</strong><span>${esc(longDate(n.date))}${n.endDate && n.endDate !== n.date ? ` tot ${esc(longDate(n.endDate))}` : ""}${n.uur ? `, ${esc(n.uur)}` : ""}</span>${n.location ? `<small>${esc(n.location)}</small>` : ""}${externeLink(n.bron, "Bron: antwerpen.be")}</li>`).join("")}</ul>`
+      ? `<ul class="pv-markets pv-buiten-lijst">${nieuws.map((n) => `<li class="cat-other"><strong>${esc(n.title)}${n.volzet ? ` <span class="pv-buiten-volzet">volzet</span>` : ""}</strong><span>${esc(longDate(n.date))}${n.endDate && n.endDate !== n.date ? ` tot ${esc(longDate(n.endDate))}` : ""}${n.uur ? `, ${esc(n.uur)}` : ""}</span>${n.location ? `<small>${esc(n.location)}</small>` : ""}${n.ontbreekt ? `<small class="pv-buiten-ontbreekt">${esc(n.ontbreekt)}</small>` : ""}${externeLink(n.bron, "Bron: antwerpen.be")}</li>`).join("")}</ul>`
       : `<p class="pv-day-empty">Geen komende activiteiten uit het districtsnieuws van ${esc(d.label)} in de gegevens van deze site.</p>`;
     const bronnen = (stad.doc?.metadata?.bronnen || []).filter((b) => b.sleutel === "as" || (b.sleutel === "register" && place.bron === "register"));
     // Hertekenen (bv. als de agenda later binnenkomt) mag de focus niet wegnemen: wie op de kop of een knop van de
@@ -1031,6 +1057,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // niet goedgekeurd is (nietGoedgekeurdOp in place-core.js).
     const straatNu = state.place?.type === "straat" ? state.place.name : "";
     const nietGoedgekeurd = entry.source === "agenda" && nietGoedgekeurdOp(item, straatNu);
+    // Een agendapunt in meer straten: de gekozen straat als de plaats ze niet noemt, en de volledige lijst (agendaStraten).
+    const agendaWaar = entry.source === "agenda" ? agendaStraten(item, straatNu) : null;
+    const jouwAgenda = agendaWaar?.jouwStraat ? `Ook in jouw straat: ${zonderHomoniem(agendaWaar.jouwStraat)}` : "";
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
@@ -1070,6 +1099,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
+            ${jouwAgenda ? `<span class="pv-row-jouw">${esc(jouwAgenda)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
           </span>
           <span class="pv-row-chevron" aria-hidden="true"></span>
@@ -1081,7 +1111,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${entry.uitleg ? uitlegTemplate(entry, bovenaan) : duidelijk.eigenDetail ? "" : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
-            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.map(zonderHomoniem).join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${jouwAgenda ? `<br>${esc(jouwAgenda)}` : ""}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.map(zonderHomoniem).join(", "))}</p></details>` : agendaWaar?.straten.length ? `<details class="pv-streets"><summary>Toon alle ${agendaWaar.straten.length} straten</summary><p>${esc(agendaWaar.straten.map(zonderHomoniem).join(", "))}</p></details>` : ""}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
@@ -1136,6 +1166,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const kaart = schetsVan(entry.kaart);
     return kaart ? `<figure class="pv-kaart">${kaart}<figcaption>Schets van ${entry.kaartDeel ? "een deel van het parcours" : "het parcours"} (rood)${kaart.includes('class="ku-jouw"') ? " en jouw straat (blauw)" : ""}, over de straatassen van de stad.</figcaption></figure>` : "";
   };
+  // Wat niet in de bron staat (ontbreektRegel), in beide takken van uitlegTemplate.
+  function ontbreektHtml(u) {
+    const r = ontbreektRegel(u);
+    return r ? `<p class="pv-ontbreekt"><strong>${esc(r.kop)}:</strong> ${esc(r.tekst)} Kijk bij de officiële bron.</p>` : "";
+  }
   // Uitleg in gewone taal (site/kaart-uitleg.js). Een evenementkaart begint met wat, wanneer, waar,
   // jouw straat en wat je merkt, met de officiële link meteen daaronder; dan de details: wat er in het
   // dossier staat (het parcours vooraan, de parkeerverboden ingeklapt), de straten die het parcours
@@ -1173,6 +1208,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
           </dl>` : ""}
           ${kaart}
+          ${ontbreektHtml(u)}
           ${u.voetnoot ? `<p class="pv-voetnoot">${esc(u.voetnoot)}</p>` : ""}`;
     }
     return `
@@ -1184,7 +1220,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           </dl>
           ${u.bronTekst ? `<details class="pv-streets pv-bron-tekst"><summary>Tekst van de beheerder in GIPOD</summary><p>${esc(u.bronTekst)}</p></details>` : ""}
           ${kaart}
-          ${u.ontbreekt.length ? `<p class="pv-ontbreekt"><strong>${esc(u.ontbreektKop || onbekendZin("niet-in-de-bron-kop"))}:</strong> ${esc(u.ontbreekt.join(" · "))}. Kijk bij de officiële bron hieronder.</p>` : ""}
+          ${ontbreektHtml(u)}
           ${bron.length || technisch ? `<details class="pv-bron-dossier"><summary>Bron en dossier</summary>${bron.length ? `<dl class="pv-uitleg">${bron.map(regel).join("")}</dl>` : ""}${technisch ? `<p class="pv-technisch">${esc(technisch)}</p>` : ""}</details>` : ""}`;
   }
   // ---- de lijst onder de knoppen, per stap ----
@@ -1200,13 +1236,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // de Oude Koornmarkt liet daarna in postcode 2000 meteen 2.090 kaartjes tekenen). Weg zodra het getekend is.
   const teTonen = new Set();
   const sectie = (key, title, entries, options, note = "") => (entries.length ? { sectie: { key, title, entries, options, note: `${note}${sectieNoot(entries)}` }, kaartjes: entries.length } : null);
-  // Zinnen die voor meer kaarten van een sectie gelden (onbekend-zinnen.js), één keer boven de sectie en niet op
-  // elke kaart (vaagheidsplan van 12 oktober 2026, stap 5): een kaart draagt dan het id in `onbekend`.
-  const SECTIE_ZIN = Object.freeze({ "evenement-uren": "evenementen-uren", "aanvragen-start": "aanvragen-start", "aanvraag-ontvankelijk": "aanvragen-ontvankelijk" });
+  // Zinnen die voor meer kaarten van een sectie gelden, ook voor de leden van een bundel: sectieZinIds hierboven.
   function sectieNoot(entries) {
-    const ids = new Set();
-    for (const e of entries) for (const o of e?.onbekend || []) if (SECTIE_ZIN[o?.id]) ids.add(SECTIE_ZIN[o.id]);
-    return ids.size ? `<p class="pv-sectie-onbekend">${[...ids].map((id) => esc(onbekendZin(id))).join(" ")}</p>` : "";
+    const ids = sectieZinIds(entries);
+    return ids.length ? `<p class="pv-sectie-onbekend">${ids.map((id) => esc(onbekendZin(id))).join(" ")}</p>` : "";
   }
   // ---- bundels (bundelLijst in place-core.js): één ingeklapte regel, de leden pas als ze openklapt ----
   const bundelPerUid = new Map(), bundelVan = new Map();
@@ -1544,14 +1577,16 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
     // Hoeveel items: wat de lijst bij periode "alles" toont (lijstUniversum), per soort van de kaart geteld
-    // (telPerSoort). De legenda van de kaart telt hetzelfde, dus de som van de legenda is dit getal.
+    // (telPerSoort). De legenda van de kaart telt de kaarten van de lijst (een ingeklapte bundel één keer); het getal
+    // boven de lijst telt de items, met elk lid van een bundel apart (tel.items). Zonder bundel zijn ze gelijk.
     const markten = marktBundels(entries, today);
     const lijst = lijstUniversum(entries, today, { markten, straat: place?.type === "straat" ? place.name : "" });
     const tel = telPerSoort(lijst);
     // De kaart alleen opnieuw laten tekenen als wat ze toont kan veranderd zijn (kaartOud): niet na een andere
     // periode, weergave of dag, want de kaart toont altijd alles van de plek.
     if (kaartOud) { kaartOud = false; meldKaartItems(lijst, entries, tel); }
-    const n = tel.totaal;
+    // Het getal boven de lijst telt items (een bundel met haar leden, telPerSoort); de legenda telt kaarten.
+    const n = tel.items ?? tel.totaal;
     loadingEl.innerHTML = place ? "" : [
       loading.length ? `<span class="pv-spinner" aria-hidden="true"></span> ${esc(opsomming)} laden…` : "",
       state.onvolledig ? `<span class="pv-place-failed">${esc(state.onvolledig)}</span>` : "",

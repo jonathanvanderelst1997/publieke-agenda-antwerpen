@@ -1404,6 +1404,57 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkronde van 13 oktober 2026 (vaag-eind), nagespeeld in de browser: een parkeerverbod voor een werf hing aan een
+  // werfzone zonder doel en verdween in de ingeklapte regel "werfzones zonder doel"; de weekzin telde het niet en de kop
+  // zei nergens "Niet parkeren". En een inname zonder omschrijving in de bundel zei niet dat de uren niet in het
+  // evenementendossier staan. Verzonnen werfzones, parkeerverboden en dossiers in de Peterseliestraat.
+  await t.test("nakijkronde: een werfzone met parkeerverboden staat los, met 'Niet parkeren' in de kop en de weekzin; een inname in een bundel zegt wat niet in het dossier staat", async () => {
+    const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+    const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === peterselie.id && r[2] === peterselie.postcode)[4];
+    const d = 0.0002, [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2];
+    const vlak = { rings: [[[x1 - d, y1 - d], [x2 + d, y1 - d], [x2 + d, y2 + d], [x1 - d, y2 + d], [x1 - d, y1 - d]]] };
+    const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
+    const UUR = (u) => Date.parse(`1970-01-01T${u}:00Z`);
+    const [nu, eindFase1, beginFase2, eindFase2] = [addDays(today, -5), addDays(today, 20), addDays(today, 21), addDays(today, 60)];
+    const zone = (id, dossier, fase, van, tot) => ({ id, feature: { attributes: { OBJECTID: id, reference_id: dossier, phase_id: fase, status: "vergund", StartDate: ms(van), EndDate: ms(tot) }, geometry: vlak } });
+    const verbod = (id, dossier, van, tot) => ({ id, feature: { attributes: { OBJECTID: id, Dossiernummer: dossier, Locatienummer: "1", Status: "Goedgekeurd", Adres: `${peterselie.name}, ${peterselie.postcode} Antwerpen`, Postcode: peterselie.postcode, Reden: "Melding ikv werfsignalisaties", Startdatum: ms(van), Einddatum: ms(tot), Starttijd: UUR("07:00"), Eindtijd: UUR("17:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [[[x1, y1], [x2, y2]]] } } });
+    const inname = (id, dossier, dag) => ({ id, feature: { attributes: { dossierNummer: dossier, faseId: "F1", innameId: `I${id}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Inname", innameBeschrijving: "", innameHinder: "False", faseStartDatum: Date.parse(`${dag}T08:00:00Z`), faseEindDatum: Date.parse(`${dag}T08:00:00Z`) }, geometry: { rings: [[[mx - 0.00004, my - 0.00004], [mx + 0.00004, my - 0.00004], [mx + 0.00004, my + 0.00004], [mx - 0.00004, my + 0.00004], [mx - 0.00004, my - 0.00004]]] } } });
+    const asign = asignServer({ fixtures: {
+      48: [zone(990881, "GW2099-000881", "P1", nu, eindFase1), zone(990882, "GW2099-000881", "P2", beginFase2, eindFase2), zone(990883, "GW2099-000882", "P1", nu, addDays(today, 90)), zone(990884, "GW2099-000883", "P1", addDays(today, 1), addDays(today, 40))],
+      20: [verbod(990881, "2099-000881", nu, eindFase1), verbod(990882, "2099-000882", beginFase2, eindFase2)],
+      23: [inname(990891, "ET2099000891", addDays(today, 8)), inname(990892, "ET2099000892", addDays(today, 15))],
+    } });
+    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, feed: proefFeed(today, []), asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
+    const werfzone = page.locator('.pv-results .pv-row[data-uid^="publicSpace:sgw:GW2099-000881"]').first();
+    await werfzone.waitFor({ timeout: 20000 });
+    await page.locator('.pv-results .pv-row.pv-bundel', { hasText: /innames? zonder omschrijving/ }).first().waitFor({ timeout: 20000 });
+    // (1) Los, niet in een bundel, met de uren en de laatste dag van het lopende parkeerverbod in de kop.
+    assert.equal(await werfzone.evaluate((el) => Boolean(el.closest(".pv-bundel"))), false, "de werfzone met een parkeerverbod staat niet in een bundel");
+    const kop = await werfzone.locator(".pv-row-summary").innerText();
+    assert.match(kop, new RegExp(`Niet parkeren van 7\\.00 tot 17\\.00 uur, t/m ${Number(eindFase1.slice(8))} \\S+ \\(A-Sign, 2099-000881\\)`), kop);
+    // De werfzones zonder parkeerverbod blijven samen ingeklapt.
+    assert.equal(await page.locator(".pv-results .pv-row.pv-bundel", { hasText: "2 werfzones of omleidingen zonder doel in de bron" }).count(), 1);
+    // (2) De weekzin telt het lopende parkeerverbod.
+    await page.waitForFunction(() => /parkeerverbod/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 10000 }).catch(() => {});
+    assert.match(await page.locator(".pv-dezeweek").innerText(), /1 parkeerverbod \(loopt al\)/);
+    // (3) Het parkeerverbod van de tweede fase staat op zijn eerste dag, met de werf erbij.
+    const later = page.locator(`.pv-results section[data-sectie="d:${beginFase2}"] .pv-row[data-uid^="publicSpace:parking:2099-000882"]`);
+    assert.equal(await later.count(), 1, "het begin van de tweede fase staat in zijn dagsectie");
+    assert.match(await later.innerText(), /Parkeerverbod voor de werfzone in de Peterseliestraat/);
+    assert.match(await later.innerText(), /Zelfde straat en dagen als een fase van “Werfzone” \(dossier GW2099-000881\)/);
+    // (4) De inname in de bundel: de sectie zegt dat evenementendossiers geen uren hebben, de kaart wat niet in het dossier staat.
+    const sectie = page.locator('.pv-results section[data-sectie="zonder-omschrijving"]');
+    assert.match(await sectie.locator(".pv-sectie-onbekend").innerText(), /Evenementendossiers van de stad \(A-Sign\) hebben geen uren/);
+    const bundel = sectie.locator(".pv-row.pv-bundel", { hasText: /innames? zonder omschrijving/ }).first();
+    await bundel.locator(".pv-row-btn").first().click();
+    const lid = bundel.locator('.pv-row[data-uid="publicSpace:dossier:ET2099000891"]');
+    await lid.waitFor({ timeout: 10000 });
+    await lid.locator(".pv-row-btn").click();
+    assert.match(await lid.innerText(), /Niet in het evenementendossier ET2099000891 \(A-Sign\):\s*wat er gebeurt en de naam \(geen omschrijving die dat zegt\) · uren \(A-Sign geeft alleen de dag\) · organisator\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   await t.test("een A-Sign-laag laadt niet: melding bovenaan en in de lege staat", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const asign = asignServer({ fail: [20, 47, 49] });

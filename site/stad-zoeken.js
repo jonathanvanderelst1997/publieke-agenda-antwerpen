@@ -5,6 +5,7 @@
 // daar wel kent (de markten van de stad en het districtsnieuws, uit de agenda zelf, met hun bron).
 // Deze module en de lijst laden pas als iemand begint te typen (site/place-view.js): de eerste weergave wacht er niet op.
 import { editDistance, foldText, parseQuery, searchPlaces } from "./place-core.js";
+import { onbekendZin } from "./onbekend-zinnen.js";
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
@@ -188,15 +189,20 @@ export function watDeSiteKent(district, items = [], today = "", { index = null, 
     .sort((a, b) => isoDag(a.date).localeCompare(isoDag(b.date)) || String(a.title).localeCompare(String(b.title), "nl"))
     .map((item) => {
       const volzet = /^\s*volzet\s*[-–:]\s*/i.test(String(item.title || ""));
-      const location = String(item.location || "");
+      const ruw = String(item.location || "");
+      // De vaste zin "District X, locatie via de officiële bron" zegt niets: dan geen plaats.
+      const location = /locatie via de officiële bron/i.test(ruw) ? "" : ruw;
+      const uur = uurVan(item);
+      // Zonder plaats of uur zegt het bericht dat (onbekend-zinnen.js), niet niets.
+      const ontbreekt = !location && !uur ? onbekendZin("nieuws-plaats-uur") : !location ? onbekendZin("nieuws-plaats") : !uur ? onbekendZin("nieuws-uur") : "";
       return {
         title: String(item.title || "").replace(/^\s*volzet\s*[-–:]\s*/i, ""),
         volzet,
         date: isoDag(item.date),
         endDate: isoDag(item.endDate),
-        uur: uurVan(item),
-        // De vaste zin "District X, locatie via de officiële bron" zegt niets: dan geen plaats.
-        location: /locatie via de officiële bron/i.test(location) ? "" : location,
+        uur,
+        location,
+        ...(ontbreekt ? { ontbreekt } : {}),
         bron: veiligeLink(item.link || item.sourceUrl),
       };
     });

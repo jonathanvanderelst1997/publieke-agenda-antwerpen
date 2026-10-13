@@ -105,13 +105,19 @@ export function meetEventpaginas(feed, vandaag) {
 // Wat een opengeklapte kaart er nog bij zegt, zoals rowTemplate en uitlegTemplate in site/place-view.js het
 // tekenen: de toelichting, de regels en het dossier van de uitleg, de bronregel, "Niet in de bron", de
 // voetnoot, en bij een kaart zonder uitleg de info, het uur, de status en de bronhint.
-export function detailVanKaart(e, d = {}, { kaartIndeling, bezoekersHint }) {
+// "Niet in de bron" met dezelfde functie als de pagina (ontbreektRegel in site/place-view.js, in beide takken van
+// uitlegTemplate). Een oudere code (de basis in scripts/vaagheid-tegen-basis.mjs) kent die functie niet: haar
+// uitlegTemplate tekende de regel alleen bij een kaart zonder kern, en dan telt de meter ze ook alleen daar
+// (nakijkronde 13 oktober 2026: de meter telde een regel die de pagina niet toonde).
+export function detailVanKaart(e, d = {}, { kaartIndeling, bezoekersHint, ontbreektRegel = null }) {
   const u = e.uitleg;
   const uit = [d.toelichting];
   if (u) {
     const { regels, dossier, bron, technisch } = kaartIndeling(u, { reference: e.reference, straten: (e.straten || []).length });
     uit.push(...regels.map(([k, v]) => `${k}: ${v}`), ...dossier.zichtbaar, ...dossier.dicht, ...bron.map(([k, v]) => `${k}: ${v}`), technisch, u.stratenNoot, u.voetnoot, u.bronTekst);
-    if (u.ontbreekt?.length) uit.push(`${u.ontbreektKop || "Niet in de bron"}: ${u.ontbreekt.join(" · ")}.`);
+    const o = typeof ontbreektRegel === "function" ? ontbreektRegel(u)
+      : !u.kern && u.ontbreekt?.length ? { kop: u.ontbreektKop || "Niet in de bron", tekst: `${u.ontbreekt.join(" · ")}.` } : null;
+    if (o) uit.push(`${o.kop}: ${o.tekst}`);
   } else if (!d.eigenDetail) {
     uit.push(e.info, e.timeText, e.status ? `Status: ${e.status}` : "");
   }
@@ -143,7 +149,15 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
   const { lagenUitStand } = await import("../site/straat-snapshot.js");
   const { duidelijkeKaart } = await import("../site/permit-clarity.js");
   const { leesbaarUur, bezoekersHint } = await import("../site/bezoekers-bronnen.js");
-  const { kaartIndeling } = await import("../site/place-view.js");
+  const PV = await import("../site/place-view.js");
+  const { kaartIndeling } = PV;
+  const ontbreektRegel = typeof PV.ontbreektRegel === "function" ? PV.ontbreektRegel : null;
+  // Een veld dat één keer per sectie staat (`onbekend` met een sectiezin): bij het lid van een bundel telt het alleen
+  // als de sectie van de bundel die zin echt draagt (sectieZinIds in site/place-view.js, ook voor de leden). Een oudere
+  // code tekende die zin alleen voor de losse kaarten van een sectie.
+  const SECTIE_OUD = { "evenement-uren": "evenementen-uren", "aanvragen-start": "aanvragen-start", "aanvraag-ontvankelijk": "aanvragen-ontvankelijk" };
+  const sectieZin = typeof PV.sectieZinVoor === "function" ? PV.sectieZinVoor : (o) => SECTIE_OUD[o?.id] || "";
+  const zinnenVanBundel = (b) => new Set(typeof PV.sectieZinIds === "function" ? PV.sectieZinIds([b]) : []);
   const { createAgendaView, agendaTheme } = await import("../site/agenda-view.js");
   const { resolveAddressStreets } = await import("../site/street-core.js");
   const { locationKey } = await import("../site/neighborhood-core.js");
@@ -213,21 +227,22 @@ export async function meetStraten(vandaag, { straten = STRATEN_TOETS } = {}) {
     // en `vaag` (wat er op de plek staat), niet in `losse` (wat de bewoner als losse kaart ziet).
     const lijst = typeof PC.bundelLijst === "function" ? PC.bundelLijst(entries, { straat: naam, vandaag }) : { losse: entries, bundels: [] };
     const res = [];
-    const meet = (e, bundel = "") => {
+    const meet = (e, bundel = "", zichtbaar = null) => {
       const multi = Boolean((e.end && e.end > e.start) || e.openEnd);
       const d = duidelijkeKaart(e, e.item || {}, { straat: naam, vandaag });
       const titel = d.titel || e.title;
       const uur = d.tijd || leesbaarUur(e, { multi, running: multi && e.start <= vandaag });
       const regels = [d.samenvatting, e.summary, ...(e.uitleg?.kern || []).map(([k, v]) => `${k}: ${v}`), ...(d.regels || []).map(([k, v]) => `${k}: ${v}`), e.source === "agenda" ? e.location : ""].filter(Boolean);
-      const detail = detailVanKaart(e, d, { kaartIndeling, bezoekersHint });
-      const r = { ...vaagheidVanKaart({ titel, uur, regels, detail, onbekend: e.onbekend }), soort: soortVan(e), straat: naam, titel, uid: e.uid, ...(bundel ? { bundel } : {}) };
+      const detail = detailVanKaart(e, d, { kaartIndeling, bezoekersHint, ontbreektRegel });
+      const onbekend = zichtbaar ? (e.onbekend || []).filter((o) => !sectieZin(o) || zichtbaar.has(sectieZin(o))) : e.onbekend;
+      const r = { ...vaagheidVanKaart({ titel, uur, regels, detail, onbekend }), soort: soortVan(e), straat: naam, titel, uid: e.uid, ...(bundel ? { bundel } : {}) };
       // Een omgevingsaanvraag zegt altijd "Start van de werken: Niet gepubliceerd".
       if (regels.some((x) => /^Start van de werken: Niet gepubliceerd/.test(x))) r.patronen = [...r.patronen, "start-werken-onbekend"].sort();
       return r;
     };
     for (const e of lijst.losse) res.push(meet(e));
     const ledenVan = (b) => b.bundel?.leden || b.leden || [];
-    for (const b of lijst.bundels) for (const lid of ledenVan(b)) res.push(meet(lid, b.uid));
+    for (const b of lijst.bundels) { const zichtbaar = zinnenVanBundel(b); for (const lid of ledenVan(b)) res.push(meet(lid, b.uid, zichtbaar)); }
     // Een regel vermoedelijke studentenactiviteiten staat als één rij in de lijst van haar dag (geen ingeklapte regel
     // onderaan): die rij telt als losse kaart, vaag zoals ze is (nakijkbevinding: een bundel van één lid telde nergens).
     // Alleen bij de losse kaarten (de leden tellen al bij de kaarten), onder de soort van hun leden.
@@ -284,7 +299,7 @@ export async function meetBuiten(feed, vandaag, { straten = BUITEN_TOETS } = {})
     const { markten, nieuws } = SZ.watDeSiteKent(place.district, items, vandaag, { index: stad, straat: place.type === "buiten" ? place.name : "" });
     const eigen = [
       ...markten.map((m) => ({ ...vaagheidVanKaart({ titel: m.title, uur: m.dagen?.[0]?.uur || "", regels: [m.location] }), sourceId: "stad-markten" })),
-      ...nieuws.map((n) => ({ ...vaagheidVanKaart({ titel: n.title, uur: n.uur || "", regels: [n.location].filter(Boolean) }), sourceId: "stad-districten" })),
+      ...nieuws.map((n) => ({ ...vaagheidVanKaart({ titel: n.title, uur: n.uur || "", regels: [n.location, n.ontbreekt].filter(Boolean) }), sourceId: "stad-districten" })),
     ];
     perStraat[naam] = { items: eigen.length, vaag: eigen.filter((r) => r.kern).length };
     res.push(...eigen);

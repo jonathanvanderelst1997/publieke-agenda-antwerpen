@@ -92,6 +92,11 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   // officiële bron het wel heeft (bij de evenementendossiers van A-Sign staat er nooit een uur).
   "eventpagina-uur": { zin: "Geen uur in de bron.", meter: "uur-niet-in-bron", kern: true, waar: "agenda" },
   "eventpagina-plaats": { zin: "Geen plaats in de bron.", meter: "plek-niet-in-bron", kern: true, waar: "agenda" },
+  // Het districtsnieuws van een ander district (site/stad-zoeken.js): een bericht zonder plaats of uur zegt dat (nakijkronde
+  // 13 oktober 2026: "Ontdek de pracht van Muisbroek tijdens de EkeRun!" stond er zonder plaats, uur of zin).
+  "nieuws-plaats-uur": { zin: "Plaats en uur staan niet in het bericht.", meter: "plek-niet-in-bron", kern: true, waar: "lijst" },
+  "nieuws-plaats": { zin: "De plaats staat niet in het bericht.", meter: "plek-niet-in-bron", kern: true, waar: "lijst" },
+  "nieuws-uur": { zin: "Het uur staat niet in het bericht.", meter: "uur-niet-in-bron", kern: true, waar: "lijst" },
   "bijwerkmoment": { zin: "Bijwerkmoment onbekend", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
   "bijwerkmoment-kort": { zin: "op een onbekend moment", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
 });
