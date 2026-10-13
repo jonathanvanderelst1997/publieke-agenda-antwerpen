@@ -73,7 +73,32 @@ test("een bereik wordt één item met endDate, een lijst wordt meerdere items", 
   assert.deepEqual(tablet.map((item) => item.date), ["2026-09-25", "2026-10-23", "2026-11-27"]);
   assert.ok(tablet.every((item) => item.endDate === null && item.timeSlot === "10:00"));
   assert.equal(new Set(tablet.map((item) => item.id)).size, 3);
-  assert.equal(tablet[0].location, "2000, 2020, 2050 Antwerpen");
+  assert.deepEqual(tablet.map((x) => x.location), [
+    "WZC Regatta, Blancefloerlaan 351, 2050 Antwerpen",
+    "WZC Hollebeek, Turnersstraat 38, 2020 Antwerpen",
+    "WZC Huizeken van Nazareth, Sint-Antoniusstraat 21, 2000 Antwerpen",
+  ]);
+  assert.deepEqual(tablet.map((x) => x.postcodes), [["2050"], ["2020"], ["2000"]]);
+  assert.ok(tablet.every((x) => x.infoUrl === "https://www.antwerpen.be/info/5837e2cf2d2a3cd17b1bff6d/tabletcafe-voor-senioren" && x.info.includes("Vooraf inschrijven is verplicht.")));
+});
+
+test("officiële plaatsen en detailpagina's horen bij de juiste datum", () => {
+  const [humans] = byTitle("Humans of Antwerp");
+  assert.equal(humans.location, "CO Nova, Schijfstraat 105, 2020 Antwerpen");
+  assert.deepEqual(humans.postcodes, ["2020"]);
+  const [halloween] = byTitle("Halloween");
+  assert.equal(halloween.location, "CO Nova, Schijfstraat 105, 2020 Antwerpen");
+  assert.equal(halloween.infoUrl, "https://nova.antwerpen.be/halloweenfeest");
+  const poems = byTitle("Vrijdagen van de Poëzie");
+  assert.deepEqual(poems.map((x) => x.date), ["2026-10-23", "2026-11-20"]);
+  assert.ok(poems.every((x) => x.infoUrl === "https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie"));
+});
+
+test("niet-geverifieerde evenementen krijgen geen verzonnen detail", () => {
+  const one = parseDistrictPage(syntheticPage("<p><strong>Nieuwe activiteit<br />Vr 23/10 | 12 uur</strong><br /><br />Demo.<br /><br /><em>2000 Antwerpen &bull; Groenplaats</em></p>"));
+  assert.equal(one.items.length, 1);
+  assert.equal(one.items[0].location, "Groenplaats");
+  assert.equal(one.items[0].infoUrl, undefined);
 });
 
 test("een weekdag die niet klopt maakt het blok reviewRequired en niet publiceerbaar", () => {
