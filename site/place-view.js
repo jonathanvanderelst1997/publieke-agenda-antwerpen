@@ -17,6 +17,7 @@ import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
+import { kaartBronNoot } from "./kaart-bronnoot.js";
 import { brusselsVandaag, metInzage, splitsOpOnderzoek } from "./inzage-status.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur,splitsLinks} from "./bezoekers-bronnen.js";
 import {publiekeMarktUur} from "./publieke-markturen.js";
@@ -829,6 +830,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
+    const bronNoot = kaartBronNoot(entry, { zichtbaar: [duidelijk.melding, duidelijk.samenvatting] });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
     // technisch ArcGIS-blad is geen infopagina: ingeklapt, met een zin die zegt wat het is.
@@ -853,6 +855,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.melding ? `<span class="pv-row-alert">${esc(duidelijk.melding)}</span>` : ""}
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
+            ${bronNoot ? `<span class="pv-row-summary pv-bronnoot">${esc(bronNoot)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
