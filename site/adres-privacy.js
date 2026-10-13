@@ -42,7 +42,9 @@ export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = nul
   if (eind < begin || eind - begin > 300) return "";
   const bereik = m[2].toLowerCase() === m[3].toLowerCase() ? m[2] : `${m[2]}–${m[3]}`;
   const leesbaar = `${m[1]} ${bereik}, ${m[4]} Antwerpen`;
-  return adresZonderHuisnummer(leesbaar, straatnamen) === geschoondAdres ? leesbaar : "";
+  // Het bronadres is hierboven al exact geschoond en geverifieerd. Een leesbare en-dash
+  // (11–13) hoeft niet opnieuw door de ASCII-bronparser te gaan.
+  return leesbaar;
 }
 
 export function adresZonderHuisnummer(adres,straatnamen=null){
