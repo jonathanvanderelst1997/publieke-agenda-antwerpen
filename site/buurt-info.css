@@ -1,0 +1,20 @@
+/* Compacte buurt- en wijzigingsinformatie na de geselecteerde straat, mobiel eerst. */
+.buurt-info { margin: 0 0 18px; border: 1px solid var(--pa-line); background: var(--pa-surface); border-radius: 18px; padding: 16px; color: var(--pa-ink); }
+.buurt-info[hidden], .buurt-info-aantallen[hidden] { display: none !important; }
+.buurt-info-kop { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.buurt-info-kop h3 { font-size: 1.12rem; margin: 3px 0 4px; color: var(--pa-ink-strong); }
+.buurt-info-kop small, .buurt-info-kicker, .buurt-info-toestand, .buurt-info-periode, .buurt-info-kader { font-size: .87rem; line-height: 1.5; color: var(--pa-muted); }
+.buurt-info-kicker { font-weight: 800; text-transform: uppercase; font-size: .73rem; letter-spacing: .06em; color: var(--pa-accent); }
+.buurt-info-toestand { margin: 12px 0 0; color: var(--pa-ink); }
+.buurt-info-aantallen { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.buurt-info-aantallen div { padding: 10px; border: 1px solid var(--pa-line); border-radius: 12px; background: var(--pa-surface-2); }
+.buurt-info-aantallen strong { display: block; font-size: 1.5rem; color: var(--pa-ink-strong); }
+.buurt-info-aantallen span { display: block; font-size: .78rem; color: var(--pa-muted); }
+.buurt-info-periode, .buurt-info-kader { margin: 9px 0 0; }
+.buurt-info-meer { margin-top: 12px; border-top: 1px solid var(--pa-line); padding-top: 12px; }
+.buurt-info-meer summary { font-weight: 750; cursor: pointer; }
+.buurt-info-meer p { font-size: .9rem; color: var(--pa-muted); }
+.buurt-info-links { display: flex; flex-wrap: wrap; gap: 9px; }
+.buurt-info-links a { border: 1px solid var(--pa-line-strong); padding: 9px 12px; border-radius: 10px; font-size: .87rem; color: var(--pa-accent); font-weight: 700; text-decoration: none; }
+.buurt-info-links a:hover,.buurt-info-links a:focus-visible { text-decoration: underline; }
+@media (max-width: 560px) { .buurt-info-kop { flex-direction: column; } .buurt-info-aantallen { grid-template-columns: repeat(3, minmax(0, 1fr)); } .buurt-info-aantallen span { font-size: .72rem; } }
