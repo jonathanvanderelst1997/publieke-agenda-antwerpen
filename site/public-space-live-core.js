@@ -1,4 +1,5 @@
-import {dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
+import {PUBLIC_PARKING_STATUSES,dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
+import { publiekParkeerAdres } from "./adres-privacy.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -80,18 +81,28 @@ const namenUit=index=>index?.byName instanceof Map?[...index.byName.values()].fl
 // A-Sign "District='ANTWERPEN'" is de hele stad). Zonder postcodes: alles, zoals de historiek.
 // De onderdelen hieronder zijn generators: na elke feature een `yield`, zodat de browser het werk in
 // stappen kan doen (site/in-stappen.js). Het resultaat is hetzelfde als in één keer.
-function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit(streetIndex)}={}){
+function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit(streetIndex),alleenLive=false}={}){
   const binnen=postcodes?new Set(postcodes):null;
   // Zonder huisnummer delen veel parkeerverboden hetzelfde adres: één opzoeking per adres.
   const perAdres=new Map();
   const straatVan=adres=>{if(!streetIndex)return{streets:[],confidence:"unresolved",distanceMeters:null};if(!perAdres.has(adres))perAdres.set(adres,resolveAddressStreet(adres,streetIndex));return perAdres.get(adres)};
   const out=[],vormen=vormenPerSleutel(features,parkingKey);
+  // Alleen de officiële goedgekeurde bronrijen tellen. Dit adres komt niet in opslag:
+  // de archief- en straatbouwers maken de locatie direct weer nummerloos.
+  const liveAdres = new Map();
+  for (const f of features) {
+    const r = attrs(f), key = parkingKey(r);
+    if (!key || !PUBLIC_PARKING_STATUSES.has(String(r.Status || "").trim())) continue;
+    const geschoond = normalizeParking(r, { straatnamen });
+    const specifiek = publiekParkeerAdres(r.Adres, geschoond.address, straatnamen);
+    if (specifiek && !liveAdres.has(key)) liveAdres.set(key, specifiek);
+  }
   for(const n of publicOnly(dedupeByKey(features.map(attrs),r=>normalizeParking(r,{straatnamen})))){
     if(binnen&&n.postcode&&!binnen.has(n.postcode))continue;
     const r=straatVan(n.address);
     out.push({
       id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:n.reason||"Tijdelijk parkeerverbod",
-      location:n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
+      location:(alleenLive?liveAdres.get(n.key):null)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
       detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
       // Voor de kaart in gewone taal (place-core.js): de reden zoals de stad ze schrijft, de uren en een
       // GIPOD-id als de stad er een geeft. De historiek (lib/live-history.mjs) bewaart deze velden niet.
@@ -145,8 +156,8 @@ function* sgwItems(features,district,streetIndex){
   }));
 }
 const stamp=v=>{const t=Date.parse(v||"");return Number.isFinite(t)?t:Infinity};
-function* verzamel({parkingFeatures=[],iodFeatures=[],sgwFeatures=[],districtGeometry=null,streetIndex=null,postcodes=null,straatnamen=undefined}={}){
-  const items=[...(yield* parkingItems(parkingFeatures,streetIndex,{postcodes,...(straatnamen===undefined?{}:{straatnamen})}))];
+function* verzamel({parkingFeatures=[],iodFeatures=[],sgwFeatures=[],districtGeometry=null,streetIndex=null,postcodes=null,straatnamen=undefined,alleenLive=false}={}){
+  const items=[...(yield* parkingItems(parkingFeatures,streetIndex,{postcodes,alleenLive,...(straatnamen===undefined?{}:{straatnamen})}))];
   if(districtGeometry){items.push(...(yield* iodItems(iodFeatures,districtGeometry,streetIndex)),...(yield* sgwItems(sgwFeatures,districtGeometry,streetIndex)))}
   return items.sort((a,b)=>stamp(a.start)-stamp(b.start)||a.kindLabel.localeCompare(b.kindLabel,"nl")||a.title.localeCompare(b.title,"nl"));
 }
