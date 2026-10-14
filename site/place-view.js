@@ -17,6 +17,7 @@ import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
+import { kaartBronNoot } from "./kaart-bronnoot.js";
 import { brusselsVandaag, metInzage, splitsOpOnderzoek } from "./inzage-status.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur,splitsLinks} from "./bezoekers-bronnen.js";
 import {publiekeMarktUur} from "./publieke-markturen.js";
@@ -870,6 +871,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     }
     const item = entry.item || {};
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
+    const bronNoot = kaartBronNoot(entry, { zichtbaar: [duidelijk.melding, duidelijk.samenvatting] });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
     // technisch ArcGIS-blad is geen infopagina: ingeklapt, met een zin die zegt wat het is.
@@ -885,6 +887,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Of de kaart er een plek voor heeft, zegt de kaart zelf: de knop hangt niet af van de geometrie, zodat het
     // kaartje uit de stand van de ochtend en het live nagekeken kaartje er hetzelfde uitzien.
     const opKaart = entry.source !== "terraces" && entry.theme !== "markets" ? `<p class="pv-op-kaart-rij"><button type="button" class="pv-btn pv-btn-ghost pv-op-kaart" data-op-kaart="${esc(entry.uid)}">Toon op de kaart</button></p>` : "";
+    const werkHistoriekHtml = entry.source === "works" && Number.isSafeInteger(Number(item.gipodId)) && Number(item.gipodId) > 0
+      ? '<div class="pv-historiek"><button type="button" class="pv-btn pv-btn-ghost pv-historiek-knop" data-werk-historiek="work:' + Number(item.gipodId) + '">Dossierhistoriek bekijken (archief downloaden)</button><p class="pv-historiek-result pv-bron-hint" role="status" aria-live="polite"></p></div>'
+      : "";
     return `
       <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}${entry.uitleg?.kern ? " pv-row-kern" : ""}" data-uid="${esc(entry.uid)}" data-soort="${kaartSoort(entry)}" data-tel="${esc(lijstSleutel(entry))}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
@@ -894,6 +899,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.melding ? `<span class="pv-row-alert">${esc(duidelijk.melding)}</span>` : ""}
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
+            ${bronNoot ? `<span class="pv-row-summary pv-bronnoot">${esc(bronNoot)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${context !== "list" || multi ? `<span class="pv-row-range">${esc(multi ? kortBereik(entry.start, entry.end, today) : "")}</span>` : ""}
@@ -916,6 +922,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
           ${opKaart}
+          ${werkHistoriekHtml}
           ${technischBlok}
         </div>
       </li>`;
@@ -1233,6 +1240,25 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
 
   results.addEventListener("click", (event) => {
+    const historiekKnop = event.target.closest("[data-werk-historiek]");
+    if (historiekKnop) {
+      const id = historiekKnop.dataset.werkHistoriek;
+      const melding = historiekKnop.parentElement.querySelector(".pv-historiek-result");
+      historiekKnop.disabled = true;
+      melding.textContent = "GIPOD-archief raadplegen: kan enkele MB kosten…";
+      (async () => {
+        try {
+          const { werkHistoriekTekst } = await import("./werk-historiek.js");
+          const bericht = await werkHistoriekTekst(id, (n, totaal) => {
+            if (melding.isConnected) melding.textContent = "Archief doorzoeken (" + n + " van " + totaal + " dagen)…";
+          });
+          if (melding.isConnected) melding.textContent = bericht;
+        } catch {
+          if (melding.isConnected) melding.textContent = "Het archief is nu niet beschikbaar. Probeer later opnieuw.";
+        } finally { historiekKnop.disabled = false; }
+      })();
+      return;
+    }
     const dag = event.target.closest("[data-tl-dag]");
     if (dag) {
       const d = dag.dataset.tlDag, vorige = state.dagFilter;
