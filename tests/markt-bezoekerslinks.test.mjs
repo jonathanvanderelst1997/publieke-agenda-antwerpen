@@ -38,5 +38,6 @@ test("onveilige of niet-officiële bezoekerslinks worden niet doorgegeven", () =
 });
 test("de marktweergave gebruikt de geëscape bezoekerslink van de bundel", () => {
   const code = fs.readFileSync(new URL("../site/place-view.js",import.meta.url),"utf8");
-  assert.ok(code.includes('esc(m.infoUrl || "https://www.antwerpen.be/shoppen-en-markten")'));
+  assert.ok(code.includes('esc(m.infoUrl || (m.inDistrict === true ?'));
+  assert.ok(code.includes('"' + district + '" : "' + city + '"'));
 });
