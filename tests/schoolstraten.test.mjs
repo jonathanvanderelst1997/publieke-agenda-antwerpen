@@ -50,6 +50,7 @@ test("de straatfiche, de start van een proef en de dag dat ze definitief wordt; 
   assert.deepEqual(counts.issues, { andere_status: 1, venstertijden_onleesbaar: 1 });
   const fiche = items[0];
   assert.deepEqual([fiche.theme, fiche.className, fiche.timeSlot, fiche.sourceUrl], ["Werken", "works", "Info", SCHOOLSTRATEN_LAYER_URL]);
+  assert.ok(items.every((item) => item.infoUrl === "https://www.antwerpen.be/product/schoolstraten"), "alle bestaande en toekomstige schoolstraten krijgen een officiële bezoekerslink");
   assert.equal(fiche.timeText, "op schooldagen: ma, di, do, vr 8.00-8.15 en 15.10-15.25; wo 8.00-8.15 en 11.50-12.05");
   assert.match(fiche.info, /^Schoolstraat aan Voorbeeldschool De Boom: op schooldagen is de straat tijdens de venstertijden dicht/);
   assert.match(fiche.info, /Definitief sinds 15 januari 2021\.$/);
