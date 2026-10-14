@@ -287,6 +287,9 @@ test("GIPOD: bewaart alle bekende marktdagen, gesorteerd en zonder parkeerrijen"
   assert.ok(items.some((item) => item.id === "markt-ma13-2026-09-30" && item.inDistrict === true));
   assert.ok(items.every((item) => item.info === "Openbare markt van stad Antwerpen. Marktdag volgens GIPOD."));
   assert.ok(items.every((item) => item.sourceUrl.startsWith("https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.")));
+  assert.ok(items.some((item) => item.inDistrict === true));
+  assert.ok(items.some((item) => item.inDistrict === false));
+  assert.ok(items.every((item) => item.infoUrl === (item.inDistrict ? "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" : "https://www.antwerpen.be/shoppen-en-markten")));
   const document = sourceDocument("stad-markten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: items.map((item) => ({ ...item, retrievedAt: NOW.toISOString() })) });
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-markten" }), []);
 });
