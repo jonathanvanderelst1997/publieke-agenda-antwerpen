@@ -149,9 +149,12 @@
         `DURATION:${options.duration || "PT1H"}`,
       );
     } else {
+      // endDate is de laatste inbegrepen dag; iCalendar DTEND is exclusief (RFC 5545).
+      const lastDay = item.endDate ? assertCalendarDate(item.endDate) : date;
+      if (lastDay < date) throw new Error("Agenda-export heeft een einddatum vóór de begindatum.");
       lines.push(
         `DTSTART;VALUE=DATE:${compactDate(date)}`,
-        `DTEND;VALUE=DATE:${compactDate(addOneDay(date))}`,
+        `DTEND;VALUE=DATE:${compactDate(addOneDay(lastDay))}`,
       );
     }
     lines.push("END:VEVENT", "END:VCALENDAR");
