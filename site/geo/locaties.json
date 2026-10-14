@@ -85,7 +85,7 @@
    "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
-  "co nova schijfstraat 105": {
+  "co nova schijfstraat 105 2020 antwerpen": {
    "point": [
     4.37308,
     51.19068
@@ -93,7 +93,7 @@
    "precision": "adres",
    "street": "Schijfstraat",
    "postcode": "2020",
-   "checkedOn": "2026-10-05"
+   "checkedOn": "2026-10-14"
   },
   "dageraadplaats": {
    "point": [
@@ -185,16 +185,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "falconplein blindestraat kaasbrug en 7 andere straten": {
-   "point": [
-    4.40516,
-    51.22666
-   ],
-   "precision": "straat",
-   "street": "Falconplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "floralienlaan middelheimlaan en vogelzanglaan": {
    "point": [
     4.4211,
@@ -273,16 +263,6 @@
    "precision": "straat",
    "street": "Hendrik Conscienceplein",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "herderstraat": {
-   "point": [
-    4.42934,
-    51.22323
-   ],
-   "precision": "straat",
-   "street": "Herderstraat",
-   "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
   "het oude badhuis stuivenbergplein 38": {
@@ -385,16 +365,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "lindendreef groenenborgerlaan middelheimlaan en 4 andere straten": {
-   "point": [
-    4.42077,
-    51.18124
-   ],
-   "precision": "straat",
-   "street": "Lindendreef",
-   "postcode": "2020",
-   "checkedOn": "2026-10-12"
-  },
   "meir": {
    "point": [
     4.40764,
@@ -424,6 +394,16 @@
    "street": "Miraeusstraat",
    "postcode": "2018",
    "checkedOn": "2026-10-12"
+  },
+  "ossenmarkt appelmansstraat augustijnenstraat en 38 andere straten": {
+   "point": [
+    4.4135,
+    51.22207
+   ],
+   "precision": "straat",
+   "street": "Ossenmarkt",
+   "postcode": "2000",
+   "checkedOn": "2026-10-14"
   },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
@@ -595,16 +575,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "steenplein bataviastraat bonapartedok en 46 andere straten": {
-   "point": [
-    4.39671,
-    51.22179
-   ],
-   "precision": "straat",
-   "street": "Steenplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
    "point": [
     4.39671,
@@ -636,16 +606,6 @@
    "checkedOn": "2026-10-12"
   },
   "theaterplein aalmoezenierstraat arenbergstraat en 14 andere straten": {
-   "point": [
-    4.41058,
-    51.21419
-   ],
-   "precision": "straat",
-   "street": "Theaterplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "theaterplein braderijstraat driehespenstraat en 37 andere straten": {
    "point": [
     4.41058,
     51.21419
@@ -695,7 +655,7 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "vekestraat bataviastraat bonapartedok en 36 andere straten": {
+  "vekestraat cockerillkaai ernest van dijckkaai en 10 andere straten": {
    "point": [
     4.4106,
     51.22421
@@ -703,7 +663,7 @@
    "precision": "straat",
    "street": "Vekestraat",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
+   "checkedOn": "2026-10-14"
   },
   "viaduct dam en damplein": {
    "point": [
@@ -735,6 +695,26 @@
    "postcode": "2100",
    "checkedOn": "2026-10-05"
   },
+  "wzc hollebeek turnersstraat 38 2020 antwerpen": {
+   "point": [
+    4.38165,
+    51.18616
+   ],
+   "precision": "adres",
+   "street": "Turnersstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-10-14"
+  },
+  "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
+   "point": [
+    4.40031,
+    51.21588
+   ],
+   "precision": "adres",
+   "street": "Sint-Antoniusstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-14"
+  },
   "zillebekelaan 2600 berchem": {
    "point": [
     4.4434,
@@ -747,7 +727,6 @@
   }
  },
  "misses": {
-  "2000 2020 2050 antwerpen": "2026-10-05",
   "2000 en 2018 antwerpen": "2026-10-10",
   "2060 antwerpen": "2026-10-05",
   "a bib merksem parkweg 1": "2026-10-07",
@@ -758,11 +737,9 @@
   "bervoetstraat 2000 antwerpen": "2026-10-10",
   "bib permeke": "2026-10-05",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-05",
-  "co nova schrijfstraat 105": "2026-10-05",
   "constitutiestraat 2060 antwerpen": "2026-10-10",
   "demerstraat 2060 antwerpen": "2026-10-10",
   "district antwerpen locatie via de officiele bron": "2026-10-06",
-  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-05",
   "district borgerhout locatie via de officiele bron": "2026-10-05",
   "district deurne locatie via de officiele bron": "2026-10-13",
   "district ekeren locatie via de officiele bron": "2026-10-05",
