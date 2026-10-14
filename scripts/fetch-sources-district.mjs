@@ -16,7 +16,7 @@ import {enrichActions} from "../lib/automatic-event-action.mjs";
 export const SOURCE_ID = "district-kalender";
 export const DISTRICT_API_URL = `https://www.antwerpen.be/api/portaal/content/page-content-by-uuid/${DISTRICT_PAGE_UUID}`;
 // Verhoog bij een parserwijziging, zodat een ongewijzigde pagina toch opnieuw gelezen wordt.
-export const PARSER_VERSION = "1";
+export const PARSER_VERSION = "2";
 const MAX_REQUESTS = 2;
 
 async function getPage(fetchImpl) {
