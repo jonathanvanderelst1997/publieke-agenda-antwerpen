@@ -123,6 +123,54 @@ test("dezelfde detailpagina of een titel die volledig in de andere staat: sameng
   assert.deepEqual(items.map((merged) => [merged.id, merged.sources.length]), [["kal-7", 2], ["kal-8", 2]]);
 });
 
+test("officiële bezoekerslink van gekoppelde bron blijft behouden wanneer primair er geen heeft", () => {
+  const technisch = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22";
+  const bezoeker = "https://www.antwerpen.be/info/brongebonden-evenement";
+  const gekoppeld = mergeEvents({
+    "district-kalender": { scope: "district", items: [
+      item("kal-visitor", { title: "Straatfeest", sourceUrl: "https://www.antwerpen.be/info/kal-visitor", infoUrl: undefined })
+    ] },
+    "district-asign-evenementen": { scope: "district", items: [
+      item("asign-visitor", { title: "Straatfeest met verkeersmaatregelen", timeSlot: "Info",
+        sourceUrl: technisch, infoUrl: bezoeker, sameAs: ["kal-visitor"], postcodes: ["2018"] })
+    ] },
+  });
+  assert.equal(gekoppeld.items.length, 1);
+  assert.equal(gekoppeld.items[0].infoUrl, bezoeker);
+  assert.equal(gekoppeld.items[0].link, "https://www.antwerpen.be/info/kal-visitor");
+  assert.deepEqual(gekoppeld.items[0].sources.map((s) => s.sourceId), ["district-kalender", "district-asign-evenementen"]);
+});
+test("primaire bezoekerslink heeft voorrang en niet-gekoppelde bezoekerslinks worden niet gedoneerd", () => {
+  const primair = "https://www.antwerpen.be/info/primair-bezoek";
+  const donorLink = "https://www.antwerpen.be/info/andere-detail";
+  const r = mergeEvents({
+    "district-kalender": { scope: "district", items: [
+      item("kal-link", { infoUrl: primair }),
+      item("kal-onafhankelijk", { title: "Ander evenement", date: "2026-10-19", infoUrl: undefined })
+    ] },
+    "district-nieuws": { scope: "district", items: [
+      item("nieuws-link", { infoUrl: donorLink }),
+      item("nieuws-onafhankelijk", { title: "Derde evenement", date: "2026-10-19", infoUrl: donorLink })
+    ] },
+  });
+  assert.equal(r.items.length, 3);
+  assert.equal(r.items.find((x) => x.id === "kal-link").infoUrl, primair);
+  assert.equal(r.items.find((x) => x.id === "kal-onafhankelijk").infoUrl, undefined);
+});
+test("uitdrukkelijk onpublieke link en onveilige URL worden niet overgenomen", () => {
+  const merged = mergeEvents({
+    "district-kalender": { scope: "district", items: [item("kal-private")] },
+    "stad-uit": { scope: "stad", items: [
+      item("uit-private", { sameAs: ["kal-private"], infoUrl: "https://www.uitinvlaanderen.be/agenda/test", noEventPage: true })
+    ] },
+    "mail-district": { scope: "district", items: [
+      item("mail-unsafe", { sameAs: ["kal-private"], infoUrl: "https://www.antwerpen.be/info/abc?tracking=1" })
+    ] },
+  });
+  assert.equal(merged.items.length, 1);
+  assert.equal(merged.items[0].infoUrl, undefined);
+});
+
 test("de uitvoer is deterministisch, ongeacht de volgorde van de invoer", () => {
   const sources = {
     "district-kalender": { scope: "district", items: [item("kal-9", { date: "2026-10-20" }), item("kal-10", { date: "2026-10-19", title: "Ander" })] },

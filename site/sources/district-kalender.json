@@ -13,10 +13,10 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
-  "retrievedAt": "2026-10-13T10:31:43.310Z",
+  "retrievedAt": "2026-10-14T01:03:53.219Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "parser-1|6acc9c75332512dc221fc29a|2026-10-12T08:50:43+00:00",
+  "contentVersion": "parser-2|6acc9c75332512dc221fc29a|2026-10-12T08:50:43+00:00",
   "items": [
     {
       "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09",
@@ -28,7 +28,7 @@
       "endDate": "2026-10-22",
       "timeSlot": "Info",
       "timeText": "",
-      "location": "CO Nova, Schrijfstraat 105",
+      "location": "CO Nova, Schijfstraat 105, 2020 Antwerpen",
       "postcodes": [
         "2020"
       ],
@@ -36,7 +36,7 @@
       "infoUrl": "https://nova.antwerpen.be/humans-of-antwerp",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -57,7 +57,7 @@
       "infoUrl": "https://antwerpen.bibliotheek.be/permeke",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -70,20 +70,18 @@
       "endDate": null,
       "timeSlot": "10:00",
       "timeText": "10 tot 12 uur",
-      "location": "2000, 2020, 2050 Antwerpen",
+      "location": "WZC Hollebeek, Turnersstraat 38, 2020 Antwerpen",
       "postcodes": [
-        "2000",
-        "2020",
-        "2050"
+        "2020"
       ],
-      "info": "Kom mee swipen in het tabletcafé.Stel er al jouw vragen en krijg tips en tricks over tablets, computers en smartphones. Prijs: GRATIS",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/tabletcafe-voor-senioren",
+      "info": "Kom mee swipen in het tabletcafé.Stel er al jouw vragen en krijg tips en tricks over tablets, computers en smartphones. Prijs: GRATIS Vooraf inschrijven is verplicht.",
+      "infoUrl": "https://www.antwerpen.be/info/5837e2cf2d2a3cd17b1bff6d/tabletcafe-voor-senioren",
       "actionAttempted": true,
       "actionChecked": true,
       "actionKind": "email_district",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -101,14 +99,14 @@
         "2018"
       ],
       "info": "Je maandelijkse date met een dichter. Gastheer Piet Piryns gaat in gesprek met een bekende Nederlandstalige auteur over poëzie die begeestert. Op 23 oktober verwachten we Tania Verhelst en op 20 november Jeroen Theunissen. Prijs: €5 / GRATIS (VT)",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/cultuur/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
+      "infoUrl": "https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
       "actionAttempted": true,
       "actionChecked": true,
       "actionKind": "ticket",
       "actionCode": "CID-STA-20261023",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -121,18 +119,15 @@
       "endDate": null,
       "timeSlot": "14:00",
       "timeText": "14 tot 20 uur",
-      "location": "CO Nova, Schijfstraat 105",
+      "location": "CO Nova, Schijfstraat 105, 2020 Antwerpen",
       "postcodes": [
         "2020"
       ],
       "info": "Kom huiveren in ons griezeldorp. Activiteiten en voorstellingen voor kinderen tot 8 jaar van 14 tot 17 uur. Van 17 tot 20 uur voor 8+. Trek je griezeligste outfit aan! Prijs: GRATIS",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/jeugd/griezelfeest-bij-co-nova-op-halloween",
-      "actionAttempted": true,
-      "actionChecked": true,
-      "actionKind": "onsite",
+      "infoUrl": "https://nova.antwerpen.be/halloweenfeest",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -154,7 +149,7 @@
       "actionAttempted": true,
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -174,7 +169,7 @@
       "info": "Een voorstelling over verlangen naar verbinding en erbij horen. Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over wat het betekent om ergens bij te horen, over het gevoel van verbinding en het ontbreken daarvan. Prijs: GRATIS",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -192,14 +187,14 @@
         "2018"
       ],
       "info": "Je maandelijkse date met een dichter. Gastheer Piet Piryns gaat in gesprek met een bekende Nederlandstalige auteur over poëzie die begeestert. Op 23 oktober verwachten we Tania Verhelst en op 20 november Jeroen Theunissen. Prijs: €5 / GRATIS (VT)",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/cultuur/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
+      "infoUrl": "https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie",
       "actionAttempted": true,
       "actionChecked": true,
       "actionKind": "ticket",
       "actionCode": "CID-STA-20261120",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -220,7 +215,7 @@
       "infoUrl": "https://www.facebook.com/ParadeNoorderlicht",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     },
     {
@@ -233,20 +228,18 @@
       "endDate": null,
       "timeSlot": "10:00",
       "timeText": "10 tot 12 uur",
-      "location": "2000, 2020, 2050 Antwerpen",
+      "location": "WZC Huizeken van Nazareth, Sint-Antoniusstraat 21, 2000 Antwerpen",
       "postcodes": [
-        "2000",
-        "2020",
-        "2050"
+        "2000"
       ],
-      "info": "Kom mee swipen in het tabletcafé.Stel er al jouw vragen en krijg tips en tricks over tablets, computers en smartphones. Prijs: GRATIS",
-      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/senioren/tabletcafe-voor-senioren",
+      "info": "Kom mee swipen in het tabletcafé.Stel er al jouw vragen en krijg tips en tricks over tablets, computers en smartphones. Prijs: GRATIS Vooraf inschrijven is verplicht.",
+      "infoUrl": "https://www.antwerpen.be/info/5837e2cf2d2a3cd17b1bff6d/tabletcafe-voor-senioren",
       "actionAttempted": true,
       "actionChecked": true,
       "actionKind": "email_district",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-13T10:31:43.310Z",
+      "retrievedAt": "2026-10-14T01:03:53.219Z",
       "reviewRequired": false
     }
   ]
