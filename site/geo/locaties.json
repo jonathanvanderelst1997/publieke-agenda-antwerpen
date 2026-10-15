@@ -65,6 +65,16 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
+  "blauwtorenplein arenbergstraat armeduivelstraat en 66 andere straten": {
+   "point": [
+    4.40931,
+    51.21286
+   ],
+   "precision": "straat",
+   "street": "Blauwtorenplein",
+   "postcode": "2000",
+   "checkedOn": "2026-10-15"
+  },
   "brugstraat": {
    "point": [
     4.41859,
@@ -255,16 +265,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "hendrik conscienceplein ambtmanstraat grote markt en 18 andere straten": {
-   "point": [
-    4.40414,
-    51.2211
-   ],
-   "precision": "straat",
-   "street": "Hendrik Conscienceplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
     4.43234,
@@ -445,16 +445,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "raapstraat droogdokkenweg eikenstraat en 27 andere straten": {
-   "point": [
-    4.40563,
-    51.22386
-   ],
-   "precision": "straat",
-   "street": "Raapstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "rijnkaai kattendijkbrug adriaan brouwerstraat en 144 andere straten": {
    "point": [
     4.40208,
@@ -565,16 +555,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "stadswaag bataviastraat bonapartedok en 30 andere straten": {
-   "point": [
-    4.40696,
-    51.22411
-   ],
-   "precision": "straat",
-   "street": "Stadswaag",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
    "point": [
     4.39671,
@@ -644,26 +624,6 @@
    "street": "Van Campstraat",
    "postcode": "2060",
    "checkedOn": "2026-10-12"
-  },
-  "veemarkt falconplein en plantinkaai": {
-   "point": [
-    4.39979,
-    51.22394
-   ],
-   "precision": "straat",
-   "street": "Veemarkt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "vekestraat cockerillkaai ernest van dijckkaai en 10 andere straten": {
-   "point": [
-    4.4106,
-    51.22421
-   ],
-   "precision": "straat",
-   "street": "Vekestraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-14"
   },
   "viaduct dam en damplein": {
    "point": [
@@ -774,7 +734,6 @@
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-10",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-10-10",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-10",
-  "spaarstraat 2060 antwerpen": "2026-10-10",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-10",
   "ten eeckhovelei 2100 deurne": "2026-10-05",
   "toeristisch centrum antwerpen": "2026-10-05",
