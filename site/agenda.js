@@ -2434,6 +2434,43 @@ function onHighlightTabKey(event) {
   document.getElementById(`hl-tab-${highlightTab}`)?.focus();
 }
 
+// Bovenaan: toon afzonderlijk een bronalarm, ook als de dataverversing net slaagde.
+function renderBronWaarschuwing() {
+  const banner = document.getElementById("agenda-source-warning");
+  if (!banner) return;
+  const summary = window.PUBLIC_AGENDA_SOURCE_WARNING?.samenvatting(agendaReconciliation.sourceFreshness);
+  if (!summary || summary.kind === "ok") {
+    banner.hidden = true;
+    banner.textContent = "";
+    return;
+  }
+  // De agenda kan net zijn ververst terwijl afzonderlijke officiële bronnen oud zijn.
+  // Alleen bewezen versheidsgegevens, geen gok dat een evenement is afgelast.
+  const title = summary.kind === "expired"
+    ? "Niet alle officiële bronnen zijn actueel."
+    : summary.kind === "temporary"
+      ? "Sommige officiële bronnen zijn tijdelijk onbereikbaar."
+      : "De versheid van de officiële bronnen is nog niet bekend.";
+  const detail = summary.kind === "expired"
+    ? `${summary.expired} bron${summary.expired === 1 ? "" : "nen"} zijn niet binnen de toegestane versheidsgrens bevestigd. Onbevestigde agenda-items worden niet als actueel getoond; dat betekent niet dat ze zijn afgelast.`
+    : summary.kind === "temporary"
+      ? `Bij ${summary.temporary} bron${summary.temporary === 1 ? "" : "nen"} mislukte de laatste ophaalpoging, maar de vorige gegevens vallen nog binnen de versheidsgrens. Controleer de officiële bron voor actuele details.`
+      : "De bronstatus ontbreekt. Controleer belangrijke informatie bij de officiële organisator.";
+  banner.hidden = false;
+  banner.innerHTML = `<span class="stale-emoji" aria-hidden="true">!</span><div>
+    <strong>${title}</strong>
+    <p>${detail}</p>
+    <button class="source-warning-action" type="button">Bekijk de versheid per bron</button>
+  </div>`;
+  banner.querySelector(".source-warning-action")?.addEventListener("click", () => {
+    const details = document.querySelector(".agenda-technical-details");
+    if (!details) return;
+    details.open = true;
+    details.scrollIntoView({ block: "start" });
+    details.querySelector("summary")?.focus();
+  });
+}
+
 // Bovenaan: wanneer de agenda het laatst ververst is, en een vriendelijke melding als dat
 // langer dan 48 uur geleden is.
 function renderFreshness() {
@@ -2445,6 +2482,7 @@ function renderFreshness() {
     const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime()) : "";
     pill.textContent = moment ? `${agendaFreshness.stale ? "Laatst bijgewerkt" : "Bijgewerkt"} ${moment}` : "Bijwerkmoment onbekend";
   }
+  renderBronWaarschuwing();
   if (!banner) return;
   if (!agendaFreshness.stale || !agendaFreshness.known) {
     banner.hidden = true;
