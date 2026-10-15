@@ -115,8 +115,10 @@ export async function backfillAsignParking({
     throw new Error("history_backfill_public_space_baseline_missing");
   }
 
-  const [{ coverageFrom }, rows, streets] = await Promise.all([
-    providerContract(fetchImpl),
+  // Controleer eerst de claim over de volledige historiek, de tijdvelden en het
+  // datumbereik. Zonder geldig bewijs mag geen enkele dataquery starten.
+  const { coverageFrom } = await providerContract(fetchImpl);
+  const [rows, streets] = await Promise.all([
     fetchAllRows(fetchImpl),
     streetIndex ? Promise.resolve(streetIndex) : fetchStreetFeatures({ fetchImpl }).then(buildStreetIndex),
   ]);
