@@ -2452,16 +2452,16 @@ function renderBronWaarschuwing() {
       ? "Sommige officiële bronnen zijn tijdelijk onbereikbaar."
       : "De versheid van de officiële bronnen is nog niet bekend.";
   const detail = summary.kind === "expired"
-    ? \`\${summary.expired} bron\${summary.expired === 1 ? "" : "nen"} zijn niet binnen de toegestane versheidsgrens bevestigd. Onbevestigde agenda-items worden niet als actueel getoond; dat betekent niet dat ze zijn afgelast.\`
+    ? `${summary.expired} bron${summary.expired === 1 ? "" : "nen"} zijn niet binnen de toegestane versheidsgrens bevestigd. Onbevestigde agenda-items worden niet als actueel getoond; dat betekent niet dat ze zijn afgelast.`
     : summary.kind === "temporary"
-      ? \`Bij \${summary.temporary} bron\${summary.temporary === 1 ? "" : "nen"} mislukte de laatste ophaalpoging, maar de vorige gegevens vallen nog binnen de versheidsgrens. Controleer de officiële bron voor actuele details.\`
+      ? `Bij ${summary.temporary} bron${summary.temporary === 1 ? "" : "nen"} mislukte de laatste ophaalpoging, maar de vorige gegevens vallen nog binnen de versheidsgrens. Controleer de officiële bron voor actuele details.`
       : "De bronstatus ontbreekt. Controleer belangrijke informatie bij de officiële organisator.";
   banner.hidden = false;
-  banner.innerHTML = \`<span class="stale-emoji" aria-hidden="true">!</span><div>
-    <strong>\${title}</strong>
-    <p>\${detail}</p>
+  banner.innerHTML = `<span class="stale-emoji" aria-hidden="true">!</span><div>
+    <strong>${title}</strong>
+    <p>${detail}</p>
     <button class="source-warning-action" type="button">Bekijk de versheid per bron</button>
-  </div>\`;
+  </div>`;
   banner.querySelector(".source-warning-action")?.addEventListener("click", () => {
     const details = document.querySelector(".agenda-technical-details");
     if (!details) return;
