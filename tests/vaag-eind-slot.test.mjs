@@ -81,8 +81,9 @@ test("plaatsnaam: een soort plek alleen ('Hoek', 'Park') bewijst niets en kan ee
 });
 
 test("privacyfilter: de bewaarde omschrijvingen van de evenementen, zoals de pagina ze opnieuw filtert", () => {
-  // Wat in kaart-uitleg.json staat, met een straatas die de straatnamen van de inname kent.
-  const uitleg = lees("site/sources/kaart-uitleg.json");
+  // Wat in kaart-uitleg.json stond (de verversing van 12 oktober 2026, vast in tests/fixtures: de dossiers van toen zijn
+  // voorbij en een verversing haalt ze uit het bestand), met een straatas die de straatnamen van de inname kent.
+  const uitleg = lees("tests/fixtures/kaart-uitleg-omschrijvingen.json");
   const getoond = Object.values(uitleg.evenementen).flatMap((e) => (e.beschrijvingen || []).map((b) => KU.veiligeOmschrijving(b, { straten: e.straten || [], isStraat: (n) => /^(?:Grote Markt|Stadswaag|Quinten Matsijslei|Van Eycklei|Theodoor Van Rijswijckplaats|Falconplein)$/.test(n) }))).filter(Boolean);
   // Ook "Wandelen" (wandel-en) en "Correct" zijn gewone woorden met een hoofdletter: liever een naam te veel weg.
   for (const weg of ["Inname: Doop", "Parcours: Stoet", "Inname: Drill", "Inname: Startlocatie Doop", "Inname: Eerste Stop (Stadswaag)", "Inname: Tweede Stop (Falconplein)", "Verkeersvrije Zone: Correct verkeersvrij", "Parcours: Wandelen van de Stadswaag naar het Falconplein"]) {

@@ -82,6 +82,26 @@ test("oudeTekstBijwerken: een belofte uit een ouder bronbestand wordt de zin van
   assert.equal(tekstBijDeBuild(oud).title, "Evenement in de Proefstraat");
 });
 
+test("oudeTekstBijwerken: de tekst van main sinds #169 (', naam onbekend' in de titel, 'Naam onbekend: het dossier noemt geen naam, ...') wordt die van nu", () => {
+  // Zoals de verversingen van main van 13 tot 16 oktober 2026 het schreven, met verzonnen straten en dossier.
+  const oud = {
+    externalId: "ET2099800003", title: "Evenement in de Proefstraat: lus van 3,4 km, naam onbekend",
+    info: "Parcours door 2 straten: Proefstraat en Tweedestraat. Naam onbekend: het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken noemt met zekerheid een evenement op die dag en plek. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2099800003 van de stad (A-Sign): aanvraag nog niet goedgekeurd.",
+  };
+  const nu = oudeTekstBijwerken(oud);
+  assert.equal(nu.title, "Evenement in de Proefstraat: lus van 3,4 km");
+  assert.equal(nu.info, `Parcours door 2 straten: Proefstraat en Tweedestraat. ${onbekendZin("naam-onbekend-lang")} Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2099800003 van de stad (A-Sign): aanvraag nog niet goedgekeurd.`);
+  assert.deepEqual(verbodenIn({ titel: nu.title, teksten: [nu.info] }), []);
+  // Met een handfiche: de naam uit de fiche, en de zin over de ontbrekende naam wordt die van de fiche.
+  const hand = { dossiers: { ET2099800003: { naam: "Proefloop", zekerheid: "zeker" } } };
+  const metFiche = oudeTekstBijwerken(oud, { hand });
+  assert.equal(metFiche.title, "Proefloop");
+  assert.doesNotMatch(metFiche.info, /naam onbekend|noemt geen naam/i);
+  // "Naam onbekend." alleen (een zin uit de lijst) blijft.
+  const kort = { title: "Evenement op het Proefplein", info: "Naam onbekend. Evenementendossier ET2099800004 van de stad (A-Sign): aanvraag goedgekeurd." };
+  assert.equal(oudeTekstBijwerken(kort), kort);
+});
+
 test("buildFeed: de tekst komt uit de feiten, en de feiten gaan niet mee naar de feed", () => {
   const { document } = asignEvenementenDocument(opties());
   const hand = { dossiers: { ET2099800001: fiche({ naam: "Proefloop" }) } };

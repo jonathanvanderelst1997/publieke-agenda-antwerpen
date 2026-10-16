@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-10-16",
   "sourceItemCount": 912,
-  "sourceDigest": "b5293d883742dcdc4bd940e647d913507372418bd98149db644e2327039ba0c6",
+  "sourceDigest": "358cb5af8688163c7662a3ee3f10b5abdf746e8e4e02e5b8f23861697612febe",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -436,7 +436,7 @@
     },
     {
       "id": "asign-ev-et2025005965-2026-10-23",
-      "title": "Evenement op het Theaterplein: verkeersvrije zone in 2 straten, naam onbekend",
+      "title": "Evenement op het Theaterplein: verkeersvrije zone in 2 straten",
       "eventDate": "2026-10-23",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -514,7 +514,7 @@
     },
     {
       "id": "asign-ev-et2025007162-2026-10-18",
-      "title": "Evenement in de Amsterdamstraat: verkeersvrije zone in 17 straten, naam onbekend",
+      "title": "Evenement in de Amsterdamstraat: verkeersvrije zone in 17 straten",
       "eventDate": "2026-10-18",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -579,7 +579,7 @@
     },
     {
       "id": "asign-ev-et2026003067-2026-10-17",
-      "title": "Evenement in de Carnotstraat: lus van 3,4 km, naam onbekend",
+      "title": "Evenement in de Carnotstraat: lus van 3,4 km",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -813,7 +813,7 @@
     },
     {
       "id": "asign-ev-et2026005103-2026-10-17",
-      "title": "Evenement in de Miraeusstraat: verkeersvrije zone in 2 straten, naam onbekend",
+      "title": "Evenement in de Miraeusstraat: verkeersvrije zone in 2 straten",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -826,7 +826,7 @@
     },
     {
       "id": "asign-ev-et2026005154-2026-10-25",
-      "title": "Evenement in de Van Campstraat: verkeersvrije zone in 2 straten, naam onbekend",
+      "title": "Evenement in de Van Campstraat: verkeersvrije zone in 2 straten",
       "eventDate": "2026-10-25",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -839,7 +839,7 @@
     },
     {
       "id": "asign-ev-et2026005298-2026-11-17",
-      "title": "Evenement in de Lange Sint-Annastraat: lus van 4,8 km, naam onbekend",
+      "title": "Evenement in de Lange Sint-Annastraat: lus van 4,8 km",
       "eventDate": "2026-11-17",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -878,7 +878,7 @@
     },
     {
       "id": "asign-ev-et2026005499-2026-11-29",
-      "title": "Evenement in de Beukenlaan: lus van 10,1 km, naam onbekend",
+      "title": "Evenement in de Beukenlaan: lus van 10,1 km",
       "eventDate": "2026-11-29",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -891,7 +891,7 @@
     },
     {
       "id": "asign-ev-et2026005554-2026-10-17",
-      "title": "Evenement in de Kronenburgstraat: lus van 4,7 km, naam onbekend",
+      "title": "Evenement in de Kronenburgstraat: lus van 4,7 km",
       "eventDate": "2026-10-17",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -904,7 +904,7 @@
     },
     {
       "id": "asign-ev-et2026005665-2026-11-15",
-      "title": "Evenement in de Floraliënlaan: parcours door 2 straten, naam onbekend",
+      "title": "Evenement in de Floraliënlaan: parcours door 2 straten",
       "eventDate": "2026-11-15",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -917,7 +917,7 @@
     },
     {
       "id": "asign-ev-et2026005676-2026-11-07",
-      "title": "Evenement op de Ossenmarkt: route van 3,5 km, naam onbekend",
+      "title": "Evenement op de Ossenmarkt: route van 3,5 km",
       "eventDate": "2026-11-07",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -956,7 +956,7 @@
     },
     {
       "id": "asign-ev-et2026005821-2026-12-06",
-      "title": "Evenement in de Argentiniëlaan: parcours door 26 straten, naam onbekend",
+      "title": "Evenement in de Argentiniëlaan: parcours door 26 straten",
       "eventDate": "2026-12-06",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -969,7 +969,7 @@
     },
     {
       "id": "asign-ev-et2026005943-2026-11-01",
-      "title": "Evenement op het Blauwtorenplein: parcours door 69 straten, naam onbekend",
+      "title": "Evenement op het Blauwtorenplein: parcours door 69 straten",
       "eventDate": "2026-11-01",
       "classification": "future",
       "classificationAsOf": "2026-10-16",
@@ -982,7 +982,7 @@
     },
     {
       "id": "asign-ev-et2026005960-2026-10-20",
-      "title": "Evenement in de Kleine Kauwenberg: parcours door 5 straten, naam onbekend",
+      "title": "Evenement in de Kleine Kauwenberg: parcours door 5 straten",
       "eventDate": "2026-10-20",
       "classification": "future",
       "classificationAsOf": "2026-10-16",

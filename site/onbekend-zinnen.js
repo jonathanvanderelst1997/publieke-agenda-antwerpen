@@ -55,6 +55,10 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   // Eén zin die zegt wat ontbreekt (niet "Naam onbekend: ... noemt geen naam": dat telde de meter twee keer).
   "naam-onbekend-lang": { zin: "Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is.", meter: "naam-stad-niet", kern: false, waar: "agenda" },
   "naam-dossier-route": { zin: "De stad noemt geen naam bij dit dossier.", meter: "naam-stad-niet", kern: false, waar: "kaart" },
+  // De korte noot op een gesloten kaart (site/kaart-bronnoot.js): wat er van een inname of evenement ontbreekt.
+  "bronnoot-activiteit": { zin: "Welke activiteit hier plaatsvindt is niet gepubliceerd", meter: "wat-zegt-stad-niet", kern: true, waar: "kaart" },
+  "bronnoot-naam": { zin: "Naam van het evenement niet gepubliceerd", meter: "naam-stad-niet", kern: false, waar: "kaart" },
+  "bronnoot-uur": { zin: "Uur niet gepubliceerd", meter: "uren-niet-gepubliceerd", kern: false, waar: "kaart" },
 
   // ---- omgevingsaanvragen ----
   "aanvraag-omschrijving": { zin: "De stadsbron geeft geen omschrijving. Wat er gebeurt, staat alleen in het dossier zelf.", meter: "doel-onbekend", kern: true, waar: "kaart" },
@@ -103,6 +107,8 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "nieuws-uur": { zin: "Het uur staat niet in het bericht.", meter: "uur-niet-in-bron", kern: true, waar: "lijst" },
   "bijwerkmoment": { zin: "Bijwerkmoment onbekend", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
   "bijwerkmoment-kort": { zin: "op een onbekend moment", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
+  // De banner bovenaan de agenda (agenda.js, renderBronWaarschuwing) als de bronstatus ontbreekt.
+  "bronversheid-onbekend": { zin: "De versheid van de officiële bronnen is nog niet bekend.", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
 });
 
 // De zin met een id, met {naam} ingevuld. Een onbekend id is een fout in de code: dan gooit de functie, zodat een

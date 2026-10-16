@@ -139,14 +139,14 @@ test("de toets weigert een andere zin, ook in een template of een ternary, en la
   const bron = [
     "// commentaar: de stad zegt niet hoe laat",
     "const a = \"Hoe laat het begint, zegt de stad niet.\";",
-    "const b = `Op ${dag}: ${x ? \"uur niet gepubliceerd\" : onbekendZin(\"uren-ontbreekt\")}.`;",
+    "const b = `Op ${dag}: ${x ? \"tijdstip niet gepubliceerd\" : onbekendZin(\"uren-ontbreekt\")}.`;",
     "const c = `${onbekendZin(\"datum\")}`, d = \"Uur onbekend\", e = \"uur-onbekend\", f = \"onbekend\";",
     "const g = /niet gepubliceerd/i, h = '<p class=\"pv-sectie-onbekend\">';",
     "const i = `Naam onbekend. ${reden}`, j = 'De naam volgt zodra de stad hem noemt.';",
   ].join("\n");
   const fout = stringLiterals(bron).flatMap((l) => zinnenBuitenLijst(l.s).map((z) => `${l.regel}: ${z}`));
   assert.deepEqual(fout.map((x) => x.split(":")[0]), ["2", "3", "6"]);
-  assert.match(fout[1], /uur niet gepubliceerd/);
+  assert.match(fout[1], /tijdstip niet gepubliceerd/);
   assert.match(fout[2], /naam volgt/);
 });
 
