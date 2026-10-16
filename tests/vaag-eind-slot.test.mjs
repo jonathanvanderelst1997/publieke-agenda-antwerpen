@@ -50,7 +50,9 @@ test("privacyfilter: een samenstelling van gewone woorden blijft, behalve na een
   }
   // Na "De", "Van" of "Den" is ook een samenstelling een mogelijke naam; zo ook "Grootwerf" of "Nieuwstand" (een gewoon
   // bijvoeglijk naamwoord vooraan maakt er geen gewoon woord van).
-  for (const t of ["Feest Van Standbar", "Tent De Werfkant", "Feest Grootwerf", "Kraam Nieuwstand", "Doop Oudkerk"]) {
+  // Met een kleine letter vooraan: anders telt het eerste woord ("Doop") al als naam en zegt de toets niets over het
+  // tweede (nakijkronde van head 0b264665: "Doop Oudkerk" was gemaskeerd).
+  for (const t of ["feest Van Standbar", "tent De Werfkant", "feest Grootwerf", "kraam Nieuwstand", "doop Oudkerk", "doop De Testkerk", "doop Van Testschool"]) {
     assert.equal(KU.bruikbareBeschrijving(t), "", t);
   }
 });
