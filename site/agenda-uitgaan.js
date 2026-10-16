@@ -169,12 +169,24 @@
   // ---- wekelijkse markten bundelen ----
   const WEEKDAYS = ["zo", "ma", "di", "wo", "do", "vr", "za"];
   const WEEKDAY_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  const DISTRICT_MARKETS_INFO = "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen";
+  const CITY_MARKETS_INFO = "https://www.antwerpen.be/shoppen-en-markten";
+  // Alleen de officiële bezoekerpagina, niet de technische GIPOD-bron, wordt gebundeld.
+  function marketVisitorLink(value) {
+    try {
+      const url = new URL(String(value || ""));
+      if (url.protocol !== "https:" || url.hostname !== "www.antwerpen.be" || url.port ||
+          url.username || url.password || url.search || url.hash) return "";
+      return url.href;
+    } catch { return ""; }
+  }
   function bundleWeeklyMarkets(items, today) {
     const groups = new Map();
     for (const item of items || []) {
       if (!isWeeklyMarket(item) || !isoDay(item.date)) continue;
       const key = `${clean(item.title)}|${clean(item.location)}`;
-      const group = groups.get(key) || { title: String(item.title || "Markt"), location: String(item.location || ""), days: new Set(), times: new Set(), dates: [], inDistrict: item.inDistrict, link: item.link || "" };
+      const group = groups.get(key) || { title: String(item.title || "Markt"), location: String(item.location || ""), days: new Set(), times: new Set(), dates: [], inDistrict: item.inDistrict, link: item.link || "", infoUrl: "" };
+      if (!group.infoUrl) group.infoUrl = marketVisitorLink(item.infoUrl);
       group.days.add(weekday(item.date));
       if (item.timeText) group.times.add(String(item.timeText));
       group.dates.push(item.date);
@@ -192,6 +204,7 @@
           count: group.dates.length,
           inDistrict: group.inDistrict,
           link: group.link,
+          infoUrl: group.infoUrl || (group.inDistrict === true ? DISTRICT_MARKETS_INFO : CITY_MARKETS_INFO),
         };
       })
       .sort((a, b) => Number(b.inDistrict === true) - Number(a.inDistrict === true) || a.title.localeCompare(b.title, "nl"));

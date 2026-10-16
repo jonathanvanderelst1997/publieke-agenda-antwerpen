@@ -213,6 +213,8 @@ body.agenda-focused {
 .stale-banner strong { display: block; color: var(--pa-warn); font-size: 1rem; }
 .stale-banner p { margin: 4px 0 0; font-size: 0.9rem; line-height: 1.55; color: var(--pa-ink); }
 .stale-emoji { font-size: 1.6rem; line-height: 1; }
+.source-warning-action { margin-top: 9px; padding: 6px 10px; border: 1px solid currentColor; background: transparent; color: inherit; border-radius: 6px; cursor: pointer; font-size: .88rem; }
+.source-warning-action:focus-visible { outline: 3px solid var(--pa-warn); outline-offset: 3px; }
 
 /* ---- filters ---- */
 .agenda-controls,

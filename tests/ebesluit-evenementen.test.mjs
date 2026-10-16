@@ -7,7 +7,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { EBESLUIT_MAX_PAGES, EBESLUIT_PAGE_SIZE, monthWindowsBetween, searchKeyword } from "../lib/ebesluit-discovery.mjs";
+import { EBESLUIT_MAX_PAGES, EBESLUIT_PAGE_SIZE, monthWindowsBetween, searchKeyword, resultCountFromSearch } from "../lib/ebesluit-discovery.mjs";
 import * as ev from "../lib/ebesluit-evenementen.mjs";
 import {
   EVENEMENT_BESLUITEN_FILE,
@@ -63,7 +63,13 @@ function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, extraRij
     calls.push(u);
     if (u.pathname === "/zoeken") {
       if (zoekStatus !== 200) return resp("", zoekStatus);
-      return resp(u.searchParams.get("query") === "Evenementen" ? fixture("zoeken.html").replace(/<\/div>\s*$/, `${extraRijen}</div>\n`) : '<span class="result-count">0 resultaten gevonden</span>');
+      // Deze fictieve zoekserver moet de totaalstand mee aanpassen bij extra testbesluiten.
+      // Echte bronresultaten met een afwijkend totaal blijven fail-closed.
+      if (u.searchParams.get("query") !== "Evenementen") return resp('<span class="result-count">0 resultaten gevonden</span>');
+      const resultaat = fixture("zoeken.html").replace(/<\/div>\s*$/, `${extraRijen}</div>\n`);
+      const aantal = (resultaat.match(/class="result-row"/g) || []).length;
+      return resp(resultaat.replace(/(<span class="result-count">)\d+( resultaten gevonden<\/span>)/,
+        (_, begin, einde) => `${begin}${aantal}${einde}`));
     }
     const id = u.pathname.split("/").pop();
     if (kapot.has(id)) return resp("", 404);
@@ -86,6 +92,14 @@ function makeRoot(t) {
 const readJson = (root, name) => JSON.parse(fs.readFileSync(path.join(root, "site", "sources", name), "utf8"));
 const noSleep = async () => {};
 const runOnce = (root, fetchImpl, extra = {}) => run({ rootDir: root, clock: () => NOW, fetch: fetchImpl, log: () => {}, sleep: noSleep, ...extra });
+
+test("de fictieve eBesluit-bron telt toegevoegde zoekrijen mee", async () => {
+  const added = zoekRij({ id: "26.0901.9999.9999", titel: "2026_CBS_09999 - Evenementen - Proefactiviteit - Goedkeuring" });
+  const response = await nepEbesluit({ extraRijen: added })("https://ebesluit.antwerpen.be/zoeken?query=Evenementen");
+  const markup = await response.text();
+  assert.equal(resultCountFromSearch(markup), 12);
+  assert.equal(zoekRijen(markup).length, 12);
+});
 
 // ---------- zoeken ----------
 

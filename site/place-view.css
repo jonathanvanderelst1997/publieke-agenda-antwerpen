@@ -55,6 +55,15 @@
 .pv-quick-locate { background: var(--pa-ink-strong); border-color: var(--pa-ink-strong); color: var(--pa-surface); }
 .pv-quick-chip:hover { border-color: var(--pa-accent); color: var(--pa-accent); }
 .has-place .pv-quick { display: none; }
+/* Officiële straten bewaard door de bezoeker; alleen browseropslag. */
+.pv-bewaard { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--pa-line); }
+.pv-bewaard-kop { display: block; margin-bottom: 8px; font-size: .92rem; color: var(--pa-ink-strong); }
+.pv-bewaard-list { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pv-bewaard-leeg, .pv-bewaard-status { font-size: .84rem; color: var(--pa-muted); }
+.pv-bewaard-status { margin: 9px 0 0; }
+.pv-bewaard-chip { min-height: 44px; padding: 8px 12px; border-radius: 12px; border: 1px solid var(--pa-line-strong); background: var(--pa-surface-2); color: var(--pa-ink-strong); font: inherit; font-size: .88rem; font-weight: 650; cursor: pointer; }
+.pv-bewaard-chip:hover, .pv-bewaard-chip:focus-visible { border-color: var(--pa-accent); outline-offset: 3px; }
+
 
 /* ---- plek ---- */
 .pv { margin: 0 0 28px; }

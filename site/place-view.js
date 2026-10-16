@@ -19,6 +19,7 @@ import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
+import { kaartBronNoot } from "./kaart-bronnoot.js";
 import { brusselsVandaag, metInzage, splitsOpOnderzoek } from "./inzage-status.js";
 import {bezoekersLinks,bezoekersHint,leesbaarUur,splitsLinks,rawData} from "./bezoekers-bronnen.js";
 import {publiekeMarktUur} from "./publieke-markturen.js";
@@ -26,6 +27,7 @@ import { locationKey, wijkFeatures, bboxOf, wijkOf } from "./neighborhood-core.j
 import { resolveAddressStreets, resolvePointStreet } from "./street-core.js";
 import { sameStreet } from "./agenda-view.js";
 import { laadStraat, laadStraatIndex, lagenUitStand, kaderRond, aanvullenMetOchtend, metStratenVanDeOchtend, verschil, standZin } from "./straat-snapshot.js";
+import { bewaardeStraten, isBewaardeStraat, wisselBewaardeStraat } from "./bewaarde-straten.js";
 
 const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[c]);
 const cssId = (v) => String(v).replace(/[^a-zA-Z0-9_-]/g, "_");
@@ -204,6 +206,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     <div class="pv-quick" aria-label="Snel kiezen">
       <button type="button" class="pv-quick-locate"><span aria-hidden="true">◎</span> Mijn buurt</button>
       <span class="pv-quick-list"></span>
+    </div>
+    <div class="pv-bewaard" aria-label="Mijn bewaarde straten">
+      <strong class="pv-bewaard-kop">Bewaarde straten</strong>
+      <div class="pv-bewaard-list"></div>
+      <p class="pv-bewaard-status" aria-live="polite">Hier bewaren we alleen officiële straatnamen op je toestel. Geen huisnummer of account.</p>
     </div>`;
   controls.replaceChildren(hero);
   controls.classList.add("pv-controls");
@@ -217,6 +224,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   hero.querySelector(".pv-search-slot").replaceWith(search);
   const $h = (s) => hero.querySelector(s);
   const listbox = $h("#pv-suggestions"), help = $h("#pv-search-help"), clearBtn = $h(".pv-search-clear"), quickList = $h(".pv-quick-list"), locateBtn = $h(".pv-quick-locate");
+  const bewaardList = $h(".pv-bewaard-list"), bewaardStatus = $h(".pv-bewaard-status");
+  const plaatsOpslag = (() => { try { return window.localStorage; } catch { return null; } })();
 
   const section = document.createElement("section");
   section.id = "plek";
@@ -291,6 +300,31 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   // ---- gegevens: straten, wijken, locaties ----
   let index = null, staticIndex = null, liveIndex = null, wijken = [], geo = { entries: {} }, refsByName = new Map();
+  function toonBewaardeStraten() {
+    bewaardList.replaceChildren();
+    const plekken = bewaardeStraten(index, plaatsOpslag);
+    if (!plekken.length) {
+      const leeg = document.createElement("span");
+      leeg.className = "pv-bewaard-leeg";
+      leeg.textContent = "Nog geen straten bewaard.";
+      bewaardList.append(leeg);
+      return;
+    }
+    for (const plek of plekken) {
+      const knop = document.createElement("button");
+      knop.type = "button";
+      knop.className = "pv-bewaard-chip";
+      knop.dataset.plekKey = plek.key;
+      knop.textContent = plek.label + " · " + plek.postcode;
+      knop.setAttribute("aria-label", "Ga naar bewaarde straat " + plek.label + ", " + plek.postcode);
+      bewaardList.append(knop);
+    }
+  }
+  bewaardList.addEventListener("click", (event) => {
+    const knop = event.target.closest("[data-plek-key]");
+    const plek = index?.byKey?.get(knop?.dataset.plekKey);
+    if (plek?.type === "straat") applyPlace(plek, { focusResults: true });
+  });
   try {
     const [straten, wijkDoc, geoDoc] = await Promise.all([
       getJson("/geo/straten.json"),
@@ -791,6 +825,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
         <h2 class="pv-place-name">${esc(place.label)}</h2>
         <div class="pv-place-actions">
+          ${place.type === "straat" ? '<button type="button" class="pv-btn pv-btn-ghost pv-save" aria-pressed="' + isBewaardeStraat(plaatsOpslag, place) + '">' + (isBewaardeStraat(plaatsOpslag, place) ? "Bewaard ✓" : "Bewaar straat") + '</button>' : ""}
           <button type="button" class="pv-btn pv-share" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
@@ -810,6 +845,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ${(() => { const s = place.type === "straat" ? snelZin() : null; return s?.zin ? `<p class="pv-place-loading pv-stand" role="status">${s.bezig ? `<span class="pv-spinner" aria-hidden="true"></span> ` : ""}${esc(s.zin)}</p>` : ""; })()}`;
   }
   placeBox.addEventListener("click", (event) => {
+    if (event.target.closest(".pv-save")) {
+      const uitkomst = wisselBewaardeStraat(index, plaatsOpslag, state.place);
+      bewaardStatus.textContent = uitkomst.message;
+      toonBewaardeStraten();
+      render();
+      return;
+    }
     const r = event.target.closest("[data-radius]");
     if (r) { state.radius = Number(r.dataset.radius); view.setArea({ radius: state.radius }); announce(); snelVoorStraat(state.place, { alleenLive: true }); return; }
     const p = event.target.closest("[data-place]");
@@ -1061,6 +1103,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const agendaWaar = entry.source === "agenda" ? agendaStraten(item, straatNu) : null;
     const jouwAgenda = agendaWaar?.jouwStraat ? `Ook in jouw straat: ${zonderHomoniem(agendaWaar.jouwStraat)}` : "";
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
+    const bronNoot = kaartBronNoot(entry, { zichtbaar: [duidelijk.melding, duidelijk.samenvatting] });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
     // technisch ArcGIS-blad is geen infopagina: ingeklapt, met een zin die zegt wat het is.
@@ -1088,6 +1131,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Of de kaart er een plek voor heeft, zegt de kaart zelf: de knop hangt niet af van de geometrie, zodat het
     // kaartje uit de stand van de ochtend en het live nagekeken kaartje er hetzelfde uitzien.
     const opKaart = entry.source !== "terraces" && entry.theme !== "markets" ? `<p class="pv-op-kaart-rij"><button type="button" class="pv-btn pv-btn-ghost pv-op-kaart" data-op-kaart="${esc(entry.uid)}">Toon op de kaart</button></p>` : "";
+    const werkHistoriekHtml = entry.source === "works" && Number.isSafeInteger(Number(item.gipodId)) && Number(item.gipodId) > 0
+      ? '<div class="pv-historiek"><button type="button" class="pv-btn pv-btn-ghost pv-historiek-knop" data-werk-historiek="work:' + Number(item.gipodId) + '">Dossierhistoriek bekijken (archief downloaden)</button><p class="pv-historiek-result pv-bron-hint" role="status" aria-live="polite"></p></div>'
+      : "";
     return `
       <li class="pv-row cat-${esc(k.cat)}${open ? " open" : ""}${entry.uitleg?.kern ? " pv-row-kern" : ""}" data-uid="${esc(entry.uid)}" data-soort="${kaartSoort(entry)}" data-tel="${esc(lijstSleutel(entry))}">
         <button type="button" class="pv-row-btn" aria-expanded="${open}" aria-controls="pv-d-${uid}">
@@ -1097,6 +1143,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
             <strong class="pv-row-title">${esc(duidelijk.titel)}</strong>
             ${duidelijk.melding ? `<span class="pv-row-alert">${esc(duidelijk.melding)}</span>` : ""}
             ${duidelijk.samenvatting ? `<span class="pv-row-summary">${esc(duidelijk.samenvatting)}</span>` : ""}
+            ${bronNoot ? `<span class="pv-row-summary pv-bronnoot">${esc(bronNoot)}</span>` : ""}
             ${waarKort && !entry.uitleg ? `<span class="pv-row-where">${esc(waarKort)}</span>` : ""}
             ${entry.jouwStraat ? `<span class="pv-row-jouw">${esc(entry.jouwStraat)}</span>` : ""}
             ${jouwAgenda ? `<span class="pv-row-jouw">${esc(jouwAgenda)}</span>` : ""}
@@ -1120,6 +1167,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${marktUur ? `<p class="pv-bron-hint">${esc(marktUur.status)}</p>` : ""}
           ${links.length ? `<p class="pv-links">${links.join("")}</p>` : ""}
           ${opKaart}
+          ${werkHistoriekHtml}
           ${technischBlok}
         </div>
       </li>`;
@@ -1328,7 +1376,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function marketsBlok(bundles) {
     const publiekeUren = m => publiekeMarktUur({sourceId:"stad-markten",inDistrict:m.inDistrict,location:m.location,title:m.title,date:m.nextDate});
     if (!bundles.length) return null;
-    return { kaartjes: bundles.length, html: `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets" data-soort="agenda" data-tel="${esc(lijstSleutel(marktBundelEntry(m)))}"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>` };
+    return { kaartjes: bundles.length, html: `<section class="pv-day" aria-label="Wekelijkse markten"><h3 class="pv-day-title"><span aria-hidden="true">🧺</span> Wekelijkse markten<span class="pv-day-n">${bundles.length}</span></h3><ul class="pv-markets">${bundles.map((m) => `<li class="cat-markets" data-soort="agenda" data-tel="${esc(lijstSleutel(marktBundelEntry(m)))}"><strong>${esc(m.title)}</strong><span>${esc(m.weekdays.join(", "))}${publiekeUren(m) ? ` · ${esc(publiekeUren(m).tekst)} (normale bezoekersuren stad)` : m.timeText ? ` · ${esc(m.timeText)} (GIPOD-innameuren)` : ""}</span>${m.location ? `<small>${esc(m.location)}</small>` : ""}${m.nextDate ? `<small>Volgende: ${esc(longDate(m.nextDate))}</small>` : ""}<a href="${esc(m.infoUrl || (m.inDistrict === true ? "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" : "https://www.antwerpen.be/shoppen-en-markten"))}" target="_blank" rel="noopener noreferrer">Stad Antwerpen: locatie en marktuur ↗</a></li>`).join("")}</ul></section>` };
   }
   // De tijdlijn geeft een eigen periode (`wanneer`: "op dinsdag 20 oktober", "in de komende 14 dagen") en
   // uitleg mee: een lege dag zegt niets over de hele plek. `later`: de tip "Toon ook wat later komt".
@@ -1487,6 +1535,25 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   }
 
   results.addEventListener("click", (event) => {
+    const historiekKnop = event.target.closest("[data-werk-historiek]");
+    if (historiekKnop) {
+      const id = historiekKnop.dataset.werkHistoriek;
+      const melding = historiekKnop.parentElement.querySelector(".pv-historiek-result");
+      historiekKnop.disabled = true;
+      melding.textContent = "GIPOD-archief raadplegen: kan enkele MB kosten…";
+      (async () => {
+        try {
+          const { werkHistoriekTekst } = await import("./werk-historiek.js");
+          const bericht = await werkHistoriekTekst(id, (n, totaal) => {
+            if (melding.isConnected) melding.textContent = "Archief doorzoeken (" + n + " van " + totaal + " dagen)…";
+          });
+          if (melding.isConnected) melding.textContent = bericht;
+        } catch {
+          if (melding.isConnected) melding.textContent = "Het archief is nu niet beschikbaar. Probeer later opnieuw.";
+        } finally { historiekKnop.disabled = false; }
+      })();
+      return;
+    }
     const dag = event.target.closest("[data-tl-dag]");
     if (dag) {
       const d = dag.dataset.tlDag, vorige = state.dagFilter;
@@ -1721,6 +1788,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   // ---- startplek uit de URL ----
   renderQuick();
+  toonBewaardeStraten();
   let initial = null;
   if (index) {
     if (url.searchParams.get("plek")) initial = resolvePlaceParam(index, url.searchParams.get("plek"));

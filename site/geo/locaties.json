@@ -25,7 +25,7 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "argentinielaan belfaststraat bostonstraat en 23 andere straten": {
+  "argentinielaan belfaststraat bostonstraat en 24 andere straten": {
    "point": [
     4.42611,
     51.2608
@@ -33,7 +33,7 @@
    "precision": "straat",
    "street": "Argentiniëlaan",
    "postcode": "2030",
-   "checkedOn": "2026-10-12"
+   "checkedOn": "2026-10-13"
   },
   "belegstraat broederminstraat haantjeslei en 4 andere straten": {
    "point": [
@@ -65,6 +65,16 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
+  "blauwtorenplein arenbergstraat armeduivelstraat en 66 andere straten": {
+   "point": [
+    4.40931,
+    51.21286
+   ],
+   "precision": "straat",
+   "street": "Blauwtorenplein",
+   "postcode": "2000",
+   "checkedOn": "2026-10-15"
+  },
   "brugstraat": {
    "point": [
     4.41859,
@@ -85,7 +95,7 @@
    "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
-  "co nova schijfstraat 105": {
+  "co nova schijfstraat 105 2020 antwerpen": {
    "point": [
     4.37308,
     51.19068
@@ -93,7 +103,7 @@
    "precision": "adres",
    "street": "Schijfstraat",
    "postcode": "2020",
-   "checkedOn": "2026-10-05"
+   "checkedOn": "2026-10-14"
   },
   "dageraadplaats": {
    "point": [
@@ -135,6 +145,16 @@
    "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
+  "de groene waterman wolstraat 2000 antwerpen": {
+   "point": [
+    4.40352,
+    51.22155
+   ],
+   "precision": "straat",
+   "street": "Wolstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-13"
+  },
   "de villegasstraat 2600 berchem": {
    "point": [
     4.42369,
@@ -175,16 +195,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "falconplein blindestraat kaasbrug en 7 andere straten": {
-   "point": [
-    4.40516,
-    51.22666
-   ],
-   "precision": "straat",
-   "street": "Falconplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "floralienlaan middelheimlaan en vogelzanglaan": {
    "point": [
     4.4211,
@@ -204,16 +214,6 @@
    "street": "Frederik van Eedenplein",
    "postcode": "2050",
    "checkedOn": "2026-10-05"
-  },
-  "groenplaats frans halsplein grote kauwenberg en 20 andere straten": {
-   "point": [
-    4.4013,
-    51.21873
-   ],
-   "precision": "straat",
-   "street": "Groenplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "grote markt": {
    "point": [
@@ -243,36 +243,6 @@
    "precision": "straat",
    "street": "Hanzestedenplaats",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "hanzestedenplaats veemarkt theaterplein en 8 andere straten": {
-   "point": [
-    4.405,
-    51.2287
-   ],
-   "precision": "straat",
-   "street": "Hanzestedenplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "hendrik conscienceplein ambtmanstraat grote markt en 18 andere straten": {
-   "point": [
-    4.40414,
-    51.2211
-   ],
-   "precision": "straat",
-   "street": "Hendrik Conscienceplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "herderstraat": {
-   "point": [
-    4.42934,
-    51.22323
-   ],
-   "precision": "straat",
-   "street": "Herderstraat",
-   "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
   "het oude badhuis stuivenbergplein 38": {
@@ -314,16 +284,6 @@
    "street": "Kioskplaats",
    "postcode": "2660",
    "checkedOn": "2026-10-05"
-  },
-  "kleine kauwenberg bataviastraat bonapartedok en 21 andere straten": {
-   "point": [
-    4.41202,
-    51.22418
-   ],
-   "precision": "straat",
-   "street": "Kleine Kauwenberg",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "kloosterstraat arenbergstraat armeduivelstraat en 31 andere straten": {
    "point": [
@@ -385,16 +345,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "lindendreef groenenborgerlaan middelheimlaan en 4 andere straten": {
-   "point": [
-    4.42077,
-    51.18124
-   ],
-   "precision": "straat",
-   "street": "Lindendreef",
-   "postcode": "2020",
-   "checkedOn": "2026-10-12"
-  },
   "meir": {
    "point": [
     4.40764,
@@ -425,7 +375,7 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "ossenmarkt hendrik conscienceplein hanzestedenplaats en 6 andere straten": {
+  "ossenmarkt appelmansstraat augustijnenstraat en 38 andere straten": {
    "point": [
     4.4135,
     51.22207
@@ -433,7 +383,7 @@
    "precision": "straat",
    "street": "Ossenmarkt",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
+   "checkedOn": "2026-10-14"
   },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
@@ -475,16 +425,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "raapstraat droogdokkenweg eikenstraat en 27 andere straten": {
-   "point": [
-    4.40563,
-    51.22386
-   ],
-   "precision": "straat",
-   "street": "Raapstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "rijnkaai kattendijkbrug adriaan brouwerstraat en 144 andere straten": {
    "point": [
     4.40208,
@@ -504,16 +444,6 @@
    "street": "Rooiplein",
    "postcode": "2600",
    "checkedOn": "2026-10-05"
-  },
-  "singel amerikalei amsterdamstraat en 42 andere straten": {
-   "point": [
-    4.39172,
-    51.20559
-   ],
-   "precision": "straat",
-   "street": "Amerikalei",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "sint franciscusplein 2170 merksem": {
    "point": [
@@ -595,16 +525,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "sloepenweg": {
-   "point": [
-    4.40221,
-    51.23539
-   ],
-   "precision": "straat",
-   "street": "Sloepenweg",
-   "postcode": "2030",
-   "checkedOn": "2026-10-12"
-  },
   "stadswaag": {
    "point": [
     4.40696,
@@ -612,26 +532,6 @@
    ],
    "precision": "straat",
    "street": "Stadswaag",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "stadswaag bataviastraat bonapartedok en 30 andere straten": {
-   "point": [
-    4.40696,
-    51.22411
-   ],
-   "precision": "straat",
-   "street": "Stadswaag",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "steenplein bataviastraat bonapartedok en 46 andere straten": {
-   "point": [
-    4.39671,
-    51.22179
-   ],
-   "precision": "straat",
-   "street": "Steenplein",
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
@@ -675,16 +575,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "theaterplein braderijstraat driehespenstraat en 37 andere straten": {
-   "point": [
-    4.41058,
-    51.21419
-   ],
-   "precision": "straat",
-   "street": "Theaterplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "theaterplein en oudevaartplaats": {
    "point": [
     4.41058,
@@ -705,6 +595,26 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
+  "tussen kruispunt met de lange van ruusbroecstraat en arendstraat 2018 antwerpen": {
+   "point": [
+    4.42757,
+    51.20652
+   ],
+   "precision": "straat",
+   "street": "Arendstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-10-16"
+  },
+  "tussen lange van ruusbroecstraat en arendstraat 2018 antwerpen": {
+   "point": [
+    4.42757,
+    51.20652
+   ],
+   "precision": "straat",
+   "street": "Arendstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-10-16"
+  },
   "van campstraat en korte van sterbeeckstraat": {
    "point": [
     4.42601,
@@ -713,26 +623,6 @@
    "precision": "straat",
    "street": "Van Campstraat",
    "postcode": "2060",
-   "checkedOn": "2026-10-12"
-  },
-  "veemarkt falconplein en plantinkaai": {
-   "point": [
-    4.39979,
-    51.22394
-   ],
-   "precision": "straat",
-   "street": "Veemarkt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "vekestraat bataviastraat bonapartedok en 36 andere straten": {
-   "point": [
-    4.4106,
-    51.22421
-   ],
-   "precision": "straat",
-   "street": "Vekestraat",
-   "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
   "viaduct dam en damplein": {
@@ -765,6 +655,26 @@
    "postcode": "2100",
    "checkedOn": "2026-10-05"
   },
+  "wzc hollebeek turnersstraat 38 2020 antwerpen": {
+   "point": [
+    4.38165,
+    51.18616
+   ],
+   "precision": "adres",
+   "street": "Turnersstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-10-14"
+  },
+  "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
+   "point": [
+    4.40031,
+    51.21588
+   ],
+   "precision": "adres",
+   "street": "Sint-Antoniusstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-14"
+  },
   "zillebekelaan 2600 berchem": {
    "point": [
     4.4434,
@@ -777,7 +687,6 @@
   }
  },
  "misses": {
-  "2000 2020 2050 antwerpen": "2026-10-05",
   "2000 en 2018 antwerpen": "2026-10-10",
   "2060 antwerpen": "2026-10-05",
   "a bib merksem parkweg 1": "2026-10-07",
@@ -788,12 +697,11 @@
   "bervoetstraat 2000 antwerpen": "2026-10-10",
   "bib permeke": "2026-10-05",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-05",
-  "co nova schrijfstraat 105": "2026-10-05",
   "constitutiestraat 2060 antwerpen": "2026-10-10",
   "demerstraat 2060 antwerpen": "2026-10-10",
   "district antwerpen locatie via de officiele bron": "2026-10-06",
-  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-05",
   "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district deurne locatie via de officiele bron": "2026-10-13",
   "district ekeren locatie via de officiele bron": "2026-10-05",
   "district hoboken locatie via de officiele bron": "2026-10-05",
   "district merksem locatie via de officiele bron": "2026-10-05",
@@ -826,7 +734,6 @@
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-10",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-10-10",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-10",
-  "spaarstraat 2060 antwerpen": "2026-10-10",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-10",
   "ten eeckhovelei 2100 deurne": "2026-10-05",
   "toeristisch centrum antwerpen": "2026-10-05",
