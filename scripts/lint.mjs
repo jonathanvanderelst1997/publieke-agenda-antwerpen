@@ -89,6 +89,9 @@ const javascriptFiles = [
   "tests/schoolstraten.test.mjs",
   "tests/district-projecten.test.mjs",
   "tests/foren-schoolstraten-projecten.test.mjs",
+  "lib/awv-werf.mjs",
+  "scripts/fetch-sources-awv-werf.mjs",
+  "tests/awv-werf.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
