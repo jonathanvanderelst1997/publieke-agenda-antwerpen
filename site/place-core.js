@@ -1661,7 +1661,11 @@ export const enterOpent = (suggestie, { pijltjes = false } = {}) => Boolean(sugg
 const straatasVan = (index) => (index?.byName instanceof Map ? (naam) => index.byName.has(locationKey(naam)) || index.byName.has(foldText(naam)) : null);
 export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [], isStraat = null } = {}) {
   const first = rows[0] || {};
-  const live = evenementFeiten(alle);
+  // De straatas (isStraat), zoals de verversing de omschrijvingen filterde: zowel de live omschrijvingen (evenementFeiten)
+  // als de bewaarde. Anders viel een plek met twee straatnamen of met De/Van weg ("Quinten Matsijslei - Van Eycklei", "De
+  // Coninckplein"; nakijkrondes van 13 oktober 2026 en van head c7f1a651).
+  const straatas = typeof isStraat === "function" ? isStraat : straatasVan(index);
+  const live = evenementFeiten(alle, { isStraat: straatas });
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
   const stratenLijst = verfijnVoorStraat(lijst || evenementStraten(alle, { bewaard, index }), straat, alle, index);
   const straten = stratenLijst.langs.length ? stratenLijst.langs : bewaard?.straten?.length ? bewaard.straten : live.straten;
@@ -1674,9 +1678,6 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
   // Bewaarde omschrijvingen gaan opnieuw door de filter (geen huisnummer, geen naam), met de straten van het dossier.
   const bewaardeStraten = [...(bewaard?.straten || []), ...live.straten];
-  // Met de straatas (isStraat), zoals de verversing ze filterde: anders viel een plek met twee straatnamen weg
-  // ("Quinten Matsijslei - Van Eycklei", nakijkronde 13 oktober 2026).
-  const straatas = typeof isStraat === "function" ? isStraat : straatasVan(index);
   const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten, isStraat: straatas }))].filter(Boolean))];
   // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
   // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet). Ook uit de bewaarde

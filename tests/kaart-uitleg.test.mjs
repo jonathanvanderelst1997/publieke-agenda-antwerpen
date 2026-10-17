@@ -99,8 +99,10 @@ const rijen = [
 test("vrije tekst uit het dossier alleen als ze over het evenement gaat", () => {
   assert.equal(bruikbareBeschrijving("maurits"), "");
   assert.equal(bruikbareBeschrijving("wandelen van het plein naar de kaai"), "wandelen van het plein naar de kaai");
-  // Met een hoofdletter kan een gewoon woord een achternaam zijn ("Wandelen"): liever een naam te veel weg (13 oktober 2026).
-  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "");
+  // Een gebeurteniswoord met een hoofdletter vooraan ("Wandelen") is geen achternaam (nakijkronde van head c7f1a651, bewust
+  // aangepast); een stam die ook een achternaam kan zijn ("Groot") blijft een mogelijke naam.
+  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "Wandelen van het plein naar de kaai");
+  assert.equal(bruikbareBeschrijving("Groot wandelen van het plein naar de kaai"), "");
   assert.equal(bruikbareBeschrijving("bel 0470 12 34 56 voor parkeren"), "");
   assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "Startlocatie -> drillocatie");
 });

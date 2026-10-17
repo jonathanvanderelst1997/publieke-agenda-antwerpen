@@ -33,9 +33,15 @@ test("privacyfilter: een achternaam die precies een gewoon woord is, gaat nooit 
   }
 });
 
-test("privacyfilter: ook een los gewoon woord met een hoofdletter vooraan of alleen kan een naam zijn", () => {
-  for (const t of ["Doop", "Stoet", "Drill", "Groot feest", "Tweede halte", "Kraam Proefplein", "Startlocatie Doop", "Event verkeersvrij, enkel fiets"]) {
+test("privacyfilter: ook een los gewoon woord met een hoofdletter vooraan of alleen kan een naam zijn, tenzij het een gebeurteniswoord is", () => {
+  // Een stam die ook een achternaam kan zijn ("Groot", "Hoek", "Bus", "Werf").
+  for (const t of ["Groot feest", "Hoek parcours", "Bus stoet", "Werf feest"]) {
     assert.equal(KU.bruikbareBeschrijving(t), "", t);
+  }
+  // Nakijkronde van head c7f1a651, bewust aangepast: een gebeurteniswoord ("Doop", "Stoet", "Drill", "Tweede", "Kraam",
+  // "Event") is geen achternaam, ook met een hoofdletter vooraan, alleen of midden in de zin.
+  for (const t of ["Doop", "Stoet", "Drill", "Tweede halte", "Kraam Proefplein", "Startlocatie Doop", "Event verkeersvrij, enkel fiets"]) {
+    assert.equal(KU.bruikbareBeschrijving(t), t, t);
   }
   // Zonder hoofdletter is het een trefwoord, geen naam.
   for (const t of ["doop", "stoet", "grote tent", "tweede halte", "kraam Proefplein", "startlocatie doop", "event verkeersvrij, enkel fiets"]) {
@@ -87,11 +93,14 @@ test("privacyfilter: de bewaarde omschrijvingen van de evenementen, zoals de pag
   // voorbij en een verversing haalt ze uit het bestand), met een straatas die de straatnamen van de inname kent.
   const uitleg = lees("tests/fixtures/kaart-uitleg-omschrijvingen.json");
   const getoond = Object.values(uitleg.evenementen).flatMap((e) => (e.beschrijvingen || []).map((b) => KU.veiligeOmschrijving(b, { straten: e.straten || [], isStraat: (n) => /^(?:Grote Markt|Stadswaag|Quinten Matsijslei|Van Eycklei|Theodoor Van Rijswijckplaats|Falconplein)$/.test(n) }))).filter(Boolean);
-  // Ook "Wandelen" (wandel-en) en "Correct" zijn gewone woorden met een hoofdletter: liever een naam te veel weg.
-  for (const weg of ["Inname: Doop", "Parcours: Stoet", "Inname: Drill", "Inname: Startlocatie Doop", "Inname: Eerste Stop (Stadswaag)", "Inname: Tweede Stop (Falconplein)", "Verkeersvrije Zone: Correct verkeersvrij", "Parcours: Wandelen van de Stadswaag naar het Falconplein"]) {
+  // Een woord dat geen gewoon woord is ("Teambuimding"), en na "Van" een plek die de straatas niet kent: weg.
+  for (const weg of ["Inname: Teambuimding (doop) zelf", "Inname: Van Eedenplein"]) {
     assert.ok(!getoond.includes(weg), `${weg} gaat niet meer door`);
   }
-  for (const blijft of ["Inname: Grote Markt", "Inname: Verzamelpunt", "Parcours: Wandelroute van start naar eind", "Inname: spelletjes/teambuilding", "Inname: doop", "Parcours: Spelletjeslocatie -> dooplocatie (voor de trappen)", "Inname: Quinten Matsijslei - Van Eycklei", "Inname: Sint-Jansplein-Van De Wervestraat"]) {
+  // Nakijkronde van head c7f1a651, bewust aangepast: een gebeurteniswoord met een hoofdletter ("Doop", "Stoet", "Drill",
+  // "Eerste", "Tweede", "Stop", "Wandelen", "Correct", "Event") is geen achternaam. Die omschrijvingen staan weer op de kaart.
+  for (const blijft of ["Inname: Grote Markt", "Inname: Verzamelpunt", "Parcours: Wandelroute van start naar eind", "Inname: spelletjes/teambuilding", "Inname: doop", "Parcours: Spelletjeslocatie -> dooplocatie (voor de trappen)", "Inname: Quinten Matsijslei - Van Eycklei", "Inname: Sint-Jansplein-Van De Wervestraat",
+    "Inname: Doop", "Parcours: Stoet", "Inname: Drill", "Inname: Startlocatie Doop", "Inname: Eerste Stop (Stadswaag)", "Inname: Tweede Stop (Falconplein)", "Verkeersvrije Zone: Correct verkeersvrij", "Verkeersvrije Zone: Event verkeersvrij, enkel fiets en voetganger", "Parcours: Wandelen van de Stadswaag naar het Falconplein"]) {
     assert.ok(getoond.includes(blijft), `${blijft} blijft`);
   }
 });

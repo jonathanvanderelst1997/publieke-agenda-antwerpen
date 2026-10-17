@@ -1,13 +1,17 @@
 // Nakijkronde van head 0b264665 (vaag-eind): de gaten in de privacyfilter van de omschrijvingen (site/kaart-uitleg.js:
 // lijktPersoonsnaam, veiligeTekst, bruikbareBeschrijving, veiligeOmschrijving, CONTACT) en de plaatsnamen
-// (lib/plaatsnaam.mjs: plaatsnaamVan). Elke toets hieronder faalt op 0b264665 en slaagt nu. De regel: bij twijfel weg,
-// liever een plaatsnaam te weinig dan een naam te veel. Alleen verzonnen proefdata (Testpersoon, Voorbeeld, Proefstraat,
-// .test-domeinen); geen netwerk.
+// (lib/plaatsnaam.mjs: plaatsnaamVan). Elke toets hieronder faalt op 0b264665 en slaagt nu; die van de nakijkronde van
+// head c7f1a651 (onderaan) falen op c7f1a651. De regel: bij twijfel weg, liever een plaatsnaam te weinig dan een naam te
+// veel. Alleen verzonnen proefdata (Testpersoon, Voorbeeld, Proefstraat, .test-domeinen); geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 
 import * as KU from "../site/kaart-uitleg.js";
 import * as PN from "../lib/plaatsnaam.mjs";
+import * as PC from "../site/place-core.js";
 
 // Zoals de kaart een bewaarde omschrijving opnieuw filtert (veiligeOmschrijving), en zoals de verversing de omschrijving
 // van de live laag nog eens door de filter haalt (evenementFeiten: zonder straatas).
@@ -140,4 +144,178 @@ test("letters buiten het Latijnse schrift, NFD en een titelletter: weg", () => {
   assert.equal(PN.plaatsnaamVan("Тестплощадь"), "");
   // Een Latijnse letter met een accent blijft gewoon een letter (NFC of NFD).
   assert.equal(KU.bruikbareBeschrijving("doop op de Proefplaats café".normalize("NFD")), "doop op de Proefplaats café");
+});
+
+// ======== Nakijkronde van head c7f1a651 (vaag-eind) ========
+// Elke toets hieronder faalt op c7f1a651 en slaagt nu. De voorbeelden van de reviewers zijn vervangen door verzonnen namen
+// met dezelfde vorm (een achternaam in kleine letters na De/Van, een D-naam met een ander apostrofteken, een naam van twee
+// of drie letters in hoofdletters); geen echte namen, straten of nummers.
+
+// ---- HOOG: na een voorvoegsel met een hoofdletter is ook een achternaam in kleine letters een naam ----
+
+test("c7f1a651: na De, Van, Vanden, VAN ... is het eerste woord een naam, ook in kleine letters", () => {
+  const isStraat = (n) => n.toLowerCase() === "de testpersoonstraat";
+  for (const t of ["feest De testpersoon", "tent Van voorbeeld", "feest bij De proefman", "feest Van den proefbroeck", "feest VAN voorbeeld", "feest Vanden testpersoon"]) {
+    nergensDoor(t);
+    nergensDoor(t, { isStraat });
+    assert.equal(KU.lijktPersoonsnaam(t), true, t);
+  }
+  // Een straat met die naam erin bewijst de naam niet: niet in de straatas, niet als stuk van een straat van de inname.
+  nergensDoor("feest bij De testpersoon", { isStraat });
+  nergensDoor("feest bij De Testpersoon", { straten: [{ name: "De Testpersoonstraat" }] });
+  // Ook met kleine voorvoegsels ertussen is een samenstelling een naam ("Van de Werfkant").
+  nergensDoor("feest Van de Werfkant");
+  // Een gewoon woord na De of Van blijft.
+  for (const t of ["De stoet vertrekt", "Van start aan de kaai"]) assert.equal(KU.bruikbareBeschrijving(t), t, t);
+  // Een straat in kleine letters na Van: alleen als de straatas of de straten van de inname ze kennen.
+  const t = "parkeerverbod Van proefbeeckstraat";
+  assert.equal(KU.bruikbareBeschrijving(t), "");
+  assert.equal(KU.bruikbareBeschrijving(t, { straten: [{ name: "Van Proefbeeckstraat" }] }), t);
+  assert.equal(KU.bruikbareBeschrijving(t, { isStraat: (n) => n.toLowerCase() === "van proefbeeckstraat" }), t);
+});
+
+// ---- MIDDEL: een D-naam met een ander apostrofteken, een spatie of een punt ----
+
+test("c7f1a651: D`, D´, D‘, D met een spatie of een punt: ook dat is een D-naam", () => {
+  for (const t of ["feest D`testpersoon", "feest d`testpersoon", "tent O`voorbeeld", "feest D‘testpersoon", "feest D testpersoon", "feest D.testpersoon", "feest D´testpersoon",
+    "feest D‛testpersoon", "feest D′testpersoon", "feest D-testpersoon"]) {
+    nergensDoor(t);
+    assert.equal(KU.lijktPersoonsnaam(t), true, t);
+  }
+  // Wat geen D-naam is, blijft: een afkorting met punten en een losse letter voor een gewoon woord.
+  for (const t of ["parkeerverbod t.o.v. de kaai", "stoet langs de O.L.V.-kerk", "parking D tent"]) assert.equal(KU.bruikbareBeschrijving(t), t, t);
+});
+
+// ---- MIDDEL: een naam van twee of drie letters in hoofdletters ----
+
+test("c7f1a651: een naam van twee of drie letters in hoofdletters is een naam; een afkorting alleen uit de vaste lijst", () => {
+  for (const t of ["feest TEP VOK", "feest bij JAX VOK", "tent LUP BOK", "feest BEX ALK", "feest AIX ALK", "feest bij EX HAX", "feest bij QI WEX", "tent bij KIX QI",
+    "feest ALK ER", "feest bij JAX", "feest QO"]) {
+    nergensDoor(t);
+    nergensDoor(t, { isStraat: (n) => n === "Proefstraat" });
+  }
+  // Ook naast een voornaam die een stuk van een straat van de inname is.
+  nergensDoor("feest Hendrik VOK", { straten: [{ name: "Hendrik Testlaan" }] });
+  // Afkortingen uit de lijst en een Romeins cijfer blijven.
+  for (const t of ["start aan het MAS", "parcours langs de MAS-toren", "feest met DJ en BBQ", "stoet langs het OCMW", "tent bij Fort VI", "parcours fase II", "tent KSA"]) {
+    assert.equal(KU.bruikbareBeschrijving(t, { isStraat: (n) => n === "Fort VI" }), t, t);
+  }
+});
+
+// ---- MIDDEL: een huisnummer als "datum" na een afgekorte, verkeerd gespelde of onbekende straat ----
+
+// Zonder en met een straatas die de straat niet kent.
+const zonderNummer = (t, opties = {}) => {
+  for (const o of [opties, { ...opties, isStraat: opties.isStraat || ((n) => n === "Testplein") }]) {
+    assert.doesNotMatch(KU.bruikbareBeschrijving(t, o), /\d/, t);
+    assert.doesNotMatch(KU.veiligeOmschrijving(`Inname: ${t}`, o), /\d/, t);
+  }
+};
+
+test("c7f1a651: een huisnummer na een afgekorte straat (str., stwg., ln.), een tikfout of -veld, -heide, -park, -hoeve gaat weg", () => {
+  for (const t of ["parkeerverbod proefstr 12-14", "parkeerverbod proefstr. 12/3", "parkeerverbod proefstwg 12-14", "feest proefln 12/3", "parkeerverbod proefstaat 12-14",
+    "parkeerverbod proefstraaat 12/3", "parkeerverbod proefveld 12-14", "parkeerverbod proefheide 12-14", "parkeerverbod proefpark 12-14", "parkeerverbod proefhoeve 12/3"]) zonderNummer(t);
+  // Ook als de straatas de straat voluit kent ("Lange Proefstraat").
+  zonderNummer("parkeerverbod lange proefstr. 12-14", { isStraat: (n) => n.toLowerCase() === "lange proefstraat" });
+  assert.equal(KU.bruikbareBeschrijving("parkeerverbod proefstr. 12/3"), "parkeerverbod proefstr.");
+  // Een "#" zonder nummer erachter blijft niet staan.
+  assert.equal(KU.bruikbareBeschrijving("parkeerverbod Proefstraat #3", { straten: ["Proefstraat"] }), "parkeerverbod Proefstraat");
+});
+
+test("c7f1a651: een datum zonder maandnaam alleen met een datumwoord ervoor en een maand tot 12, of voluit met jaartal", () => {
+  for (const t of ["kraam 12-14", "kraam op 12/14", "kraam 12/3", "parkeerverbod 12/3 proefstraat"]) {
+    assert.equal(KU.veiligNummer(t), false, t);
+    zonderNummer(t);
+  }
+  for (const t of ["kraam op 12/10", "kraam van 12/10 tot 14/10", "kraam zaterdag 3/10", "kraam 01/10/2026", "parkeerverbod 16-18 okt generator", "stop 3 proefwaag"]) {
+    assert.equal(KU.bruikbareBeschrijving(t, { straten: ["Proefwaag"] }), t, t);
+  }
+});
+
+test("c7f1a651: een getal vlak vóór een straat van de inname of uit de straatas gaat weg, behalve een volgnummer", () => {
+  const isStraat = (n) => n.toLowerCase() === "proefstraat";
+  assert.equal(KU.bruikbareBeschrijving("parkeerverbod op 12/3 proefstraat", { isStraat }), "parkeerverbod op proefstraat");
+  assert.equal(KU.bruikbareBeschrijving("parkeerverbod op 12/3 Proefstraat", { straten: ["Proefstraat"] }), "parkeerverbod op Proefstraat");
+  assert.equal(KU.bruikbareBeschrijving("stop 3 Proefstraat", { straten: ["Proefstraat"] }), "stop 3 Proefstraat");
+});
+
+test("c7f1a651: een getal na 'garage van', 'oprit van' of 'deur nr' is een huisnummer", () => {
+  for (const t of ["parkeerverbod voor garage van 12-14", "parkeerverbod oprit van 7", "tent voor deur nr. 3"]) zonderNummer(t);
+  assert.equal(KU.bruikbareBeschrijving("parkeerverbod voor garage van 12-14"), "parkeerverbod voor garage");
+});
+
+// ---- MIDDEL: een telefoonnummer met koppeltekens, punten of schuine strepen ----
+
+test("c7f1a651: een telefoonnummer met koppeltekens, punten of schuine strepen gaat nooit door, ook niet in stukken", () => {
+  for (const t of ["feest info 03-123-45-67", "feest info 03/123-45-67", "feest info +32-3-123-45-67", "feest info 04/71/12/34/56", "feest 04-71-12-34-56",
+    "tent, bel 0471 12-34-56", "tent, bel 03-123.45.67", "feest info 0032 3 123 45 67"]) {
+    nergensDoor(t);
+    assert.equal(KU.CONTACT.test(t), true, t);
+  }
+  // Zonder 0 of +32 vooraan: geen contact, maar ook geen datum, dus niet bruikbaar.
+  nergensDoor("feest info 3-123-45-67");
+  // Een datum is geen telefoonnummer.
+  for (const t of ["01/10/2026", "van 01/10/2026 tot 05/10/2026", "02/10 - 05/10 - 08/10", "09.00-12.00 en 14.00-17.00"]) assert.equal(KU.CONTACT.test(t), false, t);
+});
+
+// ---- MIDDEL: de straatas overal, ook in de verversing en de terugval ----
+
+const PROEF_AS = (n) => ["de testplein", "van testlei", "proefstraat"].includes(String(n).toLowerCase());
+
+test("c7f1a651: evenementFeiten filtert met de straatas: een plek met De of Van die niet bij de inname staat, blijft", () => {
+  const rij = (innameType, description, streets) => ({ reference: "ET2099000501", dossierType: "ETL", phase: "Evenement", innameType, description, streets, start: "2099-03-01", end: "2099-03-01" });
+  const rows = [rij("Inname", "markt op het De Testplein", [{ name: "Proefstraat" }]), rij("Parcours", "stoet over de Van Testlei", [])];
+  assert.deepEqual(KU.evenementFeiten(rows).beschrijvingen, []);
+  assert.deepEqual(KU.evenementFeiten(rows, { isStraat: PROEF_AS }).beschrijvingen, ["Inname: markt op het De Testplein", "Parcours: stoet over de Van Testlei"]);
+});
+
+test("c7f1a651: in de browser filtert evenementEntry de live omschrijvingen met de straatas van de site", () => {
+  const rij = (innameType, description, streets) => ({ reference: "ET2099000501", dossierType: "ETL", phase: "Evenement", innameType, description, streets, start: "2099-03-01", end: "2099-03-01" });
+  const rows = [rij("Inname", "markt op het De Testplein", [{ name: "Proefstraat" }]), rij("Parcours", "stoet over de Van Testlei", [])];
+  const index = { byName: new Map([["de testplein", []], ["van testlei", []]]) };
+  const entry = PC.evenementEntry(rows, { vandaag: "2099-02-20", index });
+  assert.deepEqual(entry.uitleg.beschrijvingen, ["Inname: markt op het De Testplein", "Parcours: stoet over de Van Testlei"]);
+});
+
+const as = (id, naam, coords) => ({ type: "Feature", geometry: { type: "LineString", coordinates: coords }, properties: { LSTRNMID: id, LSTRNM: naam, RSTRNMID: id, RSTRNM: naam, postcode: 2000, DISTRICT: "Antwerpen" } });
+
+test("c7f1a651: de verversing filtert met de straatas, ook een parcours zonder straten per inname", async () => {
+  const { bouwKaartUitleg } = await import("../lib/kaart-uitleg-refresh.mjs");
+  const streetFeatures = [as(1, "Proefstraat", [[4.400, 51.2], [4.405, 51.2]]), as(2, "De Testplein", [[4.41, 51.205], [4.412, 51.205]]), as(3, "Van Testlei", [[4.415, 51.206], [4.417, 51.206]])];
+  const district = { type: "Polygon", coordinates: [[[4.39, 51.19], [4.42, 51.19], [4.42, 51.21], [4.39, 51.21], [4.39, 51.19]]] };
+  const dag = Date.UTC(2099, 2, 1, 8);
+  const attrs = (innameId, innameTypeNaam, innameBeschrijving) => ({ dossierNummer: "ET2099000502", faseId: "F1", innameId, dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam, innameBeschrijving, innameHinder: "True", faseStartDatum: dag, faseEindDatum: dag });
+  const iodFeatures = [
+    { attributes: attrs("I1", "Parcours", "stoet over het De Testplein"), geometry: { paths: [[[4.4001, 51.2], [4.4049, 51.2]]] } },
+    { attributes: attrs("I2", "Inname", "markt aan de Van Testlei"), geometry: { rings: [[[4.4010, 51.1999], [4.4020, 51.1999], [4.4020, 51.2001], [4.4010, 51.2001], [4.4010, 51.1999]]] } },
+  ];
+  const { document } = await bouwKaartUitleg({ iodFeatures, district, streetFeatures, clock: () => new Date("2099-02-25T05:00:00Z"), fetch: null });
+  assert.deepEqual([...document.evenementen.ET2099000502.beschrijvingen].sort(), ["Inname: markt aan de Van Testlei", "Parcours: stoet over het De Testplein"]);
+});
+
+test("c7f1a651: de terugval bij een storing van A-Sign filtert de vorige omschrijvingen met de straatas", async (t) => {
+  const { schrijfKaartUitleg, KAART_UITLEG_FILE } = await import("../lib/kaart-uitleg-refresh.mjs");
+  const streetFeatures = [as(1, "Proefstraat", [[4.400, 51.2], [4.405, 51.2]]), as(2, "De Testplein", [[4.41, 51.205], [4.412, 51.205]]), as(3, "Van Testlei", [[4.415, 51.206], [4.417, 51.206]])];
+  const rootDir = fs.mkdtempSync(path.join(os.tmpdir(), "privacy-c7f1a651-"));
+  t.after(() => fs.rmSync(rootDir, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(rootDir, "site", "sources"), { recursive: true });
+  const vorige = { schemaVersion: 1, generatedAt: "2099-02-24T05:00:00Z", vanaf: "2099-02-24", tot: "2099-04-24", werken: {}, evenementen: {
+    ET2099000503: { start: "2099-03-01", eind: "2099-03-01", soort: "", soortBron: "", beschrijvingen: ["Inname: Proefstraat - Van Testlei", "Inname: markt op het De Testplein", "Inname: feest De testpersoon"], straten: ["Proefstraat"], kruist: [], stratenTekst: "", gekoppeld: null, kaart: [], kaartDeel: false },
+  } };
+  const bestand = path.join(rootDir, "site", "sources", KAART_UITLEG_FILE);
+  fs.writeFileSync(bestand, JSON.stringify(vorige));
+  const stil = () => {};
+  const gehouden = await schrijfKaartUitleg({ rootDir, works: { ok: false, items: [] }, publicSpace: { ok: false }, streetFeatures, fetch: null, clock: () => new Date("2099-02-25T05:00:00Z"), log: stil });
+  assert.deepEqual(gehouden.evenementen.ET2099000503.beschrijvingen, ["Inname: Proefstraat - Van Testlei", "Inname: markt op het De Testplein"]);
+});
+
+// ---- MIDDEL: een gebeurteniswoord met een hoofdletter of in hoofdletters is geen achternaam ----
+
+test("c7f1a651: een gebeurteniswoord vooraan, alleen of in hoofdletters is geen naam; een stam die een achternaam kan zijn wel", () => {
+  for (const t of ["NADARS", "PARCOURS CRITERIUM", "Start aan de Proefplaats", "Stoet", "Feest op de Proefplaats", "Opbouw podium", "OPBOUW PODIUM", "Wandelen van de Proefplaats naar het Testplein", "Event verkeersvrij"]) {
+    assert.equal(KU.bruikbareBeschrijving(t), t, t);
+    assert.equal(KU.veiligeOmschrijving(`Inname: ${t}`), `Inname: ${t}`, t);
+  }
+  // Namen blijven namen: een echte naam, een stam die ook een achternaam is, na een voorvoegsel of na een persoonswoord.
+  for (const t of ["feest Testpersoon", "tent TESTPERSOON", "feest bij De Groot", "tent familie Klein", "De Stoet vertrekt", "tent familie Feest", "Hoek feest", "STOET HOEK"]) nergensDoor(t);
 });

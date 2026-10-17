@@ -211,8 +211,10 @@ test("0.3 privacyfilter: geen e-mail, telefoon, link, huisnummer of persoonsnaam
   // De omschrijvingen met een trefwoord (de kaart van een evenement) krijgen dezelfde filter op persoonsnamen.
   assert.equal(bruikbareBeschrijving("Startlocatie doop"), "Startlocatie doop");
   assert.equal(bruikbareBeschrijving("tweede stop (Falconplein)"), "tweede stop (Falconplein)");
-  // Een gewoon woord met een hoofdletter ("Tweede", "Stop") kan een achternaam zijn (nakijkronde 13 oktober 2026).
-  assert.equal(bruikbareBeschrijving("Tweede Stop (Falconplein)"), "");
+  // Een gebeurteniswoord met een hoofdletter ("Tweede", "Stop") is geen achternaam (nakijkronde van head c7f1a651, bewust
+  // aangepast); een stam die ook een achternaam kan zijn ("Hoek") blijft een mogelijke naam.
+  assert.equal(bruikbareBeschrijving("Tweede Stop (Falconplein)"), "Tweede Stop (Falconplein)");
+  assert.equal(bruikbareBeschrijving("Tweede stop Hoek (Falconplein)"), "");
   assert.equal(bruikbareBeschrijving("Doopfeest Testpersoon Voorbeeld"), "");
 });
 
@@ -253,8 +255,10 @@ test("0.3 omschrijvingen (nakijk): een losse naam naast een trefwoord, 'Van' of 
   assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)"), "");
   assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "eerste stop (Proefwaag)");
   assert.equal(bruikbareBeschrijving("eerste stop (Proefwaag)", { straten: [{ name: "Proefwaag" }] }), "eerste stop (Proefwaag)");
-  // "Eerste" en "Stop" met een hoofdletter kunnen achternamen zijn: de straatas bewijst alleen de plek.
-  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "");
+  // "Eerste" en "Stop" zijn gebeurteniswoorden, geen achternamen (nakijkronde van head c7f1a651, bewust aangepast); een naam
+  // ernaast bewijst de straatas niet.
+  assert.equal(bruikbareBeschrijving("Eerste Stop (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "Eerste Stop (Proefwaag)");
+  assert.equal(bruikbareBeschrijving("Eerste Stop Testpersoon (Proefwaag)", { isStraat: (n) => n === "Proefwaag" }), "");
   assert.equal(bruikbareBeschrijving("wandelen van de Proefwaag naar het Falconplein", { straten: ["Proefwaag"] }), "wandelen van de Proefwaag naar het Falconplein");
   // Een samenstelling van gewone woorden ("Verkeersvrije": verkeer-s-vrij-e) en een klein woord ("Enkel") zijn geen naam.
   assert.equal(bruikbareBeschrijving("Verkeersvrije zone. Enkel tijdens de stoet"), "Verkeersvrije zone. Enkel tijdens de stoet");
