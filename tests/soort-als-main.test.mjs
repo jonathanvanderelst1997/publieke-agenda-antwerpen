@@ -129,3 +129,118 @@ test("de bewaarde kaart-uitleg.json: elke omschrijving is alleen straatnamen en 
   }
   assert.ok(omschrijvingen >= 0);
 });
+
+// ======== een omschrijving met een voorvoegsel ("Stoet: verzamelen ...") ========
+// Main gaf soortEvenementMet per inname twee teksten: de omschrijving met het voorvoegsel (alleen "Inname: " viel weg) en de
+// ruwe tekst zonder voorvoegsel. kenmerkenTekst geeft daarom per inname twee aparte kenmerken (nakijkronde van head 3b178d9:
+// de tak las alleen de tekst zonder voorvoegsel, en verloor zo de soort van een stoet, een braderie of de doop van een schip).
+// De verwachtingen hieronder zijn de uitkomst van de code van origin/main (6e5f736). Elke toets hier faalt op head 3b178d9.
+
+const DOSSIER_VV = "ET2099000801";
+const innameRij = (d, i, innameBeschrijving, innameTypeNaam = "Inname") => {
+  const n = normalizeIod({ dossierNummer: d, faseId: "F1", innameId: `I${i}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam, innameBeschrijving, faseStartDatum: Date.UTC(2099, 2, 1), faseEindDatum: Date.UTC(2099, 2, 1) }, { isStraat });
+  return { id: `iod:${d}:${i}`, kind: "iod", reference: n.dossier, dossierType: "ETL", phase: n.phase, innameType: n.type, title: n.type, start: n.start, end: n.end, streets: [], ...(n.description ? { description: n.description } : {}), kenmerk: n.kenmerk };
+};
+const zonderTekst = (rijen) => rijen.map(({ description, kenmerk, ...r }) => r);
+// De plekpagina: { soort, soortZeker } (evenementSoort), zoals evenementEntry ze gebruikt.
+const plekSoort = (rijen, uitleg) => { const s = PC.evenementSoort(rijen, { uitleg, isStraat }); return [s.soort, s.soortZeker]; };
+
+test("3b178d9: een omschrijving met een voorvoegsel geeft in de verversing de soort van main (de scheepsdoop blijft de doop van een schip)", () => {
+  // [omschrijvingen, soort, zeker, voorwerpen] zoals origin/main ze gaf (evenementFeiten op de rijen van de live laag).
+  const gevallen = [
+    [["Doopfeest schip: verzamelen"], "Doop van een schip", false, []],
+    [["Stoet: verzamelen aan de Proefstraat"], "Stoet", false, []],
+    // Een kermis, niet zeker: de tekst zonder voorvoegsel noemt alleen het reuzenrad (geen zeker reuzenrad).
+    [["Kermis: reuzenrad en kramen"], "Kermis", false, ["kramen"]],
+    [["Kermis: vlaggen van"], "Kermis", false, []],
+    [["Braderie: kramen"], "Markt", false, ["kramen"]],
+    [["Wandeling: start"], "Wandeling", false, []],
+    [["Fietstocht: start"], "Fietstocht", false, []],
+    [["Buurtfeest: tent"], "Buurtfeest", false, ["een tent"]],
+    [["Optocht: verzamelen"], "Stoet", false, []],
+    [["Processie: start"], "Stoet", false, []],
+    [["Carnavalstoet: verzamelen"], "Stoet", false, []],
+    [["Tent: podium en bar"], "", false, ["een tent", "een podium"]],
+    [["Reuzenrad: reuzenrad", "Kermis: kermis"], "Kermis", false, []],
+  ];
+  for (const [teksten, soort, zeker, voorwerpen] of gevallen) {
+    const f = KU.evenementFeiten(teksten.map((t, i) => innameRij(DOSSIER_VV, i, t)), { isStraat });
+    assert.deepEqual([f.soort, f.soortZeker, f.voorwerpen], [soort, zeker, voorwerpen], teksten.join(" | "));
+    // Van de tekst zelf gaat niets mee ("Proefstraat" staat niet in de straatas), alleen vaste woorden als kenmerk.
+    assert.deepEqual(f.beschrijvingen, [], teksten.join(" | "));
+    for (const k of f.kenmerken) assert.equal(KU.isKenmerk(k), true, k);
+  }
+});
+
+test("3b178d9: kenmerkenTekst geeft de volle tekst en de tekst zonder voorvoegsel als twee aparte kenmerken, nooit samengevoegd", () => {
+  assert.deepEqual(KU.kenmerkenTekst("Kermis: reuzenrad en kramen"), { vol: "kermis reuzenrad kramen dj", kort: "reuzenrad kramen dj", bewaard: "kermis reuzenrad kramen dj" });
+  assert.deepEqual(KU.kenmerkenVan({ description: "Kermis: reuzenrad en kramen" }), ["kermis reuzenrad kramen dj", "reuzenrad kramen dj"]);
+  assert.deepEqual(KU.kenmerkenVan({ description: "Doopfeest schip: verzamelen" }), ["doop doop schip", "overig"]);
+  // Zonder voorvoegsel: één kenmerk, zoals voorheen ("straat" voor een tekst die alleen een plek noemt).
+  assert.equal(KU.kenmerkTekst("verzamelen bij de tent"), "tent dj");
+  assert.equal(KU.kenmerkTekst("start aan de Proefstraat"), "straat");
+  assert.equal(KU.kenmerkTekst("Proefstraat"), "");
+  // Wat de live laag meegeeft: de kenmerken met "|" ertussen, elk alleen vaste woorden.
+  const n = normalizeIod({ dossierNummer: DOSSIER_VV, faseId: "F1", innameId: "I1", dossierStatus: "aanvraag_goedgekeurd", innameBeschrijving: "Stoet: verzamelen aan de Proefstraat" }, { isStraat: (x) => sleutel(x) === "proefstraat" });
+  assert.equal(n.kenmerk, "stoet|straat");
+  assert.equal(n.description, "Proefstraat");
+  assert.doesNotMatch(JSON.stringify(n), /verzamel|Stoet/);
+  for (const k of n.kenmerk.split("|")) assert.equal(KU.isKenmerk(k), true, k);
+});
+
+test("3b178d9: een kaart-uitleg.json in het formaat van main ('Inname: Stoet: ...') geeft de soort van main: het voorvoegsel valt er maar één keer af", () => {
+  const rijen = [innameRij(DOSSIER_VV, 0, "Stoet: verzamelen aan de Proefstraat")];
+  const main = { evenementen: { [DOSSIER_VV]: { beschrijvingen: ["Inname: Stoet: verzamelen aan de Proefstraat"], soort: "", straten: [] } } };
+  assert.deepEqual(KU.bewaardeKenmerken(main.evenementen[DOSSIER_VV]), ["stoet"]);
+  assert.deepEqual(plekSoort(zonderTekst(rijen), main), ["Stoet", false]);
+  // "Doopfeest schip: verzamelen" blijft ook zo de doop van een schip.
+  const schip = { evenementen: { [DOSSIER_VV]: { beschrijvingen: ["Inname: Doopfeest schip: verzamelen"], soort: "", straten: [] } } };
+  assert.deepEqual(plekSoort(zonderTekst(rijen), schip), ["Doop van een schip", false]);
+});
+
+test("3b178d9: de plekpagina geeft bij een voorvoegsel de soort van main, met de bewaarde uitleg van nu en die van main", () => {
+  // [omschrijving, soort en zeker met alleen de bewaarde uitleg, soort en zeker met de live rijen erbij] zoals origin/main.
+  // Main las op de plekpagina naast een bewaarde uitleg alleen de beschrijvingen (de volle tekst): "Kermis: reuzenrad en
+  // kramen" is daar met de live rijen erbij wel zeker een kermis.
+  const gevallen = [
+    ["Doopfeest schip: verzamelen", ["Doop van een schip", false], ["Doop van een schip", false]],
+    ["Stoet: verzamelen aan de Proefstraat", ["Stoet", false], ["Stoet", false]],
+    ["Kermis: reuzenrad en kramen", ["Kermis", false], ["Kermis", true]],
+    ["Kermis: vlaggen van", ["Kermis", false], ["Kermis", true]],
+  ];
+  for (const [t, bewaard, samen] of gevallen) {
+    const rijen = [innameRij(DOSSIER_VV, 0, t)];
+    const f = KU.evenementFeiten(rijen, { isStraat });
+    const nu = { evenementen: { [DOSSIER_VV]: bewaardVan(f) } };
+    const main = { evenementen: { [DOSSIER_VV]: { beschrijvingen: [`Inname: ${t}`], soort: f.soort, straten: [] } } };
+    assert.deepEqual(plekSoort(zonderTekst(rijen), nu), bewaard, `${t} (bewaard)`);
+    assert.deepEqual(plekSoort(rijen, nu), samen, `${t} (samen)`);
+    assert.deepEqual(plekSoort(zonderTekst(rijen), main), bewaard, `${t} (bewaard, bestand van main)`);
+    assert.deepEqual(plekSoort(rijen, main), samen, `${t} (samen, bestand van main)`);
+  }
+});
+
+test("3b178d9: verschiltoets met verzonnen omschrijvingen met voorvoegsel: de soort is die van main, langs elke weg (0 verschillen)", () => {
+  const { dossiers } = lees("./fixtures/soort-voorvoegsel-van-main.json");
+  assert.ok(dossiers.length >= 300);
+  const verschillen = [];
+  let metVoorvoegsel = 0;
+  for (const [i, { innames, main }] of dossiers.entries()) {
+    const d = `ET2099${300000 + i}`;
+    const rijen = innames.map(([type, t], j) => innameRij(d, j, t, type));
+    if (innames.some(([, t]) => /^[^:]{2,40}: /.test(t))) metVoorvoegsel += 1;
+    const f = KU.evenementFeiten(rijen, { isStraat });
+    const nu = { evenementen: { [d]: bewaardVan(f) } };
+    const vanMain = { evenementen: { [d]: { beschrijvingen: main.beschrijvingen, soort: main.feiten[0], straten: [] } } };
+    const wegen = {
+      feiten: [[f.soort, f.soortZeker, f.voorwerpen], main.feiten],
+      bewaard: [plekSoort(zonderTekst(rijen), nu), main.bewaard],
+      samen: [plekSoort(rijen, nu), main.samen],
+      "bewaard (bestand van main)": [plekSoort(zonderTekst(rijen), vanMain), main.bewaard],
+      "samen (bestand van main)": [plekSoort(rijen, vanMain), main.samen],
+    };
+    for (const [weg, [a, b]] of Object.entries(wegen)) if (JSON.stringify(a) !== JSON.stringify(b)) verschillen.push(`${innames.map(([, t]) => t).join(" | ")} ${weg}: main ${JSON.stringify(b)}, nu ${JSON.stringify(a)}`);
+  }
+  assert.deepEqual(verschillen.slice(0, 10), []);
+  assert.ok(metVoorvoegsel >= 200, `${metVoorvoegsel} dossiers met een voorvoegsel`);
+});

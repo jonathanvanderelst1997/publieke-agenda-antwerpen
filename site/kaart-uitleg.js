@@ -969,10 +969,16 @@ export function telVoorSoort(tekst) {
   const t = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 140);
   return t && !SOORT_CONTACT.test(t) && SOORT_TELT.test(t) ? t : "";
 }
-export function kenmerkTekst(tekst) {
-  const ruw = telVoorSoort(tekst);
-  if (!ruw) return "";
-  const t = clean(zonderOntkenning(ruw.replace(/^[^:]{2,40}: /, "")), 200);
+// zonderHuisnummer zoals origin/main het had (zonder de uitzondering voor een afstand of een duur, zie zonderHuisnummer
+// hieronder): main las de omschrijving van een inname voor de soort na deze functie ("Proefstraat 5 km" werd "Proefstraat km").
+const zonderHuisnummerVanMain = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
+// Een voorvoegsel vooraan een tekst ("Inname: ", of in de omschrijving zelf "Stoet: "): soortEvenementMet haalt er precies
+// één weg, zoals op origin/main.
+const VOORVOEGSEL = /^[^:]{2,40}: /;
+// De vaste woorden van één tekst die voor de soort telt: "-" als er na een ontkenning geen letter overblijft, "overig" als ze
+// niets uit de lijsten noemt.
+function kenmerkWoordenVan(tekst) {
+  const t = clean(zonderOntkenning(tekst), 200);
   if (!/\p{L}/u.test(t)) return "-";
   const woorden = [
     ...SOORTEN_EVENEMENT.filter(([re]) => re.test(t)).map(([, soort]) => SOORT_KENMERK[soort]),
@@ -983,16 +989,58 @@ export function kenmerkTekst(tekst) {
   if (alleenStraat(t)) uit.push("straat");
   return uit.length ? uit.join(" ") : "overig";
 }
-// Het kenmerk van een rij: wat de live laag of de verversing meegaf, anders (een oudere vastlegging, een toets) uit haar
-// ruwe omschrijving. Een rij uit de live laag heeft altijd een kenmerk, ook een leeg: haar gefilterde omschrijving telt
-// dus nooit voor de soort.
-export const kenmerkVan = (r = {}) => (typeof r?.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r?.description));
-// De kenmerken van een bewaard evenement (kaart-uitleg.json): wat de verversing als `kenmerken` bewaarde. Een bestand van
-// een verversing zonder kenmerken (zoals origin/main het schrijft) bewaarde de omschrijvingen zelf, met de soort ervoor
-// ("Inname: Startlocatie Doop"): dat zijn de ruwe teksten die main voor de soort las, dus dan hun kenmerk.
+// De kenmerken van één ruwe omschrijving, gelezen zoals origin/main ze voor de soort las, of null als de tekst niet telt
+// (telVoorSoort). Main gaf soortEvenementMet per inname TWEE teksten: de omschrijving ("Inname: " + de eerste 140 tekens na
+// zijn zonderHuisnummer; soortEvenementMet haalt alleen "Inname: " weg, een eigen voorvoegsel als "Stoet: " of "Doopfeest
+// schip: " blijft staan) en de ruwe tekst (waar soortEvenementMet dat eigen voorvoegsel wel weghaalt). Dus ook hier twee
+// aparte kenmerken, nooit samengevoegd: dingKeuze en gaatOver kijken per tekst, en `zeker` hangt daarvan af ("Kermis:
+// reuzenrad en kramen" is vermoedelijk een kermis, geen zeker reuzenrad).
+// - vol: de volle tekst, zoals main de omschrijving las (ook de plekpagina van main las alleen die, naast de bewaarde);
+// - kort: de tekst zonder voorvoegsel, zoals main de ruwe tekst las;
+// - bewaard: de volle tekst zoals de plekpagina van main hem uit kaart-uitleg.json las: main bewaarde de omschrijving na
+//   zijn zonderHuisnummer en paste dat daar nog eens toe ("Proefstraat 12a 10 km" werd zo "Proefstraat km").
+export function kenmerkenTekst(tekst) {
+  const ruw = telVoorSoort(tekst);
+  if (!ruw) return null;
+  const vol = zonderHuisnummerVanMain(ruw);
+  return { vol: kenmerkWoordenVan(vol), kort: kenmerkWoordenVan(ruw.replace(VOORVOEGSEL, "")), bewaard: kenmerkWoordenVan(zonderHuisnummerVanMain(vol)) };
+}
+// Zoals de live laag (normalizeIod in site/public-space-core.js) ze op een rij meegeeft (`kenmerk`): "vol|kort|bewaard" (een
+// kenmerk zelf is alleen kleine letters en spaties, of "-"), achteraan zonder wat gelijk is aan vol ("straat" als ze alle drie
+// gelijk zijn), en "" als de tekst niet telt.
+export function kenmerkTekst(tekst) {
+  const k = kenmerkenTekst(tekst);
+  if (!k) return "";
+  const delen = [k.vol, k.kort, k.bewaard];
+  while (delen.length > 1 && delen.at(-1) === k.vol) delen.pop();
+  return delen.join("|");
+}
+// De kenmerken van een rij: wat de live laag of de verversing meegaf, anders (een oudere vastlegging, een toets) uit haar
+// ruwe omschrijving. Een rij uit de live laag heeft altijd een kenmerk, ook een leeg: haar gefilterde omschrijving telt dus
+// nooit voor de soort.
+function kenmerkDelen(r = {}) {
+  const k = typeof r?.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r?.description);
+  if (!k) return null;
+  const [vol, kort = vol, bewaard = vol] = k.split("|");
+  return { vol, kort, bewaard };
+}
+// Voor de soort in de verversing (evenementFeiten): per inname het kenmerk van de volle tekst en dat van de tekst zonder
+// voorvoegsel, elk apart (zoals main per inname de beschrijving en de ruwe tekst las); [] als de tekst niet telt.
+export const kenmerkenVan = (r = {}) => { const k = kenmerkDelen(r); return k ? [k.vol, k.kort] : []; };
+// Alleen het kenmerk van de volle tekst: zo las de plekpagina van origin/main de live omschrijvingen naast een bewaarde
+// uitleg (alleen de beschrijvingen, niet de ruwe tekst).
+export const volKenmerkVan = (r = {}) => kenmerkDelen(r)?.vol || "";
+// Wat de verversing per inname bewaart (`kenmerken` in kaart-uitleg.json): het kenmerk zoals de plekpagina van main de
+// bewaarde omschrijving las.
+export const bewaardKenmerkVan = (r = {}) => kenmerkDelen(r)?.bewaard || "";
+// De kenmerken van een bewaard evenement (kaart-uitleg.json), zoals de plekpagina van origin/main ze las: wat de verversing
+// als `kenmerken` bewaarde (bewaardKenmerkVan, voor elke inname). Een bestand van een verversing zonder kenmerken
+// (zoals origin/main het schrijft) bewaarde de omschrijvingen zelf ("Inname: Stoet: verzamelen ..."): main las die na zijn
+// zonderHuisnummer (nog eens) en haalde er één voorvoegsel af ("Inname: "), niet twee; dan dus het kenmerk van wat zo
+// overblijft.
 export function bewaardeKenmerken(e = {}) {
   if (Array.isArray(e?.kenmerken)) return e.kenmerken.filter((k) => typeof k === "string" && k);
-  return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => kenmerkTekst(zonderHuisnummer(b).replace(/^[^:]{2,40}: /, ""))).filter(Boolean);
+  return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => zonderHuisnummerVanMain(b).replace(VOORVOEGSEL, "")).filter(Boolean).map(kenmerkWoordenVan);
 }
 // Is dit een kenmerk (alleen vaste woorden)? Voor de validatie van kaart-uitleg.json.
 const KENMERK_WOORD = new Set([...Object.values(SOORT_KENMERK), ...KENMERK_WOORDEN, "student", "straat", "overig"].flatMap((w) => w.split(" ")));
@@ -1069,18 +1117,20 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
   const ends = rows.map((r) => dagVan(r.end)).filter(Boolean).sort();
   const straten = uniek(rows.flatMap((r) => (r.streets || []).map((s) => s?.name))).sort((a, b) => a.localeCompare(b, "nl"));
   const beschrijvingen = uniek(onderdelen);
-  // De soort en de voorwerpen komen uit de kenmerken van de ruwe omschrijvingen (kenmerkTekst: vaste woorden, nooit de
-  // tekst zelf, en nooit de gefilterde omschrijving). De live laag en de verversing geven ze mee (`kenmerk`, uit
-  // normalizeIod); een rij zonder `kenmerk` (een oudere vastlegging, een toets) krijgt ze uit haar omschrijving.
-  const ruw = rows.map(kenmerkVan).filter(Boolean);
+  // De soort en de voorwerpen komen uit de kenmerken van de ruwe omschrijvingen (kenmerkenTekst: vaste woorden, nooit de
+  // tekst zelf, en nooit de gefilterde omschrijving): per inname dat van de volle tekst en dat van de tekst zonder
+  // voorvoegsel, elk apart, zoals main per inname de beschrijving en de ruwe tekst las. De live laag en de verversing geven
+  // ze mee (`kenmerk`, uit normalizeIod); een rij zonder `kenmerk` (een oudere vastlegging, een toets) krijgt ze uit haar
+  // omschrijving.
+  const ruw = rows.flatMap(kenmerkenVan);
   // Een fase "Opname" (A-Sign): een film- of foto-opname, wat de omschrijving ook zegt.
   const opname = rows.some((r) => isOpnameFase(r.phase));
   const sm = opname ? { soort: DING_LABEL(OPNAME.key), zeker: true } : soortEvenementMet(ruw);
   const soort = sm.soort || "";
   // Zonder "vermoedelijk" alleen als elke inname een omschrijving heeft die voor de soort telt (een kenmerk, zie
-  // kenmerkTekst; zo telde origin/main de omschrijvingen die zijn woordenfilter toonde). Niet de gefilterde
+  // kenmerkenTekst; zo telde origin/main de omschrijvingen die zijn woordenfilter toonde). Niet de gefilterde
   // omschrijving: die zegt sinds de privacyfilter alleen nog een straatnaam of een district.
-  const alleOmschreven = rows.length > 0 && rows.every((r) => kenmerkVan(r));
+  const alleOmschreven = rows.length > 0 && rows.every((r) => kenmerkenVan(r).length > 0);
   // Hoeveel innames er op de dag(en) zelf staan, en op welke dagen echt (een maandag per maand is geen
   // periode van maanden). Zie site/evenement-wat.js.
   const opDag = rows.filter((r) => clean(r.phase, 40) === "Evenement");
@@ -1099,9 +1149,10 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
     perSoortDagen,
     parcours: rows.filter((r) => clean(r.innameType || r.title, 80) === "Parcours").length,
     beschrijvingen,
-    // De kenmerken (vaste woorden) van de omschrijvingen: de verversing bewaart ze in kaart-uitleg.json, zodat de
-    // plekpagina de soort ook zonder live rijen uit de ruwe tekst kent (evenementSoort in site/place-core.js).
-    kenmerken: [...new Set(ruw)],
+    // De kenmerken (vaste woorden) van de volle omschrijvingen (bewaardKenmerkVan): de verversing bewaart ze in
+    // kaart-uitleg.json, zodat de plekpagina de soort ook zonder live rijen kent (evenementSoort in site/place-core.js),
+    // zoals de plekpagina van origin/main ze uit de bewaarde beschrijvingen las.
+    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter(Boolean))],
     soort,
     soortZeker: Boolean(sm.zeker && (opname || alleOmschreven)),
     alleOmschreven, opname,

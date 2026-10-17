@@ -196,14 +196,21 @@ test("ba03ff4: kenmerkTekst geeft dezelfde soort, dezelfde dingen en dezelfde vo
     perDossier.set(a.dossierNummer, [...(perDossier.get(a.dossierNummer) || []), a.innameBeschrijving]);
   }
   const extra = [["Doopfeest MTS Testboot"], ["Reuzenrad", "Proefstraat"], ["kermis", "opslag reuzenrad"], ["vlaggen boven de straat", "reuzenboeken", "kerstverlichting"], ["tent met DJ", "sticker"],
-    ["geen kermis", "braderie"], ["parcours 10K"], ["foodtruck en dixitoilet", "buitenpodium"], ["Stoet van de doop", "studenten"], ["geen stoet"], ["Stickers van de buurt", "Proefstraat"]];
+    ["geen kermis", "braderie"], ["parcours 10K"], ["foodtruck en dixitoilet", "buitenpodium"], ["Stoet van de doop", "studenten"], ["geen stoet"], ["Stickers van de buurt", "Proefstraat"],
+    // Met een voorvoegsel (nakijkronde van head 3b178d9): main las de omschrijving met en de ruwe tekst zonder voorvoegsel.
+    ["Stoet: verzamelen aan de Proefstraat"], ["Kermis: reuzenrad en kramen"], ["Doopfeest schip: verzamelen"], ["Tent: podium en bar", "Kermis: vlaggen van"]];
+  // zonderHuisnummer zoals origin/main het had: main las de omschrijving voor de soort na deze functie.
+  const zonderHuisnummerVanMain = (t) => t.replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
   let n = 0;
   for (const teksten of [...perDossier.values(), ...extra]) {
-    const kenmerken = teksten.map((t) => KU.kenmerkTekst(t)).filter(Boolean);
-    // Wat main voor de soort las: de eerste 140 tekens van een tekst die zijn woordenfilter toonde (telVoorSoort).
+    // Per inname de kenmerken, elk apart (de volle tekst en de tekst zonder voorvoegsel).
+    const kenmerken = teksten.flatMap((t) => KU.kenmerkenVan({ description: t }));
+    // Wat main voor de soort las: van elke tekst die zijn woordenfilter toonde (de eerste 140 tekens, telVoorSoort) de
+    // omschrijving ("Inname: " + de tekst na zijn zonderHuisnummer) en de ruwe tekst.
     const ruw = teksten.map((t) => KU.telVoorSoort(t)).filter(Boolean);
-    assert.equal(kenmerken.length, ruw.length, teksten.join(" | "));
-    assert.deepEqual(KU.soortEvenementMet(kenmerken), KU.soortEvenementMet(ruw), teksten.join(" | "));
+    const vanMain = [...new Set(ruw.map((t) => `Inname: ${zonderHuisnummerVanMain(t)}`)), ...ruw];
+    assert.equal(teksten.filter((t) => KU.kenmerkenVan({ description: t }).length).length, ruw.length, teksten.join(" | "));
+    assert.deepEqual(KU.soortEvenementMet(kenmerken), KU.soortEvenementMet(vanMain), teksten.join(" | "));
     assert.deepEqual(EW.voorwerpenIn(kenmerken), EW.voorwerpenIn(ruw), teksten.join(" | "));
     assert.deepEqual(EW.dingenIn(kenmerken), EW.dingenIn(ruw), teksten.join(" | "));
     assert.equal(EW.versieringTekst(kenmerken), EW.versieringTekst(ruw), teksten.join(" | "));

@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, kenmerkVan, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -1670,15 +1670,17 @@ const straatasVan = (index) => (index?.byName instanceof Map ? (naam) => index.b
 // De soort van een evenementendossier op de plekpagina: { soort, soortZeker }. Een opname (de fase) wint; anders de soort uit
 // de kenmerken van alle omschrijvingen (live en bewaard), zonder "vermoedelijk" alleen als het hele dossier over dat ding
 // gaat en elke inname een omschrijving heeft (soortEvenementMet); anders de soort van de live rijen of die van de
-// verversing. De kenmerken zijn vaste woorden uit de RUWE tekst (kenmerkTekst in site/kaart-uitleg.js; de verversing
-// bewaart ze als `kenmerken`): nooit de tekst die de privacyfilter (site/witte-lijst.js) overlaat. Zo blijft de soort
+// verversing. Zoals de plekpagina van origin/main naast een bewaarde uitleg alleen de beschrijvingen las (de volle tekst,
+// niet de ruwe tekst zonder voorvoegsel), telt hier per inname alleen het kenmerk van de volle tekst (volKenmerkVan). De
+// kenmerken zijn vaste woorden uit de RUWE tekst (kenmerkenTekst in site/kaart-uitleg.js; de verversing bewaart ze als
+// `kenmerken`): nooit de tekst die de privacyfilter (site/witte-lijst.js) overlaat. Zo blijft de soort
 // van elk evenement die van origin/main: uit "Doopfeest MTS Testboot" houdt de filter niets over, en het kenmerk zegt
 // nog altijd "de doop van een schip" (nakijkronde van head e2969b3, het dossier van de scheepsdoop van 19-21 november
 // 2026). Zonder bewaarde uitleg: de soort van de live rijen (evenementFeiten).
 export function evenementSoort(alle = [], { uitleg = null, isStraat = null, live = evenementFeiten(alle, { isStraat }) } = {}) {
   const bewaard = uitleg?.evenementen?.[live.dossier] || null;
   if (!bewaard) return { soort: live.soort, soortZeker: live.soortZeker };
-  const kenmerken = [...alle.map(kenmerkVan).filter(Boolean), ...bewaardeKenmerken(bewaard)];
+  const kenmerken = [...alle.map(volKenmerkVan).filter(Boolean), ...bewaardeKenmerken(bewaard)];
   const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(kenmerken);
   const soort = sm.soort || live.soort || bewaard.soort || "";
   const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
