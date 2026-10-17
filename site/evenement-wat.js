@@ -247,6 +247,9 @@ const VOORWERP_KENMERK = Object.freeze({
   "een tent": "tent", "een podium": "buitenpodium", kramen: "kramen", "een wand": "wand", "een generator": "generator",
   "een foodtruck": "food truck", toiletten: "dixitoilet", "een container": "container", "een aankondigingsbord": "aankondigingsbord",
 });
+// Alle woorden die kenmerkWoorden kan geven (voor de validatie van bewaarde kenmerken: alleen vaste woorden).
+export const KENMERK_WOORDEN = Object.freeze([...new Set([...Object.values(DING_KENMERK), ...VERSIERING_KENMERK.map(([, w]) => w),
+  ...Object.values(VOORWERP_KENMERK), "dj", "opslag"].flatMap((w) => w.split(" ")))]);
 export function kenmerkWoorden(tekst) {
   const t = clean(zonderOntkenning(tekst), 400);
   if (!t) return [];

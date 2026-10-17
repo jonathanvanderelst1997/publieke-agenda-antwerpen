@@ -149,23 +149,17 @@ test("3. bij het afkappen eerst de eigen plekken en de zone, dan het parcours (d
 
 // ---------- 7. huisnummers ----------
 
-test("7. geen huisnummer in een omschrijving: sinds de witte lijst (site/witte-lijst.js) valt elk getal weg, ook een afstand of een uur", () => {
-  const vormen = {
-    "parkeerverbod tegenover nr 12": "parkeerverbod",
-    "parkeerverbod t.o.v. 34": "parkeerverbod",
-    "Parkeerverbod langs de parkeerstrook thv 5": "Parkeerverbod langs de parkeerstrook",
-    "parkeerverbod Proefstraat 12-14": "parkeerverbod",
-    "wandelen 5 km · stop 2 stadspark": "wandelen … stop … stadspark",
-    "parcours 10K": "parcours",
-    "12 fietsennadars": "fietsennadars",
-  };
-  for (const [in_, uit] of Object.entries(vormen)) assert.equal(bruikbareBeschrijving(in_), uit, in_);
+test("7. geen huisnummer in een omschrijving: de privacyfilter (site/witte-lijst.js) laat alleen hele straatnamen en districten over, nooit een getal", () => {
+  // Zonder straatas blijft er niets over: geen woord, geen getal, geen afstand of uur.
+  for (const t of ["parkeerverbod tegenover nr 12", "parkeerverbod t.o.v. 34", "Parkeerverbod langs de parkeerstrook thv 5", "parkeerverbod Proefstraat 12-14",
+    "wandelen 5 km · stop 2 stadspark", "parcours 10K", "12 fietsennadars"]) assert.equal(bruikbareBeschrijving(t), "", t);
   // Met de straatas blijft de straat, het nummer niet.
   const isStraat = (n) => ["Proefstraat", "Proefhelmstraat"].includes(n);
-  for (const t of ["parkeerverbod Proefstraat van huisnummer 1 - 26", "parkeerverbod Proefstraat 12-14", "parkeerverbod Proefstraat van 4 tot"]) assert.equal(bruikbareBeschrijving(t, { isStraat }), "parkeerverbod Proefstraat", t);
-  assert.equal(bruikbareBeschrijving("parkeerverbod Proefhelmstraat tot 40", { isStraat }), "parkeerverbod Proefhelmstraat");
+  for (const t of ["parkeerverbod Proefstraat van huisnummer 1 - 26", "parkeerverbod Proefstraat 12-14", "parkeerverbod Proefstraat van 4 tot"]) assert.equal(bruikbareBeschrijving(t, { isStraat }), "Proefstraat", t);
+  assert.equal(bruikbareBeschrijving("parkeerverbod Proefhelmstraat tot 40", { isStraat }), "Proefhelmstraat");
   // Een bewaarde omschrijving (kaart-uitleg.json van een oudere verversing) gaat opnieuw door de filter.
-  assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"), "Parkeerverbod in Straat: parkeerverbod");
+  assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"), "");
+  assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod Proefstraat t.o.v. 123", { isStraat }), "Parkeerverbod in Straat: Proefstraat");
   // Het vangnet in de validatie keurt een bestand met zo'n nummer af, en het bestand van nu heeft er geen.
   assert.ok(HUISNUMMER_IN_OMSCHRIJVING.test("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"));
   assert.ok(HUISNUMMER_IN_OMSCHRIJVING.test("Inname: Proefstraat 12"));

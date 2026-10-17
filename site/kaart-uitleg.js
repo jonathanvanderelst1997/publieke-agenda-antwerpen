@@ -6,13 +6,11 @@
 // bron staan, en de bron van die afleiding gaat mee. Geen klok: "vandaag" komt altijd van buiten.
 
 import {
-  DINGEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
+  DINGEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { BEKENDE_PLAATSNAMEN, isBekendePlaatsnaam, sleutel as straatSleutel, witteLijst, witteTekst } from "./witte-lijst.js";
-
-export { BEKENDE_PLAATSNAMEN, isBekendePlaatsnaam };
+import { sleutel as straatSleutel, witteTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -879,32 +877,29 @@ export function isEvenementDossier(row = {}) {
   return /^ET/i.test(clean(row.reference || row.dossier, 40)) || /^ETL$/i.test(clean(row.dossierType, 20));
 }
 
-// De privacyfilter van de vrije tekst uit A-Sign (innameBeschrijving) is een WITTE LIJST: site/witte-lijst.js. Uit de
-// tekst blijft alleen over wat aantoonbaar een plek of een trefwoord is: een volledige officiële straatnaam (de straatas,
-// `isStraat`, of een straat van de inname, `straten`), een woord uit de vaste lijst van soorten plekken en gebeurtenissen,
-// of een district, wijk of bekende plek uit de vaste lijst. Al de rest valt weg, ook elk woord met een hoofdletter, elk
-// cijfer en elke telefoon-, mail- of huisnummervorm (nakijkronde van head ba03ff4: een zwarte lijst van naamvormen bleef
-// lek). Geeft "" als er geen plek en geen gebeurteniswoord overblijft.
+// De privacyfilter van de vrije tekst uit A-Sign (innameBeschrijving): site/witte-lijst.js. GRONDREGEL: uit de tekst
+// blijft alleen een volledige officiële straatnaam uit de straatas (`isStraat`, of een straat van de inname uit diezelfde
+// straatas, `straten`) of een district van Antwerpen over; al de rest valt weg, ook elk ander woord, elk cijfer en elke
+// telefoon-, mail- of huisnummervorm. Geeft "" als er geen straatnaam en geen district overblijft. De soort van een
+// evenement komt nooit uit deze tekst (kenmerkTekst hieronder).
 export function veiligeTekst(tekst, { straten = [], isStraat = null } = {}) {
   return witteTekst(tekst, { straten, isStraat });
 }
-// Een omschrijving die de kaart toont: dezelfde witte lijst.
+// Een omschrijving die de kaart toont: dezelfde filter.
 export const bruikbareBeschrijving = (tekst, opties = {}) => veiligeTekst(tekst, opties);
 
-// Een bewaarde omschrijving ("Parkeerverbod: parkeerverbod Proefstraat" in kaart-uitleg.json, van een verversing met
-// oudere code) opnieuw door de witte lijst. De soort vooraan ook: een vaste soort van A-Sign (innameTypeNaam: "Inname",
-// "Parcours", "Verkeersvrije Zone", "Parkeerverbod in Straat") of een soort die zelf helemaal op de lijst staat, anders
-// "Inname". De vaste soorten staan apart: de witte lijst laat sinds de nakijkronde van head e2969b3 twee stammen met een
-// hoofdletter naast elkaar ("Verkeersvrije Zone") en een stam met een hoofdletter na kleine letters ("in Straat") niet
-// meer door. "" als er niets bruikbaars overblijft.
-const VASTE_INNAME_SOORTEN = new Set(["Inname", "Parcours", "Parkeerverbod in Straat", "Parkeerverbod op Plein", "Verkeersvrije Zone", "Omleiding"]);
+// Een bewaarde omschrijving ("Parkeerverbod in Straat: Proefstraat" in kaart-uitleg.json, ook van een verversing met
+// oudere code) opnieuw door de filter. De soort vooraan is een vaste soort van A-Sign (innameTypeNaam: "Inname",
+// "Parcours", "Verkeersvrije Zone", "Parkeerverbod in Straat" ...), anders "Inname": geen vrije tekst. "" als er geen
+// straatnaam en geen district overblijft.
+const VASTE_INNAME_SOORTEN = new Set(["Inname", "Parcours", "Parkeerverbod in Straat", "Parkeerverbod op Plein", "Verkeersvrije Zone", "Omleiding", "Blokken op shot"]);
 export function veiligeOmschrijving(regel, opties = {}) {
   const m = clean(regel, 400).match(/^([^:]{2,60}): (.+)$/);
   if (!m) return veiligeTekst(regel, opties);
   const b = veiligeTekst(m[2], opties);
   if (!b) return "";
   const soort = clean(m[1], 60);
-  return `${VASTE_INNAME_SOORTEN.has(soort) || witteLijst(soort).tekst === soort ? soort : "Inname"}: ${b}`;
+  return `${VASTE_INNAME_SOORTEN.has(soort) ? soort : "Inname"}: ${b}`;
 }
 
 // "Grote Markt" is een plein, geen markt: alleen woorden die echt een markt noemen tellen.
@@ -953,18 +948,32 @@ export function soortEvenement(teksten = []) {
 
 // De kenmerken van één ruwe omschrijving, als vaste woorden: de soort, de dingen en de voorwerpen (kenmerkWoorden in
 // site/evenement-wat.js), en "straat" als de tekst alleen een plek noemt. Nooit de tekst zelf: de verversing en de live laag
-// (normalizeIod in site/public-space-core.js) geven dit mee naast de gefilterde omschrijving, zodat de soort van een
-// evenement niet uit de getoonde tekst hoeft te komen (nakijkronde van head ba03ff4: met een strengere filter verdween
-// de soort). "overig": de tekst noemt iets anders; "" zonder tekst of met contactgegevens.
+// (normalizeIod in site/public-space-core.js) geven dit altijd mee naast de gefilterde omschrijving (ook leeg), en de
+// soort van een evenement komt alleen hieruit, nooit uit de tekst die de privacyfilter (site/witte-lijst.js) overlaat.
+//
+// Welke omschrijvingen tellen, is precies wat origin/main voor de soort las: de vroegere woordenfilter van de kaart
+// (bruikbareBeschrijving van voor de privacyfilter) liet een omschrijving alleen door met een woord over het evenement
+// (SOORT_TELT) en zonder contactgegevens (SOORT_CONTACT), en alleen de eerste 140 tekens; de soort kwam uit wat zo
+// overbleef. Die lijst toont hier niets: ze beslist alleen welke ruwe tekst een kenmerk krijgt, zodat de soort van elk
+// evenement gelijk blijft aan die op main (een "Kermisattractie" zonder ander woord gaf daar geen kermis, en geeft hier
+// ook geen). "overig": de tekst telt maar noemt niets uit de lijsten; "-": de tekst telt maar houdt na een ontkenning
+// geen letter ("geen stoet"); "": de tekst telt niet (dan ook niet voor alleOmschreven, zoals op main).
+const SOORT_TELT = /\b(?:van|naar|stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
+const SOORT_CONTACT = /[@]|https?:|www\.|\b(?:tel|gsm|contact)\b|\d{4}\s?\d{2}\s?\d{2}/i;
 const SOORT_KENMERK = Object.freeze({
   Studentendoop: "doop", Loopwedstrijd: "loopwedstrijd", Wielerwedstrijd: "wielerwedstrijd", Fietstocht: "fietstocht", Stoet: "stoet",
   Wandeling: "wandeling", Markt: "braderie", Buurtfeest: "buurtfeest", "Tocht met haltes": "stop",
 });
+// De ruwe tekst zoals ze voor de soort telt (de eerste 140 tekens), of "" als ze niet telt.
+export function telVoorSoort(tekst) {
+  const t = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 140);
+  return t && !SOORT_CONTACT.test(t) && SOORT_TELT.test(t) ? t : "";
+}
 export function kenmerkTekst(tekst) {
-  const ruw = clean(String(tekst ?? "").normalize("NFKC").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 200);
-  if (!ruw || CONTACT.test(ruw)) return "";
+  const ruw = telVoorSoort(tekst);
+  if (!ruw) return "";
   const t = clean(zonderOntkenning(ruw.replace(/^[^:]{2,40}: /, "")), 200);
-  if (!/\p{L}/u.test(t)) return "";
+  if (!/\p{L}/u.test(t)) return "-";
   const woorden = [
     ...SOORTEN_EVENEMENT.filter(([re]) => re.test(t)).map(([, soort]) => SOORT_KENMERK[soort]),
     ...(/student|schacht|\bdril/i.test(t) ? ["student"] : []),
@@ -974,6 +983,20 @@ export function kenmerkTekst(tekst) {
   if (alleenStraat(t)) uit.push("straat");
   return uit.length ? uit.join(" ") : "overig";
 }
+// Het kenmerk van een rij: wat de live laag of de verversing meegaf, anders (een oudere vastlegging, een toets) uit haar
+// ruwe omschrijving. Een rij uit de live laag heeft altijd een kenmerk, ook een leeg: haar gefilterde omschrijving telt
+// dus nooit voor de soort.
+export const kenmerkVan = (r = {}) => (typeof r?.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r?.description));
+// De kenmerken van een bewaard evenement (kaart-uitleg.json): wat de verversing als `kenmerken` bewaarde. Een bestand van
+// een verversing zonder kenmerken (zoals origin/main het schrijft) bewaarde de omschrijvingen zelf, met de soort ervoor
+// ("Inname: Startlocatie Doop"): dat zijn de ruwe teksten die main voor de soort las, dus dan hun kenmerk.
+export function bewaardeKenmerken(e = {}) {
+  if (Array.isArray(e?.kenmerken)) return e.kenmerken.filter((k) => typeof k === "string" && k);
+  return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => kenmerkTekst(zonderHuisnummer(b).replace(/^[^:]{2,40}: /, ""))).filter(Boolean);
+}
+// Is dit een kenmerk (alleen vaste woorden)? Voor de validatie van kaart-uitleg.json.
+const KENMERK_WOORD = new Set([...Object.values(SOORT_KENMERK), ...KENMERK_WOORDEN, "student", "straat", "overig"].flatMap((w) => w.split(" ")));
+export const isKenmerk = (k) => typeof k === "string" && (k === "-" || (/^[a-z]+(?: [a-z]+)*$/.test(k) && k.split(" ").every((w) => KENMERK_WOORD.has(w))));
 
 // Alle innames van één dossier worden één kaartje.
 export function bundelInnames(rows = []) {
@@ -1046,17 +1069,18 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
   const ends = rows.map((r) => dagVan(r.end)).filter(Boolean).sort();
   const straten = uniek(rows.flatMap((r) => (r.streets || []).map((s) => s?.name))).sort((a, b) => a.localeCompare(b, "nl"));
   const beschrijvingen = uniek(onderdelen);
-  // De soort en de voorwerpen komen uit de kenmerken van alle ruwe omschrijvingen (kenmerkTekst: vaste woorden, nooit de
-  // tekst zelf). De live laag en de verversing geven ze mee (`kenmerk`, uit normalizeIod) naast de gefilterde
-  // omschrijving; een rij zonder `kenmerk` krijgt ze uit haar omschrijving.
-  const ruw = rows.map((r) => (typeof r.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r.description))).filter(Boolean);
+  // De soort en de voorwerpen komen uit de kenmerken van de ruwe omschrijvingen (kenmerkTekst: vaste woorden, nooit de
+  // tekst zelf, en nooit de gefilterde omschrijving). De live laag en de verversing geven ze mee (`kenmerk`, uit
+  // normalizeIod); een rij zonder `kenmerk` (een oudere vastlegging, een toets) krijgt ze uit haar omschrijving.
+  const ruw = rows.map(kenmerkVan).filter(Boolean);
   // Een fase "Opname" (A-Sign): een film- of foto-opname, wat de omschrijving ook zegt.
   const opname = rows.some((r) => isOpnameFase(r.phase));
   const sm = opname ? { soort: DING_LABEL(OPNAME.key), zeker: true } : soortEvenementMet(ruw);
   const soort = sm.soort || "";
-  // Zonder "vermoedelijk" alleen als elke inname een omschrijving heeft die de kaart ziet (de live laag
-  // laat een omschrijving zonder woord uit de lijst weg: dan weten we niet wat er nog staat).
-  const alleOmschreven = rows.length > 0 && rows.every((r) => clean(r.description, 200));
+  // Zonder "vermoedelijk" alleen als elke inname een omschrijving heeft die voor de soort telt (een kenmerk, zie
+  // kenmerkTekst; zo telde origin/main de omschrijvingen die zijn woordenfilter toonde). Niet de gefilterde
+  // omschrijving: die zegt sinds de privacyfilter alleen nog een straatnaam of een district.
+  const alleOmschreven = rows.length > 0 && rows.every((r) => kenmerkVan(r));
   // Hoeveel innames er op de dag(en) zelf staan, en op welke dagen echt (een maandag per maand is geen
   // periode van maanden). Zie site/evenement-wat.js.
   const opDag = rows.filter((r) => clean(r.phase, 40) === "Evenement");
@@ -1075,6 +1099,9 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
     perSoortDagen,
     parcours: rows.filter((r) => clean(r.innameType || r.title, 80) === "Parcours").length,
     beschrijvingen,
+    // De kenmerken (vaste woorden) van de omschrijvingen: de verversing bewaart ze in kaart-uitleg.json, zodat de
+    // plekpagina de soort ook zonder live rijen uit de ruwe tekst kent (evenementSoort in site/place-core.js).
+    kenmerken: [...new Set(ruw)],
     soort,
     soortZeker: Boolean(sm.zeker && (opname || alleOmschreven)),
     alleOmschreven, opname,

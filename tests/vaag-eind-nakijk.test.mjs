@@ -191,21 +191,20 @@ test("districtsnieuws zonder plaats of uur zegt dat het bericht die niet geeft",
 });
 
 test("privacyfilter: een achternaam die met een gewoon woord begint, of een naam vooraan, laat niets van de naam over", () => {
-  // De witte lijst (site/witte-lijst.js): een woord dat niet helemaal uit woorden van de lijst bestaat, valt weg.
+  // De privacyfilter (site/witte-lijst.js): een woord dat geen hele straatnaam of district is, valt weg.
   const woordenVan = (t) => (String(t).toLowerCase().match(/[\p{L}\p{N}]+/gu) || []);
   for (const [t, naam] of [["Doopfeest Standproefaert", "standproefaert"], ["Feest Dagtesteaux", "dagtesteaux"], ["Tent Spelvoorbeeldier", "spelvoorbeeldier"],
     ["Startlocatie doop Bartestier", "bartestier"], ["Feest Parktester", "parktester"], ["Testpersoon feest", "testpersoon"], ["Testpersoon tent", "testpersoon"], ["Stand Testpersoon", "testpersoon"]]) {
     assert.ok(!woordenVan(bruikbareBeschrijving(t)).includes(naam), t);
   }
-  assert.equal(bruikbareBeschrijving("Doopfeest Standproefaert"), "Doopfeest");
-  assert.equal(bruikbareBeschrijving("Testpersoon feest"), "feest");
-  // Trefwoorden, samenstellingen en plekken blijven.
-  for (const t of ["Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Verzamelpunt", "tweede halte"]) assert.equal(bruikbareBeschrijving(t), t, t);
-  assert.equal(bruikbareBeschrijving("Voor de trappen: doop"), "trappen: doop");
-  // Twee plekken met een koppelteken, met een straatnaam die met "Van" begint: alleen een straat van de inname of de
-  // straatas bewijst "Van De Teststraat", en dan als hele naam.
+  // GRONDREGEL (site/witte-lijst.js): geen trefwoorden meer, alleen hele straatnamen uit de straatas en districten.
+  for (const t of ["Doopfeest Standproefaert", "Testpersoon feest", "Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Verzamelpunt", "tweede halte", "Voor de trappen: doop"]) {
+    assert.equal(bruikbareBeschrijving(t), "", t);
+  }
+  // Twee plekken met een koppelteken, met een straatnaam die met "Van" begint: alleen als het hele woord met koppelteken uit
+  // straatnamen van de straatas (of van de inname) bestaat, blijft het; anders niets, ook niet het stuk dat een straat is.
   assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat"), "");
-  assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat", { straten: [{ name: "Van De Teststraat" }] }), "Van De Teststraat");
+  assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat", { straten: [{ name: "Van De Teststraat" }] }), "");
   assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat", { isStraat: (n) => ["Van De Teststraat", "Proefplein"].includes(n) }), "Proefplein-Van De Teststraat");
 });
 

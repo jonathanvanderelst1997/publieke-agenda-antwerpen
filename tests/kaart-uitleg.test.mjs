@@ -93,26 +93,28 @@ const rij = (i, type, beschrijving, straten) => ({
 const rijen = [
   rij(1, "Parcours", "10K volwassenen", ["Aaastraat", "Beestraat", "Ceestraat"]),
   rij(2, "Parcours", "maurits", ["Deestraat", "Eestraat"]),
-  rij(3, "Inname", "Startzone en aankomst", ["Aaastraat"]),
+  rij(3, "Inname", "Startzone en aankomst aan de Aaastraat", ["Aaastraat"]),
 ];
 
-test("vrije tekst uit het dossier alleen als ze over het evenement gaat", () => {
+test("vrije tekst uit het dossier: alleen hele straatnamen uit de straatas en districten (GRONDREGEL)", () => {
+  const isStraat = (n) => ["proefplein", "proefkaai"].includes(String(n).toLowerCase());
   assert.equal(bruikbareBeschrijving("maurits"), "");
-  assert.equal(bruikbareBeschrijving("wandelen van het plein naar de kaai"), "wandelen van het plein naar de kaai");
-  // De witte lijst (site/witte-lijst.js): een gebeurteniswoord ("Wandelen") blijft, ook met een hoofdletter; een woord dat
-  // niet op de lijst staat ("Groot", "maurits") valt weg, de rest blijft.
-  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "Wandelen van het plein naar de kaai");
-  assert.equal(bruikbareBeschrijving("Groot wandelen van het plein naar de kaai"), "wandelen van het plein naar de kaai");
+  // Geen woordenlijst meer (site/witte-lijst.js): "wandelen", "plein", "kaai" vallen weg, ook met een hoofdletter.
+  assert.equal(bruikbareBeschrijving("wandelen van het plein naar de kaai"), "");
+  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "");
+  assert.equal(bruikbareBeschrijving("Groot wandelen van het Proefplein naar de Proefkaai", { isStraat }), "Proefplein … Proefkaai");
+  assert.equal(bruikbareBeschrijving("Wandelen in Berchem"), "Berchem");
   assert.equal(bruikbareBeschrijving("bel 0470 12 34 56 voor parkeren"), "");
-  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "Startlocatie → drillocatie");
+  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "");
+  assert.equal(bruikbareBeschrijving("Proefplein -&gt; Proefkaai", { isStraat }), "Proefplein → Proefkaai");
 });
 
 test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk over naam en uren", () => {
   const f = evenementFeiten(rijen);
   assert.equal(f.soort, "Loopwedstrijd");
   assert.equal(f.straten.length, 5);
-  // Een getal valt altijd weg (ook "10K"); de soort komt uit het kenmerk van de ruwe tekst (kenmerkTekst).
-  assert.deepEqual(f.beschrijvingen, ["Parcours: volwassenen", "Inname: Startzone en aankomst"]);
+  // Alleen de straat van de inname blijft over (privacyfilter); de soort komt uit het kenmerk van de ruwe tekst ("10K").
+  assert.deepEqual(f.beschrijvingen, ["Inname: Aaastraat"]);
   const wijk = (s) => (s === "Eestraat" ? "Zuid" : "Centrum");
   const k = evenementKaartje(f, { vandaag: VANDAAG, wijkVan: wijk });
   // De soort komt uit een woord in het dossier ("10K"): dus "vermoedelijk", met de reden erbij.
@@ -171,7 +173,11 @@ test("de site bundelt innames per dossier en geeft werken een duidelijke titel",
 });
 
 test("A-Sign-omschrijving gaat mee door de normalisatie", () => {
-  assert.equal(normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " start  zone ", dossierStatus: "aanvraag_goedgekeurd" }).description, "start zone");
+  const n = normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " start  zone  Proefstraat ", dossierStatus: "aanvraag_goedgekeurd" }, { isStraat: (x) => x === "Proefstraat" });
+  // Alleen de straatnaam gaat mee als omschrijving; het kenmerk zegt dat de tekst voor de soort telt, zonder de tekst zelf.
+  assert.equal(n.description, "Proefstraat");
+  assert.equal(n.kenmerk, "straat");
+  assert.equal(normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " start  zone ", dossierStatus: "aanvraag_goedgekeurd" }).description, undefined);
 });
 
 test("kaartschets: vereenvoudigd en zonder netwerk", () => {

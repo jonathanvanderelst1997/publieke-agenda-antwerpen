@@ -1,12 +1,10 @@
-// Nakijkronde van head e2969b3 (17 oktober 2026): de witte lijst (site/witte-lijst.js) liet nog namen door die zelf op de
-// lijst staan of die na een afkorting met een punt staan.
-//   1. De naamsloten werkten niet na "fam.", "dhr.", "mevr." (de punt telde als grens) en niet in HOOFDLETTERS.
-//   2. Gangbare namen stonden zelf op de lijst ("Pier", "Kersten" = kerst + en, "Dağ" = dag zonder breve) of kwamen door
-//      na een voorzetsel ("voor Meir", "bij Mas") of na een woord in kleine letters ("Feest van Pier").
-//   3. In de browser gaf evenementEntry met een bewaarde uitleg de doop van een schip als studentendoop: de soort kwam uit
-//      de gefilterde tekst ("Doopfeest"), niet uit de kenmerken van de ruwe omschrijving.
-// Elke toets hier faalt op e2969b3 en slaagt nu. Alleen verzonnen proefdata (Testboot, Proefkaai, dossiers 2099); de
-// straatas is de publieke van de repo (site/geo). Geen netwerk.
+// Nakijkrondes van head e2969b3 en 801ed9f (17 oktober 2026): de witte lijst van toen (site/witte-lijst.js) liet namen door
+// die zelf op haar woordenlijst stonden, en kreeg er telkens een naamslot bij. Sinds de GRONDREGEL is er geen woordenlijst en
+// geen naamslot meer: uit de tekst blijft alleen een volledige officiële straatnaam uit de straatas of een district over
+// (tests/grondregel-privacyfilter.test.mjs). De invoer van die rondes blijft hier als regressie: van elke naam die geen
+// straatnaam of district is, blijft niets over. De toetsen over de soort (de doop van een schip) blijven zoals ze waren.
+// Alleen verzonnen proefdata (Testboot, Proefkaai, dossiers 2099); de straatas is de publieke van de repo (site/geo).
+// Geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -41,52 +39,59 @@ const geenNaam = (t, naam, opties = {}) => {
   }
 };
 
-test("e2969b3: na fam., dhr. en mevr. (met een punt) valt de naam weg, ook als hij op de lijst staat", () => {
-  for (const [t, naam] of [
-    ["Verhuis fam. Kersten", "Kersten"], ["Feest mevr. Bar", "Bar"], ["Verhuis Fam. Dağ", "Dağ"], ["Feest bij fam. Dam", "Dam"], ["Verhuis dhr. Meir", "Meir"],
-    ["Verhuis fam. Kiel", "Kiel"], ["Verhuis (fam. Kersten)", "Kersten"], ["Tent dhr. Tent", "dhr"], ["Kraam mevr. Kraam", "mevr"],
-  ]) geenNaam(t, naam);
-  // Een straat met een familienaam wijst een gezin aan: de straat blijft, de naam en het telefoonnummer niet.
-  geenNaam("Kerkstraat 12 - fam. Kersten - 0470 12 34 56", "Kersten 0470 12 34 56", { straten: ["Kerkstraat"] });
-  assert.equal(KU.veiligeTekst("Kerkstraat 12 - fam. Kersten - 0470 12 34 56", { straten: ["Kerkstraat"] }), "Kerkstraat");
-  // Wat geen naam is, blijft: het trefwoord voor de naam.
-  assert.equal(KU.veiligeTekst("Feest bij fam. Dam"), "Feest");
-  assert.equal(KU.veiligeTekst("Verhuis (fam. Kersten)"), "Verhuis");
-});
+// De invoer van de nakijkronde van head e2969b3 en van head 801ed9f, met de naam die erin staat.
+const RONDES = [
+  ["Verhuis fam. Kerstproef", "Kerstproef"], ["Feest mevr. Bar", "Bar"], ["Verhuis Fam. Dağtest", "Dağtest"], ["Feest bij fam. Dam", "fam"], ["Verhuis (fam. Kerstproef)", "Kerstproef"],
+  ["Tent dhr. Tent", "dhr Tent"], ["Kraam mevr. Kraam", "mevr Kraam"], ["Kerkstraat 12 - fam. Kerstproef - 0470 12 34 56", "Kerstproef 0470 12 34 56"],
+  ["FEEST PJERTEST JANTESTENS", "PJERTEST JANTESTENS"], ["TESTPERSOON TENT", "TESTPERSOON TENT"], ["DOOP DAĞTEST YILTESTMAZ", "DAĞTEST YILTESTMAZ"], ["VERHUIS FAM. KERSTPROEF", "KERSTPROEF"],
+  ["KRAAM TESTPERSOON", "TESTPERSOON"], ["PARKEERVERBOD DHR. TENT", "TENT"], ["Feest van Pjertest", "Pjertest"], ["Tent voor feest Pjertest", "Pjertest"],
+  ["Feest 50 jaar Pjertest en Marietest", "Pjertest Marietest 50"], ["Kraam Pjertest Kerstproef", "Pjertest Kerstproef"], ["Feest Pjertest van der Zaal", "Pjertest Zaal"], ["Verhuis van der Steiger", "Steiger"],
+  ["Doop Dağtest", "Dağtest"], ["Verhuislift voor Bourla", "Bourla"], ["Info: pjertest.kerstproef@voorbeeld.test", "pjertest kerstproef voorbeeld test"], ["Kraam bij Mas", "Mas"],
+  ["Feest bij MAS", "MAS"], ["Feest voor Lillo", "Lillo"], ["Tent Kraam Bar", "Tent Kraam Bar"], ["Feest van der Tent", "Tent"], ["Feest Kerstproef", "Kerstproef"], ["Pjertest", "Pjertest"],
+  ["Feest Doğtest", "Doğtest"], ["Feest Łuktest", "Łuktest"], ["Feest Søtest", "Søtest"], ["Feest Ayştest", "Ayştest"], ["Feest Muñtest", "Muñtest"],
+  ["Verhuis Kerkstraat 12 Perron", "Perron 12"], ["Verhuis Kerkstraat 12, Perron", "Perron"], ["Verhuis Kerkstraat 12 bus 3 Kinders", "Kinders 12 3"],
+  ["Verhuis Kerkstraat 12 - Steiger", "Steiger"], ["VERHUIS KERKSTRAAT 12 PERRON", "PERRON"], ["Verhuis - contactpersoon: Steiger, tel 0470 12 34 56", "Steiger 0470"],
+  ["Verhuis, aanvrager: Kinders", "Kinders"], ["Container. Bewoner: Park", "Park"], ["Verhuis (klant: Perron)", "Perron"], ["Verhuis: Perron", "Perron"],
+  ["Verhuis - Perron", "Perron"], ["Verhuis (Perron)", "Perron"], ["Verhuis. Perron", "Perron"], ["Verhuis: Gras", "Gras"], ["Verhuis - Loper", "Loper"],
+  ["Container: Haven", "Haven"], ["Verhuis: Loods", "Loods"], ["Verhuis: Wandelaar", "Wandelaar"], ["Verhuis: Brederode", "Brederode"], ["Verhuis - Stuivenberg", "Stuivenberg"],
+  ["Verhuis: Zandvliet", "Zandvliet"], ["Container - Lillo", "Lillo"], ["VERHUIS PARK", "PARK"], ["VERHUIS - PERRON", "PERRON"], ["Verhuis, PERRON", "PERRON"],
+  ...["+32 (0)470 12 34 56", "+32(0)470123456", "0032 (0)470 12 34 56", "+32 (0)3 123 45 67", "(0470) 12 34 56", "0470 – 12 34 56", "0470 — 12 34 56", "0470_12_34_56",
+    "0470,12,34,56", "tel 0470123456", "gsm: 0470 12 34 56", "0470 12 34 56"].map((tel) => [`Markt: Meir, ${tel}`, tel]),
+];
+// Een tekst is te lezen als een rij hele straatnamen uit de straatas en districten (zie tests/grondregel-privacyfilter.test.mjs).
+const DISTRICT = new Set(["antwerpen", "berchem", "berendrecht zandvliet lillo", "borgerhout", "deurne", "ekeren", "hoboken", "merksem", "wilrijk"]);
+function alleenPlekken(uit) {
+  const w = sleutel(uit).split(" ").filter(Boolean);
+  const kan = new Array(w.length + 1).fill(false);
+  kan[0] = true;
+  for (let i = 0; i < w.length; i += 1) if (kan[i]) for (let n = 1; n <= 8 && i + n <= w.length; n += 1) { const k = w.slice(i, i + n).join(" "); if (STRAATAS.has(k) || DISTRICT.has(k)) kan[i + n] = true; }
+  return kan[w.length];
+}
 
-test("e2969b3: in HOOFDLETTERS valt een woord van de lijst naast een naam die wegvalt ook weg", () => {
-  for (const [t, naam] of [
-    ["FEEST PIER JANSSENS", "PIER JANSSENS"], ["TESTPERSOON TENT", "TENT"], ["DOOP DAĞ YILMAZ", "DAĞ YILMAZ"], ["VERHUIS FAM. KERSTEN", "KERSTEN"],
-    ["KRAAM TESTPERSOON", "KRAAM"], ["PARKEERVERBOD DHR. TENT", "TENT"],
-  ]) geenNaam(t, naam);
-  // Een tekst in hoofdletters zonder naam blijft.
-  for (const t of ["PARCOURS CRITERIUM", "NADARS", "PARCOURS VOLWASSENEN + JEUGD", "PARKEERVERBOD"]) assert.equal(KU.veiligeTekst(t), t, t);
-});
-
-test("e2969b3: Pier, Kersten en Dağ staan niet meer op de lijst; een eigennaam na kleine letters of een voorzetsel valt weg", () => {
-  for (const [t, naam] of [
-    ["Feest van Pier", "Pier"], ["Tent voor feest Pier", "Pier"], ["Feest 50 jaar Pier en Marie", "Pier Marie"], ["Kraam Pier Kersten", "Pier Kersten"],
-    ["Feest Pier van der Zaal", "Pier Zaal"], ["Verhuis van der Steiger", "Steiger"], ["Doop Dağ", "Dağ"], ["Tent voor Meir", "Meir"],
-    ["Verhuislift voor Bourla", "Bourla"], ["Info: pier.kersten@voorbeeld.test", "pier kersten voorbeeld test"], ["Kraam bij Mas", "Mas"], ["Feest bij MAS", "MAS"],
-    ["Feest voor Lillo", "Lillo"], ["Tent Kraam Bar", "Tent Kraam Bar"], ["Feest van der Tent", "Tent"], ["Feest Kersten", "Kersten"], ["Pier", "Pier"],
-    ["Feest Doğan", "Doğan"], ["Feest Łukasz", "Łukasz"], ["Feest Søren", "Søren"], ["Feest Ayşe", "Ayşe"], ["Feest Muñoz", "Muñoz"],
-  ]) geenNaam(t, naam);
-  // In de stand "plaats" ook: de straat blijft, de naam niet.
-  assert.equal(PN.plaatsnaamVan("Kerkstraat (bij Pier)", { isStraat: (n) => n === "Kerkstraat" }), "Kerkstraat");
-  // "kerst" telt alleen in een samenstelling.
-  for (const t of ["Kerstmarkt", "Kerstfeest", "kerstmarkt op de Groenplaats"]) assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
-  assert.equal(KU.veiligeTekst("Kersten"), "");
-});
-
-test("e2969b3: een plek uit de vaste lijst blijft met een lidwoord, na 'in' of 'op', en met een plek of trefwoord ernaast", () => {
-  for (const t of ["Markt op de Meir", "Feest aan de Dam", "Stoet naar het MAS", "Feest in Berchem", "Stoet van de Groenplaats naar de Meir", "Animatie op Meir", "voetpaden rond het MAS",
-    "Tweede Stop, Falconplein", "Opbouw Standen", "Startlocatie Doop", "Verkeersvrije zone", "Kerstmarkt op de Meir"]) {
-    assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
+test("de invoer van de nakijkrondes e2969b3 en 801ed9f: er blijft alleen een hele straatnaam uit de straatas of een district over, geen naam, geen cijfer", () => {
+  for (const [t, naam] of RONDES) {
+    for (const o of [{}, { isStraat }, { straten: ["Kerkstraat"] }]) {
+      for (const uit of uitvoer(t, o)) {
+        const tekst = uit.replace(/^Inname: /, "");
+        assert.ok(alleenPlekken(tekst), `${JSON.stringify(t)} gaf ${JSON.stringify(uit)}`);
+        assert.doesNotMatch(tekst, /[\p{N}@]/u, `${JSON.stringify(t)} gaf ${JSON.stringify(uit)}`);
+        // De naam blijft alleen als hij zelf een hele straatnaam of een district is ("Meir", "Lillo" in de straatas).
+        for (const w of woorden(naam).filter((x) => !STRAATAS.has(x) && !DISTRICT.has(x))) assert.ok(!woorden(tekst).includes(w), `${JSON.stringify(t)} gaf ${JSON.stringify(uit)}: "${w}"`);
+      }
+    }
   }
-  // De vaste soort van A-Sign blijft vooraan staan.
-  assert.equal(KU.veiligeOmschrijving("Verkeersvrije Zone: Event verkeersvrij"), "Verkeersvrije Zone: Event verkeersvrij");
-  assert.equal(KU.veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod"), "Parkeerverbod in Straat: parkeerverbod");
-  assert.equal(KU.veiligeOmschrijving("Testpersoon Tent: parkeerverbod"), "Inname: parkeerverbod");
+  // Wat blijft, is de straat (of het district), niets anders: geen label, geen trefwoord.
+  assert.equal(KU.veiligeTekst("Kerkstraat 12 - fam. Kerstproef - 0470 12 34 56", { straten: ["Kerkstraat"] }), "Kerkstraat");
+  assert.equal(PN.plaatsnaamVan("Kerkstraat (bij Pjertest)", { isStraat: (n) => n === "Kerkstraat" }), "Kerkstraat");
+  assert.equal(KU.veiligeTekst("Verhuis Kerkstraat 12 Perron", { isStraat }), "Kerkstraat");
+  for (const t of ["Feest bij fam. Dam", "Verhuis (fam. Kerstproef)", "PARCOURS CRITERIUM", "NADARS", "Kerstmarkt", "Verhuis: Perron", "Fase 2 Opbouw", "PARCOURS VOLWASSENEN + JEUGD"]) {
+    assert.equal(KU.veiligeTekst(t), "", t);
+  }
+  assert.equal(KU.veiligeTekst("Feest in Hoboken"), "Hoboken");
+  // De vaste soort van A-Sign blijft vooraan staan; een andere soort wordt "Inname".
+  assert.equal(KU.veiligeOmschrijving("Verkeersvrije Zone: Event verkeersvrij Kerkstraat", { isStraat }), "Verkeersvrije Zone: Kerkstraat");
+  assert.equal(KU.veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod"), "");
+  assert.equal(KU.veiligeOmschrijving("Testpersoon Tent: parkeerverbod Kerkstraat", { isStraat }), "Inname: Kerkstraat");
 });
 
 test("e2969b3: in de browser blijft de doop van een schip een doop van een schip, ook met een bewaarde uitleg", () => {
@@ -115,69 +120,7 @@ test("e2969b3: de bewaarde omschrijvingen in kaart-uitleg.json zijn al door de f
   assert.ok(n > 0, "er zijn omschrijvingen");
 });
 
-// ======== Nakijkronde van head 801ed9f ========
-// 1. Een huisnummer tussen straat en naam schakelde de naamsloten uit ("Verhuis Kerkstraat 12 Perron").
-// 2. Een naam op de lijst die alleen in zijn zinsdeel staat ("Verhuis: Perron", "Verhuis - Dam"), en telefoonnummers met
-//    haakjes, een lang streepje, een liggend streepje, komma's of een label ("tel") na een komma.
-// 3. In HOOFDLETTERS stond de paarregel uit ("VERHUIS PARK", "VERHUIS DAM").
-// 4. De scheepsdoop stond op de plekpagina in de bundel van de studentenactiviteiten.
-// Elke toets hieronder faalt op 801ed9f en slaagt nu. Alleen verzonnen adressen, namen en nummers.
-
-test("801ed9f: na een huisnummer valt een naam van de lijst weg, de straat blijft", () => {
-  const opties = { straten: ["Kerkstraat"] };
-  for (const [t, naam] of [
-    ["Verhuis Kerkstraat 12 Perron", "Perron"], ["Verhuis Kerkstraat 12, Perron", "Perron"], ["Verhuis Kerkstraat 12 bus 3 Kinders", "Kinders"],
-    ["Verhuis Kerkstraat 12 - Steiger", "Steiger"], ["Verhuis Kerkstraat 12 Dam", "Dam"], ["Verhuis Kerkstraat 12 Meir", "Meir"],
-    ["VERHUIS KERKSTRAAT 12 PERRON", "PERRON"],
-  ]) {
-    geenNaam(t, naam, opties);
-    for (const o of [opties, { ...opties, isStraat }]) {
-      assert.match(KU.veiligeTekst(t, o), /^Verhuis Kerkstraat$/i, t);
-      assert.match(PN.plaatsnaamVan(t, { isStraat: o.isStraat || (() => false), rond: o.straten }), /^Kerkstraat$/i, t);
-    }
-  }
-  // Een huisnummer na een plek blijft een huisnummer van die plek; "Fase 2 Opbouw" is geen naam.
-  assert.equal(KU.veiligeTekst("Markt op de Meir 12"), "Markt op de Meir");
-  assert.equal(KU.veiligeTekst("Fase 2 Opbouw"), "Fase … Opbouw");
-});
-
-test("801ed9f: een naam van de lijst alleen in zijn zinsdeel (na ':', ' - ', '(', ',' of '. ') valt weg", () => {
-  for (const [t, naam] of [
-    ["Verhuis - contactpersoon: Steiger, tel 0470 12 34 56", "Steiger"], ["Verhuis, aanvrager: Kinders", "Kinders"], ["Container. Bewoner: Park", "Park"],
-    ["Verhuis (klant: Perron)", "Perron"], ["Verhuis: Perron", "Perron"], ["Verhuis - Perron", "Perron"], ["Verhuis (Perron)", "Perron"], ["Verhuis. Perron", "Perron"],
-    ["Verhuis: Gras", "Gras"], ["Verhuis - Loper", "Loper"], ["Container: Haven", "Haven"], ["Verhuis: Loods", "Loods"], ["Verhuis: Wandelaar", "Wandelaar"],
-    ["Verhuis: Dam", "Dam"], ["Verhuis - Kiel", "Kiel"], ["Verhuis (Meir)", "Meir"], ["Verhuis: Bourla", "Bourla"], ["Verhuis: Brederode", "Brederode"],
-    ["Verhuis - Stuivenberg", "Stuivenberg"], ["Verhuis: Zandvliet", "Zandvliet"], ["Verhuis: Hoboken", "Hoboken"], ["Container - Lillo", "Lillo"],
-  ]) geenNaam(t, naam);
-  // Wat geen naam is, blijft: het label zelf, een soort plek of een vaste soort voor de plek, een plek na een zekere plek,
-  // een bekende plaatsnaam, en "+" of "…" tussen twee stukken.
-  assert.equal(KU.veiligeTekst("Verhuis: Perron"), "Verhuis");
-  for (const t of ["Markt: Meir", "Parcours: Meir - Groenplaats", "Locatie: Kiel", "Kerkstraat, Meir", "Eerste Stop, Stadswaag", "PARCOURS VOLWASSENEN + JEUGD",
-    "Parkeerverbod … bladslag", "Stoet: van de Groenplaats naar de Meir"]) assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
-});
-
-test("801ed9f: het vangnet van het telefoonnummer kent haakjes, streepjes, komma's en een label na een komma", () => {
-  // "Markt: Meir" blijft zonder nummer; met een nummer erachter is "Meir" een naam.
-  assert.equal(KU.veiligeTekst("Markt: Meir"), "Markt: Meir");
-  for (const tel of ["+32 (0)470 12 34 56", "+32(0)470123456", "0032 (0)470 12 34 56", "+32 (0)3 123 45 67", "(0470) 12 34 56", "0470 – 12 34 56",
-    "0470 — 12 34 56", "0470_12_34_56", "0470,12,34,56", "tel 0470123456", "gsm: 0470 12 34 56", "0470 12 34 56"]) {
-    const t = `Markt: Meir, ${tel}`;
-    geenNaam(t, `Meir ${tel}`);
-    assert.equal(KU.veiligeTekst(t), "Markt", t);
-  }
-  // Huisnummers in een rij zijn geen telefoonnummer.
-  assert.equal(KU.veiligeTekst("Markt op de Meir 10, 12, 14, 16, 18"), "Markt op de Meir");
-});
-
-test("801ed9f: in HOOFDLETTERS valt een paar van twee stammen weg, net als in gewone schrijfwijze", () => {
-  for (const [t, naam] of [["VERHUIS PARK", "PARK"], ["VERHUIS DAM", "DAM"], ["VERHUIS - PERRON", "PERRON"], ["Verhuis, PERRON", "PERRON"], ["Verhuis Dam", "Dam"], ["Feest Kiel", "Kiel"]]) {
-    geenNaam(t, naam);
-  }
-  // Een tekst in hoofdletters zonder naam blijft; een soort plek met een district ook.
-  for (const t of ["PARCOURS CRITERIUM", "PARCOURS JEUGD", "HET STEEN", "PARCOURS VOLWASSENEN + JEUGD", "NADARS", "Bibliotheek Merksem", "Markt Meir"]) {
-    assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
-  }
-});
+// ======== Nakijkronde van head 801ed9f: de scheepsdoop stond op de plekpagina in de bundel van de studentenactiviteiten ========
 
 test("801ed9f: de doop van een schip staat bij de losse kaartjes, niet in de bundel van de studentenactiviteiten", () => {
   const rij = { id: "proef-801", kind: "iod", reference: "ET2099000779", dossierType: "ETL", phase: "Evenement", innameType: "Inname", description: "Doopfeest MTS Testboot",

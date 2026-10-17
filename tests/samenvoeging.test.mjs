@@ -130,17 +130,18 @@ test("open evenementkaart: het parcours vooraan in 'In het dossier', de parkeerv
   const pv = await import("../site/place-view.js");
   assert.equal(typeof pv.kaartIndeling, "function", "place-view.js kent kaartIndeling");
   const rijen = [
-    { ...parkeerRij, description: "Parkeerverbod langs het parcours" },
-    // Kleine letters: "Parcours" met een hoofdletter vooraan kan een naam zijn (tests/vaag-eind-slot.test.mjs).
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "parcours volwassenen 10 km" },
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "parcours jeugd 5 km" },
-    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I6`, description: "Parkeerverbod aan de start" },
-    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I7`, description: "Parkeerverbod aan de finish" },
+    { ...parkeerRij, description: "Parkeerverbod langs de Proefvest" },
+    // De privacyfilter laat alleen hele straatnamen uit de straatas over (site/witte-lijst.js): elk parcours noemt zijn straat.
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "parcours volwassenen 10 km over de Testvest" },
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "parcours jeugd 5 km over de Proefrui" },
+    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I6`, description: "Parkeerverbod aan de start, Proefkaai" },
+    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I7`, description: "Parkeerverbod aan de finish, Testdok" },
   ];
-  const e = pc.evenementEntry(rijen, opties);
+  const isStraat = (n) => ["proefvest", "testvest", "proefrui", "proefkaai", "testdok"].includes(String(n).toLowerCase());
+  const e = pc.evenementEntry(rijen, { ...opties, isStraat });
   assert.ok(Array.isArray(e.uitleg.kern), "de evenementkaart van #140");
   const { dossier } = pv.kaartIndeling(e.uitleg, { reference: e.reference, straten: e.straten.length });
-  // Een getal ("10 km") valt weg uit de vrije tekst (witte lijst, site/witte-lijst.js).
-  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: parcours volwassenen", "Parcours: parcours jeugd"]);
+  // Een getal ("10 km") en elk woord dat geen straatnaam is, vallen weg uit de vrije tekst (site/witte-lijst.js).
+  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: Testvest", "Parcours: Proefrui"]);
   assert.ok(dossier.dicht.length >= 2 && dossier.dicht.every((b) => /^Parkeerverbod/.test(b)), JSON.stringify(dossier));
 });

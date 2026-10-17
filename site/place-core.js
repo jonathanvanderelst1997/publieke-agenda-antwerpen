@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, kenmerkTekst, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, kenmerkVan, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -1667,6 +1667,23 @@ export function verrijkMetContext(entries = [], { straat = "", vandaag = "", age
 export const enterOpent = (suggestie, { pijltjes = false } = {}) => Boolean(suggestie?.place) && (pijltjes || suggestie.match !== "fuzzy");
 
 const straatasVan = (index) => (index?.byName instanceof Map ? (naam) => index.byName.has(locationKey(naam)) || index.byName.has(foldText(naam)) : null);
+// De soort van een evenementendossier op de plekpagina: { soort, soortZeker }. Een opname (de fase) wint; anders de soort uit
+// de kenmerken van alle omschrijvingen (live en bewaard), zonder "vermoedelijk" alleen als het hele dossier over dat ding
+// gaat en elke inname een omschrijving heeft (soortEvenementMet); anders de soort van de live rijen of die van de
+// verversing. De kenmerken zijn vaste woorden uit de RUWE tekst (kenmerkTekst in site/kaart-uitleg.js; de verversing
+// bewaart ze als `kenmerken`): nooit de tekst die de privacyfilter (site/witte-lijst.js) overlaat. Zo blijft de soort
+// van elk evenement die van origin/main: uit "Doopfeest MTS Testboot" houdt de filter niets over, en het kenmerk zegt
+// nog altijd "de doop van een schip" (nakijkronde van head e2969b3, het dossier van de scheepsdoop van 19-21 november
+// 2026). Zonder bewaarde uitleg: de soort van de live rijen (evenementFeiten).
+export function evenementSoort(alle = [], { uitleg = null, isStraat = null, live = evenementFeiten(alle, { isStraat }) } = {}) {
+  const bewaard = uitleg?.evenementen?.[live.dossier] || null;
+  if (!bewaard) return { soort: live.soort, soortZeker: live.soortZeker };
+  const kenmerken = [...alle.map(kenmerkVan).filter(Boolean), ...bewaardeKenmerken(bewaard)];
+  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet(kenmerken);
+  const soort = sm.soort || live.soort || bewaard.soort || "";
+  const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
+  return { soort, soortZeker };
+}
 export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijkVan, lijst = null, index = null, straat = "", straal = 0, identiteit = null, agendaItems = [], isStraat = null } = {}) {
   const first = rows[0] || {};
   // De straatas (isStraat), zoals de verversing de omschrijvingen filterde: zowel de live omschrijvingen (evenementFeiten)
@@ -1682,22 +1699,12 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // verversing ze apart bewaarde; anders zegt de kaart voorzichtig "op of naast het parcours".
   const parcoursRelatie = straat ? parcoursRelatieVoorStraat(straat, { lijst: stratenLijst, bewaard, rijen: alle, index }) : null;
   const langs = Array.isArray(bewaard?.langs) ? bewaard.langs : null;
-  // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de
-  // volledigste omschrijving, en de soort komt uit dat geheel ("Startlocatie doop" + "Wandelroute").
-  // Bewaarde omschrijvingen gaan opnieuw door de filter (geen huisnummer, geen naam), met de straten van het dossier.
+  // De verversing leest alle lagen; de browser soms alleen de parcourslijnen. Samen geven ze de volledigste
+  // omschrijving. Bewaarde omschrijvingen gaan opnieuw door de privacyfilter (alleen straatnamen en districten), met de
+  // straten van het dossier. De soort komt niet uit die tekst: evenementSoort leest de kenmerken.
   const bewaardeStraten = [...(bewaard?.straten || []), ...live.straten];
   const beschrijvingen = [...new Set([...live.beschrijvingen, ...(bewaard?.beschrijvingen || []).map((b) => veiligeOmschrijving(b, { straten: bewaardeStraten, isStraat: straatas }))].filter(Boolean))];
-  // Een opname (de fase) wint; anders de soort uit alle omschrijvingen, zonder "vermoedelijk" alleen als
-  // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet). Ook uit de bewaarde
-  // omschrijvingen die de filter nu niet meer toont ("Startlocatie Doop": "Doop" kan een naam zijn): de soort is een vast
-  // woord uit de lijst, de tekst zelf gaat nergens heen (zoals de verversing de ruwe omschrijvingen leest).
-  // Van de live rijen tellen de kenmerken (vaste woorden uit de ruwe omschrijving, zoals evenementFeiten), niet de gefilterde
-  // tekst: uit "Doopfeest MTS Testboot" houdt de filter alleen "Doopfeest" over, en dat is een studentendoop, geen doop van
-  // een schip (nakijkronde van head e2969b3, het dossier van de scheepsdoop van 19-21 november 2026).
-  const kenmerken = alle.map((r) => (typeof r.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r.description))).filter(Boolean);
-  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet([...kenmerken, ...(bewaard?.beschrijvingen || [])]);
-  const soort = sm.soort || live.soort || bewaard?.soort || "";
-  const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
+  const { soort, soortZeker } = evenementSoort(alle, { uitleg, live });
   const feiten = bewaard
     ? { ...live, soort, soortZeker, soortBron: soort ? live.soortBron || "omschrijvingen in het dossier" : "", beschrijvingen, straten, langs, parcoursRelatie }
     : { ...live, straten, langs, parcoursRelatie };
