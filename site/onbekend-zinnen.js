@@ -82,6 +82,7 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "hinder-onbekend": { zin: "Onbekend in open data", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
   "hinder-koppeling": { zin: "Gevalideerde GIPOD-hinder is gekoppeld; ontbrekende koppeling wordt bewust als onbekend getoond.", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
   "hinder-niet-geladen": { zin: "De GIPOD-hinderbron kon nu niet worden geladen; hinder blijft daarom onbekend.", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
+  "losse-hinder": { zin: "GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken. Daarom staat ze los van de werken hierboven.", meter: "werk-niet-getoond", kern: false, waar: "sectie" },
   "uur-label": { zin: "Uur onbekend", meter: "uur-onbekend", kern: true, waar: "kaart" },
   // De kop van de regel die zegt wat een kaart niet heeft ("Niet in de bron: ..."), en het getal werken dat niet
   // helemaal laadde (place-view.js).
