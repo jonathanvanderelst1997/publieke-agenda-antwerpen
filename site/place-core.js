@@ -549,7 +549,9 @@ const MIDDERNACHT_UTC = /T00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)$/;
 export function urenVanWerk(start, end) {
   return MIDDERNACHT_UTC.test(String(start ?? "")) ? null : urenVanDag(start, end);
 }
-const streetNames = (item) => [...new Set((item?.streets || []).map((s) => s?.name).filter(Boolean))].join(", ");
+// De straten van een item zoals de bewoner ze leest: zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt
+// "Proefstraat"). De straten van het item zelf (de koppeling) houden haar.
+const streetNames = (item) => [...new Set((item?.streets || []).map((s) => zonderHomoniem(s?.name)).filter(Boolean))].join(", ");
 const safeUrl = (value) => (/^https:\/\//i.test(String(value || "")) ? String(value) : "");
 
 export function agendaEntry(item, theme = item?.category || "other") {
@@ -1288,7 +1290,9 @@ const opAdres = (a, b) => { const [x, y] = [adresSleutel(a), adresSleutel(b)]; r
 function bundelKaart(soort, sleutel, leden, { straat = "", vandaag = "" } = {}) {
   const dagen = leden.map((e) => e.start).filter(Boolean).sort();
   const eind = leden.map((e) => e.end || e.start).filter(Boolean).sort().at(-1) || "";
-  const waar = straat || cleanText(leden[0]?.location);
+  // De plaats zonder homoniemtoevoeging: de gekozen straat (of de eerste straat van de kaart) is de naam zoals de straatas
+  // haar kent ("Proefstraat_AN"); de sleutel van de bundel houdt die naam.
+  const waar = zonderHomoniem(straat || cleanText(leden[0]?.location));
   const basis = { uid: `bundel:${soort}:${sleutel}`, id: `bundel:${soort}:${sleutel}`, source: "bundel", openEnd: false, time: "", timeText: "", location: waar, status: "", info: "", reference: "", url: "", sourceUrl: "", item: {} };
   if (soort === "terrassen") {
     const uit = leden.filter((e) => /uitstalling/i.test(e.title)).length, ter = leden.length - uit;

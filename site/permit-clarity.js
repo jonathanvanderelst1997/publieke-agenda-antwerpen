@@ -4,6 +4,7 @@ import {brusselsVandaag,onderzoekRegel,onderzoekZin} from "./inzage-status.js";
 // Wat een kaart over een aanvraag zegt, komt uit de vaste teksten in dit bestand, plus aantallen
 // (een getal met een vaste eenheid, zoals "6 woningen"). Het onderwerp zelf wordt nooit getoond.
 import {isTunnel} from "./parcours-straten.js";
+import {zonderToevoeging} from "./witte-lijst.js";
 
 // vouw houdt de hoofdletters (voor eigennamen), fold maakt alles klein; allebei op dezelfde plaatsen.
 const vouw=x=>String(x??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[‘’`´]/g,"'").replace(/\s+/g," ").slice(0,1200);
@@ -401,9 +402,12 @@ export function aanvraagZegtNiet(item={}){
 // Waar: de dichtste straat eerst (permits-live-core.js zet die vooraan), de andere als "ook dicht bij":
 // een straat tot 24 m van het perceel grenst er niet altijd aan. Een tunnel ligt eronder, niet
 // ernaast: die noemen we niet, tenzij er niets anders is. De gekozen straat staat altijd in de korte
-// regel (meteen na "ook dicht bij"); vanaf 3 straten staat de volledige lijst ingeklapt.
+// regel (meteen na "ook dicht bij"); vanaf 3 straten staat de volledige lijst ingeklapt. Alles zonder de
+// homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt "Proefstraat"), ook de gekozen straat.
+const leesbaar=n=>zonderToevoeging(String(n||"").replace(/\s+/g," ").trim());
 export function waarTekst(namen=[],voorkeur=""){
-  const alle=[...new Set(namen.map(n=>String(n||"").replace(/\s+/g," ").trim()).filter(Boolean))];
+  const alle=[...new Set(namen.map(leesbaar).filter(Boolean))];
+  voorkeur=leesbaar(voorkeur);
   const zonderTunnel=alle.filter(n=>!isTunnel(n));
   const lijst=zonderTunnel.length?zonderTunnel:alle;
   const rest=lijst.slice(1);

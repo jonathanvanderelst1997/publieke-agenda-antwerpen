@@ -4,15 +4,18 @@
 // alleen met toevoeging kent. Wat de bewoner leest (de kruist-regel, de live kaartjes) is zonder toevoeging; de sleutels
 // en de koppeling houden haar. De toetsen falen op head fe8eb62 (de filter liet "Proefstraat AN" door en vond "Proefstraat"
 // niet, de kruist-regel toonde "_AN") en slagen nu. De laatste twee toetsen falen op 3a770c4 (titel, plaats en info van een
-// agendapunt en de titel en "Waar" van een evenementkaartje noemden "Proefstraat_AN") en slagen nu. Alleen verzonnen
-// straten en namen; geen netwerk.
+// agendapunt en de titel en "Waar" van een evenementkaartje noemden "Proefstraat_AN") en slagen nu. De laatste twee
+// toetsen (de plekpagina; live terrassen, live vergunningen en de vooruitblik) falen op 0117aac en slagen nu. Alleen
+// verzonnen straten en namen; geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 import * as W from "../site/witte-lijst.js";
 import * as KU from "../site/kaart-uitleg.js";
-import { evenementEntry, zonderHomoniem } from "../site/place-core.js";
+import { bundelLijst, evenementEntry, permitEntry, publicSpaceEntries, publicSpaceEntry, workEntry, zonderHomoniem } from "../site/place-core.js";
+import { duidelijkeKaart, waarTekst } from "../site/permit-clarity.js";
+import { buildWeekPulse } from "../site/week-pulse.js";
 import { asignAgendapunten, locatieVan, tekstUitFeiten, titelVan } from "../lib/asign-evenementen-agenda.mjs";
 await import("../site/agenda-ics.js");
 const { buildIndividualIcs } = globalThis.AgendaIcs;
@@ -181,4 +184,106 @@ test("homoniem: het evenementkaartje van de plekpagina noemt de straat zonder to
   const agenda = [{ id: "proef-agendapunt-1", title: "Proefbuurtfeest", date: "2026-10-18", location: "Proefstraat", sourceId: "district-kalender", theme: "Activiteit" }];
   const e = evenementEntry([rij(["Proefstraat_AN"])], { vandaag: "2026-10-10", wijkVan: () => "", agendaItems: agenda });
   assert.equal(e.title, "Vermoedelijk: Proefbuurtfeest");
+});
+
+// ---------- de plekpagina: "Waar" en de lijstregel (nakijkronde van head 0117aac) ----------
+// Een GIPOD-werk, een gewone inname, een terras zonder adres en een bundel op de straatpagina noemden de straat met
+// toevoeging: workEntry gaf "Werken in de Proefstraat" als titel, maar "Proefstraat_AN" als plaats, plek en "Waar"
+// (werkKaartje), publicSpaceEntry en permitEntry gaven "Proefstraat_AN" als plaats (streetNames), en de bundel kreeg de
+// naam van de gekozen straat zoals de straatas haar kent (bundelKaart). place-view.js toont location ongefilterd bij
+// "Waar" en in de lijstregel (pv-row-where). Deze toets faalt op 0117aac.
+const getoondVan = (e) => ({ title: e.title, summary: e.summary, location: e.location, info: e.info, plek: e.uitleg?.plek, regels: JSON.stringify(e.uitleg?.regels || []) });
+const zonderToevoegingGetoond = (e, wat) => {
+  for (const [veld, tekst] of Object.entries(getoondVan(e))) assert.doesNotMatch(String(tekst ?? ""), TOEVOEGING, `${wat} ${veld}: ${tekst}`);
+};
+
+test("homoniem: de plekpagina noemt de straat zonder toevoeging bij \"Waar\" en in de lijstregel (werk, inname, terras, bundel)", () => {
+  const vandaag = "2026-10-17";
+  const werk = (extra) => ({ gipodId: 2099001, title: "Werk", status: "In uitvoering", start: "2026-10-17", end: "2026-10-20", ...extra });
+  // Een werk in één straat en in twee straten.
+  const een = workEntry(werk({ streets: [{ name: "Proefstraat_AN" }] }), { vandaag });
+  assert.match(een.title, /^Werken in de Proefstraat /);
+  assert.equal(een.location, "Proefstraat");
+  assert.equal(een.uitleg.plek, "Proefstraat");
+  assert.equal(Object.fromEntries(een.uitleg.regels).Waar, "Proefstraat");
+  const twee = workEntry(werk({ streets: [{ name: "Proefstraat_AN" }, { name: "Lange Testlei_DE" }] }), { vandaag });
+  assert.equal(Object.fromEntries(twee.uitleg.regels).Waar, "Proefstraat, Lange Testlei");
+  // Met een reeks huisnummers (van de verversing).
+  const metNummers = werk({ streets: [{ name: "Proefstraat_AN" }] });
+  const k = KU.werkKaartje(metNummers, { vandaag, feiten: KU.werkFeiten(metNummers, { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" }) });
+  assert.equal(k.plek, "Proefstraat nr. 12–40");
+  assert.match(Object.fromEntries(k.regels).Waar, /^Proefstraat, nr\. 12–40 /);
+  // Geen straat op het punt: de dichtste straat, het kruispunt, of tussen twee straten.
+  const nabij = (extra) => workEntry(werk({ streets: [], ...extra }), { vandaag });
+  const dichtste = nabij({ streetNearby: [{ name: "Proefstraat_AN", distanceMeters: 20 }] });
+  assert.equal(dichtste.location, "Proefstraat");
+  assert.match(Object.fromEntries(dichtste.uitleg.regels).Waar, /^Nabij Proefstraat \(ongeveer 20 m/);
+  const buren = [{ name: "Proefstraat_AN", distanceMeters: 20 }, { name: "Lange Testlei_DE", distanceMeters: 30 }];
+  const kruispunt = nabij({ streetNearby: buren, streetResolution: "ambiguous", streetsMeet: true });
+  assert.equal(kruispunt.location, "Proefstraat en Lange Testlei");
+  assert.match(kruispunt.title, /bij het kruispunt van Proefstraat en Lange Testlei/);
+  const tussen = nabij({ streetNearby: buren, streetResolution: "ambiguous", streetsMeet: false });
+  assert.match(Object.fromEntries(tussen.uitleg.regels).Waar, /^Tussen Proefstraat \(ongeveer 20 m\) en Lange Testlei \(ongeveer 30 m\)/);
+  const ver = nabij({ streetNearby: [{ name: "Proefstraat_AN", distanceMeters: 80 }] });
+  assert.match(Object.fromEntries(ver.uitleg.regels).Waar, /de dichtste straat is Proefstraat \(ongeveer 80 m\)/);
+  for (const [wat, e] of Object.entries({ een, twee, dichtste, kruispunt, tussen, ver })) zonderToevoegingGetoond(e, `werk ${wat}`);
+  zonderToevoegingGetoond({ uitleg: k, title: k.titel, summary: k.samenvatting }, "werk met nummers");
+  // Een gewone inname en een parkeerverbod zonder plaats in de bron: de straten.
+  const inname = { id: "iod:IOD2099|Opbouw|1", kind: "iod", title: "Container", dossierType: "", reference: "IOD2099", phase: "Opbouw", streets: [{ name: "Proefstraat_AN" }, { name: "Proefstraat" }], start: "2026-10-17", end: "2026-10-18", status: "toelating_gegenereerd" };
+  assert.equal(publicSpaceEntry(inname).location, "Proefstraat");
+  for (const e of publicSpaceEntries([inname], { vandaag })) zonderToevoegingGetoond(e, "inname");
+  zonderToevoegingGetoond(publicSpaceEntry({ id: "parking:1", kind: "parking", title: "Parkeerverbod", streets: [{ name: "Lange Testlei_DE" }], start: "2026-10-17", end: "2026-10-17" }), "parkeerverbod");
+  // Een terras zonder adres, een aanvraag in een straat met toevoeging.
+  const terras = (i, straat = "Proefstraat_AN") => permitEntry({ id: `terrace:${i}`, terraceType: "Terras binnen kern", status: "Vergund", streets: [{ name: straat }], address: "" }, "terraces");
+  assert.equal(terras(1).location, "Proefstraat");
+  const aanvraag = (i) => permitEntry({ id: `permit:${i}`, streets: [{ name: "Proefstraat_AN" }, { name: "Voorbeeldlaan" }] });
+  assert.equal(aanvraag(1).location, "Proefstraat · ook dicht bij Voorbeeldlaan");
+  // De bundels: op de straatpagina van de straat (de naam zoals de straatas haar kent), en in een wijk (de eerste straat
+  // van de kaart). De sleutel blijft die van de straatas.
+  for (const straat of ["Proefstraat_AN", ""]) {
+    const { bundels } = bundelLijst([terras(1), terras(2), terras(3), aanvraag(4), aanvraag(5)], { straat, vandaag });
+    assert.deepEqual(bundels.map((b) => b.bundel.soort).sort(), ["aanvragen", "terrassen"]);
+    for (const b of bundels) {
+      assert.equal(b.location, "Proefstraat", `${straat || "wijk"} ${b.bundel.soort}`);
+      assert.match(b.uid, /:proefstraat-an$/);
+      zonderToevoegingGetoond(b, `bundel ${b.bundel.soort}`);
+      for (const lid of b.bundel.leden) zonderToevoegingGetoond(lid, `lid van ${b.bundel.soort}`);
+    }
+  }
+  // De straten van een item blijven die van de straatas (de koppeling met de straatbestanden).
+  assert.equal(een.item.streets[0].name, "Proefstraat_AN");
+});
+
+// ---------- live terrassen, live vergunningen en de vooruitblik (nakijkronde van head 0117aac) ----------
+// Het terraskaartje (terraces-live.js) toonde "Straat: Proefstraat_AN", de vergunningkaart (permits-live.js, via
+// duidelijkeKaart en waarTekst in permit-clarity.js) "Proefstraat_AN · ook dicht bij ..." en de vooruitblik op de
+// voorpagina (week-pulse.js) "Proefstraat_AN". Deze toets faalt op 0117aac.
+test("homoniem: live terrassen, live vergunningen en de vooruitblik noemen de straat zonder toevoeging", () => {
+  // Het terraskaartje, zoals terraces-live.js het maakt.
+  const regel = bron("../site/terraces-live.js").split("\n").find((r) => /^\s*function card\(item\)/.test(r));
+  assert.ok(regel, "het terraskaartje staat in site/terraces-live.js");
+  const esc = (t = "") => String(t).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
+  const card = new Function("esc", "terrasTitel", "zonderHomoniem", `${regel}\nreturn card;`)(esc, () => "Terras met vergunning", zonderHomoniem);
+  const html = card({ terraceType: "Terras binnen kern", status: "Vergund", address: "", streets: [{ name: "Proefstraat_AN" }, { name: "Lange Testlei_DE" }], recordId: "terrace:1", sourceUrl: "https://geodata.antwerpen.be/x" });
+  assert.match(html, /<dt>Straat<\/dt><dd>Proefstraat · Lange Testlei<\/dd>/);
+  assert.doesNotMatch(html, TOEVOEGING, html);
+
+  // De vergunningkaart (live en op de plekpagina): de korte regel en de volledige lijst; de gekozen straat (zoals de
+  // straatas haar kent) staat nog altijd vooraan bij "ook dicht bij".
+  const vier = { streets: [{ name: "Proefstraat_AN" }, { name: "Voorbeeldlaan" }, { name: "Testkaai" }, { name: "Testvest" }] };
+  const d = duidelijkeKaart({ source: "permits" }, vier, { vandaag: "2026-10-17" });
+  assert.equal(d.waar.kort, "Proefstraat · ook dicht bij Voorbeeldlaan, Testkaai en Testvest");
+  assert.deepEqual(d.waar.straten, ["Proefstraat", "Voorbeeldlaan", "Testkaai", "Testvest"]);
+  const gekozen = duidelijkeKaart({ source: "permits" }, { streets: [{ name: "Voorbeeldlaan" }, { name: "Testkaai" }, { name: "Lange Testlei_DE" }, { name: "Testvest" }] }, { straat: "Lange Testlei_DE", vandaag: "2026-10-17" });
+  assert.equal(gekozen.waar.kort, "Voorbeeldlaan · ook dicht bij Lange Testlei, Testkaai en Testvest");
+  assert.deepEqual(waarTekst(["Proefstraat_AN", "Proefstraat"]), { kort: "Proefstraat", straten: ["Proefstraat"], ingeklapt: false });
+  for (const [veld, tekst] of Object.entries({ kort: d.waar.kort, straten: d.waar.straten.join(", "), gekozen: gekozen.waar.kort })) assert.doesNotMatch(tekst, TOEVOEGING, `${veld}: ${tekst}`);
+
+  // De vooruitblik op de voorpagina: een werk en een maatregel die starten.
+  const pulse = buildWeekPulse({
+    agendaItems: [], fromDay: "2026-10-17", toDay: "2026-10-23",
+    works: [{ gipodId: 2099002, title: "Werk", start: "2026-10-18", end: "2026-10-19", streets: [{ name: "Proefstraat_AN" }, { name: "Voorbeeldlaan" }] }],
+    publicSpace: [{ id: "iod:IOD2099|Opbouw|2", kind: "iod", title: "Inname", start: "2026-10-18", end: "2026-10-18", streets: [{ name: "Lange Testlei_DE" }] }],
+  });
+  assert.deepEqual(pulse.upcoming.map((u) => u.location).sort(), ["Lange Testlei", "Proefstraat · Voorbeeldlaan"]);
 });

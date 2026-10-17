@@ -744,6 +744,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const nummers = eenAdres ? "" : huisnummerReeks(f.huisnummers);
   const losNummerWeg = !eenAdres && !nummers && Boolean(geldigeHuisnummers(f.huisnummers) || (f.straten[0] && huisnummersUitTekst(f.omschrijving, f.straten[0])));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
+  // Wat de bewoner leest (plek, titel, "Waar") noemt de straten zonder homoniemtoevoeging ("Proefstraat_AN" wordt
+  // "Proefstraat"); f.straten houdt de naam van de straatas voor de huisnummers en de koppeling.
+  const straatNaam = zonderToevoeging(straat);
+  const nabijNamen = nabij ? nabij.straten.map((s) => zonderToevoeging(s)) : [];
   const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
   // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zonder huisnummer of naam (zoals de regel "Fasen").
   const doelen = werf && !f.soort ? faseDoelen((f.fasen || []).map((x) => (eenAdres ? zonderHuisnummers(x.naam, 160) : zonderLosseHuisnummers(x.naam, f.straten)))) : [];
@@ -751,10 +755,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
   // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
   const waar = straat ? [opStraat(straat), nummers].filter(Boolean).join(" ")
-    : nabij?.kruispunt ? `bij het kruispunt van ${joinNl(nabij.straten)}`
-    : nabij?.tussen ? `tussen ${joinNl(nabij.straten)}`
+    : nabij?.kruispunt ? `bij het kruispunt van ${joinNl(nabijNamen)}`
+    : nabij?.tussen ? `tussen ${joinNl(nabijNamen)}`
     : nabij ? `nabij ${opStraat(nabij.straten[0]).replace(/^(?:in|op) /, "")}` : "";
-  const plek = straat ? [straat, nummers].filter(Boolean).join(" ") : nabij ? joinNl(nabij.straten) : "";
+  const plek = straat ? [straatNaam, nummers].filter(Boolean).join(" ") : nabij ? joinNl(nabijNamen) : "";
   // De hinder kan vroeger stoppen dan het werk; voor "tot wanneer" telt het werk zelf.
   const duur = resterendeDuur({ start, eind, vandaag });
   let wanneer = "";
@@ -814,11 +818,11 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const nummerBron = nummers && f.huisnummerBron && !(f.straatBron && f.huisnummerBron === f.straatBron) ? [f.huisnummerBron] : [];
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   regels.push(["Waar", straat
-    ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
-    : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
-    : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
-    : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
+    ? nummers ? `${straatNaam}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
+      : `${uniek(f.straten.map((s) => zonderToevoeging(s))).join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
+    : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabijNamen)} (berekend uit het punt in GIPOD)`
+    : nabij?.tussen ? `Tussen ${nabijNamen.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
+    : nabij ? nabij.afstand <= 35 ? `Nabij ${nabijNamen[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabijNamen[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
     : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
   // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, geen los huisnummer

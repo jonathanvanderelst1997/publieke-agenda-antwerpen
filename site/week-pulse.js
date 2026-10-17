@@ -1,8 +1,12 @@
+import {zonderToevoeging} from "./witte-lijst.js";
+
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const isoDay=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||""))?String(value):"";
 const addDays=(day,count)=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+count);return d.toISOString().slice(0,10)};
 const overlaps=(start,end,from,to)=>Boolean(start&&start<=to&&(end||start)>=from);
 const maxDay=values=>values.filter(Boolean).sort().at(-1)||"";
+// De straten zoals de bewoner ze leest: zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt "Proefstraat").
+const straatNamen=item=>[...new Set((item.streets||[]).map(s=>zonderToevoeging(clean(s?.name))).filter(Boolean))].join(" · ");
 export function knownHorizon({agendaItems=[],works=[],publicSpace=[],fromDay}={}){
   const from=isoDay(fromDay);if(!from)throw new Error("ongeldige startdatum");
   const agendaUntil=maxDay(agendaItems.map(item=>isoDay(item.endDate)||isoDay(item.date)).filter(day=>day>=from));
@@ -25,8 +29,8 @@ export function buildWeekPulse({agendaItems=[],works=[],publicSpace=[],fromDay,t
   const severe=works.filter(item=>item.hindrance?.severe===true&&overlaps(String(item.start||"").slice(0,10),String(item.end||"").slice(0,10),from,to));
   const upcoming=[
     ...agenda.map(item=>({kind:"agenda",id:item.id,title:clean(item.title),date:isoDay(item.date),type:typeOf(item),location:clean(item.location),url:item.sourceUrl||item.link||""})),
-    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:item.sourceUrls?.[0]||""})),
-    ...measureStarts.map(item=>({kind:"measure",id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel start",date:String(item.start||"").slice(0,10),type:item.kind||"measure",location:(item.streets||[]).map(s=>s.name).join(" · ")||clean(item.location),url:item.sourceUrl||""})),
+    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:straatNamen(item),url:item.sourceUrls?.[0]||""})),
+    ...measureStarts.map(item=>({kind:"measure",id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel start",date:String(item.start||"").slice(0,10),type:item.kind||"measure",location:straatNamen(item)||clean(item.location),url:item.sourceUrl||""})),
   ].filter(item=>item.date).sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title,"nl")).slice(0,14);
   return{from,to,agendaCount:agenda.length,agendaByType,neighborhoodCount:agendaByType.neighborhood||0,playStreetCount:agendaByType.playstreet||0,publicMeetingCount:agendaByType.public_meeting||0,marketFairCount:agendaByType.market_fair||0,workStarts:workStarts.length,workEnds:workEnds.length,measureStarts:measureStarts.length,severeHindranceWorks:severe.length,upcoming};
 }
