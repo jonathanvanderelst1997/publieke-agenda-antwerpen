@@ -10,7 +10,7 @@ import {
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { sleutel as straatSleutel, witteTekst } from "./witte-lijst.js";
+import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -1216,7 +1216,7 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
 // "38 straten in Historisch Centrum en Seefhoek". wijkVan(straatnaam) geeft een wijknaam of "".
 // De toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN", "KLOOSTERSTRAAT_AN" in een omschrijving van
 // GIPOD) is geen deel van de naam: weg in wat de bewoner leest (de sleutels en de koppeling houden ze).
-export const zonderStraatasToevoeging = (tekst) => String(tekst ?? "").replace(/(\p{L})_[A-Z]{2}\b/gu, "$1");
+export const zonderStraatasToevoeging = zonderToevoegingInTekst;
 export function stratenSamenvatting(straten = [], wijkVan = () => "") {
   const list = uniek(straten.map(zonderStraatasToevoeging));
   if (!list.length) return "";

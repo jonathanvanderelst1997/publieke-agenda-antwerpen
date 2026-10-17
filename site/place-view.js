@@ -1236,7 +1236,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const { regels, dossier, stratenNoot, bron, technisch } = kaartIndeling(u, { reference: entry.reference, straten: straten.length });
     const noot = u.stratenNoot || stratenNoot;
     const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${noot ? `<p class="pv-straten-noot">${esc(noot)}</p>` : ""}<p>${esc(straten.map(zonderHomoniem).join(", "))}</p></details>` : "";
-    const kruistRij = kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.join(", "))}</p></details>`}</dd></div>` : "";
+    const kruistRij = kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.map(zonderHomoniem).join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.map(zonderHomoniem).join(", "))}</p></details>`}</dd></div>` : "";
     // Eén omschrijving als gewone tekst; meer als lijst, met de rest ingeklapt (de rest telt er altijd 2 of meer).
     const lijst = (items) => `<ul class="pv-dossier">${items.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>`;
     const dossierHtml = () => (dossier.zichtbaar.length === 1 && !dossier.dicht.length ? esc(dossier.zichtbaar[0])

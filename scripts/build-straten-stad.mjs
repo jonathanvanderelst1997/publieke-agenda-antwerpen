@@ -26,6 +26,7 @@ import { fileURLToPath } from "node:url";
 
 import { DISTRICT_CHANNELS } from "../lib/district-channels.mjs";
 import { DISTRICT_POSTCODES } from "../lib/postcodes.mjs";
+import { zonderToevoeging } from "../site/witte-lijst.js";
 
 export const STAD_STRATEN_FILE = path.join("site", "geo", "straten-stad.json");
 const AS_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek9/MapServer/905";
@@ -56,7 +57,7 @@ const fold = (value) => String(value ?? "").normalize("NFD").replace(/[̀-ͯ]/g,
 // De straatas schrijft een naam die in meer deelgemeenten bestaat soms met de homoniemtoevoeging van het
 // adressenregister erachter ("Turnhoutsebaan_DE", "Krijgsbaan_WI"). De straat heet "Turnhoutsebaan": de toevoeging
 // valt weg; het district staat al in de rij.
-export const schoneNaam = (value) => String(value ?? "").replace(/\s+/g, " ").trim().replace(/_[A-Z]{2}$/, "");
+export const schoneNaam = (value) => zonderToevoeging(String(value ?? "").replace(/\s+/g, " ").trim());
 
 // De districten zoals lib/district-channels.mjs ze kent (sleutel, naam, postcode, pagina op antwerpen.be).
 export function districtenTabel(channels = DISTRICT_CHANNELS) {

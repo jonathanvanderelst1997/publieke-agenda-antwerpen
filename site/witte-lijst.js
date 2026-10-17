@@ -5,6 +5,7 @@
 //       straatnaam van meer woorden. De straatas komt binnen als `isStraat(naam)` (site/geo/straten.json en
 //       site/geo/straten-stad.json), of als lijst die uit diezelfde straatas komt: `straten` (de straten van de inname,
 //       door de straatas bij haar vorm gezocht) en `rond` (de straten van de straatas binnen 150 m van de plek);
+//       de homoniemtoevoeging van de straatas ("Proefstraat_AN") is geen deel van de naam (HOMONIEM_CODES hieronder);
 //   (b) een naam uit de vaste lijst van de 9 districten van Antwerpen (DISTRICTEN).
 // NIETS anders: geen woordenlijst (kerk, school, markt ...), geen woord met een hoofdletter, geen cijfer of huisnummer,
 // geen telefoon-, mail-, web- of rekeningvorm, geen naam. Een straatnaam met een cijfer erin telt niet. De filter
@@ -36,6 +37,22 @@ export const DISTRICTEN = Object.freeze([
 ]);
 const DISTRICT = new Set(DISTRICTEN.map(sleutel));
 export const isDistrict = (naam) => DISTRICT.has(sleutel(naam));
+
+// ---------- de homoniemtoevoeging van de straatas ----------
+
+// De straatas zet achter een straatnaam die ook in een ander district bestaat een toevoeging van twee hoofdletters
+// ("Proefstraat_AN" in 2018, naast de Proefstraat in een ander district). Zo heet geen straat. Gemeten op 17 oktober 2026
+// (straatas laag 905, alle districten): 7 namen met een toevoeging, alle van de vorm "_XX" met een van deze codes; geen
+// enkele straatnaam eindigt op een los woord dat zo'n code is.
+export const HOMONIEM_CODES = Object.freeze(["AN", "BE", "BO", "DE", "EK", "HO", "WI"]);
+const HOMONIEM_CODE = new Set(HOMONIEM_CODES.map((c) => c.toLowerCase()));
+// De naam zonder toevoeging: "Proefstraat_AN" wordt "Proefstraat" (de sleutels en de koppeling houden de naam met
+// toevoeging; alleen wat de bewoner leest en de filter zijn zonder).
+export const zonderToevoeging = (naam) => String(naam ?? "").replace(/_[A-Z]{2}$/, "");
+// In een tekst (een omschrijving uit GIPOD of A-Sign, een lijst straten): elke toevoeging "_XX" na een letter weg.
+export const zonderToevoegingInTekst = (tekst) => String(tekst ?? "").replace(/(\p{L})_[A-Z]{2}\b/gu, "$1");
+// Voor de filter ook "Proefstraat-AN" en "Proefstraat'AN" met een gemeten code: de toevoeging wordt nooit een woord.
+const TOEVOEGING_IN_FILTER = new RegExp(`(\\p{L})(?:_[A-Z]{2}|[-'](?:${HOMONIEM_CODES.join("|")}))(?![\\p{L}\\p{N}_])`, "gu");
 
 // ---------- de filter ----------
 
@@ -75,21 +92,29 @@ function woordenVan(t) {
   return uit;
 }
 
-const namenSet = (lijst) => new Set((Array.isArray(lijst) ? lijst : []).map((s) => sleutel(typeof s === "string" ? s : s?.name)).filter(Boolean));
+// De sleutels van een lijst straten, zonder homoniemtoevoeging ("Proefstraat_AN" telt als "Proefstraat").
+const namenSet = (lijst) => new Set((Array.isArray(lijst) ? lijst : []).map((s) => sleutel(zonderToevoeging(typeof s === "string" ? s : s?.name))).filter(Boolean));
 
 // De tekst door de filter. Geeft { tekst, plekken }: de tekst met alleen de volledige straatnamen en districten ("" als
 // er niets overblijft) en die plekken zelf, in de volgorde van de tekst, elk één keer.
 export function witteLijst(tekst, { straten = [], isStraat = null, rond = [] } = {}) {
   const leeg = { tekst: "", plekken: [] };
-  const t = voorbereid(tekst).replace(ADRES, " # ").replace(/\s+/g, " ").trim();
+  const t = voorbereid(tekst).replace(ADRES, " # ").replace(TOEVOEGING_IN_FILTER, "$1").replace(/\s+/g, " ").trim();
   if (!t) return leeg;
   const w = woordenVan(t);
   const eigen = namenSet(straten);
   let rondSet = null;
   const inRond = (k) => (rondSet ??= namenSet(typeof rond === "function" ? rond() : rond)).has(k);
+  const inStraatas = (naam) => typeof isStraat === "function" && (Boolean(isStraat(naam)) || HOMONIEM_CODES.some((c) => Boolean(isStraat(`${naam}_${c}`))));
   const isPlek = (naam) => {
     const k = sleutel(naam);
-    return Boolean(k) && !/\d/.test(k) && (DISTRICT.has(k) || eigen.has(k) || inRond(k) || (typeof isStraat === "function" && Boolean(isStraat(naam))));
+    if (!k || /\d/.test(k)) return false;
+    // Een reeks van meer woorden die op een homoniemcode eindigt ("Proefstraat AN"), is nooit een plek: zo heet geen straat,
+    // en de twee letters kunnen initialen zijn. De straat ervoor blijft wel ("Proefstraat").
+    const woorden = k.split(" ");
+    if (woorden.length > 1 && HOMONIEM_CODE.has(woorden.at(-1))) return false;
+    // Een straat die de straatas alleen met toevoeging kent ("Proefstraat_AN"), telt onder haar naam ("Proefstraat").
+    return DISTRICT.has(k) || eigen.has(k) || inRond(k) || inStraatas(naam);
   };
   // De langste reeks woorden eerst, van links naar rechts. Een reeks telt alleen als geheel.
   let plekken = [];

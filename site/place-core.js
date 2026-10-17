@@ -11,6 +11,7 @@ import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evene
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsStatus, waarTekst } from "./permit-clarity.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
+import { zonderToevoeging } from "./witte-lijst.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -102,8 +103,9 @@ const compactOf = (value) => foldText(value).replace(/ /g, "");
 
 // De straatas zet een homoniemtoevoeging achter een straatnaam die ook in een ander district bestaat
 // ("Maria-Theresialei_AN" in 2018, naast de Maria-Theresialei in Ekeren). Zo heet geen straat: de bewoner ziet en
-// zoekt "Maria-Theresialei" (zoals scripts/build-straten-stad.mjs voor de andere districten).
-export const zonderHomoniem = (naam) => String(naam ?? "").replace(/_[A-Z]{2}$/, "");
+// zoekt "Maria-Theresialei" (zoals scripts/build-straten-stad.mjs voor de andere districten). Eén definitie: zonderToevoeging
+// in site/witte-lijst.js (met de gemeten codes HOMONIEM_CODES).
+export const zonderHomoniem = zonderToevoeging;
 
 // Index van alle plekken. streets: rijen uit straten.json ([id, naam, postcode, wijken, kader]);
 // wijken: [{ code, naam, box }]; counts: optioneel aantal items per straat-/wijksleutel (voor de rangorde).
