@@ -1439,7 +1439,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.locator('.pv-results .pv-row.pv-bundel', { hasText: /innames? zonder omschrijving/ }).first().waitFor({ timeout: 20000 });
     // (1) Los, niet in een bundel, met de uren en de laatste dag van het lopende parkeerverbod in de kop.
     assert.equal(await werfzone.evaluate((el) => Boolean(el.closest(".pv-bundel"))), false, "de werfzone met een parkeerverbod staat niet in een bundel");
-    const kop = await werfzone.locator(".pv-row-summary").innerText();
+    // De samenvatting zelf, niet de bronnoot eronder (die heeft dezelfde klasse, #173).
+    const kop = await werfzone.locator(".pv-row-summary:not(.pv-bronnoot)").innerText();
     assert.match(kop, new RegExp(`Niet parkeren van 7\\.00 tot 17\\.00 uur, t/m ${Number(eindFase1.slice(8))} \\S+ \\(A-Sign, 2099-000881\\)`), kop);
     // De werfzones zonder parkeerverbod blijven samen ingeklapt.
     assert.equal(await page.locator(".pv-results .pv-row.pv-bundel", { hasText: "2 werfzones of omleidingen zonder doel in de bron" }).count(), 1);
