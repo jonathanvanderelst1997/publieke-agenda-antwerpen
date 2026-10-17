@@ -32,6 +32,8 @@ import { ASIGN_BRON, bouwHerkenning, marktDagenUitBron, publiekeLink } from "../
 import { validateHerkenning } from "../lib/evenement-herkenning-validatie.mjs";
 import { VANDAAG as VANDAAG_HERKENNING, laadFixtures } from "./helpers/parcours-herkenning-evaluatie.mjs";
 import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
+import { STRAAT_INDEX } from "../lib/straat-bestanden.mjs";
+import { KAM, bouw as bouwStraten, maakWerkmap, schoneBronnen } from "./helpers/straat-fixture.mjs";
 import { buildFeed, readSources } from "../scripts/build-sources.mjs";
 import { loadAgendaRuntime } from "../scripts/agenda-source.mjs";
 import { controleerAgendaInhoud } from "../scripts/audit-inhoud-kwaliteit.mjs";
@@ -212,6 +214,33 @@ test("straatbestanden: itemVoorStraat laat elke link naar gipod.api en GIPOD-ite
   assert.deepEqual([uit.sourceUrls, uit.sourceUrl, uit.hindrance.sourceUrls], [[], "", []]);
   const parkeer = itemVoorStraat({ id: "parking:1", kind: "parking", title: "Verhuis", start: "2099-01-02", end: "2099-01-02", sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20" }, { laag: "publiekeRuimte" });
   assert.equal(parkeer.sourceUrl, "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20");
+});
+
+// schrijfStraatSnapshots (scripts/build-straat-snapshots.mjs): een laag die niet laadt, houdt de vorige stand per
+// straat (houdVorige). Die vorige stand komt uit een straatbestand dat nog van vóór 17 oktober 2026 kan zijn.
+test("straatbestanden: de vorige stand van een laag die niet laadde, verliest haar ruwe GIPOD-links", async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gipod-straat-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  maakWerkmap(dir);
+  await bouwStraten(dir);
+  const bestand = path.join(dir, "site", "straat", `${KAM.id}.json`);
+  // Het werk zoals een straatbestand van vóór die dag het nog kon dragen: bronlinks naar het ruwe record en de hinder.
+  const oud = JSON.parse(fs.readFileSync(bestand, "utf8"));
+  assert.equal(oud.werken.length, 1);
+  oud.werken[0] = { ...oud.werken[0], sourceUrl: RUW.filter, sourceUrls: [RUW.grondwerk, "https://geodata.antwerpen.be/arcgissql/rest/services/x"], hindrance: { severe: true, consequences: ["Parkeerverbod"], sourceUrls: [RUW.hinderUri, RUW.hinderInKaart] } };
+  fs.writeFileSync(bestand, `${JSON.stringify(oud)}\n`);
+  assert.equal(ruweGipodLinksIn(fs.readFileSync(bestand, "utf8")).length, 4, "het oude bestand draagt de vier ruwe links");
+  // De werken laden niet: de vorige stand blijft, zonder ruwe link.
+  const zonderWerken = await schoneBronnen();
+  zonderWerken.ververst = "2099-03-11T04:22:00.000Z";
+  zonderWerken.lagen.werken = { ok: false, items: [], errorCode: "http_500" };
+  await bouwStraten(dir, { bronnenDoc: zonderWerken, nu: new Date("2099-03-11T09:00:00Z") });
+  assert.equal(JSON.parse(fs.readFileSync(path.join(dir, STRAAT_INDEX), "utf8")).lagen.werken.status, "stale");
+  const tekst = fs.readFileSync(bestand, "utf8");
+  geenRuweLink(tekst, "vorige stand in het straatbestand");
+  const [werk] = JSON.parse(tekst).werken;
+  assert.equal(werk.id, oud.werken[0].id, "het werk blijft staan");
+  assert.deepEqual([werk.sourceUrl, werk.sourceUrls, werk.hindrance], ["", ["https://geodata.antwerpen.be/arcgissql/rest/services/x"], { severe: true, consequences: ["Parkeerverbod"], sourceUrls: [] }]);
 });
 
 // ---------- markten en evenementen ----------
