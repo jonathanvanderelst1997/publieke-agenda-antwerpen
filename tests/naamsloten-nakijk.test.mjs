@@ -114,3 +114,89 @@ test("e2969b3: de bewaarde omschrijvingen in kaart-uitleg.json zijn al door de f
   }
   assert.ok(n > 0, "er zijn omschrijvingen");
 });
+
+// ======== Nakijkronde van head 801ed9f ========
+// 1. Een huisnummer tussen straat en naam schakelde de naamsloten uit ("Verhuis Kerkstraat 12 Perron").
+// 2. Een naam op de lijst die alleen in zijn zinsdeel staat ("Verhuis: Perron", "Verhuis - Dam"), en telefoonnummers met
+//    haakjes, een lang streepje, een liggend streepje, komma's of een label ("tel") na een komma.
+// 3. In HOOFDLETTERS stond de paarregel uit ("VERHUIS PARK", "VERHUIS DAM").
+// 4. De scheepsdoop stond op de plekpagina in de bundel van de studentenactiviteiten.
+// Elke toets hieronder faalt op 801ed9f en slaagt nu. Alleen verzonnen adressen, namen en nummers.
+
+test("801ed9f: na een huisnummer valt een naam van de lijst weg, de straat blijft", () => {
+  const opties = { straten: ["Kerkstraat"] };
+  for (const [t, naam] of [
+    ["Verhuis Kerkstraat 12 Perron", "Perron"], ["Verhuis Kerkstraat 12, Perron", "Perron"], ["Verhuis Kerkstraat 12 bus 3 Kinders", "Kinders"],
+    ["Verhuis Kerkstraat 12 - Steiger", "Steiger"], ["Verhuis Kerkstraat 12 Dam", "Dam"], ["Verhuis Kerkstraat 12 Meir", "Meir"],
+    ["VERHUIS KERKSTRAAT 12 PERRON", "PERRON"],
+  ]) {
+    geenNaam(t, naam, opties);
+    for (const o of [opties, { ...opties, isStraat }]) {
+      assert.match(KU.veiligeTekst(t, o), /^Verhuis Kerkstraat$/i, t);
+      assert.match(PN.plaatsnaamVan(t, { isStraat: o.isStraat || (() => false), rond: o.straten }), /^Kerkstraat$/i, t);
+    }
+  }
+  // Een huisnummer na een plek blijft een huisnummer van die plek; "Fase 2 Opbouw" is geen naam.
+  assert.equal(KU.veiligeTekst("Markt op de Meir 12"), "Markt op de Meir");
+  assert.equal(KU.veiligeTekst("Fase 2 Opbouw"), "Fase … Opbouw");
+});
+
+test("801ed9f: een naam van de lijst alleen in zijn zinsdeel (na ':', ' - ', '(', ',' of '. ') valt weg", () => {
+  for (const [t, naam] of [
+    ["Verhuis - contactpersoon: Steiger, tel 0470 12 34 56", "Steiger"], ["Verhuis, aanvrager: Kinders", "Kinders"], ["Container. Bewoner: Park", "Park"],
+    ["Verhuis (klant: Perron)", "Perron"], ["Verhuis: Perron", "Perron"], ["Verhuis - Perron", "Perron"], ["Verhuis (Perron)", "Perron"], ["Verhuis. Perron", "Perron"],
+    ["Verhuis: Gras", "Gras"], ["Verhuis - Loper", "Loper"], ["Container: Haven", "Haven"], ["Verhuis: Loods", "Loods"], ["Verhuis: Wandelaar", "Wandelaar"],
+    ["Verhuis: Dam", "Dam"], ["Verhuis - Kiel", "Kiel"], ["Verhuis (Meir)", "Meir"], ["Verhuis: Bourla", "Bourla"], ["Verhuis: Brederode", "Brederode"],
+    ["Verhuis - Stuivenberg", "Stuivenberg"], ["Verhuis: Zandvliet", "Zandvliet"], ["Verhuis: Hoboken", "Hoboken"], ["Container - Lillo", "Lillo"],
+  ]) geenNaam(t, naam);
+  // Wat geen naam is, blijft: het label zelf, een soort plek of een vaste soort voor de plek, een plek na een zekere plek,
+  // een bekende plaatsnaam, en "+" of "…" tussen twee stukken.
+  assert.equal(KU.veiligeTekst("Verhuis: Perron"), "Verhuis");
+  for (const t of ["Markt: Meir", "Parcours: Meir - Groenplaats", "Locatie: Kiel", "Kerkstraat, Meir", "Eerste Stop, Stadswaag", "PARCOURS VOLWASSENEN + JEUGD",
+    "Parkeerverbod … bladslag", "Stoet: van de Groenplaats naar de Meir"]) assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
+});
+
+test("801ed9f: het vangnet van het telefoonnummer kent haakjes, streepjes, komma's en een label na een komma", () => {
+  // "Markt: Meir" blijft zonder nummer; met een nummer erachter is "Meir" een naam.
+  assert.equal(KU.veiligeTekst("Markt: Meir"), "Markt: Meir");
+  for (const tel of ["+32 (0)470 12 34 56", "+32(0)470123456", "0032 (0)470 12 34 56", "+32 (0)3 123 45 67", "(0470) 12 34 56", "0470 – 12 34 56",
+    "0470 — 12 34 56", "0470_12_34_56", "0470,12,34,56", "tel 0470123456", "gsm: 0470 12 34 56", "0470 12 34 56"]) {
+    const t = `Markt: Meir, ${tel}`;
+    geenNaam(t, `Meir ${tel}`);
+    assert.equal(KU.veiligeTekst(t), "Markt", t);
+  }
+  // Huisnummers in een rij zijn geen telefoonnummer.
+  assert.equal(KU.veiligeTekst("Markt op de Meir 10, 12, 14, 16, 18"), "Markt op de Meir");
+});
+
+test("801ed9f: in HOOFDLETTERS valt een paar van twee stammen weg, net als in gewone schrijfwijze", () => {
+  for (const [t, naam] of [["VERHUIS PARK", "PARK"], ["VERHUIS DAM", "DAM"], ["VERHUIS - PERRON", "PERRON"], ["Verhuis, PERRON", "PERRON"], ["Verhuis Dam", "Dam"], ["Feest Kiel", "Kiel"]]) {
+    geenNaam(t, naam);
+  }
+  // Een tekst in hoofdletters zonder naam blijft; een soort plek met een district ook.
+  for (const t of ["PARCOURS CRITERIUM", "PARCOURS JEUGD", "HET STEEN", "PARCOURS VOLWASSENEN + JEUGD", "NADARS", "Bibliotheek Merksem", "Markt Meir"]) {
+    assert.equal(KU.veiligeTekst(t, { isStraat }), t, t);
+  }
+});
+
+test("801ed9f: de doop van een schip staat bij de losse kaartjes, niet in de bundel van de studentenactiviteiten", () => {
+  const rij = { id: "proef-801", kind: "iod", reference: "ET2099000779", dossierType: "ETL", phase: "Evenement", innameType: "Inname", description: "Doopfeest MTS Testboot",
+    streets: [{ name: "Proefkaai" }], start: "2099-11-19", end: "2099-11-21" };
+  // De identiteit zoals de herkenner ze automatisch schrijft (evenement-identiteit-auto.json), verzonnen voor dit dossier.
+  const identiteit = PC.identiteitSamen({ dossiers: {} }, { dossiers: { ET2099000779: {
+    zekerheid: "waarschijnlijk", naam: "", soort: "de doop van een schip", organisator: "", reden: "Het dossier spreekt van de doop van een schip, buiten de doopperiode van de studenten.",
+    dagen: ["2099-11-20", "2099-11-21"], plek: "op de Proefkaai", soortZeker: false, geenEvenement: false, grond: "de omschrijving in het dossier", methode: "regels",
+  } } });
+  for (const id of [identiteit, null]) {
+    const kaartjes = PC.publicSpaceEntries([rij], { vandaag: "2099-10-17", identiteit: id, wijkVan: () => "" });
+    assert.equal(kaartjes.length, 1);
+    assert.match(kaartjes[0].title, /doop van een schip/, String(Boolean(id)));
+    const { losse, bundels } = PC.bundelLijst(kaartjes, { vandaag: "2099-10-17" });
+    assert.deepEqual(losse.map((e) => e.title), [kaartjes[0].title], String(Boolean(id)));
+    assert.equal(bundels.filter((b) => b.bundel?.soort === "studenten").length, 0, String(Boolean(id)));
+  }
+  // Een echte studentendoop blijft een vermoedelijke studentenactiviteit in de bundel van die dag.
+  const doop = { ...rij, id: "proef-802", reference: "ET2099000780", description: "Doop studenten Testkring" };
+  const kaartjes = PC.publicSpaceEntries([doop], { vandaag: "2099-10-17", wijkVan: () => "" });
+  assert.equal(PC.bundelSoort(kaartjes[0], { vandaag: "2099-10-17" }), "studenten", kaartjes[0].title);
+});

@@ -7,7 +7,7 @@
 import { bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, kenmerkTekst, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
-import { LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
+import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsStatus, waarTekst } from "./permit-clarity.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
@@ -1238,6 +1238,13 @@ export const BUNDEL_SOORTEN = Object.freeze(["terrassen", "innames", "werfzones"
 // soorten vanaf twee (één lege kaart blijft een gewone kaart).
 export const BUNDEL_MIN = Object.freeze({ studenten: 1, terrassen: 2, innames: 2, werfzones: 2, aanvragen: 2 });
 const STUDENT = /\b(?:student\w*|doop\w*|dopen|dril\w*|welkomst\w*|kroegentocht\w*|ontgroening\w*)\b/i;
+// De doop van een ding (een schip, een reus, een klok, een tram, een kind) is geen studentenactiviteit: "doop van een ..."
+// telt niet mee, en een dossier met een ding uit DINGEN als soort ("de doop van een schip") ook niet (nakijkronde van head
+// 801ed9f: de scheepsdoop stond op de plekpagina in de bundel van de studentenactiviteiten).
+const DOOP_VAN_IETS = /\bdoop\s+van\s+(?:een|de|het)\s+[\p{L}-]+/giu;
+const DING_SOORTEN = new Set(DINGEN.flatMap((d) => [d.zonder, d.met]).map((t) => cleanText(t).toLowerCase().replace(/^(?:de|het|een)\s+/, "")));
+const studentTekst = (t) => STUDENT.test(cleanText(t).replace(DOOP_VAN_IETS, " "));
+const isDingSoort = (t) => DING_SOORTEN.has(cleanText(t).toLowerCase().replace(/^(?:de|het|een)\s+/, ""));
 const aanvraagOud = (item, vandaag) => {
   const jaar = Number(dossierJaar(item?.project));
   return Boolean(jaar && vandaag && jaar <= Number(String(vandaag).slice(0, 4)) - 2 && omgevingsStatus(item).type === "aanvraag");
@@ -1255,8 +1262,9 @@ export function bundelSoort(e = {}, { vandaag = "" } = {}) {
   // oktober 2026). Alleen een inname zonder omschrijving gaat in de bundel.
   if (dossierKaart && e.uitleg?.watBron === "leeg" && e.uitleg?.innameSoort === "Inname") return "innames";
   // Een vermoeden over een studentenactiviteit: de kaart van het dossier, of een agendapunt uit de dossiers.
-  const vermoeden = dossierKaart ? ["vermoeden", "woord", "koppeling"].includes(e.uitleg?.watBron) && STUDENT.test(`${e.title} ${e.uitleg?.soortTekst || ""}`)
-    : e.source === "agenda" && alleenUitDossiers(e.item) && /^Vermoedelijk\b/.test(cleanText(e.title)) && STUDENT.test(cleanText(e.title));
+  const vermoeden = dossierKaart ? ["vermoeden", "woord", "koppeling"].includes(e.uitleg?.watBron) && !isDingSoort(e.uitleg?.soortTekst)
+      && studentTekst(`${e.title} ${e.uitleg?.soortTekst || ""}`)
+    : e.source === "agenda" && alleenUitDossiers(e.item) && /^Vermoedelijk\b/.test(cleanText(e.title)) && studentTekst(e.title);
   return vermoeden && e.start ? "studenten" : "";
 }
 const nl = (n, een, veel) => `${n} ${n === 1 ? een : veel}`;

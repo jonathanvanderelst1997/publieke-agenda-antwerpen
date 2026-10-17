@@ -26,7 +26,9 @@
 // En omdat een woord van de lijst ook een naam kan zijn (nakijkronde van head e2969b3): na "fam.", "dhr.", "mevr." (de punt
 // is dan geen grens), naast een telefoonnummer of mailadres, na een woord in kleine letters ("Feest van Bar"), als twee
 // stammen met een hoofdletter naast elkaar ("Kraam Bar") en in HOOFDLETTERS naast een woord dat wegvalt ("TESTPERSOON
-// TENT") valt het weg.
+// TENT") valt het weg. Nakijkronde van head 801ed9f: ook direct na een huisnummer ("Proefstraat 12 Perron"), alleen in
+// zijn zinsdeel na een leesteken ("Verhuis: Perron", "Verhuis - Dam"), na een telefoonnummer met haakjes of een label
+// ("+32 (0)470 ...", "tel 0470...") en als paar in HOOFDLETTERS ("VERHUIS PARK").
 // Puur: geen netwerk, geen klok. Draait in de verversing (Node) én in de browser.
 
 // ---------- normaliseren ----------
@@ -153,6 +155,7 @@ export const BEKENDE_PLAATSNAMEN = Object.freeze([
   "Stadswaag",
 ]);
 const VAST = new Set([...VASTE_PLEKKEN, ...BEKENDE_PLAATSNAMEN].map(sleutel));
+const BEKEND = new Set(BEKENDE_PLAATSNAMEN.map(sleutel));
 export const isBekendePlaatsnaam = (naam) => VAST.has(sleutel(naam));
 
 // Een uitgang die alleen een plek is: een straatnaam of plek van één woord telt pas met zo'n uitgang zonder meer.
@@ -168,6 +171,8 @@ const GRENS = /[,;:()[\]{}|/.!?–—<>&+…]|\s-|-\s/;
 // telefoonnummer (een getal), zodat ook de naam ernaast wegvalt (hieronder).
 const ADRES = /\S*[@＠]\S*|\b(?:https?:\/\/|www\.)\S*|\S+\.(?:be|com|nl|org|net|eu|info|fr|de|io|test)\b\S*/giu;
 const ALS_TELEFOON = " 0000000000 ";
+// Wat voor een telefoonnummer staat: "tel 0470 ...", "gsm: 0470 ...", "nr. 0470 ...".
+const TELEFOON_LABEL = new Set("tel telefoon telefoonnummer telnr gsm gsmnr nr nummer mobiel".split(" "));
 // Hoofdletter vooraan ("Kersten") of alles in hoofdletters ("KERSTEN"), zonder de Nederlandse accenten.
 const isGroot = (w) => /^(?:[A-Z][a-z]+|[A-Z]{2,})$/.test(zonderNlAccent(w));
 // Hoe een leesteken tussen twee woorden die blijven, in de uitvoer staat: alleen deze vaste tekens.
@@ -275,16 +280,27 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [], mo
   // cijfers ("0470 12 34 56", "+32 471 12 34 56", "03/123.45.67"). In het zinsdeel ervoor en erna staat meestal een naam
   // ("Kersten, 0470 ...", "fam. Dam - 0470 ..."): daar valt elk woord van de lijst met een hoofdletter en elke plek zonder
   // zekere uitgang weg (nakijkronde van head e2969b3).
+  // Tussen de cijfergroepen ook haakjes, een lang streepje, een liggend streepje of een komma ("+32 (0)470 12 34 56",
+  // "(0470) 12 34 56", "0470 – 12 34 56", "0470_12_34_56", "0470,12,34,56"). Een label ("tel", "gsm", "nr") tussen een
+  // grens en het nummer hoort bij het nummer: dan telt het zinsdeel daarvoor ("Perron, tel 0470123456").
+  // (Nakijkronde van head 801ed9f.)
   const naTelefoon = new Array(w.length).fill(false);
   const telefoon = new Array(w.length).fill(false);
   for (let i = 0; i < w.length;) {
     if (soort[i] !== "getal") { i += 1; continue; }
-    let j = i, cijfers = 0;
-    while (j < w.length && soort[j] === "getal" && /^\d+$/.test(w[j].w) && (j === i || /^[\s./-]*$/.test(w[j].voor))) { cijfers += w[j].w.length; j += 1; }
+    let j = i, cijfers = 0, nulNaHaakje = false;
+    while (j < w.length && soort[j] === "getal" && /^\d+$/.test(w[j].w) && (j === i || /^[\s./()–—_,-]*$/.test(w[j].voor))) {
+      cijfers += w[j].w.length;
+      if (j > i && w[j].w.startsWith("0") && /\(\s*$/.test(w[j].voor)) nulNaHaakje = true;
+      j += 1;
+    }
     if (j === i) { i += 1; continue; }
-    if (cijfers >= 9 && (w[i].w.startsWith("0") || /\+\s*$/.test(w[i].voor))) {
+    if (cijfers >= 9 && (w[i].w.startsWith("0") || /\+\s*$/.test(w[i].voor) || nulNaHaakje)) {
       for (let k = i; k < j; k += 1) telefoon[k] = true;
-      for (let k = i - 1; k >= 0; k -= 1) { naTelefoon[k] = true; if (grensBij(k)) break; }
+      for (let k = i - 1; k >= 0; k -= 1) {
+        naTelefoon[k] = true;
+        if (grensBij(k) && !w.slice(k, i).every((x) => TELEFOON_LABEL.has(x.k))) break;
+      }
       for (let k = j; k < w.length; k += 1) { naTelefoon[k] = true; if (grensBij(k + 1)) break; }
     }
     i = j;
@@ -312,9 +328,12 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [], mo
     return false;
   };
   const enkelGroot = (k) => soort[k] === "woord" && ontleed(w[k].k).length === 1 && isGroot(w[k].w);
-  // Met één hoofdletter vooraan: een tekst in hoofdletters ("PARCOURS CRITERIUM") is geen voornaam met een achternaam.
-  const enkelNaam = (k) => enkelGroot(k) && /^[A-Z][a-z]+$/.test(zonderNlAccent(w[k].w));
-  const paar = (a) => a >= 0 && a + 1 < w.length && !grensBij(a + 1) && enkelNaam(a) && enkelNaam(a + 1) && !GEEN_VOORNAAM.has(w[a].k);
+  // Ook in HOOFDLETTERS ("VERHUIS PARK"): "PARCOURS CRITERIUM" en "PARCOURS JEUGD" blijven, want "parcours" staat in
+  // GEEN_VOORNAAM (nakijkronde van head 801ed9f).
+  const paar = (a) => a >= 0 && a + 1 < w.length && !grensBij(a + 1) && enkelGroot(a) && enkelGroot(a + 1) && !GEEN_VOORNAAM.has(w[a].k);
+  // Een grens die een zinsdeel afsluit: een leesteken, het begin of het einde. Niet "…" of "→" (die zet de filter zelf
+  // tussen twee stukken die blijven) en niet "+" of "&" ("PARCOURS VOLWASSENEN + JEUGD").
+  const zinsdeelGrens = (j) => grensBij(j) && !(j > 0 && j < w.length && /…|\.\.\.|→|->|>|[+&]/.test(w[j].voor));
   const kleineLetters = (j) => j >= 0 && soort[j] !== "getal" && /\p{Ll}/u.test(w[j].w) && w[j].w === w[j].w.toLowerCase();
   // Eerst wat op de woorden zelf staat (allemaal tegelijk), dan de buren.
   const naam = new Set();
@@ -325,6 +344,14 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [], mo
     if (!enkelGroot(k)) continue;
     // Naast een telefoonnummer of een mailadres: een naam.
     if (naTelefoon[k]) { naam.add(k); continue; }
+    // Direct na een huisnummer ("Proefstraat 12 Perron", "Proefstraat 12 bus 3 Kinders"): straat, nummer en achternaam
+    // is de gewone vorm van een adreslabel (nakijkronde van head 801ed9f). "Fase 2 Opbouw" blijft.
+    if (!grensBij(k) && soort[k - 1] === "getal" && !GEEN_VOORNAAM.has(x.k)) { naam.add(k); continue; }
+    // Alleen in zijn zinsdeel, na een leesteken ("Verhuis: Perron", "Verhuis - Steiger", "Verhuis (Perron)",
+    // "Container. Bewoner: Park", "Proefstraat 12, Perron"): een label met een naam. Rechts een grens, het einde, een
+    // woord dat wegvalt of een getal. Het eerste woord van de tekst niet: "Stoet: van de Groenplaats naar de Meir".
+    if (k > 0 && zinsdeelGrens(k) && !GEEN_VOORNAAM.has(x.k)
+      && (zinsdeelGrens(k + 1) || soort[k + 1] === "weg" || soort[k + 1] === "getal")) { naam.add(k); continue; }
     // Een stam met een hoofdletter midden in een zinsdeel, na een woord in kleine letters of een tussenvoegsel in kleine
     // letters ("Feest van Pier", "Tent voor feest Bar", "Verhuis van der Steiger"): een eigennaam. Een gewoon zelfstandig
     // naamwoord staat daar met een kleine letter.
@@ -341,7 +368,13 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [], mo
   // een plek, een trefwoord, een getal of een leesteken ernaast, of na een voorzetsel met een lidwoord ertussen ("op de
   // Meir"; zonder lidwoord alleen "in Berchem"). Nooit naast een telefoonnummer of na "fam." of "dhr.".
   const grensVoor = (k) => k === 0 || grensBij(k);
-  const goedeBuur = (k) => k >= 0 && k < w.length && (soort[k] === "woord" || (soort[k] === "getal" && !telefoon[k]) || (soort[k] === "plek" && plekVan[k].zeker));
+  // Een getal alleen rechts (een huisnummer van die plek); links niet: "Proefstraat 12 Dam" is straat, nummer
+  // en achternaam. Eén stam met een hoofdletter die geen soort plek is ("Verhuis Dam", "VERHUIS DAM", "Feest Kiel") ook
+  // niet: dat is een label met een naam, zoals "Verhuis Perron" (de paarregel hierboven). Een soort plek wel
+  // ("Bibliotheek Merksem", "Markt Meir"). Nakijkronde van head 801ed9f.
+  const goedeBuur = (k, rechts = false) => k >= 0 && k < w.length && (
+    (soort[k] === "woord" && !(!w[k].plaats && ontleed(w[k].k).length === 1 && isGroot(w[k].w) && !GEEN_VOORNAAM.has(w[k].k)))
+    || (rechts && soort[k] === "getal" && !telefoon[k]) || (soort[k] === "plek" && plekVan[k].zeker));
   for (const p of new Set(plekVan.filter(Boolean))) {
     if (p.zeker) continue;
     let links = !grensVoor(p.van) ? p.van - 1 : -1;
@@ -359,8 +392,16 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [], mo
       } else ok = goedeBuur(j) || (soort[j] === "voeg" && w[j].w === w[j].k && VOORZETSEL_ZONDER_LIDWOORD.has(w[j].k));
     }
     const rechts = p.tot;
-    if (ok && rechts < w.length && !grensBij(rechts)) ok = goedeBuur(rechts) || (soort[rechts] === "voeg" && w[rechts].w === w[rechts].k);
+    if (ok && rechts < w.length && !grensBij(rechts)) ok = goedeBuur(rechts, true) || (soort[rechts] === "voeg" && w[rechts].w === w[rechts].k);
     if (ok && naTelefoon[p.tot - 1]) ok = false;
+    // Alleen in zijn zinsdeel na een leesteken ("Verhuis: Dam", "Verhuis - Meir", "Contact (Kiel)"): een label met een
+    // naam, tenzij voor het leesteken een soort plek, een woord dat nooit een naam is of een zekere plek staat ("Markt: Meir",
+    // "Parcours: Meir - Groenplaats", "Proefstraat, Meir"). Een bekende plaatsnaam ("Eerste Stop (Stadswaag)") is geen
+    // achternaam. Nakijkronde van head 801ed9f.
+    if (ok && p.van > 0 && zinsdeelGrens(p.van) && zinsdeelGrens(p.tot) && !BEKEND.has(sleutel(p.naam.join(" ")))) {
+      const v = p.van - 1;
+      ok = (soort[v] === "woord" && (w[v].plaats || GEEN_VOORNAAM.has(w[v].k))) || (soort[v] === "plek" && Boolean(plekVan[v]?.zeker));
+    }
     if (!ok) for (let k = p.van; k < p.tot; k += 1) { soort[k] = "weg"; plekVan[k] = null; }
   }
   // De stukken: woorden die blijven, met de kleine woorden ertussen. Een woord of getal dat wegvalt, sluit een stuk af;
