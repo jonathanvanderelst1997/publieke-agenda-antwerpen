@@ -36,6 +36,9 @@ export function readSources(rootDir) {
     // De gelezen eBesluit-besluiten zijn geen agendabron; hun agendapunten staan in
     // district-ebesluit-evenementen.json (scripts/validate-data.mjs controleert het bestand).
     if (name === EVENEMENT_BESLUITEN_FILE) continue;
+    // Een aanvulling (AWV-werfdata, lib/awv-werf.mjs) maakt geen agendapunten; de werkenlaag in de browser
+    // leest het bestand zelf. scripts/validate-data.mjs controleert het.
+    if (SOURCE_DEFINITIONS[name.replace(/\.json$/, "")]?.aanvulling) continue;
     const file = path.join(sourcesDir, name);
     let json;
     try {

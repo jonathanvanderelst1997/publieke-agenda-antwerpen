@@ -106,7 +106,8 @@ if (!fs.existsSync(sourcesDir)) {
     for (const error of validateSourceDocument(json, { expectedSourceId: sourceId })) {
       if (!error.startsWith("privacy:")) problems.push(`${name}: ${error}`);
     }
-    const contract = validateEventContract(Array.isArray(json.items) ? json.items : []);
+    // Een aanvulling (AWV-werfdata) heeft geen agendapunten: haar eigen itemvorm toetst validateSourceDocument.
+    const contract = SOURCE_DEFINITIONS[sourceId]?.aanvulling ? { errors: [] } : validateEventContract(Array.isArray(json.items) ? json.items : []);
     for (const error of contract.errors) problems.push(`${name}: eventcontract ${error.code} (${error.id ?? error.index})`);
     // Een afgeleide bron uit de evenementendossiers van de stad (district-asign-evenementen): nooit een
     // huisnummer na een straatnaam, in geen enkel tekstveld en in geen enkele straat. Alleen het pad.
