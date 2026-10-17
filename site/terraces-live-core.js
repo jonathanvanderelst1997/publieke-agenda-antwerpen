@@ -4,9 +4,20 @@ import {voerUit,voerUitInStappen} from "./in-stappen.js";
 const clean=(value,max=256)=>String(value??"").replace(/\s+/g," ").trim().slice(0,max);
 const attrs=feature=>feature?.properties||feature?.attributes||feature||{};
 const geom=feature=>feature?.geometry||null;
+const postcodeGeldig = (waarde) => /^[1-9]\d{3}$/.test(String(waarde ?? "").trim());
+// De gekoppelde straatas is een aanwijzing, geen bewijs dat de bronpostcode klopt.
+// Toon een conflict, maar wijzig nooit automatisch het adres of de postcode van A-Sign.
+export function terrasPostcodeMelding(item = {}) {
+  const bron = String(item?.postcode ?? "").trim();
+  const codes = [...new Set((Array.isArray(item?.streets) ? item.streets : [])
+    .map((straat) => String(straat?.postcode ?? "").trim())
+    .filter(postcodeGeldig))].sort();
+  if (!postcodeGeldig(bron) || !codes.length || codes.includes(bron)) return "";
+  return `A-Sign vermeldt postcode ${bron}, maar de gekoppelde officiële straatas vermeldt ${codes.join(" of ")}. De precieze terraslocatie is daarom niet bevestigd.`;
+}
 export function normalizeTerrace(row={}){
   const id=clean(row.ROLnet_ID||row.OBJECTID,120); if(!id)return null;
-  return{ id:`terrace:${id}`,recordId:id,terraceType:clean(row.TypeTerrasZone,120)||"Terraszone",status:clean(row.Status,120)||"Status niet ingevuld",address:clean(row.adres,180),postcode:Number.isFinite(Number(row.postcode))?String(Number(row.postcode)):"",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/49"};
+  return{ id:`terrace:${id}`,recordId:id,terraceType:clean(row.TypeTerrasZone,120)||"Terraszone",status:clean(row.Status,120)||"Status niet ingevuld",address:clean(row.adres,180),postcode:postcodeGeldig(clean(row.postcode,16))?clean(row.postcode,16):"", sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/49"};
 }
 // Een generator: na elke feature een `yield`, zodat de browser in stappen kan werken (site/in-stappen.js).
 function* verzamel(features=[],districtGeometry=null,streetIndex=null){
