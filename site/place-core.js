@@ -1114,7 +1114,7 @@ function workEntryBasis(work) {
     time: "", timeText: "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
     // Geen link naar het ruwe GIPOD-record (site/gipod-bron.js): de bron is de datasetfiche. Per werk linkt
-    // bezoekersLinks (site/bezoekers-bronnen.js) naar Hinder in Kaart, met het GIPOD-nummer.
+    // bezoekersLinks (site/bezoekers-bronnen.js) naar de algemene kaart van Hinder in Kaart, zonder gipodid.
     reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: GIPOD_METADATA_URL, item: work,
   };
 }

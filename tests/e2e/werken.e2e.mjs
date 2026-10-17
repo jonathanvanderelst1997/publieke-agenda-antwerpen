@@ -118,11 +118,12 @@ test("werkkaart: jaartal, soort, eigen afsluitingsperiode, project zichtbaar, ge
     assert.equal(await ruw.locator("p").isVisible(), false);
     await ruw.locator("summary").click();
     assert.equal(await ruw.locator("p").innerText(), RUW);
-    // Bron en dossier: Hinder in Kaart en één bronvermelding met de datasetfiche; geen "Technische details" met
-    // een link naar het ruwe GIPOD-record (site/gipod-bron.js), en nergens de contactgegevens.
+    // Bron en dossier: de algemene kaart van Hinder in Kaart (nooit met gipodid: dat opent het detailpaneel van
+    // het record) en één bronvermelding met de datasetfiche; geen "Technische details" met een link naar het ruwe
+    // GIPOD-record (site/gipod-bron.js), en nergens de contactgegevens.
     const links = await detail.locator("a").evaluateAll((els) => els.map((a) => [a.textContent.replace(/\s*↗$/, ""), a.href]));
-    assert.equal(links.some(([, href]) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD/i.test(href)), false, JSON.stringify(links));
-    assert.ok(links.some(([, href]) => href === `https://www.geopunt.be/?app=hinder-in-kaart&gipodid=${GIPOD_ID}`), JSON.stringify(links));
+    assert.equal(links.some(([, href]) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD|gipodid=/i.test(href)), false, JSON.stringify(links));
+    assert.ok(links.some(([, href]) => href === "https://www.geopunt.be/?app=hinder-in-kaart"), JSON.stringify(links));
     assert.deepEqual(links.filter(([, href]) => href.startsWith("https://metadata.vlaanderen.be/")), [["Bron: GIPOD (Digitaal Vlaanderen)", "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"]]);
     assert.equal(await detail.locator(".pv-tech").count(), 0);
     assert.doesNotMatch(await rij.innerHTML(), /Voorbeeld Persoon|example\.org/);

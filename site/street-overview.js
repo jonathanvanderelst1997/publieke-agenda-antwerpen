@@ -7,8 +7,9 @@ import {zonderRuwGipodRecord} from "./gipod-bron.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
-// Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk Hinder in Kaart, en een GIPOD-link
-// van een agendapunt (een markt) wordt de datasetfiche.
+// Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk de algemene kaart van Hinder in Kaart
+// (zonder gipodid, dat opent het record met de contactgegevens), en een GIPOD-link van een agendapunt (een
+// markt) wordt de datasetfiche.
 const bron=value=>zonderRuwGipodRecord(String(value||""));
 const isMarket=item=>item?.sourceId==="stad-markten"||(item?.sources||[]).some(source=>source?.sourceId==="stad-markten")||/\bmarkt\b/i.test(item?.title||"");
 
@@ -25,7 +26,7 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     if(group&&!group[bucket].some(existing=>existing.id===item.id))group[bucket].push(item);
   };
   for(const item of works){
-    const normalized={id:`work:${item.gipodId}`,title:clean(item.title)||"Werk",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:hinderkaart(item.gipodId),sourceLabel:"Hinder in Kaart",severeHindrance:item.hindrance?.severe===true};
+    const normalized={id:`work:${item.gipodId}`,title:clean(item.title)||"Werk",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:hinderkaart(),sourceLabel:"Hinder in Kaart",severeHindrance:item.hindrance?.severe===true};
     for(const street of item.streets||[])add(street,"works",normalized);
   }
   for(const item of publicSpace){

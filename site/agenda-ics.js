@@ -61,9 +61,9 @@
     return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   }
 
-  // GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname), want dat record
-  // draagt contactgegevens. Een kopie van ruwGipodRecord uit site/gipod-bron.js (dit bestand is geen module);
-  // tests/gipod-geen-ruwe-links.test.mjs houdt beide gelijk.
+  // GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname, ook Hinder in
+  // Kaart met gipodid), want dat record draagt contactgegevens. Een kopie van ruwGipodRecord uit
+  // site/gipod-bron.js (dit bestand is geen module); tests/gipod-geen-ruwe-links.test.mjs houdt beide gelijk.
   const GIPOD_METADATA_URL = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
 
   function isRawGipodRecord(value) {
@@ -76,6 +76,15 @@
     if (!/^https?:$/.test(url.protocol)) return false;
     const host = url.hostname.toLowerCase().replace(/\.$/, "");
     if (host === "gipod.api.vlaanderen.be" || host.endsWith(".gipod.api.vlaanderen.be")) return true;
+    if (host === "geopunt.be" || host.endsWith(".geopunt.be")) {
+      let vraag = url.search + url.hash;
+      try {
+        vraag = decodeURIComponent(vraag);
+      } catch {
+        // een kapotte codering: dan de vraag zoals ze is
+      }
+      return /(?:^|[?&;#/])gipodid=/i.test(vraag);
+    }
     if (host !== "geo.api.vlaanderen.be") return false;
     let pad = url.pathname;
     try {

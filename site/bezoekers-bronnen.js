@@ -44,10 +44,11 @@ export const safeHttps = value => {
 };
 export const rawData = x => /^https:\/\/(?:geo(?:data)?\.(?:antwerpen\.be|api\.vlaanderen\.be)|gipod\.api\.vlaanderen\.be)\//i.test(safeHttps(x));
 export const distinctPage = x => {const s=safeHttps(x);return !!s&&new URL(s).pathname!=="/"&&!rawData(s);};
-export function hinderkaart(gipodId) {
-  const id=String(gipodId??"");
-  return /^[1-9]\d{0,12}$/.test(id)?GEOPUNT+"&gipodid="+id:GEOPUNT;
-}
+// Hinder in Kaart, altijd de algemene kaart: nooit met gipodid. Met die parameter haalt de viewer het ruwe
+// GIPOD-record op en opent meteen het detailpaneel, met de contactgegevens (ContactName, Email, Telephone) uit
+// ContactOrganisations of HindranceContactOrganisations (site/gipod-bron.js). Het GIPOD-nummer staat als tekst
+// bij het werk; een bezoeker zoekt op straatnaam.
+export const hinderkaart = () => GEOPUNT;
 // Een GIPOD-link (een ruw record of de datasetfiche) wordt altijd één bronvermelding "Bron: GIPOD (Digitaal
 // Vlaanderen)" met de datasetfiche: nooit een link naar het ruwe record, dat contactgegevens draagt
 // (site/gipod-bron.js). Ook niet uit oudere data (een straatbestand of feed van vóór die regel).
@@ -66,7 +67,7 @@ export function bezoekersLinks(e={}) {
       add(INZAGE_UITLEG,item.inzage.toestand==="openbaar onderzoek"?"Zo dien je een bezwaar in (uitleg van Vlaanderen)":"Uitleg van Vlaanderen over het Inzageloket","help");
     }
   }else if(e.source==="works"){
-    add(hinderkaart(item.gipodId),"Bekijk werken en hinder op de officiële kaart");
+    add(hinderkaart(),"Bekijk werken en hinder op de officiële kaart");
     add(GIPOD_METADATA_URL,GIPOD_BRON,"source");
   }else if(e.source==="publicSpace"&&item.kind==="event"){
     // Evenementkaart: de nagekeken officiële pagina of het gekoppelde agendapunt (site/kaart-uitleg.js).
@@ -77,7 +78,7 @@ export function bezoekersLinks(e={}) {
     }
     if(e.sourceUrl)add(e.sourceUrl,"Technische gegevens van de stad (geen infopagina)","source");
   }else if(e.source==="publicSpace"&&item.gipodId){
-    add(hinderkaart(item.gipodId),"Bekijk de hinder op de officiële kaart");
+    add(hinderkaart(),"Bekijk de hinder op de officiële kaart");
   }else if(e.source==="agenda"){
     if(item.sourceId==="stad-markten")add("https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen","Marktdag, uren en locatie op Antwerpen.be");
     const autoChecked=item.actionChecked===true;
@@ -118,8 +119,8 @@ export function splitsLinks(links=[]) {
 export function bezoekersHint(e={}) {
   const item=e.item||{};
   if(e.source==="permits")return item.inzage?.link?"":GEEN_INZAGE_ZIN;
-  if(e.source==="works")return /^\d+$/.test(String(item.gipodId||""))?
-    "De kaart opent bij GIPOD "+item.gipodId+"; controleer periode, ligging en hinder.":"Zoek op straatnaam in Hinder in Kaart.";
+  // Hinder in Kaart opent nooit op het werk zelf (zie hinderkaart): zoeken op straatnaam.
+  if(e.source==="works")return "Zoek op straatnaam in Hinder in Kaart.";
   // Een evenementkaart zegt zelf onderaan waar de gegevens vandaan komen.
   if(e.source==="publicSpace"&&item.kind==="event")return "";
   // Per soort de juiste zin: "evenementenpagina" past alleen bij een evenement op straat.

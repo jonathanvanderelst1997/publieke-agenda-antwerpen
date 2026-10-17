@@ -63,7 +63,7 @@ const kort = (tekst) => crypto.createHash("sha256").update(tekst).digest("hex").
 
 // Bronlinks: alleen https naar de bronnen zelf. Ze gaan niet door de huisnummeropkuis (een URL is geen adres).
 // Geen GIPOD-host: een link naar een ruw GIPOD-record (een werk, grondwerk of hinder) draagt contactgegevens
-// (site/gipod-bron.js), en de plekpagina linkt per werk naar Hinder in Kaart.
+// (site/gipod-bron.js), en de plekpagina linkt per werk naar de algemene kaart van Hinder in Kaart.
 const BRONHOSTS = new Set(["geodata.antwerpen.be"]);
 const bronUrl = (value) => {
   try {

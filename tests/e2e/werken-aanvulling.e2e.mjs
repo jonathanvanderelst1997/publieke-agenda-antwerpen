@@ -120,18 +120,19 @@ test("werkenlijst: AWV-werfdata op hetzelfde GIPOD-id, en losse hinder in een ei
     assert.doesNotMatch(await awv.innerText(), /Verzonnen Proefsoort/);
     // De status blijft die van GIPOD.
     assert.equal(await kaart.locator(".works-live-status").innerText(), "In uitvoering");
-    // Geen link naar het ruwe GIPOD-record (contactgegevens, site/gipod-bron.js): op de kaart alleen Hinder in
-    // Kaart; onder de lijst één bronvermelding met de datasetfiche.
-    const kaartLinks = await kaart.locator("footer a").evaluateAll((els) => els.map((a) => [a.textContent, a.href]));
-    assert.deepEqual(kaartLinks, [["Bekijk werk op Hinder in Kaart", `https://www.geopunt.be/?app=hinder-in-kaart&gipodid=${WERK}`]]);
-    assert.doesNotMatch(await kaart.innerHTML(), /Technische GIPOD-bron|gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be|Voorbeeld Persoon|example\.org/);
+    // Geen link naar het ruwe GIPOD-record (contactgegevens, site/gipod-bron.js), ook niet via Hinder in Kaart
+    // met gipodid (dat opent het detailpaneel van het record): op de kaart geen link; onder de lijst de algemene
+    // kaart van Hinder in Kaart en één bronvermelding met de datasetfiche.
+    assert.equal(await kaart.locator("footer a").count(), 0);
+    assert.doesNotMatch(await kaart.innerHTML(), /Technische GIPOD-bron|Hinder in Kaart|gipodid=|gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be|Voorbeeld Persoon|example\.org/i);
     const bron = page.locator("#works-live [data-works-bron]");
     assert.equal(await bron.isVisible(), true);
-    assert.equal(await bron.locator("a").count(), 1);
-    assert.equal(await bron.locator("a").innerText(), "Bron: GIPOD (Digitaal Vlaanderen)");
-    assert.equal(await bron.locator("a").getAttribute("href"), "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
+    assert.deepEqual(await bron.locator("a").evaluateAll((els) => els.map((a) => [a.textContent, a.href])), [
+      ["Officiële kaart: Hinder in Kaart", "https://www.geopunt.be/?app=hinder-in-kaart"],
+      ["Bron: GIPOD (Digitaal Vlaanderen)", "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"],
+    ]);
     const alleLinks = await page.locator("#works-live a").evaluateAll((els) => els.map((a) => a.href));
-    assert.equal(alleLinks.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD/i.test(h)), false, alleLinks.join(" "));
+    assert.equal(alleLinks.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD|gipodid=/i.test(h)), false, alleLinks.join(" "));
     const los = page.locator("#works-live [data-works-loose]");
     await los.waitFor({ state: "visible", timeout: 5000 });
     const tekst = await los.innerText();

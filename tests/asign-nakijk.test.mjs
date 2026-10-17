@@ -206,7 +206,8 @@ test("parkeerverbod: weekdagen alleen bij \"1\", de uren uit de bron, en een GIP
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ GipodID: "12345678" })] });
   assert.equal(item.detail, "");
   assert.equal(item.gipodId, 12345678);
-  assert.equal(bb.bezoekersLinks(pc.publicSpaceEntry(item))[0].url, "https://www.geopunt.be/?app=hinder-in-kaart&gipodid=12345678");
+  // De algemene kaart van Hinder in Kaart: met gipodid opent die het record met contactgegevens (site/gipod-bron.js).
+  assert.equal(bb.bezoekersLinks(pc.publicSpaceEntry(item))[0].url, "https://www.geopunt.be/?app=hinder-in-kaart");
   assert.match(bron("site/public-space-live.js"), /Starttijd,Eindtijd/);
 });
 

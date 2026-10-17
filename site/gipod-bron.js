@@ -4,9 +4,12 @@
 // HindranceContactOrganisations: contactnaam, e-mail en telefoon. Meting 17 oktober 2026: bij 10 van de
 // 1.193 werken in het district is dat veld gevuld, bij 7 met een persoon. De filterlink op
 // geo.api.vlaanderen.be (…/collections/INNAME_PUNT/items?f=html&filter=GipodId=…) toonde die gegevens met
-// één klik; de Uri op gipod.api.vlaanderen.be gaf HTTP 401. Daarom linkt de site per item hoogstens naar
-// Hinder in Kaart (de officiële viewer, site/bezoekers-bronnen.js) en verder één keer naar de datasetfiche
-// (innames en mobiliteitshinder, uitgever Athumi). docs/WORKS_LIVE_SOURCE_POLICY.md legt de regel uit.
+// één klik; de Uri op gipod.api.vlaanderen.be gaf HTTP 401. Hinder in Kaart met de parameter gipodid doet
+// hetzelfde: de viewer haalt dat record op en opent meteen het detailpaneel, met ContactName, Email en
+// Telephone (nagekeken in de gepubliceerde viewer van geopunt, 17 oktober 2026). Daarom linkt de site per item
+// hoogstens naar de algemene kaart van Hinder in Kaart, zonder gipodid (site/bezoekers-bronnen.js), en verder
+// één keer naar de datasetfiche (innames en mobiliteitshinder, uitgever Athumi).
+// docs/WORKS_LIVE_SOURCE_POLICY.md legt de regel uit.
 //
 // Ophalen blijft wel via de OGC API (site/works-live.js, lib/gipod-markets.mjs): dat zijn vragen van de
 // code zelf, geen links voor bezoekers. site/agenda.js en site/agenda-ics.js zijn geen modules en hebben
@@ -15,9 +18,11 @@ export const GIPOD_METADATA_URL = "https://metadata.vlaanderen.be/srv/api/record
 export const GIPOD_BRON = "Bron: GIPOD (Digitaal Vlaanderen)";
 
 // Een link naar een ruw GIPOD-record: alles op gipod.api.vlaanderen.be (de API, ook /api/v1/works/<id> en
-// /api/v1/mobility-hindrances/<id>), en op geo.api.vlaanderen.be elke vraag naar de items van een
-// GIPOD-collectie (/GIPOD/ogc/features/…/collections/<laag>/items, met een id, een filter of een kader).
-// De landingspagina van de API (/GIPOD/ogc/features) en de datasetfiche zijn geen record.
+// /api/v1/mobility-hindrances/<id>), op geo.api.vlaanderen.be elke vraag naar de items van een
+// GIPOD-collectie (/GIPOD/ogc/features/…/collections/<laag>/items, met een id, een filter of een kader), en
+// een link naar geopunt.be met de parameter gipodid (in eender welke schrijfwijze, ook als &amp;gipodid in
+// HTML): die opent Hinder in Kaart op het detailpaneel van dat record. De landingspagina van de API
+// (/GIPOD/ogc/features), de datasetfiche en Hinder in Kaart zonder gipodid zijn geen record.
 export function ruwGipodRecord(value) {
   let url;
   try {
@@ -28,6 +33,15 @@ export function ruwGipodRecord(value) {
   if (!/^https?:$/.test(url.protocol)) return false;
   const host = url.hostname.toLowerCase().replace(/\.$/, "");
   if (host === "gipod.api.vlaanderen.be" || host.endsWith(".gipod.api.vlaanderen.be")) return true;
+  if (host === "geopunt.be" || host.endsWith(".geopunt.be")) {
+    let vraag = url.search + url.hash;
+    try {
+      vraag = decodeURIComponent(vraag);
+    } catch {
+      // een kapotte codering: dan de vraag zoals ze is
+    }
+    return /(?:^|[?&;#/])gipodid=/i.test(vraag);
+  }
   if (host !== "geo.api.vlaanderen.be") return false;
   let pad = url.pathname;
   try {

@@ -2,8 +2,9 @@ import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
-// Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk Hinder in Kaart, en een GIPOD-link
-// van een agendapunt (een markt) wordt de datasetfiche.
+// Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk de algemene kaart van Hinder in Kaart
+// (zonder gipodid, dat opent het record met de contactgegevens), en een GIPOD-link van een agendapunt (een
+// markt) wordt de datasetfiche.
 const bron=value=>zonderRuwGipodRecord(String(value||""));
 const isoDay=value=>/^\d{4}-\d{2}-\d{2}$/.test(String(value||""))?String(value):"";
 const addDays=(day,count)=>{const d=new Date(day+"T12:00:00Z");d.setUTCDate(d.getUTCDate()+count);return d.toISOString().slice(0,10)};
@@ -31,7 +32,7 @@ export function buildWeekPulse({agendaItems=[],works=[],publicSpace=[],fromDay,t
   const severe=works.filter(item=>item.hindrance?.severe===true&&overlaps(String(item.start||"").slice(0,10),String(item.end||"").slice(0,10),from,to));
   const upcoming=[
     ...agenda.map(item=>({kind:"agenda",id:item.id,title:clean(item.title),date:isoDay(item.date),type:typeOf(item),location:clean(item.location),url:bron(item.sourceUrl||item.link)})),
-    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:hinderkaart(item.gipodId),urlLabel:"Hinder in Kaart"})),
+    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:hinderkaart(),urlLabel:"Hinder in Kaart"})),
     ...measureStarts.map(item=>({kind:"measure",id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel start",date:String(item.start||"").slice(0,10),type:item.kind||"measure",location:(item.streets||[]).map(s=>s.name).join(" · ")||clean(item.location),url:bron(item.sourceUrl)})),
   ].filter(item=>item.date).sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title,"nl")).slice(0,14);
   return{from,to,agendaCount:agenda.length,agendaByType,neighborhoodCount:agendaByType.neighborhood||0,playStreetCount:agendaByType.playstreet||0,publicMeetingCount:agendaByType.public_meeting||0,marketFairCount:agendaByType.market_fair||0,workStarts:workStarts.length,workEnds:workEnds.length,measureStarts:measureStarts.length,severeHindranceWorks:severe.length,upcoming};

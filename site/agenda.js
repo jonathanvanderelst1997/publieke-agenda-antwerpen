@@ -1627,10 +1627,10 @@ function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
 }
 
-// GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname): dat record draagt
-// contactgegevens. Zo'n link wordt de officiële datasetfiche, met één bronvermelding. Een kopie van
-// ruwGipodRecord uit site/gipod-bron.js (dit bestand is geen module); tests/gipod-geen-ruwe-links.test.mjs
-// houdt beide gelijk.
+// GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname, ook Hinder in Kaart
+// met gipodid): dat record draagt contactgegevens. Zo'n link wordt de officiële datasetfiche, met één
+// bronvermelding. Een kopie van ruwGipodRecord uit site/gipod-bron.js (dit bestand is geen module);
+// tests/gipod-geen-ruwe-links.test.mjs houdt beide gelijk.
 const AGENDA_GIPOD_METADATA_URL = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
 const AGENDA_GIPOD_BRON = "Bron: GIPOD (Digitaal Vlaanderen)";
 function agendaRuwGipodRecord(value) {
@@ -1643,6 +1643,15 @@ function agendaRuwGipodRecord(value) {
   if (!/^https?:$/.test(url.protocol)) return false;
   const host = url.hostname.toLowerCase().replace(/\.$/, "");
   if (host === "gipod.api.vlaanderen.be" || host.endsWith(".gipod.api.vlaanderen.be")) return true;
+  if (host === "geopunt.be" || host.endsWith(".geopunt.be")) {
+    let vraag = url.search + url.hash;
+    try {
+      vraag = decodeURIComponent(vraag);
+    } catch {
+      // een kapotte codering: dan de vraag zoals ze is
+    }
+    return /(?:^|[?&;#/])gipodid=/i.test(vraag);
+  }
   if (host !== "geo.api.vlaanderen.be") return false;
   let pad = url.pathname;
   try {

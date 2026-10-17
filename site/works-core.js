@@ -9,7 +9,8 @@ export function ownerGroup(owner=""){const t=normalizeText(owner).toLowerCase();
 const earlier=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))<=0?a:b);
 const later=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))>=0?a:b);
 // De werken in het district, per GIPOD-id. Nooit de Uri of een andere link naar het ruwe INNAME_PUNT-record
-// (site/gipod-bron.js): dat record draagt ContactOrganisations. Per werk linkt de site naar Hinder in Kaart.
+// (site/gipod-bron.js): dat record draagt ContactOrganisations. De site linkt naar de algemene kaart van Hinder in
+// Kaart, nooit met gipodid (site/bezoekers-bronnen.js).
 export function collectWorks(features=[],exactIds=new Set(),districtGeometry=null){
   const grouped=new Map();
   for(const feature of features){

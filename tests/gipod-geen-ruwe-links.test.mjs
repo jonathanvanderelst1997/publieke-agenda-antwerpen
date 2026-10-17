@@ -1,7 +1,8 @@
 // Geen link naar een ruw GIPOD-record (site/gipod-bron.js). Een werk, grondwerk, inname, markt of hinder in
 // GIPOD draagt ContactOrganisations of HindranceContactOrganisations (contactnaam, e-mail, telefoon); de
-// filterlink op geo.api.vlaanderen.be toonde die met één klik. Per item linkt de site hoogstens naar Hinder in
-// Kaart, verder één keer naar de datasetfiche: "Bron: GIPOD (Digitaal Vlaanderen)".
+// filterlink op geo.api.vlaanderen.be toonde die met één klik, en Hinder in Kaart met gipodid opent het
+// detailpaneel van dat record met dezelfde gegevens. Per item linkt de site hoogstens naar de algemene kaart van
+// Hinder in Kaart (zonder gipodid), verder één keer naar de datasetfiche: "Bron: GIPOD (Digitaal Vlaanderen)".
 // Alle gegevens zijn verzonnen (Voorbeeld Persoon, voorbeeld@example.org, Proefplein).
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -15,13 +16,16 @@ import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink, ruwGipodRecord, ruweGipodLin
 import { GIPOD_BRON as HINDER_BRON, GIPOD_METADATA_URL as HINDER_METADATA_URL, collectHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 import { werkEntries, workEntry, agendaEntry } from "../site/place-core.js";
-import { bezoekersLinks, splitsLinks } from "../site/bezoekers-bronnen.js";
+import { GEOPUNT, bezoekersLinks, hinderkaart, splitsLinks } from "../site/bezoekers-bronnen.js";
 import { buildStreetIndex } from "../site/street-core.js";
 import { buildStreetGroups } from "../site/street-overview.js";
 import { buildWeekPulse } from "../site/week-pulse.js";
 import { GIPOD_METADATA_URL as MARKT_METADATA_URL, marketsFromGipod } from "../lib/gipod-markets.mjs";
 import { eventsFromGipod } from "../lib/gipod-events.mjs";
-import { SOURCE_DEFINITIONS, sourceDocument, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
+import { GIPOD_OUDE_BRON_URL, SOURCE_DEFINITIONS, sourceDocument, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
+import { readSourceDocument } from "../lib/fetch-util.mjs";
+import { run as runMarkten } from "../scripts/fetch-sources-markten.mjs";
+import { run as runGipodEvenementen } from "../scripts/fetch-sources-gipod-events.mjs";
 import { kandidatenUitGipod } from "../lib/parcours-herkenning-refresh.mjs";
 import { marktDagenUitBron, publiekeLink } from "../lib/parcours-herkenning.mjs";
 import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
@@ -41,13 +45,20 @@ const RUW = Object.freeze({
   gecodeerd: "https://geo.api.vlaanderen.be/GIPOD%2Fogc/features/v1/collections/INNAME_PUNT/items/1",
   hoofdletters: "HTTPS://GEO.API.VLAANDEREN.BE/gipod/ogc/features/v1/collections/INNAME_PUNT/ITEMS/1",
   http: "http://gipod.api.vlaanderen.be/api/v1/works/990001",
+  // Hinder in Kaart op één record: de viewer opent het detailpaneel met ContactName, Email en Telephone.
+  hinderInKaart: "https://www.geopunt.be/?app=hinder-in-kaart&gipodid=990001",
+  hinderInKaartHoofdletters: "https://geopunt.be/?app=hinder-in-kaart&GipodId=990001",
+  hinderInKaartHtml: "https://www.geopunt.be/?app=hinder-in-kaart&amp;gipodid=990001",
+  hinderInKaartGecodeerd: "https://www.geopunt.be/?app=hinder-in-kaart&gipod%69d=990001",
 });
 const GEEN_RECORD = Object.freeze([
   GIPOD_METADATA_URL,
   "https://geo.api.vlaanderen.be/GIPOD/ogc/features",
   "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT",
   "https://geo.api.vlaanderen.be/geolocation/v4/Location",
-  "https://www.geopunt.be/?app=hinder-in-kaart&gipodid=990001",
+  "https://www.geopunt.be/?app=hinder-in-kaart",
+  "https://www.geopunt.be/",
+  "https://www.antwerpen.be/?gipodid=990001",
   "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen",
   "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
   "/event/markt-proef-2099-01-01/",
@@ -119,7 +130,7 @@ test("collectWorks en collectHindrance nemen de Uri, HindranceURI en de contactg
   geenRuweLink(hinder, "collectHindrance");
 });
 
-test("plekpagina: een werk linkt naar Hinder in Kaart en één keer naar de datasetfiche, nooit naar het record", () => {
+test("plekpagina: een werk linkt naar de algemene kaart van Hinder in Kaart en één keer naar de datasetfiche, nooit naar het record", () => {
   const [werk] = collectWorks([werkFeature(990001)], new Set(), district).map((w) => ({ ...w, streets: [{ id: "9", name: "Proefplein", postcode: "2000" }] }));
   // Ook een werk uit een straatbestand van vóór 17 oktober 2026, met nog een ruwe bronlink.
   const oud = { ...werk, gipodId: 990002, sourceUrls: [RUW.grondwerk], hindrance: { severe: false, consequences: [], sourceUrls: [RUW.hinderUri] } };
@@ -127,7 +138,9 @@ test("plekpagina: een werk linkt naar Hinder in Kaart en één keer naar de data
     assert.equal(entry.sourceUrl, GIPOD_METADATA_URL);
     const links = bezoekersLinks(entry);
     geenRuweLink(links, "bezoekersLinks");
-    assert.equal(links[0].url, `https://www.geopunt.be/?app=hinder-in-kaart&gipodid=${entry.item.gipodId}`);
+    // Nooit Hinder in Kaart met gipodid: dat opent het detailpaneel van het record, met de contactgegevens.
+    assert.equal(links[0].url, "https://www.geopunt.be/?app=hinder-in-kaart");
+    assert.doesNotMatch(JSON.stringify(links), /gipodid/i);
     assert.deepEqual(links.filter((l) => l.url === GIPOD_METADATA_URL).map((l) => l.label), [GIPOD_BRON]);
     assert.deepEqual(splitsLinks(links).technisch, [], "geen technische details met een GIPOD-link");
   }
@@ -144,33 +157,47 @@ test("plekpagina: een agendapunt met een ruwe GIPOD-link (oudere feed) krijgt de
     assert.deepEqual(links.filter((l) => l.url === GIPOD_METADATA_URL).map((l) => l.label), [GIPOD_BRON], item.id);
   }
   // Een evenementkaart neemt een GIPOD-link nooit over als "officiële info".
-  const kaart = bezoekersLinks({ source: "publicSpace", item: { kind: "event" }, evenementLinks: [{ url: RUW.inname, label: "Officiële info" }, { url: GIPOD_METADATA_URL, label: "Officiële info" }] });
+  const kaart = bezoekersLinks({ source: "publicSpace", item: { kind: "event" }, evenementLinks: [{ url: RUW.inname, label: "Officiële info" }, { url: GIPOD_METADATA_URL, label: "Officiële info" }, { url: RUW.hinderInKaart, label: "Officiële info" }] });
   assert.deepEqual(kaart.filter((l) => l.type === "main"), []);
+  // Een hinder op de plekpagina: ook de algemene kaart, nooit met gipodid.
+  const hinder = bezoekersLinks({ source: "publicSpace", item: { kind: "parking", gipodId: 990001 } });
+  assert.equal(hinder[0].url, GEOPUNT);
+  geenRuweLink(hinder, "hinder op de plekpagina");
+  // Een oude link naar Hinder in Kaart met gipodid (uit eender welke data) wordt de bronvermelding.
+  const oud = bezoekersLinks(agendaEntry({ id: "gipod-event-990003-2099-01-01", sourceId: "district-gipod-evenementen", title: "Proeffeest", date: "2099-01-01", sourceUrl: RUW.hinderInKaart, link: RUW.hinderInKaart }));
+  geenRuweLink(oud, "agendapunt met Hinder in Kaart op één record");
+  assert.deepEqual(oud.filter((l) => l.url === GIPOD_METADATA_URL).map((l) => l.label), [GIPOD_BRON]);
 });
 
-test("werkenlijst: de kaart heeft geen technische GIPOD-link meer, de lijst één bronvermelding met de datasetfiche", () => {
+test("werkenlijst: geen link per werk, onder de lijst de algemene kaart van Hinder in Kaart en één bronvermelding", () => {
   const code = fs.readFileSync(path.join(root, "site", "works-live.js"), "utf8");
   assert.doesNotMatch(code, /Technische GIPOD-bron|sourceUrls/);
-  const kaart = code.slice(code.indexOf("function card(i)"), code.indexOf("const bronEl"));
-  assert.equal((kaart.match(/<a href=/g) || []).length, 2, "Hinder in Kaart en (alleen met AWV-data) de AWV-fiche");
-  assert.match(kaart, /hinderkaart\(i\.gipodId\)/);
-  assert.match(code, /function renderBron\(n\)\{[^}]*GIPOD_METADATA_URL\)\}" target="_blank" rel="noreferrer">\$\{esc\(GIPOD_BRON\)\}<\/a>/);
+  const kaart = code.slice(code.indexOf("function card(i)"), code.indexOf("\n", code.indexOf("function card(i)")));
+  assert.equal((kaart.match(/<a href=/g) || []).length, 1, "alleen (met AWV-data) de AWV-fiche");
+  assert.doesNotMatch(kaart, /hinderkaart|Hinder in Kaart|gipodid=/i, "geen link per werk naar Hinder in Kaart: met gipodid opent die het record");
+  const bron = code.slice(code.indexOf("function renderBron(n)"), code.indexOf("function render()"));
+  assert.ok(bron.includes('<a href="${esc(hinderkaart())}" target="_blank" rel="noreferrer">Officiële kaart: Hinder in Kaart</a>'), bron);
+  assert.ok(bron.includes('<a href="${esc(GIPOD_METADATA_URL)}" target="_blank" rel="noreferrer">${esc(GIPOD_BRON)}</a>'), bron);
+  assert.equal(hinderkaart(), GEOPUNT);
+  assert.equal(hinderkaart(990001), GEOPUNT, "ook met een GIPOD-nummer de algemene kaart");
   const html = fs.readFileSync(path.join(root, "site", "index.html"), "utf8");
   assert.match(html, /<div class="works-live-list" data-works-list><\/div>[^\n]*\n\s*<p class="works-live-bron" data-works-bron hidden><\/p>/);
 });
 
-test("overzicht per straat en vooruitblik: per werk Hinder in Kaart, nooit een ruw record", () => {
+test("overzicht per straat en vooruitblik: per werk de algemene kaart van Hinder in Kaart, nooit een record", () => {
   const straat = { id: "1", name: "Teststraat", postcode: "2000" };
   const index = buildStreetIndex([{ type: "Feature", properties: { DISTRICT: "ANTWERPEN", LSTRNMID: 1, LSTRNM: "Teststraat", RSTRNMID: 1, RSTRNM: "Teststraat", postcode: 2000 }, geometry: { type: "LineString", coordinates: [[4.4, 51.2], [4.401, 51.2]] } }]);
   const works = [{ gipodId: 990001, title: "Proefwerk", status: "Concreet gepland", start: "2099-01-02", end: "2099-02-01", streets: [straat], sourceUrls: [RUW.werk] }];
   const agendaItems = [{ id: "markt-proef-2099-01-03", title: "Proefmarkt", date: "2099-01-03", location: "Teststraat 1, 2000 Antwerpen", sourceId: "stad-markten", sourceUrl: RUW.rij, link: RUW.rij }];
   const groepen = buildStreetGroups({ works, agendaItems, streetIndex: index, asOf: "2098-12-31" });
   geenRuweLink(groepen, "buildStreetGroups");
-  assert.equal(groepen[0].works[0].sourceUrl, "https://www.geopunt.be/?app=hinder-in-kaart&gipodid=990001");
+  // Op origin/main een dode Uri (HTTP 401); met gipodid zou Hinder in Kaart het record met contactgegevens openen.
+  assert.deepEqual([groepen[0].works[0].sourceUrl, groepen[0].works[0].sourceLabel], ["https://www.geopunt.be/?app=hinder-in-kaart", "Hinder in Kaart"]);
   assert.equal(groepen[0].markets[0].sourceUrl, GIPOD_METADATA_URL);
   const puls = buildWeekPulse({ agendaItems, works, fromDay: "2099-01-01", toDay: "2099-01-07" });
   geenRuweLink(puls, "buildWeekPulse");
-  assert.deepEqual(puls.upcoming.map((i) => i.url), [`https://www.geopunt.be/?app=hinder-in-kaart&gipodid=990001`, GIPOD_METADATA_URL]);
+  assert.deepEqual(puls.upcoming.map((i) => i.url), ["https://www.geopunt.be/?app=hinder-in-kaart", GIPOD_METADATA_URL]);
+  assert.doesNotMatch(JSON.stringify([groepen, puls]), /gipodid/i);
 });
 
 test("straatbestanden: itemVoorStraat laat elke link naar gipod.api en GIPOD-items op geo.api vallen", () => {
@@ -248,6 +275,52 @@ test("overgang: een oud bronbestand wordt in de nieuwe vorm gelezen, zonder iets
   assert.equal("infoUrl" in metInfo.items[0], false);
 });
 
+// lib/fetch-util.mjs: readSourceDocument zet een oud bestand om. Zonder die omzetting is een GIPOD-bron van vóór
+// 17 oktober 2026 ongeldig, geeft readSourceDocument null, en schrijft keepPreviousOnError bij de eerste
+// mislukte verversing een leeg document: alle markten weg, en de krimpcontrole heeft geen vorige stand meer.
+test("overgang bij een mislukte verversing: readSourceDocument leest een oud GIPOD-bronbestand, en run() houdt de items", async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gipod-overgang-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  const bronnen = path.join(dir, "site", "sources");
+  fs.mkdirSync(bronnen, { recursive: true });
+  const markt = oudeMarkt();
+  markt.items[0].sourceUrl = RUW.rij;
+  // Een GIPOD-evenement in de vorm van vóór 17 oktober 2026: ruwe rij, OGC-landingspagina, geo.api.vlaanderen.be als host.
+  const feest = { type: "Feature", id: "INNAME_PUNT.990004-2901021200", geometry: { type: "Point", coordinates: [4.41, 51.22] },
+    properties: { GipodId: 990004, Description: "2000 Antwerpen, Proefplein : Buurtfeest Proefplein", Reference: "EV1", Type: "Evenement", PublicDomainOccupancyTypes: "Feest/kermis",
+      Status: "Concreet gepland", Start: "2099-01-02T12:00:00Z", End: "2099-01-02T18:00:00Z", ContactOrganisations: CONTACT } };
+  const { items: feesten } = eventsFromGipod({ features: [feest] }, { now: new Date("2099-01-01T00:00:00Z") });
+  assert.equal(feesten.length, 1);
+  const evenementen = {
+    ...sourceDocument("district-gipod-evenementen", { retrievedAt: "2099-01-01T00:00:00Z", fetchStatus: "ok", items: feesten.map((item) => ({ ...item, sourceUrl: RUW.rij, retrievedAt: "2099-01-01T00:00:00Z" })) }),
+    url: GIPOD_OUDE_BRON_URL,
+    attribution: { text: SOURCE_DEFINITIONS["district-gipod-evenementen"].attribution.text, url: GIPOD_OUDE_BRON_URL },
+    allowedHosts: ["geo.api.vlaanderen.be"],
+  };
+  const oud = [["stad-markten", markt], ["district-gipod-evenementen", evenementen]];
+  for (const [id, document] of oud) {
+    assert.ok(validateSourceDocument(document, { expectedSourceId: id }).length, `${id}: in de oude vorm is het bestand ongeldig`);
+    fs.writeFileSync(path.join(bronnen, `${id}.json`), JSON.stringify(document));
+    const gelezen = readSourceDocument(dir, id);
+    assert.ok(gelezen, `${id}: readSourceDocument leest het oude bestand in de nieuwe vorm`);
+    assert.equal(gelezen.items.length, document.items.length, id);
+    assert.deepEqual([gelezen.url, gelezen.attribution.url, gelezen.items[0].sourceUrl], [GIPOD_METADATA_URL, GIPOD_METADATA_URL, GIPOD_METADATA_URL], id);
+    geenRuweLink(gelezen, `readSourceDocument ${id}`);
+  }
+  // De eerste verversing na de wijziging faalt (netwerkfout bij GIPOD): de vorige items blijven staan, zonder ruwe rij.
+  const netwerkfout = async () => { throw new TypeError("fetch failed"); };
+  const clock = () => new Date("2099-01-01T06:00:00Z");
+  const [markten] = await runMarkten({ rootDir: dir, clock, env: {}, log: () => {}, sleep: async () => {}, fetch: netwerkfout });
+  const [gipodEvenementen] = await runGipodEvenementen({ rootDir: dir, clock, log: () => {}, fetch: netwerkfout });
+  for (const [[id, document], status] of [[oud[0], markten], [oud[1], gipodEvenementen]]) {
+    assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "network_error", document.items.length], id);
+    const geschreven = JSON.parse(fs.readFileSync(path.join(bronnen, `${id}.json`), "utf8"));
+    assert.deepEqual(validateSourceDocument(geschreven, { expectedSourceId: id }), [], id);
+    assert.deepEqual([geschreven.items.length, geschreven.retrievedAt, geschreven.fetchStatus], [document.items.length, "2099-01-01T00:00:00Z", "error"], id);
+    geenRuweLink(geschreven, `keepPreviousOnError ${id}`);
+  }
+});
+
 test("build:sources: een oud bronbestand geeft een feed zonder ruwe GIPOD-link, en de inhoudscontrole keurt een ruwe link af", () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gipod-links-"));
   try {
@@ -321,6 +394,8 @@ test("statische scan: geen code bouwt een link naar een GIPOD-record of een Gipo
     [/GipodId%3D/i, "een GipodId-filter in een link"],
     [/\.(?:Uri|HindranceURI)\b/, "de Uri of HindranceURI van een record"],
     [/Technische GIPOD-bron/, "de technische GIPOD-link op de werkkaart"],
+    [/[?&]gipodid=/i, "Hinder in Kaart op één GIPOD-record (gipodid opent het detailpaneel met de contactgegevens)"],
+    [/Bekijk werk op Hinder in Kaart/, "een link per werk naar Hinder in Kaart"],
   ];
   const fouten = [];
   for (const file of code) {

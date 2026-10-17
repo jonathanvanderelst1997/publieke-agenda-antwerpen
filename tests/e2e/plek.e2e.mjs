@@ -308,7 +308,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("werk: Hinder in Kaart en één bronvermelding met de datasetfiche, nooit een link naar het ruwe GIPOD-record", async () => {
+  await t.test("werk: de algemene kaart van Hinder in Kaart en één bronvermelding met de datasetfiche, nooit een link naar het ruwe GIPOD-record", async () => {
     const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
     const { page, context, errors } = await openPage(baseUrl, { street, query: `?plek=${plek}` });
     const row = page.locator(`.pv-results ${WORK_ROW}`).first();
@@ -316,8 +316,9 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await row.locator(".pv-row-btn").click();
     // Het werk in de proef heeft een Uri en (verzonnen) contactgegevens, zoals een ruw GIPOD-record (site/gipod-bron.js).
     const hrefs = await row.locator(".pv-detail a").evaluateAll((els) => els.map((a) => a.href));
-    assert.equal(hrefs.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD/i.test(h)), false, hrefs.join(" "));
-    assert.ok(hrefs.includes("https://www.geopunt.be/?app=hinder-in-kaart&gipodid=999999901"), hrefs.join(" "));
+    // Ook niet via Hinder in Kaart met gipodid: dat opent het detailpaneel van het record, met de contactgegevens.
+    assert.equal(hrefs.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD|gipodid=/i.test(h)), false, hrefs.join(" "));
+    assert.ok(hrefs.includes("https://www.geopunt.be/?app=hinder-in-kaart"), hrefs.join(" "));
     assert.equal(hrefs.filter((h) => h === GIPOD_METADATA_URL).length, 1, hrefs.join(" "));
     assert.equal((await row.locator(`.pv-detail a[href="${GIPOD_METADATA_URL}"]`).innerText()).replace(/\s*↗$/, ""), GIPOD_BRON);
     // Geen "Technische details" meer bij een werk: daar stond de filterlink naar het ruwe record.
