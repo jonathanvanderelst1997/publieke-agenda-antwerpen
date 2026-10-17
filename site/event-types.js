@@ -14,6 +14,9 @@
   const LABELS=Object.freeze(Object.fromEntries(TYPES.map(x=>[x.key,x.label])));
   const text=i=>clean([i?.title,i?.info,i?.location,i?.kind,i?.theme].filter(Boolean).join(" · "));
   const has=(v,r)=>r.test(v);
+  // "Grote Markt" en "Kleine Markt" zijn pleinen, geen markt: een studentenactiviteit of Winter in Antwerpen
+  // op de Grote Markt is geen markt (vaagheidsplan 12-10-2026, stap 2).
+  const zonderMarktplein=v=>v.replace(/\b(?:grote|kleine)\s+markt\b/g," ");
   function classifyEventType(i={}){
     const s=String(i.sourceId||""),v=text(i);
     if(s==="district-vergaderingen"||has(v,/\b(districtsraad|raadscommissie|gemeenteraad|openbare vergadering|openbare zitting)\b/))return"public_meeting";
@@ -34,7 +37,7 @@
     if(has(v,/\b(herdenking|herdenkings|plechtigheid|viering)\b/))return"commemoration";
     if(has(v,/\b(sinterklaas|halloween|familiedag|familiefeest|kinderfeest|paasfeest|kerstfeest|winterfeest|bingo)\b/))return"family";
     if(has(v,/\b(?:[a-z0-9-]*(?:festival|concert|theater|expo|tentoonstelling|kunstendag)|circus|film|dans|muziek|kunst|lezing|literatuur|poezie|poëzie|dichter|auteur|voorstelling)\b/))return"culture";
-    if(s==="stad-markten"||has(v,/\b(markt|jaarmarkt|kerstmarkt|kermis|foor)\b/))return"market_fair";
+    if(s==="stad-markten"||has(zonderMarktplein(v),/\b(markt|jaarmarkt|kerstmarkt|kermis|foor)\b/))return"market_fair";
     // Een evenement op straat uit de dossiers van de stad (A-Sign) zonder herkenbare soort ("Evenement in
     // de Kerkstraat: lus van 3,3 km, naam onbekend", een studentenactiviteit): wat er in de straat gebeurt.
     if(s==="district-asign-evenementen")return"neighborhood";

@@ -10,6 +10,7 @@ import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs"
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
+import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
 import { ruweGipodLinksIn } from "../site/gipod-bron.js";
@@ -71,6 +72,10 @@ if (!fs.existsSync(sourcesDir)) {
     }
     if (name === EVENEMENT_IDENTITEIT_FILE) {
       for (const error of validateEvenementIdentiteit(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === VAAGHEID_FILE) {
+      for (const error of validateVaagheid(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === INZAGE_STATUS_FILE) {

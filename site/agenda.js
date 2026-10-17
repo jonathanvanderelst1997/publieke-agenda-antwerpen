@@ -1543,12 +1543,13 @@ const graceAgendaItems = uitgaan
       .filter((item) => uitgaan.inStaleGrace(item, agendaNow().getTime(), STALE_GRACE_DAYS, { backlog: agendaFreshness.stale }))
       .map((item) => ({ ...item, graceStale: true }))
   : [];
-const renderedAgendaItems = [...agendaReconciliation.publicItems, ...graceAgendaItems]
+// Eerst de soort, dan de wekelijkse reeksen (een markt is pas een weekmarkt bij minstens drie data op dezelfde
+// weekdag, agenda-uitgaan.js), dan de categorie.
+const metSoort = [...agendaReconciliation.publicItems, ...graceAgendaItems]
   .filter((item) => onCanonicalHost || !isUitItem(item))
-  .map((item) => {
-    const eventType = window.PublicAgendaEventTypes?.classifyEventType(item) || "other";
-    return { ...item, eventType, category: uitgaan ? uitgaan.categoryOf({ ...item, eventType }) : "other" };
-  });
+  .map((item) => ({ ...item, eventType: window.PublicAgendaEventTypes?.classifyEventType(item) || "other" }));
+const renderedAgendaItems = (uitgaan?.markeerWekelijkseReeksen ? uitgaan.markeerWekelijkseReeksen(metSoort) : metSoort)
+  .map((item) => ({ ...item, category: uitgaan ? uitgaan.categoryOf(item) : "other" }));
 // Alle publieke agendapunten (los van filter en plek): de evenementkaart koppelt er een nieuw
 // stadsdossier aan als het op dezelfde dag in dezelfde straat staat (site/kaart-uitleg.js).
 window.PUBLIC_AGENDA_PUBLIC_ITEMS = renderedAgendaItems;
@@ -2079,6 +2080,9 @@ function categoryInfo(item) {
   return uitgaan ? uitgaan.categoryFor(item.category) : { key: "other", label: item.theme || "Agenda", emoji: "📅" };
 }
 
+// Een aanvraag die de stad nog niet goedkeurde (evenementendossier in A-Sign): zichtbaar in de rij, geen .ics,
+// niet in "Dit weekend" (pickHighlights in agenda-uitgaan.js).
+const NIET_GOEDGEKEURD_LABEL = "Aanvraag, nog niet goedgekeurd";
 function eventTemplate(item) {
   const open = openId === item.id;
   const id = esc(item.id);
@@ -2098,6 +2102,7 @@ function eventTemplate(item) {
           ${item.location ? `<span>${esc(item.location)}</span>` : ""}
           ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
           ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : `<span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>`}
+          ${item.nietGoedgekeurd ? `<span class="aanvraag-badge">${esc(NIET_GOEDGEKEURD_LABEL)}</span>` : ""}
           <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
         <div class="details" id="details-${id}">
@@ -2111,7 +2116,7 @@ function eventTemplate(item) {
           </dl>
           ${sourceLinksTemplate(item)}
           ${item.noEventPage ? "" : `<a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>`}
-          <button type="button" class="event-calendar" data-calendar-id="${id}">Voeg toe aan agenda (.ics)</button>
+          ${item.nietGoedgekeurd ? "" : `<button type="button" class="event-calendar" data-calendar-id="${id}">Voeg toe aan agenda (.ics)</button>`}
         </div>
       </div>
     </article>

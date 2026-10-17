@@ -161,6 +161,12 @@ jobs:
         continue-on-error: true
         run: npm run sources:health -- --max-age-hours 26
 
+      # Meldt alleen: hoeveel items vaag zijn, per patroon, t.o.v. de vorige verversing
+      # (scripts/meet-vaagheid.mjs; de meting zelf liep in npm run refresh).
+      - name: Vaagheid (meldt, blokkeert niet)
+        continue-on-error: true
+        run: node scripts/meet-vaagheid.mjs --melding
+
       - name: Alleen paden uit de datalijst
         id: diff
         run: |
@@ -171,6 +177,8 @@ jobs:
           git diff --cached --name-status -M0 > "$out/changes.txt"
           git diff --cached --binary > "$out/data.patch"
           cp site/sources/refresh-status.json "$out/refresh-status.json"
+          # De vaagheidsmeting, voor de PR-tekst en brain_status (Gateway-datalaan).
+          if [ -f site/sources/vaagheid.json ]; then cp site/sources/vaagheid.json "$out/vaagheid.json"; fi
           # De automatische controle van handmatige items (scripts/check-manual-sources.mjs).
           if [ -f site/sources/manual-check.json ]; then cp site/sources/manual-check.json "$out/manual-check.json"; fi
           if [ ! -s "$out/changes.txt" ]; then

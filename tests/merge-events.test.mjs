@@ -187,7 +187,7 @@ test("de uitvoer is deterministisch, ongeacht de volgorde van de invoer", () => 
 
 test("sameAs: een evenementendossier (district-asign-evenementen) wordt één item met het punt uit de kalender, ook bij een andere postcode", () => {
   const dossier = item("asign-ev-et2099000001-2026-10-18", {
-    title: "Evenement in de Proefstraat: parcours door 2 straten, naam onbekend",
+    title: "Evenement in de Proefstraat: parcours door 2 straten",
     timeSlot: "Info",
     timeText: "",
     location: "Proefstraat en Voorbeeldlaan",
@@ -197,7 +197,7 @@ test("sameAs: een evenementendossier (district-asign-evenementen) wordt één it
     straten: ["Proefstraat", "Voorbeeldlaan"],
     sameAs: ["kal-30"],
   });
-  const buur = item("asign-ev-et2099000002-2026-10-18", { title: "Evenement in de Verre Straat, naam onbekend", timeSlot: "Info", location: "Verre Straat", postcodes: ["2060"], sourceUrl: dossier.sourceUrl });
+  const buur = item("asign-ev-et2099000002-2026-10-18", { title: "Evenement in de Verre Straat", timeSlot: "Info", location: "Verre Straat", postcodes: ["2060"], sourceUrl: dossier.sourceUrl });
   const { items } = mergeEvents({
     "district-asign-evenementen": { scope: "district", items: [dossier, buur] },
     "district-kalender": { scope: "district", items: [item("kal-30", { title: "Proefcriterium", postcodes: ["2050"] })] },

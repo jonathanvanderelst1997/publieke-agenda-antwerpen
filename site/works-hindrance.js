@@ -1,5 +1,6 @@
 import {pointInGeometry} from "./works-core.js";
 import {GIPOD_BRON,GIPOD_METADATA_URL} from "./gipod-bron.js";
+import {onbekendZin} from "./onbekend-zinnen.js";
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const earlier=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))<=0?a:b);
 const later=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))>=0?a:b);
@@ -53,7 +54,7 @@ export function attachHindrance(items=[],features=[],sourceLoaded=true){
 // met een andere status, of in de strook tussen dat kader en het ruimere hinderkader, kan wel in de open laag
 // staan. De vaste zin zegt daarom "niet bij de getoonde werken", niet "niet in de open GIPOD-laag".
 export const LOSSE_HINDER_TITEL="Hinder zonder gepubliceerd werk (GIPOD)";
-export const LOSSE_HINDER_ZIN="GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken. Daarom staat ze los van de werken hierboven.";
+export const LOSSE_HINDER_ZIN=onbekendZin("losse-hinder");
 // Geen bronlink per hinder: een vraag naar HINDER_PUNT (ook gefilterd op HindranceGipodId) geeft het ruwe record,
 // met HindranceContactOrganisations (contactnaam, e-mail en telefoon). Eén bronvermelding voor het blok, met een
 // link naar de officiële datasetfiche van GIPOD (innames en mobiliteitshinder, uitgever Athumi). De constante

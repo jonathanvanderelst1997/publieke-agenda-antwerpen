@@ -17,7 +17,8 @@ test("vergunningkaart laat uitvoering niet als reeds begonnen zien en toont alle
  assert.match(x.samenvatting,/verleend volgens/);
  assert.equal(x.tijd,"Vergund");
  assert.ok(x.regels.some(([k,v])=>k==="Beslissingsdatum"&&v==="8 oktober 2026"));
- assert.ok(x.regels.some(([k,v])=>k==="Start van de werken"&&v==="Niet gepubliceerd"));
+ // De startdatum van de werken staat nooit in de bron: één keer boven de sectie (onbekend-zinnen.js), niet op elke kaart.
+ assert.equal(x.regels.some(([k])=>k==="Start van de werken"),false);
  const y=duidelijkeKaart(e,{purpose:"Nieuwbouw"});
  assert.equal(y.regels.some(([k])=>k==="Beslissingsdatum"),false);
 });
@@ -30,7 +31,9 @@ test("naamloos parcours zegt eerlijk dat de stad niet bekendmaakt wat het is, zo
  assert.equal(x.titel,"Parcours door 115 straten in Centrum");
  assert.match(kern.Wat,/^De stad gaf toelating voor een parcours\. Wat er gebeurt of wat er staat, zegt het dossier niet\.$/);
  assert.match(x.samenvatting,/^Dinsdag 13 oktober\. Wat er gebeurt, zegt de stad niet\./);
- assert.match(kern.Wanneer,/^Dinsdag 13 oktober; de uren zijn niet gepubliceerd/);
+ // Zonder uren: de zin staat één keer boven de sectie; de kaart draagt het als veld (onbekend), voor de meter.
+ assert.equal(kern.Wanneer,"Dinsdag 13 oktober.");
+ assert.deepEqual(x.onbekend.map((o)=>o.id),["evenement-uren"]);
  assert.match(kern["Wat merk je"],/welke en hoe laat, maakt de stad niet bekend/);
  // Het aantal straten staat bij "Waar" (knop "Toon alle 115 straten"); de uitleg staat in die lijst, niet in een extra regel.
  assert.equal(x.regels.some(([label])=>label==="Straten"),false);

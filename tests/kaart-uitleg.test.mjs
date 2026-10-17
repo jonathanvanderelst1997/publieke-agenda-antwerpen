@@ -94,36 +94,46 @@ const rij = (i, type, beschrijving, straten) => ({
 const rijen = [
   rij(1, "Parcours", "10K volwassenen", ["Aaastraat", "Beestraat", "Ceestraat"]),
   rij(2, "Parcours", "maurits", ["Deestraat", "Eestraat"]),
-  rij(3, "Inname", "Startzone en aankomst", ["Aaastraat"]),
+  rij(3, "Inname", "Startzone en aankomst aan de Aaastraat", ["Aaastraat"]),
 ];
 
-test("vrije tekst uit het dossier alleen als ze over het evenement gaat", () => {
+test("vrije tekst uit het dossier: alleen hele straatnamen uit de straatas en districten (GRONDREGEL)", () => {
+  const isStraat = (n) => ["proefplein", "proefkaai"].includes(String(n).toLowerCase());
   assert.equal(bruikbareBeschrijving("maurits"), "");
-  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "Wandelen van het plein naar de kaai");
+  // Geen woordenlijst meer (site/witte-lijst.js): "wandelen", "plein", "kaai" vallen weg, ook met een hoofdletter.
+  assert.equal(bruikbareBeschrijving("wandelen van het plein naar de kaai"), "");
+  assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "");
+  assert.equal(bruikbareBeschrijving("Groot wandelen van het Proefplein naar de Proefkaai", { isStraat }), "Proefplein … Proefkaai");
+  assert.equal(bruikbareBeschrijving("Wandelen in Berchem"), "Berchem");
   assert.equal(bruikbareBeschrijving("bel 0470 12 34 56 voor parkeren"), "");
-  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "Startlocatie -> drillocatie");
+  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "");
+  assert.equal(bruikbareBeschrijving("Proefplein -&gt; Proefkaai", { isStraat }), "Proefplein → Proefkaai");
 });
 
 test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk over naam en uren", () => {
   const f = evenementFeiten(rijen);
   assert.equal(f.soort, "Loopwedstrijd");
   assert.equal(f.straten.length, 5);
-  assert.deepEqual(f.beschrijvingen, ["Parcours: 10K volwassenen", "Inname: Startzone en aankomst"]);
+  // Alleen de straat van de inname blijft over (privacyfilter); de soort komt uit het kenmerk van de ruwe tekst ("10K").
+  assert.deepEqual(f.beschrijvingen, ["Inname: Aaastraat"]);
   const wijk = (s) => (s === "Eestraat" ? "Zuid" : "Centrum");
   const k = evenementKaartje(f, { vandaag: VANDAAG, wijkVan: wijk });
   // De soort komt uit een woord in het dossier ("10K"): dus "vermoedelijk", met de reden erbij.
   assert.equal(k.titel, "Vermoedelijk een loopwedstrijd door 5 straten in Centrum en Zuid"); // wat en waar
   const kern = Object.fromEntries(k.kern);
   assert.match(kern.Wat, /omschrijving van het dossier/);
-  assert.equal(kern.Wanneer, "Dinsdag 13 oktober; de uren zijn niet gepubliceerd.");
+  // Zonder uren: één keer boven de sectie (onbekend-zinnen.js); de kaart draagt het als veld.
+  assert.equal(kern.Wanneer, "Dinsdag 13 oktober.");
+  assert.deepEqual(k.onbekend.map((o) => o.id), ["evenement-uren"]);
   assert.match(kern.Waar, /^Parcours door 5 straten in Centrum en Zuid \(berekend/);
-  assert.ok(k.ontbreekt.includes("naam van het evenement niet gepubliceerd door de stad"));
-  assert.ok(k.ontbreekt.includes("uren niet gepubliceerd"));
-  assert.ok(k.ontbreekt.includes("organisator niet gepubliceerd"));
+  // Alles komt uit het evenementendossier: één regel die die bron noemt en zegt wat ze niet geeft.
+  assert.match(k.ontbreektKop, /^Niet in het evenementendossier \S+ \(A-Sign\)$/);
+  assert.deepEqual(k.ontbreekt, ["de naam", "uren (A-Sign geeft alleen de dag)", "organisator"]);
+  assert.doesNotMatch(k.voetnoot, /zegt niet/);
   // Geen codes meer, ook niet in een aparte regel: één korte bronzin in gewone taal.
   assert.doesNotMatch(`${k.titel} ${k.samenvatting} ${k.kern.flat().join(" ")} ${k.regels.flat().join(" ")} ${k.voetnoot}`, /ETL|IOD|True|maurits/);
   assert.equal(k.technisch, "");
-  assert.match(k.voetnoot, /^De stad gaf toelating voor dit evenement \(dossier ET2099000001\), maar zegt niet wie het organiseert of op welke uren\.$/);
+  assert.match(k.voetnoot, /^De stad gaf toelating voor dit evenement \(dossier ET2099000001\)\. Bron: A-Sign, de databank van de stad\.$/);
 });
 
 test("parcours gekoppeld aan een bekend evenement via datum en straat", () => {
@@ -166,7 +176,11 @@ test("de site bundelt innames per dossier en geeft werken een duidelijke titel",
 });
 
 test("A-Sign-omschrijving gaat mee door de normalisatie", () => {
-  assert.equal(normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " Start  zone ", dossierStatus: "aanvraag_goedgekeurd" }).description, "Start zone");
+  const n = normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " start  zone  Proefstraat ", dossierStatus: "aanvraag_goedgekeurd" }, { isStraat: (x) => x === "Proefstraat" });
+  // Alleen de straatnaam gaat mee als omschrijving; het kenmerk zegt dat de tekst voor de soort telt, zonder de tekst zelf.
+  assert.equal(n.description, "Proefstraat");
+  assert.equal(n.kenmerk, "straat");
+  assert.equal(normalizeIod({ dossierNummer: "ET1", faseId: "F", innameId: "I", innameBeschrijving: " start  zone ", dossierStatus: "aanvraag_goedgekeurd" }).description, undefined);
 });
 
 test("kaartschets: vereenvoudigd en zonder netwerk", () => {

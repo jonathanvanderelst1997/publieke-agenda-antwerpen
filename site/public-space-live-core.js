@@ -77,6 +77,9 @@ function vormenPerSleutel(features,sleutel){const m=new Map();for(const f of fea
 const vormVan=(vormen,k)=>{const v=vormen.has(k)?parcoursGeometrie(vormen.get(k)):null;return v&&(v.vlakken.length||v.lijnen.length)?{vorm:v}:{}};
 // De officiële straatnamen uit een straatindex (voor straatnamen met een cijfer, zie adres-privacy.js).
 const namenUit=index=>index?.byName instanceof Map?[...index.byName.values()].flat().map(r=>r?.name).filter(Boolean):null;
+// Staat deze hele naam in de straatas? (zelfde sleutel als index.byName in street-core.js)
+const straatSleutel=v=>String(v??"").replace(/\s+/g," ").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+const straatPredicaat=index=>index?.byName instanceof Map?(naam=>index.byName.has(straatSleutel(naam))):null;
 // `postcodes`: alleen parkeerverboden met zo'n postcode (de browser geeft die van het district mee;
 // A-Sign "District='ANTWERPEN'" is de hele stad). Zonder postcodes: alles, zoals de historiek.
 // De onderdelen hieronder zijn generators: na elke feature een `yield`, zodat de browser het werk in
@@ -124,11 +127,14 @@ function* iodItems(features,district,streetIndex){
   // kruist (site/parcours-straten.js) als de verversing het dossier nog niet kent. De historiek bewaart
   // deze velden niet.
   for(const[k,fs]of vormenPerSleutel(exact,iodKey))vormen.set(k,fs);
-  return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
+  // De omschrijving alleen na de privacyfilter, met de straatas: een naam die een hele straatnaam is ("Meir",
+  // "Quinten Matsijslei") is een plek, geen persoon (bruikbareBeschrijving in kaart-uitleg.js).
+  const isStraat=straatPredicaat(streetIndex);
+  return publicOnly(dedupeByKey(exact.map(attrs),r=>normalizeIod(r,{isStraat}))).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
-    phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,
+    phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,kenmerk:n.kenmerk,
     sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})(),
     ...(()=>{const v=vormVan(vormen,n.key);return v.vorm&&n.type==="Parcours"?{vorm:v.vorm,parcours:v.vorm}:v})()
   }));

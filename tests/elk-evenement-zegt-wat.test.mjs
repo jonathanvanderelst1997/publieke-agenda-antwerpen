@@ -578,7 +578,7 @@ test("privacy 4: één fout woord in lib/buurtacties.json breekt de herkenning n
 });
 
 test("beeld 3: een inname die geen evenement is, heet nergens 'dit evenement', en een bekende soort zegt niet 'waarvoor precies'", () => {
-  const rows = [rij("ET2099600096", "Evenement", "Inname", "2026-10-01", "2026-10-29", ["Proefstraat"], { description: "Sticker Proefstraat" })];
+  const rows = [rij("ET2099600096", "Evenement", "Inname", "2026-10-01", "2026-10-29", ["Proefstraat"], { description: "Stickers op de gevels van de Proefstraat" })];
   const e = kaart(rows, { straat: "Proefstraat" });
   const tekst = `${e.summary} ${e.uitleg.kern.flat().join(" ")} ${e.jouwStraat}`;
   assert.equal(e.uitleg.geenEvenement, true);

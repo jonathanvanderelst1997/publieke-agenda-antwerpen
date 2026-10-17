@@ -129,6 +129,10 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "site", "kaart-uitleg.js"), path.join(root, "site", "kaart-uitleg.js"));
       // ... en die haalt de vaste woorden en de dagen van een evenementendossier uit site/evenement-wat.js.
       fs.copyFileSync(path.join(repoRoot, "site", "evenement-wat.js"), path.join(root, "site", "evenement-wat.js"));
+      // ... en de witte lijst van de privacyfilter (site/witte-lijst.js).
+      fs.copyFileSync(path.join(repoRoot, "site", "witte-lijst.js"), path.join(root, "site", "witte-lijst.js"));
+      // ... en de vaste lijst onbekend-zinnen (site/onbekend-zinnen.js).
+      fs.copyFileSync(path.join(repoRoot, "site", "onbekend-zinnen.js"), path.join(root, "site", "onbekend-zinnen.js"));
       // lib/awv-werf.mjs haalt de vaste lijst soorten werk (AWV_SOORTEN) uit site/works-awv-supplement.js.
       fs.copyFileSync(path.join(repoRoot, "site", "works-awv-supplement.js"), path.join(root, "site", "works-awv-supplement.js"));
       // De regel voor GIPOD-links (ruwGipodRecord) staat in site/gipod-bron.js: lib/source-feed.mjs, de kaartjes en

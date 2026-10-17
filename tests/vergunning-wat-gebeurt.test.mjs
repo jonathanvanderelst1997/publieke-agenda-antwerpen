@@ -91,9 +91,11 @@ test("de stand uit Volledig en Ontvankelijk staat in één statusregel", () => {
 test("lege velden Volledig en Ontvankelijk zijn 'onbekend', niet 'nog niet'", () => {
   // Een dossier uit 2019 met twee lege velden: de bron zegt niets over de stand.
   const oud = kaart("vellen van een boom", { Volledig: "", Ontvankelijk: "", ProjectnummerOmgevingsloket: "OMV_2019000001" }).samenvatting;
-  assert.equal(oud, "Ingediend (dossier uit 2019). De stadsbron zegt niet of de aanvraag volledig en ontvankelijk is. Nog geen beslissing gepubliceerd.");
+  // Dat de bron niet zegt of ze volledig en ontvankelijk is, staat één keer boven de sectie (aanvraagZegtNiet en
+  // onbekend-zinnen.js, vaagheidsplan 12-10-2026), niet in elke kaart.
+  assert.equal(oud, "Ingediend (dossier uit 2019). Nog geen beslissing gepubliceerd.");
   // Zonder bruikbaar projectnummer geen jaartal.
-  assert.equal(kaart("vellen van een boom", { Volledig: null, Ontvankelijk: null, ProjectnummerOmgevingsloket: "" }).samenvatting, "Ingediend. De stadsbron zegt niet of de aanvraag volledig en ontvankelijk is. Nog geen beslissing gepubliceerd.");
+  assert.equal(kaart("vellen van een boom", { Volledig: null, Ontvankelijk: null, ProjectnummerOmgevingsloket: "" }).samenvatting, "Ingediend. Nog geen beslissing gepubliceerd.");
   // Bij een leeg veld nergens "nog niet" of "al": dat zou de bron zeggen, en ze zegt het niet.
   for (const leeg of ["", " ", null, undefined]) {
     const x = kaart("vellen van een boom", { Volledig: leeg, Ontvankelijk: leeg });
