@@ -3,14 +3,19 @@
 // "Proefstraat AN" in een omschrijving) en herkent de straat onder haar naam ("Proefstraat"), ook als de straatas haar
 // alleen met toevoeging kent. Wat de bewoner leest (de kruist-regel, de live kaartjes) is zonder toevoeging; de sleutels
 // en de koppeling houden haar. De toetsen falen op head fe8eb62 (de filter liet "Proefstraat AN" door en vond "Proefstraat"
-// niet, de kruist-regel toonde "_AN") en slagen nu. Alleen verzonnen straten en namen; geen netwerk.
+// niet, de kruist-regel toonde "_AN") en slagen nu. De laatste twee toetsen falen op 3a770c4 (titel, plaats en info van een
+// agendapunt en de titel en "Waar" van een evenementkaartje noemden "Proefstraat_AN") en slagen nu. Alleen verzonnen
+// straten en namen; geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 
 import * as W from "../site/witte-lijst.js";
 import * as KU from "../site/kaart-uitleg.js";
-import { zonderHomoniem } from "../site/place-core.js";
+import { evenementEntry, zonderHomoniem } from "../site/place-core.js";
+import { asignAgendapunten, locatieVan, tekstUitFeiten, titelVan } from "../lib/asign-evenementen-agenda.mjs";
+await import("../site/agenda-ics.js");
+const { buildIndividualIcs } = globalThis.AgendaIcs;
 import { schoneNaam } from "../scripts/build-straten-stad.mjs";
 import { plaatsnaamVan, straatasPredicaat } from "../lib/plaatsnaam.mjs";
 
@@ -102,4 +107,78 @@ test("homoniem: wat de bewoner leest, is zonder toevoeging (kruist-regel, live k
   const works = bron("../site/works-live.js");
   assert.match(works, /<dt>Straat<\/dt><dd>\$\{esc\(i\.streets\.map\(s=>zonderToevoeging\(s\.name\)\)/);
   assert.match(works, /const waarLos=i=>i\.streets\?\.length\?i\.streets\.map\(s=>zonderToevoeging\(s\.name\)\)/);
+});
+
+// Een toevoeging van de straatas in tekst die de bewoner leest.
+const TOEVOEGING = /_[A-Z]{2}\b/;
+
+test("homoniem: agenda, eventpagina en .ics noemen de straat zonder toevoeging; de straten voor de koppeling houden haar", () => {
+  // Een dossier zoals dossierFeiten() het geeft: de straten komen rechtstreeks uit de straatas, met toevoeging.
+  const feit = (dossier, velden = {}) => ({
+    dossier, status: "aanvraag_goedgekeurd", binnenDistrict: true, fasen: [{ naam: "Evenement", start: "2026-10-18", eind: "2026-10-18" }], dagen: ["2026-10-18"],
+    langs: [], zone: [], kernStraten: ["Proefstraat_AN"], beginStraat: "Proefstraat_AN", wijk: "", postcodes: ["2000"], speelstraat: false, vorm: null, ...velden,
+  });
+  const fiche = (velden = {}) => ({ zekerheid: "onbekend", naam: "", soort: "", organisator: "", uren: "", link: "", methode: "kaart", dagen: [], binnenDistrict: true, ...velden });
+  const feiten = [
+    feit("ET2099000101", { langs: ["Proefstraat_AN", "Voorbeeldlaan"] }),
+    feit("ET2099000102", { langs: ["Proefstraat_AN"] }),
+    feit("ET2099000103", { zone: ["Proefstraat_AN", "Lange Testlei_DE"], kernStraten: ["Lange Testlei_DE"], beginStraat: "" }),
+  ];
+  const auto = { dossiers: {
+    ET2099000102: fiche({ zekerheid: "zeker", naam: "Proefloop Noord", methode: "kalender" }),
+    ET2099000103: fiche({ zekerheid: "waarschijnlijk", soort: "een studentenactiviteit", methode: "regels" }),
+  } };
+  const { items } = asignAgendapunten({ feiten, auto, vandaag: "2026-10-10", retrievedAt: "2026-10-10T05:20:00.000Z" });
+  const per = Object.fromEntries(items.map((i) => [i.externalId, i]));
+  assert.deepEqual(Object.keys(per).sort(), ["ET2099000101", "ET2099000102", "ET2099000103"]);
+  assert.equal(per.ET2099000101.title, "Evenement in de Proefstraat: parcours door 2 straten");
+  assert.equal(per.ET2099000101.location, "Proefstraat en Voorbeeldlaan");
+  assert.match(per.ET2099000101.info, /^Parcours door 2 straten: Proefstraat en Voorbeeldlaan\./);
+  assert.equal(per.ET2099000102.location, "Proefstraat");
+  assert.match(per.ET2099000102.info, /^Parcours in de Proefstraat\./);
+  assert.equal(per.ET2099000103.title, "Vermoedelijk een studentenactiviteit in de Proefstraat");
+  assert.equal(per.ET2099000103.location, "Proefstraat en Lange Testlei");
+  assert.match(per.ET2099000103.info, /^Verkeersvrije zone in 2 straten: Proefstraat en Lange Testlei\./);
+  for (const i of items) {
+    // De eventpagina (scripts/build-agenda.mjs) en de .ics tonen title, location en info; de build maakt titel en info
+    // opnieuw uit de bewaarde feiten (tekstUitFeiten).
+    // De .ics zoals de knop op de site hem maakt (site/agenda-ics.js), met de gevouwen regels weer aan elkaar.
+    const ics = buildIndividualIcs({ ...i, link: i.sourceUrl }, { now: "2026-10-10T05:20:00.000Z" }).replace(/\r\n[ \t]/g, "");
+    const getoond = { title: i.title, location: i.location, info: i.info, ...Object.fromEntries(Object.entries(tekstUitFeiten(i, { auto })).map(([k, v]) => [`build ${k}`, v])), ics };
+    for (const [veld, tekst] of Object.entries(getoond)) assert.doesNotMatch(tekst, TOEVOEGING, `${i.externalId} ${veld}: ${tekst}`);
+    assert.match(ics, /Proefstraat/);
+    // De straten voor de koppeling met de plekpagina en de straatbestanden: de naam zoals de straatas hem kent.
+    assert.ok(i.straten.includes("Proefstraat_AN"), i.straten.join(", "));
+  }
+  // Rechtstreeks: één straat, en de plaats van een dossier met straten uit de straatas.
+  assert.equal(titelVan(feit("ET2099000104", { langs: ["Proefstraat_AN"] })).titel, "Evenement in de Proefstraat: parcours");
+  assert.equal(locatieVan(feit("ET2099000105", { langs: ["Proefstraat_AN", "Lange Testlei_DE"] })), "Proefstraat en Lange Testlei");
+  assert.equal(KU.opStraat("Proefstraat_AN"), "in de Proefstraat");
+  assert.equal(KU.opStraat("Lange Testlei_DE"), "in de Lange Testlei");
+});
+
+test("homoniem: het evenementkaartje van de plekpagina noemt de straat zonder toevoeging; de koppeling blijft", () => {
+  let n = 0;
+  const rij = (straten) => ({
+    id: `iod:ET2099000201|Evenement|${(n += 1)}`, kind: "iod", title: "Inname", innameType: "Inname", reference: "ET2099000201", dossierType: "ETL",
+    phase: "Evenement", hindrance: "True", description: "", start: "2026-10-18", end: "2026-10-18", status: "aanvraag_goedgekeurd",
+    streets: straten.map((name, i) => ({ id: `${n}${i}`, name, postcode: "2000" })), sourceUrl: "https://geodata.antwerpen.be/x",
+  });
+  for (const [straten, titel, waar] of [
+    [["Proefstraat_AN"], "Inname in de Proefstraat", /^In de Proefstraat \(Proefstraat, /],
+    [["Proefstraat_AN", "Voorbeeldlaan"], "Inname in de Proefstraat en omgeving", /^In de Proefstraat en omgeving \(Proefstraat, Voorbeeldlaan, /],
+  ]) {
+    const e = evenementEntry([rij(straten)], { vandaag: "2026-10-10", wijkVan: () => "", straat: "Proefstraat_AN" });
+    assert.equal(e.title, titel);
+    const kern = Object.fromEntries(e.uitleg.kern);
+    assert.match(kern.Waar, waar);
+    const getoond = { title: e.title, summary: e.summary, location: e.location, jouwStraat: e.jouwStraat, kern: JSON.stringify(e.uitleg.kern), regels: JSON.stringify(e.uitleg.regels), voetnoot: e.uitleg.voetnoot };
+    for (const [veld, tekst] of Object.entries(getoond)) assert.doesNotMatch(tekst, TOEVOEGING, `${veld}: ${tekst}`);
+    // De sleutels en de straten voor de koppeling houden de naam van de straatas.
+    assert.ok(e.straten.includes("Proefstraat_AN"), e.straten.join(", "));
+  }
+  // Een agendapunt op dezelfde dag in de Proefstraat (zonder toevoeging, zoals de agenda haar nu noemt) koppelt nog.
+  const agenda = [{ id: "proef-agendapunt-1", title: "Proefbuurtfeest", date: "2026-10-18", location: "Proefstraat", sourceId: "district-kalender", theme: "Activiteit" }];
+  const e = evenementEntry([rij(["Proefstraat_AN"])], { vandaag: "2026-10-10", wijkVan: () => "", agendaItems: agenda });
+  assert.equal(e.title, "Vermoedelijk: Proefbuurtfeest");
 });

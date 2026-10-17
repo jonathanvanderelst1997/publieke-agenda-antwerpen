@@ -595,10 +595,12 @@ export function werkStraten(puntStraten = [], bewaard = null) {
 export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
   ? `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items?f=html&filter-lang=cql2-text&filter=GipodId%3D${Number(gipodId)}` : "");
 // De link "Technische gegevens van de stad" bij een evenement: de rijen van het dossier in A-Sign (laag 22), alleen met de
-// velden van een gesloten lijst (het nummer, de stand, de fase, de datums, het soort inname, de hinder en het type). Nooit
-// innameBeschrijving (vrije tekst van de aanvrager), de beheerder van het dossier of outFields=*
-// (docs/PUBLIC_SPACE_SOURCE_POLICY.md).
-export const IOD_BRON_VELDEN = Object.freeze(["dossierNummer", "dossierStatus", "faseNaam", "faseStartDatum", "faseEindDatum", "innameTypeNaam", "innameHinder", "type_dossier"]);
+// velden van een gesloten lijst (het nummer, de stand, de fase, de datums, het soort inname, de hinder en het type). De
+// link opent de rijen als html: elk gevraagd veld staat ongefilterd op het scherm. Dus nooit een vrij in te vullen veld:
+// niet innameBeschrijving (vrije tekst van de aanvrager) en niet faseNaam (String(50), alleen via veiligeFase op de site);
+// de fase staat er als faseId, de vaste code van A-Sign ("EVENT", "CONSTRUCTION", ...). Nooit de beheerder van het dossier
+// of outFields=* (docs/PUBLIC_SPACE_SOURCE_POLICY.md).
+export const IOD_BRON_VELDEN = Object.freeze(["dossierNummer", "dossierStatus", "faseId", "faseStartDatum", "faseEindDatum", "innameTypeNaam", "innameHinder", "type_dossier"]);
 export const iodBronUrl = (dossier) => (/^[A-Z0-9-]{4,40}$/.test(String(dossier || ""))
   ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=${IOD_BRON_VELDEN.join(",")}&returnGeometry=false&f=html` : "");
 

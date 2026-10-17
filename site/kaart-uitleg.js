@@ -10,7 +10,7 @@ import {
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
+import { sleutel as straatSleutel, witteTekst, zonderToevoeging, zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -384,6 +384,8 @@ function bruikbareOmschrijving(title) {
 
 // "in de Bermstraat", "in het Rozemiekepad", "op het Sint-Jansplein", "op de Vrijdagmarkt". Een naam
 // zonder herkenbaar einde krijgt geen lidwoord ("in Kipdorp"): liever kaal dan een fout lidwoord.
+// Altijd zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt "in de Proefstraat"): dit is tekst die de
+// bewoner leest (titels, "Waar", de agenda); de sleutels en de koppeling houden de naam met toevoeging.
 const HET_NAAM = /(?:plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)$/i;
 const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|steeg|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|waag|berg|ring|tunnel)$/i;
 // Een "vliet" (Sint-Jansvliet), een "waag" (Oude Waag) en de Singel zijn een plein of een ring: "op de".
@@ -391,7 +393,7 @@ const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk|vliet|waag|singel)$/i;
 // Namen zonder herkenbaar einde die iedereen in Antwerpen met een lidwoord zegt.
 const VASTE_NAAM = new Map([["meir", "op de"], ["wapper", "op de"], ["oudaan", "op de"]]);
 export function opStraat(naam) {
-  const n = clean(naam, 120);
+  const n = clean(zonderToevoeging(clean(naam, 120)), 120);
   if (!n) return "";
   const vast = VASTE_NAAM.get(n.toLowerCase());
   if (vast) return `${vast} ${n}`;
@@ -1194,7 +1196,9 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
   const ps = feiten.perSoort || {};
   // Alleen bij een groot dossier: daar loopt een parcours ook langs pleinen waar iets anders gebeurt.
   const plek = uniek([...(ps.inname || []), ...(ps.parkeerverbod || []), ...(ps.verkeersvrij || [])]);
-  const straten = (plek.length && (feiten.straten || []).length > 10 ? plek : feiten.straten || []).map((s) => s.toLowerCase()).filter((s) => s.length >= 5);
+  // Zonder homoniemtoevoeging aan beide kanten: de straatas noemt de straat "Proefstraat_AN", een agendapunt (ook dat van
+  // de dossiers zelf, lib/asign-evenementen-agenda.mjs) "Proefstraat".
+  const straten = (plek.length && (feiten.straten || []).length > 10 ? plek : feiten.straten || []).map((s) => zonderToevoeging(clean(s, 120)).toLowerCase()).filter((s) => s.length >= 5);
   let best = null;
   for (const item of agendaItems) {
     const d = dagVan(item?.date), e = dagVan(item?.endDate) || d;
@@ -1202,7 +1206,7 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
     if (GEEN_EVENEMENT.test(`${item.category || ""} ${item.theme || ""} ${item.title || ""}`) || GEEN_EVENEMENT_THEMA.test(clean(item.theme, 40))) continue;
     const t = plat(item.title);
     if (n && !(t.length >= 6 && (t.includes(n) || n.includes(t)))) continue;
-    const loc = ` ${clean(`${item.location || ""} ${item.title || ""}`, 400).toLowerCase()} `;
+    const loc = ` ${zonderToevoegingInTekst(clean(`${item.location || ""} ${item.title || ""}`, 400)).toLowerCase()} `;
     const score = n ? 1 : straten.filter((s) => loc.includes(s)).length;
     if (score && (!best || score > best.score)) best = { score, item };
   }
