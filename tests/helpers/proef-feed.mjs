@@ -43,6 +43,17 @@ export function gezondeBronnen(feed, stempel = feed.generatedAt) {
   return feed;
 }
 
+// Het omgekeerde, zoals de echte feed sinds 13 oktober 2026: de bronnen `ids` faalden bij de laatste verversingen
+// (fetchStatus "error") en zijn laatst opgehaald `dagen` dagen voor de feed. Dan staat de bronwaarschuwing bovenaan (#191).
+// Voor de toets die meet wat die waarschuwing op een gsm doet (tests/e2e/plek.e2e.mjs).
+export function falendeBronnen(feed, ids, dagen = 5) {
+  const toen = new Date(Date.parse(feed.generatedAt) - dagen * 86400000).toISOString();
+  const bronnen = feed.sources.filter((bron) => ids.includes(bron.sourceId));
+  if (bronnen.length !== ids.length) throw new Error(`falendeBronnen: niet alle bronnen staan in de feed: ${ids.join(", ")}`);
+  for (const bron of bronnen) Object.assign(bron, { fetchStatus: "error", errorCode: "http_500", retrievedAt: toen });
+  return feed;
+}
+
 // De feed van dag `dag` (05:00 UTC): alle bronnen die ochtend opgehaald (gezondeBronnen), met alleen de verzonnen
 // `items` (of een functie die ze maakt met de stempel van die ochtend).
 export function proefFeed(dag, items = []) {

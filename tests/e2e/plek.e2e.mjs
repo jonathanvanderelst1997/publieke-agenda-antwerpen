@@ -13,7 +13,7 @@ import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
 import { buildPlaceIndex, foldText } from "../../site/place-core.js";
-import { gezondeBronnen } from "../helpers/proef-feed.mjs";
+import { falendeBronnen, gezondeBronnen } from "../helpers/proef-feed.mjs";
 import { locationKey } from "../../site/neighborhood-core.js";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
 
@@ -987,6 +987,62 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.waitForFunction((n) => new RegExp(`^${n} (?:in de lijst|regels? in de lijst \\(samen \\d+ items?\\)), \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
     assert.deepEqual(errors, []);
     await context.close();
+  });
+
+  // De bronwaarschuwing (#191) op een gsm. De toetsen hierboven nemen gezonde bronnen (gezondeBronnen), zodat hun opmaak
+  // niet afhangt van de bronstatus op de dag van de data. Maar in de echte feed falen de twee eBesluit-bronnen sinds
+  // 13 oktober 2026, en dan staat de waarschuwing bij elke bezoeker bovenaan, boven de plek en "Dit weekend". Deze twee
+  // toetsen nemen dat na (falendeBronnen): eerst dat de waarschuwing er dan staat (en met gezonde bronnen niet), dan waar
+  // de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) dan eindigen. Dat laatste is een open vraag aan de
+  // eigenaar (todo): de waarschuwing zo bovenaan houden, of op een gsm compacter of lager zetten. De todo meet alleen
+  // waar die blokken eindigen; zet de site de waarschuwing lager, dan slaagt ze ("ok … # TODO") en mag "todo" weg.
+  const EBESLUIT = ["district-ebesluit", "district-ebesluit-evenementen"];
+  const plekFeedMet = (bronnen) => {
+    const feed = bronnen(gezondeBronnen(echteFeed()));
+    feed.items.push(kalenderItem(feed.generatedAt, proefAgendapunt(today, street)));
+    return feed;
+  };
+  const metFalendeBron = (feed) => falendeBronnen(feed, EBESLUIT);
+  const bronnenNagekeken = (page) => page.waitForFunction(() => !/controleren/i.test(document.querySelector("#agenda-freshness")?.textContent || ""), null, { timeout: 10000 });
+  await t.test("bronwaarschuwing (#191): met een falende bron staat ze bovenaan, op de voorpagina en bij een straat; met gezonde bronnen niet", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    for (const [naam, opties, waarschuwing] of [
+      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }, true],
+      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }, true],
+      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }, false],
+      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }, false],
+    ]) {
+      const { page, context, errors } = await openPage(baseUrl, opties);
+      await bronnenNagekeken(page);
+      const banner = page.locator("#agenda-source-warning");
+      assert.equal(await banner.isVisible(), waarschuwing, naam);
+      if (waarschuwing) assert.match(await banner.innerText(), /Niet alle officiële bronnen zijn actueel\.\s+2 bronnen zijn niet binnen de toegestane versheidsgrens bevestigd\./, naam);
+      assert.deepEqual(errors, [], naam);
+      await context.close();
+    }
+  });
+
+  await t.test("gsm met de bronwaarschuwing: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", { todo: "vraag 2 aan de eigenaar: de bronwaarschuwing staat op een gsm boven de plek en 'Dit weekend' (17-10-2026, eBesluit faalt: plek 543/679/833 px, 'Dit weekend' 819 px op 390 en 850 px op 360)" }, async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const onder = {};
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      const { page, context } = await openPage(baseUrl, { dag, width, height, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9, langePlaats: true })) });
+      await bronnenNagekeken(page);
+      await page.locator("#dit-weekend .dw-titel").waitFor();
+      onder[`Dit weekend ${width} px`] = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+      await context.close();
+    }
+    const { page, context } = await openPage(baseUrl, { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) });
+    await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    await bronnenNagekeken(page);
+    Object.assign(onder, await page.evaluate(() => Object.fromEntries([".pv-place-name", ".pv-dezeweek", ".pv-stats"].map((sel) => {
+      const r = document.querySelector(sel)?.getBoundingClientRect();
+      return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
+    }))));
+    await context.close();
+    t.diagnostic(`met de bronwaarschuwing, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
   });
 
   // Nakijkbevindingen (kaart-tellers): "X in de lijst, Y op de kaart" onder de kaart. X is wat de lijst echt
