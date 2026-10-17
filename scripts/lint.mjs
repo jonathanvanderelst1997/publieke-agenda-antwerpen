@@ -93,6 +93,7 @@ const javascriptFiles = [
   "scripts/fetch-sources-awv-werf.mjs",
   "tests/awv-werf.test.mjs",
   "tests/works-awv-supplement.test.mjs",
+  "tests/works-losse-hinder.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
