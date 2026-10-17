@@ -1,6 +1,13 @@
+import {zonderToevoegingInTekst} from "./witte-lijst.js";
+
 export function normalizeText(value = "") {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
+// Een tekst van GIPOD (de omschrijving van een werk, een evenement of een markt; de omschrijving van een hinder), zoals hij
+// binnenkomt: zonder de homoniemtoevoeging van de straatas ("2018 ANTWERPEN, PROEFSTRAAT_AN 12" wordt "2018 ANTWERPEN,
+// PROEFSTRAAT 12"; site/witte-lijst.js). Dit is de ingang voor GIPOD: titels, de historiek en de huisnummerregel krijgen zo de
+// gewone straatnaam.
+export const gipodTekst=(value="")=>zonderToevoegingInTekst(normalizeText(value));
 function pointOnSegment(point,a,b,e=1e-10){const[px,py]=point,[ax,ay]=a,[bx,by]=b;const c=(bx-ax)*(py-ay)-(by-ay)*(px-ax);if(Math.abs(c)>e)return false;return px>=Math.min(ax,bx)-e&&px<=Math.max(ax,bx)+e&&py>=Math.min(ay,by)-e&&py<=Math.max(ay,by)+e}
 function pointInRing(point,ring){let inside=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[j],b=ring[i];if(pointOnSegment(point,a,b))return true;if((a[1]>point[1])!==(b[1]>point[1])){const x=((b[0]-a[0])*(point[1]-a[1]))/(b[1]-a[1])+a[0];if(point[0]<x)inside=!inside}}return inside}
 function pointInPolygon(point,rings=[]){if(!rings.length||!pointInRing(point,rings[0]))return false;return !rings.slice(1).some(h=>pointInRing(point,h))}
@@ -18,7 +25,7 @@ export function collectWorks(features=[],exactIds=new Set(),districtGeometry=nul
     const point=feature?.geometry?.coordinates;if(feature?.geometry?.type!=="Point"||!Array.isArray(point)||!point.slice(0,2).every(Number.isFinite))continue;
     const p=feature.properties||{},gipodId=Number(p.GipodId);if(!Number.isFinite(gipodId))continue;
     const exact=exactIds.has(gipodId),inside=districtGeometry?pointInGeometry(point,districtGeometry):false;if(!exact&&!inside)continue;
-    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:normalizeText(p.Description)||"Werk in openbaar domein",owner:normalizeText(p.Owner),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),sourceUrls:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
+    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:gipodTekst(p.Description)||"Werk in openbaar domein",owner:normalizeText(p.Owner),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),sourceUrls:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
     cur.recordCount+=1;if(!cur.dossier)cur.dossier=werfDossier(p.Reference);cur.start=earlier(cur.start,p.Start||"");cur.end=later(cur.end,p.End||"");cur.lastModified=later(cur.lastModified,p.LastModifiedOn||"");if(p.Status==="In uitvoering")cur.status="In uitvoering";if(p.PublicDomainOccupancyTypes)cur.occupancyTypes.add(normalizeText(p.PublicDomainOccupancyTypes));if(p.GroundworkSpecification)cur.workTypes.add(normalizeText(p.GroundworkSpecification));if(typeof p.Uri==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.Uri))cur.sourceUrls.add(p.Uri);if(exact)cur.boundaryConfidence="exact_snapshot";grouped.set(gipodId,cur);
   }
   return [...grouped.values()].map(({dossier,...i})=>({...i,...(dossier?{dossier}:{}),workTypes:[...i.workTypes],occupancyTypes:[...i.occupancyTypes],sourceUrls:[...i.sourceUrls]})).sort((a,b)=>(a.status==="In uitvoering"?0:1)-(b.status==="In uitvoering"?0:1)||String(a.start||"9999").localeCompare(String(b.start||"9999"))||a.title.localeCompare(b.title,"nl"));

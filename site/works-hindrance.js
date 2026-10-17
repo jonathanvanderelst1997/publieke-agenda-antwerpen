@@ -1,4 +1,4 @@
-import {pointInGeometry} from "./works-core.js";
+import {gipodTekst,pointInGeometry} from "./works-core.js";
 import {onbekendZin} from "./onbekend-zinnen.js";
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const earlier=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))<=0?a:b);
@@ -29,7 +29,7 @@ export function collectHindrance(features=[]){
       if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
       if(typeof p.HindranceURI==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.HindranceURI))current.sourceUrls.add(p.HindranceURI);
       // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt.
-      const description=clean(p.HindranceDescription).slice(0,160);
+      const description=gipodTekst(p.HindranceDescription).slice(0,160);
       if(description){const key=`${description}|${p.HindranceStart||""}|${p.HindranceEnd||""}`;const phase=current.phases.get(key)||{description,start:p.HindranceStart||"",end:p.HindranceEnd||"",consequences:new Set()};for(const consequence of consequences)phase.consequences.add(consequence);current.phases.set(key,phase)}
       byWork.set(gipodId,current);
     }

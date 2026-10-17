@@ -31,8 +31,9 @@ export const WEGGELATEN = Object.freeze({
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });
 // Een samenvatting van de fasen van een evenement (scripts/build-straat-snapshots.mjs) staat kort in het
-// bestand: zonder straat, titel of detail.
-const samenvatting = (item) => ({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [], ...item });
+// bestand: zonder straat, titel of detail. De velden van het bestand houden hun volgorde (de vaste erachter), zodat de bouwer
+// een vorige stand die meegaat (een laag die niet laadde) ongewijzigd terugschrijft.
+const samenvatting = (item) => ({ ...item, ...Object.fromEntries(Object.entries({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [] }).filter(([veld]) => !(veld in item))) });
 // Vangnet: de naam van de fase van een inname (faseNaam, vrij in te vullen) uit een bewaard bestand opnieuw door de filter
 // (veiligeFase in site/witte-lijst.js), ook in `detail` ("Fase Opbouw · Dossiertype ETL"). De bouwer filtert al bij de
 // ingang (normalizeIod) en bij het schrijven (itemVoorStraat in scripts/build-straat-snapshots.mjs); een ouder of fout

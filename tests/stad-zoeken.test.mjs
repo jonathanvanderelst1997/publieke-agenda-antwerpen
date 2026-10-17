@@ -179,10 +179,11 @@ test("nakijkronde 1: een tikfout die midden in een straat van een ander district
   assert.ok(zoekOveral(index, "Kammenstraat").every((r) => r.match !== "fuzzy"));
 });
 
-// 2. "Maria-Theresialei" opende met Enter de straat in Ekeren: straten.json noemt die van 2018 "Maria-Theresialei_AN"
-//    (de homoniemtoevoeging van de straatas), dus was die van Ekeren de enige exacte.
+// 2. "Maria-Theresialei" opende met Enter de straat in Ekeren: straten.json noemde die van 2018 "Maria-Theresialei_AN"
+//    (de homoniemtoevoeging van de straatas), dus was die van Ekeren de enige exacte. Nu gaat de toevoeging weg bij het
+//    inlezen van de straatas (straatasNaam in site/street-core.js), ook in straten.json.
 test("nakijkronde 2: geen homoniemtoevoeging in district Antwerpen, Maria-Theresialei is een keuze tussen 2018 en Ekeren", () => {
-  assert.ok(straten.streets.some((r) => r[1] === "Maria-Theresialei_AN"), "de bron heeft de toevoeging nog (anders is deze toets overbodig)");
+  assert.deepEqual(straten.streets.filter((r) => /_[A-Z]{2}$/.test(r[1])).map((r) => r[1]), [], "straten.json is zonder homoniemtoevoeging");
   for (const p of districtIndex.places.filter((x) => x.type === "straat")) {
     assert.doesNotMatch(p.label, /_[A-Z]{2}$/, p.key);
     assert.doesNotMatch(placeParam(p, districtIndex), /_[A-Z]{2}\b/, p.key);
@@ -194,14 +195,15 @@ test("nakijkronde 2: geen homoniemtoevoeging in district Antwerpen, Maria-Theres
   const ekeren = resolveBuiten(index, "Maria-Theresialei 2180");
   assert.equal(ekeren.district.label, "Ekeren");
   assert.deepEqual(naamgenoten(index, ekeren).district.map((p) => `${p.label} ${p.postcode}`), ["Maria-Theresialei 2018"]);
-  // De straat zelf: naam en sleutel blijven die van de straatas (zo koppelt ze aan de live lagen en de ochtendstand);
-  // de link heet gewoon Maria-Theresialei, en een oude link met de toevoeging werkt nog.
+  // De straat zelf: naam en sleutel zijn die van de straatas, zonder toevoeging (zo koppelt ze aan de live lagen en de
+  // ochtendstand, die ze ook zonder krijgen); een oude link of sleutel met de toevoeging werkt nog.
   const mt = res[0].place;
-  assert.equal(mt.name, "Maria-Theresialei_AN");
-  assert.match(mt.key, /^straat:\d+\|Maria-Theresialei_AN\|2018$/);
+  assert.equal(mt.name, "Maria-Theresialei");
+  assert.match(mt.key, /^straat:\d+\|Maria-Theresialei\|2018$/);
   assert.equal(placeParam(mt, districtIndex), "Maria-Theresialei");
   assert.equal(resolvePlaceParam(districtIndex, "Maria-Theresialei"), mt);
   assert.equal(resolvePlaceParam(districtIndex, "Maria-Theresialei_AN"), mt);
+  assert.equal(resolvePlaceParam(districtIndex, mt.key.replace("|Maria-Theresialei|", "|Maria-Theresialei_AN|")), mt);
   assert.equal(enterKeuze(zoekOveral(index, "Maria-Theresialei 2018")).place, mt);
   assert.equal(enterKeuze(zoekOveral(index, "Maria-Theresialei Ekeren")).place, ekeren);
 });

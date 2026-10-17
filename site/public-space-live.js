@@ -1,6 +1,6 @@
 import {collectPublicSpaceInStappen,publicSpaceStats} from "./public-space-live-core.js";
 import {DISTRICT_POSTCODES,parkeerverbodWhere} from "./public-space-core.js";
-import {parkeerTitel,parkeerUren,statusNl,zonderHomoniem} from "./place-core.js";
+import {parkeerTitel,parkeerUren,statusNl} from "./place-core.js";
 import {onbekendZin} from "./onbekend-zinnen.js";
 import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
@@ -124,7 +124,7 @@ if(root){
   // Dezelfde woorden als in het plekoverzicht: een titel in gewone taal, geen interne fasenummers.
   const titel=i=>i.kind==="parking"?parkeerTitel(i.reason??i.title):i.kind==="sgw"?(/Werfzone/.test(i.kindLabel)&&/Omleiding/.test(i.kindLabel)?"Werfzone met omleiding":/Omleiding/.test(i.kindLabel)?"Omleiding":"Werfzone"):i.title;
   const details=i=>i.kind==="parking"?[["Reden volgens de stad",i.reason||onbekendZin("reden-niet-gepubliceerd")],["Uren",[parkeerUren(i),i.weekdaysOnly?"alleen op weekdagen":""].filter(Boolean).join(", ")]]:i.kind==="sgw"?[]:[["Detail",i.detail]];
-  function card(i){return`<article class="public-space-card"><header><div><span class="public-space-kind ${esc(i.kind)}">${esc(i.kindLabel)}</span><h3>${esc(titel(i))}</h3></div><span class="public-space-status">${esc(statusNl(i.status))}</span></header><p class="public-space-timing">${esc(range(i))}</p><dl>${i.location?`<div><dt>Locatie</dt><dd>${esc(i.location)}</dd></div>`:""}${i.streets?.length?`<div><dt>Straat</dt><dd>${esc(i.streets.map(s=>zonderHomoniem(s.name)).join(" · "))}</dd></div>`:""}${details(i).filter(([,v])=>v).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Referentie</dt><dd>${esc(i.reference||"Niet ingevuld")}</dd></div><div><dt>Bron</dt><dd>${esc(i.sourceLabel)}</dd></div></dl><footer><span>Alleen publiek bevestigde status</span><a href="${esc(i.sourceUrl)}" target="_blank" rel="noreferrer">Technische stadsbron (A-Sign)</a></footer></article>`}
+  function card(i){return`<article class="public-space-card"><header><div><span class="public-space-kind ${esc(i.kind)}">${esc(i.kindLabel)}</span><h3>${esc(titel(i))}</h3></div><span class="public-space-status">${esc(statusNl(i.status))}</span></header><p class="public-space-timing">${esc(range(i))}</p><dl>${i.location?`<div><dt>Locatie</dt><dd>${esc(i.location)}</dd></div>`:""}${i.streets?.length?`<div><dt>Straat</dt><dd>${esc(i.streets.map(s=>s.name).join(" · "))}</dd></div>`:""}${details(i).filter(([,v])=>v).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Referentie</dt><dd>${esc(i.reference||"Niet ingevuld")}</dd></div><div><dt>Bron</dt><dd>${esc(i.sourceLabel)}</dd></div></dl><footer><span>Alleen publiek bevestigde status</span><a href="${esc(i.sourceUrl)}" target="_blank" rel="noreferrer">Technische stadsbron (A-Sign)</a></footer></article>`}
   function render(){const items=filtered(),shown=items.slice(0,state.shown);list.innerHTML=shown.map(card).join("");count.textContent=`${items.length} maatregelen`;more.hidden=shown.length>=items.length;more.textContent=`Toon meer (${items.length-shown.length} resterend)`}
   async function load(){
     if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Bevestigde parkeerverboden, innames en verkeersmaatregelen worden opgehaald…";

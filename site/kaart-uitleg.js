@@ -10,7 +10,7 @@ import {
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { sleutel as straatSleutel, witteTekst, zonderToevoeging, zonderToevoegingInTekst } from "./witte-lijst.js";
+import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -384,8 +384,6 @@ function bruikbareOmschrijving(title) {
 
 // "in de Bermstraat", "in het Rozemiekepad", "op het Sint-Jansplein", "op de Vrijdagmarkt". Een naam
 // zonder herkenbaar einde krijgt geen lidwoord ("in Kipdorp"): liever kaal dan een fout lidwoord.
-// Altijd zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt "in de Proefstraat"): dit is tekst die de
-// bewoner leest (titels, "Waar", de agenda); de sleutels en de koppeling houden de naam met toevoeging.
 const HET_NAAM = /(?:plein|pad|park|hof|eiland|dok|veld|erf|bos|kwartier|strand)$/i;
 const DE_NAAM = /(?:straat|laan|lei|weg|dreef|baan|kaai|vest|singel|gang|steeg|poort|boulevard|dijk|plaats|markt|brug|rui|vliet|waag|berg|ring|tunnel)$/i;
 // Een "vliet" (Sint-Jansvliet), een "waag" (Oude Waag) en de Singel zijn een plein of een ring: "op de".
@@ -393,7 +391,7 @@ const OP_NAAM = /(?:plein|plaats|markt|brug|kaai|dijk|vliet|waag|singel)$/i;
 // Namen zonder herkenbaar einde die iedereen in Antwerpen met een lidwoord zegt.
 const VASTE_NAAM = new Map([["meir", "op de"], ["wapper", "op de"], ["oudaan", "op de"]]);
 export function opStraat(naam) {
-  const n = clean(zonderToevoeging(clean(naam, 120)), 120);
+  const n = clean(naam, 120);
   if (!n) return "";
   const vast = VASTE_NAAM.get(n.toLowerCase());
   if (vast) return `${vast} ${n}`;
@@ -437,7 +435,7 @@ const sleutel = (v) => clean(v, 300).toLowerCase().normalize("NFD").replace(/[\u
 // straat dan de kaart, dan blijft de tekst staan.
 // `losseNummers: true` houdt de nummers (alleen om er projectTekst op te laten lopen, nooit om te tonen).
 export function beheerderTekst(tekst, { zonderNummers = false, losseNummers = false, straten = [] } = {}) {
-  let t = zonderNamen(zonderStraatasToevoeging(tekst));
+  let t = zonderNamen(tekst);
   if (!t || CONTACT.test(t)) return "";
   t = zonderNummers ? zonderHuisnummers(t) : losseNummers ? t : zonderLosseHuisnummers(t, straten);
   return heeftInhoud(t, straten) ? t : "";
@@ -495,7 +493,8 @@ const LOS_STRAAT = /(?:steenweg|straat|str\.?|laan|lei|weg|dreef|baan|kaai|kade|
 // Na een straatnaam: een gekende uitgang, een straat van de kaart, of een woord in hoofdletters (GIPOD
 // schrijft adressen zo: "2020 ANTWERPEN, XBROEK 4").
 function naStraatnaam(voor, straten) {
-  const t = zonderAccenten(voor).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
+  // Vangnet: "PROEFSTRAAT_AN 12" is ook een nummer na een straatnaam (de bronnen geven de naam al zonder toevoeging).
+  const t = zonderAccenten(zonderToevoegingInTekst(voor)).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
   const woord = t.match(/[\p{L}.'-]+$/u)?.[0] || "";
   if (woord && (LOS_STRAAT.test(woord) || /^\p{Lu}{4,}$/u.test(woord))) return true;
   const klein = t.toLowerCase();
@@ -744,10 +743,6 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const nummers = eenAdres ? "" : huisnummerReeks(f.huisnummers);
   const losNummerWeg = !eenAdres && !nummers && Boolean(geldigeHuisnummers(f.huisnummers) || (f.straten[0] && huisnummersUitTekst(f.omschrijving, f.straten[0])));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
-  // Wat de bewoner leest (plek, titel, "Waar") noemt de straten zonder homoniemtoevoeging ("Proefstraat_AN" wordt
-  // "Proefstraat"); f.straten houdt de naam van de straatas voor de huisnummers en de koppeling.
-  const straatNaam = zonderToevoeging(straat);
-  const nabijNamen = nabij ? nabij.straten.map((s) => zonderToevoeging(s)) : [];
   const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
   // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zonder huisnummer of naam (zoals de regel "Fasen").
   const doelen = werf && !f.soort ? faseDoelen((f.fasen || []).map((x) => (eenAdres ? zonderHuisnummers(x.naam, 160) : zonderLosseHuisnummers(x.naam, f.straten)))) : [];
@@ -755,10 +750,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
   // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
   const waar = straat ? [opStraat(straat), nummers].filter(Boolean).join(" ")
-    : nabij?.kruispunt ? `bij het kruispunt van ${joinNl(nabijNamen)}`
-    : nabij?.tussen ? `tussen ${joinNl(nabijNamen)}`
+    : nabij?.kruispunt ? `bij het kruispunt van ${joinNl(nabij.straten)}`
+    : nabij?.tussen ? `tussen ${joinNl(nabij.straten)}`
     : nabij ? `nabij ${opStraat(nabij.straten[0]).replace(/^(?:in|op) /, "")}` : "";
-  const plek = straat ? [straatNaam, nummers].filter(Boolean).join(" ") : nabij ? joinNl(nabijNamen) : "";
+  const plek = straat ? [straat, nummers].filter(Boolean).join(" ") : nabij ? joinNl(nabij.straten) : "";
   // De hinder kan vroeger stoppen dan het werk; voor "tot wanneer" telt het werk zelf.
   const duur = resterendeDuur({ start, eind, vandaag });
   let wanneer = "";
@@ -818,11 +813,11 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const nummerBron = nummers && f.huisnummerBron && !(f.straatBron && f.huisnummerBron === f.straatBron) ? [f.huisnummerBron] : [];
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   regels.push(["Waar", straat
-    ? nummers ? `${straatNaam}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${uniek(f.straten.map((s) => zonderToevoeging(s))).join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
-    : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabijNamen)} (berekend uit het punt in GIPOD)`
-    : nabij?.tussen ? `Tussen ${nabijNamen.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
-    : nabij ? nabij.afstand <= 35 ? `Nabij ${nabijNamen[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabijNamen[0]} (ongeveer ${nabij.afstand} m)`
+    ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
+      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
+    : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
+    : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
+    : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
     : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
   // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, geen los huisnummer
@@ -1200,9 +1195,7 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
   const ps = feiten.perSoort || {};
   // Alleen bij een groot dossier: daar loopt een parcours ook langs pleinen waar iets anders gebeurt.
   const plek = uniek([...(ps.inname || []), ...(ps.parkeerverbod || []), ...(ps.verkeersvrij || [])]);
-  // Zonder homoniemtoevoeging aan beide kanten: de straatas noemt de straat "Proefstraat_AN", een agendapunt (ook dat van
-  // de dossiers zelf, lib/asign-evenementen-agenda.mjs) "Proefstraat".
-  const straten = (plek.length && (feiten.straten || []).length > 10 ? plek : feiten.straten || []).map((s) => zonderToevoeging(clean(s, 120)).toLowerCase()).filter((s) => s.length >= 5);
+  const straten = (plek.length && (feiten.straten || []).length > 10 ? plek : feiten.straten || []).map((s) => s.toLowerCase()).filter((s) => s.length >= 5);
   let best = null;
   for (const item of agendaItems) {
     const d = dagVan(item?.date), e = dagVan(item?.endDate) || d;
@@ -1210,7 +1203,7 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
     if (GEEN_EVENEMENT.test(`${item.category || ""} ${item.theme || ""} ${item.title || ""}`) || GEEN_EVENEMENT_THEMA.test(clean(item.theme, 40))) continue;
     const t = plat(item.title);
     if (n && !(t.length >= 6 && (t.includes(n) || n.includes(t)))) continue;
-    const loc = ` ${zonderToevoegingInTekst(clean(`${item.location || ""} ${item.title || ""}`, 400)).toLowerCase()} `;
+    const loc = ` ${clean(`${item.location || ""} ${item.title || ""}`, 400).toLowerCase()} `;
     const score = n ? 1 : straten.filter((s) => loc.includes(s)).length;
     if (score && (!best || score > best.score)) best = { score, item };
   }
@@ -1227,11 +1220,9 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
 }
 
 // "38 straten in Historisch Centrum en Seefhoek". wijkVan(straatnaam) geeft een wijknaam of "".
-// De toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN", "KLOOSTERSTRAAT_AN" in een omschrijving van
-// GIPOD) is geen deel van de naam: weg in wat de bewoner leest (de sleutels en de koppeling houden ze).
-export const zonderStraatasToevoeging = zonderToevoegingInTekst;
+// De straten komen uit de straatas, al zonder homoniemtoevoeging (straatasNaam in site/street-core.js).
 export function stratenSamenvatting(straten = [], wijkVan = () => "") {
-  const list = uniek(straten.map(zonderStraatasToevoeging));
+  const list = uniek(straten);
   if (!list.length) return "";
   if (list.length <= 3) return list.join(", ");
   const tel = new Map();

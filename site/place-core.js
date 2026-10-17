@@ -11,7 +11,7 @@ import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evene
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsStatus, waarTekst } from "./permit-clarity.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { zonderToevoeging } from "./witte-lijst.js";
+import { zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -101,25 +101,18 @@ export function editDistance(a, b, max = 2) {
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
-// De straatas zet een homoniemtoevoeging achter een straatnaam die ook in een ander district bestaat
-// ("Maria-Theresialei_AN" in 2018, naast de Maria-Theresialei in Ekeren). Zo heet geen straat: de bewoner ziet en
-// zoekt "Maria-Theresialei" (zoals scripts/build-straten-stad.mjs voor de andere districten). Eén definitie: zonderToevoeging
-// in site/witte-lijst.js (met de gemeten codes HOMONIEM_CODES).
-export const zonderHomoniem = zonderToevoeging;
-
 // Index van alle plekken. streets: rijen uit straten.json ([id, naam, postcode, wijken, kader]);
 // wijken: [{ code, naam, box }]; counts: optioneel aantal items per straat-/wijksleutel (voor de rangorde).
-// Een straat houdt in `name` en `key` de naam uit de straatas: daarmee koppelt de site haar aan de live lagen en de
-// ochtendstand. `label`, `compact` en `words` (wat de bewoner ziet en intypt) zijn zonder homoniemtoevoeging; de
-// naam met toevoeging blijft een alias, zodat een oude link (?plek=Maria-Theresialei_AN) blijft werken.
+// Een straat houdt in `name` en `key` de naam uit de straatas, zonder homoniemtoevoeging (straatasNaam in
+// site/street-core.js; scripts/build-straten.mjs schrijft straten.json zo): daarmee koppelt de site haar aan de live lagen
+// en de ochtendstand. Twee straten met dezelfde naam verschillen door hun id.
 export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
   const wijkByCode = new Map(wijken.map((w) => [w.code, w]));
   const nameCount = new Map();
-  for (const row of streets) nameCount.set(zonderHomoniem(row[1]), (nameCount.get(zonderHomoniem(row[1])) || 0) + 1);
+  for (const row of streets) nameCount.set(row[1], (nameCount.get(row[1]) || 0) + 1);
   const places = [];
   for (const [id, name, postcode, codes = [], box = null] of streets) {
     const wijk = wijkByCode.get(codes[0]);
-    const label = zonderHomoniem(name);
     places.push({
       type: "straat",
       key: `straat:${id}|${name}|${postcode}`,
@@ -128,12 +121,11 @@ export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
       postcode: String(postcode || ""),
       wijken: codes,
       box,
-      label,
+      label: name,
       sub: [postcode, wijk ? `wijk ${wijk.naam}` : ""].filter(Boolean).join(" · "),
-      ambiguous: nameCount.get(label) > 1,
-      compact: compactOf(label),
-      words: foldText(label).split(" "),
-      ...(label !== name ? { aliases: [compactOf(name)] } : {}),
+      ambiguous: nameCount.get(name) > 1,
+      compact: compactOf(name),
+      words: foldText(name).split(" "),
     });
   }
   for (const w of wijken) {
@@ -278,8 +270,10 @@ export function placeParam(place, index) {
   return `${prefix}${place.type === "straat" ? place.label : place.name}`;
 }
 
+// Een oude link of een bewaarde sleutel met de homoniemtoevoeging van de straatas (?plek=Proefstraat_AN,
+// "straat:1|Proefstraat_AN|2018") vindt de straat nog: de toevoeging gaat er bij het lezen af, zoals bij de straatas zelf.
 export function resolvePlaceParam(index, value) {
-  const raw = String(value ?? "").trim();
+  const raw = zonderToevoegingInTekst(String(value ?? "").trim());
   if (!raw || !index) return null;
   const typed = raw.match(/^(straat|wijk|postcode):(.*)$/i);
   const type = typed ? typed[1].toLowerCase() : "";
@@ -289,9 +283,8 @@ export function resolvePlaceParam(index, value) {
   const candidates = index.places.filter((p) => (!type || p.type === type));
   if (!q.compact && q.postcode) return candidates.find((p) => p.type === "postcode" && p.code === q.postcode) || null;
   // Eerst de naam zoals in de link, met haar cijfers ("De 7 schakenpad", "4 septemberpad"): parseQuery laat die als
-  // huisnummer weg. Dan de ontlede vraag (straat zonder huisnummer). Een straat ook bij haar naam met
-  // homoniemtoevoeging.
-  const heet = (p, vorm) => p.compact === vorm || (p.type === "straat" && (p.aliases || []).includes(vorm));
+  // huisnummer weg. Dan de ontlede vraag (straat zonder huisnummer).
+  const heet = (p, vorm) => p.compact === vorm;
   for (const vorm of [q.ruw, q.compact]) {
     if (!vorm) continue;
     const exact = candidates.filter((p) => p.type !== "postcode" && heet(p, vorm) && (!q.postcode || p.type !== "straat" || p.postcode === q.postcode));
@@ -549,9 +542,7 @@ const MIDDERNACHT_UTC = /T00:00(?::00(?:\.0+)?)?(?:Z|[+-]00:?00)$/;
 export function urenVanWerk(start, end) {
   return MIDDERNACHT_UTC.test(String(start ?? "")) ? null : urenVanDag(start, end);
 }
-// De straten van een item zoals de bewoner ze leest: zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN" wordt
-// "Proefstraat"). De straten van het item zelf (de koppeling) houden haar.
-const streetNames = (item) => [...new Set((item?.streets || []).map((s) => zonderHomoniem(s?.name)).filter(Boolean))].join(", ");
+const streetNames = (item) => [...new Set((item?.streets || []).map((s) => s?.name).filter(Boolean))].join(", ");
 const safeUrl = (value) => (/^https:\/\//i.test(String(value || "")) ? String(value) : "");
 
 export function agendaEntry(item, theme = item?.category || "other") {
@@ -857,8 +848,8 @@ export function stratenVanAgendapunt(item = {}) {
 //   in de plaats; een oudere lijst kan straten van een ander dossier bevatten, en die tonen we niet.
 export function agendaStraten(item = {}, straat = "") {
   const lijst = stratenVanAgendapunt(item);
-  const n = foldText(zonderHomoniem(cleanText(straat)));
-  const eigen = n ? lijst.find((x) => foldText(zonderHomoniem(x)) === n) || "" : "";
+  const n = foldText(cleanText(straat));
+  const eigen = n ? lijst.find((x) => foldText(x) === n) || "" : "";
   const inPlaats = Boolean(eigen) && ` ${foldText(item?.location)} `.includes(` ${foldText(eigen)} `);
   const volledig = item?.stratenVolledig === true && lijst.length > 3;
   return {
@@ -1290,9 +1281,7 @@ const opAdres = (a, b) => { const [x, y] = [adresSleutel(a), adresSleutel(b)]; r
 function bundelKaart(soort, sleutel, leden, { straat = "", vandaag = "" } = {}) {
   const dagen = leden.map((e) => e.start).filter(Boolean).sort();
   const eind = leden.map((e) => e.end || e.start).filter(Boolean).sort().at(-1) || "";
-  // De plaats zonder homoniemtoevoeging: de gekozen straat (of de eerste straat van de kaart) is de naam zoals de straatas
-  // haar kent ("Proefstraat_AN"); de sleutel van de bundel houdt die naam.
-  const waar = zonderHomoniem(straat || cleanText(leden[0]?.location));
+  const waar = straat || cleanText(leden[0]?.location);
   const basis = { uid: `bundel:${soort}:${sleutel}`, id: `bundel:${soort}:${sleutel}`, source: "bundel", openEnd: false, time: "", timeText: "", location: waar, status: "", info: "", reference: "", url: "", sourceUrl: "", item: {} };
   if (soort === "terrassen") {
     const uit = leden.filter((e) => /uitstalling/i.test(e.title)).length, ter = leden.length - uit;
@@ -2069,10 +2058,9 @@ const STATUS_NL = Object.freeze({ "in effect": "Van kracht", goedgekeurd: "Goedg
 export const statusNl = (status) => STATUS_NL[cleanText(status).toLowerCase()] || cleanText(status);
 // "Waar" bij veel straten: de gekozen straat eerst, de rest als telling ("Lange Leemstraat + 12 andere straten").
 export function waarKort(straten = [], gekozen = "") {
-  // Zonder de toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN"): die is geen deel van de naam.
-  const namen = [...new Set(straten.map((n) => zonderHomoniem(cleanText(n))).filter(Boolean))];
+  const namen = [...new Set(straten.map((n) => cleanText(n)).filter(Boolean))];
   if (namen.length <= 2) return namen.join(" en ");
-  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(zonderHomoniem(gekozen))) : "";
+  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(gekozen)) : "";
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));

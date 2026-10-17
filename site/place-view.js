@@ -11,7 +11,7 @@ import {
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
-  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, zonderHomoniem, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
+  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
@@ -1101,7 +1101,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const nietGoedgekeurd = entry.source === "agenda" && nietGoedgekeurdOp(item, straatNu);
     // Een agendapunt in meer straten: de gekozen straat als de plaats ze niet noemt, en de volledige lijst (agendaStraten).
     const agendaWaar = entry.source === "agenda" ? agendaStraten(item, straatNu) : null;
-    const jouwAgenda = agendaWaar?.jouwStraat ? `Ook in jouw straat: ${zonderHomoniem(agendaWaar.jouwStraat)}` : "";
+    const jouwAgenda = agendaWaar?.jouwStraat ? `Ook in jouw straat: ${agendaWaar.jouwStraat}` : "";
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const bronNoot = kaartBronNoot(entry, { zichtbaar: [duidelijk.melding, duidelijk.samenvatting] });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
@@ -1158,7 +1158,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${entry.uitleg ? uitlegTemplate(entry, bovenaan) : duidelijk.eigenDetail ? "" : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
-            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${jouwAgenda ? `<br>${esc(jouwAgenda)}` : ""}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.map(zonderHomoniem).join(", "))}</p></details>` : agendaWaar?.straten.length ? `<details class="pv-streets"><summary>Toon alle ${agendaWaar.straten.length} straten</summary><p>${esc(agendaWaar.straten.map(zonderHomoniem).join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${jouwAgenda ? `<br>${esc(jouwAgenda)}` : ""}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.join(", "))}</p></details>` : agendaWaar?.straten.length ? `<details class="pv-streets"><summary>Toon alle ${agendaWaar.straten.length} straten</summary><p>${esc(agendaWaar.straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
@@ -1177,7 +1177,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // straten staat daar alles.
   function waarTemplate(waar) {
     if (!waar?.ingeklapt) return "";
-    return `<div><dt>Waar</dt><dd><details class="pv-streets"><summary>Toon alle ${waar.straten.length} straten</summary><p>${esc(waar.straten.map((n) => String(n).replace(/_[A-Z]{2}$/, "")).join(", "))}</p></details></dd></div>`;
+    return `<div><dt>Waar</dt><dd><details class="pv-streets"><summary>Toon alle ${waar.straten.length} straten</summary><p>${esc(waar.straten.join(", "))}</p></details></dd></div>`;
   }
   // Titel van een balk in de maand: bij een evenement op straat de dag zelf en de innameperiode.
   function balkTitel(entry) {
@@ -1235,8 +1235,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const kaart = !entry.kaart?.length ? "" : state.open.has(entry.uid) ? schetsFiguur(entry) : `<figure class="pv-kaart" data-schets hidden></figure>`;
     const { regels, dossier, stratenNoot, bron, technisch } = kaartIndeling(u, { reference: entry.reference, straten: straten.length });
     const noot = u.stratenNoot || stratenNoot;
-    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${noot ? `<p class="pv-straten-noot">${esc(noot)}</p>` : ""}<p>${esc(straten.map(zonderHomoniem).join(", "))}</p></details>` : "";
-    const kruistRij = kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.map(zonderHomoniem).join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.map(zonderHomoniem).join(", "))}</p></details>`}</dd></div>` : "";
+    const alleStraten = lange ? `<details class="pv-streets"><summary>Toon alle ${straten.length} straten</summary>${noot ? `<p class="pv-straten-noot">${esc(noot)}</p>` : ""}<p>${esc(straten.join(", "))}</p></details>` : "";
+    const kruistRij = kruist.length ? `<div><dt>Kruist</dt><dd>${kruist.length <= 3 ? esc(kruist.join(", ")) : `${kruist.length} straten kruisen het parcours of komen erop uit<details class="pv-streets"><summary>Toon de ${kruist.length} straten</summary><p>${esc(kruist.join(", "))}</p></details>`}</dd></div>` : "";
     // Eén omschrijving als gewone tekst; meer als lijst, met de rest ingeklapt (de rest telt er altijd 2 of meer).
     const lijst = (items) => `<ul class="pv-dossier">${items.map((b) => `<li>${esc(b)}</li>`).join("")}</ul>`;
     const dossierHtml = () => (dossier.zichtbaar.length === 1 && !dossier.dicht.length ? esc(dossier.zichtbaar[0])
