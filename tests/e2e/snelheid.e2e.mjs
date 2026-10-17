@@ -340,12 +340,16 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
-  // P9 en het budget van P5: op een groot scherm laadt de kaart naast de lijst, maar pas als de browser even
-  // niets te doen heeft. De tegels halen hun 3 s, en daarna staat de kaart er (Leaflet uit de fixture). Op
-  // 1280×900 staat de kaart nog net onder het beeld (de bewoner scrolt), op 1280×1200 meteen in beeld.
+  // P9 en het budget van P5: op een groot scherm laadt de kaart naast de lijst, maar pas als ze bijna in beeld komt en
+  // de browser even niets te doen heeft. De tegels halen hun 3 s, en daarna staat de kaart er (Leaflet uit de fixture).
+  // Op 1280×900 scrolt de bewoner pas na de tegels naar de kaart; op 1280×1200 is de kaart er meteen, terwijl de tegels
+  // nog komen. Vanzelf in beeld staat ze daar niet meer: het buurtpaneel (#172), "Bewaarde straten" (#171) en de
+  // bronwaarschuwing (#191; de klok van deze toets staat in 2099, dus alle bronnen zijn verlopen) duwen haar onder het
+  // beeld. Daarom brengt de toets haar in beeld zodra ze er is, vóór de tegels.
   for (const height of [900, 1200]) await t.test(`P9: de kaart vertraagt de tegels niet (1280×${height}, stand van de ochtend, alles geblokkeerd behalve Leaflet)`, async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors, start } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height });
+    if (height === 1200) await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector(".pv-place .pv-stat.pv-stat-planned strong")?.textContent.trim() === "3", null, { timeout: Math.max(1, 3000 - (Date.now() - start)) }).catch(() => {});
     const duur = Date.now() - start;
     assert.ok(duur < 3000, `tegels na ${duur} ms`);
@@ -898,6 +902,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
   await t.test("P9: op een trage verbinding (de browser schat ze lager dan 4g) meteen Leaflet: geen stijl van OpenFreeMap, geen MapLibre", async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height: 1200, verbinding: { effectiveType: "3g", saveData: false, downlink: 1.6, rtt: 550 } });
+    // De kaart start pas als ze bijna in beeld komt (P5); ook op 1280×1200 staat ze onder het beeld (zie hierboven).
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
     await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "leaflet", null, { timeout: 15000 })
       .catch(async () => assert.fail(`data-kaart ${await page.locator(".buurt-map").getAttribute("data-kaart")}`));
     const webgl = await page.evaluate(() => { const c = document.createElement("canvas"); return Boolean(c.getContext("webgl2") || c.getContext("webgl")); });
