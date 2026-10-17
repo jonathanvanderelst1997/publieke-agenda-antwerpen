@@ -6,7 +6,7 @@
 // bron staan, en de bron van die afleiding gaat mee. Geen klok: "vandaag" komt altijd van buiten.
 
 import {
-  DINGEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
+  DINGEN, KENMERK_WAARDEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
@@ -1042,6 +1042,11 @@ export function bewaardeKenmerken(e = {}) {
   if (Array.isArray(e?.kenmerken)) return e.kenmerken.filter((k) => typeof k === "string" && k);
   return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => zonderHuisnummerVanMain(b).replace(VOORVOEGSEL, "")).filter(Boolean).map(kenmerkWoordenVan);
 }
+// Alle waarden die in één kenmerk kunnen staan (kenmerkWoordenVan: de soorten, "student", de dingen en voorwerpen,
+// "straat"), en hoe lang een kenmerk hoogstens wordt als ze er allemaal in staan. De validatie van kaart-uitleg.json
+// (KENMERK_MAX in lib/kaart-uitleg-validatie.mjs) laat minstens zoveel toe: een kenmerk wordt nooit ingekort.
+export const KENMERK_DELEN = Object.freeze([...new Set([...Object.values(SOORT_KENMERK), "student", ...KENMERK_WAARDEN, "straat"])]);
+export const KENMERK_LANGST = KENMERK_DELEN.join(" ").length;
 // Is dit een kenmerk (alleen vaste woorden)? Voor de validatie van kaart-uitleg.json.
 const KENMERK_WOORD = new Set([...Object.values(SOORT_KENMERK), ...KENMERK_WOORDEN, "student", "straat", "overig"].flatMap((w) => w.split(" ")));
 export const isKenmerk = (k) => typeof k === "string" && (k === "-" || (/^[a-z]+(?: [a-z]+)*$/.test(k) && k.split(" ").every((w) => KENMERK_WOORD.has(w))));
@@ -1152,7 +1157,7 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
     // De kenmerken (vaste woorden) van de volle omschrijvingen (bewaardKenmerkVan): de verversing bewaart ze in
     // kaart-uitleg.json, zodat de plekpagina de soort ook zonder live rijen kent (evenementSoort in site/place-core.js),
     // zoals de plekpagina van origin/main ze uit de bewaarde beschrijvingen las.
-    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter(Boolean))],
+    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter((k) => k && isKenmerk(k)))],
     soort,
     soortZeker: Boolean(sm.zeker && (opname || alleOmschreven)),
     alleOmschreven, opname,
