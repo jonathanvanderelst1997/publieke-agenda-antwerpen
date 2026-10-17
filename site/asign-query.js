@@ -23,10 +23,23 @@ export function asignIdsUrl(layer, { where = "1=1", spatial = false, kader = nul
   return url.href;
 }
 
+// De velden van een vraag: altijd met naam. Zonder velden of met "*" zou een nieuwe aanroeper alle velden ophalen, ook de
+// beheerder van het dossier (een personeelscode van de stad) en de gegevens van de aanvrager. Een veld met "beheerder" in
+// zijn naam wordt nooit gevraagd (docs/PUBLIC_SPACE_SOURCE_POLICY.md).
+const NOOIT_VELD = /beheerder/i;
+export function asignVelden(outFields) {
+  const velden = String(outFields ?? "").split(",").map((v) => v.trim()).filter(Boolean);
+  if (!velden.length || velden.some((v) => v.includes("*"))) throw new Error("A-Sign: geef de velden met naam mee (outFields), nooit * of leeg");
+  const fout = velden.find((v) => NOOIT_VELD.test(v));
+  if (fout) throw new Error(`A-Sign: het veld ${fout} wordt nooit opgehaald`);
+  return velden.join(",");
+}
+
 // De detail-URL's voor een lijst ids: blokken van hoogstens `blok` ids, en elk blok dat toch een te
 // lange URL geeft, wordt in tweeën gedeeld tot het past.
 // `precisie`: aantal decimalen van de geometrie (6 = ongeveer 10 cm), voor een kleiner antwoord.
-export function asignDetailUrls(layer, ids = [], { outFields = "*", geometry = false, precisie = null, blok = ASIGN_BLOK, maxUrl = ASIGN_MAX_URL } = {}) {
+export function asignDetailUrls(layer, ids = [], { outFields = "", geometry = false, precisie = null, blok = ASIGN_BLOK, maxUrl = ASIGN_MAX_URL } = {}) {
+  outFields = asignVelden(outFields);
   const urls = [];
   const maak = (deel) => {
     const url = queryUrl(layer);
@@ -82,7 +95,8 @@ async function haal(url, fetchImpl) {
 
 // Alle records van één laag: eerst de ids, dan de details in korte blokken. Faalt één blok, dan
 // faalt de laag (een halve laag zou stil items verbergen) en worden de wachtende blokken overgeslagen.
-export async function asignLayer(layer, { where = "1=1", outFields = "*", geometry = false, precisie = null, spatial = false, kader = null, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
+export async function asignLayer(layer, { where = "1=1", outFields = "", geometry = false, precisie = null, spatial = false, kader = null, maxIds = ASIGN_MAX_IDS } = {}, { fetch: fetchImpl = standaardFetch, begrenzer = asignBegrenzer } = {}) {
+  outFields = asignVelden(outFields);
   const idData = await begrenzer(() => haal(asignIdsUrl(layer, { where, spatial, kader }), fetchImpl));
   const ids = Array.isArray(idData.objectIds) ? idData.objectIds : [];
   if (ids.length > maxIds) throw new Error(`laag ${layer} overschrijdt de veiligheidslimiet`);
