@@ -17,6 +17,8 @@ import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink, ruwGipodRecord, ruweGipodLin
 import { GIPOD_BRON as HINDER_BRON, GIPOD_METADATA_URL as HINDER_METADATA_URL, collectHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 import { werkEntries, workEntry, agendaEntry } from "../site/place-core.js";
+import { evenementFeiten, evenementKaartje, koppelEvenement } from "../site/kaart-uitleg.js";
+import { asignAgendapunten } from "../lib/asign-evenementen-agenda.mjs";
 import { GEOPUNT, bezoekersLinks, hinderkaart, splitsLinks } from "../site/bezoekers-bronnen.js";
 import { buildStreetIndex } from "../site/street-core.js";
 import { buildStreetGroups } from "../site/street-overview.js";
@@ -172,6 +174,59 @@ test("plekpagina: een agendapunt met een ruwe GIPOD-link (oudere feed) krijgt de
   const oud = bezoekersLinks(agendaEntry({ id: "gipod-event-990003-2099-01-01", sourceId: "district-gipod-evenementen", title: "Proeffeest", date: "2099-01-01", sourceUrl: RUW.hinderInKaart, link: RUW.hinderInKaart }));
   geenRuweLink(oud, "agendapunt met Hinder in Kaart op één record");
   assert.deepEqual(oud.filter((l) => l.url === GIPOD_METADATA_URL).map((l) => l.label), [GIPOD_BRON]);
+});
+
+// De GIPOD-filters waar een link naar "officiële info" of een bronvermelding wordt: koppelEvenement en
+// evenementKaartje (site/kaart-uitleg.js), infoUrl in lib/asign-evenementen-agenda.mjs, en de laatste regel van
+// bezoekersLinks (site/bezoekers-bronnen.js). Een GIPOD-link is daar nooit een infopagina, alleen de bronvermelding.
+test("evenementkaart: een agendapunt of fiche met een GIPOD-link geeft geen link naar GIPOD, wel het agendapunt", () => {
+  const rij = (n, type, straten) => ({
+    id: `iod:ET2099000070|EVENT|${n}`, kind: "iod", title: type, innameType: type, reference: "ET2099000070", dossierType: "ETL", phase: "Evenement", hindrance: "True",
+    description: "", start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "aanvraag_goedgekeurd",
+    streets: straten.map((name, i) => ({ id: `${n}${i}`, name, postcode: "2000" })), sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+  });
+  const feiten = evenementFeiten([rij(1, "Parcours", ["Proefstraat", "Voorbeeldlaan"]), rij(2, "Parkeerverbod in Straat", ["Proefstraat"])]);
+  const agendapunt = (url) => ({ id: "gipod-event-990001-2099-03-14", sourceId: "district-gipod-evenementen", title: "Proeffeest", date: "2099-03-14", location: "Proefstraat, 2000 Antwerpen", theme: "Activiteit", sourceUrl: url, link: url });
+  // koppelEvenement: wel het agendapunt (de eigen eventpagina), nooit een GIPOD-link als bron van de koppeling.
+  for (const url of [GIPOD_METADATA_URL, RUW.rij, RUW.hinderInKaart]) {
+    const k = koppelEvenement(feiten, [agendapunt(url)]);
+    assert.deepEqual([k?.titel, k?.bronUrl, k?.agendaId], ["Proeffeest", "", "gipod-event-990001-2099-03-14"], url);
+  }
+  assert.equal(koppelEvenement(feiten, [agendapunt("https://www.antwerpen.be/info/proef/proeffeest")]).bronUrl, "https://www.antwerpen.be/info/proef/proeffeest", "een gewone pagina blijft");
+  // evenementKaartje: ook een fiche (oudere automatische herkenning) of een koppeling met een GIPOD-link geeft die link niet.
+  const gekoppeld = { ...koppelEvenement(feiten, [agendapunt(GIPOD_METADATA_URL)]), bronUrl: RUW.rij };
+  const identiteit = { zekerheid: "zeker", naam: "Proeffeest", soort: "buurtfeest", link: RUW.rij, linkLabel: "Gegevens in GIPOD", methode: "gipod", dagen: ["2099-03-14"], bron: [GIPOD_METADATA_URL],
+    extraLinks: [{ url: GIPOD_METADATA_URL, label: "Bron" }, { url: RUW.hinderInKaart, label: "Hinder in Kaart" }, { url: "https://www.antwerpen.be/info/proef/proeffeest", label: "Info van de stad" }] };
+  for (const opties of [{ gekoppeld, identiteit }, { gekoppeld }]) {
+    const kaart = evenementKaartje(feiten, { vandaag: "2099-03-10", ...opties });
+    geenRuweLink(kaart.links, "evenementKaartje");
+    assert.deepEqual(kaart.links.filter((l) => gipodLink(l.url)), [], JSON.stringify(kaart.links));
+    assert.ok(kaart.links.some((l) => l.url === "/event/gipod-event-990001-2099-03-14/"), JSON.stringify(kaart.links));
+  }
+  assert.deepEqual(evenementKaartje(feiten, { vandaag: "2099-03-10", gekoppeld, identiteit }).links.map((l) => l.url), ["https://www.antwerpen.be/info/proef/proeffeest", "/event/gipod-event-990001-2099-03-14/"]);
+});
+
+test("A-Sign-agendapunt: 'Meer info bij de organisator' neemt nooit een GIPOD-link, wel de volgende gewone pagina", () => {
+  const feit = { dossier: "ET2099000071", status: "aanvraag_goedgekeurd", binnenDistrict: true, fasen: [{ naam: "Evenement", start: "2099-03-14", eind: "2099-03-14" }], dagen: ["2099-03-14"],
+    langs: ["Proefstraat", "Voorbeeldlaan"], zone: [], kernStraten: ["Proefstraat"], beginStraat: "Proefstraat", wijk: "Proefwijk", postcodes: ["2000"], speelstraat: false, vorm: null };
+  const fiche = (link) => ({ dossiers: { ET2099000071: { zekerheid: "zeker", naam: "Proefloop Zuid", soort: "loopwedstrijd of loop", organisator: "", uren: "", link, methode: "kalender", dagen: ["2099-03-14"], binnenDistrict: true } } });
+  const bouw = (hand, auto) => asignAgendapunten({ feiten: [feit], hand, auto, vandaag: "2099-03-10", retrievedAt: "2099-03-10T05:20:00.000Z" }).items;
+  const pagina = "https://www.antwerpen.be/info/proef/proefloop-zuid";
+  const [metPagina] = bouw(fiche(GIPOD_METADATA_URL), fiche(pagina));
+  assert.equal(metPagina.title, "Proefloop Zuid");
+  assert.equal(metPagina.infoUrl, pagina, "de datasetfiche in de handfiche gaat niet voor");
+  for (const link of [GIPOD_METADATA_URL, RUW.rij]) {
+    const [zonder] = bouw(fiche(link), null);
+    assert.equal("infoUrl" in zonder, false, link);
+    geenRuweLink(zonder, `agendapunt met ${link}`);
+  }
+});
+
+test("bezoekersLinks: een agendapunt met alleen een GIPOD-link als infopagina krijgt toch de bronvermelding", () => {
+  for (const url of [GIPOD_METADATA_URL, RUW.rij, RUW.hinderInKaart]) {
+    const links = bezoekersLinks({ source: "agenda", url, sourceUrl: "", item: { sourceId: "district-gipod-evenementen" } });
+    assert.deepEqual(links, [{ url: GIPOD_METADATA_URL, label: GIPOD_BRON, type: "source" }], url);
+  }
 });
 
 test("werkenlijst: geen link per werk, onder de lijst de algemene kaart van Hinder in Kaart en één bronvermelding", () => {
