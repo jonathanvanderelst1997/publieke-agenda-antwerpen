@@ -64,12 +64,16 @@ const ref = (r) => ({ id: String(r[0]), name: r[1], postcode: String(r[2]) });
 const parcoursStraten = [STRAAT, ...straten.filter((r) => r[2] === "2060" && r[1] !== STRAAT.name).slice(0, 39).map(ref)];
 
 // Innames van één evenementendossier, zoals iodItems() in public-space-live-core.js ze aanmaakt.
+// De omschrijvingen zijn vrije tekst zoals een aanvrager ze intikt. De privacyfilter laat er alleen hele straatnamen uit
+// de straatas van over (de grondregel van site/witte-lijst.js, #196): "parcours jeugd 5 km over de X" toont de kaart als
+// "Parcours: X", de rest van de tekst nergens. Elke straat hoort bij de straten van haar inname.
+const straatVan = (i) => parcoursStraten[i].name;
 function parcoursRijen(dagen = 8) {
   const dag = addDays(today, dagen);
+  const s = straatVan;
   const onderdelen = [
-    // Kleine letters: een gewoon woord met een hoofdletter vooraan ("Parcours", "Ronde") kan een naam zijn (privacyfilter).
-    ["Parcours", "parcours volwassenen 10 km"], ["Parcours", "parcours jeugd 5 km"], ["Parkeerverbod", "Parkeerverbod langs het parcours"],
-    ["Omleiding", "omleiding voor fietsers tijdens de wedstrijd"], ["Parkeerverbod", "Servicepunt aan de start"], ["Parcours", "ronde voor de jeugd, halve ronde"],
+    ["Parcours", `parcours volwassenen 10 km over de ${s(1)} en de ${s(2)}`], ["Parcours", `parcours jeugd 5 km over de ${s(2)}`], ["Parkeerverbod", `Parkeerverbod langs het parcours in de ${s(3)}`],
+    ["Omleiding", `omleiding voor fietsers tijdens de wedstrijd via de ${s(4)}`], ["Parkeerverbod", `Servicepunt aan de start in de ${s(5)}`], ["Parcours", `ronde voor de jeugd, halve ronde over de ${s(6)}`],
   ];
   return onderdelen.map(([type, beschrijving], i) => ({
     id: `iod:${DOSSIER}|${i + 1}|${i + 1}`, kind: "iod", kindLabel: "Inname openbaar domein", title: type, innameType: type,
@@ -254,6 +258,8 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       const bron = li.querySelector("details.pv-bron-dossier");
       return {
         tekst,
+        // Alles op de kaart, ook wat ingeklapt staat.
+        alles: li.textContent,
         labels: [...li.querySelectorAll(".pv-detail dt")].filter(zichtbaar).map((d) => d.textContent.trim()),
         // Wat dicht staat onder "Bron en dossier": regels en links.
         dicht: [...(bron?.querySelectorAll("dt") || [])].map((d) => d.textContent.trim()),
@@ -264,10 +270,14 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       };
     }, DOSSIER);
     // Welk parcours: elk parcoursdeel uit het dossier staat zichtbaar (Jonathan: "welke race, welk parcours"),
-    // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt.
-    for (const deel of ["parcours volwassenen 10 km", "parcours jeugd 5 km", "ronde voor de jeugd, halve ronde", "omleiding voor fietsers tijdens de wedstrijd"]) assert.match(zicht.tekst, new RegExp(deel), deel);
-    assert.doesNotMatch(zicht.tekst, /Parkeerverbod langs het parcours|Servicepunt aan de start/);
+    // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt. Sinds de grondregel
+    // van de privacyfilter (#196) is dat wat er van de omschrijving overblijft: de straten.
+    const s = straatVan;
+    for (const deel of [`Parcours: ${s(1)} … ${s(2)}`, `Parcours: ${s(2)}`, `Parcours: ${s(6)}`, `Omleiding: ${s(4)}`]) assert.ok(zicht.tekst.includes(deel), `${deel} staat niet zichtbaar: ${zicht.tekst}`);
+    for (const verbod of [`Parkeerverbod: ${s(3)}`, `Parkeerverbod: ${s(5)}`]) assert.ok(zicht.alles.includes(verbod) && !zicht.tekst.includes(verbod), `${verbod} staat niet ingeklapt op de kaart`);
     assert.ok(zicht.knoppen.includes("Toon de 2 parkeerverboden uit het dossier"), zicht.knoppen.join(" | "));
+    // De rest van de vrije tekst staat nergens op de kaart, ook niet ingeklapt.
+    assert.doesNotMatch(zicht.alles, /volwassenen|jeugd|\d+ km|fietsers|Servicepunt|halve ronde|langs het parcours in/);
     for (const label of ["Wat", "Wanneer", "Waar"]) assert.ok(zicht.labels.includes(label), `${label} zichtbaar: ${zicht.labels.join(", ")}`);
     // Waarom het in de agenda staat, blijft zichtbaar (of de kaart het zo noemt of niet).
     assert.match(zicht.tekst, /toegelaten inname|toelating/);
