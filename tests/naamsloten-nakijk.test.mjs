@@ -20,7 +20,7 @@ const lees = (rel) => JSON.parse(fs.readFileSync(new URL(`../${rel}`, import.met
 // De straatas van de repo: district Antwerpen (site/geo/straten.json) en de andere districten (site/geo/straten-stad.json).
 const STRAATAS = new Set([
   ...lees("site/geo/straten.json").streets.map((s) => sleutel(s[1])),
-  ...[].concat(lees("site/geo/straten-stad.json")).flatMap((s) => (Array.isArray(s) ? [s[0]] : Array.isArray(s?.streets) ? s.streets.map((x) => (Array.isArray(x) ? x[0] : x?.name)) : [])).map(sleutel),
+  ...lees("site/geo/straten-stad.json").straten.map((s) => sleutel(s[0])),
 ]);
 const isStraat = (n) => STRAATAS.has(sleutel(n));
 
