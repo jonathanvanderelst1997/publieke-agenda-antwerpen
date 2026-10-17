@@ -240,15 +240,31 @@ export function searchPlaces(index, query, { limit = 8, counts = null } = {}) {
 // als het er maar één is (nakijkronde 12 oktober 2026). `resultaten`: wat searchPlaces teruggaf, in die volgorde.
 // Twee stukken van dezelfde straat met dezelfde naam, postcode en wijk (twee ids in de straatas) zijn voor de bewoner
 // één plek: daar is niets te kiezen.
+// `vraag`: wat de bewoner typte. Met een huisnummer (parseQuery laat het weg) zoekt ze een straat. Heten een straat en
+// een wijk precies zo (de straat Meir, en "Meir" als andere naam van de wijk Theaterbuurt & Meir), dan telt alleen de
+// straat: een huisnummer hoort nooit bij een wijk, postcode of district. Twee straten die zo heten, blijven een keuze.
 const zelfdeVoorDeBewoner = (p) => [p.type, p.label, p.postcode || "", p.sub || ""].join("|");
-export function enterKeuze(resultaten = [], { actief = -1, gekozen = false } = {}) {
+const STRAATSOORT = new Set(["straat", "buiten"]);
+// Een getal dat geen postcode is (de eerste 2xxx is de postcode, zoals in parseQuery). Ook het cijfer van een straatnaam
+// ("De 7 schakenpad") telt mee; dan blijven ook alleen de straten over.
+function heeftHuisnummer(vraag) {
+  let postcode = false;
+  for (const token of foldText(vraag).split(" ").filter(Boolean)) {
+    if (!postcode && /^2\d{3}$/.test(token)) { postcode = true; continue; }
+    if (/^\d+[a-z]{0,2}$/.test(token)) return true;
+  }
+  return false;
+}
+export function enterKeuze(resultaten = [], { actief = -1, gekozen = false, vraag = "" } = {}) {
   if (gekozen && resultaten[actief]) return { place: resultaten[actief].place };
   const uniek = (lijst) => {
     const gezien = new Map();
     for (const r of lijst) if (!gezien.has(zelfdeVoorDeBewoner(r.place))) gezien.set(zelfdeVoorDeBewoner(r.place), r);
     return [...gezien.values()];
   };
-  const exact = uniek(resultaten.filter((r) => r.match === "exact"));
+  let exact = uniek(resultaten.filter((r) => r.match === "exact"));
+  const straten = exact.filter((r) => STRAATSOORT.has(r.place.type));
+  if (exact.length > 1 && straten.length && heeftHuisnummer(vraag)) exact = straten;
   if (exact.length === 1) return { place: exact[0].place };
   if (exact.length > 1) return { keuze: "naamgenoten", n: exact.length };
   const zeker = uniek(resultaten.filter((r) => ZEKER.has(r.match)));

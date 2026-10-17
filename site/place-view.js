@@ -699,7 +699,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!stad) await Promise.race([laadStad(), new Promise((ok) => setTimeout(ok, 2500))]);
     if (beurt !== enterBeurt || search.value !== query) return; // intussen verder getypt
     renderSuggestions({ behoud: true });
-    const keuze = enterKeuze(suggestions, { actief: active, gekozen });
+    const keuze = enterKeuze(suggestions, { actief: active, gekozen, vraag: query });
     if (keuze.place) { kies(keuze.place); return; }
     if (keuze.keuze !== "niets") renderSuggestions({ melding: keuzeMelding(keuze, query) });
   }

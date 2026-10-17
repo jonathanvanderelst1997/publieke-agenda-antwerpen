@@ -62,7 +62,9 @@ for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name)
 const stadStraten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten-stad.json"), "utf8"));
 const elders = new Set(stadStraten.straten.map((r) => locationKey(r[0])));
 // Een straat die zo heet als een wijk of een andere naam van een wijk (de Meir: de wijk "Theaterbuurt & Meir") laat met
-// Enter ook kiezen (enterKeuze, #196): "2 plekken heten …". Ook die nemen de toetsen die gewoon een straat openen niet.
+// Enter zonder huisnummer ook kiezen (enterKeuze, #196): "2 plekken heten …". Ook die nemen de toetsen die gewoon een
+// straat openen niet ("geen horizontale scroll" typt de naam zonder nummer). Met een huisnummer opent Enter de straat:
+// dat toetst "Enter op de Meir met een huisnummer" hieronder, met de Meir zelf.
 const wijkDoc = JSON.parse(fs.readFileSync(path.join(site, "geo", "wijken.geo.json"), "utf8"));
 const wijkIndex = buildPlaceIndex({ wijken: wijkDoc.features.filter((f) => String(f.properties?.code || "").startsWith("ANT")).map((f) => ({ code: f.properties.code, naam: f.properties.naam })) });
 const wijkNamen = new Set(wijkIndex.places.filter((p) => p.type === "wijk").flatMap((p) => [p.compact, ...(p.aliases || [])]));
@@ -774,6 +776,28 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await input.press("Enter");
     await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"));
     assert.equal(await page.locator(".pv-place-name").innerText(), "Kammenstraat");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkbevinding (17 oktober 2026): Enter op de Meir met een huisnummer zei "2 plekken heten …": de wijk Theaterbuurt &
+  // Meir (andere naam "Meir") en de straat Meir. Een huisnummer hoort bij een straat, nooit bij een wijk (enterKeuze).
+  // Het huisnummer is verzonnen.
+  await t.test("Enter op de Meir met een huisnummer ('meir 999') opent de straat Meir, niet de keuze met de wijk Theaterbuurt & Meir", async () => {
+    const meir = byName.get(locationKey("Meir"));
+    assert.equal(meir?.length, 1, "één straat Meir in district Antwerpen");
+    const { page, context, errors } = await openPage(baseUrl, { street: meir[0] });
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("meir 999");
+    // De wijk staat in de suggesties, en eerst: Enter kiest dus niet gewoon de eerste.
+    await page.locator("#pv-suggestions .pv-sugg-wijk", { hasText: "Theaterbuurt & Meir" }).waitFor();
+    assert.equal(await page.locator("#pv-suggestions [role=option]").first().evaluate((el) => el.classList.contains("pv-sugg-wijk")), true);
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"), null, { timeout: 5000 })
+      .catch(async () => assert.fail(`Enter opende niets: ${await page.locator("#pv-search-help").innerText()}`));
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Meir");
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Meir");
+    assert.match(await page.locator(".pv-place-kind").innerText(), /straat/i);
     assert.deepEqual(errors, []);
     await context.close();
   });
