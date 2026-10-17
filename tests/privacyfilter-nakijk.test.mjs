@@ -272,6 +272,59 @@ test("eigenschap: voor duizenden verzonnen naam- en nummervormen blijft niets ov
   assert.ok(gezien >= 36000 && metUitvoer > 5000, `${gezien} uitvoeren, ${metUitvoer} niet leeg`);
 });
 
+// Nakijkronde van head e2969b3: de verzonnen lettergrepen hierboven staan nooit op de lijst. Hier komt de "naam" uit de lijst
+// zelf: stammen die ook een familienaam of voornaam kunnen zijn ("Tent", "Bar", "Zaal"), de namen die er vroeger op stonden
+// ("Pier", "Kersten", "Dağ") en de vaste plekken zonder zekere uitgang ("Meir", "Dam", "Kiel", "Lillo"), in de vormen waarin
+// een naam staat: na fam., dhr. of mevr., voor of na een telefoonnummer, na "van der", "van", "voor" of "bij", als voornaam
+// met achternaam, en in HOOFDLETTERS. Van X mag niets in de uitvoer staan.
+const LIJST_NAMEN = ["Tent", "Kraam", "Bar", "Zaal", "Steiger", "Stand", "Toog", "Kerk", "Park", "Lei", "Feest", "Doop", "Stoet", "Wagen", "Loop", "Ronde", "Kaai",
+  "Dok", "Brug", "Tuin", "School", "Plein", "Halte", "Haven", "Trap", "Muziek", "Dans", "Film", "Foto", "Sport", "Nacht", "Avond", "Dag", "Pier", "Kersten", "Dağ", "Kerst"];
+const LIJST_PLEKKEN = (KU.VASTE_PLEKKEN || ["Meir", "Dam", "Kiel", "Lillo", "MAS", "Bourla", "Berchem", "Zuid"])
+  .filter((n) => /^[A-Za-z]+$/.test(n) && !/(?:plein|park|kaai|kaaien|kathedraal|kerk|markt|straat|station|dok|lei|laan)$/i.test(n));
+const LIJST_SJABLONEN = [
+  (x) => `${x.kw} fam. ${x.X}`, (x) => `${x.kw} dhr. ${x.X}`, (x) => `mevr. ${x.X} ${x.kw}`, (x) => `${x.kw} (fam. ${x.X})`, (x) => `${x.kw} ${x.X}, 0470 12 34 56`,
+  (x) => `${x.X} - 0470/12.34.56 - ${x.kw}`, (x) => `${x.kw}: ${x.X} +32 471 12 34 56`, (x) => `${x.kw} van der ${x.X}`, (x) => `${x.kw} Van Der ${x.X}`,
+  (x) => `${x.kw} van ${x.X}`, (x) => `${x.kw} voor ${x.X}`, (x) => `${x.kw} bij ${x.X}`, (x) => `${x.kw} ${x.X.toLowerCase()}@voorbeeld.test`,
+];
+// Ook in HOOFDLETTERS: de vormen met fam., dhr., een telefoonnummer en "van der".
+const LIJST_HOOFDLETTERS = LIJST_SJABLONEN.slice(0, 10);
+
+test("eigenschap (e2969b3): een naam die zelf op de lijst staat, blijft niet over na fam., dhr., bij een telefoonnummer, na van der, en in HOOFDLETTERS", () => {
+  const r = toeval(20261018);
+  const kies = (lijst) => lijst[Math.floor(r() * lijst.length)];
+  assert.ok(LIJST_PLEKKEN.includes("Meir") && LIJST_PLEKKEN.includes("Dam") && LIJST_PLEKKEN.includes("Kiel"), LIJST_PLEKKEN.join(", "));
+  const namen = [...LIJST_NAMEN, ...LIJST_PLEKKEN];
+  let gezien = 0, metUitvoer = 0;
+  for (let i = 0; i < 3000; i += 1) {
+    const X = kies(namen);
+    const naamWoorden = new Set(woorden(X));
+    const kw = kies(TREFWOORDEN.filter((t) => !woorden(t).some((w) => naamWoorden.has(w))));
+    const hoofdletters = r() < 0.35;
+    const t0 = kies(hoofdletters ? LIJST_HOOFDLETTERS : LIJST_SJABLONEN)({ kw, X });
+    const t = hoofdletters ? t0.toUpperCase() : t0;
+    const toegestaan = new Set([...woorden(kw), ...KLEIN, "inname"]);
+    for (const opties of [{}, { isStraat: isStraatProef }, { isStraat: (n) => woorden(n).every((w) => naamWoorden.has(w)) }]) {
+      for (const uit of uitvoer(t, opties)) {
+        gezien += 1;
+        if (uit) metUitvoer += 1;
+        assert.doesNotMatch(uit, /[\p{N}@＠]/u, `${JSON.stringify(t)} → ${JSON.stringify(uit)}`);
+        for (const w of woorden(uit)) assert.ok(toegestaan.has(w) && !naamWoorden.has(w), `${JSON.stringify(t)} → ${JSON.stringify(uit)}: "${w}" is (een stuk van) de naam`);
+      }
+    }
+  }
+  // Ook voornaam met achternaam, allebei van de lijst ("Kraam Bar", "Tent Zaal"): allebei weg.
+  const voornamen = LIJST_NAMEN.filter((n) => /^[A-Z][a-z]+$/.test(n) && !["Kersten", "Pier", "Kerst"].includes(n));
+  for (let i = 0; i < 500; i += 1) {
+    const X = kies(voornamen), Y = kies(voornamen);
+    const naamWoorden = new Set([...woorden(X), ...woorden(Y)]);
+    const kw = kies(TREFWOORDEN.filter((t) => !woorden(t).some((w) => naamWoorden.has(w))));
+    const t = `${kw} ${X} ${Y}`;
+    for (const uit of uitvoer(t)) for (const w of woorden(uit)) assert.ok(!naamWoorden.has(w), `${JSON.stringify(t)} → ${JSON.stringify(uit)}`);
+  }
+  // De toets zegt alleen iets als er ook uitvoer is: het trefwoord blijft vaak staan.
+  assert.ok(gezien >= 27000 && metUitvoer > 3000, `${gezien} uitvoeren, ${metUitvoer} niet leeg`);
+});
+
 // ======== de straatas overal: de verversing, de live laag en de terugval ========
 
 const PROEF_AS = (n) => ["de testplein", "van testlei", "proefstraat"].includes(String(n).toLowerCase());

@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, kenmerkTekst, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -1683,7 +1683,11 @@ export function evenementEntry(rows, { vandaag, alle = rows, uitleg = null, wijk
   // het hele dossier over dat ding gaat en elke inname een omschrijving heeft (soortEvenementMet). Ook uit de bewaarde
   // omschrijvingen die de filter nu niet meer toont ("Startlocatie Doop": "Doop" kan een naam zijn): de soort is een vast
   // woord uit de lijst, de tekst zelf gaat nergens heen (zoals de verversing de ruwe omschrijvingen leest).
-  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet([...beschrijvingen, ...(bewaard?.beschrijvingen || [])]);
+  // Van de live rijen tellen de kenmerken (vaste woorden uit de ruwe omschrijving, zoals evenementFeiten), niet de gefilterde
+  // tekst: uit "Doopfeest MTS Testboot" houdt de filter alleen "Doopfeest" over, en dat is een studentendoop, geen doop van
+  // een schip (nakijkronde van head e2969b3, het dossier van de scheepsdoop van 19-21 november 2026).
+  const kenmerken = alle.map((r) => (typeof r.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r.description))).filter(Boolean);
+  const sm = live.opname ? { soort: live.soort, zeker: live.soortZeker } : soortEvenementMet([...kenmerken, ...(bewaard?.beschrijvingen || [])]);
   const soort = sm.soort || live.soort || bewaard?.soort || "";
   const soortZeker = sm.soort ? Boolean(sm.zeker && (live.opname || live.alleOmschreven)) : Boolean(live.soortZeker);
   const feiten = bewaard

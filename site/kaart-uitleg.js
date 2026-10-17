@@ -892,15 +892,19 @@ export function veiligeTekst(tekst, { straten = [], isStraat = null } = {}) {
 export const bruikbareBeschrijving = (tekst, opties = {}) => veiligeTekst(tekst, opties);
 
 // Een bewaarde omschrijving ("Parkeerverbod: parkeerverbod Proefstraat" in kaart-uitleg.json, van een verversing met
-// oudere code) opnieuw door de witte lijst. De soort vooraan ook: alleen als ze zelf helemaal op de lijst staat
-// ("Inname", "Parcours", "Verkeersvrije Zone"), anders "Inname". "" als er niets bruikbaars overblijft.
+// oudere code) opnieuw door de witte lijst. De soort vooraan ook: een vaste soort van A-Sign (innameTypeNaam: "Inname",
+// "Parcours", "Verkeersvrije Zone", "Parkeerverbod in Straat") of een soort die zelf helemaal op de lijst staat, anders
+// "Inname". De vaste soorten staan apart: de witte lijst laat sinds de nakijkronde van head e2969b3 twee stammen met een
+// hoofdletter naast elkaar ("Verkeersvrije Zone") en een stam met een hoofdletter na kleine letters ("in Straat") niet
+// meer door. "" als er niets bruikbaars overblijft.
+const VASTE_INNAME_SOORTEN = new Set(["Inname", "Parcours", "Parkeerverbod in Straat", "Parkeerverbod op Plein", "Verkeersvrije Zone", "Omleiding"]);
 export function veiligeOmschrijving(regel, opties = {}) {
   const m = clean(regel, 400).match(/^([^:]{2,60}): (.+)$/);
   if (!m) return veiligeTekst(regel, opties);
   const b = veiligeTekst(m[2], opties);
   if (!b) return "";
   const soort = clean(m[1], 60);
-  return `${witteLijst(soort).tekst === soort ? soort : "Inname"}: ${b}`;
+  return `${VASTE_INNAME_SOORTEN.has(soort) || witteLijst(soort).tekst === soort ? soort : "Inname"}: ${b}`;
 }
 
 // "Grote Markt" is een plein, geen markt: alleen woorden die echt een markt noemen tellen.
