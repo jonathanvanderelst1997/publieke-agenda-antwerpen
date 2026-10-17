@@ -28,7 +28,9 @@ import { readSourceDocument } from "../lib/fetch-util.mjs";
 import { run as runMarkten } from "../scripts/fetch-sources-markten.mjs";
 import { run as runGipodEvenementen } from "../scripts/fetch-sources-gipod-events.mjs";
 import { kandidatenUitGipod } from "../lib/parcours-herkenning-refresh.mjs";
-import { marktDagenUitBron, publiekeLink } from "../lib/parcours-herkenning.mjs";
+import { ASIGN_BRON, bouwHerkenning, marktDagenUitBron, publiekeLink } from "../lib/parcours-herkenning.mjs";
+import { validateHerkenning } from "../lib/evenement-herkenning-validatie.mjs";
+import { VANDAAG as VANDAAG_HERKENNING, laadFixtures } from "./helpers/parcours-herkenning-evaluatie.mjs";
 import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
 import { buildFeed, readSources } from "../scripts/build-sources.mjs";
 import { loadAgendaRuntime } from "../scripts/agenda-source.mjs";
@@ -419,6 +421,36 @@ test("parcoursherkenning: geen link naar een GIPOD-rij, wel de datasetfiche als 
   assert.equal(publiekeLink(RUW.rij), "");
   assert.equal(publiekeLink(GIPOD_METADATA_URL), GIPOD_METADATA_URL);
   assert.deepEqual(marktDagenUitBron({ items: [{ title: "Gemengde markt Proefplein", date: "2099-01-02", location: "Proefplein, Antwerpen", sourceUrl: RUW.rij }] })[0].link, GIPOD_METADATA_URL);
+});
+
+// voorstelUitKoppeling (lib/parcours-herkenning.mjs): bij een koppeling via GIPOD geen link, en de datasetfiche als
+// bron. "Zeker" vraagt een eigen publieke bron naast A-Sign; zonder de fiche zakt de fiche naar een vermoeden.
+// De Linkeroever Criterium uit de 38 nagekeken dossiers (tests/fixtures/parcours-herkenning), zonder handfiche.
+test("parcoursherkenning: een koppeling via GIPOD blijft 'zeker', zonder link en met de datasetfiche naast A-Sign", () => {
+  const F = laadFixtures(root);
+  const hand = { ...F.hand, dossiers: Object.fromEntries(Object.entries(F.hand.dossiers).filter(([k]) => k !== "ET2026003440")) };
+  const crit = F.kandidaten.find((k) => k.titel === "Linkeroever Criterium");
+  const bouw = (k) => bouwHerkenning({ dossiers: F.dossiers.map((d) => ({ ...d })), hand, kandidaten: [...F.kandidaten.filter((x) => x !== crit), k], historiek: F.historiek, charter: F.charter, vandaag: VANDAAG_HERKENNING, generatedAt: `${VANDAAG_HERKENNING}T08:00:00.000Z` });
+  const fiche = (doc) => doc.dossiers.ET2026003440;
+  // Op de districtskalender (een gewone pagina): de link en "zeker", zoals voorheen.
+  const kalender = fiche(bouw(crit));
+  assert.deepEqual([kalender.zekerheid, kalender.methode, kalender.link], ["zeker", "kalender", crit.link]);
+  // Een evenement in GIPOD, zoals kandidatenUitGipod het maakt (geen link naar de INNAME-rij).
+  const gipodDoc = bouw({ ...crit, bron: "gipod", bronLabel: "GIPOD (gemeente Voorbeeld)", link: "" });
+  const viaGipod = fiche(gipodDoc);
+  assert.deepEqual([viaGipod.zekerheid, viaGipod.methode, viaGipod.naam, viaGipod.link, viaGipod.linkLabel], ["zeker", "gipod", "Linkeroever Criterium", "", ""]);
+  assert.deepEqual(viaGipod.bron, [GIPOD_METADATA_URL, ASIGN_BRON]);
+  assert.deepEqual(validateHerkenning(gipodDoc), []);
+  // Een agendapunt uit GIPOD (district-gipod-evenementen) met de datasetfiche, of uit een ouder bestand met de
+  // ruwe rij, als link: geen link op de fiche, wel de datasetfiche als bron.
+  for (const link of [GIPOD_METADATA_URL, RUW.rij, RUW.hinderInKaart]) {
+    const doc = bouw({ ...crit, link });
+    const r = fiche(doc);
+    assert.deepEqual([r.zekerheid, r.methode, r.link, r.linkLabel, r.linkUitleg], ["zeker", "kalender", "", "", ""], link);
+    assert.deepEqual(r.bron, [GIPOD_METADATA_URL, ASIGN_BRON], link);
+    assert.deepEqual(validateHerkenning(doc), [], link);
+    geenRuweLink(r, `fiche met ${link}`);
+  }
 });
 
 // ---------- de code zelf en wat de build publiceert ----------
