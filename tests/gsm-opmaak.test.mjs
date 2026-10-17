@@ -196,7 +196,8 @@ test("samen met kaart-uitleg.js: elk parcours uit het dossier staat zichtbaar, h
   const uitleg = evenementKaartje(evenementFeiten(onderdelen.map(([type, tekst], i) => inname(i + 1, type, tekst))), { vandaag: "2026-10-10" });
   assert.ok(Array.isArray(uitleg.beschrijvingen), "kaart-uitleg.js geeft de omschrijvingen ook als lijst");
   const k = plekView.kaartIndeling(uitleg, { reference: `Dossier ${DOSSIER}`, straten: 3 });
-  for (const deel of ["parcours volwassenen 10 km", "parcours jeugd 5 km"]) assert.ok(k.dossier.zichtbaar.some((b) => b.includes(deel)), deel);
+  // Een getal ("10 km") valt weg uit de vrije tekst (witte lijst, site/witte-lijst.js); de parcoursen blijven elk zichtbaar.
+  for (const deel of ["parcours volwassenen", "parcours jeugd"]) assert.ok(k.dossier.zichtbaar.some((b) => b.includes(deel)), deel);
   const zichtbaar = JSON.stringify(k.regels);
   assert.doesNotMatch(zichtbaar, new RegExp(`${DOSSIER}|IOD = |ETL = `));
   assert.ok(k.bron.some(([, dd]) => dd === `Dossier ${DOSSIER}`));

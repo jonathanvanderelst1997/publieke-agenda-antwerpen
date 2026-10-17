@@ -19,73 +19,80 @@ const VANDAAG = "2099-03-01";
 const straat = (name) => ({ id: name, name, postcode: "2060" });
 const PROEF = straat("Proefstraat");
 
-// ---- privacyfilter: een woord dat ook een gewone stam is, telt als mogelijke naam ----
+// ---- privacyfilter: sinds de witte lijst (site/witte-lijst.js) blijft van een naam niets over ----
+// Een woord dat niet op de vaste lijst staat, valt weg; een woord van de lijst dat ook een achternaam kan zijn, valt weg
+// naast een voorvoegsel met een hoofdletter, een persoonswoord of een ander woord met een hoofdletter dat wegvalt.
+const woordenVan = (t) => (String(t ?? "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase().match(/[\p{L}\p{N}]+/gu) || []);
+const zonderNaam = (t, naam, opties = {}) => {
+  for (const uit of [KU.bruikbareBeschrijving(t, opties), KU.veiligeOmschrijving(`Inname: ${t}`, opties)]) {
+    const hier = new Set(woordenVan(uit));
+    for (const w of woordenVan(naam)) assert.ok(!hier.has(w), `${JSON.stringify(t)} gaf ${JSON.stringify(uit)}`);
+  }
+};
 
 test("privacyfilter: een achternaam die precies een gewoon woord is, gaat nooit door, ook niet na De, Den of Van den", () => {
   const namen = [
-    "Feest bij De Groot", "Tent familie Klein", "Tent De Bus", "Feest Groot", "Feest Oud", "Doopfeest De Groote",
-    "Doopfeest De Kleine", "Feest familie Van den Hoek", "Feest familie Den Ouden", "Feest familie De Laatste",
-    "Tent Werf", "Kraam Stoel", "Feest Verkeer", "doop Team", "feest Nieuwe",
+    ["Feest bij De Groot", "Groot"], ["Tent familie Klein", "Klein"], ["Tent De Bus", "Bus"], ["Feest Groot", "Groot"], ["Feest Oud", "Oud"],
+    ["Doopfeest De Groote", "Groote"], ["Doopfeest De Kleine", "Kleine"], ["Feest familie Van den Hoek", "Hoek"], ["Feest familie Den Ouden", "Ouden"],
+    ["Feest familie De Laatste", "Laatste"], ["Tent Werf", "Werf"], ["Kraam Stoel", "Stoel"], ["feest Nieuwe", "Nieuwe"], ["Feest familie Feest", "familie"],
   ];
-  for (const t of namen) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-    assert.equal(KU.lijktPersoonsnaam(t), true, t);
-  }
+  for (const [t, naam] of namen) zonderNaam(t, naam);
+  assert.equal(KU.bruikbareBeschrijving("Feest bij De Groot"), "Feest");
+  assert.equal(KU.bruikbareBeschrijving("Doopfeest De Kleine"), "Doopfeest");
 });
 
-test("privacyfilter: ook een los gewoon woord met een hoofdletter vooraan of alleen kan een naam zijn, tenzij het een gebeurteniswoord is", () => {
-  // Een stam die ook een achternaam kan zijn ("Groot", "Hoek", "Bus", "Werf").
-  for (const t of ["Groot feest", "Hoek parcours", "Bus stoet", "Werf feest"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-  }
-  // Nakijkronde van head c7f1a651, bewust aangepast: een gebeurteniswoord ("Doop", "Stoet", "Drill", "Tweede", "Kraam",
-  // "Event") is geen achternaam, ook met een hoofdletter vooraan, alleen of midden in de zin.
-  for (const t of ["Doop", "Stoet", "Drill", "Tweede halte", "Kraam Proefplein", "Startlocatie Doop", "Event verkeersvrij, enkel fiets"]) {
+test("privacyfilter: een woord met een hoofdletter vooraan valt weg tenzij het op de lijst staat; een gebeurteniswoord blijft", () => {
+  for (const [t, naam] of [["Groot feest", "Groot"], ["Hoek parcours", "Hoek"], ["Bus stoet", "Bus"], ["Werf feest", "Werf"]]) zonderNaam(t, naam);
+  // Een gebeurteniswoord ("Doop", "Stoet", "Drill", "Tweede", "Event") blijft, ook met een hoofdletter vooraan, alleen of midden in de zin.
+  for (const t of ["Doop", "Stoet", "Drill", "Tweede halte", "Startlocatie Doop", "Event verkeersvrij, enkel fiets", "doop", "stoet", "tweede halte", "startlocatie doop",
+    "event verkeersvrij, enkel fiets"]) {
     assert.equal(KU.bruikbareBeschrijving(t), t, t);
   }
-  // Zonder hoofdletter is het een trefwoord, geen naam.
-  for (const t of ["doop", "stoet", "grote tent", "tweede halte", "kraam Proefplein", "startlocatie doop", "event verkeersvrij, enkel fiets"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), t, t);
-  }
+  // Een woord dat niet op de lijst staat ("grote", "Proefplein" zonder straatas), valt weg; een gebeurteniswoord met een
+  // hoofdletter naast zo'n woord ook ("Kraam Proefplein": "Kraam" kan een achternaam zijn).
+  assert.equal(KU.bruikbareBeschrijving("grote tent"), "tent");
+  assert.equal(KU.bruikbareBeschrijving("kraam Proefplein"), "kraam");
+  assert.equal(KU.bruikbareBeschrijving("Kraam Proefplein"), "");
+  assert.equal(KU.bruikbareBeschrijving("Kraam Proefplein", { isStraat: (n) => n === "Proefplein" }), "Kraam Proefplein");
 });
 
-test("privacyfilter: een samenstelling van gewone woorden blijft, behalve na een naampartikel of met groot, klein, oud of nieuw vooraan", () => {
-  for (const t of ["Startlocatie doop", "Doopfeest", "Verzamelpunt", "Spelletjeslocatie -> dooplocatie", "Parkeerverbod voor hub bladslag",
-    "Wandelroute van start naar eind", "Verkeersvrije zone. Enkel tijdens de stoet", "Teambuilding met doop", "Reuzenrad op het plein"]) {
+test("privacyfilter: een samenstelling van woorden van de lijst blijft, behalve na een voorvoegsel met een hoofdletter", () => {
+  for (const t of ["Startlocatie doop", "Doopfeest", "Verzamelpunt", "Wandelroute van start naar eind", "Verkeersvrije zone. enkel tijdens de stoet", "Teambuilding met doop",
+    "Reuzenrad op het plein"]) {
     assert.equal(KU.bruikbareBeschrijving(t), t, t);
   }
-  // Na "De", "Van" of "Den" is ook een samenstelling een mogelijke naam; zo ook "Grootwerf" of "Nieuwstand" (een gewoon
-  // bijvoeglijk naamwoord vooraan maakt er geen gewoon woord van).
-  // Met een kleine letter vooraan: anders telt het eerste woord ("Doop") al als naam en zegt de toets niets over het
-  // tweede (nakijkronde van head 0b264665: "Doop Oudkerk" was gemaskeerd).
-  for (const t of ["feest Van Standbar", "tent De Werfkant", "feest Grootwerf", "kraam Nieuwstand", "doop Oudkerk", "doop De Testkerk", "doop Van Testschool"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-  }
+  // "Enkel" met een hoofdletter is ook een familienaam: dat kleine woord blijft alleen in kleine letters.
+  assert.equal(KU.bruikbareBeschrijving("Verkeersvrije zone. Enkel tijdens de stoet"), "Verkeersvrije zone … stoet");
+  assert.equal(KU.bruikbareBeschrijving("Spelletjeslocatie -> dooplocatie"), "Spelletjeslocatie → dooplocatie");
+  assert.equal(KU.bruikbareBeschrijving("Parkeerverbod voor hub bladslag"), "Parkeerverbod … bladslag");
+  // Na "De", "Van" of "Den" valt ook een samenstelling weg; een woord dat geen samenstelling van de lijst is ook.
+  for (const [t, naam] of [["feest Van Standbar", "Standbar"], ["tent De Werfkant", "Werfkant"], ["feest Grootwerf", "Grootwerf"], ["kraam Nieuwstand", "Nieuwstand"],
+    ["doop Oudkerk", "Oudkerk"], ["doop De Testkerk", "Testkerk"], ["doop Van Testschool", "Testschool"]]) zonderNaam(t, naam);
 });
 
-test("privacyfilter: een gewoon woord mag als plaatsnaam in de straatas of in de lijst van bekende plaatsnamen", () => {
+test("privacyfilter: een plaatsnaam blijft als hele naam in de straatas, als straat van de inname of in de vaste lijst", () => {
   const isStraat = (n) => ["Grote Markt", "Proefwaag"].includes(n);
   assert.equal(KU.bruikbareBeschrijving("kraam Grote Markt", { isStraat }), "kraam Grote Markt");
-  assert.equal(KU.bruikbareBeschrijving("kraam Grote Markt"), "", "zonder straatas is 'Grote Markt' niet bewezen");
+  assert.equal(KU.bruikbareBeschrijving("kraam Grote Markt"), "kraam", "zonder straatas is 'Grote Markt' niet bewezen: 'Grote' valt weg, en 'Markt' ernaast ook");
   assert.equal(KU.bruikbareBeschrijving("kraam Grote Markt", { straten: [{ name: "Grote Markt" }] }), "kraam Grote Markt", "een straat van de inname zelf");
-  // Een stuk van een straatnaam bewijst een gewoon woord niet: "Kerk" is geen Kerkstraat.
-  assert.equal(KU.bruikbareBeschrijving("feest Kerk", { straten: [{ name: "Kerkstraat" }] }), "");
+  // Een stuk van een straatnaam bewijst niets: "Kerk" is geen Kerkstraat, maar "kerk" is wel een woord van de lijst.
+  assert.equal(KU.bruikbareBeschrijving("feest kerk", { straten: [{ name: "Kerkstraat" }] }), "feest kerk");
+  zonderNaam("feest Proefmans", "Proefmans", { straten: [{ name: "Proefmansstraat" }] });
   // De bekende plaatsnamen (lib/vaste-plekken.json en de plekken van het studentencharter): ook zonder straatas.
   assert.equal(KU.bruikbareBeschrijving("doop Park Spoor Noord"), "doop Park Spoor Noord");
   assert.equal(KU.bruikbareBeschrijving("doop op het Plein aan de Mutsaardstraat"), "doop op het Plein aan de Mutsaardstraat");
   assert.equal(KU.bruikbareBeschrijving("start in park Den Brandt"), "start in park Den Brandt");
-  assert.equal(KU.bruikbareBeschrijving("doop Plein"), "", "een los gewoon woord is geen bekende plaatsnaam");
   // Elke naam uit de twee bronlijsten staat in de lijst van de filter (die in de browser draait en geen lib/ leest).
   const bekend = new Set((KU.BEKENDE_PLAATSNAMEN || []).map((n) => n.toLowerCase()));
   const bron = [...lees("lib/vaste-plekken.json").plekken.map((p) => p.naam), ...lees("lib/studentencharter.json").plekken.flatMap((p) => p.naam.split(/\s*,\s*/))];
   for (const n of bron) assert.ok(bekend.has(n.toLowerCase()), `${n} ontbreekt in BEKENDE_PLAATSNAMEN`);
 });
 
-test("plaatsnaam: een soort plek alleen ('Hoek', 'Park') bewijst niets en kan een naam zijn", () => {
-  for (const t of ["Hoek", "Park", "Plein", "Hoek, Groenplaats"]) assert.equal(PN.plaatsnaamVan(t, { rond: ["Groenplaats"] }), "", t);
-  // Met een bewezen plek erbij blijft het een plaatsnaam.
-  assert.equal(PN.plaatsnaamVan("Metrostation Handel", { rond: ["Handelstraat"] }), "Metrostation Handel");
-  assert.equal(PN.plaatsnaamVan("Scheldekaaien (buurt Steenplein)", { rond: [] }), "Scheldekaaien (buurt Steenplein)");
+test("plaatsnaam: een soort plek alleen ('Hoek', 'Park', 'Metrostation') noemt geen plek; een hele straatnaam of vaste plek wel", () => {
+  for (const t of ["Hoek", "Park", "Plein", "Metrostation Handel"]) assert.equal(PN.plaatsnaamVan(t, { rond: ["Groenproef", "Handelstraat"] }), "", t);
+  assert.equal(PN.plaatsnaamVan("Hoek, Proefplaats", { rond: ["Proefplaats"] }), "Proefplaats");
+  assert.equal(PN.plaatsnaamVan("Metrostation Proefplaats", { rond: ["Proefplaats"] }), "Metrostation Proefplaats");
+  assert.equal(PN.plaatsnaamVan("Scheldekaaien (buurt Proefplein)", { rond: ["Proefplein"] }), "Scheldekaaien, buurt Proefplein");
 });
 
 test("privacyfilter: de bewaarde omschrijvingen van de evenementen, zoals de pagina ze opnieuw filtert", () => {
@@ -93,14 +100,11 @@ test("privacyfilter: de bewaarde omschrijvingen van de evenementen, zoals de pag
   // voorbij en een verversing haalt ze uit het bestand), met een straatas die de straatnamen van de inname kent.
   const uitleg = lees("tests/fixtures/kaart-uitleg-omschrijvingen.json");
   const getoond = Object.values(uitleg.evenementen).flatMap((e) => (e.beschrijvingen || []).map((b) => KU.veiligeOmschrijving(b, { straten: e.straten || [], isStraat: (n) => /^(?:Grote Markt|Stadswaag|Quinten Matsijslei|Van Eycklei|Theodoor Van Rijswijckplaats|Falconplein)$/.test(n) }))).filter(Boolean);
-  // Een woord dat geen gewoon woord is ("Teambuimding"), en na "Van" een plek die de straatas niet kent: weg.
-  for (const weg of ["Inname: Teambuimding (doop) zelf", "Inname: Van Eedenplein"]) {
-    assert.ok(!getoond.includes(weg), `${weg} gaat niet meer door`);
-  }
-  // Nakijkronde van head c7f1a651, bewust aangepast: een gebeurteniswoord met een hoofdletter ("Doop", "Stoet", "Drill",
-  // "Eerste", "Tweede", "Stop", "Wandelen", "Correct", "Event") is geen achternaam. Die omschrijvingen staan weer op de kaart.
-  for (const blijft of ["Inname: Grote Markt", "Inname: Verzamelpunt", "Parcours: Wandelroute van start naar eind", "Inname: spelletjes/teambuilding", "Inname: doop", "Parcours: Spelletjeslocatie -> dooplocatie (voor de trappen)", "Inname: Quinten Matsijslei - Van Eycklei", "Inname: Sint-Jansplein-Van De Wervestraat",
-    "Inname: Doop", "Parcours: Stoet", "Inname: Drill", "Inname: Startlocatie Doop", "Inname: Eerste Stop (Stadswaag)", "Inname: Tweede Stop (Falconplein)", "Verkeersvrije Zone: Correct verkeersvrij", "Verkeersvrije Zone: Event verkeersvrij, enkel fiets en voetganger", "Parcours: Wandelen van de Stadswaag naar het Falconplein"]) {
+  // Een woord dat niet op de lijst staat ("Teambuimding", "zelf") valt weg, de rest blijft; na "Van" een plek die de straatas niet kent: weg.
+  for (const weg of ["Inname: Teambuimding (doop) zelf", "Inname: Van Eedenplein"]) assert.ok(!getoond.includes(weg), `${weg} gaat niet meer door`);
+  assert.ok(getoond.includes("Inname: doop"));
+  for (const blijft of ["Inname: Grote Markt", "Inname: Verzamelpunt", "Parcours: Wandelroute van start naar eind", "Inname: spelletjes / teambuilding", "Inname: doop", "Parcours: Spelletjeslocatie → dooplocatie, voor de trappen", "Inname: Quinten Matsijslei - Van Eycklei", "Inname: Sint-Jansplein-Van De Wervestraat",
+    "Inname: Doop", "Parcours: Stoet", "Inname: Drill", "Inname: Startlocatie Doop", "Inname: Eerste Stop, Stadswaag", "Inname: Tweede Stop, Falconplein", "Verkeersvrije Zone: Correct verkeersvrij", "Verkeersvrije Zone: Event verkeersvrij, enkel fiets en voetganger", "Parcours: Wandelen van de Stadswaag naar het Falconplein"]) {
     assert.ok(getoond.includes(blijft), `${blijft} blijft`);
   }
 });
@@ -205,43 +209,33 @@ test("vaagheid tegen de basis: overslaan geeft een waarschuwing in de checks; ee
 
 // ---- privacyfilter, nagekeken bij het afmaken: wat de filter nog doorliet ----
 
-test("privacyfilter: een voorletter met punt vóór de naam ('J.Groot') splitst, zodat de naam niet doorglipt", () => {
-  for (const t of ["feest J.Groot", "tent K.Klein", "feest T.Testpersoon", "doop A.B.Voorbeeld"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-    assert.equal(KU.lijktPersoonsnaam(t), true, t);
-  }
-  // Een afkorting met punten zonder naam erna blijft geen naam.
-  assert.equal(KU.bruikbareBeschrijving("start t.h.v. de kaai"), "start t.h.v. de kaai");
+test("privacyfilter: een voorletter met punt vóór de naam ('J.Groot') laat niets van de naam over", () => {
+  for (const [t, naam] of [["feest J.Groot", "Groot"], ["tent K.Klein", "Klein"], ["feest T.Testpersoon", "Testpersoon"], ["doop A.B.Voorbeeld", "Voorbeeld"]]) zonderNaam(t, naam);
+  assert.equal(KU.bruikbareBeschrijving("start t.h.v. de kaai"), "start … kaai");
 });
 
-test("privacyfilter: een achternaam in hoofdletters ('TESTPERSOON', 'GROOT') is ook een mogelijke naam; een korte afkorting ('MAS') niet", () => {
-  for (const t of ["tent TESTPERSOON", "feest VOORBEELD", "feest bij GROOT", "kraam DE KLEIN", "doop familie VOORBEELDBERG"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-  }
-  for (const t of ["kraam aan het MAS", "doopfeest MTS", "PARKEERVERBOD langs het parcours"]) assert.equal(KU.bruikbareBeschrijving(t), t, t);
+test("privacyfilter: een achternaam in hoofdletters ('TESTPERSOON', 'GROOT') valt weg; een plek of een woord van de lijst in hoofdletters blijft", () => {
+  for (const [t, naam] of [["tent TESTPERSOON", "TESTPERSOON"], ["feest VOORBEELD", "VOORBEELD"], ["feest bij GROOT", "GROOT"], ["kraam DE KLEIN", "KLEIN"], ["doop familie VOORBEELDBERG", "VOORBEELDBERG"]]) zonderNaam(t, naam);
+  for (const t of ["kraam aan het MAS", "PARKEERVERBOD langs het parcours"]) assert.equal(KU.bruikbareBeschrijving(t), t, t);
+  assert.equal(KU.bruikbareBeschrijving("doopfeest MTS"), "doopfeest");
 });
 
-test("privacyfilter: een woord dat naar een persoon wijst ('familie', 'fam.', 'dhr.', 'mevrouw') laat de hele omschrijving vallen, ook in kleine letters", () => {
-  for (const t of ["tent familie klein", "feest fam. groot", "feest fam klein", "kraam dhr. voorbeeld", "doop mevrouw testpersoon", "feest bij meneer klein", "tent gezin voorbeeld"]) {
-    assert.equal(KU.bruikbareBeschrijving(t), "", t);
-    assert.equal(KU.lijktPersoonsnaam(t), true, t);
-  }
-  // Een achternaam die ook een bijvoeglijk naamwoord is, in kleine letters na "de" of "van" als laatste woord.
-  for (const t of ["feest bij de groot", "tent van de kleine", "doop bij den ouden. start om 9 uur"]) assert.equal(KU.bruikbareBeschrijving(t), "", t);
-  for (const t of ["naar de grote tent", "start bij de kleine kraam"]) assert.equal(KU.bruikbareBeschrijving(t), t, t);
-  // "familiedag" of "familiefeest" is een soort activiteit, geen verwijzing naar een persoon.
-  assert.equal(KU.bruikbareBeschrijving("familiefeest: tent op het plein"), "familiefeest: tent op het plein");
+test("privacyfilter: na een persoonswoord ('familie', 'fam.', 'dhr.', 'mevrouw') blijft niets van de naam, ook in kleine letters", () => {
+  for (const [t, naam] of [["tent familie klein", "klein"], ["feest fam. groot", "groot"], ["feest fam klein", "klein"], ["kraam dhr. voorbeeld", "voorbeeld"], ["doop mevrouw testpersoon", "testpersoon"],
+    ["feest bij meneer klein", "klein"], ["tent gezin voorbeeld", "voorbeeld"], ["feest bij de groot", "groot"], ["tent van de kleine", "kleine"], ["doop bij den ouden. start om 9 uur", "ouden"]]) zonderNaam(t, naam);
+  assert.equal(KU.bruikbareBeschrijving("naar de grote tent"), "tent");
+  assert.equal(KU.bruikbareBeschrijving("familiefeest: tent op het plein"), "tent op het plein");
 });
 
-test("plaatsnaam: een gewoon woord ('Klein', 'Groot', 'Werf') is alleen een plek als de hele naam in de straatas of de lijst van bekende plaatsnamen staat", () => {
-  // Een stuk van een straat in de buurt bewijst een gewoon woord niet (zoals "Kerk" geen Kerkstraat is).
+test("plaatsnaam: een gewoon woord ('Klein', 'Groot', 'Werf') is alleen een plek als de hele naam in de straatas of de vaste lijst staat", () => {
+  // Een stuk van een straat in de buurt bewijst niets.
   for (const t of ["Hoek Klein", "Parking Groot", "Werf", "Pleintje Klein"]) {
     assert.equal(PN.plaatsnaamVan(t, { rond: ["Kleine Proefberg", "Grootstraat", "Werfstraat", "Klein Proefveld"] }), "", t);
   }
-  // Wel: een hele straatnaam uit de straatas, een bekende plaatsnaam, of een naam die geen gewoon woord is.
+  // Wel: een hele straatnaam uit de straatas of de buurt, of een bekende plaatsnaam.
   assert.equal(PN.plaatsnaamVan("Klein Proefveld", { rond: [], isStraat: (n) => n === "Klein Proefveld" }), "Klein Proefveld");
+  assert.equal(PN.plaatsnaamVan("Klein Proefveld", { rond: ["Klein Proefveld"] }), "Klein Proefveld");
   assert.equal(PN.plaatsnaamVan("Park Spoor Noord", { rond: [] }), "Park Spoor Noord");
-  assert.equal(PN.plaatsnaamVan("Metrostation Handel", { rond: ["Handelstraat"] }), "Metrostation Handel");
 });
 
 // ---- een eventpagina zonder uur of plaats: alleen "niet in de bron" waar de bron er nooit een heeft ----

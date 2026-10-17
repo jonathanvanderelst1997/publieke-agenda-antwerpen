@@ -13,7 +13,7 @@ import {
   plekSubTekst, publicSpaceEntries, publicSpaceEntry, samenWerven, telPerSoort, terrasEntries, urenVanDag, urenVanWerk, verrijkMetContext, werkEntries,
 } from "../site/place-core.js";
 import { leesbaarUur } from "../site/bezoekers-bronnen.js";
-import { bruikbareBeschrijving, evenementFeiten, evenementKaartje, lijktPersoonsnaam } from "../site/kaart-uitleg.js";
+import { bruikbareBeschrijving, evenementFeiten, evenementKaartje } from "../site/kaart-uitleg.js";
 import { ontbreektRegel, sectieZinIds } from "../site/place-view.js";
 import { onbekendVeld } from "../site/onbekend-zinnen.js";
 import { buildPlaceIndex } from "../site/place-core.js";
@@ -190,21 +190,23 @@ test("districtsnieuws zonder plaats of uur zegt dat het bericht die niet geeft",
   assert.equal(vaagheidVanKaart({ titel: "Proefloop a", regels: [lijst[0].ontbreekt] }).kern, true);
 });
 
-test("privacyfilter: een achternaam die met een gewoon woord begint, of een naam vooraan, gaat nooit door", () => {
-  for (const t of ["Doopfeest Standproefaert", "Feest Dagtesteaux", "Tent Spelvoorbeeldier", "Startlocatie doop Bartestier", "Feest Parktester", "Testpersoon feest", "Testpersoon tent", "Stand Testpersoon"]) {
-    assert.equal(bruikbareBeschrijving(t), "", t);
-    assert.equal(lijktPersoonsnaam(t), true, t);
+test("privacyfilter: een achternaam die met een gewoon woord begint, of een naam vooraan, laat niets van de naam over", () => {
+  // De witte lijst (site/witte-lijst.js): een woord dat niet helemaal uit woorden van de lijst bestaat, valt weg.
+  const woordenVan = (t) => (String(t).toLowerCase().match(/[\p{L}\p{N}]+/gu) || []);
+  for (const [t, naam] of [["Doopfeest Standproefaert", "standproefaert"], ["Feest Dagtesteaux", "dagtesteaux"], ["Tent Spelvoorbeeldier", "spelvoorbeeldier"],
+    ["Startlocatie doop Bartestier", "bartestier"], ["Feest Parktester", "parktester"], ["Testpersoon feest", "testpersoon"], ["Testpersoon tent", "testpersoon"], ["Stand Testpersoon", "testpersoon"]]) {
+    assert.ok(!woordenVan(bruikbareBeschrijving(t)).includes(naam), t);
   }
+  assert.equal(bruikbareBeschrijving("Doopfeest Standproefaert"), "Doopfeest");
+  assert.equal(bruikbareBeschrijving("Testpersoon feest"), "feest");
   // Trefwoorden, samenstellingen en plekken blijven.
-  // (Een los gewoon woord met een hoofdletter, "Tweede halte" of "Kraam Proefplein", kan een naam zijn: tests/vaag-eind-slot.test.mjs.)
-  for (const t of ["Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Spelletjeslocatie -> dooplocatie", "Verzamelpunt", "tweede halte", "kraam Proefplein", "Voor de trappen: doop", "Parkeerverbod voor hub bladslag"]) assert.equal(bruikbareBeschrijving(t), t, t);
-  // Twee plekken met een koppelteken, met een straatnaam die met "Van" begint. Na "Van" of "De" is elk woord met een
-  // hoofdletter een mogelijke naam, ook een woord op -straat (nakijkronde van head 0b264665): alleen een straat van de
-  // inname of de straatas bewijst "Van De Teststraat".
-  assert.equal(bruikbareBeschrijving("Inname: Proefplein-Van De Testerstraat"), "");
-  assert.equal(lijktPersoonsnaam("Proefplein-Van De Teststraat"), true);
-  assert.equal(lijktPersoonsnaam("Proefplein-Van De Teststraat", { straten: [{ name: "Van De Teststraat" }] }), false);
-  assert.equal(lijktPersoonsnaam("Proefplein-Van De Teststraat", { isStraat: (n) => n === "Van De Teststraat" }), false);
+  for (const t of ["Startlocatie doop", "Doopfeest", "Wandelroute van start naar eind", "Verzamelpunt", "tweede halte"]) assert.equal(bruikbareBeschrijving(t), t, t);
+  assert.equal(bruikbareBeschrijving("Voor de trappen: doop"), "trappen: doop");
+  // Twee plekken met een koppelteken, met een straatnaam die met "Van" begint: alleen een straat van de inname of de
+  // straatas bewijst "Van De Teststraat", en dan als hele naam.
+  assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat"), "");
+  assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat", { straten: [{ name: "Van De Teststraat" }] }), "Van De Teststraat");
+  assert.equal(bruikbareBeschrijving("Proefplein-Van De Teststraat", { isStraat: (n) => ["Van De Teststraat", "Proefplein"].includes(n) }), "Proefplein-Van De Teststraat");
 });
 
 test("het getal boven de lijst telt de items van een bundel mee; de legenda telt kaarten", () => {

@@ -22,7 +22,7 @@ import { isAanvaard, nietAanvaardeStijgingen, validateVaagheid, vatSamen } from 
 import { stijgingenTegenBasis } from "../scripts/vaagheid-tegen-basis.mjs";
 import { aanvaardAlles, vergelijkMet } from "../scripts/meet-vaagheid.mjs";
 import * as pc from "../site/place-core.js";
-import { bruikbareBeschrijving, veiligeOmschrijving, zonderAdresNummers } from "../site/kaart-uitleg.js";
+import { bruikbareBeschrijving, veiligeOmschrijving } from "../site/kaart-uitleg.js";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const VANDAAG = "2026-10-12";
@@ -149,24 +149,21 @@ test("3. bij het afkappen eerst de eigen plekken en de zone, dan het parcours (d
 
 // ---------- 7. huisnummers ----------
 
-test("7. geen huisnummer in een omschrijving: na nr, t.o.v., tegenover, thv, huisnummer of tot; wel een afstand, een uur of een volgnummer", () => {
+test("7. geen huisnummer in een omschrijving: sinds de witte lijst (site/witte-lijst.js) valt elk getal weg, ook een afstand of een uur", () => {
   const vormen = {
     "parkeerverbod tegenover nr 12": "parkeerverbod",
     "parkeerverbod t.o.v. 34": "parkeerverbod",
     "Parkeerverbod langs de parkeerstrook thv 5": "Parkeerverbod langs de parkeerstrook",
-    "parkeerverbod Proefstraat van huisnummer 1 - 26": "parkeerverbod Proefstraat",
-    "parkeerverbod Proefhelmstraat tot 40": "parkeerverbod Proefhelmstraat",
-    "parkeerverbod Proefstraat 12-14": "parkeerverbod Proefstraat",
+    "parkeerverbod Proefstraat 12-14": "parkeerverbod",
+    "wandelen 5 km · stop 2 stadspark": "wandelen … stop … stadspark",
+    "parcours 10K": "parcours",
+    "12 fietsennadars": "fietsennadars",
   };
-  for (const [in_, uit] of Object.entries(vormen)) {
-    assert.equal(bruikbareBeschrijving(in_), uit, in_);
-    assert.doesNotMatch(zonderAdresNummers(in_), /\d/, in_);
-  }
-  // Een los getal zonder uitleg: de hele omschrijving valt weg.
-  assert.equal(bruikbareBeschrijving("parkeerverbod Proefstraat van 4 tot"), "");
-  // Wat geen huisnummer is, blijft.
-  // (Kleine letters: een gewoon woord met een hoofdletter vooraan kan een naam zijn, tests/vaag-eind-slot.test.mjs.)
-  for (const t of ["wandelen 5 km · stop 2 stadspark", "parcours 10K", "parkeerverbod 12-14 okt generator", "parkeerverbod van 9u30 tot 17 uur", "kraam van 3mx3m", "12 fietsennadars"]) assert.equal(bruikbareBeschrijving(t), t, t);
+  for (const [in_, uit] of Object.entries(vormen)) assert.equal(bruikbareBeschrijving(in_), uit, in_);
+  // Met de straatas blijft de straat, het nummer niet.
+  const isStraat = (n) => ["Proefstraat", "Proefhelmstraat"].includes(n);
+  for (const t of ["parkeerverbod Proefstraat van huisnummer 1 - 26", "parkeerverbod Proefstraat 12-14", "parkeerverbod Proefstraat van 4 tot"]) assert.equal(bruikbareBeschrijving(t, { isStraat }), "parkeerverbod Proefstraat", t);
+  assert.equal(bruikbareBeschrijving("parkeerverbod Proefhelmstraat tot 40", { isStraat }), "parkeerverbod Proefhelmstraat");
   // Een bewaarde omschrijving (kaart-uitleg.json van een oudere verversing) gaat opnieuw door de filter.
   assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"), "Parkeerverbod in Straat: parkeerverbod");
   // Het vangnet in de validatie keurt een bestand met zo'n nummer af, en het bestand van nu heeft er geen.

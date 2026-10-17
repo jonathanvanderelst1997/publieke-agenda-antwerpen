@@ -99,19 +99,20 @@ const rijen = [
 test("vrije tekst uit het dossier alleen als ze over het evenement gaat", () => {
   assert.equal(bruikbareBeschrijving("maurits"), "");
   assert.equal(bruikbareBeschrijving("wandelen van het plein naar de kaai"), "wandelen van het plein naar de kaai");
-  // Een gebeurteniswoord met een hoofdletter vooraan ("Wandelen") is geen achternaam (nakijkronde van head c7f1a651, bewust
-  // aangepast); een stam die ook een achternaam kan zijn ("Groot") blijft een mogelijke naam.
+  // De witte lijst (site/witte-lijst.js): een gebeurteniswoord ("Wandelen") blijft, ook met een hoofdletter; een woord dat
+  // niet op de lijst staat ("Groot", "maurits") valt weg, de rest blijft.
   assert.equal(bruikbareBeschrijving("Wandelen van het plein naar de kaai"), "Wandelen van het plein naar de kaai");
-  assert.equal(bruikbareBeschrijving("Groot wandelen van het plein naar de kaai"), "");
+  assert.equal(bruikbareBeschrijving("Groot wandelen van het plein naar de kaai"), "wandelen van het plein naar de kaai");
   assert.equal(bruikbareBeschrijving("bel 0470 12 34 56 voor parkeren"), "");
-  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "Startlocatie -> drillocatie");
+  assert.equal(bruikbareBeschrijving("Startlocatie -&gt; drillocatie"), "Startlocatie → drillocatie");
 });
 
 test("parcours: één kaartje, soort uit het dossier, codes vertaald, eerlijk over naam en uren", () => {
   const f = evenementFeiten(rijen);
   assert.equal(f.soort, "Loopwedstrijd");
   assert.equal(f.straten.length, 5);
-  assert.deepEqual(f.beschrijvingen, ["Parcours: 10K volwassenen", "Inname: Startzone en aankomst"]);
+  // Een getal valt altijd weg (ook "10K"); de soort komt uit het kenmerk van de ruwe tekst (kenmerkTekst).
+  assert.deepEqual(f.beschrijvingen, ["Parcours: volwassenen", "Inname: Startzone en aankomst"]);
   const wijk = (s) => (s === "Eestraat" ? "Zuid" : "Centrum");
   const k = evenementKaartje(f, { vandaag: VANDAAG, wijkVan: wijk });
   // De soort komt uit een woord in het dossier ("10K"): dus "vermoedelijk", met de reden erbij.

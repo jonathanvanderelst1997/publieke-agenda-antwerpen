@@ -140,6 +140,7 @@ test("open evenementkaart: het parcours vooraan in 'In het dossier', de parkeerv
   const e = pc.evenementEntry(rijen, opties);
   assert.ok(Array.isArray(e.uitleg.kern), "de evenementkaart van #140");
   const { dossier } = pv.kaartIndeling(e.uitleg, { reference: e.reference, straten: e.straten.length });
-  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: parcours volwassenen 10 km", "Parcours: parcours jeugd 5 km"]);
+  // Een getal ("10 km") valt weg uit de vrije tekst (witte lijst, site/witte-lijst.js).
+  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: parcours volwassenen", "Parcours: parcours jeugd"]);
   assert.ok(dossier.dicht.length >= 2 && dossier.dicht.every((b) => /^Parkeerverbod/.test(b)), JSON.stringify(dossier));
 });
