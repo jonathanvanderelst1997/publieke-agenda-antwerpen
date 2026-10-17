@@ -1,6 +1,6 @@
 import {worksExactSnapshot} from "./works-snapshot.js";
 import {collectWorks,worksStats} from "./works-core.js";
-import {attachHindrance,losseHinder} from "./works-hindrance.js";
+import {GIPOD_BRON,GIPOD_METADATA_URL,LOSSE_HINDER_TITEL,LOSSE_HINDER_ZIN,attachHindrance,losseHinder} from "./works-hindrance.js";
 import {attachAsSignWorkSupplement} from "./works-asign-supplement.js";
 import {applyWorkStreetResolution} from "./street-core.js";
 import {loadStreetIndex} from "./street-source.js";
@@ -37,7 +37,8 @@ const brusselsDag=()=>{const p=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe
 const supplementVraag=(day,extra={})=>({where:`EINDDATUM >= DATE '${day}' AND STATUS='GoedGekeurd'`,outFields:"GipodID,Bedrijf,DossierNummer,DossierType,WERF_TYPE,FASEID,Fasestatus,VerkeersImpact,DossierHinder,BEGINDATUM,EINDDATUM,STATUS",spatial:true,maxIds:5000,...extra});
 // AWV-werfdata (site/sources/awv-werf-supplement.json, van de verversing): één keer per pagina geladen, voor de
 // lijst van het district en voor het kader van één straat. Faalt nooit; ontbreekt of veroudert het bestand, dan
-// komt er niets bij (site/works-awv-supplement.js).
+// komt er niets bij (site/works-awv-supplement.js). Alleen de werkkaart in de lijst toont de zin; in het kader
+// van één straat hangt de aanvulling wel aan het werk, maar de plekpagina (site/place-core.js) toont ze nog niet.
 let awvBelofte=null;
 const awvSupplement=()=>(awvBelofte||=laadAwvSupplement());
 
@@ -76,8 +77,9 @@ if(root){
   // Het hele district: alle pagina's werken (bbox van het district) en hinder (iets ruimer).
   const gipod=()=>gipodLaag("INNAME_PUNT",{bbox:"4.300791,51.175458,4.444331,51.313629",filter:WERK_FILTER});
   // Hinder zonder gepubliceerd werk (site/works-hindrance.js, losseHinder): gevalideerde GIPOD-hinder in het district
-  // waarvan het werk niet in de open GIPOD-laag staat. Alleen de straatnaam, nooit een huisnummer. Zonder grens of
-  // hinderbron (state.losse null) geen blok.
+  // waarvan het werk niet bij de getoonde werken staat (en niet in het INNAME_PUNT-antwoord). Alleen de straatnaam,
+  // nooit een huisnummer. Geen link per hinder (het ruwe HINDER_PUNT-record heeft contactgegevens): één
+  // bronvermelding met de datasetfiche. Zonder grens of hinderbron (state.losse null) geen blok.
   const losseEl=el("[data-works-loose]");
   const waarLos=i=>i.streets?.length?i.streets.map(s=>s.name).join(" · "):i.streetNearby?.[0]?.name?`nabij ${i.streetNearby[0].name}`:"straat niet bepaald";
   function renderLosse(){
@@ -85,7 +87,7 @@ if(root){
     const items=(state.losse||[]).filter(i=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(i,"works"));
     losseEl.hidden=!items.length;
     if(!items.length){losseEl.innerHTML="";return}
-    losseEl.innerHTML=`<h3>Hinder zonder gepubliceerd werk (GIPOD)</h3><p>GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet in de open GIPOD-laag. Daarom staat ze los van de werken hierboven.</p><ul>${items.map(i=>`<li><strong>${esc(waarLos(i))}</strong> · ${esc(range(i))}${i.severe?" · <em>Ernstige hinder</em>":""}${i.consequences.length?` · ${esc(i.consequences.join(" · "))}`:""} · oorzaak: ${esc(i.oorzaak)} · <a href="${esc(i.bronUrl)}" target="_blank" rel="noreferrer">GIPOD-hinderbron</a></li>`).join("")}</ul>`;
+    losseEl.innerHTML=`<h3>${esc(LOSSE_HINDER_TITEL)}</h3><p>${esc(LOSSE_HINDER_ZIN)}</p><ul>${items.map(i=>`<li><strong>${esc(waarLos(i))}</strong> · ${esc(range(i))}${i.severe?" · <em>Ernstige hinder</em>":""}${i.consequences.length?` · ${esc(i.consequences.join(" · "))}`:""} · oorzaak: ${esc(i.oorzaak)}</li>`).join("")}</ul><p class="works-live-loose-bron"><a href="${esc(GIPOD_METADATA_URL)}" target="_blank" rel="noreferrer">${esc(GIPOD_BRON)}</a></p>`;
   }
   // Laag 19 via de gedeelde A-Sign-ophaler (korte blokken, hoogstens 4 verzoeken tegelijk).
   const asignSupplement=()=>asignLayer(19,supplementVraag(brusselsDag()));

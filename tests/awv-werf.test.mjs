@@ -8,8 +8,8 @@ import path from "node:path";
 import test from "node:test";
 
 import {
-  AWV_WERF_SOURCE_ID, INNAME_VELDEN, MAX_INNAMES, OMLEIDING_BLOK, afdeling, bouwSupplement, fase, inBlokken, innametypes, innamesUrl,
-  leesInnames, leesOmleidingen, maatregelen, omleidingenUrl, validateAwvSupplementItems, vanMercator, weggebruikers,
+  AWV_SOORTEN, AWV_WERF_SOURCE_ID, INNAME_VELDEN, MAX_INNAMES, OMLEIDING_BLOK, afdeling, bouwSupplement, fase, inBlokken, innametypes, innamesUrl,
+  leesInnames, leesOmleidingen, maatregelen, omleidingenUrl, soortWerk, validateAwvSupplementItems, vanMercator, weggebruikers,
 } from "../lib/awv-werf.mjs";
 import { SOURCE_DEFINITIONS, privacyFindings, sourceDocument, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
@@ -17,6 +17,7 @@ import { readSources } from "../scripts/build-sources.mjs";
 import { MIN_VORIGE_VOOR_NUL, run } from "../scripts/fetch-sources-awv-werf.mjs";
 import { refreshAll } from "../scripts/refresh-fetch.mjs";
 import { geometryIntersectsDistrict } from "../site/public-space-live-core.js";
+import { attachAwvWorkSupplement, awvTekst } from "../site/works-awv-supplement.js";
 
 const quiet = () => {};
 const clock = () => new Date("2026-10-17T05:00:00Z");
@@ -122,6 +123,40 @@ test("woordenlijst innametypes: rijstroken en vaste delen van de weg; de rest va
   assert.deepEqual(innametypes("Proefstraat 12"), []);
 });
 
+test("vaste lijst soort werk: alleen de gekende AWV-categorieën; de rest valt weg", () => {
+  assert.equal(AWV_SOORTEN.length, 23);
+  assert.deepEqual(soortWerk("(Her)aanleg - Rijbaan incl. riolering, VRI"), ["(Her)aanleg", "Rijbaan incl. riolering", "VRI"]);
+  assert.deepEqual(soortWerk("Structureel onderhoud - Afschermende constructies, Bermen - Mobiel"), ["Structureel onderhoud", "Afschermende constructies", "Bermen", "Mobiel"]);
+  assert.deepEqual(soortWerk("reiniging - straatkolken,Signalisatie"), ["Reiniging", "Straatkolken", "Signalisatie"]);
+  assert.deepEqual(soortWerk("Andere, Lussen en vergelijkbaar in de rijbaan, Seinbruggen"), ["Andere", "Lussen en vergelijkbaar in de rijbaan", "Seinbruggen"]);
+  // Een gekende categorie blijft, wat ernaast staat en niet in de lijst zit, valt weg.
+  assert.deepEqual(soortWerk("Herstelling - Gevel Proefstraat, VRI"), ["Herstelling", "VRI"]);
+  for (const weg of ["", "Proefstraat 12", "Verzonnen Aannemer", "Rijbaan incl riolering", "Fase 2"]) assert.deepEqual(soortWerk(weg), [], weg);
+});
+
+// Het oude patroon (alleen letters, haakjes, punten, spaties en streepjes) liet vrije tekst zonder cijfers door.
+// Een verzonnen vrije tekst als Type mag nergens verschijnen: niet in de innames, niet in het bestand en niet op de
+// werkkaart; een bestand dat hem toch bevat, is ongeldig, en de site toont hem dan nog altijd niet.
+test("een verzonnen vrije tekst als Type verschijnt nergens: niet in het bestand, niet op de werkkaart", async (t) => {
+  const VRIJ = "Herstelling gevel bij Verzonnen Bakkerij Proefstraat";
+  const root = maakRoot(t);
+  const wfs = nepWfs({ innames: [inname(1, { Type: VRIJ }), inname(2, { Type: `VRI, ${VRIJ}` })] });
+  const [status] = await run({ rootDir: root, fetch: wfs.fetch, clock, env: {}, log: quiet, grens: GRENS });
+  assert.equal(status.fetchStatus, "ok");
+  const ruw = fs.readFileSync(bestand(root), "utf8");
+  for (const deel of [VRIJ, "Verzonnen Bakkerij", "Proefstraat", "gevel"]) assert.ok(!ruw.includes(deel), deel);
+  const document = JSON.parse(ruw);
+  assert.deepEqual(document.items.map((i) => i.soort), [[], ["VRI"]]);
+  const kaart = attachAwvWorkSupplement([{ gipodId: 99000001 }, { gipodId: 99000002 }], document.items, true, { vandaag: TODAY }).map((w) => awvTekst(w.awvSupplement)).join("\n");
+  assert.doesNotMatch(kaart, /Verzonnen|Proefstraat|gevel/);
+  assert.match(kaart, /soort werk: VRI\b/);
+  // Een bestand met de vrije tekst toch in soort: ongeldig, en de werkkaart laat hem weg.
+  const vervalst = { ...document.items[1], soort: ["VRI", "Verzonnen Bakkerij"] };
+  assert.match(validateAwvSupplementItems([vervalst]).join("\n"), /ongeldige soort/);
+  assert.doesNotMatch(awvTekst(vervalst), /Verzonnen/);
+  assert.match(awvTekst(vervalst), /soort werk: VRI\b/);
+});
+
 test("woordenlijst maatregelen: doorgang, snelheid, doorsteek, bypass en omleidingen, ook met (2) en komma's", () => {
   assert.deepEqual(maatregelen("Doorgang: 2 rijstroken versmald;Snelheidsbeperking;Doorsteek"), { doorgang: ["2 rijstroken, versmald"], snelheidsbeperking: true, doorsteek: true, bypass: [], omleidingVoor: [] });
   assert.deepEqual(maatregelen("Doorgang: 1 rijstroken").doorgang, ["1 rijstrook"]);
@@ -170,7 +205,7 @@ test("bouwen: één item per GIPOD-id met omleidingen; het bestand is geldig en 
   const items = bouwSupplement(innames, perInname);
   assert.equal(items.length, 2);
   assert.deepEqual(items[0], {
-    gipodId: 99000001, werfId: 90001, afdeling: "Antwerpen", soort: ["(Her)aanleg - Rijbaan incl. riolering", "VRI"], fasen: ["Fase 2", "november"],
+    gipodId: 99000001, werfId: 90001, afdeling: "Antwerpen", soort: ["(Her)aanleg", "Rijbaan incl. riolering", "VRI"], fasen: ["Fase 2", "november"],
     date: "2026-09-20", endDate: "2026-11-30", innametypes: ["Rijstrook 2,1", "Middenberm", "Pechstrook"], doorgang: ["1 rijstrook, versmald"],
     snelheidsbeperking: true, doorsteek: false, bypass: [], omleidingVoor: ["alle verkeer", "voertuigen boven 3,5 ton", "fietsers"], lokaleOmleidingen: 2,
     opUvRoute: false, gewijzigd: "2026-10-10", innames: 2,

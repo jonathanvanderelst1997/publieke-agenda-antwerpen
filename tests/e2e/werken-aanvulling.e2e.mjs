@@ -52,7 +52,7 @@ const straat = straten.find((r) => r[1] === "Kammenstraat" && String(r[2]) === "
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const awvDoc = (retrievedAt) => ({
   schemaVersion: 1, sourceId: "awv-werf-supplement", retrievedAt, fetchStatus: "ok", contentVersion: "2026-10-16",
-  items: [{ gipodId: WERK, werfId: 90001, afdeling: "Antwerpen", soort: ["VRI"], fasen: ["Fase 2"], date: "2026-10-01", endDate: "2026-11-30",
+  items: [{ gipodId: WERK, werfId: 90001, afdeling: "Antwerpen", soort: ["VRI", "Verzonnen Proefsoort"], fasen: ["Fase 2"], date: "2026-10-01", endDate: "2026-11-30",
     innametypes: ["Rijstrook 1"], doorgang: ["1 rijstrook, versmald"], snelheidsbeperking: true, doorsteek: false, bypass: [], omleidingVoor: ["fietsers"],
     lokaleOmleidingen: 1, opUvRoute: false, gewijzigd: "2026-10-16", innames: 1 }],
 });
@@ -112,18 +112,27 @@ test("werkenlijst: AWV-werfdata op hetzelfde GIPOD-id, en losse hinder in een ei
     const awv = kaart.locator(".works-live-awv");
     assert.match(await awv.innerText(), /Volgens AWV-werfdata: ingenomen: Rijstrook 1; doorgang: 1 rijstrook, versmald; snelheidsbeperking; omleiding voor fietsers \(1 lokale omleiding\); fase: Fase 2/);
     assert.equal(await awv.locator("a").innerText(), "Bron: Agentschap Wegen en Verkeer (AWV), open data Werf, bijgewerkt op 16 oktober 2026");
+    // Soort werk alleen uit de vaste lijst: een onbekende waarde in het bestand verschijnt niet.
+    assert.match(await awv.innerText(), /soort werk: VRI;/);
+    assert.doesNotMatch(await awv.innerText(), /Verzonnen Proefsoort/);
     // De status blijft die van GIPOD.
     assert.equal(await kaart.locator(".works-live-status").innerText(), "In uitvoering");
     const los = page.locator("#works-live [data-works-loose]");
     await los.waitFor({ state: "visible", timeout: 5000 });
     const tekst = await los.innerText();
     assert.match(tekst, /Hinder zonder gepubliceerd werk \(GIPOD\)/);
-    assert.match(tekst, /GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet in de open GIPOD-laag\./);
+    assert.match(tekst, /GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken\./);
+    assert.doesNotMatch(tekst, /open GIPOD-laag/);
     assert.match(tekst, /Kammenstraat/);
     assert.match(tekst, /Ernstige hinder/);
     assert.match(tekst, /Geen doorgang voor gemotoriseerd verkeer/);
     assert.doesNotMatch(tekst, /Proefstraat|Verzonnen Nutsbedrijf/);
-    assert.equal(await los.locator("a").getAttribute("href"), `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/HINDER_PUNT/items?f=json&filter-lang=cql2-text&filter=HindranceGipodId%3D${LOSSE_HINDER}`);
+    // Geen link per hinder (het ruwe HINDER_PUNT-record heeft contactgegevens): één bronvermelding met de datasetfiche.
+    assert.equal(await los.locator("li a").count(), 0);
+    assert.equal(await los.locator("a").count(), 1);
+    assert.equal(await los.locator("a").innerText(), "Bron: GIPOD (Digitaal Vlaanderen)");
+    assert.equal(await los.locator("a").getAttribute("href"), "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
+    assert.doesNotMatch(await los.innerHTML(), /HINDER_PUNT|HindranceGipodId/);
     assert.match(await page.locator("#works-live [data-works-meta]").innerText(), /1 met AWV-werfdata · .*1 hinder zonder gepubliceerd werk/);
     assert.deepEqual(errors, []);
     await context.close();

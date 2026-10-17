@@ -355,8 +355,9 @@ met `aanvulling: true`: ze heeft haar eigen itemvorm, `build:sources` slaat het 
   hoogstens 2 vragen tegelijk; alleen voor wie een omleiding geldt, niet de lijn.
 - Alleen innames met een GIPOD-id waarvan de lijn de exacte districtsgrens raakt. Een inname zonder einddatum
   valt weg. Eén item per GIPOD-id, met `date` (vroegste van) en `endDate` (laatste tot).
-- Tekst alleen via een woordenlijst; de fase alleen als "Fase 2" of een maandnaam. De afdeling is Antwerpen,
-  Lantis, TO (tunnelorganisatie) of anders "AWV".
+- Tekst alleen via een woordenlijst; de fase alleen als "Fase 2" of een maandnaam; de soort werk alleen uit de
+  vaste lijst van 23 AWV-categorieën (`AWV_SOORTEN`). De afdeling is Antwerpen, Lantis, TO (tunnelorganisatie) of
+  anders "AWV".
 - Faalt gesloten: een fout, een afgekapt antwoord (`numberMatched` groter dan wat er kwam, of 2.000 innames),
   ongeldige JSON of een ongeldig bestand, en 0 innames terwijl de vorige ronde er meer dan 20 had
   (`suspicious_drop`; `AGENDA_ALLOW_DROP=awv-werf-supplement` laat een bewuste daling toe). Het vorige bestand

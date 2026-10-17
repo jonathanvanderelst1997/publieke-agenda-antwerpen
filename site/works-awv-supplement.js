@@ -8,6 +8,14 @@ export const AWV_METADATA_URL="https://metadata.vlaanderen.be/srv/api/records/cb
 // Na 3 dagen zonder geldige verversing is het bestand verouderd: dan tonen we het niet meer.
 export const AWV_VEROUDERD_NA_UUR=72;
 const AFDELING=Object.freeze({Antwerpen:"AWV, afdeling Antwerpen",Lantis:"Lantis (voor AWV)",TO:"Tunnelorganisatie (AWV)",AWV:"AWV"});
+// De gekende categorieën van het AWV-veld Type (soort werk). AWV zet een soort samen als
+// "[activiteit - ]onderdeel, onderdeel[ - Mobiel]", bijvoorbeeld "(Her)aanleg - Rijbaan incl. riolering, VRI - Mobiel".
+// Gemeten op 17 oktober 2026 in alle 11.954 innames en 2.841 werven in het kader van het district (ook oude):
+// precies deze 23 categorieën. lib/awv-werf.mjs houdt alleen deze over (de rest valt weg) en de site toont ook
+// alleen deze: een onbekende waarde of vrije tekst verschijnt nergens.
+export const AWV_SOORT_ACTIVITEITEN=Object.freeze(["(Her)aanleg","Herstelling","Structureel onderhoud","Opmetingen en inspecties","Reiniging"]);
+export const AWV_SOORT_ONDERDELEN=Object.freeze(["Rijbaan incl. riolering","Rijbaan excl. riolering","Fietspaden","Parking","Bermen","Bomen","Langsgrachten","Straatkolken","Afschermende constructies","Geluidswerende constructies","Kunstwerken","Seinbruggen","Signalisatie","VRI","Lussen en vergelijkbaar in de rijbaan","Wegverlichting","Andere"]);
+export const AWV_SOORTEN=Object.freeze([...AWV_SOORT_ACTIVITEITEN,...AWV_SOORT_ONDERDELEN,"Mobiel"]);
 const geldigeDag=v=>typeof v==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(v);
 const lijst=v=>Array.isArray(v)?v.filter(x=>typeof x==="string"&&x.trim()):[];
 const joinNl=a=>a.length<=1?a.join(""):`${a.slice(0,-1).join(", ")} en ${a.at(-1)}`;
@@ -43,7 +51,7 @@ export function attachAwvWorkSupplement(items=[],supplement=[],ok=true,{vandaag=
 // nr. 33882 (40 GIPOD-records), AWV, afdeling Antwerpen." Geen goedkeuring door AWV: alleen wat de data zegt.
 export function awvTekst(s){
   if(!s)return"";
-  const delen=[],innametypes=lijst(s.innametypes),doorgang=lijst(s.doorgang),bypass=lijst(s.bypass),voor=lijst(s.omleidingVoor),fasen=lijst(s.fasen),soort=lijst(s.soort);
+  const delen=[],innametypes=lijst(s.innametypes),doorgang=lijst(s.doorgang),bypass=lijst(s.bypass),voor=lijst(s.omleidingVoor),fasen=lijst(s.fasen),soort=lijst(s.soort).filter(v=>AWV_SOORTEN.includes(v));
   if(innametypes.length)delen.push(`ingenomen: ${joinNl(innametypes)}`);
   if(doorgang.length)delen.push(`doorgang: ${doorgang.join(" of ")}`);
   if(s.snelheidsbeperking===true)delen.push("snelheidsbeperking");

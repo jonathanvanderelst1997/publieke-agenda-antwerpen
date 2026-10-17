@@ -1,11 +1,11 @@
 // Hinder zonder gepubliceerd werk (site/works-hindrance.js, losseHinder): gevalideerde GIPOD-hinder in het
-// district waarvan het werk niet in de open GIPOD-laag staat. Alleen verzonnen features en een verzonnen vierkant
+// district waarvan het werk niet bij de getoonde werken staat. Alleen verzonnen features en een verzonnen vierkant
 // als district.
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import test from "node:test";
 
-import { hinderBronUrl, losseHinder, oorzakenVan } from "../site/works-hindrance.js";
+import { GIPOD_BRON, GIPOD_METADATA_URL, LOSSE_HINDER_TITEL, LOSSE_HINDER_ZIN, losseHinder, oorzakenVan } from "../site/works-hindrance.js";
 import { applyWorkStreetResolution, buildStreetIndex } from "../site/street-core.js";
 
 const DISTRICT = { type: "Polygon", coordinates: [[[4.0, 51.0], [5.0, 51.0], [5.0, 52.0], [4.0, 52.0], [4.0, 51.0]]] };
@@ -45,7 +45,7 @@ test("oorzaken met hun soort: werk, grondwerk, evenement", () => {
   assert.deepEqual(oorzakenVan(""), []);
 });
 
-test("een losse hinder in het district wordt één item, met punt en vaste bronlink, zonder vrije tekst of contacten", () => {
+test("een losse hinder in het district wordt één item, met punt, zonder vrije tekst, contacten of link naar het ruwe record", () => {
   const [item] = los([zone(900002)]);
   assert.deepEqual(item, {
     hindranceGipodId: 900002,
@@ -56,13 +56,30 @@ test("een losse hinder in het district wordt één item, met punt en vaste bronl
     zoneTypes: ["WerfZone"],
     oorzaak: "grondwerk",
     point: BINNEN,
-    bronUrl: "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/HINDER_PUNT/items?f=json&filter-lang=cql2-text&filter=HindranceGipodId%3D900002",
   });
   const tekst = JSON.stringify(item);
-  for (const verboden of ["Proefstraat", "Verzonnen Nutsbedrijf", "Verzonnen Aannemer", "mobility-hindrances", "HindranceDescription", "HindranceOwner", "HindranceURI", "Contact"]) {
+  for (const verboden of ["Proefstraat", "Verzonnen Nutsbedrijf", "Verzonnen Aannemer", "mobility-hindrances", "HindranceDescription", "HindranceOwner", "HindranceURI", "Contact", "HINDER_PUNT", "http"]) {
     assert.ok(!tekst.includes(verboden), verboden);
   }
-  assert.equal(hinderBronUrl(5), "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/HINDER_PUNT/items?f=json&filter-lang=cql2-text&filter=HindranceGipodId%3D5");
+});
+
+// Een link naar HINDER_PUNT, ook gefilterd op HindranceGipodId, opent het ruwe record met
+// HindranceContactOrganisations (ContactName, Email, Telephone). Daarom geen link per hinder, maar één
+// bronvermelding met de officiële datasetfiche.
+test("geen link naar het ruwe hinderrecord: één bronvermelding GIPOD met de datasetfiche", () => {
+  assert.equal(GIPOD_BRON, "Bron: GIPOD (Digitaal Vlaanderen)");
+  assert.equal(GIPOD_METADATA_URL, "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
+  const hinder = fs.readFileSync(new URL("../site/works-hindrance.js", import.meta.url), "utf8");
+  const live = fs.readFileSync(new URL("../site/works-live.js", import.meta.url), "utf8");
+  for (const bron of [hinder, live]) {
+    assert.doesNotMatch(bron, /HindranceGipodId%3D|filter=HindranceGipodId|hinderBronUrl|bronUrl/);
+    assert.doesNotMatch(bron, />GIPOD-hinderbron<\/a>/);
+  }
+  // Het blok: geen link per item, wel de bronvermelding met de fiche.
+  const blok = live.slice(live.indexOf("function renderLosse("), live.indexOf("// Laag 19 via"));
+  assert.match(blok, /<li>[^]*<\/li>/);
+  assert.doesNotMatch(blok.slice(blok.indexOf("<li>"), blok.indexOf("</li>")), /<a /, "geen link per hinder");
+  assert.match(blok, /href="\$\{esc\(GIPOD_METADATA_URL\)\}"[^>]*>\$\{esc\(GIPOD_BRON\)\}<\/a>/);
 });
 
 test("twee zones met hetzelfde id worden één item: gevolgen samen, ernstig als één zone ernstig is, vroegste start, laatste einde", () => {
@@ -89,8 +106,8 @@ test("weg: een oorzaak die al getoond wordt (ook als maar één van twee oorzake
   const twee = zone(900018, { HindranceConsequenceOf: "https://gipod.api.vlaanderen.be/api/v1/works/700001;https://gipod.api.vlaanderen.be/api/v1/groundworks/700002" });
   assert.equal(los([twee]).length, 1);
   assert.deepEqual(los([twee], { getoond: new Set([700002]) }), []);
-  // In het antwoord van INNAME_PUNT maar niet getoond (bijvoorbeeld buiten de grens): dan klopt "het werk staat
-  // niet in de open laag" niet meer.
+  // In het antwoord van INNAME_PUNT maar niet getoond (bijvoorbeeld buiten de grens): het werk staat dan in de
+  // open laag, dus hoort de hinder niet in dit blok.
   assert.deepEqual(los([twee], { inRespons: new Set([700001]) }), []);
   assert.equal(los([twee])[0].oorzaak, "grondwerk en werk");
 });
@@ -119,10 +136,23 @@ test("de plaats: alleen een straatnaam uit de straatas, nooit een huisnummer", (
   assert.doesNotMatch(JSON.stringify(item), /Proefstraat|\b12\b/);
 });
 
+// Randgeval: het werk staat wél in de open laag, maar buiten de gefilterde INNAME_PUNT-vraag (een andere status,
+// of in de strook tussen het kader van de werken en het ruimere kader van de hinder). losseHinder kan dat niet
+// weten en neemt de hinder op; de vaste zin mag dus niet beweren dat het werk niet in de open GIPOD-laag staat.
+test("randgeval: oorzaak buiten de gefilterde INNAME_PUNT-vraag; de zin zegt alleen 'niet bij de getoonde werken'", () => {
+  // Het werk 700010 heeft status "Uitgevoerd" (niet gevraagd), dus het zit niet in getoond en niet in inRespons.
+  const randgeval = zone(900034, { HindranceConsequenceOf: "https://gipod.api.vlaanderen.be/api/v1/works/700010;" });
+  const items = los([randgeval], { getoond: new Set([700020]), inRespons: new Set([700020, 700030]) });
+  assert.equal(items.length, 1, "de hinder blijft zichtbaar");
+  assert.equal(LOSSE_HINDER_ZIN, "GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken. Daarom staat ze los van de werken hierboven.");
+  assert.doesNotMatch(LOSSE_HINDER_ZIN, /open GIPOD-laag|open laag|niet gepubliceerd/);
+  assert.equal(LOSSE_HINDER_TITEL, "Hinder zonder gepubliceerd werk (GIPOD)");
+});
+
 test("de werkenlaag toont het blok apart, met de vaste zin, en meldt het als eigen laag", () => {
   const bron = fs.readFileSync(new URL("../site/works-live.js", import.meta.url), "utf8");
-  assert.match(bron, /Hinder zonder gepubliceerd werk \(GIPOD\)/);
-  assert.match(bron, /GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet in de open GIPOD-laag\./);
+  assert.match(bron, /<h3>\$\{esc\(LOSSE_HINDER_TITEL\)\}<\/h3><p>\$\{esc\(LOSSE_HINDER_ZIN\)\}<\/p>/);
+  assert.doesNotMatch(bron, /staat niet in de open GIPOD-laag/);
   assert.match(bron, /meldLiveLaag\("losseHinder",/);
   assert.match(bron, /inRespons:new Set\(features\.map/);
   // Faalt gesloten: zonder hinderbron geen blok, wel een notitie.

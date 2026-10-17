@@ -45,6 +45,18 @@ export function attachHindrance(items=[],features=[],sourceLoaded=true){
 // (meting 17 oktober 2026: 64 hinderberichten in het district, 43 oorzaken die nergens in de open laag staan).
 // Die hinder hangt dan aan geen enkel getoond werk. losseHinder maakt er een apart, duidelijk benoemd blok van,
 // alleen uit de HINDER_PUNT-features die de werkenlaag al ophaalt: geen nieuwe vraag.
+//
+// Wat het blok zeker weet, is alleen dat het werk niet bij de getoonde werken staat en niet in het gefilterde
+// INNAME_PUNT-antwoord (Werk/Grondwerk, In uitvoering/Concreet gepland, het kader van het district). Een werk
+// met een andere status, of in de strook tussen dat kader en het ruimere hinderkader, kan wel in de open laag
+// staan. De vaste zin zegt daarom "niet bij de getoonde werken", niet "niet in de open GIPOD-laag".
+export const LOSSE_HINDER_TITEL="Hinder zonder gepubliceerd werk (GIPOD)";
+export const LOSSE_HINDER_ZIN="GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken. Daarom staat ze los van de werken hierboven.";
+// Geen bronlink per hinder: een vraag naar HINDER_PUNT (ook gefilterd op HindranceGipodId) geeft het ruwe record,
+// met HindranceContactOrganisations (contactnaam, e-mail en telefoon). Eén bronvermelding voor het blok, met een
+// link naar de officiële datasetfiche van GIPOD (innames en mobiliteitshinder, uitgever Athumi).
+export const GIPOD_METADATA_URL="https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
+export const GIPOD_BRON="Bron: GIPOD (Digitaal Vlaanderen)";
 
 // De oorzaken van een hinder met hun soort: [{ soort: "works" | "groundworks" | "events" | …, id }].
 export function oorzakenVan(value=""){
@@ -55,8 +67,6 @@ export function oorzakenVan(value=""){
   }
   return uit.filter(o=>Number.isSafeInteger(o.id)&&o.id>0);
 }
-// Een vaste bronlink per hinder: de features hebben een id met een tijdstempel, dus filteren op HindranceGipodId.
-export const hinderBronUrl=id=>`https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/HINDER_PUNT/items?f=json&filter-lang=cql2-text&filter=HindranceGipodId%3D${Number(id)}`;
 const WERK_OORZAAK=Object.freeze({works:"werk",groundworks:"grondwerk"});
 const DAG_MS=86400000;
 // Rotte records: een einde meer dan 2 jaar na vandaag, of een hinder die al loopt en meer dan 12 maanden niet meer gewijzigd is.
@@ -67,8 +77,9 @@ export const MAX_VOORUIT_DAGEN=730,MAX_STIL_DAGEN=365;
 // grens; zonder grens null (faalt gesloten: dan geen blok). Eén item per HindranceGipodId (de zones samen):
 // de gevolgen samen, ernstig als één zone ernstig is, de vroegste start en het laatste einde, en het eerste
 // zonepunt binnen de grens. Weg: buiten de grens, voorbij, een oorzaak die geen werk of grondwerk is
-// (evenement, markt), een oorzaak die al getoond wordt of in de open laag staat, zonder gevolgen en niet
-// ernstig, en rotte records. Nooit HindranceDescription, HindranceOwner, contactorganisaties of HindranceURI.
+// (evenement, markt), een oorzaak die al getoond wordt of in het INNAME_PUNT-antwoord staat, zonder gevolgen
+// en niet ernstig, en rotte records. Nooit HindranceDescription, HindranceOwner, contactorganisaties,
+// HindranceURI of een link naar het ruwe record.
 export function losseHinder(features=[],{getoond=new Set(),inRespons=new Set(),district=null,nu=new Date()}={}){
   if(!district)return null;
   const nuMs=nu instanceof Date?nu.getTime():Date.parse(nu);
@@ -110,7 +121,6 @@ export function losseHinder(features=[],{getoond=new Set(),inRespons=new Set(),d
       zoneTypes:[...h.zoneTypes].sort(),
       oorzaak:[...new Set(oorzaken.map(([,soort])=>WERK_OORZAAK[soort]))].sort().join(" en "),
       point:h.point,
-      bronUrl:hinderBronUrl(h.hindranceGipodId),
     });
   }
   return uit.sort((a,b)=>String(a.start).localeCompare(String(b.start))||a.hindranceGipodId-b.hindranceGipodId);
