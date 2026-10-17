@@ -12,6 +12,7 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
+import { buildPlaceIndex, foldText } from "../../site/place-core.js";
 import { gezondeBronnen } from "../helpers/proef-feed.mjs";
 import { locationKey } from "../../site/neighborhood-core.js";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
@@ -60,6 +61,12 @@ for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name)
 // stad laat met Enter kiezen (bouwplan stap 3). De toetsen die gewoon een straat openen, nemen er een zonder.
 const stadStraten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten-stad.json"), "utf8"));
 const elders = new Set(stadStraten.straten.map((r) => locationKey(r[0])));
+// Een straat die zo heet als een wijk of een andere naam van een wijk (de Meir: de wijk "Theaterbuurt & Meir") laat met
+// Enter ook kiezen (enterKeuze, #196): "2 plekken heten …". Ook die nemen de toetsen die gewoon een straat openen niet.
+const wijkDoc = JSON.parse(fs.readFileSync(path.join(site, "geo", "wijken.geo.json"), "utf8"));
+const wijkIndex = buildPlaceIndex({ wijken: wijkDoc.features.filter((f) => String(f.properties?.code || "").startsWith("ANT")).map((f) => ({ code: f.properties.code, naam: f.properties.naam })) });
+const wijkNamen = new Set(wijkIndex.places.filter((p) => p.type === "wijk").flatMap((p) => [p.compact, ...(p.aliases || [])]));
+const heetAlsWijk = (naam) => wijkNamen.has(foldText(naam).replace(/ /g, ""));
 const feedText = fs.readFileSync(path.join(site, "agenda-feed.js"), "utf8");
 const generatedAt = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1)).generatedAt;
 const today = generatedAt.slice(0, 10);
@@ -242,7 +249,7 @@ async function pickStreet(baseUrl) {
   for (const item of items.sort((a, b) => a.date.localeCompare(b.date))) {
     if (item.date < today || item.date > horizon || item.endDate || ["markets", "meetings", "works"].includes(item.category)) continue;
     const streets = resolveAddressStreets(item.location, { byName }).streets;
-    if (streets.length !== 1 || elders.has(locationKey(streets[0].name))) continue;
+    if (streets.length !== 1 || elders.has(locationKey(streets[0].name)) || heetAlsWijk(streets[0].name)) continue;
     gekozen ||= { event: item, street: streets[0] };
     if (isStudent(item)) student ||= { event: item, street: streets[0] };
   }
