@@ -133,11 +133,35 @@ export function bezoekersHint(e={}) {
   }
   return "";
 }
+// Het eerste uur in een tekst ("9 tot 12 uur" → "09.00", "van 14 tot 17 uur" → "14.00", "om 20u30" → "20.30"), zoals
+// UUR_IN_TEKST in lib/vaagheid.mjs een uur herkent; "" zonder uur. Eerst het begin van een reeks ("12 tot 17 uur": 12,
+// niet 17), dan een los uur. Twee cijfers, zoals een uur uit de bron ("07.00").
+// `vooraan`: alleen als vóór het uur niets anders staat dan woorden die zeggen wanneer ("van", "vanaf", "om", "op
+// schooldagen: ma, di"). Staat er een activiteit of een plaats voor ("kratstapelen op de Groenplaats van 12 tot 17 uur",
+// "optocht van 15 tot 15.30 uur"), dan hoort het uur bij dat deel, niet bij het hele item (nakijkronde 13 oktober 2026:
+// "AAAntwerp: shoppingdag" kreeg op 34 straten "12.00" in de kop, het uur van het kratstapelen op de Groenplaats).
+const UUR_REEKS=/\b(\d{1,2})(?:[.:u](\d{2}))?\s*(?:uur|u)?\s*(?:tot|-|–)\s*\d{1,2}(?:[.:u]\d{2})?\s*(?:uur|u)\b/i;
+const UUR_LOS=/\b(\d{1,2})(?:[.:u](\d{2}))?\s*(?:uur|u)\b|\b(\d{1,2})[.:u](\d{2})\b/i;
+const WANNEER_WOORD=/^(?:van|vanaf|om|tussen|telkens|steeds|doorlopend|dagelijks|elke|iedere|dag|op|schooldagen|weekdagen|werkdagen|en|ma|di|wo|do|vr|za|zo|maandag|dinsdag|woensdag|donderdag|vrijdag|zaterdag|zondag|\d{1,2}|(?:jan|feb|maa|mrt|apr|mei|jun|jul|aug|sep|okt|nov|dec)\p{L}*\.?)$/iu;
+export function eersteUurInTekst(tekst="", {vooraan=false}={}){
+  const t=String(tekst||"");
+  const m=UUR_REEKS.exec(t)||UUR_LOS.exec(t);
+  if(!m)return "";
+  if(vooraan&&!t.slice(0,m.index).split(/[\s,;:]+/).filter(Boolean).every((w)=>WANNEER_WOORD.test(w)))return "";
+  const uur=Number(m[1]??m[3]),min=m[2]??m[4]??"00";
+  return Number.isInteger(uur)&&uur<=24&&Number(min)<60?`${String(uur).padStart(2,"0")}.${min}`:"";
+}
 export function leesbaarUur(entry={}, {multi=false,running=false}={}) {
   if(entry.time)return String(entry.time).replace(":",".");
   if(multi)return running?"Loopt":"Start";
   const slot=String(entry.item?.timeSlot||"");
   const text=String(entry.timeText||entry.item?.timeText||"");
   if(/^(hele dag|heel de dag|all day)$/i.test(slot.trim())||/^(hele dag|heel de dag)\b/i.test(text.trim()))return "Hele dag";
+  // Nooit "Uur onbekend" als de tekst een uur geeft (nakijkronde 13 oktober 2026: AAAntwerp zei "Uur onbekend" naast
+  // "kratstapelen op de Groenplaats van 12 tot 17 uur"). Een uur vooraan is het beginuur; een uur van een deel elders
+  // ("kratstapelen op de Groenplaats van 12 tot 17 uur") niet: dan "Zie uren", de hele tekst staat bij "Wanneer".
+  const uit=eersteUurInTekst(text,{vooraan:true});
+  if(uit)return uit;
+  if(eersteUurInTekst(text))return "Zie uren";
   return entry.start?"Uur onbekend":"";
 }

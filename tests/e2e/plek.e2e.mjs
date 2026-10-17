@@ -55,6 +55,10 @@ function serve() {
 const straten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten.json"), "utf8"));
 const byName = new Map();
 for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name), [...(byName.get(locationKey(name)) || []), { id: String(id), name, postcode }]);
+// De straatnamen van de andere districten (site/geo/straten-stad.json): een straat met een naamgenoot elders in de
+// stad laat met Enter kiezen (bouwplan stap 3). De toetsen die gewoon een straat openen, nemen er een zonder.
+const stadStraten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten-stad.json"), "utf8"));
+const elders = new Set(stadStraten.straten.map((r) => locationKey(r[0])));
 const feedText = fs.readFileSync(path.join(site, "agenda-feed.js"), "utf8");
 const generatedAt = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1)).generatedAt;
 const today = generatedAt.slice(0, 10);
@@ -229,12 +233,18 @@ async function pickStreet(baseUrl) {
   const items = await page.evaluate(() => (window.PUBLIC_AGENDA_VISIBLE_ITEMS || []).map((i) => ({ id: i.id, title: i.title, date: i.date, endDate: i.endDate || "", location: i.location || "", category: i.category })));
   await context.close();
   const horizon = addDays(today, 29);
+  // Een vermoedelijke studentenactiviteit staat op de plekpagina in de ingeklapte regel van haar dag (bundelLijst,
+  // vaagheidsplan van 12 oktober 2026, stap 5): die is de proef "student", niet het gewone evenement.
+  const isStudent = (item) => /^Vermoedelijk\b/.test(item.title) && /\b(?:student\w*|doop\w*|dril\w*|welkomst\w*)/i.test(item.title);
+  let gekozen = null, student = null;
   for (const item of items.sort((a, b) => a.date.localeCompare(b.date))) {
     if (item.date < today || item.date > horizon || item.endDate || ["markets", "meetings", "works"].includes(item.category)) continue;
     const streets = resolveAddressStreets(item.location, { byName }).streets;
-    if (streets.length === 1) return { event: item, street: streets[0] };
+    if (streets.length !== 1 || elders.has(locationKey(streets[0].name))) continue;
+    gekozen ||= { event: item, street: streets[0] };
+    if (isStudent(item)) student ||= { event: item, street: streets[0] };
   }
-  return null;
+  return gekozen ? { ...gekozen, student, isStudent } : null;
 }
 pickStreet.fallback = { id: "1416", name: "Kammenstraat", postcode: "2000" };
 
@@ -260,6 +270,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await input.press("Enter");
     await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"));
     assert.equal(await page.locator(".pv-place-name").innerText(), street.name);
+    // Een vermoedelijke studentenactiviteit staat in de ingeklapte regel van haar dag: eerst openklappen.
+    if (pick.isStudent(event)) {
+      const bundels = page.locator(".pv-results .pv-row.pv-bundel", { hasText: /vermoedelijke studentenactiviteit/ });
+      await bundels.first().waitFor({ timeout: 30000 });
+      for (let i = 0; i < await bundels.count(); i++) await bundels.nth(i).locator(".pv-row-btn").first().click();
+    }
     await page.locator(".pv-results").getByText(event.title, { exact: false }).first().waitFor();
     const row = page.locator(`.pv-results ${WORK_ROW}`).first();
     await row.waitFor({ timeout: 15000 });
@@ -270,6 +286,21 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.match(await row.locator(".pv-detail").innerText(), /water-link/);
     // De voortgang zegt wat de tweede duur is: de lengte van het werk.
     assert.equal(await row.locator(".pv-progress-text").innerText(), "Start over 9 dagen · duurt 22 dagen");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("stap 5: vermoedelijke studentenactiviteiten van een dag in één ingeklapte regel; openklappen toont de kaart", async (st) => {
+    if (!pick.student) { st.skip("geen komende vermoedelijke studentenactiviteit in één straat in de data"); return; }
+    const { event: ev, street: str } = pick.student;
+    const { page, context, errors } = await openPage(baseUrl, { street: str, query: `?plek=${encodeURIComponent(str.name)}${byName.get(locationKey(str.name)).length > 1 ? `%20${str.postcode}` : ""}` });
+    const bundel = page.locator(".pv-results .pv-row.pv-bundel", { hasText: /vermoedelijke studentenactiviteit/ }).first();
+    await bundel.waitFor({ timeout: 30000 });
+    assert.match(await bundel.innerText(), /Ingeklapt/);
+    assert.match(await bundel.innerText(), /publiceert de stad niet/, "de reden staat één keer in de regel");
+    assert.equal(await bundel.locator(".pv-bundel-leden .pv-row").count(), 0, "dicht: de kaarten staan er nog niet");
+    await bundel.locator(".pv-row-btn").first().click();
+    await bundel.locator(".pv-bundel-leden").getByText(ev.title, { exact: false }).first().waitFor({ timeout: 10000 });
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -438,6 +469,171 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // Bouwplan stap 3, zoeken in heel de stad: de 15 zoekopdrachten die in de stratentest van 12 oktober 2026 mislukten
+  // ("Geen straat gevonden… probeer Zuid of Kiel", Enter opende de Walenstraat of de Gasstraat, de Statiestraat van
+  // Berchem opende die van 2018). Nu: één straat opent de uitleg "ligt in district X, deze agenda volgt district
+  // Antwerpen" met wat de site daar kent; naamgenoten zijn een keuze; Enter opent nooit een gok.
+  const STRATENTEST = [
+    ["De Villegasstraat", "Berchem", ["2600"]], ["Walemstraat", "Berchem", ["2600"]], ["Turnhoutsebaan", "Borgerhout", ["2100", "2140"]],
+    ["Vosstraat", "Borgerhout", ["2100", "2140", "2600"]], ["Generaal De Wetstraat", "Borgerhout", ["2140"]], ["Herentalsebaan", "Deurne", ["2100", "2140", "2150"]],
+    ["Arenaplein", "Deurne", ["2100"]], ["Bist", "Wilrijk", ["2180", "2610"]], ["Boomsesteenweg", "Wilrijk", ["2020", "2610"]],
+    ["Kioskplaats", "Hoboken", ["2660"]], ["Sint-Bernardsesteenweg", "Hoboken", ["2020", "2660"]], ["Statiestraat", "Berchem", ["2018", "2180", "2600"]],
+    ["Bredabaan", "Merksem", ["2170"]], ["Kristus-Koningplein", "Ekeren", ["2180"]], ["Botermarkt", "Berendrecht-Zandvliet-Lillo", ["2040"]],
+  ];
+  // Een verzonnen markt en een verzonnen activiteit uit het districtsnieuws van Hoboken (vaste basis, geen echte items).
+  const HOBOKEN = (stempel) => [
+    marktItem(stempel, { id: "e2e-markt-kiosk", externalId: "e2e-1", title: "Proefmarkt Kioskplaats", date: addDays(today, 3), location: "Kioskplaats, 2660 Hoboken", postcodes: ["2660"], inDistrict: false }),
+    kalenderItem(stempel, { id: "stad-news-hoboken-e2e1-x", title: "VOLZET - Proeflezing in de bib", date: addDays(today, 4), timeSlot: "19:30", timeText: "19.30 uur", location: "District Hoboken, locatie via de officiële bron", postcodes: ["2660"], sourceId: "stad-districten", scope: "stad", inDistrict: false, link: "https://www.antwerpen.be/info/e2e1/proeflezing", sourceUrl: "https://www.antwerpen.be/info/e2e1/proeflezing", sources: [{ sourceId: "stad-districten", url: "https://www.antwerpen.be/info/e2e1/proeflezing", retrievedAt: stempel, scope: "stad" }] }),
+  ];
+  await t.test("zoeken in heel de stad: de 15 straten uit de stratentest, naamgenoten als keuze, Enter gokt nooit", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { feed: proefFeed(today, HOBOKEN) });
+    const input = page.locator("#agenda-street-jump");
+    const buiten = page.locator(".pv-buiten");
+    for (const [naam, district, postcodes] of STRATENTEST) {
+      const vorige = new URL(page.url()).searchParams.get("plek");
+      await input.fill(naam);
+      // Alle naamgenoten staan in de suggesties, met hun postcode (en hun district als het een ander is).
+      await page.waitForFunction(([n, pcs]) => {
+        const opties = [...document.querySelectorAll("#pv-suggestions [role=option]")].filter((o) => o.querySelector("strong")?.textContent === n);
+        return pcs.every((pc) => opties.some((o) => o.textContent.includes(` ${pc}`)));
+      }, [naam, postcodes], { timeout: 10000 }).catch(async () => assert.fail(`${naam}: ${await page.locator("#pv-suggestions").innerText()}`));
+      await input.press("Enter");
+      const pc = postcodes.length === 1 ? postcodes[0] : null;
+      if (pc) {
+        await buiten.waitFor({ state: "visible", timeout: 5000 });
+      } else {
+        // Naamgenoten: Enter opent niets en zegt waarom; dan kiest de bewoner zelf (hier: tikken op het district).
+        await page.locator("#pv-suggestions .pv-sugg-note", { hasText: `${postcodes.length} plekken heten` }).waitFor({ timeout: 5000 });
+        assert.equal(new URL(page.url()).searchParams.get("plek"), vorige, `${naam}: Enter opende toch iets`);
+        await page.locator("#pv-suggestions [role=option]", { hasText: `district ${district}` }).filter({ has: page.locator("strong", { hasText: new RegExp(`^${naam}$`) }) }).first().click();
+        await buiten.waitFor({ state: "visible", timeout: 5000 });
+      }
+      const tekst = await buiten.innerText();
+      assert.match(tekst, new RegExp(`${naam} \\(\\d{4}\\) ligt in district ${district}, deze agenda volgt district Antwerpen\\.`), naam);
+      assert.match(tekst, new RegExp(`Wat deze site wel kent in ${district}`));
+      assert.match(tekst, /Straatnaam en district: Stad Antwerpen, wegenregister/);
+      const plek = new URL(page.url()).searchParams.get("plek");
+      assert.match(plek, new RegExp(`^${naam} \\d{4}$`), `${naam}: de link noemt de straat en haar postcode`);
+      assert.equal(await page.locator(".pv-layout").isVisible(), false, `${naam}: de lijst van district Antwerpen staat er niet onder`);
+      assert.doesNotMatch(tekst, /Walenstraat|Gasstraat/);
+    }
+    // Hoboken: de verzonnen markt in deze straat bovenaan, en de activiteit uit het districtsnieuws met "volzet".
+    await input.fill("Kioskplaats");
+    await page.locator("#pv-suggestions [role=option]").first().waitFor();
+    await input.press("Enter");
+    await page.locator(".pv-buiten", { hasText: "Proefmarkt Kioskplaats" }).waitFor({ timeout: 5000 });
+    const markt = page.locator(".pv-buiten li", { hasText: "Proefmarkt Kioskplaats" });
+    assert.match(await markt.innerText(), /in deze straat/);
+    assert.match(await markt.locator("a").getAttribute("href"), /^https:\/\/geo\.api\.vlaanderen\.be\//);
+    const lezing = page.locator(".pv-buiten li", { hasText: "Proeflezing in de bib" });
+    assert.match(await lezing.innerText(), /volzet/);
+    assert.match(await lezing.innerText(), /19\.30 uur/);
+    assert.doesNotMatch(await lezing.innerText(), /VOLZET -|locatie via de officiële bron/);
+    assert.equal(await lezing.locator("a").getAttribute("href"), "https://www.antwerpen.be/info/e2e1/proeflezing");
+    assert.equal(await page.locator('.pv-buiten a[href="https://www.antwerpen.be/nl/overzicht/district-hoboken-1"]').count(), 1);
+    // Een tikfout: "Bedoelde je…", en Enter opent niets (geen gok).
+    await input.fill("Schrijfstraat 105");
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
+    assert.match(await page.locator("#pv-search-help").innerText(), /Enter opent geen gok/);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Kioskplaats 2660", "de vorige plek bleef staan");
+    // Met de pijltjes kiezen mag wel: dan is het de keuze van de bewoner.
+    await input.press("ArrowDown");
+    await input.press("ArrowUp");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Schijfstraat", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Schijfstraat");
+    // Statiestraat met het toetsenbord: Enter laat kiezen, ↓ en Enter opent de tweede (Ekeren); van daar naar de
+    // Statiestraat van district Antwerpen, met dezelfde naam.
+    await input.fill("Statiestraat");
+    await page.locator("#pv-suggestions [role=option]").nth(2).waitFor();
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "3 plekken heten" }).waitFor({ timeout: 5000 });
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Statiestraat 2180", null, { timeout: 5000 });
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "pv-buiten-naam", "de focus springt naar de naam");
+    await page.locator(".pv-buiten [data-place]", { hasText: "Statiestraat (2018" }).click();
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Statiestraat", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Statiestraat");
+    assert.equal(await buiten.isVisible(), false);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("deellink buiten district Antwerpen: ?plek=Bist 2610 opent de uitleg, ?plek=Bist laat kiezen, 'Andere plek' sluit", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { query: `?plek=${encodeURIComponent("Bist 2610")}` });
+    const buiten = page.locator(".pv-buiten");
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.equal(await page.locator("#pv-buiten-naam").innerText(), "Bist");
+    assert.match(await buiten.innerText(), /Bist \(2610\) ligt in district Wilrijk, deze agenda volgt district Antwerpen\./);
+    assert.match(await buiten.innerText(), /Ook in een ander district: Bist \(2180, district Ekeren\)/);
+    await page.locator(".pv-buiten-sluit").click();
+    assert.equal(await buiten.isVisible(), false);
+    assert.equal(await page.locator(".pv-layout").isVisible(), true);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), null);
+    assert.equal(await page.evaluate(() => document.activeElement?.id), "agenda-street-jump");
+    await page.goto(`${baseUrl}/?plek=Bist`);
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "2 plekken heten" }).waitFor({ timeout: 10000 });
+    assert.equal(await buiten.isVisible(), false);
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("district:Berchem")}`);
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.match(await buiten.innerText(), /Berchem is een ander district, deze agenda volgt district Antwerpen\./);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkronde van 12 oktober 2026: (1) een tikfout die midden in een straat van een ander district zit, opende die
+  // straat; (2) "Maria-Theresialei" opende die van Ekeren (straten.json noemt die van 2018 "Maria-Theresialei_AN");
+  // (3) een straatnaam met een cijfer vond haar eigen deellink niet terug.
+  await t.test("nakijkronde: tikfout geen gok, Maria-Theresialei een keuze, straatnaam met cijfer in de link", async () => {
+    const { page, context, errors } = await openPage(baseUrl);
+    const input = page.locator("#agenda-street-jump");
+    const buiten = page.locator(".pv-buiten");
+    const opties = () => page.locator("#pv-suggestions [role=option]").evaluateAll((os) => os.map((o) => `${o.querySelector("strong")?.textContent} · ${o.querySelector("small")?.textContent}`));
+    // (1) "Stenplein": het Steenplein vooraan, het Kunstenplein (Berchem) erna; Enter opent geen van beide.
+    await input.fill("Stenplein");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Kunstenplein" }).waitFor({ timeout: 10000 });
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    assert.match((await opties())[0], /^Steenplein · straat · 2000/, (await opties()).join(" | "));
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
+    assert.equal(new URL(page.url()).searchParams.get("plek"), null, "Enter opende toch iets");
+    assert.equal(await buiten.isVisible(), false);
+    // (2) Maria-Theresialei: twee naamgenoten, die van district Antwerpen eerst, nergens "_AN".
+    await input.fill("Maria-Theresialei");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Ekeren" }).waitFor({ timeout: 10000 });
+    await input.press("Enter");
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "2 plekken heten" }).waitFor({ timeout: 5000 });
+    const mt = await opties();
+    assert.match(mt[0], /^Maria-Theresialei · straat · 2018 .*· district Antwerpen$/, mt.join(" | "));
+    assert.ok(!mt.some((o) => /_AN/.test(o)), mt.join(" | "));
+    await page.locator("#pv-suggestions [role=option]", { hasText: "district Ekeren" }).click();
+    await buiten.waitFor({ state: "visible", timeout: 5000 });
+    assert.match(await buiten.innerText(), /Maria-Theresialei \(2180\) ligt in district Ekeren/);
+    assert.match(await buiten.innerText(), /Met dezelfde naam in district Antwerpen: Maria-Theresialei \(2018/);
+    await page.locator(".pv-buiten [data-place]", { hasText: "Maria-Theresialei (2018" }).click();
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Maria-Theresialei", null, { timeout: 5000 });
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Maria-Theresialei");
+    // (3) De deellink van een straat met een cijfer opent haar uitleg (buiten) of haar overzicht (district Antwerpen).
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("Fort 7-straat 2610")}`);
+    await buiten.waitFor({ state: "visible", timeout: 10000 });
+    assert.match(await buiten.innerText(), /Fort 7-straat \(2610\) ligt in district Wilrijk, deze agenda volgt district Antwerpen\./);
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Fort 7-straat 2610");
+    await page.goto(`${baseUrl}/?plek=${encodeURIComponent("De 7 schakenpad")}`);
+    await page.locator(".pv-place-name", { hasText: "De 7 schakenpad" }).waitFor({ timeout: 10000 });
+    assert.doesNotMatch(await page.locator("#pv-search-help").innerText(), /heet precies|geen straat/i);
+    await page.click(".pv-close");
+    await input.fill("Pad nr. 25");
+    await page.locator("#pv-suggestions [role=option]", { hasText: "Borsbeek" }).waitFor({ timeout: 10000 });
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.get("plek") === "Pad nr. 25 2150", null, { timeout: 5000 });
+    assert.match(await buiten.innerText(), /Pad nr\. 25 \(2150\) ligt in district Borsbeek/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   await t.test("evenement op straat: telt als evenement, alleen 'Evenementen' toont het, kaart begint met wat en wanneer", async () => {
     const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
     const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000077", dag: addDays(today, 5) }, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
@@ -493,6 +689,77 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.match(await row.locator(".pv-row-when").innerText(), /^t\/m /);
     await row.locator(".pv-row-btn").click();
     assert.match(await row.locator(".pv-kern").innerText(), /Jouw straat krijgt een parkeerverbod van /);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Vaagheidsplan van 12 oktober 2026, stap 2: één kaart per dossiernummer, een aanvraag die nog niet goedgekeurd
+  // is met een label en zonder .ics, en een agendapunt uit de dossiers in al zijn straten.
+  await t.test("stap 2: één kaart per dossier, een aanvraag met label en zonder .ics, een agendapunt in al zijn straten", async () => {
+    const plek = `${street.name}${byName.get(locationKey(street.name)).length > 1 ? ` ${street.postcode}` : ""}`;
+    const ASIGN_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22";
+    const ander = straten.streets.map((r) => r[1]).filter((n) => n !== street.name && !n.includes(street.name) && !street.name.includes(n)).slice(0, 3);
+    const uitDossier = (dossier, dag, eigen = {}) => ({
+      id: `asign-ev-${dossier.toLowerCase()}-${dag}`, externalId: dossier, date: dag, dateLabel: dagTekst(dag), timeSlot: "Info", location: street.name,
+      info: `Evenementendossier ${dossier} van de stad (A-Sign): aanvraag goedgekeurd.`, sourceId: "district-asign-evenementen", sourceUrl: ASIGN_URL, link: ASIGN_URL,
+      sources: [{ sourceId: "district-asign-evenementen", url: ASIGN_URL, retrievedAt: `${today}T05:00:00.000Z`, scope: "district" }], ...eigen,
+    });
+    const dag = addDays(today, 5);
+    const agendaErbij = [
+      // Hetzelfde dossier als de kaart van de live laag: geen tweede kaart.
+      uitDossier("ET2099000081", dag, { title: "Proefstoet van het dossier (e2e)" }),
+      // Een aanvraag die nog niet goedgekeurd is.
+      uitDossier("ET2099000082", addDays(today, 6), { title: "Proefoptocht in aanvraag (e2e)", nietGoedgekeurd: true, info: "Evenementendossier ET2099000082 van de stad (A-Sign): aanvraag nog niet goedgekeurd." }),
+      // Een agendapunt waarvan de locatietekst de gekozen straat niet noemt, maar zijn volledige stratenlijst wel.
+      uitDossier("ET2099000083", addDays(today, 7), { title: "Proefronde door vijf straten (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name], stratenVolledig: true }),
+      // Nakijkronde #170: een lijst uit een ouder bronbestand (zonder stratenVolledig) telt niet; het punt houdt
+      // zich aan zijn locatie.
+      uitDossier("ET2099000086", addDays(today, 8), { title: "Proefronde van een oud bestand (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name] }),
+      // Nakijkronde #170: één evenement uit twee dossiers, één goedgekeurd; deze straat raakt alleen het dossier in
+      // aanvraag: label en geen .ics op deze straat.
+      uitDossier("ET2099000084", addDays(today, 9), { title: "Proeftocht deels in aanvraag (e2e)", location: `${ander.join(", ")} en 1 andere straten`, straten: [...ander, street.name], stratenVolledig: true, ookDossiers: ["ET2099000085"], nietGoedgekeurdStraten: [street.name] }),
+    ];
+    const { page, context, errors } = await openPage(baseUrl, { street, evenement: { dossier: "ET2099000081", dag }, agendaErbij, query: `?plek=${encodeURIComponent(plek)}&soort=evenementen&periode=alles` });
+    const kaart = page.locator(".pv-row", { hasText: "Evenement op straat" }).first();
+    await kaart.waitFor({ timeout: 20000 });
+    await page.locator(".pv-results .pv-row", { hasText: "Proefronde door vijf straten (e2e)" }).waitFor({ timeout: 15000 });
+    // b. Eén kaart: het agendapunt van ET2099000081 staat er niet naast; de kaart deelt het agendapunt.
+    assert.equal(await page.locator(".pv-results .pv-row", { hasText: "Proefstoet van het dossier (e2e)" }).count(), 0);
+    await kaart.locator(".pv-row-btn").click();
+    assert.equal(await kaart.locator('a[href^="/event/asign-ev-et2099000081-"]').count(), 1, "de kaart deelt het agendapunt");
+    // c. De aanvraag: een label in de rij, geen .ics.
+    const aanvraag = page.locator(".pv-results .pv-row", { hasText: "Proefoptocht in aanvraag (e2e)" }).first();
+    assert.match(await aanvraag.locator(".pv-row-kind").innerText(), /Aanvraag, nog niet goedgekeurd/);
+    await aanvraag.locator(".pv-row-btn").click();
+    assert.equal(await aanvraag.locator(".pv-ics").count(), 0, "geen .ics voor een aanvraag");
+    // f. Het agendapunt met de lange stratenlijst staat bij de gekozen straat, en heeft wel een .ics.
+    const ronde = page.locator(".pv-results .pv-row", { hasText: "Proefronde door vijf straten (e2e)" }).first();
+    await ronde.locator(".pv-row-btn").click();
+    assert.equal(await ronde.locator(".pv-ics").count(), 1);
+    // Nakijkronde #170: de lijst van een oud bestand telt niet, en het label per straat.
+    assert.equal(await page.locator(".pv-results .pv-row", { hasText: "Proefronde van een oud bestand (e2e)" }).count(), 0);
+    const deels = page.locator(".pv-results .pv-row", { hasText: "Proeftocht deels in aanvraag (e2e)" }).first();
+    assert.match(await deels.locator(".pv-row-kind").innerText(), /Aanvraag, nog niet goedgekeurd/);
+    await deels.locator(".pv-row-btn").click();
+    assert.equal(await deels.locator(".pv-ics").count(), 0, "geen .ics op een straat van de aanvraag");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("stap 2: Enter opent geen gok ('Bedoelde je…'), wel na een keuze met de pijltjes", async () => {
+    const { page, context, errors } = await openPage(baseUrl, { street });
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("Kammenstrat");
+    await page.locator("#pv-suggestions").getByText("Bedoelde je").waitFor();
+    await input.press("Enter");
+    // Enter wacht eerst op de straten van heel de stad (deel B) en zegt dan waarom het niets opent.
+    await page.locator("#pv-suggestions .pv-sugg-note", { hasText: "Enter opent geen gok" }).waitFor({ timeout: 5000 });
+    assert.doesNotMatch(page.url(), /plek=/, "Enter opent de gok niet");
+    assert.match(await page.locator("#pv-search-help").innerText(), /Enter opent geen gok/);
+    await input.press("ArrowDown");
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"));
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Kammenstraat");
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -679,7 +946,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     for (const [sel, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${sel} eindigt op ${y}px, niet boven 600px`);
     // De kaart zegt hoeveel er in de lijst eronder staat en hoeveel er op de kaart.
     const inLijst = await inSecties(page);
-    await page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
+    await page.waitForFunction((n) => new RegExp(`^${n} (?:in de lijst|regels? in de lijst \\(samen \\d+ items?\\)), \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -694,7 +961,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   const LEGE_FEED = proefFeed(today, []);
   const wachtOpZin = (page, begin) => page.waitForFunction((b) => (document.querySelector(".buurt-status")?.textContent || "").startsWith(b), begin, { timeout: 10000 })
     .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: "${begin}…"`));
-  const wachtOpLijst = (page, x) => page.waitForFunction((n) => new RegExp(`^${n} in de lijst, \\d+ op de kaart in Peterseliestraat`).test(document.querySelector(".buurt-status")?.textContent || ""), x, { timeout: 10000 })
+  const wachtOpLijst = (page, x) => page.waitForFunction((n) => new RegExp(`^${n} (?:in de lijst|regels? in de lijst \\(samen \\d+ items?\\)), \\d+ op de kaart in Peterseliestraat`).test(document.querySelector(".buurt-status")?.textContent || ""), x, { timeout: 10000 })
     .catch(async () => assert.fail(`de kaart zegt "${await page.locator(".buurt-status").textContent()}", verwacht: ${x} in de lijst`));
   await t.test("kaart-tellers: 'X in de lijst' is wat de lijst toont, in de tijdlijn, met een gekozen dag en met de periode", async () => {
     const { page, context, errors } = await openPage(baseUrl, { street: PETERSELIE, feed: LEGE_FEED, query: "?plek=Peterseliestraat&weergave=tijdlijn" });
@@ -1133,6 +1400,57 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.equal(await parkeer.locator(".pv-tech").evaluate((el) => el.open), false, "technische details dicht");
     await page.locator(".pv-results .pv-row", { hasText: "Terraszone (e2e)" }).first().waitFor({ timeout: 15000 });
     assert.equal(await page.locator(".pv-place-failed").count(), 0);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkronde van 13 oktober 2026 (vaag-eind), nagespeeld in de browser: een parkeerverbod voor een werf hing aan een
+  // werfzone zonder doel en verdween in de ingeklapte regel "werfzones zonder doel"; de weekzin telde het niet en de kop
+  // zei nergens "Niet parkeren". En een inname zonder omschrijving in de bundel zei niet dat de uren niet in het
+  // evenementendossier staan. Verzonnen werfzones, parkeerverboden en dossiers in de Peterseliestraat.
+  await t.test("nakijkronde: een werfzone met parkeerverboden staat los, met 'Niet parkeren' in de kop en de weekzin; een inname in een bundel zegt wat niet in het dossier staat", async () => {
+    const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
+    const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === peterselie.id && r[2] === peterselie.postcode)[4];
+    const d = 0.0002, [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2];
+    const vlak = { rings: [[[x1 - d, y1 - d], [x2 + d, y1 - d], [x2 + d, y2 + d], [x1 - d, y2 + d], [x1 - d, y1 - d]]] };
+    const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
+    const UUR = (u) => Date.parse(`1970-01-01T${u}:00Z`);
+    const [nu, eindFase1, beginFase2, eindFase2] = [addDays(today, -5), addDays(today, 20), addDays(today, 21), addDays(today, 60)];
+    const zone = (id, dossier, fase, van, tot) => ({ id, feature: { attributes: { OBJECTID: id, reference_id: dossier, phase_id: fase, status: "vergund", StartDate: ms(van), EndDate: ms(tot) }, geometry: vlak } });
+    const verbod = (id, dossier, van, tot) => ({ id, feature: { attributes: { OBJECTID: id, Dossiernummer: dossier, Locatienummer: "1", Status: "Goedgekeurd", Adres: `${peterselie.name}, ${peterselie.postcode} Antwerpen`, Postcode: peterselie.postcode, Reden: "Melding ikv werfsignalisaties", Startdatum: ms(van), Einddatum: ms(tot), Starttijd: UUR("07:00"), Eindtijd: UUR("17:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [[[x1, y1], [x2, y2]]] } } });
+    const inname = (id, dossier, dag) => ({ id, feature: { attributes: { dossierNummer: dossier, faseId: "F1", innameId: `I${id}`, dossierStatus: "aanvraag_goedgekeurd", faseNaam: "Evenement", type_dossier: "ETL", innameTypeNaam: "Inname", innameBeschrijving: "", innameHinder: "False", faseStartDatum: Date.parse(`${dag}T08:00:00Z`), faseEindDatum: Date.parse(`${dag}T08:00:00Z`) }, geometry: { rings: [[[mx - 0.00004, my - 0.00004], [mx + 0.00004, my - 0.00004], [mx + 0.00004, my + 0.00004], [mx - 0.00004, my + 0.00004], [mx - 0.00004, my - 0.00004]]] } } });
+    const asign = asignServer({ fixtures: {
+      48: [zone(990881, "GW2099-000881", "P1", nu, eindFase1), zone(990882, "GW2099-000881", "P2", beginFase2, eindFase2), zone(990883, "GW2099-000882", "P1", nu, addDays(today, 90)), zone(990884, "GW2099-000883", "P1", addDays(today, 1), addDays(today, 40))],
+      20: [verbod(990881, "2099-000881", nu, eindFase1), verbod(990882, "2099-000882", beginFase2, eindFase2)],
+      23: [inname(990891, "ET2099000891", addDays(today, 8)), inname(990892, "ET2099000892", addDays(today, 15))],
+    } });
+    const { page, context, errors } = await openPage(baseUrl, { street: peterselie, feed: proefFeed(today, []), asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
+    const werfzone = page.locator('.pv-results .pv-row[data-uid^="publicSpace:sgw:GW2099-000881"]').first();
+    await werfzone.waitFor({ timeout: 20000 });
+    await page.locator('.pv-results .pv-row.pv-bundel', { hasText: /innames? zonder omschrijving/ }).first().waitFor({ timeout: 20000 });
+    // (1) Los, niet in een bundel, met de uren en de laatste dag van het lopende parkeerverbod in de kop.
+    assert.equal(await werfzone.evaluate((el) => Boolean(el.closest(".pv-bundel"))), false, "de werfzone met een parkeerverbod staat niet in een bundel");
+    const kop = await werfzone.locator(".pv-row-summary").innerText();
+    assert.match(kop, new RegExp(`Niet parkeren van 7\\.00 tot 17\\.00 uur, t/m ${Number(eindFase1.slice(8))} \\S+ \\(A-Sign, 2099-000881\\)`), kop);
+    // De werfzones zonder parkeerverbod blijven samen ingeklapt.
+    assert.equal(await page.locator(".pv-results .pv-row.pv-bundel", { hasText: "2 werfzones of omleidingen zonder doel in de bron" }).count(), 1);
+    // (2) De weekzin telt het lopende parkeerverbod.
+    await page.waitForFunction(() => /parkeerverbod/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 10000 }).catch(() => {});
+    assert.match(await page.locator(".pv-dezeweek").innerText(), /1 parkeerverbod \(loopt al\)/);
+    // (3) Het parkeerverbod van de tweede fase staat op zijn eerste dag, met de werf erbij.
+    const later = page.locator(`.pv-results section[data-sectie="d:${beginFase2}"] .pv-row[data-uid^="publicSpace:parking:2099-000882"]`);
+    assert.equal(await later.count(), 1, "het begin van de tweede fase staat in zijn dagsectie");
+    assert.match(await later.innerText(), /Parkeerverbod voor de werfzone in de Peterseliestraat/);
+    assert.match(await later.innerText(), /Zelfde straat en dagen als een fase van “Werfzone” \(dossier GW2099-000881\)/);
+    // (4) De inname in de bundel: de sectie zegt dat evenementendossiers geen uren hebben, de kaart wat niet in het dossier staat.
+    const sectie = page.locator('.pv-results section[data-sectie="zonder-omschrijving"]');
+    assert.match(await sectie.locator(".pv-sectie-onbekend").innerText(), /Evenementendossiers van de stad \(A-Sign\) hebben geen uren/);
+    const bundel = sectie.locator(".pv-row.pv-bundel", { hasText: /innames? zonder omschrijving/ }).first();
+    await bundel.locator(".pv-row-btn").first().click();
+    const lid = bundel.locator('.pv-row[data-uid="publicSpace:dossier:ET2099000891"]');
+    await lid.waitFor({ timeout: 10000 });
+    await lid.locator(".pv-row-btn").click();
+    assert.match(await lid.innerText(), /Niet in het evenementendossier ET2099000891 \(A-Sign\):\s*wat er gebeurt en de naam \(geen omschrijving die dat zegt\) · uren \(A-Sign geeft alleen de dag\) · organisator\./);
     assert.deepEqual(errors, []);
     await context.close();
   });

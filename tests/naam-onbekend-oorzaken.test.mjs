@@ -77,7 +77,7 @@ test("oorzaak 2: een besluit met dag, plein en opbouw de dag ervoor geeft het do
   });
   // Vóór het besluit gepubliceerd is: geen naam, en dat staat er eerlijk.
   const voor = bouw({ feiten: [f] }).items[0];
-  assert.equal(voor.title, "Evenement op het Proefplein: verkeersvrije zone in 2 straten, naam onbekend");
+  assert.equal(voor.title, "Evenement op het Proefplein: verkeersvrije zone in 2 straten");
   // De volgende verversing leest het besluit: zelfde dag, eigen plek van het dossier.
   const b = besluit();
   assert.equal(koppelBesluiten([f], [b]).get("ET2099700002"), b);
@@ -158,9 +158,9 @@ test("oorzaak 4: zonder naam zegt de titel wat en waar, zonder 'naam volgt'", ()
   assert.equal(vormZonderNaam(feit("x", { zone: ["Proefstraat", "Tweedestraat"] })), "verkeersvrije zone in 2 straten");
   assert.equal(vormZonderNaam(feit("x")), "");
   const t = (velden) => titelVan(feit("ET2099700004", velden), {}).titel;
-  assert.equal(t({ langs: ["Proefstraat", "Tweedestraat"], routeMeter: 3_300, lus: true }), "Evenement in de Proefstraat: lus van 3,3 km, naam onbekend");
-  assert.equal(t({ beginStraat: "Proefplein", kernStraten: ["Proefplein"], zone: ["Proefplein", "Tweedestraat"] }), "Evenement op het Proefplein: verkeersvrije zone in 2 straten, naam onbekend");
-  assert.equal(t({ beginStraat: "", kernStraten: [], wijk: "" }), "Evenement in district Antwerpen, naam onbekend");
+  assert.equal(t({ langs: ["Proefstraat", "Tweedestraat"], routeMeter: 3_300, lus: true }), "Evenement in de Proefstraat: lus van 3,3 km");
+  assert.equal(t({ beginStraat: "Proefplein", kernStraten: ["Proefplein"], zone: ["Proefplein", "Tweedestraat"] }), "Evenement op het Proefplein: verkeersvrije zone in 2 straten");
+  assert.equal(t({ beginStraat: "", kernStraten: [], wijk: "" }), "Evenement in district Antwerpen");
 });
 
 // Een dossier met parcourslijnen zoals A-Sign ze tekent (laag 23), verrijkt zoals in de herkenner (de vorm),
@@ -196,7 +196,7 @@ test("oorzaak 4: twee losse lussen in één dossier zijn geen route van hun som;
   const langs = ["Proefstraat", "Tweedestraat", "Derdestraat", "Vierdestraat"];
   assert.equal(vormZonderNaam({ ...f, langs }), "parcours door 4 straten");
   const titel = titelVan({ ...feit("ET2099700012"), ...f, langs, beginStraat: "Proefstraat" }, {}).titel;
-  assert.equal(titel, "Evenement in de Proefstraat: parcours door 4 straten, naam onbekend");
+  assert.equal(titel, "Evenement in de Proefstraat: parcours door 4 straten");
   assert.doesNotMatch(titel, /\b(?:lus|route) van\b/);
   // Op de kaart (de zin bij Waar en de omvang uit de herkenner) evenmin een route of lus van 4,8 km.
   const d = asignDossier("ET2099700012", [vierkantLus(MIDDEN, 500), vierkantLus(oost(MIDDEN, 3_000), 700)]);
@@ -252,7 +252,8 @@ test("oorzaak 4: bij een lange tekst blijft er een korte reden staan, en het dos
   const hand = { dossiers: { ET2099700008: fiche({ reden: "Proefreden ".repeat(35).trim(), dagen: ["2026-10-17", "2026-10-18"] }) } };
   for (const item of bouw({ feiten: [f], hand }).items) {
     assert.ok(item.info.length <= 600, item.info.length);
-    assert.match(item.info, /Naam onbekend/);
+    // Eén zin die zegt dat de naam ontbreekt ("Naam onbekend." of de lange zin "Het dossier noemt geen naam, ...").
+    assert.match(item.info, /Naam onbekend|Het dossier noemt geen naam/);
     assert.match(item.info, /Evenementendossier ET2099700008 van de stad \(A-Sign\): aanvraag goedgekeurd\.$/);
   }
 });

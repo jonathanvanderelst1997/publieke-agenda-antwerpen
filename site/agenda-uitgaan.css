@@ -464,7 +464,8 @@ body.agenda-focused {
   color: var(--pa-ink);
   border: 1.5px solid var(--pa-line-strong);
 }
-.grace-badge {
+.grace-badge,
+.aanvraag-badge {
   justify-self: start;
   padding: 2px 8px;
   border-radius: 999px;

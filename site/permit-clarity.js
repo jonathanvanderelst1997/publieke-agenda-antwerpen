@@ -379,7 +379,7 @@ export function omgevingsStatus(item={}) {
 // Een leeg veld betekent "de bron zegt het niet", niet "nog niet".
 const jaNee=v=>{const s=fold(v).trim();return /^(?:ja|j|yes|true|1)$/.test(s)?"ja":/^(?:nee|n|no|false|0)$/.test(s)?"nee":""};
 // Het jaar uit het projectnummer van het Omgevingsloket (OMV_2019...): zo zie je een oud dossier.
-const dossierJaar=project=>{const m=String(project??"").trim().match(/^OMV_(20\d\d)\d{6}$/);return m?m[1]:""};
+export const dossierJaar=project=>{const m=String(project??"").trim().match(/^OMV_(20\d\d)\d{6}$/);return m?m[1]:""};
 export function aanvraagStand(item={}){
   const stage=omgevingsStatus(item);
   if(stage.type!=="aanvraag")return stage.label;
@@ -389,7 +389,14 @@ export function aanvraagStand(item={}){
   if(v==="ja")return "In behandeling: volledig verklaard. Nog geen beslissing gepubliceerd.";
   if(o==="ja")return "In behandeling: ontvankelijk verklaard. Nog geen beslissing gepubliceerd.";
   const jaar=dossierJaar(item.project);
-  return `Ingediend${jaar?` (dossier uit ${jaar})`:""}. De stadsbron zegt niet of de aanvraag volledig en ontvankelijk is. Nog geen beslissing gepubliceerd.`;
+  // Dat de bron niet zegt of de aanvraag volledig en ontvankelijk is, staat één keer boven de sectie (aanvraagZegtNiet,
+  // onbekend-zinnen.js), niet op elke kaart.
+  return `Ingediend${jaar?` (dossier uit ${jaar})`:""}. Nog geen beslissing gepubliceerd.`;
+}
+// Zegt de stadsbron bij deze aanvraag niet of ze volledig en ontvankelijk is? (Ingediend, geen beslissing, beide velden leeg.)
+export function aanvraagZegtNiet(item={}){
+  if(omgevingsStatus(item).type!=="aanvraag")return false;
+  return !jaNee(item.complete)&&!jaNee(item.admissible);
 }
 // Waar: de dichtste straat eerst (permits-live-core.js zet die vooraan), de andere als "ook dicht bij":
 // een straat tot 24 m van het perceel grenst er niet altijd aan. Een tunnel ligt eronder, niet
@@ -430,7 +437,6 @@ export function duidelijkeKaart(entry={},item={},{straat="",vandaag=brusselsVand
         ...(wat?[["Wat",wat]]:[]),
         ...(wie?[[stage.type==="aanvraag"?"Wie beslist":"Beslist door",wie]]:[]),
         ...(item.decisionDateLabel?[["Beslissingsdatum",item.decisionDateLabel]]:[]),
-        ["Start van de werken","Niet gepubliceerd"],
         ...(nummer?[["Dossiernummer",nummer]]:[])],
       waar:waarTekst((item.streets||[]).map(s=>s?.name),straat),
       eigenDetail:true,inzageloket:true,

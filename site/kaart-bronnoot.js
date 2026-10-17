@@ -1,5 +1,7 @@
 // Wat een bewoner echt mag afleiden uit onvolledige officiële records.
 // Geen nieuwe feiten of persoonsnamen; deze zinnen tonen ontbrekende context al op een gesloten kaart.
+// Wat ontbreekt, zegt een zin uit de vaste lijst (site/onbekend-zinnen.js).
+import { onbekendZin } from "./onbekend-zinnen.js";
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const ontbreekt = (entry) => Array.isArray(entry?.uitleg?.ontbreekt) ? entry.uitleg.ontbreekt.map(clean) : [];
 const heeft = (regels, regex) => regels.some((tekst) => regex.test(tekst));
@@ -18,11 +20,11 @@ export function kaartBronNoot(entry = {}, { zichtbaar = [] } = {}) {
   if (soort === "publicSpace" && (soortInname === "iod" || soortInname === "event")) {
     const delen = [];
     if (heeft(regels, /wat er gebeurt en de naam niet gepubliceerd/i) && !/wat er gebeurt.*niet gepubliceerd/i.test(context))
-      delen.push("Welke activiteit hier plaatsvindt is niet gepubliceerd");
+      delen.push(onbekendZin("bronnoot-activiteit"));
     else if (heeft(regels, /naam van het evenement niet gepubliceerd/i) && !/naam.*niet gepubliceerd/i.test(context))
-      delen.push("Naam van het evenement niet gepubliceerd");
+      delen.push(onbekendZin("bronnoot-naam"));
     if (heeft(regels, /uren niet gepubliceerd/i) && !/uren.*niet gepubliceerd/i.test(context))
-      delen.push("Uur niet gepubliceerd");
+      delen.push(onbekendZin("bronnoot-uur"));
     if (delen.length) return delen.join(" · ") + ".";
   }
   if (soort === "works" && heeft(regels, /omschrijving niet gepubliceerd/i) &&

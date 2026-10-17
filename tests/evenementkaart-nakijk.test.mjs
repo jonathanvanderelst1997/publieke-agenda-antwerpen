@@ -223,7 +223,8 @@ test("9. de open kaart herhaalt niets: opbouw, afbraak en het aantal straten sta
 
 test("10. 'Jouw straat' gist niet waarvoor een inname dient", () => {
   const f = evenementFeiten([rij("ET2099000060", "Evenement", "Inname", "2026-10-20", "2026-10-20", ["Proefstraat"])]);
-  assert.equal(jouwStraat(f, "Proefstraat", VANDAAG), "Jouw straat wordt gebruikt voor dit evenement op dinsdag 20 oktober; waarvoor precies, zegt de stad niet.");
-  assert.equal(jouwStraat({ ...f, perSoort: {}, straten: ["Proefstraat"] }, "Proefstraat"), "Jouw straat staat in het dossier van dit evenement; waarvoor, zegt de stad niet.");
+  // Waarvoor, zegt de kaart één keer bij "Wat" (vaagheidsplan 12-10-2026): niet nog eens bij jouw straat.
+  assert.equal(jouwStraat(f, "Proefstraat", VANDAAG), "Jouw straat wordt gebruikt voor dit evenement op dinsdag 20 oktober.");
+  assert.equal(jouwStraat({ ...f, perSoort: {}, straten: ["Proefstraat"] }, "Proefstraat"), "Jouw straat staat in het dossier van dit evenement.");
   assert.doesNotMatch(lees("site", "kaart-uitleg.js"), /zoals tenten, nadars of een stand|bijvoorbeeld voor een omleiding of een parkeerverbod/);
 });

@@ -88,8 +88,20 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
   if (soort === "werken") {
     // Een werf in stukken: een punt per stuk (werkEntries in place-core.js).
     const punten = rijenVan(entry).map((w) => w?.point).filter(isPoint).map((p) => [p[0], p[1]]);
-    if (!punten.length) return null;
-    return [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }];
+    // Een werfkaart (samenWerven in place-core.js): ook de werfzone en de omleiding (exact, zoals een werfzone), en de
+    // parkeerverboden bij benadering (een afgerond punt, zoals een los parkeerverbod).
+    const vlakken = [], lijnen = [], ongeveer = new Map();
+    for (const r of Array.isArray(entry.werfRijen) ? entry.werfRijen : []) {
+      if (r?.kind === "sgw") { vlakken.push(...(r?.vorm?.vlakken || [])); lijnen.push(...(r?.vorm?.lijnen || [])); continue; }
+      const p = middenBijBenadering(r?.vorm);
+      if (p) ongeveer.set(`${p[0]},${p[1]}`, p);
+    }
+    const delen = [
+      ...(punten.length ? [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }] : []),
+      ...vlakDeel(vlakken, exact), ...lijnDeel(lijnen, exact),
+      ...(ongeveer.size ? [{ geometry: ongeveer.size === 1 ? { type: "Point", coordinates: [...ongeveer.values()][0] } : { type: "MultiPoint", coordinates: [...ongeveer.values()] }, parcours: false, ongeveer: true }] : []),
+    ];
+    return delen.length ? delen : null;
   }
   if (soort === "evenement") {
     // Het hele dossier, ook buiten de gekozen plek. Exact: het parcours (parcours=true; zonder live vorm de schets

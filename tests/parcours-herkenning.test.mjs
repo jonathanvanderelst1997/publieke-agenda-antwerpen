@@ -13,7 +13,7 @@ import {
   bibliotheekUit, bijwerkenPatronen, bouwHerkenning, compact, dossiersUitAsign, herkenDossier, kaartzin, metStraat, naamBewijs,
   routeZin, soortenIn, verrijk, zelfdeTitel,
 } from "../lib/parcours-herkenning.mjs";
-import { haalFeeds, herkenParcours, kandidatenUitFeed, kandidatenUitGipod, leesBody, parseIcs, parseJsonLd, parseSquarespace } from "../lib/parcours-herkenning-refresh.mjs";
+import { HISTORIEK_VERSIE, haalFeeds, herkenParcours, kandidatenUitFeed, kandidatenUitGipod, leesBody, parseIcs, parseJsonLd, parseSquarespace } from "../lib/parcours-herkenning-refresh.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
 import { validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { HUISNUMMERS_TEST, evalueer, laadFixtures, VANDAAG } from "./helpers/parcours-herkenning-evaluatie.mjs";
@@ -352,11 +352,14 @@ test("een mislukte historiekvraag voor een gewijzigd dossier houdt het oude antw
   const dir = tijdelijkeRoot({ zonderHand: [id] });
   const items = F.historiek[id];
   assert.ok(items?.length);
-  fs.writeFileSync(path.join(dir, "site", "sources", "evenement-patronen.json"), JSON.stringify({ schemaVersion: 1, bijgewerkt: "2026-10-09", uitleg: "x", patronen: {}, cache: { historiek: { [id]: { sleutel: "vorige sleutel", items } }, straten: {} } }));
+  // Een sleutel van deze versie van de code, van vóór de wijziging van het dossier (een samenvatting van een
+  // oudere versie telt niet meer: tests/rechtzetten-deel0.test.mjs).
+  const vorige = `${HISTORIEK_VERSIE}|vorige sleutel`;
+  fs.writeFileSync(path.join(dir, "site", "sources", "evenement-patronen.json"), JSON.stringify({ schemaVersion: 1, bijgewerkt: "2026-10-09", uitleg: "x", patronen: {}, cache: { historiek: { [id]: { sleutel: vorige, items } }, straten: {} } }));
   const doc = await herkenParcours({ rootDir: dir, fetch: nepFetch({ ids: [id] }), clock: klok, log: () => {}, historiekBudgetMs: 1_000 });
   assert.equal(doc.dossiers[id].soort, LOO.rijen.find((r) => r.dossier === id).auto.soort);
   const cache = leesUit(dir, "evenement-patronen.json").cache.historiek[id];
-  assert.equal(cache.sleutel, "vorige sleutel", "de volgende verversing vraagt het opnieuw");
+  assert.equal(cache.sleutel, vorige, "de volgende verversing vraagt het opnieuw");
   assert.deepEqual(cache.items, items);
   fs.rmSync(dir, { recursive: true, force: true });
 });
