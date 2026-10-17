@@ -843,7 +843,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     assert.deepEqual(fout, []);
   });
 
-  await t.test("plekkop op gsm: Tab volgt de volgorde op het scherm (Deel, Andere plek, dan de wijk)", async () => {
+  await t.test("plekkop op gsm: Tab volgt de volgorde op het scherm (Bewaar straat, Deel, Andere plek, dan de wijk)", async () => {
     const { page, context, errors } = await openPlace(baseUrl);
     // Wachten tot de kop niet meer opnieuw getekend wordt: anders valt de focus tussen twee Tabs weg.
     await page.evaluate(() => new Promise((klaar) => {
@@ -861,12 +861,13 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       if (f.in) volgorde.push(f);
       else if (volgorde.length) break;
     }
-    assert.deepEqual(volgorde.map((f) => f.naam), ["🔗 Deel", "Andere plek", "Stuivenberg"]);
+    // Bij een straat staat "Bewaar straat" (#171) vooraan in de knoppen, op het scherm een ster links van Deel.
+    assert.deepEqual(volgorde.map((f) => f.naam), ["Bewaar straat", "🔗 Deel", "Andere plek", "Stuivenberg"]);
     // Nakijkbevinding (gsm-kop, afweging): voor een schermlezer staat de kop (de straatnaam) vóór Deel en Andere
     // plek, zodat wie met H naar de kop springt en verder leest, de knoppen nog hoort.
     const snap = await page.locator(".pv-place-top").ariaSnapshot();
-    const kopAt = snap.indexOf(`heading "${STRAAT.name}"`), deelAt = snap.indexOf('button "Deel de link naar deze plek"'), andereAt = snap.indexOf('button "Andere plek"'), wijkAt = snap.indexOf('button "Stuivenberg"');
-    assert.ok(kopAt >= 0 && kopAt < deelAt && deelAt < andereAt && andereAt < wijkAt, snap);
+    const kopAt = snap.indexOf(`heading "${STRAAT.name}"`), bewaarAt = snap.indexOf('button "Bewaar straat"'), deelAt = snap.indexOf('button "Deel de link naar deze plek"'), andereAt = snap.indexOf('button "Andere plek"'), wijkAt = snap.indexOf('button "Stuivenberg"');
+    assert.ok(kopAt >= 0 && kopAt < bewaarAt && bewaarAt < deelAt && deelAt < andereAt && andereAt < wijkAt, snap);
     // Elke volgende knop staat lager, of op dezelfde rij rechts ervan: nooit terug omhoog.
     for (let i = 1; i < volgorde.length; i += 1) {
       const [a, b] = [volgorde[i - 1], volgorde[i]];
