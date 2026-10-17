@@ -18,8 +18,9 @@ automatische bron gaat voor.
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
-| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is** |
+| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is**: wacht op de beslissing van de eigenaar (sleutel kost geld; zie onder) |
 | `mail-district`, `mail-stad` | district / stad | publieke activiteiten uit nieuwsbrieven | mail-signalen van de Brain Gateway; titel en datum worden op de officiële pagina gecontroleerd, uur en plaats alleen overgenomen als ze daar ook staan (zie onder) |
+| `awv-werf-supplement` | district | **geen agendapunten**: een aanvulling op de GIPOD-werken (rijstroken, doorgang, snelheidsbeperking, omleidingen, fase en werf van AWV), alleen op exact hetzelfde GIPOD-id | WFS "Werf – Innames" en "Werf – Lokale omleidingen" van het Agentschap Wegen en Verkeer (open data, geen sleutel), één vraag plus de omleidingen in blokken van 100 (zie onder) |
 
 De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten hosts) staan in
 `lib/source-feed.mjs`, niet in de data. Een data-refresh kan dus geen nieuwe host of andere groep toevoegen.
@@ -28,8 +29,8 @@ De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten ho
 
 Er is geen algemene limiet van 7 dagen. Elke gratis bron wordt zo ver vooruit gelezen als zij betrouwbaar en begrensd toelaat:
 
-- GIPOD-evenementen: 365 dagen.
-- GIPOD-markten: 365 dagen queryhorizon; per markt alleen de eerstvolgende nog geldige marktdag.
+- GIPOD-evenementen: 365 dagen in de vraag, maar GIPOD publiceert maar zes maanden vooruit (dataset 2b4b3bb7; gemeten op 17-10-2026: de laatste start in het district is 18-04-2027). In de praktijk dus zes maanden.
+- GIPOD-markten: 365 dagen queryhorizon, in de praktijk ook zes maanden; per markt alleen de eerstvolgende nog geldige marktdag.
 - Districtskalender en districtsnieuws: alle concreet gedateerde toekomstige items binnen hun geldige publicatieperiode.
 - eBesluit en openbare vergaderingen: officiële zoek- en kalenderperiodes, zonder 7-dagenafkap.
 - Koopzondagen: alle nog komende data die in de officiële jaarlijsten staan.
@@ -104,8 +105,8 @@ en 5 seconden).
 De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
 Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 
-- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten (`budgetMs` in
-  `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
+- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten en `awv-werf-supplement`
+  60 seconden (`budgetMs` in `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
   historiek daarna hoogstens 3 minuten (`LIVE_HISTORY_BUDGET_MS`);
 - na het budget faalt elk verzoek van die fetcher meteen (`FetchError("source_timeout")`); hij eindigt
   via zijn gewone foutpad. De bron krijgt `fetchStatus: "error"` met `errorCode: "source_timeout"` en
@@ -336,6 +337,34 @@ De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit.
 
 Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
 
+Stand 17 oktober 2026: GIPOD heeft 44 speelstraten in Vlaanderen, maar geen enkele van stad Antwerpen of in het district; deze regel levert dus niets. De stad zet haar speelstraten wel in een publieke kaartlaag `Feniks_speelstraat` (ArcGIS Online van Stad Antwerpen: per speelstraat een dossiernummer, begin- en einddatum, status en het vlak, geen namen; 8 speelstraten van 31 oktober 2026 tot 1 januari 2027, waarvan 2 in het district). Die laag staat niet op het open-dataportaal en vermeldt geen licentie: ze wordt pas ingelezen als de eigenaar dat beslist (zie de brongrens Speelstraten in `docs/COVERAGE_MATRIX.md`, met het bouwplan). Een evenementendossier in A-Sign met het woord "speelstraat" wordt al een agendapunt via `district-asign-evenementen`.
+
+## AWV-werfdata (`awv-werf-supplement`, geen agendabron)
+
+Een aanvulling op de GIPOD-werkenlaag, geen bron van agendapunten (`lib/awv-werf.mjs`,
+`scripts/fetch-sources-awv-werf.mjs`, `site/works-awv-supplement.js`). De bron staat in `lib/source-feed.mjs`
+met `aanvulling: true`: ze heeft haar eigen itemvorm, `build:sources` slaat het bestand over (het komt nooit in
+`agenda-feed.js`) en ze krijgt wel haar eigen regel in `refresh-status.json`, met de gewone telling "leeg".
+
+- Vraag: `awv:Werf_Innames` op https://opendata.apps.mow.vlaanderen.be/opendata-geoserver/awv/wfs, in het kader
+  van het district (Lambert 72), totdatum vanaf vandaag, status `InUitvoering`, `ConcreetGepland` of
+  `ConcreetVoorUitvoering`, met een vaste lijst velden (nooit `Omschrijving`, `URL` of `Buffer_publicatie`).
+  De server rekent terug in EPSG:3857 (in WGS84 rondt hij af op 3 decimalen); de fetcher zet om met de exacte
+  formule (minder dan 1 cm verschil met pyproj).
+- Daarna `awv:Werf_Lokale_omleidingen` op `Inname_ID`, in blokken van hoogstens 100 (200 gaf HTTP 414), met
+  hoogstens 2 vragen tegelijk; alleen voor wie een omleiding geldt, niet de lijn.
+- Alleen innames met een GIPOD-id waarvan de lijn de exacte districtsgrens raakt. Een inname zonder einddatum
+  valt weg. Eén item per GIPOD-id, met `date` (vroegste van) en `endDate` (laatste tot).
+- Tekst alleen via een woordenlijst; de fase alleen als "Fase 2" of een maandnaam; de soort werk alleen uit de
+  vaste lijst van 23 AWV-categorieën (`AWV_SOORTEN`). De afdeling is Antwerpen, Lantis, TO (tunnelorganisatie) of
+  anders "AWV".
+- Faalt gesloten: een fout, een afgekapt antwoord (`numberMatched` groter dan wat er kwam, of 2.000 innames),
+  ongeldige JSON of een ongeldig bestand, en 0 innames terwijl de vorige ronde er meer dan 20 had
+  (`suspicious_drop`; `AGENDA_ALLOW_DROP=awv-werf-supplement` laat een bewuste daling toe). Het vorige bestand
+  blijft dan staan. De site toont een bestand ouder dan 3 dagen niet meer.
+- Proefverversing van 17 oktober 2026: 174 innames in het kader, 118 bewaard, 118 aanvullingen van 19 werven,
+  28 lokale omleidingen, 89 KB, 19 seconden.
+
 ## Evenementen uit eBesluit (`district-ebesluit-evenementen`)
 
 Collegebesluiten noemen een evenement bij naam, met dag, uren, plaats, opbouw en afbouw. De fetcher
@@ -532,6 +561,9 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   Hergebruik v1.0)", met een link naar de OGC API van GIPOD.
 - Op de site staat bij elke gratis stadsbron haar eigen bronvermelding; op een eventpagina die van de bron
   met voorrang.
+- AWV-werfdata (aanvulling op een werk): "Bron: Agentschap Wegen en Verkeer (AWV), open data Werf, bijgewerkt op …"
+  met de datum van de jongste wijziging in de data en een link naar de metadatafiche, zoals het gebruiksrecht van
+  AWV vraagt; de tekst "Volgens AWV-werfdata" laat geen goedkeuring door AWV vermoeden.
 - Stad: "Bron: UiTinVlaanderen.be" met een link naar https://www.uitinvlaanderen.be, en per UiT-item
   "Bron: uitinvlaanderen.be" met een link naar de eigen UiT-pagina.
 - Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op
@@ -539,6 +571,12 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   UiT-items krijgen geen eigen eventpagina en staan niet in de sitemap.
 
 ## UiT: uit zonder sleutel
+
+Stand 17 oktober 2026: wacht op de beslissing van de eigenaar (sleutel kost geld). De Search API antwoordt
+zonder sleutel 401, ook op de testomgeving. Testsleutels zijn gratis maar werken alleen op de testomgeving.
+Voor de echte gegevens rekent publiq 125 euro per jaar (Basic plan, één website) of een prijs op maat; leden
+van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets in de code: de eigenaar zet
+`UITDATABANK_CLIENT_ID` als hij beslist.
 
 - `UITDATABANK_CLIENT_ID` (header `x-client-id`) of, als terugval, `UITDATABANK_API_KEY` (header `x-api-key`).
 - Zonder sleutel: "UiT uit: geen sleutel", `site/sources/stad-uit.json` blijft byte-identiek en

@@ -133,6 +133,8 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "site", "witte-lijst.js"), path.join(root, "site", "witte-lijst.js"));
       // ... en de vaste lijst onbekend-zinnen (site/onbekend-zinnen.js).
       fs.copyFileSync(path.join(repoRoot, "site", "onbekend-zinnen.js"), path.join(root, "site", "onbekend-zinnen.js"));
+      // lib/awv-werf.mjs haalt de vaste lijst soorten werk (AWV_SOORTEN) uit site/works-awv-supplement.js.
+      fs.copyFileSync(path.join(repoRoot, "site", "works-awv-supplement.js"), path.join(root, "site", "works-awv-supplement.js"));
 
       const baseline = { schemaVersion: 1, layers: { works: { observedAt: T1, items: [{ id: "work:1" }] }, publicSpace: null } };
       const day = updateHistoryArchiveDay(null, T2, [event(T2, "work:2")]);
