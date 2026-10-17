@@ -1628,9 +1628,46 @@ function esc(value) {
   return String(value ?? "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[character]);
 }
 
-// Alleen https-links worden een href; al de rest (javascript:, data:, http:) valt weg.
+// GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname, ook Hinder in Kaart
+// met gipodid): dat record draagt contactgegevens. Zo'n link wordt de officiële datasetfiche, met één
+// bronvermelding. Een kopie van ruwGipodRecord uit site/gipod-bron.js (dit bestand is geen module);
+// tests/gipod-geen-ruwe-links.test.mjs houdt beide gelijk.
+const AGENDA_GIPOD_METADATA_URL = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
+const AGENDA_GIPOD_BRON = "Bron: GIPOD (Digitaal Vlaanderen)";
+function agendaRuwGipodRecord(value) {
+  let url;
+  try {
+    url = new URL(String(value ?? "").trim());
+  } catch {
+    return false;
+  }
+  if (!/^https?:$/.test(url.protocol)) return false;
+  const host = url.hostname.toLowerCase().replace(/\.$/, "");
+  if (host === "gipod.api.vlaanderen.be" || host.endsWith(".gipod.api.vlaanderen.be")) return true;
+  if (host === "geopunt.be" || host.endsWith(".geopunt.be")) {
+    let vraag = url.search + url.hash;
+    try {
+      vraag = decodeURIComponent(vraag);
+    } catch {
+      // een kapotte codering: dan de vraag zoals ze is
+    }
+    return /(?:^|[?&;#/])gipodid=/i.test(vraag);
+  }
+  if (host !== "geo.api.vlaanderen.be") return false;
+  let pad = url.pathname;
+  try {
+    pad = decodeURIComponent(pad);
+  } catch {
+    // een kapotte codering: dan het pad zoals het is
+  }
+  return /^\/+gipod\//i.test(pad) && /\/items(?:[/.]|$)/i.test(pad);
+}
+
+// Alleen https-links worden een href; al de rest (javascript:, data:, http:) valt weg. Een ruw GIPOD-record
+// wordt de datasetfiche.
 function safeHref(value) {
   const text = String(value ?? "").trim();
+  if (agendaRuwGipodRecord(text)) return AGENDA_GIPOD_METADATA_URL;
   if (!/^https:\/\/[^\s"'<>]+$/i.test(text)) return "";
   try {
     return new URL(text).protocol === "https:" ? text : "";
@@ -1957,7 +1994,7 @@ function worksOverviewTemplate(items) {
               <span>${esc([item.dateLabel, item.location].filter(Boolean).join(" · "))}</span>
               ${item.info ? `<p>${esc(item.info)}</p>` : ""}
               <span>Bron gecontroleerd ${esc(formatSimpleDate(String(item.sourceRetrievedAt || "").slice(0, 10)))}</span>
-              ${safeHref(item.link) ? `<a href="${esc(safeHref(item.link))}" target="_blank" rel="noreferrer">Officiële bron</a>` : ""}
+              ${safeHref(item.link) ? `<a href="${esc(safeHref(item.link))}" target="_blank" rel="noreferrer">${esc(safeHref(item.link) === AGENDA_GIPOD_METADATA_URL ? AGENDA_GIPOD_BRON : "Officiële bron")}</a>` : ""}
             </article>
           `)
           .join("")}
@@ -2028,7 +2065,7 @@ function sourceLinksTemplate(item) {
     const href = safeHref(url);
     if (!href || seen.has(href)) return;
     seen.add(href);
-    links.push(`<li><a href="${esc(href)}" target="_blank" rel="noreferrer">${esc(label)}</a></li>`);
+    links.push(`<li><a href="${esc(href)}" target="_blank" rel="noreferrer">${esc(href === AGENDA_GIPOD_METADATA_URL ? AGENDA_GIPOD_BRON : label)}</a></li>`);
   };
   if (Array.isArray(item.sources) && item.sources.length) {
     item.sources.forEach((source) => add(source.url, source.sourceId === "stad-uit" ? "Bron: uitinvlaanderen.be" : sourceLabel(source.sourceId)));

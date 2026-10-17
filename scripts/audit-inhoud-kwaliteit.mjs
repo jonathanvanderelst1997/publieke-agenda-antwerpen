@@ -2,6 +2,7 @@
 // Serieuze integriteitsbreuken stoppen de datatak; bron-onvolledigheid blijft zichtbaar als waarschuwing.
 import fs from "node:fs";
 import path from "node:path";
+import {ruwGipodRecord} from "../site/gipod-bron.js";
 const clean=x=>String(x??"").trim();
 const valideDatum=d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d+"T12:00:00Z"))&&new Date(d+"T12:00:00Z").toISOString().slice(0,10)===d;
 export function technischeLink(link){
@@ -10,7 +11,7 @@ export function technischeLink(link){
 export function controleerAgendaInhoud({feed={},werken={},status={}}={}){
  const fouten=[],signalen=[],items=Array.isArray(feed.items)?feed.items:[],bronnen=Array.isArray(status.sources)?status.sources:[],werklijst=Object.values(werken.werken||{});
  const metrieken={agendaItems:items.length,toekomstig:0,technischeLinkZonderBezoekerslink:0,onbekendeUren:0,onzekereTitels:0,algemeneLocatie:0,
-   werkdossiers:werklijst.length,werkenZonderOmschrijving:0,werkenZonderSoort:0,indicatieveNummerbereiken:0,bronFouten:0,bronZonderSleutel:0};
+   werkdossiers:werklijst.length,werkenZonderOmschrijving:0,werkenZonderSoort:0,indicatieveNummerbereiken:0,bronFouten:0,bronZonderSleutel:0,ruweGipodLinks:0};
  if(!items.length)fouten.push("agenda-feed bevat geen items");
  if(!valideDatum(feed.classificationAsOf))fouten.push("ongeldige datum van bronclassificatie");
  if(!bronnen.length)fouten.push("bronstatus ontbreekt");
@@ -25,11 +26,15 @@ export function controleerAgendaInhoud({feed={},werken={},status={}}={}){
   if(combinaties.has(sleutel))fouten.push("exact dubbel agendapunt");combinaties.add(sleutel);
   if(valideDatum(item.date)&&(item.endDate||item.date)>=feed.classificationAsOf)metrieken.toekomstig++;
   if(technischeLink(item.link||item.sourceUrl)&&!/^https:\/\//.test(clean(item.infoUrl)))metrieken.technischeLinkZonderBezoekerslink++;
+  // Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): zo'n record draagt contactgegevens. De feed
+  // komt altijd uit build:sources, dat een GIPOD-bron van vóór 17 oktober 2026 in de nieuwe vorm zet.
+  if([item.link,item.sourceUrl,item.infoUrl,...(Array.isArray(item.sources)?item.sources.map(s=>s?.url):[])].some(ruwGipodRecord))metrieken.ruweGipodLinks++;
   if(item.sourceId==="district-asign-evenementen"&&!clean(item.timeText))metrieken.onbekendeUren++;
   if(/vermoedelijk|naam onbekend|evenement zonder naam/i.test(clean(item.title)))metrieken.onzekereTitels++;
   if(/locatie via de offici[eë]le bron|^verschillende locaties$|^(\d{4}\s*,\s*)+\d{4}\s+Antwerpen$/i.test(clean(item.location)))metrieken.algemeneLocatie++;
  }
  if(items.length&&!metrieken.toekomstig)fouten.push("geen toekomstige of lopende activiteiten");
+ if(metrieken.ruweGipodLinks)fouten.push(`${metrieken.ruweGipodLinks} agendapunten met een link naar een ruw GIPOD-record`);
  for(const w of werklijst){if(!clean(w?.omschrijving))metrieken.werkenZonderOmschrijving++;if(!clean(w?.soort))metrieken.werkenZonderSoort++;if(/afgeleid uit/i.test(clean(w?.huisnummerBron)))metrieken.indicatieveNummerbereiken++}
  for(const b of bronnen){if(b.fetchStatus==="error")metrieken.bronFouten++;if(b.fetchStatus==="skipped_no_key")metrieken.bronZonderSleutel++}
  const teksten={technischeLinkZonderBezoekerslink:"kaarten zonder bezoekerslink",onbekendeUren:"evenementen zonder bevestigd uur",onzekereTitels:"onzekere eventtitels",algemeneLocatie:"items met vage locatie",werkenZonderOmschrijving:"werken zonder omschrijving",werkenZonderSoort:"werken zonder soort",bronFouten:"bronnen met fout",bronZonderSleutel:"bronnen zonder configuratie"};

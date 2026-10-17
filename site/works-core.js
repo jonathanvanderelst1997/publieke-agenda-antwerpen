@@ -19,15 +19,18 @@ const later=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))>=0?a:b);
 // Alleen dat patroon: Reference is elders vrije tekst van een aannemer (soms met een naam of een adres), die gaat nooit mee.
 export const WERF_DOSSIER=/^GW\d{4}-\d{6}$/;
 export const werfDossier=(value)=>{const t=normalizeText(value);return WERF_DOSSIER.test(t)?t:""};
+// De werken in het district, per GIPOD-id. Nooit de Uri of een andere link naar het ruwe INNAME_PUNT-record
+// (site/gipod-bron.js): dat record draagt ContactOrganisations. De site linkt naar de algemene kaart van Hinder in
+// Kaart, nooit met gipodid (site/bezoekers-bronnen.js).
 export function collectWorks(features=[],exactIds=new Set(),districtGeometry=null){
   const grouped=new Map();
   for(const feature of features){
     const point=feature?.geometry?.coordinates;if(feature?.geometry?.type!=="Point"||!Array.isArray(point)||!point.slice(0,2).every(Number.isFinite))continue;
     const p=feature.properties||{},gipodId=Number(p.GipodId);if(!Number.isFinite(gipodId))continue;
     const exact=exactIds.has(gipodId),inside=districtGeometry?pointInGeometry(point,districtGeometry):false;if(!exact&&!inside)continue;
-    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:gipodTekst(p.Description)||"Werk in openbaar domein",owner:normalizeText(p.Owner),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),sourceUrls:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
-    cur.recordCount+=1;if(!cur.dossier)cur.dossier=werfDossier(p.Reference);cur.start=earlier(cur.start,p.Start||"");cur.end=later(cur.end,p.End||"");cur.lastModified=later(cur.lastModified,p.LastModifiedOn||"");if(p.Status==="In uitvoering")cur.status="In uitvoering";if(p.PublicDomainOccupancyTypes)cur.occupancyTypes.add(normalizeText(p.PublicDomainOccupancyTypes));if(p.GroundworkSpecification)cur.workTypes.add(normalizeText(p.GroundworkSpecification));if(typeof p.Uri==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.Uri))cur.sourceUrls.add(p.Uri);if(exact)cur.boundaryConfidence="exact_snapshot";grouped.set(gipodId,cur);
+    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:gipodTekst(p.Description)||"Werk in openbaar domein",owner:normalizeText(p.Owner),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
+    cur.recordCount+=1;if(!cur.dossier)cur.dossier=werfDossier(p.Reference);cur.start=earlier(cur.start,p.Start||"");cur.end=later(cur.end,p.End||"");cur.lastModified=later(cur.lastModified,p.LastModifiedOn||"");if(p.Status==="In uitvoering")cur.status="In uitvoering";if(p.PublicDomainOccupancyTypes)cur.occupancyTypes.add(normalizeText(p.PublicDomainOccupancyTypes));if(p.GroundworkSpecification)cur.workTypes.add(normalizeText(p.GroundworkSpecification));if(exact)cur.boundaryConfidence="exact_snapshot";grouped.set(gipodId,cur);
   }
-  return [...grouped.values()].map(({dossier,...i})=>({...i,...(dossier?{dossier}:{}),workTypes:[...i.workTypes],occupancyTypes:[...i.occupancyTypes],sourceUrls:[...i.sourceUrls]})).sort((a,b)=>(a.status==="In uitvoering"?0:1)-(b.status==="In uitvoering"?0:1)||String(a.start||"9999").localeCompare(String(b.start||"9999"))||a.title.localeCompare(b.title,"nl"));
+  return [...grouped.values()].map(({dossier,...i})=>({...i,...(dossier?{dossier}:{}),workTypes:[...i.workTypes],occupancyTypes:[...i.occupancyTypes]})).sort((a,b)=>(a.status==="In uitvoering"?0:1)-(b.status==="In uitvoering"?0:1)||String(a.start||"9999").localeCompare(String(b.start||"9999"))||a.title.localeCompare(b.title,"nl"));
 }
 export function worksStats(items=[]){const s={total:items.length,running:0,planned:0,exactSnapshot:0,newPointInside:0,owners:{}};for(const i of items){if(i.status==="In uitvoering")s.running++;if(i.status==="Concreet gepland")s.planned++;if(i.boundaryConfidence==="exact_snapshot")s.exactSnapshot++;if(i.boundaryConfidence==="point_inside_new")s.newPointInside++;s.owners[i.ownerGroup]=(s.owners[i.ownerGroup]||0)+1}return s}

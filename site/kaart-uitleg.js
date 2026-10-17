@@ -9,6 +9,7 @@ import {
   DINGEN, KENMERK_WAARDEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
+import { gipodLink } from "./gipod-bron.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
 import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
 
@@ -1214,7 +1215,8 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
     titel: clean(it.title, 160),
     tijd: clean(it.timeText, 80),
     locatie: zonderHuisnummer(clean(it.location, 200)),
-    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) ? url : "",
+    // Een GIPOD-link (ruw record of datasetfiche) is geen infopagina over het evenement (site/gipod-bron.js).
+    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) && !gipodLink(url) ? url : "",
     agendaId: /^[a-z0-9][a-z0-9-]{2,200}$/.test(String(it.id || "")) && it.noEventPage !== true ? String(it.id) : "",
   };
 }
@@ -1473,9 +1475,10 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   if (jouw) kern.push(["Jouw straat", jouw]);
   kern.push(["Wat merk je", merk]);
 
-  // Links naar een gewone pagina, nooit een databron.
+  // Links naar een gewone pagina, nooit een databron, en nooit een GIPOD-link (een ruw record draagt
+  // contactgegevens, site/gipod-bron.js; ook niet uit een oudere automatische fiche).
   const links = [];
-  const voegToe = (url, label, uitleg = "") => { if (url && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
+  const voegToe = (url, label, uitleg = "") => { if (url && !gipodLink(url) && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
   if (id?.link) voegToe(id.link, clean(id.linkLabel, 80) || "Officiële info over dit evenement", clean(id.linkUitleg, 160));
   for (const l of id?.extraLinks || []) voegToe(l.url, clean(l.label, 100));
   // Bij een koppeling: de officiële pagina van het agendapunt én het agendapunt zelf.
