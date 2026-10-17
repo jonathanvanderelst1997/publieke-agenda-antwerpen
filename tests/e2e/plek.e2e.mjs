@@ -12,6 +12,7 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
+import { gezondeBronnen } from "../helpers/proef-feed.mjs";
 import { locationKey } from "../../site/neighborhood-core.js";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
 
@@ -195,9 +196,10 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
   // De echte feed met verzonnen agendapunten erbij (`agendaErbij`, met een vaste letterlijke basis), of een volledig
-  // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed.
+  // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed. De echte items, maar de bronnen
+  // gezond (gezondeBronnen): een bron die die dag faalde, zet anders de bronwaarschuwing boven de plek.
   if (agendaErbij.length && !feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
-    const echt = echteFeed();
+    const echt = gezondeBronnen(echteFeed());
     echt.items.push(...agendaErbij.map((item) => kalenderItem(echt.generatedAt, item)));
     return route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(echt) });
   });

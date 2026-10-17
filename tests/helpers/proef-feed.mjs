@@ -31,14 +31,26 @@ export function marktItem(stempel, eigen = {}) {
   };
 }
 
-// De feed van dag `dag` (05:00 UTC): alle bronnen die ochtend opgehaald, met alleen de verzonnen `items`
-// (of een functie die ze maakt met de stempel van die ochtend).
+// Alle bronnen van `feed` opgehaald op `stempel`, en met succes: een bron die in de echte feed faalde (fetchStatus
+// "error", zoals eBesluit sinds 13 oktober 2026) zou anders de bronwaarschuwing bovenaan zetten (#191), en dan hing
+// een toets van de opmaak af van de gezondheid van de bronnen op de dag van de data. Een bron zonder sleutel of
+// uitgezet blijft zoals ze is. De items houden hun eigen stempel.
+export function gezondeBronnen(feed, stempel = feed.generatedAt) {
+  for (const bron of feed.sources) {
+    bron.retrievedAt = stempel;
+    if (bron.fetchStatus === "error") Object.assign(bron, { fetchStatus: "ok", errorCode: null });
+  }
+  return feed;
+}
+
+// De feed van dag `dag` (05:00 UTC): alle bronnen die ochtend opgehaald (gezondeBronnen), met alleen de verzonnen
+// `items` (of een functie die ze maakt met de stempel van die ochtend).
 export function proefFeed(dag, items = []) {
   const feed = echteFeed();
   const stempel = `${dag}T05:00:00.000Z`;
   feed.generatedAt = stempel;
   feed.classificationAsOf = dag;
-  for (const bron of feed.sources) bron.retrievedAt = stempel;
+  gezondeBronnen(feed, stempel);
   feed.items = typeof items === "function" ? items(stempel) : items;
   return feed;
 }
