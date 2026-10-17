@@ -10,6 +10,7 @@ import { stadPlaces, zoekIndex, zoekOveral, buitenParam, resolveBuiten, naamgeno
 import { bouwStadStraten, districtenTabel, districtVan, districtUitPostcodes, postcodeUitAdres, schoneNaam, BRONNEN } from "../scripts/build-straten-stad.mjs";
 import { wijkFeatures, bboxOf } from "../site/neighborhood-core.js";
 import { DISTRICT_CHANNELS } from "../lib/district-channels.mjs";
+import { GIPOD_METADATA_URL } from "../site/gipod-bron.js";
 
 const lees = (rel) => JSON.parse(fs.readFileSync(new URL(`../${rel}`, import.meta.url), "utf8"));
 const straten = lees("site/geo/straten.json");
@@ -179,10 +180,11 @@ test("nakijkronde 1: een tikfout die midden in een straat van een ander district
   assert.ok(zoekOveral(index, "Kammenstraat").every((r) => r.match !== "fuzzy"));
 });
 
-// 2. "Maria-Theresialei" opende met Enter de straat in Ekeren: straten.json noemt die van 2018 "Maria-Theresialei_AN"
-//    (de homoniemtoevoeging van de straatas), dus was die van Ekeren de enige exacte.
+// 2. "Maria-Theresialei" opende met Enter de straat in Ekeren: straten.json noemde die van 2018 "Maria-Theresialei_AN"
+//    (de homoniemtoevoeging van de straatas), dus was die van Ekeren de enige exacte. Nu gaat de toevoeging weg bij het
+//    inlezen van de straatas (straatasNaam in site/street-core.js), ook in straten.json.
 test("nakijkronde 2: geen homoniemtoevoeging in district Antwerpen, Maria-Theresialei is een keuze tussen 2018 en Ekeren", () => {
-  assert.ok(straten.streets.some((r) => r[1] === "Maria-Theresialei_AN"), "de bron heeft de toevoeging nog (anders is deze toets overbodig)");
+  assert.deepEqual(straten.streets.filter((r) => /_[A-Z]{2}$/.test(r[1])).map((r) => r[1]), [], "straten.json is zonder homoniemtoevoeging");
   for (const p of districtIndex.places.filter((x) => x.type === "straat")) {
     assert.doesNotMatch(p.label, /_[A-Z]{2}$/, p.key);
     assert.doesNotMatch(placeParam(p, districtIndex), /_[A-Z]{2}\b/, p.key);
@@ -194,14 +196,15 @@ test("nakijkronde 2: geen homoniemtoevoeging in district Antwerpen, Maria-Theres
   const ekeren = resolveBuiten(index, "Maria-Theresialei 2180");
   assert.equal(ekeren.district.label, "Ekeren");
   assert.deepEqual(naamgenoten(index, ekeren).district.map((p) => `${p.label} ${p.postcode}`), ["Maria-Theresialei 2018"]);
-  // De straat zelf: naam en sleutel blijven die van de straatas (zo koppelt ze aan de live lagen en de ochtendstand);
-  // de link heet gewoon Maria-Theresialei, en een oude link met de toevoeging werkt nog.
+  // De straat zelf: naam en sleutel zijn die van de straatas, zonder toevoeging (zo koppelt ze aan de live lagen en de
+  // ochtendstand, die ze ook zonder krijgen); een oude link of sleutel met de toevoeging werkt nog.
   const mt = res[0].place;
-  assert.equal(mt.name, "Maria-Theresialei_AN");
-  assert.match(mt.key, /^straat:\d+\|Maria-Theresialei_AN\|2018$/);
+  assert.equal(mt.name, "Maria-Theresialei");
+  assert.match(mt.key, /^straat:\d+\|Maria-Theresialei\|2018$/);
   assert.equal(placeParam(mt, districtIndex), "Maria-Theresialei");
   assert.equal(resolvePlaceParam(districtIndex, "Maria-Theresialei"), mt);
   assert.equal(resolvePlaceParam(districtIndex, "Maria-Theresialei_AN"), mt);
+  assert.equal(resolvePlaceParam(districtIndex, mt.key.replace("|Maria-Theresialei|", "|Maria-Theresialei_AN|")), mt);
   assert.equal(enterKeuze(zoekOveral(index, "Maria-Theresialei 2018")).place, mt);
   assert.equal(enterKeuze(zoekOveral(index, "Maria-Theresialei Ekeren")).place, ekeren);
 });
@@ -264,7 +267,10 @@ test("wat de site kent in een ander district: markten van de stad en districtsni
     ["Gemengde markt Kioskplaats", true, ["2099-03-16 8 tot 13 uur", "2099-03-23 8 tot 13 uur"]],
     ["Vrijdagmarkt elders", false, ["2099-03-13 7.30 uur"]],
   ]);
-  assert.match(hoboken.markten[0].bron, /\/items\/m1$/, "de bron van de eerstvolgende marktdag");
+  // De verzonnen markten dragen nog een ruwe INNAME_PUNT-rij als link (zoals een bestand van voor 17 oktober 2026):
+  // die wordt de datasetfiche, nooit het record van een marktdag (site/gipod-bron.js).
+  assert.equal(hoboken.markten[0].bron, GIPOD_METADATA_URL, "de bron van de eerstvolgende marktdag is de datasetfiche");
+  assert.deepEqual([...new Set(hoboken.markten.flatMap((m) => m.dagen.map((d) => d.bron)))], [GIPOD_METADATA_URL]);
   assert.deepEqual(hoboken.nieuws.map((n) => [n.title, n.volzet, n.date, n.uur, n.location, Boolean(n.bron)]), [
     ["Lezing in de bib", true, "2099-03-11", "19.30 uur", "", true],
     ["Buurtfeest", false, "2099-03-20", "", "Park Broydenborg", true],

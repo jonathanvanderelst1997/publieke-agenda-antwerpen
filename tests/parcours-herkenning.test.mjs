@@ -148,7 +148,9 @@ test("GIPOD: titel na het adres, geen stad Antwerpen, geen markten, geen privéf
     feat("5-1", "• Parkeerverbod in de voorbeeldstraat vanaf de kruising"),
   ] });
   assert.deepEqual(k.map((x) => x.titel), ["Campustrail"]);
-  assert.equal(k[0].link, "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME/items/INNAME.1-1");
+  // Geen link naar de INNAME-rij (die toont contactgegevens); de bron blijft GIPOD, met de gemeente.
+  assert.equal(k[0].link, "");
+  assert.equal(k[0].bronLabel, "GIPOD (gemeente Mortsel)");
   assert.equal(k[0].bron, "gipod");
 });
 

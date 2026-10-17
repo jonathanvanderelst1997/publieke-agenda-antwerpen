@@ -4,6 +4,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
+import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink } from "../site/gipod-bron.js";
 import { eventpaginaZin } from "../site/onbekend-zinnen.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -47,14 +48,17 @@ function safeHttps(value) {
   return /^https:\/\/[^\s"'<>]+$/i.test(String(value ?? "")) ? String(value) : "";
 }
 
+// Een GIPOD-link (een ruw record of de datasetfiche) wordt één bronvermelding met de datasetfiche: nooit een
+// link naar het ruwe record, dat contactgegevens draagt (site/gipod-bron.js).
 function sourceLinks(item) {
   const links = [];
   const seen = new Set();
   const add = (url, label) => {
-    const href = safeHttps(url);
+    const gipod = gipodLink(url);
+    const href = gipod ? GIPOD_METADATA_URL : safeHttps(url);
     if (!href || seen.has(href)) return;
     seen.add(href);
-    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a></li>`);
+    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(gipod ? GIPOD_BRON : label)}</a></li>`);
   };
   if (Array.isArray(item.sources) && item.sources.length) {
     for (const source of item.sources) {

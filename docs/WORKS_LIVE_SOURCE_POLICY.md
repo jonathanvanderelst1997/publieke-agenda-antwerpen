@@ -1,6 +1,6 @@
 # Live werkenlaag — bronbeleid
 
-Stand: 28 september 2026; AWV-werfdata, hinder zonder gepubliceerd werk, de GIPOD-horizon en De Vlaamse Waterweg bijgewerkt op 17 oktober 2026.
+Stand: 28 september 2026; AWV-werfdata, hinder zonder gepubliceerd werk, de GIPOD-horizon, De Vlaamse Waterweg en de regel "geen links naar ruwe GIPOD-records" bijgewerkt op 17 oktober 2026.
 
 De publieke agenda leest live GIPOD `INNAME_PUNT` voor `Werk` en `Grondwerk` met status `In uitvoering` of `Concreet gepland`.
 
@@ -41,6 +41,28 @@ Proef op de gemeten data van 17 oktober 2026 (1.214 getoonde werken): 52 items i
 Op 49 van de 64 plekken toont de agenda al een A-Sign-werfzone of -omleiding in dezelfde periode, maar zonder de gevolgen of de ernst; 14 staan nergens. Het beleid houdt SGW en GIPOD als aparte bronlagen, dus dit is geen dubbel.
 
 Vervallen: het plan om op een werkkaart een link naar de hinder te zetten. `HindranceURI` (gipod.api.vlaanderen.be) vraagt een login (HTTP 401), en een filterlink op `HINDER_PUNT` toont het ruwe record met de contactorganisaties; de werkkaart toont de gevolgen en de ernst van de gekoppelde hinder, met GIPOD als bron. Nog open: de exacte grens-snapshot van 27 september mist 2 nieuwe werken die de grens raken; die snapshot hoort in de verversing ververst te worden (aparte PR).
+
+## Geen links naar ruwe GIPOD-records
+
+Een ruw GIPOD-record (een werk, grondwerk, inname, markt of hinder) draagt een veld `ContactOrganisations` of `HindranceContactOrganisations`: een lijst met `ContactRole`, `OrganisationName`, `OrganisationId`, `ContactName`, `Email`, `Telephone` en `Url`. De site linkt daarom nergens nog naar zo'n record. Meting van 17 oktober 2026 (OGC API, alle pagina's in het kader van het district, gefilterd op de officiële grens; alleen aantallen):
+
+- werken en grondwerken (`INNAME_PUNT`): bij 10 van de 1.193 GIPOD-id's is het contactveld gevuld (11 contactobjecten), bij 7 met een persoon (naam en eigen mailadres), bij 1 ook met een gsm-nummer. `INNAME` (vlakken) geeft dezelfde 10 id's;
+- gevalideerde hinder (`HINDER_PUNT`): 1 van de 587 id's, met 1 persoon;
+- markten: 0 van de 26 marktrijen in de hele stad; GIPOD-evenementen in het district: 40 van de 114 id's, telkens een functionele mailbox van de dossierbeheerder, 0 namen van personen;
+- in de andere tekstvelden (omschrijving en zo meer): 0 mailadressen en 0 telefoonnummers.
+
+Wat de links met één klik gaven: de filterlink van de plekpagina (`…/collections/INNAME_PUNT/items?f=html&filter=GipodId=…`, "Technische databron") toonde bij 4 van de 4 geteste werken met een persoon diens naam en mailadres. De `Uri` op gipod.api.vlaanderen.be ("Technische GIPOD-bron" op de werkkaart, "bron" in het overzicht per straat en in de vooruitblik) gaf 4 van de 4 keer HTTP 401: geen gegevens, wel een dode link. De `INNAME_PUNT`-rij van een markt (eventpagina, feed, .ics) gaf HTML met een leeg contactveld; dat hangt af van wat de beheerder morgen invult.
+
+Hinder in Kaart met het GIPOD-nummer (`https://www.geopunt.be/?app=hinder-in-kaart&gipodid=…`) geeft hetzelfde met één klik. Nagekeken op 17 oktober 2026 in de gepubliceerde viewer van geopunt (de bundel `assets/geopunt-*.js`): bij de parameter `gipodId` haalt de viewer het record op uit `INNAME` (plus `HINDERGEVOLG` en `OMLEIDING`) en roept `setIdentify` aan, waardoor het detailpaneel van dat werk meteen opengaat. Dat paneel toont van `ContactOrganisations` en `HindranceContactOrganisations` de velden `ContactRole`, `OrganisationName`, `ContactName`, `Email`, `Telephone` en `Url`. Een link met coördinaten is ook geen uitweg: de viewer behandelt die als een aangeklikt punt (`setClickedPoint`), en wat daar dan opengaat is niet nagegaan. De site linkt daarom alleen naar de algemene kaart van Hinder in Kaart, zonder parameter.
+
+De regel (`site/gipod-bron.js`, `ruwGipodRecord`):
+
+- per werk geen link naar dat werk, ook niet via Hinder in Kaart: de site linkt naar de algemene kaart van Hinder in Kaart, nooit met `gipodid` (op de plekpagina bij een werk of hinder, één keer onder de werkenlijst, in het overzicht per straat en in de vooruitblik); het GIPOD-nummer blijft als tekst staan, en de bezoeker zoekt op straatnaam;
+- waar de site een GIPOD-bron toonde, staat één bronvermelding "Bron: GIPOD (Digitaal Vlaanderen)" met een link naar de officiële datasetfiche (metadata.vlaanderen.be, 2b4b3bb7): onder de werkenlijst, onder het blok losse hinder, op de plekpagina bij een werk, en als bronlink van een markt of GIPOD-evenement (feed, eventpagina, agenda; in de .ics gaat de marktpagina van de stad voor);
+- geen link per item naar `gipod.api.vlaanderen.be`, naar de items van een GIPOD-collectie op `geo.api.vlaanderen.be` (een id, een `GipodId`-filter of een kader) of naar geopunt.be met `gipodid`, ook niet in de gegenereerde bestanden: de straatbestanden (`site/straat/*.json`) houden geen GIPOD-URL meer, de bronnen `stad-markten` en `district-gipod-evenementen` laten `geo.api.vlaanderen.be` niet meer toe, en een automatische fiche noemt de datasetfiche als bron;
+- ophalen blijft via de OGC API: dat zijn vragen van de code, geen links voor bezoekers.
+
+`tests/gipod-geen-ruwe-links.test.mjs` toetst de code en de uitvoer van de build (feed, eventpagina's); `scripts/validate-data.mjs` maakt van een ruwe link in de feed of een eventpagina een fout. De bronbestanden, de straatbestanden en de automatische herkenning schrijft alleen de dagelijkse verversing: tot de eerste verversing na deze wijziging staan daar nog oude URL's in, en dat is een signaal (geen fout). Build:sources en de fetchers lezen een bronbestand van vóór 17 oktober 2026 in de nieuwe vorm (`zonderRuweGipodBron` in `lib/source-feed.mjs`).
 
 ## De Vlaamse Waterweg
 

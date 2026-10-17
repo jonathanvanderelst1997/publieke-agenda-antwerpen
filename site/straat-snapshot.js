@@ -5,6 +5,7 @@
 import { metInzage } from "./inzage-status.js";
 import { vergunningBronUrl } from "./permits-live-core.js";
 import { maatregelSleutel } from "./place-core.js";
+import { veiligeFase } from "./witte-lijst.js";
 
 // De lagen in een straatbestand en hun naam als live laag (window.PUBLIC_AGENDA_LIVE_STREETS).
 export const STRAAT_LAGEN = Object.freeze([
@@ -30,8 +31,22 @@ export const WEGGELATEN = Object.freeze({
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });
 // Een samenvatting van de fasen van een evenement (scripts/build-straat-snapshots.mjs) staat kort in het
-// bestand: zonder straat, titel of detail.
-const samenvatting = (item) => ({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [], ...item });
+// bestand: zonder straat, titel of detail. De velden van het bestand houden hun volgorde (de vaste erachter), zodat de bouwer
+// een vorige stand die meegaat (een laag die niet laadde) ongewijzigd terugschrijft.
+const samenvatting = (item) => ({ ...item, ...Object.fromEntries(Object.entries({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [] }).filter(([veld]) => !(veld in item))) });
+// Vangnet: de naam van de fase van een inname (faseNaam, vrij in te vullen) uit een bewaard bestand opnieuw door de filter
+// (veiligeFase in site/witte-lijst.js), ook in `detail` ("Fase Opbouw · Dossiertype ETL"). De bouwer filtert al bij de
+// ingang (normalizeIod) en bij het schrijven (itemVoorStraat in scripts/build-straat-snapshots.mjs); een ouder of fout
+// bestand toont zo toch geen vrije tekst. Een straatnaam blijft alleen als het een straat van de inname zelf is (de straatas
+// zelf is hier niet geladen).
+export function veiligeInname(item) {
+  if (item?.kind !== "iod" || typeof item.phase !== "string" || !item.phase) return item;
+  const fase = veiligeFase(item.phase, { straten: Array.isArray(item.streets) ? item.streets : [] });
+  if (fase === item.phase) return item;
+  const delen = String(item.detail || "").split(" · ");
+  const detail = (delen[0] === `Fase ${item.phase}` ? [fase ? `Fase ${fase}` : "", ...delen.slice(1)] : delen.filter((d) => !/^Fase /.test(d))).filter(Boolean).join(" · ");
+  return { ...item, phase: fase, ...("detail" in item ? { detail } : {}) };
+}
 export function vulAan(item, laag) {
   if (laag === "publiekeRuimte") return { ...(item.faseSamenvatting ? samenvatting(item) : item), ...(VAST[item.kind] || {}) };
   if (laag === "vergunningen") return { ...item, sourceLabel: "Stad Antwerpen · omgevingsvergunningen in behandeling", sourceUrl: vergunningBronUrl(item.dossier, item.project) };
@@ -48,7 +63,7 @@ export function straatItems(doc, laag) {
     const uit = vulAan({ ...item }, laag);
     for (const veld of STRAATVELDEN) if (Array.isArray(uit[veld])) uit[veld] = uit[veld].map(ref).filter(Boolean);
     if (laag === "terrassen" && !("address" in uit)) uit.address = "";
-    return uit;
+    return laag === "publiekeRuimte" ? veiligeInname(uit) : uit;
   });
 }
 

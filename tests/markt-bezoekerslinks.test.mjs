@@ -5,7 +5,8 @@ await import("../site/agenda-uitgaan.js");
 const U = globalThis.PublicAgendaUitgaan;
 const district = "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen";
 const city = "https://www.antwerpen.be/shoppen-en-markten";
-const source = "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.123";
+// De bronlink van een markt is de datasetfiche van GIPOD, geen INNAME_PUNT-rij (site/gipod-bron.js).
+const source = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
 const market = (extra = {}) => ({title:"Testmarkt",sourceId:"stad-markten",date:"2026-10-15",location:"Testplein",timeText:"8 tot 13 uur",inDistrict:true,link:source,...extra});
 test("gebundelde marktdagen houden bezoekerslink en oorspronkelijke bron afzonderlijk", () => {
   const url = "https://www.antwerpen.be/info/markt-op-testplein";

@@ -1,4 +1,11 @@
+import {zonderToevoeging} from "./witte-lijst.js";
+
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
+// De naam van een straat zoals de straatas (laag 905, LSTRNM/RSTRNM) hem geeft, zonder de homoniemtoevoeging
+// ("Proefstraat_AN" wordt "Proefstraat"; site/witte-lijst.js). Dit is de ingang: elke straat van de live straatindex, van
+// de verversing en van site/geo/straten.json (scripts/build-straten.mjs) heeft zo de gewone naam. Twee straten met dezelfde
+// naam blijven verschillend door hun id (refKey), nooit door een toevoeging in de naam.
+export const straatasNaam=value=>zonderToevoeging(clean(value));
 const nameKey=value=>clean(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
 const uniqRefs=refs=>[...new Map((refs||[]).filter(r=>r?.name).map(r=>[`${r.id||""}|${r.name}|${r.postcode||""}`,{id:clean(r.id),name:clean(r.name),postcode:clean(r.postcode)}])).values()].sort((a,b)=>a.name.localeCompare(b.name,"nl")||a.postcode.localeCompare(b.postcode));
 const refKey=ref=>`${ref.id}|${ref.name}|${ref.postcode}`;
@@ -8,7 +15,7 @@ function addGrid(grid,segment){for(let x=Math.floor(segment.box[0]/CELL);x<=Math
 function candidates(index,box,pad=0){if(!index?.grid)return index?.segments||[];const out=new Set();for(let x=Math.floor((box[0]-pad)/CELL);x<=Math.floor((box[2]+pad)/CELL);x++)for(let y=Math.floor((box[1]-pad)/CELL);y<=Math.floor((box[3]+pad)/CELL);y++)for(const s of index.grid.get(`${x}:${y}`)||[])out.add(s);return[...out]}
 // Straatsegmenten waarvan het rooster het kader (in graden, met marge pad) raakt; voor site/parcours-straten.js.
 export function segmentenInKader(index,box,pad=0){return candidates(index,box,pad)}
-function refsOf(p={}){return uniqRefs([{id:p.LSTRNMID,name:p.LSTRNM,postcode:p.postcode},{id:p.RSTRNMID,name:p.RSTRNM,postcode:p.postcode}])}
+function refsOf(p={}){return uniqRefs([{id:p.LSTRNMID,name:straatasNaam(p.LSTRNM),postcode:p.postcode},{id:p.RSTRNMID,name:straatasNaam(p.RSTRNM),postcode:p.postcode}])}
 function linesOf(g){if(!g)return[];if(g.type==="LineString")return[g.coordinates||[]];if(g.type==="MultiLineString"||g.type==="Polygon")return g.coordinates||[];if(g.type==="MultiPolygon")return(g.coordinates||[]).flat();if(Array.isArray(g.paths))return g.paths;if(Array.isArray(g.rings))return g.rings;return[]}
 function xy(point,origin){const lat=((point[1]+origin[1])/2)*Math.PI/180;return[(point[0]-origin[0])*111320*Math.cos(lat),(point[1]-origin[1])*110540]}
 function pointSeg(point,a,b){const A=xy(a,point),B=xy(b,point),dx=B[0]-A[0],dy=B[1]-A[1];if(dx===0&&dy===0)return Math.hypot(A[0],A[1]);const t=Math.max(0,Math.min(1,-(A[0]*dx+A[1]*dy)/(dx*dx+dy*dy)));return Math.hypot(A[0]+t*dx,A[1]+t*dy)}

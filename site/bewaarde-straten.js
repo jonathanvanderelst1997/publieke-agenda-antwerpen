@@ -1,11 +1,13 @@
 // Alleen officiële straten die de bezoeker expliciet bewaart. Geen account, huisnummer of serveropslag.
+import { zonderToevoegingInTekst } from "./witte-lijst.js";
 export const OPSLAG_SLEUTEL = "publieke-agenda-bewaarde-straten-v1";
 export const MAX_BEWAARDE_STRATEN = 12;
 const geldigeSleutel = (key) => typeof key === "string" && key.length <= 180 && /^straat:\d+\|[^|]+\|\d{4}$/.test(key);
 export function leesBewaardeStraten(opslag) {
   try {
     const lijst = JSON.parse(opslag?.getItem(OPSLAG_SLEUTEL) || "[]");
-    return Array.isArray(lijst) ? [...new Set(lijst.filter(geldigeSleutel))].slice(0, MAX_BEWAARDE_STRATEN) : [];
+    // Een sleutel van vóór de straatas zonder homoniemtoevoeging ("straat:1|Proefstraat_AN|2018") is dezelfde straat.
+    return Array.isArray(lijst) ? [...new Set(lijst.filter(geldigeSleutel).map(zonderToevoegingInTekst))].slice(0, MAX_BEWAARDE_STRATEN) : [];
   } catch { return []; }
 }
 export function bewaardeStraten(index, opslag) {

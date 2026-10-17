@@ -6,11 +6,12 @@
 // bron staan, en de bron van die afleiding gaat mee. Geen klok: "vandaag" komt altijd van buiten.
 
 import {
-  DINGEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
+  DINGEN, KENMERK_WAARDEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
+import { gipodLink } from "./gipod-bron.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
-import { sleutel as straatSleutel, witteTekst } from "./witte-lijst.js";
+import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -435,7 +436,7 @@ const sleutel = (v) => clean(v, 300).toLowerCase().normalize("NFD").replace(/[\u
 // straat dan de kaart, dan blijft de tekst staan.
 // `losseNummers: true` houdt de nummers (alleen om er projectTekst op te laten lopen, nooit om te tonen).
 export function beheerderTekst(tekst, { zonderNummers = false, losseNummers = false, straten = [] } = {}) {
-  let t = zonderNamen(zonderStraatasToevoeging(tekst));
+  let t = zonderNamen(tekst);
   if (!t || CONTACT.test(t)) return "";
   t = zonderNummers ? zonderHuisnummers(t) : losseNummers ? t : zonderLosseHuisnummers(t, straten);
   return heeftInhoud(t, straten) ? t : "";
@@ -493,7 +494,8 @@ const LOS_STRAAT = /(?:steenweg|straat|str\.?|laan|lei|weg|dreef|baan|kaai|kade|
 // Na een straatnaam: een gekende uitgang, een straat van de kaart, of een woord in hoofdletters (GIPOD
 // schrijft adressen zo: "2020 ANTWERPEN, XBROEK 4").
 function naStraatnaam(voor, straten) {
-  const t = zonderAccenten(voor).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
+  // Vangnet: "PROEFSTRAAT_AN 12" is ook een nummer na een straatnaam (de bronnen geven de naam al zonder toevoeging).
+  const t = zonderAccenten(zonderToevoegingInTekst(voor)).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
   const woord = t.match(/[\p{L}.'-]+$/u)?.[0] || "";
   if (woord && (LOS_STRAAT.test(woord) || /^\p{Lu}{4,}$/u.test(woord))) return true;
   const klein = t.toLowerCase();
@@ -1042,6 +1044,11 @@ export function bewaardeKenmerken(e = {}) {
   if (Array.isArray(e?.kenmerken)) return e.kenmerken.filter((k) => typeof k === "string" && k);
   return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => zonderHuisnummerVanMain(b).replace(VOORVOEGSEL, "")).filter(Boolean).map(kenmerkWoordenVan);
 }
+// Alle waarden die in één kenmerk kunnen staan (kenmerkWoordenVan: de soorten, "student", de dingen en voorwerpen,
+// "straat"), en hoe lang een kenmerk hoogstens wordt als ze er allemaal in staan. De validatie van kaart-uitleg.json
+// (KENMERK_MAX in lib/kaart-uitleg-validatie.mjs) laat minstens zoveel toe: een kenmerk wordt nooit ingekort.
+export const KENMERK_DELEN = Object.freeze([...new Set([...Object.values(SOORT_KENMERK), "student", ...KENMERK_WAARDEN, "straat"])]);
+export const KENMERK_LANGST = KENMERK_DELEN.join(" ").length;
 // Is dit een kenmerk (alleen vaste woorden)? Voor de validatie van kaart-uitleg.json.
 const KENMERK_WOORD = new Set([...Object.values(SOORT_KENMERK), ...KENMERK_WOORDEN, "student", "straat", "overig"].flatMap((w) => w.split(" ")));
 export const isKenmerk = (k) => typeof k === "string" && (k === "-" || (/^[a-z]+(?: [a-z]+)*$/.test(k) && k.split(" ").every((w) => KENMERK_WOORD.has(w))));
@@ -1152,7 +1159,7 @@ export function evenementFeiten(rows = [], { isStraat = null } = {}) {
     // De kenmerken (vaste woorden) van de volle omschrijvingen (bewaardKenmerkVan): de verversing bewaart ze in
     // kaart-uitleg.json, zodat de plekpagina de soort ook zonder live rijen kent (evenementSoort in site/place-core.js),
     // zoals de plekpagina van origin/main ze uit de bewaarde beschrijvingen las.
-    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter(Boolean))],
+    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter((k) => k && isKenmerk(k)))],
     soort,
     soortZeker: Boolean(sm.zeker && (opname || alleOmschreven)),
     alleOmschreven, opname,
@@ -1208,17 +1215,16 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
     titel: clean(it.title, 160),
     tijd: clean(it.timeText, 80),
     locatie: zonderHuisnummer(clean(it.location, 200)),
-    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) ? url : "",
+    // Een GIPOD-link (ruw record of datasetfiche) is geen infopagina over het evenement (site/gipod-bron.js).
+    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) && !gipodLink(url) ? url : "",
     agendaId: /^[a-z0-9][a-z0-9-]{2,200}$/.test(String(it.id || "")) && it.noEventPage !== true ? String(it.id) : "",
   };
 }
 
 // "38 straten in Historisch Centrum en Seefhoek". wijkVan(straatnaam) geeft een wijknaam of "".
-// De toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN", "KLOOSTERSTRAAT_AN" in een omschrijving van
-// GIPOD) is geen deel van de naam: weg in wat de bewoner leest (de sleutels en de koppeling houden ze).
-export const zonderStraatasToevoeging = (tekst) => String(tekst ?? "").replace(/(\p{L})_[A-Z]{2}\b/gu, "$1");
+// De straten komen uit de straatas, al zonder homoniemtoevoeging (straatasNaam in site/street-core.js).
 export function stratenSamenvatting(straten = [], wijkVan = () => "") {
-  const list = uniek(straten.map(zonderStraatasToevoeging));
+  const list = uniek(straten);
   if (!list.length) return "";
   if (list.length <= 3) return list.join(", ");
   const tel = new Map();
@@ -1469,9 +1475,10 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   if (jouw) kern.push(["Jouw straat", jouw]);
   kern.push(["Wat merk je", merk]);
 
-  // Links naar een gewone pagina, nooit een databron.
+  // Links naar een gewone pagina, nooit een databron, en nooit een GIPOD-link (een ruw record draagt
+  // contactgegevens, site/gipod-bron.js; ook niet uit een oudere automatische fiche).
   const links = [];
-  const voegToe = (url, label, uitleg = "") => { if (url && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
+  const voegToe = (url, label, uitleg = "") => { if (url && !gipodLink(url) && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
   if (id?.link) voegToe(id.link, clean(id.linkLabel, 80) || "Officiële info over dit evenement", clean(id.linkUitleg, 160));
   for (const l of id?.extraLinks || []) voegToe(l.url, clean(l.label, 100));
   // Bij een koppeling: de officiële pagina van het agendapunt én het agendapunt zelf.

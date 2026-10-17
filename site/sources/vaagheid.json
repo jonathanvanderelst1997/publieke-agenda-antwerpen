@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-17",
- "invoer": "f6b65a4a1f5e3193",
- "code": "d9f5accd771cdc5b",
+ "invoer": "f7b90a8267e0679e",
+ "code": "ca68378ee04cde16",
  "agenda": {
   "items": 788,
   "vaag": 61,
@@ -679,8 +679,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "bc4d5845e065c909",
-   "code": "880384c1f517853c"
+   "invoer": "f6b65a4a1f5e3193",
+   "code": "d9f5accd771cdc5b"
   },
   "agenda": {
    "ok": true,
@@ -694,7 +694,7 @@
   },
   "straten": {
    "ok": true,
-   "stijging": 0.7,
+   "stijging": 0,
    "gestegen": []
   },
   "buiten": {
@@ -702,70 +702,5 @@
    "stijging": 0,
    "gestegen": []
   }
- },
- "aanvaard": [
-  {
-   "waar": "eventpaginas",
-   "id": "uur-niet-in-bron",
-   "van": 0,
-   "naar": 84,
-   "reden": "Stap 6 van het vaagheidsplan: een eventpagina zonder uur in de bron zegt \"Geen uur in de bron.\" (site/onbekend-zinnen.js) in plaats van de belofte \"Uur via de officiële bron\" (uur-via-bron 84 -> 0); dezelfde 84 pagina's, even vaag, zonder belofte. Sinds de laatste nakijkronde van 13 oktober 2026 zegt een pagina van een bericht, kalender of besluit \"Geen uur gevonden; zie de officiële bron.\" (zelfde patroon, zelfde pagina's): alleen A-Sign en de koopzondagen geven nooit een uur."
-  },
-  {
-   "waar": "straten",
-   "id": "stand-onduidelijk",
-   "van": 0,
-   "naar": 20,
-   "reden": "Stap 5 van het vaagheidsplan: de zin dat de stadsbron niet zegt of een aanvraag volledig en ontvankelijk is, staat één keer boven de sectie en telt als veld op elke aanvraag die het betreft (stand-onduidelijk, geen kernveld); vroeger stond hij op elke kaart en telde hij niet. Op de data van 16 oktober 2026 (na de merge van main #171-#193) zijn het 20 aanvragen: dezelfde zin, meer aanvragen in de data."
-  },
-  {
-   "waar": "straten",
-   "id": "werf-zonder-doel",
-   "van": 0,
-   "naar": 6,
-   "reden": "Stap 4 van het vaagheidsplan: een werk met het dossiernummer van een werfzone heet \"Werf\" als GIPOD en de fasen niet zeggen waarvoor; op main telde dezelfde kaart als werk-zonder-wat (\"Werken van Stad Antwerpen\", 5 -> 0) of droeg ze een verkeerde soort (\"Sloopwerken\" bij \"Afbraak werf\")."
-  },
-  {
-   "waar": "straten",
-   "id": "detail:niet-in-de-bron",
-   "van": 63,
-   "naar": 142,
-   "reden": "Nakijkronde 13 oktober 2026: de regel \"Niet in de bron\" of \"Niet in het evenementendossier ... (A-Sign)\" staat nu ook op een kaart met een kern (elke kaart van een evenementendossier), waar main de uren en de organisator in de kern en de voetnoot noemde; de meter telt nu wat de pagina toont (ontbreektRegel), niet meer een regel die main niet tekende."
-  },
-  {
-   "waar": "straten",
-   "id": "detail:organisator-niet-gepubliceerd",
-   "van": 0,
-   "naar": 64,
-   "reden": "Nakijkronde 13 oktober 2026: de regel \"Niet in de bron\" of \"Niet in het evenementendossier ... (A-Sign)\" staat nu ook op een kaart met een kern (elke kaart van een evenementendossier), waar main de uren en de organisator in de kern en de voetnoot noemde; de meter telt nu wat de pagina toont (ontbreektRegel), niet meer een regel die main niet tekende."
-  },
-  {
-   "waar": "straten",
-   "id": "detail:uren-niet-gepubliceerd",
-   "van": 0,
-   "naar": 64,
-   "reden": "Nakijkronde 13 oktober 2026: de regel \"Niet in de bron\" of \"Niet in het evenementendossier ... (A-Sign)\" staat nu ook op een kaart met een kern (elke kaart van een evenementendossier), waar main de uren en de organisator in de kern en de voetnoot noemde; de meter telt nu wat de pagina toont (ontbreektRegel), niet meer een regel die main niet tekende."
-  },
-  {
-   "waar": "buiten",
-   "id": "plek-niet-in-bron",
-   "van": 0,
-   "naar": 30,
-   "reden": "Nakijkronde 13 oktober 2026: districtsnieuws buiten district Antwerpen zonder plaats of uur zegt dat nu eerlijk (Plaats en uur staan niet in het bericht); die berichten waren al vaag, de meter ziet het nu."
-  },
-  {
-   "waar": "buiten",
-   "id": "uur-niet-in-bron",
-   "van": 0,
-   "naar": 18,
-   "reden": "Nakijkronde 13 oktober 2026: districtsnieuws buiten district Antwerpen zonder plaats of uur zegt dat nu eerlijk (Plaats en uur staan niet in het bericht); die berichten waren al vaag, de meter ziet het nu."
-  },
-  {
-   "waar": "straten",
-   "id": "detail:meer-dan-een-ontbreekt",
-   "van": 310,
-   "naar": 314,
-   "reden": "Merge van main #171-#193, data van 16 oktober 2026: dezelfde oorzaak als detail:niet-in-de-bron hierboven (nakijkronde 13 oktober 2026). De regel \"Niet in de bron: ...\" staat ook op een kaart met een kern, en de meter telt de kop en elk ontbrekend veld apart: drie kaarten van een evenementendossier (uren en organisator) en een werk waarvan \"Gevolgen: niet gepubliceerd in GIPOD\" in die regel kwam. Geen kaart zegt iets vager dan op main."
-  }
- ]
+ }
 }

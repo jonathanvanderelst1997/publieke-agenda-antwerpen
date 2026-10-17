@@ -108,8 +108,9 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   midden in een naam ("Stenplein" zit in het Kunstenplein van Berchem, maar je bedoelde het Steenplein), dan zegt de
   lijst dat en kies je zelf (`enterKeuze` in `site/place-core.js`). Bij zo'n gok staan de plekken van district
   Antwerpen vooraan. Een straatnaam met een cijfer ("Fort 7-straat", "De 7 schakenpad") en haar deellink werken ook;
-  de zoekbalk en de link noemen de straat van 2018 gewoon "Maria-Theresialei", zonder de homoniemtoevoeging van de
-  straatas ("Maria-Theresialei_AN").
+  een straat heet overal zoals de bewoner ze kent, zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN"
+  wordt "Proefstraat"; die gaat weg bij het inlezen, zie `docs/PUBLIC_SPACE_SOURCE_POLICY.md`), en een oude link met
+  de toevoeging werkt nog.
 - Een plek kiezen toont één overzicht van alles daar: komende evenementen, lopende en geplande werken (GIPOD),
   parkeerverboden en innames (A-Sign), inspraak en infomomenten, markten en vergunningen. Bovenaan staan de
   aantallen; bij een straat kies je ook de straal (alleen de straat, + 250 m, + 500 m, + 1 km).

@@ -44,10 +44,12 @@ import { collectPermits } from "../site/permits-live-core.js";
 import { dayOf, maatregelSleutel } from "../site/place-core.js";
 import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
-import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets } from "../site/street-core.js";
+import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets, straatasNaam } from "../site/street-core.js";
 import { collectTerraces } from "../site/terraces-live-core.js";
 import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
-import { STRAATVELDEN, WEGGELATEN, straatItems } from "../site/straat-snapshot.js";
+import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/straat-snapshot.js";
+import { zonderToevoegingInData } from "../site/witte-lijst.js";
+import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
 
 export {
   BRONNEN_BESTAND, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA,
@@ -61,7 +63,9 @@ const kort = (tekst) => crypto.createHash("sha256").update(tekst).digest("hex").
 // ---------- privacy per item ----------
 
 // Bronlinks: alleen https naar de bronnen zelf. Ze gaan niet door de huisnummeropkuis (een URL is geen adres).
-const BRONHOSTS = new Set(["geodata.antwerpen.be", "gipod.api.vlaanderen.be", "geo.api.vlaanderen.be"]);
+// Geen GIPOD-host: een link naar een ruw GIPOD-record (een werk, grondwerk of hinder) draagt contactgegevens
+// (site/gipod-bron.js), en de plekpagina linkt per werk naar de algemene kaart van Hinder in Kaart.
+const BRONHOSTS = new Set(["geodata.antwerpen.be"]);
 const bronUrl = (value) => {
   try {
     const url = new URL(String(value || ""));
@@ -87,13 +91,17 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
   // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
-  const schoon = itemZonderPandnummers(itemVoorHistoriek(zonder));
+  // De naam van de fase van een inname (faseNaam, vrij in te vullen) alleen als vaste vorm, district of straat van de inname
+  // (veiligeFase in site/witte-lijst.js), ook in `detail`; zo leest straatItems hetzelfde terug.
+  const schoon = itemZonderPandnummers(itemVoorHistoriek(veiligeInname(zonder)));
   for (const sleutel of ["sourceUrl", "sourceUrls"]) {
     if (!(sleutel in zonder)) continue;
     schoon[sleutel] = Array.isArray(zonder[sleutel]) ? zonder[sleutel].map(bronUrl).filter(Boolean) : bronUrl(zonder[sleutel]);
   }
   if (laag === "terrassen" && !schoon.address) schoon.address = "";
-  return straatItemPrivacy(schoon).length ? null : schoon;
+  // Ook dieper (de hinder van een werk, uit een oudere live laag): nooit een link naar een ruw GIPOD-record.
+  const zonderGipod = zonderRuweGipodLinks(schoon);
+  return straatItemPrivacy(zonderGipod).length ? null : zonderGipod;
 }
 
 // Het kader [minX, minY, maxX, maxY] van wat we van een item weten: zijn punt (werk), zijn vorm (parkeer-
@@ -446,14 +454,18 @@ export function verdeelOverStraten(lagen, { extra = () => [], dossier = () => nu
 // Straten staan één keer in "straten" ([id, naam, postcode]); een item verwijst ernaar met hun plaats in
 // die lijst (straatItems in site/straat-snapshot.js zet ze terug). Bij een evenementendossier dat de
 // verversing kent, houdt een rij alleen deze straat: de andere straten staan in kaart-uitleg.json.
+// Geen homoniemtoevoeging van de straatas in een straatbestand (site/witte-lijst.js): de straten en teksten van nieuwe items
+// zijn al zonder (straatasNaam, gipodTekst, itemVoorHistoriek), en wat uit een vorig bestand meegaat (een laag die niet
+// laadde) wordt hier nog eens genormaliseerd. Een straat blijft één rij in de tabel: dezelfde id, naam en postcode.
 export function straatDocument(id, delen, { namen = [], ververst = "", bewaard = () => false, extraKaders = [] } = {}) {
   const tabel = [];
   const plekVan = new Map();
   const plek = (ref) => {
-    const sleutel = [ref?.id || "", clean(ref?.name), ref?.postcode || ""].join("|");
+    const naam = straatasNaam(ref?.name);
+    const sleutel = [ref?.id || "", naam, ref?.postcode || ""].join("|");
     if (!plekVan.has(sleutel)) {
       plekVan.set(sleutel, tabel.length);
-      tabel.push([String(ref?.id || ""), clean(ref?.name), String(ref?.postcode || "")]);
+      tabel.push([String(ref?.id || ""), naam, String(ref?.postcode || "")]);
     }
     return plekVan.get(sleutel);
   };
@@ -463,7 +475,8 @@ export function straatDocument(id, delen, { namen = [], ververst = "", bewaard =
   const kaders = [...namen.map((ref) => ref.box), ...extraKaders].filter(Array.isArray);
   for (const naam of [...STRAAT_LAGEN.map(([n]) => n), "evenementen"]) {
     lagen[naam] = [...(delen[naam]?.values?.() || delen[naam] || [])].map((item) => {
-      const { __straten, __kader, ...rest } = item;
+      const { __straten, __kader, ...metToevoeging } = item;
+      const rest = zonderToevoegingInData(metToevoeging);
       // Alleen kleine vormen: een grote (een omleiding, een groot perceel) hangt aan de straat omdat ze tot
       // 18 à 24 m van haar as komt, en valt dus al in het kader van de straat. Wat via een adres of een
       // genoemde straat aan de straat hangt (parkeerverbod, terras, werk), is klein en kan verder liggen.
@@ -488,7 +501,7 @@ export function straatDocument(id, delen, { namen = [], ververst = "", bewaard =
     Math.floor(Math.min(...kaders.map((k) => k[0])) * 1000) / 1000, Math.floor(Math.min(...kaders.map((k) => k[1])) * 1000) / 1000,
     Math.ceil(Math.max(...kaders.map((k) => k[2])) * 1000) / 1000, Math.ceil(Math.max(...kaders.map((k) => k[3])) * 1000) / 1000,
   ] : null;
-  const inhoud = { straat: { id: String(id), namen: namen.map(({ name, postcode }) => ({ name, postcode })) }, ...(kader ? { kader } : {}), straten: tabel, ...lagen };
+  const inhoud = { straat: { id: String(id), namen: namen.map(({ name, postcode }) => ({ name: straatasNaam(name), postcode })) }, ...(kader ? { kader } : {}), straten: tabel, ...lagen };
   const hash = kort(JSON.stringify(inhoud));
   return { schemaVersion: STRAAT_SCHEMA, ververst, inhoud: hash, ...inhoud };
 }
@@ -615,14 +628,18 @@ export function agendaPerStraat(items, { byName, locaties = {}, vandaag }) {
 }
 
 // Schrijft site/straat/<id>.json, site/straat-index.json en site/history/radar.json.
-export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaItems = undefined, history = undefined, clock = () => new Date(), log = () => {} } = {}) {
+// `herschrijf`: niets nieuws ophalen of lezen, alleen de bestaande straatbestanden opnieuw schrijven met de regels van nu
+// (na een wijziging van de privacyregels, zoals scripts/opkuis-straatnamen.mjs); elke laag houdt haar vorige stand, en de
+// index houdt het tijdstip en de stand van de laatste verversing.
+export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaItems = undefined, history = undefined, clock = () => new Date(), log = () => {}, herschrijf = false } = {}) {
   const map = path.join(rootDir, STRAAT_MAP);
   const indexBestand = path.join(rootDir, STRAAT_INDEX);
   const vorigeIndex = leesJson(indexBestand);
   const nu = clock();
   const vandaag = brusselsDate(nu);
-  const bron = bronnen === undefined ? leesJson(path.join(rootDir, BRONNEN_BESTAND)) : bronnen;
-  const ververst = typeof bron?.ververst === "string" && bron.ververst ? bron.ververst : nu.toISOString();
+  const bron = herschrijf ? null : bronnen === undefined ? leesJson(path.join(rootDir, BRONNEN_BESTAND)) : bronnen;
+  const ververst = typeof bron?.ververst === "string" && bron.ververst ? bron.ververst
+    : herschrijf && typeof vorigeIndex?.ververst === "string" && vorigeIndex.ververst ? vorigeIndex.ververst : nu.toISOString();
   const vorigeDocs = vorigeDocumenten(map);
 
   // Per laag: de nieuwe items, of de vorige stand als de laag niet laadde of verdacht kromp. Die vorige
@@ -641,7 +658,8 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     } else {
       lagen[naam] = [];
       houdVorige.add(naam);
-      stand[naam] = { status: vorig ? "stale" : "error", ...(vorigeStand?.sinds ? { sinds: vorigeStand.sinds } : {}), errorCode: krimp ? "suspicious_drop" : nieuw?.errorCode || "niet_geladen" };
+      stand[naam] = herschrijf && vorigeStand ? vorigeStand
+        : { status: vorig ? "stale" : "error", ...(vorigeStand?.sinds ? { sinds: vorigeStand.sinds } : {}), errorCode: krimp ? "suspicious_drop" : nieuw?.errorCode || "niet_geladen" };
     }
   }
   // Wat vandaag niet meer loopt (de einddag in Brussel ligt voor vandaag), laten we weg, ook uit een
@@ -673,7 +691,8 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     if (!/^\d+$/.test(id) || !straten.perId.has(id)) continue;
     const delen = { ...(perStraat.get(id) || {}) };
     const vorigDoc = vorigeDocs.get(id);
-    for (const naam of houdVorige) delen[naam] = new Map(straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map((item) => [item.id, item]));
+    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026).
+    for (const naam of houdVorige) delen[naam] = new Map(straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map((item) => [item.id, zonderRuweGipodLinks(item)]));
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });
     if (!aantalItems(doc)) continue;
     const bestand = path.join(map, `${id}.json`);
