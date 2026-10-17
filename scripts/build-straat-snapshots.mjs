@@ -48,6 +48,7 @@ import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets } fr
 import { collectTerraces } from "../site/terraces-live-core.js";
 import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
 import { STRAATVELDEN, WEGGELATEN, straatItems } from "../site/straat-snapshot.js";
+import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
 
 export {
   BRONNEN_BESTAND, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA,
@@ -61,7 +62,9 @@ const kort = (tekst) => crypto.createHash("sha256").update(tekst).digest("hex").
 // ---------- privacy per item ----------
 
 // Bronlinks: alleen https naar de bronnen zelf. Ze gaan niet door de huisnummeropkuis (een URL is geen adres).
-const BRONHOSTS = new Set(["geodata.antwerpen.be", "gipod.api.vlaanderen.be", "geo.api.vlaanderen.be"]);
+// Geen GIPOD-host: een link naar een ruw GIPOD-record (een werk, grondwerk of hinder) draagt contactgegevens
+// (site/gipod-bron.js), en de plekpagina linkt per werk naar de algemene kaart van Hinder in Kaart.
+const BRONHOSTS = new Set(["geodata.antwerpen.be"]);
 const bronUrl = (value) => {
   try {
     const url = new URL(String(value || ""));
@@ -93,7 +96,9 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
     schoon[sleutel] = Array.isArray(zonder[sleutel]) ? zonder[sleutel].map(bronUrl).filter(Boolean) : bronUrl(zonder[sleutel]);
   }
   if (laag === "terrassen" && !schoon.address) schoon.address = "";
-  return straatItemPrivacy(schoon).length ? null : schoon;
+  // Ook dieper (de hinder van een werk, uit een oudere live laag): nooit een link naar een ruw GIPOD-record.
+  const zonderGipod = zonderRuweGipodLinks(schoon);
+  return straatItemPrivacy(zonderGipod).length ? null : zonderGipod;
 }
 
 // Het kader [minX, minY, maxX, maxY] van wat we van een item weten: zijn punt (werk), zijn vorm (parkeer-
@@ -673,7 +678,8 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     if (!/^\d+$/.test(id) || !straten.perId.has(id)) continue;
     const delen = { ...(perStraat.get(id) || {}) };
     const vorigDoc = vorigeDocs.get(id);
-    for (const naam of houdVorige) delen[naam] = new Map(straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map((item) => [item.id, item]));
+    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026).
+    for (const naam of houdVorige) delen[naam] = new Map(straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map((item) => [item.id, zonderRuweGipodLinks(item)]));
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });
     if (!aantalItems(doc)) continue;
     const bestand = path.join(map, `${id}.json`);

@@ -10,6 +10,7 @@ import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsStatus, waarTekst } from "./permit-clarity.js";
+import { GIPOD_METADATA_URL } from "./gipod-bron.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
@@ -590,8 +591,6 @@ function samenWerk(live, bewaard) {
 export function werkStraten(puntStraten = [], bewaard = null) {
   return [...new Set([...(puntStraten || []), ...(Array.isArray(bewaard?.vlakStraten) ? bewaard.vlakStraten : [])].map(cleanText).filter(Boolean))];
 }
-export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
-  ? `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items?f=html&filter-lang=cql2-text&filter=GipodId%3D${Number(gipodId)}` : "");
 export const iodBronUrl = (dossier) => (/^[A-Z0-9-]{4,40}$/.test(String(dossier || ""))
   ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=dossierNummer,faseNaam,faseStartDatum,faseEindDatum,innameTypeNaam,innameBeschrijving,innameHinder,type_dossier&returnGeometry=false&f=html` : "");
 
@@ -608,7 +607,7 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const base = workEntryBasis(work);
   if (!vandaag) return base;
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
-  return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
+  return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k };
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
 // werfzones van Ringpark Zuid) wordt één kaart, met alle GIPOD-nummers erbij. Huisnummers in de
@@ -2187,7 +2186,9 @@ function workEntryBasis(work) {
     title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
     time: uren?.time || "", timeText: uren?.timeText || "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
-    reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: safeUrl(work?.sourceUrls?.[0]), item: work,
+    // Geen link naar het ruwe GIPOD-record (site/gipod-bron.js): de bron is de datasetfiche. Per werk linkt
+    // bezoekersLinks (site/bezoekers-bronnen.js) naar de algemene kaart van Hinder in Kaart, zonder gipodid.
+    reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: GIPOD_METADATA_URL, item: work,
   };
 }
 export function publicSpaceEntry(row) {

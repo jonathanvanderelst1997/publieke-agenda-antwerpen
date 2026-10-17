@@ -10,6 +10,7 @@ import { stadPlaces, zoekIndex, zoekOveral, buitenParam, resolveBuiten, naamgeno
 import { bouwStadStraten, districtenTabel, districtVan, districtUitPostcodes, postcodeUitAdres, schoneNaam, BRONNEN } from "../scripts/build-straten-stad.mjs";
 import { wijkFeatures, bboxOf } from "../site/neighborhood-core.js";
 import { DISTRICT_CHANNELS } from "../lib/district-channels.mjs";
+import { GIPOD_METADATA_URL } from "../site/gipod-bron.js";
 
 const lees = (rel) => JSON.parse(fs.readFileSync(new URL(`../${rel}`, import.meta.url), "utf8"));
 const straten = lees("site/geo/straten.json");
@@ -264,7 +265,10 @@ test("wat de site kent in een ander district: markten van de stad en districtsni
     ["Gemengde markt Kioskplaats", true, ["2099-03-16 8 tot 13 uur", "2099-03-23 8 tot 13 uur"]],
     ["Vrijdagmarkt elders", false, ["2099-03-13 7.30 uur"]],
   ]);
-  assert.match(hoboken.markten[0].bron, /\/items\/m1$/, "de bron van de eerstvolgende marktdag");
+  // De verzonnen markten dragen nog een ruwe INNAME_PUNT-rij als link (zoals een bestand van voor 17 oktober 2026):
+  // die wordt de datasetfiche, nooit het record van een marktdag (site/gipod-bron.js).
+  assert.equal(hoboken.markten[0].bron, GIPOD_METADATA_URL, "de bron van de eerstvolgende marktdag is de datasetfiche");
+  assert.deepEqual([...new Set(hoboken.markten.flatMap((m) => m.dagen.map((d) => d.bron)))], [GIPOD_METADATA_URL]);
   assert.deepEqual(hoboken.nieuws.map((n) => [n.title, n.volzet, n.date, n.uur, n.location, Boolean(n.bron)]), [
     ["Lezing in de bib", true, "2099-03-11", "19.30 uur", "", true],
     ["Buurtfeest", false, "2099-03-20", "", "Park Broydenborg", true],
