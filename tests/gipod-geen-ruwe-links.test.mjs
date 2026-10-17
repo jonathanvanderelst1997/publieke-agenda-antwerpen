@@ -10,6 +10,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import vm from "node:vm";
+import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink, ruwGipodRecord, ruweGipodLinksIn, zonderRuweGipodLinks } from "../site/gipod-bron.js";
@@ -340,6 +341,54 @@ test("build:sources: een oud bronbestand geeft een feed zonder ruwe GIPOD-link, 
   } finally {
     fs.rmSync(dir, { recursive: true, force: true });
   }
+});
+
+// scripts/validate-data.mjs in een eigen werkmap (lib/, de gedeelde modules uit site/ en het script zelf).
+// Een oud GIPOD-bronbestand wordt getoetst zoals build:sources het leest (zonderRuweGipodBron), met een signaal.
+// Een ruwe link in de feed of een eventpagina is een fout (die bouwt npm run check altijd opnieuw); in de
+// bronbestanden en de straatbestanden (alleen de verversing schrijft ze) een signaal.
+test("validate-data: oud GIPOD-bronbestand omgezet met een signaal; ruwe link in feed of eventpagina een fout, in bron- en straatbestanden een signaal", (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "gipod-validatie-"));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.cpSync(path.join(root, "lib"), path.join(dir, "lib"), { recursive: true });
+  fs.mkdirSync(path.join(dir, "scripts"));
+  fs.copyFileSync(path.join(root, "scripts", "validate-data.mjs"), path.join(dir, "scripts", "validate-data.mjs"));
+  fs.mkdirSync(path.join(dir, "site"));
+  for (const name of fs.readdirSync(path.join(root, "site")).filter((n) => n.endsWith(".js") && n !== "agenda-feed.js")) fs.copyFileSync(path.join(root, "site", name), path.join(dir, "site", name));
+  const schrijf = (rel, tekst) => { fs.mkdirSync(path.dirname(path.join(dir, rel)), { recursive: true }); fs.writeFileSync(path.join(dir, rel), tekst); };
+  const oud = oudeMarkt();
+  oud.items[0].sourceUrl = RUW.rij;
+  assert.ok(validateSourceDocument(oud, { expectedSourceId: "stad-markten" }).length, "zonder omzetting is het oude bestand ongeldig");
+  schrijf("site/sources/stad-markten.json", JSON.stringify(oud));
+  schrijf("site/straat/9001.json", JSON.stringify({ werken: [{ id: "work:990001", sourceUrls: [RUW.grondwerk], hindrance: { sourceUrls: [RUW.hinderUri] } }] }));
+  const pagina = (url) => `<!doctype html><a href="${url}" target="_blank" rel="noreferrer">${GIPOD_BRON}</a>`;
+  const feed = (url) => `window.PUBLIC_AGENDA_FEED = ${JSON.stringify({ items: [{ id: "markt-ma99-2099-01-02", link: url, sources: [{ sourceId: "stad-markten", url }] }] })};\n`;
+  const run = () => {
+    const uit = spawnSync(process.execPath, [path.join(dir, "scripts", "validate-data.mjs")], { encoding: "utf8" });
+    return { fouten: uit.stderr.split("\n").filter(Boolean), signalen: uit.stdout.split("\n").filter((l) => l.startsWith("::warning")).map((l) => l.replace("::warning title=Data::", "")) };
+  };
+
+  // Ruwe links in de feed en in één eventpagina, de datasetfiche in een andere.
+  schrijf("site/agenda-feed.js", feed(RUW.filter));
+  schrijf("site/event/markt-ma99-2099-01-02/index.html", pagina(RUW.rij));
+  schrijf("site/event/markt-ma99-2099-01-09/index.html", pagina(GIPOD_METADATA_URL));
+  const ruw = run();
+  assert.deepEqual(ruw.fouten.filter((l) => /GIPOD/.test(l)), [
+    "site/agenda-feed.js: link naar een ruw GIPOD-record",
+    "site/event/markt-ma99-2099-01-02/index.html: link naar een ruw GIPOD-record",
+  ]);
+  // Het oude bronbestand: geen fout (het wordt in de nieuwe vorm getoetst), wel een signaal.
+  assert.deepEqual(ruw.fouten.filter((l) => l.startsWith("stad-markten.json")), []);
+  assert.ok(ruw.signalen.includes("stad-markten.json: nog in de oude GIPOD-vorm (OGC API of ruwe rij als bronlink); de volgende verversing schrijft het opnieuw"), ruw.signalen.join("\n"));
+  // De ruwe links in het bronbestand en het straatbestand: een signaal met de bestanden, geen fout.
+  assert.ok(ruw.signalen.includes("2 bestanden van de verversing met een link naar een ruw GIPOD-record (onder meer site/sources/stad-markten.json, site/straat/9001.json); de volgende verversing schrijft ze zonder"), ruw.signalen.join("\n"));
+  assert.deepEqual(ruw.fouten.filter((l) => /site\/(?:sources|straat)\//.test(l)), []);
+  assert.equal(ruw.fouten.join("\n").includes("Voorbeeld"), false);
+
+  // Alleen de datasetfiche in de feed en de eventpagina's: geen fout meer.
+  schrijf("site/agenda-feed.js", feed(GIPOD_METADATA_URL));
+  schrijf("site/event/markt-ma99-2099-01-02/index.html", pagina(GIPOD_METADATA_URL));
+  assert.deepEqual(run().fouten.filter((l) => /GIPOD/.test(l)), []);
 });
 
 test("agenda en .ics: een ruwe GIPOD-link wordt de datasetfiche, bij een markt gaat de marktpagina voor", () => {
