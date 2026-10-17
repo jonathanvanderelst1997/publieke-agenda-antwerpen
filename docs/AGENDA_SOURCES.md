@@ -448,7 +448,10 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   mee; de tekst zegt dat dan, met de dag van de laatste wijziging in A-Sign ("laatst gewijzigd op …:
   aanvraag nog niet goedgekeurd"). Niet de dag van de verversing: dan zou elk item elke ochtend veranderen.
 - **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
-  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
+  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). De naam van een fase komt uit faseNaam
+  van A-Sign, een vrij in te vullen veld: alleen een vaste vorm ("Evenement", "Opbouw", "Afbraak",
+  "Opname periode 2"), "Opname", een district of een straat van het item (`veiligeFase` in
+  `site/witte-lijst.js`; de controle van het bronbestand weigert elke andere naam). Een dossier met meer dan 7 evenementdagen
   (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
   voor op die uit A-Sign. Een dossier zonder fase "Evenement" (alleen opbouw, of filmopnames met
   "Opname periode …") of met een evenementfase van meer dan 62 dagen (een constructie of plaatshouder

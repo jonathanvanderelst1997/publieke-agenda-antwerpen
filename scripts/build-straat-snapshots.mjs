@@ -47,7 +47,7 @@ import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets } from "../site/street-core.js";
 import { collectTerraces } from "../site/terraces-live-core.js";
 import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
-import { STRAATVELDEN, WEGGELATEN, straatItems } from "../site/straat-snapshot.js";
+import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/straat-snapshot.js";
 
 export {
   BRONNEN_BESTAND, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA,
@@ -87,7 +87,9 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
   // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
-  const schoon = itemZonderPandnummers(itemVoorHistoriek(zonder));
+  // De naam van de fase van een inname (faseNaam, vrij in te vullen) alleen als vaste vorm, district of straat van de inname
+  // (veiligeFase in site/witte-lijst.js), ook in `detail`; zo leest straatItems hetzelfde terug.
+  const schoon = itemZonderPandnummers(itemVoorHistoriek(veiligeInname(zonder)));
   for (const sleutel of ["sourceUrl", "sourceUrls"]) {
     if (!(sleutel in zonder)) continue;
     schoon[sleutel] = Array.isArray(zonder[sleutel]) ? zonder[sleutel].map(bronUrl).filter(Boolean) : bronUrl(zonder[sleutel]);

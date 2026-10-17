@@ -137,3 +137,44 @@ export function witteLijst(tekst, { straten = [], isStraat = null, rond = [] } =
 export function witteTekst(tekst, opties = {}) {
   return witteLijst(tekst, opties).tekst;
 }
+
+// ---------- de naam van een fase (faseNaam, A-Sign laag 22 en 23) ----------
+
+// faseNaam is in A-Sign een vrij in te vullen veld (String(50)). Gemeten op 17 oktober 2026: 73.420 rijen met 17
+// verschillende waarden in 6 vaste vormen, geen enkele leeg: "Evenement", "Opbouw", "Afbraak", "Opname periode 3",
+// "Opname periode 1-2" en "Opname periode 1----2". Op de site komt alleen zo'n vaste vorm; elke andere naam gaat door de
+// grondregel (witteTekst: alleen een volledige straatnaam of een district), anders valt hij weg. Een nieuwe vaste
+// waarde in A-Sign komt hier in de lijst, niet door de filter heen.
+export const FASEWOORDEN = Object.freeze(["Evenement", "Opbouw", "Afbraak"]);
+const FASEWOORD = new Map(FASEWOORDEN.map((w) => [w.toLowerCase(), w]));
+// "Opname periode 3", "Opname periode 1-2", "Opname periode 1----2": vaste woorden met een volgnummer van hoogstens twee
+// cijfers (en hoogstens vier streepjes ertussen). Die blijven zoals ze er staan (de sleutels en ids van de straatbestanden hangen eraan).
+const OPNAME_PERIODE = /^opname periode \d{1,2}(?: ?-{1,4} ?\d{1,2})?$/i;
+// "Fase 2": het vaste woord met een volgnummer (staat nu niet in A-Sign, wel de vorm die de site al toonde).
+const FASE_NUMMER = /^fase \d{1,2}$/i;
+// De langste naam van een fase die de site bewaart (fasen[].naam in lib/source-feed.mjs).
+export const FASE_MAX = 40;
+// De naam van een fase zoals de site hem mag tonen en vergelijken: een vaste vorm (met de hoofdletters van de lijst), het
+// vaste woord "Opname" voor elke andere naam die met "Opname" begint (een film- of foto-opname: isOpnameFase in
+// site/evenement-wat.js, zodat de soort dezelfde blijft), een volledige straatnaam of district, of "". Een voorvoegsel
+// "Fase " (zo staat een fase in `detail`) blijft voor een vaste vorm staan. Hoogstens FASE_MAX tekens. Puur.
+export function veiligeFase(naam, { straten = [], isStraat = null, rond = [] } = {}) {
+  const t = voorbereid(naam, 120);
+  if (!t) return "";
+  if (FASE_NUMMER.test(t)) return `Fase ${t.slice(5)}`;
+  const [, voor = "", rest = ""] = /^(fase )?(.*)$/i.exec(t);
+  const fase = voor ? "Fase " : "";
+  if (OPNAME_PERIODE.test(rest)) return `${fase}${rest}`;
+  if (FASEWOORD.has(rest.toLowerCase())) return `${fase}${FASEWOORD.get(rest.toLowerCase())}`;
+  if (/^opname\b/i.test(rest)) return `${fase}Opname`;
+  const { tekst, plekken } = witteLijst(t, { straten, isStraat, rond });
+  if (tekst.length <= FASE_MAX) return tekst;
+  // Te lang: zoveel hele plekken als passen.
+  let uit = "";
+  for (const p of plekken) { const n = uit ? `${uit}, ${p}` : p; if (n.length > FASE_MAX) break; uit = n; }
+  return uit;
+}
+// Of een bewaarde naam van een fase al door veiligeFase ging (voor de controle van een bronbestand). straten: de
+// straten van het item, die de straatas al kende.
+export const isVeiligeFase = (naam, { straten = [] } = {}) => typeof naam === "string" && Boolean(naam)
+  && (veiligeFase(naam) === naam || (Array.isArray(straten) && straten.includes(naam) && veiligeFase(naam, { straten: [naam] }) === naam));
