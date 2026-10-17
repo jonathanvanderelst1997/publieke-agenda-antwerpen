@@ -413,7 +413,17 @@
   .plek-ui.has-place .agenda-controls.pv-controls { margin: 0; }
   /* Deel en Andere plek op de rij van "Straat" als ze ernaast passen, anders op een eigen regel eronder (smalle
      gsm, grotere tekst, "Link gekopieerd"); de naam houdt de volle breedte. Zie .pv-place-top hierboven. */
-  .plek-ui.has-place .pv-place-actions .pv-btn { min-height: 40px; padding: 6px 10px; }
+  .plek-ui.has-place .pv-place-actions .pv-btn { min-height: 40px; padding: 6px 8px; }
+  /* P6 en de bewaarde straten (#171): "Bewaar straat" is hier een ster (de tekst blijft de naam van de knop), zodat
+     de drie knoppen op de rij van "Straat" passen. Het blok "Bewaarde straten" staat met een plek niet in beeld,
+     zoals "Snel kiezen"; de zin erin blijft voor schermlezers, en een fout bij het bewaren blijft zichtbaar. */
+  .plek-ui.has-place .pv-place-actions .pv-save { min-width: 32px; padding: 6px 7px; }
+  .plek-ui.has-place .pv-save::before { content: "☆"; content: "☆" / ""; font-size: 1.15rem; line-height: 1; }
+  .plek-ui.has-place .pv-save[aria-pressed="true"]::before { content: "★"; content: "★" / ""; color: var(--pa-accent); }
+  .plek-ui.has-place .pv-save-tekst,
+  .plek-ui.has-place .pv-bewaard-status:not(.pv-bewaard-fout) { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+  .plek-ui.has-place .pv-bewaard { margin: 0; padding: 0; border: 0; }
+  .plek-ui.has-place .pv-bewaard-kop, .plek-ui.has-place .pv-bewaard-list { display: none; }
   .pv-place { padding: 16px 14px; border-radius: 18px; }
   .pv-place-top { column-gap: 8px; }
   .pv-place-actions { gap: 6px; }
