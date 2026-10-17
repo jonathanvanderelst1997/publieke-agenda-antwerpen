@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-16T03:18:43.611Z",
-  "classificationAsOf": "2026-10-16",
-  "sourceCount": 912,
-  "count": 786,
-  "eventPageCount": 786,
+  "candidateGeneratedAt": "2026-10-17T03:18:44.874Z",
+  "classificationAsOf": "2026-10-17",
+  "sourceCount": 910,
+  "count": 784,
+  "eventPageCount": 784,
   "classifications": {
     "expired": 121,
-    "current": 34,
-    "future": 752,
+    "current": 40,
+    "future": 744,
     "review_required": 5
   },
   "scopeCounts": {
     "district": 134,
-    "stad": 652
+    "stad": 650
   },
-  "feedGeneratedAt": "2026-10-16T03:18:43.611Z",
+  "feedGeneratedAt": "2026-10-17T03:18:44.874Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:19:38.238Z",
+      "retrievedAt": "2026-10-17T03:19:57.910Z",
       "state": "fresh"
     },
     {
@@ -43,84 +43,84 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:58.378Z",
+      "retrievedAt": "2026-10-17T03:17:57.545Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:45.334Z",
+      "retrievedAt": "2026-10-17T03:17:44.757Z",
       "state": "empty"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:30.510Z",
+      "retrievedAt": "2026-10-17T03:17:29.443Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:34.173Z",
+      "retrievedAt": "2026-10-17T03:17:32.909Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-projecten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:00.470Z",
+      "retrievedAt": "2026-10-17T03:17:59.762Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:59.315Z",
+      "retrievedAt": "2026-10-17T03:17:58.591Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:17:35.048Z",
+      "retrievedAt": "2026-10-17T03:17:33.782Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:39.750Z",
+      "retrievedAt": "2026-10-17T03:18:41.114Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:39.750Z",
+      "retrievedAt": "2026-10-17T03:18:41.114Z",
       "state": "empty"
     },
     {
       "sourceId": "stad-districten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:07.287Z",
+      "retrievedAt": "2026-10-17T03:18:07.336Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:38.679Z",
+      "retrievedAt": "2026-10-17T03:18:39.577Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-16T03:18:33.538Z",
+      "retrievedAt": "2026-10-17T03:18:33.435Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "3774048a20f3e06b5afa5bdf69885f48a9b0cd836ea1dc3b344b0e34cc37e80a",
+  "digest": "fa5adb949fd0d079664338b6262575910da384915beca902baa548fbd4414151",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -166,12 +166,6 @@
     "Humans of Antwerp",
     "Najaarsfoor Dageraadplaats",
     "Vergroening Matigheidstraat & Spaarstraat: fase 2A (Matigheidstraat)",
-    "Gemengde markt Michel Willemsplein",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Botermarkt",
-    "Gemengde markt Zillebekelaan",
-    "Gemengde markt Laar (Borgerhout)",
-    "Gemengde markt Desguinlei",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
@@ -908,6 +902,10 @@
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
     "Gemengde markt Desguinlei",
+    "Gemengde markt Wim Saerensplein",
+    "Gemengde markt en exotische markt Oudevaartplaats",
+    "Markt voor voeding, bloemen en planten Kioskplaats",
+    "Gemengde markt De Villegasstraat",
     "Districtsraad Antwerpen",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
