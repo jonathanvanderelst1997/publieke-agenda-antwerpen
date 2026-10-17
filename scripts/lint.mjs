@@ -92,6 +92,7 @@ const javascriptFiles = [
   "lib/awv-werf.mjs",
   "scripts/fetch-sources-awv-werf.mjs",
   "tests/awv-werf.test.mjs",
+  "tests/works-awv-supplement.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
