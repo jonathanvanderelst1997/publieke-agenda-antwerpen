@@ -215,16 +215,6 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
-  "groenplaats frans halsplein grote kauwenberg en 20 andere straten": {
-   "point": [
-    4.4013,
-    51.21873
-   ],
-   "precision": "straat",
-   "street": "Groenplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "grote markt": {
    "point": [
     4.39989,
@@ -246,16 +236,6 @@
    "checkedOn": "2026-10-12"
   },
   "hanzestedenplaats amsterdamstraat bataviastraat en 31 andere straten": {
-   "point": [
-    4.405,
-    51.2287
-   ],
-   "precision": "straat",
-   "street": "Hanzestedenplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "hanzestedenplaats veemarkt theaterplein en 8 andere straten": {
    "point": [
     4.405,
     51.2287
@@ -614,6 +594,26 @@
    "street": "Timmerwerfstraat",
    "postcode": "2000",
    "checkedOn": "2026-10-12"
+  },
+  "tussen kruispunt met de lange van ruusbroecstraat en arendstraat 2018 antwerpen": {
+   "point": [
+    4.42757,
+    51.20652
+   ],
+   "precision": "straat",
+   "street": "Arendstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-10-16"
+  },
+  "tussen lange van ruusbroecstraat en arendstraat 2018 antwerpen": {
+   "point": [
+    4.42757,
+    51.20652
+   ],
+   "precision": "straat",
+   "street": "Arendstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-10-16"
   },
   "van campstraat en korte van sterbeeckstraat": {
    "point": [

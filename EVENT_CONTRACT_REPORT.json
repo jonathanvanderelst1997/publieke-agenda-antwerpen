@@ -1,7 +1,7 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 910,
+    "events": 912,
     "errors": 0,
     "warnings": 122,
     "unconfirmedStart": 122
@@ -240,382 +240,382 @@
     },
     {
       "code": "unconfirmed_start",
-      "index": 153,
-      "id": "asign-ev-et2026004496-2026-10-15"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 154,
-      "id": "asign-ev-et2026004643-2026-10-15"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 155,
-      "id": "asign-ev-et2026005441-2026-10-15"
-    },
-    {
-      "code": "unconfirmed_start",
-      "index": 166,
+      "index": 159,
       "id": "asign-ev-et2026003067-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 167,
+      "index": 160,
       "id": "asign-ev-et2026003354-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 168,
+      "index": 161,
       "id": "asign-ev-et2026004544-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 169,
+      "index": 162,
       "id": "asign-ev-et2026004648-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 170,
+      "index": 163,
       "id": "asign-ev-et2026004734-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 171,
+      "index": 164,
       "id": "asign-ev-et2026005103-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 172,
+      "index": 165,
       "id": "asign-ev-et2026005554-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 173,
+      "index": 166,
       "id": "ebesluit-ev-2026-dcan-00561-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 174,
+      "index": 167,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 180,
+      "index": 173,
       "id": "asign-ev-et2025006107-2026-10-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 181,
+      "index": 174,
       "id": "asign-ev-et2025007162-2026-10-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 185,
+      "index": 178,
       "id": "asign-ev-et2026004380-2026-10-19"
     },
     {
       "code": "unconfirmed_start",
-      "index": 186,
+      "index": 179,
       "id": "asign-ev-et2026004982-2026-10-19"
     },
     {
       "code": "unconfirmed_start",
-      "index": 187,
+      "index": 180,
       "id": "project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19"
     },
     {
       "code": "unconfirmed_start",
-      "index": 191,
+      "index": 184,
       "id": "asign-ev-et2026004253-2026-10-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 192,
+      "index": 185,
       "id": "asign-ev-et2026004449-2026-10-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 193,
+      "index": 186,
       "id": "asign-ev-et2026005362-2026-10-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 197,
+      "index": 187,
+      "id": "asign-ev-et2026005960-2026-10-20"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 191,
       "id": "asign-ev-et2026004667-2026-10-21"
     },
     {
       "code": "unconfirmed_start",
-      "index": 202,
+      "index": 196,
       "id": "asign-ev-et2026003377-2026-10-22"
     },
     {
       "code": "unconfirmed_start",
-      "index": 203,
+      "index": 197,
       "id": "asign-ev-et2026004461-2026-10-22"
     },
     {
       "code": "unconfirmed_start",
-      "index": 204,
+      "index": 198,
       "id": "asign-ev-et2026004667-2026-10-22"
     },
     {
       "code": "unconfirmed_start",
-      "index": 214,
+      "index": 208,
       "id": "asign-ev-et2025005965-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 215,
+      "index": 209,
       "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 216,
+      "index": 210,
       "id": "ebesluit-ev-2026-dcan-00599-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 217,
+      "index": 211,
       "id": "stad-news-merksem-68c42eae7c39f4977a6df487-2026-10-23"
     },
     {
       "code": "unconfirmed_start",
-      "index": 225,
+      "index": 219,
       "id": "asign-ev-et2026005154-2026-10-25"
     },
     {
       "code": "unconfirmed_start",
-      "index": 232,
+      "index": 226,
       "id": "asign-ev-et2026004329-2026-10-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 233,
+      "index": 227,
       "id": "asign-ev-et2026004449-2026-10-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 234,
+      "index": 228,
       "id": "asign-ev-et2026005074-2026-10-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 241,
+      "index": 235,
       "id": "asign-ev-et2026004413-2026-10-29"
     },
     {
       "code": "unconfirmed_start",
-      "index": 242,
+      "index": 236,
       "id": "asign-ev-et2026005416-2026-10-29"
     },
     {
       "code": "unconfirmed_start",
-      "index": 255,
+      "index": 249,
       "id": "asign-ev-et2026005698-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 256,
+      "index": 250,
       "id": "asign-ev-et2026005713-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 257,
+      "index": 251,
       "id": "stad-news-merksem-6655c1fac846040011359f8b-2026-10-31"
     },
     {
       "code": "unconfirmed_start",
-      "index": 261,
+      "index": 255,
       "id": "asign-ev-et2026005943-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 262,
+      "index": 256,
       "id": "koopzondag-2026-11-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 273,
+      "index": 267,
       "id": "ebesluit-ev-2026-dcan-00579-2026-11-04"
     },
     {
       "code": "unconfirmed_start",
-      "index": 283,
+      "index": 277,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 288,
+      "index": 282,
       "id": "asign-ev-et2026005676-2026-11-07"
     },
     {
       "code": "unconfirmed_start",
-      "index": 289,
+      "index": 283,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07"
     },
     {
       "code": "unconfirmed_start",
-      "index": 293,
+      "index": 287,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 294,
+      "index": 288,
       "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08"
     },
     {
       "code": "unconfirmed_start",
-      "index": 307,
+      "index": 301,
       "id": "asign-ev-et2025005359-2026-11-11"
     },
     {
       "code": "unconfirmed_start",
-      "index": 318,
+      "index": 312,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 323,
+      "index": 317,
       "id": "asign-ev-et2026001197-2026-11-14"
     },
     {
       "code": "unconfirmed_start",
-      "index": 327,
+      "index": 321,
       "id": "asign-ev-et2025006108-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 328,
+      "index": 322,
       "id": "asign-ev-et2026000445-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 329,
+      "index": 323,
       "id": "asign-ev-et2026005665-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 330,
+      "index": 324,
       "id": "project-6abbbb7f332512009f4367fe-bevraging-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 331,
+      "index": 325,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15"
     },
     {
       "code": "unconfirmed_start",
-      "index": 339,
+      "index": 333,
       "id": "asign-ev-et2026005298-2026-11-17"
     },
     {
       "code": "unconfirmed_start",
-      "index": 345,
+      "index": 339,
       "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 346,
+      "index": 340,
       "id": "stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18"
     },
     {
       "code": "unconfirmed_start",
-      "index": 359,
+      "index": 353,
       "id": "asign-ev-et2026004615-2026-11-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 364,
+      "index": 358,
       "id": "asign-ev-et2025003100-2026-11-21"
     },
     {
       "code": "unconfirmed_start",
-      "index": 365,
+      "index": 359,
       "id": "asign-ev-et2025006985-2026-11-21"
     },
     {
       "code": "unconfirmed_start",
-      "index": 388,
+      "index": 382,
       "id": "ebesluit-ev-2026-dcan-00607-2026-11-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 397,
+      "index": 391,
       "id": "asign-ev-et2026005499-2026-11-29"
     },
     {
       "code": "unconfirmed_start",
-      "index": 415,
+      "index": 409,
       "id": "asign-ev-et2025006728-2026-12-04"
     },
     {
       "code": "unconfirmed_start",
-      "index": 416,
+      "index": 410,
       "id": "asign-ev-et2026000222-2026-12-04"
     },
     {
       "code": "unconfirmed_start",
-      "index": 424,
+      "index": 418,
       "id": "asign-ev-et2026005821-2026-12-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 425,
+      "index": 419,
       "id": "koopzondag-2026-12-06"
     },
     {
       "code": "unconfirmed_start",
-      "index": 447,
+      "index": 441,
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11"
     },
     {
       "code": "unconfirmed_start",
-      "index": 455,
+      "index": 449,
       "id": "koopzondag-2026-12-13"
     },
     {
       "code": "unconfirmed_start",
-      "index": 482,
+      "index": 476,
       "id": "koopzondag-2026-12-20"
     },
     {
       "code": "unconfirmed_start",
-      "index": 505,
+      "index": 499,
       "id": "ebesluit-ev-2026-dcan-00548-2026-12-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 506,
+      "index": 500,
       "id": "koopzondag-2026-12-27"
     },
     {
       "code": "unconfirmed_start",
-      "index": 522,
+      "index": 516,
       "id": "project-608fe3749dc6b9660910da8b-fase-3-2027-01-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 523,
+      "index": 517,
+      "id": "project-65af88d5bcb6dfe17b56eb18-fase-3-2027-01-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 518,
       "id": "project-69d4e01eff0ca8b3330b381c-fase-3-2027-01-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 732,
+      "index": 727,
       "id": "project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 733,
+      "index": 728,
       "id": "project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 842,
+      "index": 837,
       "id": "project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01"
     },
     {
       "code": "unconfirmed_start",
-      "index": 902,
+      "index": 838,
+      "id": "project-65af88d5bcb6dfe17b56eb18-fase-4-2027-04-01"
+    },
+    {
+      "code": "unconfirmed_start",
+      "index": 904,
       "id": "project-608fe3749dc6b9660910da8b-fase-4-2027-06-21"
     }
   ]
