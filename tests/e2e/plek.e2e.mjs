@@ -458,8 +458,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const input = page.locator("#agenda-street-jump");
     await input.focus();
     await page.keyboard.type("zurenb");
+    // De straten van heel de stad komen pas bij het typen binnen en zetten de Zurenborgbrug (Berchem, buiten deze agenda)
+    // tussen de wijk en de Zurenborgstraat. Kwamen ze tussen de twee pijltjes, dan koos ArrowUp de brug (de lijst houdt de
+    // gekozen suggestie vast, die schoof een plaats op). Een bewoner ziet de lijst; de toets wacht er dus op.
+    await page.locator("#pv-suggestions .pv-sugg-buiten").first().waitFor();
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("ArrowUp");
+    assert.equal(await page.locator('#pv-suggestions [aria-selected="true"]').evaluate((el) => `${el.className}|${el.querySelector("strong").textContent}`), "pv-sugg pv-sugg-wijk|Zurenborg", "ArrowDown en ArrowUp: terug op de wijk");
     await page.keyboard.press("Enter");
     assert.equal(await page.locator(".pv-place-name").innerText(), "Zurenborg");
     assert.match(page.url(), /plek=Zurenborg/);
