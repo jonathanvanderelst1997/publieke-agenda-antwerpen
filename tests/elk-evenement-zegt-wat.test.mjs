@@ -464,6 +464,9 @@ test("M4: een markt van een jaar op het vlak van een openbare markt zegt 'elke v
   const jaar = { dag: "2026-04-17", eind: "2027-04-30", ring: vierkant(oost(MIDDEN, 910), 30) };
   const r = herken(nep("ET2099600060", [{ ...jaar, beschrijving: "tijdelijke markt" }], { straat: "Proefplein" }), { markten, marktDagen });
   assert.deepEqual([r.zekerheid, r.methode, r.naam, r.uren], ["zeker", "markt", "Gemengde markt Proefplein", "8 tot 13 uur"]);
+  // Een marktdag uit een bestand van vóór 17 oktober 2026 (ruwe INNAME_PUNT-rij als bronlink): de fiche noemt de
+  // datasetfiche van GIPOD en A-Sign, nooit de rij zelf. Twee bronnen, dus "zeker" blijft geldig.
+  assert.deepEqual(r.bron, ["https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52", L.ASIGN_BRON]);
   assert.ok(r.dagen.length > 50 && r.dagen.every((d) => new Date(`${d}T12:00:00Z`).getUTCDay() === 5));
   // Zonder het woord markt (kleine plekken van een jaar) of met losse dagen: geen markt.
   assert.notEqual(herken(nep("ET2099600061", [jaar], { straat: "Proefplein" }), { markten, marktDagen }).methode, "markt");

@@ -23,7 +23,7 @@ export const WERK_TITEL = "Proefwerk riolering (snel)";
 export const werk = (gipodId = 990001, extra = {}) => ({
   gipodId, title: `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland", // verzonnen adres
   start: "2099-03-19T06:00:00Z", end: "2099-04-09T16:00:00Z", workTypes: [], occupancyTypes: ["Riolering"],
-  sourceUrls: [`https://gipod.api.vlaanderen.be/api/v1/groundworks/${gipodId}`], lastModified: "2099-03-01T00:00:00Z",
+  lastModified: "2099-03-01T00:00:00Z", // geen sourceUrls: site/works-core.js neemt geen link naar het ruwe record meer op
   point: midden, recordCount: 1, boundaryConfidence: "point_inside_new", hindrance: null, hindranceSourceLoaded: true,
   streets: [KAM], streetResolution: "nearest_official_axis", streetDistanceMeters: 3, creator: "Proef Persoon", ...extra,
 });

@@ -1,4 +1,5 @@
 import {GEEN_INZAGE_ZIN,INZAGE_LOKET} from "./inzage-status.js";
+import {GIPOD_BRON,GIPOD_METADATA_URL,gipodLink} from "./gipod-bron.js";
 
 export const INZAGE = INZAGE_LOKET;
 export const INZAGE_UITLEG = "https://www.vlaanderen.be/omgevingsvergunning/inzageloket";
@@ -47,10 +48,14 @@ export function hinderkaart(gipodId) {
   const id=String(gipodId??"");
   return /^[1-9]\d{0,12}$/.test(id)?GEOPUNT+"&gipodid="+id:GEOPUNT;
 }
+// Een GIPOD-link (een ruw record of de datasetfiche) wordt altijd één bronvermelding "Bron: GIPOD (Digitaal
+// Vlaanderen)" met de datasetfiche: nooit een link naar het ruwe record, dat contactgegevens draagt
+// (site/gipod-bron.js). Ook niet uit oudere data (een straatbestand of feed van vóór die regel).
 export function bezoekersLinks(e={}) {
   const item=e.item||{}, out=[], add=(url,label,type="main")=>{
-    const href=safeHttps(url);
-    if(href&&!out.some(x=>x.url===href))out.push({url:href,label,type});
+    const gipod=gipodLink(url);
+    const href=gipod?GIPOD_METADATA_URL:safeHttps(url);
+    if(href&&!out.some(x=>x.url===href))out.push({url:href,label:gipod?GIPOD_BRON:label,type:gipod?"source":type});
   };
   if(e.source==="permits"){
     // Nooit de startpagina van het Inzageloket: daar vindt een bewoner het dossier meestal niet. Alleen een
@@ -62,12 +67,13 @@ export function bezoekersLinks(e={}) {
     }
   }else if(e.source==="works"){
     add(hinderkaart(item.gipodId),"Bekijk werken en hinder op de officiële kaart");
+    add(GIPOD_METADATA_URL,GIPOD_BRON,"source");
   }else if(e.source==="publicSpace"&&item.kind==="event"){
     // Evenementkaart: de nagekeken officiële pagina of het gekoppelde agendapunt (site/kaart-uitleg.js).
     for(const l of e.evenementLinks||[]){
       const intern=/^\/event\/[a-z0-9][a-z0-9-]{2,200}\/$/.test(String(l?.url||""));
       const href=intern?l.url:safeHttps(l?.url);
-      if(href&&!rawData(href)&&!out.some(x=>x.url===href))out.push({url:href,label:String(l.label||"Officiële info over dit evenement"),type:"main",uitleg:String(l.uitleg||"")});
+      if(href&&!rawData(href)&&!gipodLink(href)&&!out.some(x=>x.url===href))out.push({url:href,label:String(l.label||"Officiële info over dit evenement"),type:"main",uitleg:String(l.uitleg||"")});
     }
     if(e.sourceUrl)add(e.sourceUrl,"Technische gegevens van de stad (geen infopagina)","source");
   }else if(e.source==="publicSpace"&&item.gipodId){
@@ -86,7 +92,7 @@ export function bezoekersLinks(e={}) {
     if(item.registrationVerified===true&&distinctPage(item.registrationUrl))
       add(item.registrationUrl,"Inschrijven via bevestigde aanmeldpagina");
     if(speciaal?.info)add(speciaal.info,"Concrete informatie over dit evenement");
-    if(e.url&&!rawData(e.url)){
+    if(e.url&&!rawData(e.url)&&!gipodLink(e.url)){
       const label = item.sourceId==="district-kalender"
         ? /wat-beleef-je-in-district-antwerpen/i.test(String(e.url)) ? "Districtskalender met meerdere activiteiten" : "Officiële informatie over dit evenement"
         : item.sourceId==="district-vergaderingen"
@@ -99,6 +105,8 @@ export function bezoekersLinks(e={}) {
   }
   if(e.sourceUrl&&!out.some(x=>x.url===safeHttps(e.sourceUrl)))
     add(e.sourceUrl,rawData(e.sourceUrl)?"Technische databron (geen infopagina)":"Officiële bronpagina","source");
+  // Een agendapunt zonder eigen bronlink, maar met een GIPOD-link als infopagina: dan toch de bronvermelding.
+  if(e.url&&gipodLink(e.url))add(e.url,GIPOD_BRON,"source");
   return out;
 }
 // Een ruwe databron (ArcGIS, GIPOD-API) is geen pagina voor bewoners: die gaat in een ingeklapt blok

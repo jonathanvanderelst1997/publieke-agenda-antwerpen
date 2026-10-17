@@ -2,9 +2,14 @@ import {resolveAddressStreet} from "./street-core.js";
 import {loadStreetIndex} from "./street-source.js";
 import {aanvraagStand,aanvraagTitel} from "./permit-clarity.js";
 import {onderzoekZin} from "./inzage-status.js";
+import {hinderkaart} from "./bezoekers-bronnen.js";
+import {zonderRuwGipodRecord} from "./gipod-bron.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
+// Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk Hinder in Kaart, en een GIPOD-link
+// van een agendapunt (een markt) wordt de datasetfiche.
+const bron=value=>zonderRuwGipodRecord(String(value||""));
 const isMarket=item=>item?.sourceId==="stad-markten"||(item?.sources||[]).some(source=>source?.sourceId==="stad-markten")||/\bmarkt\b/i.test(item?.title||"");
 
 export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItems=[],streetIndex=null,history=null,asOf="9999-12-31"}={}){
@@ -20,16 +25,16 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     if(group&&!group[bucket].some(existing=>existing.id===item.id))group[bucket].push(item);
   };
   for(const item of works){
-    const normalized={id:`work:${item.gipodId}`,title:clean(item.title)||"Werk",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:item.sourceUrls?.[0]||"",severeHindrance:item.hindrance?.severe===true};
+    const normalized={id:`work:${item.gipodId}`,title:clean(item.title)||"Werk",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:hinderkaart(item.gipodId),sourceLabel:"Hinder in Kaart",severeHindrance:item.hindrance?.severe===true};
     for(const street of item.streets||[])add(street,"works",normalized);
   }
   for(const item of publicSpace){
     const bucket=item.kind==="parking"?"parking":item.kind==="iod"?"iod":"sgw";
-    const normalized={id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.detail||item.location),sourceUrl:item.sourceUrl||""};
+    const normalized={id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.detail||item.location),sourceUrl:bron(item.sourceUrl)};
     for(const street of item.streets||[])add(street,bucket,normalized);
   }
   // Een nagekeken openbaar onderzoek (site/inzage-status.js) staat ook hier, vóór de stand van de aanvraag.
-  for(const item of permits){const normalized={id:item.id,title:aanvraagTitel(item),status:[onderzoekZin(item.inzage,asOf),aanvraagStand(item)].filter(Boolean).join(" "),start:"",end:"",detail:item.dossier?`Dossier ${item.dossier}`:"",sourceUrl:item.sourceUrl||""};for(const street of item.streets||[])add(street,"permits",normalized)}
+  for(const item of permits){const normalized={id:item.id,title:aanvraagTitel(item),status:[onderzoekZin(item.inzage,asOf),aanvraagStand(item)].filter(Boolean).join(" "),start:"",end:"",detail:item.dossier?`Dossier ${item.dossier}`:"",sourceUrl:bron(item.sourceUrl)};for(const street of item.streets||[])add(street,"permits",normalized)}
   if(streetIndex){
     for(const item of agendaItems){
       const end=item.endDate||item.date||"";
@@ -37,7 +42,7 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
       const resolution=resolveAddressStreet(item.location||"",streetIndex);
       if(!resolution.streets.length)continue;
       const bucket=isMarket(item)?"markets":"agenda";
-      const normalized={id:item.id,title:clean(item.title)||"Agenda-item",status:"",start:item.date||"",end:item.endDate||"",detail:clean(item.timeText||item.info),sourceUrl:item.sourceUrl||item.link||""};
+      const normalized={id:item.id,title:clean(item.title)||"Agenda-item",status:"",start:item.date||"",end:item.endDate||"",detail:clean(item.timeText||item.info),sourceUrl:bron(item.sourceUrl||item.link)};
       for(const street of resolution.streets)add(street,bucket,normalized);
     }
   }
@@ -128,7 +133,7 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     const range=item=>item.start&&item.end&&item.start!==item.end?`${date(item.start)} – ${date(item.end)}`:item.start?date(item.start):"";
     function allGroups(){if(!state.streetIndex)return[];return buildStreetGroups({works:state.works.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"works")),publicSpace:state.publicSpace.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"publicSpace")),permits:state.permits.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"permits")),agendaItems:Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS)?window.PUBLIC_AGENDA_VISIBLE_ITEMS:[],streetIndex:state.streetIndex,history:state.history,asOf:brusselsToday()})}
     function filtered(){const query=clean(search?.value).toLowerCase(),groups=allGroups();if(!query)return groups;return groups.filter(group=>[group.street.name,group.street.postcode,...group.works.map(item=>item.title),...group.parking.map(item=>item.title),...group.iod.map(item=>item.title),...group.sgw.map(item=>item.title),...group.permits.map(item=>item.title),...group.markets.map(item=>item.title),...group.agenda.map(item=>item.title)].join(" ").toLowerCase().includes(query))}
-    function line(kind,item){const timing=range(item);return`<li><span class="street-item-kind">${esc(kind)}</span><span><strong>${esc(item.title)}</strong>${item.status?` · ${esc(item.status)}`:""}${timing?` · ${esc(timing)}`:""}${item.detail?`<small>${esc(item.detail)}</small>`:""}</span>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">bron</a>`:""}</li>`}
+    function line(kind,item){const timing=range(item);return`<li><span class="street-item-kind">${esc(kind)}</span><span><strong>${esc(item.title)}</strong>${item.status?` · ${esc(item.status)}`:""}${timing?` · ${esc(timing)}`:""}${item.detail?`<small>${esc(item.detail)}</small>`:""}</span>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">${esc(item.sourceLabel||"bron")}</a>`:""}</li>`}
     function card(group){const timeline=buildStreetTimeline(group,{asOf:brusselsToday()}),badges=[group.works.length&&`${group.works.length} werken`,group.parking.length&&`${group.parking.length} parkeerverboden`,group.iod.length&&`${group.iod.length} innames`,group.sgw.length&&`${group.sgw.length} verkeer`,group.permits.length&&`${group.permits.length} vergunningen`,group.markets.length&&`${group.markets.length} markten`,group.agenda.length&&`${group.agenda.length} activiteiten`,group.works.some(item=>item.severeHindrance)&&"ernstige hinder",timeline.peakConcurrent>1&&`piek ${timeline.peakConcurrent} tegelijk`,group.changes.length&&`${group.changes.length} wijzigingen (${state.history?.periode?.alleenLaatste?"laatste verversing":`${state.history?.periode?.dagen||7}d`})`].filter(Boolean);const items=[...group.works.map(item=>line("Werk",item)),...group.parking.map(item=>line("Parkeren",item)),...group.iod.map(item=>line("Inname",item)),...group.sgw.map(item=>line("Verkeer",item)),...group.permits.map(item=>line("Vergunning",item)),...group.markets.map(item=>line("Markt",item)),...group.agenda.map(item=>line("Agenda",item))].join("");const timelineRows=timeline.entries.slice(0,12).map(item=>`<li class="${item.overlaps?"has-overlap":""}"><time>${esc(item.start===item.end?date(item.start):`${date(item.start)} – ${date(item.end)}`)}</time><span><b>${esc(item.kind)}</b> · ${esc(item.title)}</span></li>`).join("");const timelineMore=timeline.entries.length>12?`<small>+ ${timeline.entries.length-12} latere bekende items; alle details staan hieronder.</small>`:"";const timelineHtml=timeline.entries.length?`<div class="street-timeline"><div><strong>Tijdlijn</strong><span>${timeline.horizon?`bekend t/m ${esc(date(timeline.horizon))}`:""}${timeline.overlapEntries?` · ${timeline.overlapEntries} items overlappen`:""}</span></div><ol>${timelineRows}</ol>${timelineMore}</div>`:"";return`<details class="street-card"><summary><span><strong>${esc(group.street.name)}</strong>${group.street.postcode?` <small>${esc(group.street.postcode)}</small>`:""}</span><span class="street-badges">${badges.map(badge=>`<em>${esc(badge)}</em>`).join("")}</span></summary>${timelineHtml}<ul>${items}</ul></details>`}
     function render(){
       const all=allGroups(),groups=filtered(),shown=groups.slice(0,state.shown),r=buildDistrictRadar(all,state.history);

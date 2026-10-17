@@ -61,8 +61,40 @@
     return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
   }
 
+  // GIPOD als bron: nooit een link naar een ruw GIPOD-record (een markt, een werk, een inname), want dat record
+  // draagt contactgegevens. Een kopie van ruwGipodRecord uit site/gipod-bron.js (dit bestand is geen module);
+  // tests/gipod-geen-ruwe-links.test.mjs houdt beide gelijk.
+  const GIPOD_METADATA_URL = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
+
+  function isRawGipodRecord(value) {
+    let url;
+    try {
+      url = new URL(String(value ?? "").trim());
+    } catch {
+      return false;
+    }
+    if (!/^https?:$/.test(url.protocol)) return false;
+    const host = url.hostname.toLowerCase().replace(/\.$/, "");
+    if (host === "gipod.api.vlaanderen.be" || host.endsWith(".gipod.api.vlaanderen.be")) return true;
+    if (host !== "geo.api.vlaanderen.be") return false;
+    let pad = url.pathname;
+    try {
+      pad = decodeURIComponent(pad);
+    } catch {
+      // een kapotte codering: dan het pad zoals het is
+    }
+    return /^\/+gipod\//i.test(pad) && /\/items(?:[/.]|$)/i.test(pad);
+  }
+
+  // De bron in URL en "Bron:". Is de bronlink een GIPOD-link (een ruw record of de datasetfiche), dan gaat
+  // een eigen https-infopagina voor (bij een markt: de marktpagina van de stad), anders de datasetfiche.
   function sourceUrl(item) {
-    const source = new URL(String(item.link || ""));
+    let link = String(item.link || "").trim();
+    if (isRawGipodRecord(link) || link === GIPOD_METADATA_URL) {
+      const info = String(item.infoUrl || "").trim();
+      link = /^https:\/\//i.test(info) && !isRawGipodRecord(info) ? info : GIPOD_METADATA_URL;
+    }
+    const source = new URL(link);
     if (source.protocol !== "https:") throw new Error("Agenda-export vereist een publieke HTTPS-bron.");
     return source;
   }
@@ -198,6 +230,7 @@
     buildIndividualIcs,
     downloadIndividualIcs,
     filenameForItem,
+    isRawGipodRecord,
     validateIndividualIcs,
   };
 });

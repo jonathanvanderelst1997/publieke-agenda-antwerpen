@@ -61,6 +61,9 @@ async function routeSources(page) {
   const werk = { type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: {
     GipodId: GIPOD_ID, Description: RUW, Owner: "Fluvius Site Warmte", Status: "Concreet gepland", Type: "Grondwerk",
     Start: "2026-01-05T05:00:00Z", End: "2027-07-06T16:00:00Z", PublicDomainOccupancyTypes: "Thermisch", GroundworkSpecification: "distributienet;transportnet;(her)aanleg",
+    // Zoals een ruw GIPOD-record: een Uri en (verzonnen) contactgegevens. Geen van beide mag op de plekpagina komen.
+    Uri: `https://gipod.api.vlaanderen.be/api/v1/groundworks/${GIPOD_ID}`,
+    ContactOrganisations: JSON.stringify([{ ContactRole: "Dossierbeheerder", OrganisationName: "Voorbeeldorganisatie", ContactName: "Voorbeeld Persoon", Email: "voorbeeld@example.org" }]),
   } }] };
   const hinder = { type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: {
     HindranceStatus: "Gevalideerd", HindranceConsequenceOf: `https://gipod.api.vlaanderen.be/api/v1/groundworks/${GIPOD_ID}`, HindranceGipodId: 1,
@@ -115,6 +118,14 @@ test("werkkaart: jaartal, soort, eigen afsluitingsperiode, project zichtbaar, ge
     assert.equal(await ruw.locator("p").isVisible(), false);
     await ruw.locator("summary").click();
     assert.equal(await ruw.locator("p").innerText(), RUW);
+    // Bron en dossier: Hinder in Kaart en één bronvermelding met de datasetfiche; geen "Technische details" met
+    // een link naar het ruwe GIPOD-record (site/gipod-bron.js), en nergens de contactgegevens.
+    const links = await detail.locator("a").evaluateAll((els) => els.map((a) => [a.textContent.replace(/\s*↗$/, ""), a.href]));
+    assert.equal(links.some(([, href]) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD/i.test(href)), false, JSON.stringify(links));
+    assert.ok(links.some(([, href]) => href === `https://www.geopunt.be/?app=hinder-in-kaart&gipodid=${GIPOD_ID}`), JSON.stringify(links));
+    assert.deepEqual(links.filter(([, href]) => href.startsWith("https://metadata.vlaanderen.be/")), [["Bron: GIPOD (Digitaal Vlaanderen)", "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"]]);
+    assert.equal(await detail.locator(".pv-tech").count(), 0);
+    assert.doesNotMatch(await rij.innerHTML(), /Voorbeeld Persoon|example\.org/);
     const [scroll, breedte] = await page.evaluate(() => [document.documentElement.scrollWidth, window.innerWidth]);
     assert.ok(scroll <= breedte, `horizontale scroll op ${viewport.width} px: ${scroll} > ${breedte}`);
     assert.deepEqual(errors, []);

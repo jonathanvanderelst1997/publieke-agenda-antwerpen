@@ -10,7 +10,7 @@ import { dutchDateLabel } from "../lib/html-text.mjs";
 import { EVENEMENT_BESLUITEN_FILE } from "../lib/ebesluit-evenementen.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { MANUAL_CHECK_FILE, manualCheckForFeed, validateManualCheck } from "../lib/manual-check.mjs";
-import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
+import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
@@ -58,8 +58,11 @@ export function readSources(rootDir) {
       continue;
     }
     const expectedSourceId = name.replace(/\.json$/, "");
-    for (const error of validateSourceDocument(json, { expectedSourceId })) problems.push(`${name}: ${error}`);
-    documents.push(json);
+    // Een GIPOD-bron van vóór 17 oktober 2026 linkte per item naar de ruwe rij: in de feed komt de datasetfiche
+    // (lib/source-feed.mjs, zonderRuweGipodBron). De verversing schrijft het bronbestand zelf opnieuw.
+    const { document } = zonderRuweGipodBron(json);
+    for (const error of validateSourceDocument(document, { expectedSourceId })) problems.push(`${name}: ${error}`);
+    documents.push(document);
   }
   if (problems.length) throw new Error(`Ongeldige brondata:\n${problems.slice(0, 20).join("\n")}`);
   return { status, documents, manualCheck };

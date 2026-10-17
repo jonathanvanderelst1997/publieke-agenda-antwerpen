@@ -13,6 +13,7 @@ import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
 import { locationKey } from "../../site/neighborhood-core.js";
+import { GIPOD_BRON, GIPOD_METADATA_URL } from "../../site/gipod-bron.js";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -113,7 +114,9 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const stukPunt = (i) => [x1 + (x2 - x1) * (0.5 - 0.15 * i), y1 + (y2 - y1) * (0.5 - 0.15 * i)];
   const work = {
     type: "FeatureCollection", links: [],
-    features: Array.from({ length: werkStukken }, (_, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: i ? stukPunt(i) : mid }, properties: { GipodId: 999999901 + i, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: `https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/${999999901 + i}` } })),
+    features: Array.from({ length: werkStukken }, (_, i) => ({ type: "Feature", geometry: { type: "Point", coordinates: i ? stukPunt(i) : mid }, properties: { GipodId: 999999901 + i, Description: WORK_TITLE, Owner: "water-link", Status: "Concreet gepland", Start: `${addDays(today, 9)}T06:00:00Z`, End: `${addDays(today, 30)}T16:00:00Z`, Uri: `https://gipod.api.vlaanderen.be/api/v1/mobility-hindrances/${999999901 + i}`,
+      // Verzonnen contactgegevens, zoals een ruw GIPOD-record ze kan dragen: ze mogen nergens op de site komen.
+      ContactOrganisations: JSON.stringify([{ ContactRole: "Dossierbeheerder", OrganisationName: "Voorbeeldorganisatie", ContactName: "Voorbeeld Persoon", Email: "voorbeeld@example.org" }]) } })),
   };
   const d = 0.0002;
   const permit = {
@@ -301,6 +304,25 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.equal(await page.locator(`.pv-results ${WORK_ROW}`).count(), 0, "op vandaag loopt het werk nog niet");
     await page.click(`[data-tl-dag="${today}"]`);
     await page.locator(`.pv-results ${WORK_ROW}`).waitFor();
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  await t.test("werk: Hinder in Kaart en één bronvermelding met de datasetfiche, nooit een link naar het ruwe GIPOD-record", async () => {
+    const plek = `${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
+    const { page, context, errors } = await openPage(baseUrl, { street, query: `?plek=${plek}` });
+    const row = page.locator(`.pv-results ${WORK_ROW}`).first();
+    await row.waitFor({ timeout: 15000 });
+    await row.locator(".pv-row-btn").click();
+    // Het werk in de proef heeft een Uri en (verzonnen) contactgegevens, zoals een ruw GIPOD-record (site/gipod-bron.js).
+    const hrefs = await row.locator(".pv-detail a").evaluateAll((els) => els.map((a) => a.href));
+    assert.equal(hrefs.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD/i.test(h)), false, hrefs.join(" "));
+    assert.ok(hrefs.includes("https://www.geopunt.be/?app=hinder-in-kaart&gipodid=999999901"), hrefs.join(" "));
+    assert.equal(hrefs.filter((h) => h === GIPOD_METADATA_URL).length, 1, hrefs.join(" "));
+    assert.equal((await row.locator(`.pv-detail a[href="${GIPOD_METADATA_URL}"]`).innerText()).replace(/\s*↗$/, ""), GIPOD_BRON);
+    // Geen "Technische details" meer bij een werk: daar stond de filterlink naar het ruwe record.
+    assert.equal(await row.locator(".pv-tech").count(), 0, "geen technische details bij een werk");
+    assert.doesNotMatch(await row.innerHTML(), /Voorbeeld Persoon|example\.org|INNAME_PUNT|GipodId/);
     assert.deepEqual(errors, []);
     await context.close();
   });
