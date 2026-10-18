@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "20c4e9ca604e659a",
- "code": "2193b726513979f7",
+ "invoer": "9eaf17afaff0926d",
+ "code": "06452a48c51df07c",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -199,22 +199,21 @@
   "verboden": {}
  },
  "straten": {
-  "items": 467,
-  "vaag": 264,
-  "aandeel": 56.5,
+  "items": 474,
+  "vaag": 256,
+  "aandeel": 54,
   "perPatroon": {
    "periode-onbekend": 157,
    "start-werken-onbekend": 54,
    "uur-onbekend": 49,
-   "wat-zegt-stad-niet": 45,
-   "generieke-titel": 27,
+   "wat-zegt-stad-niet": 44,
+   "generieke-titel": 26,
    "stand-onduidelijk": 20,
    "naam-stad-niet": 18,
    "vermoedelijk": 18,
    "wat-zegt-dossier-niet": 13,
    "uren-parkeerverbod-onbekend": 9,
    "doel-onbekend": 8,
-   "parkeerverbod-welk": 7,
    "werf-zonder-doel": 6,
    "elke-dag-onbekend": 5,
    "plek-verspreid": 5,
@@ -229,8 +228,8 @@
      "uur-onbekend": 1
     },
     "meerDanEen": 31,
-    "losse": 28,
-    "losseVaag": 14
+    "losse": 23,
+    "losseVaag": 9
    },
    "publicSpace:event": {
     "items": 43,
@@ -264,16 +263,11 @@
     "losseVaag": 20
    },
    "publicSpace:parking": {
-    "items": 29,
-    "vaag": 8,
-    "patronen": {
-     "parkeerverbod-welk": 7,
-     "generieke-titel": 1,
-     "wat-zegt-stad-niet": 1
-    },
-    "meerDanEen": 1,
-    "losse": 29,
-    "losseVaag": 8
+    "items": 36,
+    "vaag": 0,
+    "patronen": {},
+    "losse": 36,
+    "losseVaag": 0
    },
    "permits": {
     "items": 54,
@@ -338,9 +332,9 @@
    }
   },
   "detail": {
-   "metOntbreekt": 299,
-   "meerDanEen": 287,
-   "zinnen": 753,
+   "metOntbreekt": 298,
+   "meerDanEen": 286,
+   "zinnen": 751,
    "perPatroon": {
     "niet-in-de-bron": 89,
     "huisnummers-niet-gepubliceerd": 38,
@@ -351,16 +345,16 @@
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 417,
-   "vaag": 237
+   "kaarten": 424,
+   "vaag": 229
   },
   "losse": {
-   "kaarten": 283,
-   "vaag": 80
+   "kaarten": 285,
+   "vaag": 67
   },
   "ingeklapt": {
-   "regels": 37,
-   "kaarten": 197,
+   "regels": 38,
+   "kaarten": 202,
    "perSoort": {
     "aanvragen": {
      "regels": 3,
@@ -379,8 +373,8 @@
      "kaarten": 155
     },
     "werfzones": {
-     "regels": 7,
-     "kaarten": 17
+     "regels": 8,
+     "kaarten": 22
     }
    }
   },
@@ -400,9 +394,9 @@
     "ingeklapt": 2
    },
    "Vrijdagmarkt": {
-    "kaarten": 20,
+    "kaarten": 21,
     "vaag": 12,
-    "losseKaarten": 11,
+    "losseKaarten": 12,
     "losseVaag": 3,
     "ingeklapt": 1
    },
@@ -429,16 +423,16 @@
    },
    "Kloosterstraat": {
     "kaarten": 38,
-    "vaag": 24,
+    "vaag": 22,
     "losseKaarten": 23,
-    "losseVaag": 8,
+    "losseVaag": 6,
     "ingeklapt": 3
    },
    "Paardenmarkt": {
-    "kaarten": 25,
-    "vaag": 12,
-    "losseKaarten": 20,
-    "losseVaag": 9,
+    "kaarten": 27,
+    "vaag": 11,
+    "losseKaarten": 21,
+    "losseVaag": 7,
     "ingeklapt": 3
    },
    "Sint-Jansvliet": {
@@ -449,9 +443,9 @@
     "ingeklapt": 2
    },
    "Kammenstraat": {
-    "kaarten": 21,
+    "kaarten": 22,
     "vaag": 12,
-    "losseKaarten": 12,
+    "losseKaarten": 13,
     "losseVaag": 3,
     "ingeklapt": 3
    },
@@ -463,10 +457,10 @@
     "ingeklapt": 0
    },
    "Maria-Henriëttalei": {
-    "kaarten": 14,
+    "kaarten": 15,
     "vaag": 3,
     "losseKaarten": 12,
-    "losseVaag": 1,
+    "losseVaag": 0,
     "ingeklapt": 1
    },
    "Van Ertbornstraat": {
@@ -478,9 +472,9 @@
    },
    "Theaterplein": {
     "kaarten": 15,
-    "vaag": 8,
+    "vaag": 7,
     "losseKaarten": 15,
-    "losseVaag": 7,
+    "losseVaag": 6,
     "ingeklapt": 2
    },
    "Frans Hensstraat": {
@@ -547,17 +541,17 @@
     "ingeklapt": 0
    },
    "Thonetlaan": {
-    "kaarten": 11,
+    "kaarten": 12,
     "vaag": 3,
-    "losseKaarten": 11,
-    "losseVaag": 3,
-    "ingeklapt": 0
+    "losseKaarten": 10,
+    "losseVaag": 1,
+    "ingeklapt": 1
    },
    "Van Kerckhovenstraat": {
-    "kaarten": 16,
-    "vaag": 11,
+    "kaarten": 17,
+    "vaag": 10,
     "losseKaarten": 7,
-    "losseVaag": 2,
+    "losseVaag": 0,
     "ingeklapt": 2
    },
    "Merksemsestraat": {
@@ -576,9 +570,9 @@
    },
    "De Coninckplein": {
     "kaarten": 22,
-    "vaag": 21,
+    "vaag": 18,
     "losseKaarten": 7,
-    "losseVaag": 6,
+    "losseVaag": 3,
     "ingeklapt": 2
    }
   }
@@ -678,8 +672,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "638448b950af6a9b",
-   "code": "7bda4387c81f6ee5"
+   "invoer": "20c4e9ca604e659a",
+   "code": "2193b726513979f7"
   },
   "agenda": {
    "ok": true,
@@ -693,7 +687,7 @@
   },
   "straten": {
    "ok": true,
-   "stijging": 0,
+   "stijging": -2.5,
    "gestegen": []
   },
   "buiten": {
