@@ -48,7 +48,7 @@ import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets, str
 import { collectTerraces } from "../site/terraces-live-core.js";
 import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
 import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/straat-snapshot.js";
-import { zonderToevoegingInData } from "../site/witte-lijst.js";
+import { heeftToevoeging, zonderToevoegingInData } from "../site/witte-lijst.js";
 import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
 
 export {
@@ -59,6 +59,9 @@ export {
 const isObject = (value) => value && typeof value === "object" && !Array.isArray(value);
 const clean = (value) => String(value ?? "").replace(/\s+/g, " ").trim();
 const kort = (tekst) => crypto.createHash("sha256").update(tekst).digest("hex").slice(0, 12);
+// Draagt een item (ook dieper) nog een homoniemtoevoeging van de straatas in een tekst ("Proefstraat_AN")?
+const metToevoeging = (waarde) => (typeof waarde === "string" ? heeftToevoeging(waarde)
+  : Array.isArray(waarde) ? waarde.some(metToevoeging) : isObject(waarde) ? Object.values(waarde).some(metToevoeging) : false);
 
 // ---------- privacy per item ----------
 
@@ -691,8 +694,14 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     if (!/^\d+$/.test(id) || !straten.perId.has(id)) continue;
     const delen = { ...(perStraat.get(id) || {}) };
     const vorigDoc = vorigeDocs.get(id);
-    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026).
-    for (const naam of houdVorige) delen[naam] = new Map(straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map((item) => [item.id, zonderRuweGipodLinks(item)]));
+    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026). Een item
+    // uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat: in
+    // "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item,
+    // als er nog iets privé in staat), zoals bij een nieuw item.
+    for (const naam of houdVorige) {
+      const items = straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item));
+      delen[naam] = new Map(items.map((item) => (metToevoeging(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
+    }
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });
     if (!aantalItems(doc)) continue;
     const bestand = path.join(map, `${id}.json`);

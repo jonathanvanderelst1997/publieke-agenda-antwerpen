@@ -32,7 +32,7 @@ import { buildDistrictRadar, buildStreetGroups } from "../site/street-overview.j
 import { leesBewaardeStraten, OPSLAG_SLEUTEL } from "../site/bewaarde-straten.js";
 import { straatItems } from "../site/straat-snapshot.js";
 import { historiekPrivacyBevindingen, historiekVoorPubliek, resultaatVoorHistoriek, tekstZonderHuisnummers } from "../lib/historiek-privacy.mjs";
-import { itemVoorStraat, schrijfStraatSnapshots, straatDocument, STRAAT_SCHEMA } from "../scripts/build-straat-snapshots.mjs";
+import { itemVoorStraat, schrijfStraatSnapshots, straatBestandenProblemen, straatDocument, STRAAT_SCHEMA } from "../scripts/build-straat-snapshots.mjs";
 import { buildStreetList } from "../scripts/build-straten.mjs";
 import { bouwStadStraten, districtenTabel, schoneNaam } from "../scripts/build-straten-stad.mjs";
 import { crabStraatWhere, huisnummersVoorWerk, kaartUitlegVoorPubliek, schrijfKaartUitleg, stratenLangsLijn } from "../lib/kaart-uitleg-refresh.mjs";
@@ -203,14 +203,17 @@ test("homoniem: de straatbestanden: een nieuw item en een vorige stand zonder to
   fs.mkdirSync(path.join(root, "site", "geo"), { recursive: true });
   fs.mkdirSync(path.join(root, "site", "straat"), { recursive: true });
   fs.writeFileSync(path.join(root, "site", "geo", "straten.json"), JSON.stringify({ schemaVersion: 1, streets: rijen }));
-  const oud = { schemaVersion: STRAAT_SCHEMA, ververst: "2026-10-16T03:00:00.000Z", inhoud: "oud", straat: { id: "990001", namen: [{ name: "Proefstraat_AN", postcode: "2018" }] }, straten: [["990001", "Proefstraat_AN", "2018"]], werken: [{ id: "work:990101", gipodId: 990101, title: "2018 ANTWERPEN, PROEFSTRAAT_AN", status: "In uitvoering", start: "2026-10-15", end: "2026-10-30", streets: [0] }], publiekeRuimte: [], vergunningen: [], terrassen: [], evenementen: [] };
+  const oud = { schemaVersion: STRAAT_SCHEMA, ververst: "2026-10-16T03:00:00.000Z", inhoud: "oud", straat: { id: "990001", namen: [{ name: "Proefstraat_AN", postcode: "2018" }] }, straten: [["990001", "Proefstraat_AN", "2018"]], werken: [{ id: "work:990101", gipodId: 990101, title: "2018 ANTWERPEN, PROEFSTRAAT_AN", status: "In uitvoering", start: "2026-10-15", end: "2026-10-30", streets: [0] }, { id: "work:990102", gipodId: 990102, title: "2018 ANTWERPEN, PROEFSTRAAT_AN 12", status: "In uitvoering", start: "2026-10-15", end: "2026-10-30", streets: [0] }], publiekeRuimte: [], vergunningen: [], terrassen: [], evenementen: [] };
   fs.writeFileSync(path.join(root, "site", "straat", "990001.json"), JSON.stringify(oud));
   const stand = { status: "ok", sinds: "2026-10-16T03:00:00.000Z" };
   fs.writeFileSync(path.join(root, "site", "straat-index.json"), JSON.stringify({ schemaVersion: STRAAT_SCHEMA, ververst: "2026-10-16T03:00:00.000Z", lagen: { werken: stand, publiekeRuimte: stand, vergunningen: stand, terrassen: stand, evenementen: stand }, straten: { 990001: "oud" } }));
   schrijfStraatSnapshots({ rootDir: root, herschrijf: true, agendaItems: [], history: null, clock: () => new Date("2026-10-17T10:00:00Z") });
   const herschreven = JSON.parse(fs.readFileSync(path.join(root, "site", "straat", "990001.json"), "utf8"));
   nergens(herschreven, "herschreven straatbestand");
-  assert.equal(herschreven.werken.length, 1);
+  // Een oud bestand van vóór de regel: "PROEFSTRAAT_AN 12" telde toen niet als straat met huisnummer. Zonder de
+  // toevoeging is 12 een huisnummer; het valt weg zoals bij een nieuw item (itemVoorStraat), en het item blijft.
+  assert.deepEqual(herschreven.werken.map((w) => w.title), ["2018 ANTWERPEN, PROEFSTRAAT", "2018 ANTWERPEN, PROEFSTRAAT"]);
+  assert.deepEqual(straatBestandenProblemen(root), []);
   const idx = JSON.parse(fs.readFileSync(path.join(root, "site", "straat-index.json"), "utf8"));
   assert.equal(idx.ververst, "2026-10-16T03:00:00.000Z", "herschrijven is geen verversing");
   assert.deepEqual(idx.lagen.werken, stand);
