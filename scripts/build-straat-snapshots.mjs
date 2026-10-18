@@ -19,7 +19,8 @@
 //
 // Privacy, met dezelfde regels als de historiek (lib/historiek-privacy.mjs): alleen district Antwerpen,
 // geen huisnummers (ook niet in titels), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
-// `reason`; site/adres-privacy.js), geen vrije beschrijving van een inname (innameBeschrijving),
+// `reason`; site/adres-privacy.js; wel het dossier van zijn werfzone, `werfzoneDossier`, dat de werfkaart ook toont),
+// geen vrije beschrijving van een inname (innameBeschrijving),
 // geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
 // precieze plek kan naar één woning wijzen), en nooit de velden creator, assignee of lockOwner.
 //
@@ -37,12 +38,12 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import {
   BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
-  STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
+  STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, geldigWerfzoneDossier, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
 } from "../lib/straat-bestanden.mjs";
 import { loadExpandedAgendaItems } from "./agenda-source.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
 import { collectPermits } from "../site/permits-live-core.js";
-import { dayOf, maatregelSleutel } from "../site/place-core.js";
+import { dayOf, maatregelSleutel, parkeerverbodenAanWerfzone } from "../site/place-core.js";
 import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets, straatasNaam } from "../site/street-core.js";
@@ -94,6 +95,8 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
     if (NOOIT.has(sleutel) || waarde === undefined || sleutel === "id") continue;
     zonder[sleutel] = waarde;
   }
+  // Het dossier van de werfzone van een parkeerverbod alleen als dossiernummer (geldigWerfzoneDossier), anders weg.
+  if ("werfzoneDossier" in zonder && !geldigWerfzoneDossier(zonder)) delete zonder.werfzoneDossier;
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
@@ -237,8 +240,11 @@ export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, 
     const district = publicSpaceResult?.district || null;
     const works = worksResult?.ok && index ? applyWorkStreetResolution(worksResult.items, index) : [];
     const raw = publicSpaceResult?.ok ? publicSpaceResult.features : null;
+    // Een parkeerverbod voor een werf krijgt hier het dossiernummer van zijn werfzone (werfzoneDossier), met de reden van
+    // A-Sign die de verversing alleen intern kent: schoon() (itemVoorStraat) haalt de reden daarna weg, en zo bundelt de
+    // ochtendstand een parkeerverbod nog altijd bij zijn werfzone (site/place-core.js, parkeerverbodVoorWerf).
     const publicSpace = raw && index && district
-      ? collectPublicSpace({ parkingFeatures: raw.parking || [], iodFeatures: raw.iod || [], sgwFeatures: raw.sgw || [], districtGeometry: district, streetIndex: index, postcodes: DISTRICT_POSTCODES })
+      ? parkeerverbodenAanWerfzone(collectPublicSpace({ parkingFeatures: raw.parking || [], iodFeatures: raw.iod || [], sgwFeatures: raw.sgw || [], districtGeometry: district, streetIndex: index, postcodes: DISTRICT_POSTCODES }))
       : [];
     const ophalen = Boolean(index && district && typeof fetchImpl === "function");
     const zonder = { ok: false, items: [], errorCode: typeof fetchImpl !== "function" ? "niet_opgehaald" : index ? "district_boundary_missing" : "street_axis_missing" };
@@ -376,10 +382,11 @@ export const SAMENVATTING_WEG = Object.freeze(["kindLabel", "title", "location",
 // uren: bundelMaatregelen in site/place-core.js) en toont dan "Werfzone met omleiding", de hele periode, de
 // fasen en "+ 4 andere straten". Een straatbestand bevat alleen de rijen van de straat zelf. Daarom komen de
 // andere rijen van zo'n bundel er kort bij (`bundel`: zonder vorm, adres of omschrijving): een fase van een
-// werfzone per rij, een parkeerverbod als één rij met de andere straten.
+// werfzone per rij, een parkeerverbod als één rij met de andere straten (met het dossier van zijn werfzone, als het er
+// een heeft: de kaart is één parkeerverbod, en elke rij ervan hoort bij die werfzone).
 const BUNDEL_VELDEN = Object.freeze({
   sgw: ["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"],
-  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets"],
+  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets", "werfzoneDossier"],
 });
 const refSleutel = (ref) => [ref?.id || "", clean(ref?.name), ref?.postcode || ""].join("|");
 const uniekeRefs = (refs) => [...new Map(refs.filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
@@ -700,11 +707,14 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     const vorigDoc = vorigeDocs.get(id);
     // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026) en zonder
     // de reden van een parkeerverbod (uit een straatbestand van vóór 18 oktober 2026: titel "Parkeerverbod", geen
-    // `reason`). Een item uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat:
-    // in "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item,
-    // als er nog iets privé in staat), zoals bij een nieuw item.
+    // `reason`). Wat die reden intern deed, blijft: een parkeerverbod voor een werf krijgt eerst het dossier van zijn
+    // werfzone (parkeerverbodenAanWerfzone, met de rijen van dat bestand, zoals de plekpagina ze toen bundelde). Een item
+    // uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat: in "PROEFSTRAAT_AN 1"
+    // is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item, als er nog iets privé in
+    // staat), zoals bij een nieuw item.
     for (const naam of houdVorige) {
-      const items = straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map(zonderParkeerReden);
+      const vorige = straatItems(vorigDoc, naam);
+      const items = (naam === "publiekeRuimte" ? parkeerverbodenAanWerfzone(vorige) : vorige).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map(zonderParkeerReden);
       delen[naam] = new Map(items.map((item) => (metToevoeging(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
     }
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });
