@@ -38,6 +38,28 @@ export function mislukteOnderdelen(laag, bronnen = []) {
 export function mislukteOnderdelenPublicSpace(bronnen = []) {
   return mislukteOnderdelen("publicSpace", bronnen);
 }
+// Alle onderdelen van een laag van de plekpagina: wat er ontbreekt als de laag niet, of maar voor een kleiner gebied,
+// nagekeken is. Werken en publieke ruimte volgen hun bronnen (LAAG_BRONNEN); vergunningen en terrassen zijn elk één
+// onderdeel. Een onbekende laag heet zoals ze heet (en valt dus nooit weg).
+const EEN_ONDERDEEL = Object.freeze({ permits: "vergunningen", terraces: "terrassen" });
+export function alleOnderdelen(laag) {
+  if (LAAG_BRONNEN[laag]) return orden(Object.values(LAAG_BRONNEN[laag]).flat());
+  return [EEN_ONDERDEEL[laag] || String(laag)];
+}
+
+// Het gebied dat een laag dekt (`dekking`) en het gebied dat de bezoeker koos (`gebied`, live.gebied), elk als
+// { plek, straal }: de sleutel van de plek (place.key in site/place-view.js) en het aantal meter rond een straat. Een
+// lijst van het hele district heeft geen dekking: die dekt elk gebied. Een laag van de plekpagina (de momentopname van
+// een straat, wijk of postcode, of het live kader van een straat met een straal) dekt alleen haar eigen plek, met
+// hoogstens haar straal; zonder gekozen gebied (de voorpagina) dekt ze niets.
+// Nakijkronde 5 (18-10-2026): of een laag volledig is, hing alleen af van wat er mislukte, niet van het gebied. De
+// momentopname van één straat gold zo als volledig voor "in en rond jouw straat" ("Rustig", tegels op 0), zoals in
+// nakijkronde 4 de laag van een vorige straat voor een nieuwe plek.
+export function dektGebied(dekking, gebied) {
+  if (!dekking) return true;
+  if (!gebied) return false;
+  return String(dekking.plek) === String(gebied.plek) && (Number(dekking.straal) || 0) >= (Number(gebied.straal) || 0);
+}
 
 // Welke onderdelen ontbreken voor de soorten die aanstaan. `enabled(laag)` zoals PUBLIC_AGENDA_VIEW.
 export function ontbrekendeOnderdelen(failed = {}, enabled = () => true) {
@@ -63,30 +85,56 @@ export const laagStand = (detail) => (detail?.failed?.length ? "mislukt" : Array
 //    lijsten" open terwijl A-Sign of GIPOD niet antwoordde, dan verdwenen de parkeerverboden en de werken van de straat);
 // 3. anders wat er wel is: de lijst van het district (deels, of null met de mislukte onderdelen), of een straat zonder
 //    momentopname waarvan het live kader faalde (null met de mislukte onderdelen).
-// Geeft { items, mislukt, heelDistrict }, of null als geen bron de laag meldde.
-export function kiesLaag({ district = null, straat = null } = {}) {
-  const uit = (b, heelDistrict = false) => ({ items: Array.isArray(b.items) ? b.items : null, mislukt: [...(b.mislukt || [])], heelDistrict });
-  if (district && Array.isArray(district.items) && !district.mislukt?.length) return uit(district, true);
-  if (straat && Array.isArray(straat.items)) return uit(straat);
+// Dekt de straatlaag het gekozen `gebied` niet (dektGebied: een straal rond de straat, een andere plek), dan houdt ze
+// haar items maar mist ze alle onderdelen van de laag `naam`: nooit "rustig", nooit een valse 0 (`gedekt: false`).
+// Geeft { items, mislukt, heelDistrict, gedekt }, of null als geen bron de laag meldde.
+export function kiesLaag({ district = null, straat = null, gebied = null, naam = "" } = {}) {
+  const uit = (b, { heelDistrict = false, gedekt = true } = {}) => ({
+    items: Array.isArray(b.items) ? b.items : null,
+    mislukt: gedekt ? [...(b.mislukt || [])] : orden([...(b.mislukt || []), ...alleOnderdelen(naam)]),
+    heelDistrict, gedekt,
+  });
+  if (district && Array.isArray(district.items) && !district.mislukt?.length) return uit(district, { heelDistrict: true });
+  const gedekt = !straat || dektGebied(straat.dekking, gebied);
+  if (straat && Array.isArray(straat.items)) return uit(straat, { gedekt });
   if (district) return uit(district);
-  return straat ? uit(straat) : null;
+  return straat ? uit(straat, { gedekt }) : null;
 }
 
-// Eén bron van een laag zetten ({ items, mislukt }) of weghalen (null) in `live` (window.PUBLIC_AGENDA_LIVE_STREETS), en
-// opnieuw kiezen wat de pagina toont (kiesLaag). Geeft het detail van "public-agenda:street-layer".
-export function zetLaagBron(live, naam, bron, waarde) {
-  const bronnen = (live.bronnen = { ...(live.bronnen || {}) });
-  const perLaag = (bronnen[bron] = { ...(bronnen[bron] || {}) });
-  if (waarde) perLaag[naam] = { items: Array.isArray(waarde.items) ? waarde.items : null, mislukt: [...(waarde.mislukt || [])] };
-  else delete perLaag[naam];
-  const keuze = kiesLaag({ district: bronnen.district?.[naam], straat: bronnen.straat?.[naam] });
+// Opnieuw kiezen wat de pagina van laag `naam` toont (kiesLaag), met het gekozen gebied (live.gebied). Ook
+// live.ongedekt: de lagen waarvan de gekozen bron dat gebied niet dekt (place-view.js: die laden nog zolang de plekpagina
+// het kader of de momentopname van het gebied ophaalt). Geeft het detail van "public-agenda:street-layer".
+function kiesOpnieuw(live, naam) {
+  const bronnen = live.bronnen || {};
+  const keuze = kiesLaag({ district: bronnen.district?.[naam], straat: bronnen.straat?.[naam], gebied: live.gebied || null, naam });
   const items = keuze ? keuze.items : null;
   if (items) live[naam] = items; else delete live[naam];
   live.failed = { ...(live.failed || {}), [naam]: keuze ? keuze.mislukt : [] };
   const heel = { ...(live.heelDistrict || {}) };
   if (keuze?.heelDistrict) heel[naam] = true; else delete heel[naam];
   live.heelDistrict = heel;
+  const ongedekt = { ...(live.ongedekt || {}) };
+  if (keuze && !keuze.gedekt) ongedekt[naam] = true; else delete ongedekt[naam];
+  live.ongedekt = ongedekt;
   return { name: naam, items, failed: [...live.failed[naam]] };
+}
+// Eén bron van een laag zetten ({ items, mislukt, dekking }) of weghalen (null) in `live` (window.PUBLIC_AGENDA_LIVE_STREETS),
+// en opnieuw kiezen wat de pagina toont (kiesLaag). Geeft het detail van "public-agenda:street-layer".
+export function zetLaagBron(live, naam, bron, waarde) {
+  const bronnen = (live.bronnen = { ...(live.bronnen || {}) });
+  const perLaag = (bronnen[bron] = { ...(bronnen[bron] || {}) });
+  if (waarde) {
+    perLaag[naam] = { items: Array.isArray(waarde.items) ? waarde.items : null, mislukt: [...(waarde.mislukt || [])] };
+    if (waarde.dekking) perLaag[naam].dekking = { plek: String(waarde.dekking.plek ?? ""), straal: Number(waarde.dekking.straal) || 0 };
+  } else delete perLaag[naam];
+  return kiesOpnieuw(live, naam);
+}
+// Het gebied dat de bezoeker koos ({ plek, straal }, of null zonder plek) zetten, en elke laag opnieuw kiezen. Geeft
+// het detail van "public-agenda:street-layer" per laag.
+export function zetGebied(live, gebied) {
+  live.gebied = gebied ? { plek: String(gebied.plek ?? ""), straal: Number(gebied.straal) || 0 } : null;
+  const namen = new Set(Object.values(live.bronnen || {}).flatMap((perLaag) => Object.keys(perLaag || {})));
+  return [...namen].map((naam) => kiesOpnieuw(live, naam));
 }
 
 const meld = (naam, bron, waarde) => {
@@ -95,10 +143,19 @@ const meld = (naam, bron, waarde) => {
   window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { ...zetLaagBron(live, naam, bron, waarde), bron } }));
 };
 // Een live laag melden aan de rest van de pagina: items (of null als de laag niet laadde) en de mislukte onderdelen.
-// `bron`: "district" (de lijsten van het hele district) of "straat" (place-view.js). Zonder browser (toetsen) doet dit
-// niets.
-export function meldLiveLaag(naam, items, mislukt = [], { bron = "district" } = {}) {
-  meld(naam, bron, { items, mislukt });
+// `bron`: "district" (de lijsten van het hele district) of "straat" (place-view.js); `dekking`: het gebied dat een laag van
+// de plekpagina nakeek (dektGebied). Zonder browser (toetsen) doet dit niets.
+export function meldLiveLaag(naam, items, mislukt = [], { bron = "district", dekking = null } = {}) {
+  meld(naam, bron, { items, mislukt, dekking });
+}
+// Het gebied dat de bezoeker koos melden (place-view.js, bij elke andere plek of straal): elke laag kiest opnieuw, en de
+// rest van de pagina hoort het als die laag. Hetzelfde gebied nog eens: niets.
+export function meldGebied(gebied) {
+  if (typeof window === "undefined") return;
+  const live = (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
+  const vorig = live.gebied || null;
+  if ("gebied" in live && (vorig?.plek ?? null) === (gebied ? String(gebied.plek ?? "") : null) && (Number(vorig?.straal) || 0) === (Number(gebied?.straal) || 0)) return;
+  for (const detail of zetGebied(live, gebied)) window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { ...detail, bron: "gebied" } }));
 }
 // De laag van één bron weghalen (de bezoeker verlaat de straat): dan telt weer wat de andere bron meldde.
 export function wisLiveLaag(naam, bron = "straat") {

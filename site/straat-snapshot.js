@@ -119,6 +119,66 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
   return lagen;
 }
 
+// ---------- de momentopname van een gebied (een wijk of postcode) ----------
+
+// De stand van de ochtend van alle straten van een gebied (`ids`, de officiële straat-id's), met hoogstens `gelijktijdig`
+// verzoeken tegelijk: postcode 2000 telt bijna 500 straten. Geeft { index, standen: [{ id, doc }], ontbrekend }:
+// `ontbrekend` telt de straten zonder stand (een straat die alleen live mag, een bestand dat niet laadde of niet klopt).
+// Een straat zonder bestand had niets bij de verversing: die vraagt niets en telt mee als stand zonder items. Zonder
+// index: null (geen momentopname, zoals bij een straat).
+export async function laadGebied(ids = [], { fetch: fetchImpl = (...a) => globalThis.fetch(...a), gelijktijdig = 8, nu = () => Date.now() } = {}) {
+  const index = await laadStraatIndex({ fetch: fetchImpl });
+  if (!index) return null;
+  const lijst = [...new Set((Array.isArray(ids) ? ids : []).map(String))];
+  const standen = new Array(lijst.length).fill(null);
+  let ontbrekend = 0, volgende = 0;
+  const werker = async () => {
+    while (volgende < lijst.length) {
+      const i = volgende++;
+      const stand = await laadStraat(lijst[i], { fetch: fetchImpl, nu }).catch(() => null);
+      if (stand) standen[i] = { id: lijst[i], doc: stand.doc };
+      else ontbrekend += 1;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(Number(gelijktijdig) || 1, lijst.length)) }, werker));
+  return { index, standen: standen.filter(Boolean), ontbrekend };
+}
+
+// De items van een gebied per live laag (works, publicSpace, permits, terraces), elk item één keer (op zijn id): een item
+// dat aan meer straten hangt, staat in het bestand van elk van die straten. Een volledige rij gaat voor een korte (een
+// `bundel`: de andere rijen van een werfzone of parkeerverbod) of een samenvatting van fasen; de straten van alle
+// bestanden samen (een rij van een evenementendossier houdt in elk bestand alleen die straat). Alleen lagen met een
+// bruikbare stand in de index (ok of stale, zoals bij een straat in place-view.js). `volledig`: elke straat van het
+// gebied had een stand; `ververst`: de oudste stand van die lagen.
+const kortItem = (item) => Boolean(item?.bundel || item?.faseSamenvatting);
+function itemSamen(oud, nieuw) {
+  const [basis, ander] = kortItem(oud) && !kortItem(nieuw) ? [nieuw, oud] : [oud, nieuw];
+  const uit = { ...basis };
+  for (const veld of STRAATVELDEN) if (Array.isArray(basis[veld]) || Array.isArray(ander[veld])) uit[veld] = samenRefs(basis[veld] || [], ander[veld] || []);
+  return uit;
+}
+export function lagenUitGebied(gebied, { inzage = null, vandaag = "" } = {}) {
+  const lagen = {};
+  if (!gebied?.index) return { lagen, volledig: false, ververst: "" };
+  const bruikbaar = (laag) => ["ok", "stale"].includes(gebied.index.lagen?.[laag]?.status);
+  for (const [laag, live] of STRAAT_LAGEN) {
+    if (!bruikbaar(laag)) continue;
+    const perId = new Map();
+    for (const { doc } of gebied.standen || []) {
+      if (!doc) continue;
+      for (const item of straatItems(doc, laag)) {
+        const sleutel = itemId(item);
+        if (!sleutel) continue;
+        perId.set(sleutel, perId.has(sleutel) ? itemSamen(perId.get(sleutel), item) : item);
+      }
+    }
+    lagen[live] = [...perId.values()];
+  }
+  if (lagen.permits) lagen.permits = metInzage(lagen.permits, inzage, vandaag);
+  const tijden = STRAAT_LAGEN.filter(([laag]) => bruikbaar(laag)).map(([laag]) => gebied.index.lagen[laag].sinds).filter(Boolean).sort();
+  return { lagen, volledig: gebied.ontbrekend === 0, ververst: tijden[0] || gebied.index.ververst || "" };
+}
+
 // Als de rijen van de dossiers in het kader live niet geladen konden worden (publiekeRuimteInKader in
 // site/public-space-live.js): de live items van het kader, aangevuld met wat buiten dat kader ligt maar wel
 // op de kaart van de straat hoort (scripts/build-straat-snapshots.mjs):

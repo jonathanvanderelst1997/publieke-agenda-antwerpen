@@ -29,6 +29,8 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
   // Buurt: een wijk (code uit site/geo/wijken.geojson), een postcode en/of een straal rond de gekozen straat.
   // De kaart (neighborhood-map.js) levert de matcher; zolang die er niet is, filtert de wijk nog niet.
   let area = { wijk: "", radius: 0, postcode: "" }, areaMatcher = null, straalMislukt = false;
+  // De wijken per straat uit site/geo/straten.json (place-view.js): de wijkfilter valt erop terug zonder straatassen.
+  let straatWijken = null;
   const allowed = new Set(VIEW_THEMES.map(([key]) => key));
   let themes = new Set(defaultThemes.filter(key => allowed.has(key)));
   // Straten van een item zonder eigen straten: één keer per item opzoeken en onthouden. Elke filter-
@@ -78,9 +80,10 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
       };
     },
     setAreaMatcher(matcher) { areaMatcher = matcher && typeof matcher.inWijk === "function" ? matcher : null; },
+    setStraatWijken(map) { straatWijken = map instanceof Map ? map : null; refsMemo = new WeakMap(); },
     enabled(key) { return themes.has(key === "terraces" ? "permits" : key); },
     matchesStreet(item) {
-      if (area.wijk && areaMatcher && !areaMatcher.inWijk(item, area.wijk, refsOf(item))) return false;
+      if (area.wijk && areaMatcher && !areaMatcher.inWijk(item, area.wijk, refsOf(item), straatWijken)) return false;
       if (area.postcode) {
         // Postcode: een officiële straat met die postcode, of een bron die de postcode zelf meegeeft.
         const codes = new Set([...(refsOf(item) || []).map(ref => String(ref?.postcode || "")), ...(Array.isArray(item?.postcodes) ? item.postcodes.map(String) : []), String(item?.postcode || "")]);

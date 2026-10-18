@@ -200,3 +200,87 @@ test("source-health: de fase van een eBesluit-fout telt niet voor de vergelijkin
     assert.match(tekst, new RegExp(`BRON district-ebesluit: fetchStatus error \\(${errorCode}\\)`), tekst);
   }
 });
+
+// Nakijkronde 5 (18-10-2026), bevinding MIDDEL: een reactie op het alarm-issue zei niet welke bron of laag faalde, en ook
+// niet waarom. Elke rode source-health gaf dezelfde reactie; een nieuwe falende bron of laag viel zo niet op naast de
+// eBesluit-fout die toen elke ochtend rood stond (issue #190 vraagt een signaal "met run-ID, bron-ID en foutreden"). Nu
+// geeft source-health haar BRON-regels door als job-output (en in de samenvatting van de run), en zet de job alarm ze via
+// env in de reactie: alleen vaste codes, bron-ID's en tijdstippen, in een codeblok en tot veilige tekens beperkt (geen
+// @-vermelding, link of opmaak). De stappen draaien hier echt (bash en jq), met een nagebootste gh; alleen verzonnen data.
+test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zodat een nieuwe fout opvalt", { skip: spawnSync("bash", ["-c", "command -v jq"]).status === 0 ? false : "bash of jq ontbreekt" }, () => {
+  const jobs = leesWerkstroom(workflow);
+  const gezond = jobs.get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  const alarm = jobs.get("alarm").steps.find((s) => s.name === "Alarm-issue openen of aanvullen");
+  assert.ok(gezond?.run && alarm?.run);
+  // De BRON-regels gaan als job-output van source-health naar de job alarm, via env (nooit in het script zelf).
+  assert.equal(gezond.id, "gezond");
+  assert.match(jobBlock("source-health"), /\n    outputs:\n      bron: \$\{\{ steps\.gezond\.outputs\.bron \}\}\n/);
+  assert.equal(alarm.env?.BRON, "${{ needs.source-health.outputs.bron }}");
+  assert.doesNotMatch(alarm.run, /\$\{\{/, "geen expressie in het script van de job alarm");
+
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "alarm-bron-"));
+  try {
+    const nu = Date.now();
+    const geleden = (uur) => new Date(nu - uur * 3_600_000).toISOString();
+    const GEZOND = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
+      .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds: geleden(1), errorCode: null }));
+    // De stap "Elke bron gezond", met een eigen GITHUB_OUTPUT: geeft de exitcode en de job-output "bron".
+    const health = (dag, bronnen, lagen = GEZOND) => {
+      const map = path.join(temp, dag);
+      fs.mkdirSync(path.join(map, "in"), { recursive: true });
+      fs.writeFileSync(path.join(map, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      fs.writeFileSync(path.join(map, "in", "live-lagen.json"), JSON.stringify({ lagen }));
+      const output = path.join(map, "output"), samenvatting = path.join(map, "samenvatting");
+      const uit = spawnSync("bash", ["-c", gezond.run], { env: { ...process.env, RUNNER_TEMP: map, GITHUB_OUTPUT: output, GITHUB_STEP_SUMMARY: samenvatting }, encoding: "utf8" });
+      // Het formaat van GITHUB_OUTPUT voor meer regels: naam<<SCHEIDING, de regels, SCHEIDING.
+      const tekst = fs.existsSync(output) ? fs.readFileSync(output, "utf8") : "";
+      const m = tekst.match(/^bron<<(\S+)\n([\s\S]*?)\n?\1\n/m);
+      return { code: uit.status, stdout: uit.stdout, bron: m ? m[2] : null, samenvatting: fs.existsSync(samenvatting) ? fs.readFileSync(samenvatting, "utf8") : "" };
+    };
+    // De stap van de job alarm, met een nagebootste gh: "issue list" geeft het open issue 42, "issue comment" schrijft de
+    // reactie weg.
+    const bin = path.join(temp, "bin");
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, "gh"), '#!/usr/bin/env bash\ncase "$1 $2" in\n  "issue list") echo 42 ;;\n  "issue comment") printf "%s" "$5" > "$GH_UIT" ;;\n  *) exit 3 ;;\nesac\n', { mode: 0o755 });
+    const reactie = (dag, bron) => {
+      const uitBestand = path.join(temp, `${dag}-reactie.txt`);
+      const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, GH_UIT: uitBestand, GH_TOKEN: "proef", GH_REPO: "proef/agenda", RUN_URL: "https://github.com/proef/agenda/actions/runs/123", EVENT: "workflow_dispatch", REASON: "brain", R_REFRESH: "success", R_PUBLISH: "success", R_HEALTH: "failure", R_FRESH: "success", BRON: bron ?? "" };
+      const uit = spawnSync("bash", ["-c", alarm.run], { env, encoding: "utf8" });
+      assert.equal(uit.status, 0, uit.stderr);
+      return fs.readFileSync(uitBestand, "utf8");
+    };
+    const fout = (sourceId, errorCode, uur) => ({ sourceId, fetchStatus: "error", retrievedAt: geleden(uur), errorCode, maxAgeHours: 48 });
+    // Dag 1: alleen eBesluit (al 60 uur een 500). Dag 2: daarbovenop de kalender van het district en de werken van de historiek.
+    const dag1 = health("dag1", [fout("district-ebesluit", "http_500", 60)]);
+    const lagen2 = GEZOND.map((l) => (l.bron === "live-historiek" && l.laag === "works" ? { ...l, status: "error", sinds: null, errorCode: "street_axis_missing" } : l));
+    const dag2 = health("dag2", [fout("district-ebesluit", "http_500", 84), fout("district-kalender", "no_list", 2)], lagen2);
+    assert.equal(dag1.code, 1, dag1.stdout);
+    assert.equal(dag2.code, 1, dag2.stdout);
+    assert.equal(dag1.bron, "BRON district-ebesluit: fetchStatus error (http_500)", dag1.stdout);
+    assert.deepEqual(dag2.bron.split("\n"), ["BRON district-ebesluit: fetchStatus error (http_500)", "BRON district-kalender: fetchStatus error (no_list)", "BRON live-historiek works: error (street_axis_missing), geen goede stand"]);
+    // Ook in de samenvatting van de run.
+    assert.match(dag2.samenvatting, /BRON district-kalender: fetchStatus error \(no_list\)/);
+    const b1 = reactie("dag1", dag1.bron), b2 = reactie("dag2", dag2.bron);
+    assert.notEqual(b1, b2, "een nieuwe falende bron of laag geeft een andere reactie");
+    for (const regel of dag2.bron.split("\n")) assert.ok(b2.includes(regel), `${regel}\n${b2}`);
+    assert.ok(b2.includes("https://github.com/proef/agenda/actions/runs/123"), "met de run");
+    assert.match(b2, /```text\nBRON district-ebesluit/, "in een codeblok");
+    // Een gezonde bron levert geen regel; een rode verversing zonder bronstatus: geen blok.
+    assert.doesNotMatch(b2, /^Bron /m);
+    assert.doesNotMatch(reactie("geen", ""), /```/);
+    // Wat er ook in een bron-ID of foutcode staat: geen @-vermelding, link, opmaak of extra regel in de reactie.
+    const raar = health("raar", [fout("proef-@iemand`[x](https://voorbeeld.be)`", "http_404\n@iemand", 1)]);
+    assert.equal(raar.code, 1);
+    const b3 = reactie("raar", raar.bron);
+    const blok = b3.slice(b3.indexOf("```text"), b3.lastIndexOf("```"));
+    assert.doesNotMatch(blok.slice("```text".length), /[@`[\]<>]/, blok);
+    assert.doesNotMatch(b3, /@iemand/, b3);
+    // Ook als de job-output toch iets anders bevat: alleen regels die met BRON beginnen, met veilige tekens, hoogstens 30.
+    const veel = Array.from({ length: 40 }, (_, i) => `BRON proef-${i}: fetchStatus error (http_500)`).join("\n");
+    const b4 = reactie("veel", `${veel}\nIets anders @iemand\n<b>vet</b>`);
+    assert.equal((b4.match(/^BRON /gm) || []).length, 30);
+    assert.doesNotMatch(b4, /@iemand|<b>|Iets anders/);
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
+});

@@ -126,12 +126,13 @@ test("weg van de straat: de momentopname gaat weg en wat de lijst van het distri
 test("kiesLaag: gelukt district, dan de straat met items, dan wat er wel is", () => {
   const { kiesLaag } = liveLagen;
   const straat = { items: ["s"], mislukt: [] };
-  assert.deepEqual(kiesLaag({ district: { items: ["d"], mislukt: [] }, straat }), { items: ["d"], mislukt: [], heelDistrict: true });
-  assert.deepEqual(kiesLaag({ district: { items: [], mislukt: ["parkeerverboden"] }, straat }), { items: ["s"], mislukt: [], heelDistrict: false });
-  assert.deepEqual(kiesLaag({ district: { items: null, mislukt: ["werken"] }, straat }), { items: ["s"], mislukt: [], heelDistrict: false });
+  // `gedekt`: de gekozen bron dekt het gebied van de bezoeker (tests/gebied-momentopname.test.mjs); zonder dekking altijd.
+  assert.deepEqual(kiesLaag({ district: { items: ["d"], mislukt: [] }, straat }), { items: ["d"], mislukt: [], heelDistrict: true, gedekt: true });
+  assert.deepEqual(kiesLaag({ district: { items: [], mislukt: ["parkeerverboden"] }, straat }), { items: ["s"], mislukt: [], heelDistrict: false, gedekt: true });
+  assert.deepEqual(kiesLaag({ district: { items: null, mislukt: ["werken"] }, straat }), { items: ["s"], mislukt: [], heelDistrict: false, gedekt: true });
   // Geen momentopname en het kader faalde: de halve lijst van het district gaat voor.
-  assert.deepEqual(kiesLaag({ district: { items: [], mislukt: ["omleidingen"] }, straat: { items: null, mislukt: ["parkeerverboden en innames"] } }), { items: [], mislukt: ["omleidingen"], heelDistrict: false });
-  assert.deepEqual(kiesLaag({ straat: { items: null, mislukt: ["werken"] } }), { items: null, mislukt: ["werken"], heelDistrict: false });
+  assert.deepEqual(kiesLaag({ district: { items: [], mislukt: ["omleidingen"] }, straat: { items: null, mislukt: ["parkeerverboden en innames"] } }), { items: [], mislukt: ["omleidingen"], heelDistrict: false, gedekt: true });
+  assert.deepEqual(kiesLaag({ straat: { items: null, mislukt: ["werken"] } }), { items: null, mislukt: ["werken"], heelDistrict: false, gedekt: true });
   assert.equal(kiesLaag({}), null);
 });
 

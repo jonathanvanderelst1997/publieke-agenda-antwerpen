@@ -100,12 +100,15 @@ export function createAreaMatcher({ wijken, geo, streetIndex = null, straatasMis
   return {
     straal: streetIndex ? "klaar" : straatasMislukt ? "mislukt" : "laadt",
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
-    inWijk(item, code, refs = []) {
+    // `reserve`: de wijken per straat uit site/geo/straten.json (place-view.js, via agenda-view.js), dezelfde regel als
+    // streetWijkMap. Zolang de straatassen er niet zijn of als ze niet laadden, hangt een item zonder eigen punt (een
+    // parkeerverbod, een werk uit de momentopname) zo toch aan de wijk van zijn straten (nakijkronde 5 van 18-10-2026).
+    inWijk(item, code, refs = [], reserve = null) {
       const feature = byCode.get(code);
       if (!feature) return true;
       const point = itemPoint(item, geo);
       if (point) return pointInGeometry(point, feature.geometry);
-      return streetsInWijk(refs, code, streetMap);
+      return streetsInWijk(refs, code, streetMap || reserve);
     },
     // Met een punt (GIPOD, geocodering): ligt het punt binnen de straal. Zonder punt: ligt de eigen vorm
     // van het item (perceel, parkeerverbod, inname, parcours, werfzone) binnen de straal. Zonder punt en

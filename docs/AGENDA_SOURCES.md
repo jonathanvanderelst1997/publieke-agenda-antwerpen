@@ -139,6 +139,24 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   een week zonder nagekeken publieke ruimte "Rustig"). Kiest de bezoeker een andere plek, dan haalt de plekpagina de
   lagen van de vorige straat in één keer weg (`zetStraatStand` in `site/place-view.js`): weg van de straat, zonder
   stand, of een laag zonder bruikbare stand;
+- een plek groter dan één straat (nakijkronde 5 van 18-10-2026). Een laag van de plekpagina draagt haar dekking: het
+  gebied dat ze nakeek (`dektGebied` in `site/live-lagen.js`), en `live.gebied` is het gebied dat de bezoeker koos (de
+  plek, met de straal rond een straat). Een lijst van het hele district dekt elk gebied; de momentopname van een
+  straat alleen die straat; het live kader van een straat de straal waarmee het gevraagd is. Een laag die het gebied
+  niet dekt, houdt haar items maar is deels geladen (alle onderdelen in `live.failed`, `kiesLaag`): met een straal en
+  een live kader dat faalt (A-Sign, GIPOD, de districtsgrens of de straatassen) staat er dus nooit "Rustig" en geen 0
+  voor "in en rond jouw straat" (vroeger zei de momentopname van de straat alleen dat voor het hele gebied, met tegels
+  op 0), en zolang het kader nog onderweg is, zegt de weekzin dat er nog geladen wordt (vroeger al "Rustig", met een
+  spinner). Laden de straatassen voor de straal niet (`view.straalStand`), dan ligt niets rond de straat vast: dan
+  ook geen 0 bij evenementen en inspraak. Een wijk of postcode laadt de lijsten van het district live; faalt er één
+  (helemaal of deels), dan krijgt ze de momentopname van al haar straten (`laadGebied` en `lagenUitGebied` in
+  `site/straat-snapshot.js`, elk item één keer), zoals een straat de hare (vroeger verdwenen dan alle werken,
+  parkeerverboden en vergunningen van een wijk, met "–" naast echte getallen). Een straat zonder stand in dat gebied
+  (`alleenLive`, of een bestand dat niet laadt) maakt die momentopname deels geladen. Een item zonder eigen punt hangt
+  aan een wijk via zijn straten; zonder straatassen via de wijken per straat in `site/geo/straten.json` (dezelfde regel
+  als `streetWijkMap`). De momentopname van de straten binnen een straal toont de plekpagina niet: een straatbestand
+  heeft geen punt of vorm (privacy), dus de straal is er niet op toe te passen
+  (`tests/gebied-momentopname.test.mjs`, `tests/e2e/snelheid.e2e.mjs`);
 - de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
   in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
   die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat
@@ -200,7 +218,12 @@ Intern blijft alles:
   over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
   eBesluit rood). Het alarm loopt alleen vanaf de standaardtak (`github.ref == 'refs/heads/main'`): een handmatige
   run vanaf een andere tak faalt bewust (stap "Alleen vanaf main") en opent of vult geen alarm-issue. Zonder melding
-  op de site is dat het signaal voor de eigenaar;
+  op de site is dat het signaal voor de eigenaar. De reactie noemt welke bron of laag faalt, met haar foutcode
+  (nakijkronde 5 van 18-10-2026: elke rode bronstatus gaf dezelfde reactie, en een nieuwe falende bron viel niet op
+  naast de eBesluit-fout die elke ochtend rood stond): de stap "Elke bron gezond" geeft haar regels die met `BRON`
+  beginnen door als job-output `bron` (en zet ze in de samenvatting van de run), en de job `alarm` zet ze via `env`
+  in een codeblok in de reactie. Alleen vaste codes, bron-ID's en tijdstippen, tot veilige tekens beperkt (geen
+  `@`, backtick, haken of `<` `>`) en hoogstens 30 regels (`tests/refresh-workflow.test.mjs`);
 - ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
   historiek (`site/history/live-layers.json`: `works`, de GIPOD-werken, en `publicSpace`, de publieke ruimte; ook de
   bron van de radar) en de straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen,
