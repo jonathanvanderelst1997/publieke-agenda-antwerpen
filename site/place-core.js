@@ -2322,7 +2322,9 @@ export function summarize(entries, today) {
 // Uit dezelfde kaartjes als de lijst: wat de komende 7 dagen (vandaag inbegrepen, zoals de periode
 // "7 dagen") op straat gebeurt. Hinder = een werk met ernstige hinder volgens GIPOD; let op = werken,
 // parkeerverboden, innames of evenementen; rustig = niets van dat. Laadde niet alles, of telt een laag
-// niet mee (`onbekend`), dan zeggen we nooit "rustig".
+// niet mee (`onbekend`), dan zeggen we nooit "rustig". Dat iets niet laadde, zegt de zin niet (besluit van de
+// eigenaar van 18-10-2026: "niemand moet weten als er iets faalt"): dan staat er alleen wat gevonden is, of
+// "niets gevonden".
 const WEEKDAG_KORT = Object.freeze(["zo", "ma", "di", "wo", "do", "vr", "za"]);
 export const WEEK_LICHT = Object.freeze({ rustig: "Rustig", "let-op": "Let op", hinder: "Hinder", onbekend: "Onbekend" });
 function weekDag(dag, today) {
@@ -2366,7 +2368,9 @@ function inWeek(e, today, einde) {
 // `onbekend`: lagen die de zin nodig heeft en waarvan de soort uit staat of die niet (volledig) geladen zijn,
 // als [{ wat: "werken", uit: true, geladen: false, deels: false }]. Een laag die er niet (`geladen: false`) of
 // maar deels is (`deels: true`, een deel laadde niet) maakt de zin nooit "rustig". Een laag die uit staat maar
-// wel volledig geladen is, is nagekeken: die telt gewoon mee, ook voor "rustig".
+// wel volledig geladen is, is nagekeken: die telt gewoon mee, ook voor "rustig". Alleen wat met de keuze van de
+// bezoeker te maken heeft (een soort die uit staat en daarom niet geladen is), zegt de zin erbij; een laag die
+// (deels) niet laadde of nog niet geladen is, en `onvolledig`, maken de zin alleen "onbekend", zonder reden.
 export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", onvolledig = false, onbekend = [] } = {}) {
   if (!isoDay(today)) return { licht: "onbekend", zin: "" };
   const einde = addDays(today, 6);
@@ -2420,21 +2424,16 @@ export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", on
   if (innames.length) delen.push(`${aantal(innames, "inname", "innames")} op straat`);
   // Alleen wat niet (volledig) geladen is, telt als onbekend; een laag die uit staat maar geladen is, is nagekeken.
   const lagen = (Array.isArray(onbekend) ? onbekend : []).filter((o) => o?.wat && (!o.geladen || o.deels));
-  const deels = lagen.filter((o) => o.deels).map((o) => o.wat);
+  // Uit gezet en daarom niet geladen: de keuze van de bezoeker, die zeggen we erbij.
+  const uit = lagen.filter((o) => o.uit && !o.deels).map((o) => o.wat);
   if (!delen.length) {
-    if (onvolledig) return { licht: "onbekend", zin: `${kop}: niet alles laadde, dus we kunnen niet zeggen dat het rustig is.` };
-    if (lagen.length) {
-      const uit = lagen.filter((o) => !o.deels && o.uit).map((o) => o.wat), weg = lagen.filter((o) => !o.deels && !o.uit).map((o) => o.wat);
-      const redenen = [uit.length ? `${opsomming(uit)} staan uit` : "", weg.length ? `${opsomming(weg)} zijn niet geladen` : "", deels.length ? `${opsomming(deels)} zijn niet volledig geladen` : ""].filter(Boolean);
-      return { licht: "onbekend", zin: `${kop}: niets gevonden, maar ${opsomming(redenen)}. Of het rustig is, weten we dus niet.` };
-    }
+    if (uit.length) return { licht: "onbekend", zin: `${kop}: niets gevonden, maar ${opsomming(uit)} staan uit. Of het rustig is, weten we dus niet.` };
+    if (onvolledig || lagen.length) return { licht: "onbekend", zin: `${kop}: niets gevonden.` };
     return { licht: "rustig", zin: `${kop}: rustig. Geen werken, parkeerverboden of evenementen gepland.` };
   }
-  // Wat niet (volledig) geladen is, zeggen we erbij; een laag die wel geladen is maar uit staat, telt gewoon mee.
-  const ontbreekt = lagen.filter((o) => !o.deels).map((o) => o.wat);
   return {
     licht: ernstig ? "hinder" : "let-op",
-    zin: `${kop}: ${opsomming(delen)}.${onvolledig ? " Niet alles laadde." : ""}${ontbreekt.length ? ` ${metHoofdletter(opsomming(ontbreekt))} zijn niet geladen.` : ""}${deels.length ? ` ${metHoofdletter(opsomming(deels))} zijn niet volledig geladen.` : ""}`,
+    zin: `${kop}: ${opsomming(delen)}.${uit.length ? ` ${metHoofdletter(opsomming(uit))} zijn niet geladen.` : ""}`,
   };
 }
 
@@ -2447,12 +2446,13 @@ export function plekWaar(place) {
   return `in postcode ${place.code}`;
 }
 // Waarom leeg: alleen "de gekozen soorten" als de bewoner zelf soorten koos. Laadde een laag niet
-// (`onvolledig`), dan zeggen we alleen iets over wat wel geladen is.
+// (`onvolledig`), dan beweren we niet dat er niets gepland is: alleen dat er niets gevonden is, zonder te zeggen
+// dat iets niet laadde (besluit van 18-10-2026).
 export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 0, onvolledig = false } = {}) {
   if (!aantalSoorten) return "Je hebt alle soorten uitgezet.";
-  if (gekozen) return onvolledig ? "In wat wel geladen is, staat binnen de gekozen soorten niets gepland." : "Binnen de gekozen soorten staat hier niets gepland.";
+  if (gekozen) return onvolledig ? "Binnen de gekozen soorten is hier niets gevonden." : "Binnen de gekozen soorten staat hier niets gepland.";
   const plek = place?.type === "straat" ? "deze straat" : place?.type === "wijk" ? "deze wijk" : place ? "deze postcode" : "";
-  if (onvolledig) return plek ? `In wat wel geladen is, staat niets voor ${plek}.` : "In wat wel geladen is, staat nu niets.";
+  if (onvolledig) return plek ? `Voor ${plek} is niets gevonden.` : "Er is nu niets gevonden.";
   return plek ? `Er staat niets op de agenda voor ${plek}.` : "Er staat nu niets op de agenda.";
 }
 // Een aantal per soort in gewone taal, in enkelvoud of meervoud: "1 evenement", "2 markten". De namen van
@@ -2488,13 +2488,14 @@ export function doorlopendNoot(entries = [], { tijdlijn = false } = {}) {
   return `${wat} die weken of maanden lopen. ${tijdlijn ? "Ze krijgen geen teken per dag, wel op de dag waarop ze beginnen." : "Wat op één dag of een paar dagen valt, staat hierboven."}`;
 }
 // Een dag zonder iets in de tijdlijn (de naam van de dagknop). Laadt een laag nog of laadde ze niet, dan
-// nooit "niets gepland"; en anders "binnen je keuze": de soorten die uit staan, tellen niet mee. Loopt er die
+// nooit "niets gepland" (laadde ze niet, dan "niets gevonden", zonder te zeggen waarom); en anders "binnen je
+// keuze": de soorten die uit staan, tellen niet mee. Loopt er die
 // dag een toelating van twee weken of langer door (`doorlopend`), dan zegt de naam dat ook.
 // `bezig`: de lagen die nog laden ("werken", "verkeersmaatregelen" ...); elk is een meervoud.
 export function legeDagLabel({ bezig = [], onvolledig = false, doorlopend = 0 } = {}) {
   const apart = doorlopend ? " apart" : "";
   const zin = bezig.length ? `nog niets${apart} gevonden, ${opsomming(bezig)} worden nog geladen`
-    : onvolledig ? `niets${apart} gevonden in wat geladen is, niet alles laadde`
+    : onvolledig ? `niets${apart} gevonden`
     : `niets${apart} gepland binnen je keuze`;
   return doorlopend ? `${zin}; ${doorlopendTekst(doorlopend)}` : zin;
 }
@@ -2506,7 +2507,7 @@ export function legeTijdlijnTekst({ dag = false, bezig = [], onvolledig = false,
   const wanneer = dag ? "op die dag" : "de komende 14 dagen";
   const behalve = doorlopend ? " behalve wat hieronder doorloopt" : "";
   const zin = bezig.length ? `In wat al geladen is, staat ${wanneer} niets${behalve}; ${opsomming(bezig)} worden nog geladen.`
-    : onvolledig ? `In wat wel geladen is, staat ${wanneer} niets${behalve}.`
+    : onvolledig ? `${dag ? "Op die dag" : "De komende 14 dagen"} is hier niets gevonden${behalve}.`
     : `Binnen je keuze staat ${wanneer} niets gepland${behalve}.`;
   if (!dag || !andereDagen) return zin;
   return `${zin} Op ${andereDagen === 1 ? "1 andere dag" : `${andereDagen} andere dagen`} van de komende 14 dagen staat wel iets: kies een dag met een teken.`;

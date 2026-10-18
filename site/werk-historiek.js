@@ -31,7 +31,8 @@ export function analyseerWerkHistoriek(id, index, baseline, dagen) {
     verwijderd, onderbrekingen, tot: index.lastObservedAt || "" };
 }
 export function samenvattingWerkHistoriek(v, { ingekort = false } = {}) {
-  if (v.fout) return "De archiefbron bevat onvoldoende betrouwbare gegevens voor dit dossier.";
+  // Een onbruikbaar archief: niets, zonder te zeggen dat iets faalt (besluit van 18-10-2026).
+  if (v.fout) return "";
   if (!v.gevonden) return "Dit dossier is niet teruggevonden in het geraadpleegde archief. Dat bewijst niet dat het niet bestond.";
   const eerste = v.inBaseline ? "Al aanwezig bij onze eerste archiefmeting op " : "Voor het eerst in ons archief gezien op ";
   const zinnen = [

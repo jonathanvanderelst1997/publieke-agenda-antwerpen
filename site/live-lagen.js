@@ -1,7 +1,9 @@
-// Welke live lagen niet geladen konden worden, in woorden die een bewoner begrijpt.
+// Welke live lagen niet geladen konden worden, per onderdeel dat een bewoner kent.
 // Elke live module zet per laag een lijst mislukte onderdelen in
 // window.PUBLIC_AGENDA_LIVE_STREETS.failed (bv. failed.publicSpace = ["parkeerverboden"]); een lege
-// lijst betekent: alles geladen. Het plekoverzicht maakt daar één zichtbare melding van.
+// lijst betekent: alles geladen. Dat blijft intern: het plekoverzicht zegt daarmee nooit "rustig" of een valse 0,
+// maar toont geen melding dat iets faalt (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets
+// faalt, de momentopname blijft wel goed").
 export const ONDERDELEN = Object.freeze(["werken", "parkeerverboden", "innames en parcours", "omleidingen", "werfzones", "terrassen"]);
 
 // De bronnen van de laag "publicSpace" en wat er wegvalt als één ervan niet laadt.
@@ -29,13 +31,6 @@ export function ontbrekendeOnderdelen(failed = {}, enabled = () => true) {
     uit.push(...onderdelen);
   }
   return orden(uit);
-}
-
-const lijstTekst = (delen) => (delen.length <= 1 ? delen.join("") : `${delen.slice(0, -1).join(", ")} en ${delen.at(-1)}`);
-export function onvolledigMelding(onderdelen = []) {
-  if (!onderdelen.length) return "";
-  const tekst = lijstTekst(onderdelen);
-  return `${tekst[0].toUpperCase()}${tekst.slice(1)} konden nu niet geladen worden. Dit overzicht is onvolledig.`;
 }
 
 // Een live laag melden aan de rest van de pagina: items (of null als de laag niet laadde) en de

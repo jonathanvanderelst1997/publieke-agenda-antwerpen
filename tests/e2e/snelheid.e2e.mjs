@@ -191,6 +191,18 @@ const MAPLIBRE_DIR = process.env.MAPLIBRE_DIR && fs.existsSync(path.join(process
 // `kaart`: "geblokkeerd" (standaard: geen kaartbibliotheek, zoals in alle andere toetsen) of "leaflet" (Leaflet uit
 // de fixture); `maplibreDir`: desgewenst ook MapLibre 5.24.0 uit die map (de npm-dist, byte-gelijk aan cdnjs), en
 // `openfreemap` (zie hierboven) voor de stijl en de tegels. `colorScheme`: licht of donker (prefers-color-scheme).
+// De kaart probeerde te laden (een verzoek naar een kaartbron) en dat lukte niet: ze staat weer op "geen", met de
+// gewone knop "Toon de kaart" (geen melding dat de kaart faalt, besluit van 18-10-2026).
+async function kaartPogingVoorbij(page, extern, timeout = 15000) {
+  const tot = Date.now() + timeout;
+  while (!extern.some((u) => /openfreemap|maplibre-gl|leaflet|tile\.openstreetmap/.test(u))) {
+    if (Date.now() > tot) assert.fail("de kaart probeerde niet te laden");
+    await page.waitForTimeout(100);
+  }
+  await page.waitForFunction(() => document.querySelector(".buurt-map")?.dataset.kaart === "geen" && document.querySelector(".buurt-map-load")?.textContent === "🗺️ Toon de kaart", null, { timeout: Math.max(1, tot - Date.now()) })
+    .catch(async () => assert.fail(await page.evaluate(() => JSON.stringify({ knop: document.querySelector(".buurt-map-load")?.textContent, kaart: document.querySelector(".buurt-map")?.dataset.kaart }))));
+}
+
 async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false, verbinding = null, colorScheme = "light" } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
   const page = await context.newPage();
@@ -277,10 +289,13 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     gevraagd.length = 0;
     await page.goto(`${baseUrl}/`);
     await page.waitForSelector(".pv-chip");
-    // Ook de radar onder "Alle lijsten" openen: die las vroeger live-layers.json.
+    // Ook "Alle lijsten" openen: de radar daaronder las vroeger live-layers.json. Zonder straatas (alle verzoeken naar
+    // buiten geblokkeerd) valt "Alles per straat" met de radar weg, zonder melding (besluit van 18-10-2026); radar.json
+    // komt er wel.
     await page.click(".pv-more > summary");
-    await page.locator(".view-radar > summary").click();
+    await page.waitForFunction(() => document.getElementById("street-overview")?.hidden === true, null, { timeout: 10000 });
     await page.waitForTimeout(1500);
+    assert.doesNotMatch(await page.locator("body").innerText(), /Straatfiche tijdelijk niet beschikbaar|history verouderd|gezonde history-refresh/);
     assert.equal(gevraagd.filter((p) => p === "/history/live-layers.json").length, 0, "live-layers.json opgevraagd");
     assert.ok(gevraagd.includes("/history/radar.json"), "de radar komt uit radar.json");
     // Bouwplan stap 3: de straten van de andere districten laden pas als iemand typt.
@@ -298,7 +313,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await page.waitForFunction(() => /^\d+$/.test(document.querySelector(".pv-place .pv-stat.pv-stat-planned strong")?.textContent.trim() || ""), null, { timeout: Math.max(1, 3000 - (Date.now() - start)) }).catch(() => {});
     const duur = Date.now() - start;
     assert.ok(duur < 3000, `tegels na ${duur} ms`);
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
     const lui = () => gevraagd.filter((p) => /^\/geo\/straten-stad\.json$|^\/stad-zoeken\.js$/.test(p)).sort();
     assert.deepEqual(lui(), [], "de zoeklijst van de stad laadde bij de eerste weergave");
     const input = page.locator("#agenda-street-jump");
@@ -326,9 +341,9 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.equal(await page.locator(".pv-place .pv-stat.pv-stat-planned strong").innerText(), "3");
     await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 2000 });
     assert.ok(extern.some((u) => /geodata\.antwerpen\.be|geo\.api\.vlaanderen\.be/.test(u)), "de pagina probeerde live na te kijken");
-    // Live lukt niet: de stand van de ochtend blijft staan, met een eerlijke zin.
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
-    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Live nakijken lukte nu niet. Je ziet de stand van de verversing van 05:22.");
+    // Live lukt niet: de stand van de ochtend blijft staan, en de zin zegt niet dat iets faalt (besluit van 18-10-2026).
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Stand van de verversing van 05:22.");
     // Een schermlezer hoort de zin veranderen.
     assert.equal(await page.locator(".pv-place .pv-stand").getAttribute("role"), "status");
     assert.equal(await page.locator('.pv-results .pv-row[data-uid="works:990001"]').count(), 1, "het werk van de ochtend blijft staan");
@@ -382,9 +397,9 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "live" });
     await page.waitForFunction(() => /Live nagekeken/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     const zin = (await page.locator(".pv-place .pv-stand").innerText()).trim();
-    assert.ok(zin.startsWith("Live nagekeken: 1 nieuw sinds 05:22."), zin);
-    // A-Sign, de vergunningen en de terrassen faalden: dat staat erbij, en hun stand van de ochtend blijft.
-    assert.match(zin, /Live nakijken lukte nu niet voor parkeerverboden en innames, vergunningen, terrassen/);
+    // A-Sign, de vergunningen en de terrassen faalden: hun stand van de ochtend blijft, en de zin zegt niet dat iets
+    // faalt (besluit van 18-10-2026).
+    assert.equal(zin, "Live nagekeken: 1 nieuw sinds 05:22.");
     await page.locator('.pv-results .pv-row[data-uid="works:990002"]').waitFor({ timeout: 5000 });
     await page.waitForFunction(() => document.querySelector(".pv-place .pv-stat.pv-stat-planned strong")?.textContent.trim() === "4", null, { timeout: 5000 });
     // Alleen het kader van de straat: geen GIPOD-pagina's of A-Sign-blokken van het hele district.
@@ -399,7 +414,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
   await t.test("axe: geen overtredingen op de plek met de stand van de ochtend en de zin eronder (gsm)", { skip: axePath ? false : "zet AXE_CORE_PATH naar axe.min.js" }, async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd" });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
     await page.locator('.pv-results .pv-row[data-uid="works:990001"] .pv-row-btn').click();
     await page.addScriptTag({ path: axePath });
     const violations = await page.evaluate(async () => (await window.axe.run(document, { resultTypes: ["violations"] })).violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(" ")).slice(0, 3).join(", ")}`));
@@ -407,11 +422,11 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("met een straal en zonder live bronnen: de zin zegt dat je alleen de straat zelf ziet", async (st) => {
+  await t.test("met een straal en zonder live bronnen: de stand van de verversing, zonder melding dat iets faalt", async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", query: "?plek=Kammenstraat&straal=500" });
-    await page.waitForFunction(() => /kon nu niet|lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
-    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand van de verversing van 05:22.");
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Stand van de verversing van 05:22.");
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -430,7 +445,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const zinnen = [];
     for (const query of ["?plek=Kammenstraat", "?plek=Kammenstraat&soort=inspraak", "?plek=Kammenstraat&soort=evenementen"]) {
       const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", query, feed: proefFeed("2099-03-10", []) });
-      await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+      await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
       await page.waitForFunction(() => document.querySelector(".pv-dezeweek") && !/nog geladen/.test(document.querySelector(".pv-dezeweek").textContent), null, { timeout: 10000 });
       const week = page.locator(".pv-dezeweek");
       zinnen.push([query, (await week.getAttribute("class")).match(/pv-dezeweek-(\S+)/)[1], (await week.innerText()).trim()]);
@@ -476,7 +491,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const index = JSON.parse(lees("site/straat-index.json"));
     const stand = { index: lees("site/straat-index.json"), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
     // 3. Snel, zonder live bronnen, en snel met live alleen het kader van de straat.
-    for (const [bronnen, klaar] of [["geblokkeerd", /lukte nu niet/], ["volledig", /Live nagekeken/]]) {
+    for (const [bronnen, klaar] of [["geblokkeerd", /Stand van de verversing van [^.…]+\.\s*$/], ["volledig", /Live nagekeken/]]) {
       const snel = await openStraat(baseUrl, { stand, bronnen, inzage: INZAGE, uitleg: UITLEG, evenement });
       await snel.page.waitForFunction((re) => new RegExp(re).test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), klaar.source, { timeout: 15000 });
       await snel.page.waitForTimeout(500);
@@ -577,7 +592,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     for (const [weg, opties] of [["volledig live", { bronnen: "volledig" }], ["stand van de ochtend, alles geblokkeerd", { bronnen: "geblokkeerd" }]]) {
       const { page, context, errors } = await openStraat(baseUrl, { ...opties, stand, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
       await wachtOpDeVier(page);
-      if (opties.bronnen === "geblokkeerd") await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+      if (opties.bronnen === "geblokkeerd") await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
       else await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
       await page.waitForTimeout(300);
       // Geen grens per sectie meer (wens van 12 oktober 2026): alles staat er, niets wacht op een knop.
@@ -664,12 +679,12 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
 
   await t.test("P9: zonder kaartbestanden staat de legenda er toch, met haar tellers", async (st) => {
     const stand = await standVanDeOchtend(st);
-    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width: 1280, height: 900 });
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width: 1280, height: 900 });
     // De kaart staat onder de kop van de plek: de bewoner scrolt erheen, en dan probeert ze te laden.
     await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
     await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
-    await page.waitForFunction(() => document.querySelector(".buurt-map-load")?.textContent === "Kaart niet beschikbaar · opnieuw proberen", null, { timeout: 15000 })
-      .catch(async () => assert.fail(await page.evaluate(() => JSON.stringify({ knop: document.querySelector(".buurt-map-load")?.textContent, kaart: document.querySelector(".buurt-map")?.dataset.kaart }))));
+    // De kaart laadt niet: de knop zegt dat niet (besluit van 18-10-2026), hij blijft "Toon de kaart".
+    await kaartPogingVoorbij(page, extern);
     await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
     const legenda = page.locator("#buurtkaart .buurt-legenda");
     await legenda.waitFor({ state: "visible", timeout: 5000 });
@@ -845,7 +860,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed: VEEL, width, height });
     await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-1"]').waitFor({ timeout: 15000 });
     await page.locator("#buurtkaart .buurt-legenda").waitFor({ state: "visible", timeout: 15000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await page.evaluate(() => window.scrollTo(0, 1600));
     await page.waitForTimeout(300);
     assert.ok(await page.evaluate(() => window.scrollY) > 1000, "de lijst is niet lang genoeg");
@@ -879,7 +894,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     if (tekst) await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, tekst);
     const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
     await rij.waitFor({ timeout: 5000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await rij.locator(".pv-row-btn").click();
     await rij.locator(".pv-op-kaart").focus();
     await page.keyboard.press("Enter");
@@ -974,12 +989,12 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await page.evaluate(() => { document.documentElement.style.fontSize = "200%"; });
     const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
     await rij.waitFor({ timeout: 5000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await rij.locator(".pv-row-btn").click();
     await rij.locator(".pv-op-kaart").focus();
     await page.keyboard.press("Enter");
     await page.waitForFunction(() => /geen plek op de kaart/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || "")
-      && document.querySelector("#buurtkaart .buurt-map-load")?.textContent === "Kaart niet beschikbaar · opnieuw proberen", null, { timeout: 15000 });
+      && document.querySelector("#buurtkaart .buurt-map")?.dataset.kaart === "geen" && document.querySelector("#buurtkaart .buurt-map-load")?.textContent === "🗺️ Toon de kaart", null, { timeout: 15000 });
     await page.waitForTimeout(300);
     const m = await page.evaluate(() => {
       const knop = document.querySelector("#buurtkaart .buurt-map-load"), r = knop.getBoundingClientRect();
@@ -1037,7 +1052,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width, height });
     const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
     await rij.waitFor({ timeout: 5000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await rij.locator(".pv-row-btn").focus();
     await page.keyboard.press("Enter");
     await rij.locator(".pv-op-kaart").focus();
@@ -1069,7 +1084,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed: VEEL, width: 1280, height: 900, query: "?plek=Kammenstraat&periode=week" });
     await page.locator('.pv-results .pv-row[data-uid="agenda:e2e-lang-1"]').waitFor({ timeout: 15000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await page.waitForFunction(() => /in de lijst/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || ""), null, { timeout: 15000 });
     await page.waitForTimeout(300);
     const m = await page.evaluate(() => {
@@ -1118,7 +1133,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     if (tekst) await page.evaluate((f) => { document.documentElement.style.fontSize = f; }, tekst);
     const rij = page.locator('.pv-results .pv-row[data-uid="works:990001"]');
     await rij.waitFor({ timeout: 5000 });
-    await page.waitForFunction(() => /lukte nu niet/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 15000 });
     await rij.locator(".pv-row-btn").tap();
     await rij.locator(".pv-op-kaart").tap();
     await page.waitForFunction(() => /geen plek op de kaart/.test(document.querySelector("#buurtkaart .buurt-status")?.textContent || "")

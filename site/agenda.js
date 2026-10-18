@@ -2653,10 +2653,8 @@ window.addEventListener("public-agenda:reset-filters", () => {
   ditWeekendOpen = false;
   render();
 });
-if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {
-  const note = document.getElementById("agenda-refresh-note");
-  if (note) note.textContent += " De gezamenlijke straatfilter is tijdelijk niet beschikbaar; de gewone agenda blijft bruikbaar.";
-});
+// Laadt de gezamenlijke straatfilter niet, dan blijft de gewone agenda, zonder melding (besluit van 18-10-2026).
+if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {});
 
 if (openId) {
   window.setTimeout(() => document.getElementById(openId)?.scrollIntoView({ block: "center" }), 80);

@@ -6,7 +6,7 @@ import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
 import {ASIGN_MAX_URL,asignIdsUrl,asignLayer} from "./asign-query.js";
 import {isEvenementDossier} from "./kaart-uitleg.js";
-import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
+import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace} from "./live-lagen.js";
 
 // De A-Sign-lagen van de publieke ruimte, voor het hele district of (met `kader`) rond één straat.
 // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in plaats
@@ -132,7 +132,8 @@ if(root){
     const jobs=[...asignJobs(dateSql),["district",district()],["streets",loadStreetIndex()]];
     const settled=await settleSources(jobs);
     const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
-    // Per bron eerlijk melden wat ontbreekt; een halve laag mag niet als volledig doorgaan.
+    // Per bron bijhouden wat ontbreekt (intern, live.failed): een halve laag mag niet als volledig doorgaan. De
+    // notitie zegt niet dat iets faalt (besluit van 18-10-2026).
     let mislukt=mislukteOnderdelenPublicSpace(fail);
     const districtGeometry=v.district instanceof Error?null:v.district;
     const parking=v.parking instanceof Error?[]:v.parking,iod=[...(v.iod22 instanceof Error?[]:v.iod22),...(v.iod23 instanceof Error?[]:v.iod23)];
@@ -142,7 +143,7 @@ if(root){
     try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES,alleenLive:true})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"])}
     state.ready=true;meldLiveLaag("publicSpace",state.items,mislukt);
     const s=publicSpaceStats(state.items);meta.textContent=`${s.parking} parkeerverboden · ${s.iod} innames · ${s.sgw} werfzones/omleidingen`;
-    note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(mislukt.length?` ${onvolledigMelding(mislukt)}`:"");
+    note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":"");
     render();root.classList.remove("loading");
   }
   // Ook laden als alleen "Evenementen" aan staat: A-Sign kent de evenementen op straat (place-view.js).

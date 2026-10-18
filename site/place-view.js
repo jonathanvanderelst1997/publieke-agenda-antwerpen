@@ -15,7 +15,7 @@ import {
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
-import { ontbrekendeOnderdelen, onvolledigMelding } from "./live-lagen.js";
+import { ontbrekendeOnderdelen } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
@@ -346,7 +346,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     staticIndex = { byName };
     refsByName = byName;
   } catch {
-    help.textContent = "De straatnamen konden nu niet geladen worden. De agenda hieronder werkt gewoon; probeer straks opnieuw te zoeken.";
+    // Geen straatnamen: de zoekbalk vindt dan niets, zonder te zeggen dat iets faalt (besluit van 18-10-2026).
   }
   // ---- heel de stad (bouwplan stap 3) ----
   // De straatnamen van de 9 andere districten (site/geo/straten-stad.json, ~16 kB gezipt) en de module die erin zoekt,
@@ -526,7 +526,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const snel = state.snel;
     if (!snel) return { zin: "", bezig: false };
     const straal = state.radius || 0, straalStand = view.straalStand || "klaar";
-    const zin = standZin({ ververst: snel.ververst, bezig: snel.bezig, nieuw: snel.nieuw, weg: snel.weg, mislukt: snel.mislukt, mislukteDelen: snel.mislukteDelen, straal, straalStand });
+    const zin = standZin({ ververst: snel.ververst, bezig: snel.bezig, nieuw: snel.nieuw, weg: snel.weg, mislukt: snel.mislukt, straal, straalStand });
     return { zin, bezig: snel.bezig || (!snel.mislukt && straal > 0 && straalStand === "laadt") };
   }
 
@@ -805,7 +805,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   });
 
   // ---- de plekkop ----
-  function renderPlace(summary, loading, failure = "", week = null) {
+  function renderPlace(summary, loading, week = null) {
     const place = state.place;
     placeBox.hidden = !place;
     if (!place) return;
@@ -815,7 +815,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const radius = place.type === "straat" ? `<div class="pv-seg pv-radius" role="group" aria-label="Hoe ver rond de straat">${[0, 250, 500, 1000].map((r) => `<button type="button" data-radius="${r}" aria-pressed="${state.radius === r}">${r ? `+${r >= 1000 ? "1 km" : `${r} m`}` : "Alleen de straat"}</button>`).join("")}</div>` : "";
     const tile = (n, label, cls, group) => !state.groups.has(group)
       ? `<li class="pv-stat pv-stat-off ${cls}"><button type="button" data-only="${group}" aria-label="${esc(label)} staan uit; tik om ze te tonen"><strong>–</strong><span>${esc(label)} (uit)</span></button></li>`
-      : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}${group === "werken" && !n && state.werkenOnvolledig ? ` (${onbekendZin("werken-onvolledig")})` : ""}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "?" : n}</strong><span>${esc(label)}</span></button></li>`;
+      : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "–" : n}</strong><span>${esc(label)}</span></button></li>`;
     // In de DOM: label, naam (de kop), knoppen, meta. Wie met een schermlezer naar de kop springt en verder
     // leest, hoort de knoppen nog. Op het scherm staan de knoppen op de rij van het label (of eronder als ze er
     // niet naast passen) en de naam daaronder (CSS order). De kop krijgt geen focus: Tab gaat (bij een straat)
@@ -832,7 +832,6 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         <p class="pv-place-meta">${meta}</p>
       </div>
       ${week?.zin ? `<p class="pv-dezeweek pv-dezeweek-${week.licht}"><span class="pv-licht" aria-hidden="true"></span><strong class="pv-licht-label">${esc(WEEK_LICHT[week.licht] || "")}</strong> <span class="pv-dezeweek-zin">${esc(week.zin)}</span></p>` : ""}
-      ${failure ? `<p class="pv-place-loading pv-place-failed" role="status">${esc(failure)}</p>` : ""}
       <ul class="pv-stats" aria-label="Samenvatting">
         ${tile(summary.evenementen, `${summary.evenementen === 1 ? "evenement" : "evenementen"}${summary.innamesOpStraat ? ` (+ ${summary.innamesOpStraat} ${summary.innamesOpStraat === 1 ? "inname" : "innames"})` : ""}`, "cat-festival", "evenementen")}
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
@@ -1031,8 +1030,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       n += kaarten(g.key);
       state.counts[g.key] = n;
     }
-    // Live lagen: nog onderweg, of (eerlijk gemeld) niet of maar half geladen. Elke live module zet
-    // per laag een mislukt-vlag in live.failed; ook een laag die deels laadde, telt als onvolledig.
+    // Live lagen: nog onderweg, of niet of maar half geladen. Elke live module zet per laag een mislukt-vlag in
+    // live.failed; ook een laag die deels laadde, telt als onvolledig. Dat blijft intern (nooit "rustig", nooit een
+    // valse 0); de site zegt niet dat iets faalt (besluit van 18-10-2026).
     const loading = [];
     const mislukt = live.failed || {};
     const wants = view.hasPlace || view.wantsLiveLayers;
@@ -1394,10 +1394,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if ((state.mode === "lijst" && state.period !== "alles") || later) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-period-tip="alles">Toon ook wat later komt</button>`);
     if (state.groups.size < KIND_GROUPS.length) tips.push(`<button type="button" class="pv-btn pv-btn-ghost" data-all-tip>Toon alle soorten</button>`);
     const period = wanneer ? ` ${esc(wanneer)}` : state.mode === "lijst" ? (state.period === "alles" ? "" : ` in de komende ${PERIODS.find(([k]) => k === state.period)[1]}`) : "";
+    // Lege staat met een laag die niet laadde: geen "niets gepland", maar ook geen melding dat iets faalt (besluit van
+    // 18-10-2026, legeStaatTekst).
     const uitleg = eigenUitleg || legeStaatTekst({ place, gekozen: state.customized, aantalSoorten: state.groups.size, onvolledig: Boolean(state.onvolledig) });
-    // Lege staat met een laag die niet laadde: eerst zeggen dat het overzicht onvolledig is.
-    const onvolledig = state.onvolledig ? `<p class="pv-empty-warn"><span aria-hidden="true">⚠️</span> ${esc(state.onvolledig)}</p>` : "";
-    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3>${onvolledig}<p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
+    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3><p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
   }
   function renderList(entries, today, bundels = []) {
     const { from, to } = periodRange(state.period, today);
@@ -1551,7 +1551,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           });
           if (melding.isConnected) melding.textContent = bericht;
         } catch {
-          if (melding.isConnected) melding.textContent = "Het archief is nu niet beschikbaar. Probeer later opnieuw.";
+          // Geen archief: niets, zonder te zeggen dat iets faalt (besluit van 18-10-2026); de knop kan opnieuw.
+          if (melding.isConnected) melding.textContent = "";
         } finally { historiekKnop.disabled = false; }
       })();
       return;
@@ -1639,11 +1640,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     state.layersPending = weekBezig.length > 0;
     state.weekBezig = weekBezig;
     state.werkenOnvolledig = failed.some((o) => o !== "terrassen");
-    state.onvolledig = onvolledigMelding(failed);
+    // Intern: een laag die de soortkeuze nodig heeft, laadde (deels) niet. Dan nooit "rustig" of "niets gepland", maar
+    // de site zegt niet dat iets faalt (besluit van 18-10-2026).
+    state.onvolledig = failed.length > 0;
     const opsomming = loading.length > 1 ? `${loading.slice(0, -1).join(", ")} en ${loading.at(-1)}` : loading.join("");
     state.week = state.place ? weekVoorPlek(opPlek, today, { bezig: weekBezig, onbekend: weekOnbekend }) : null;
     // De lagen heten allemaal in het meervoud ("werken", "terrassen"): altijd "worden".
-    renderPlace(summary, loading.length ? `${opsomming} worden live opgehaald…` : "", state.onvolledig, state.week);
+    renderPlace(summary, loading.length ? `${opsomming} worden live opgehaald…` : "", state.week);
     renderToolbar();
     const place = state.place;
     titleEl.textContent = place ? "Alles op deze plek" : state.groups.size === 1 && state.groups.has("evenementen") ? "Uitgaan & evenementen in district Antwerpen" : "Alles in district Antwerpen";
@@ -1658,10 +1661,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (kaartOud) { kaartOud = false; meldKaartItems(lijst, entries, tel); }
     // Het getal boven de lijst telt items (een bundel met haar leden, telPerSoort); de legenda telt kaarten.
     const n = tel.items ?? tel.totaal;
-    loadingEl.innerHTML = place ? "" : [
-      loading.length ? `<span class="pv-spinner" aria-hidden="true"></span> ${esc(opsomming)} laden…` : "",
-      state.onvolledig ? `<span class="pv-place-failed">${esc(state.onvolledig)}</span>` : "",
-    ].filter(Boolean).join(" ");
+    loadingEl.innerHTML = place || !loading.length ? "" : `<span class="pv-spinner" aria-hidden="true"></span> ${esc(opsomming)} laden…`;
     // Een andere plek, periode, weergave, soortkeuze of dag: de lijst begint weer bovenaan, met één stap.
     const lijstStand = [place?.key || "", state.period, state.mode, [...state.groups].sort().join(","), state.dagFilter, state.mode === "maand" ? state.selectedDay : "", state.radius].join("|");
     if (lijstStand !== state.lijstStand) { state.lijstStand = lijstStand; state.zichtbaar = LIJST_STAP; }

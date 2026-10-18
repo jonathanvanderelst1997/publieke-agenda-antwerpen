@@ -111,7 +111,10 @@ export function buildDistrictRadar(groups=[],history=null){
   const workAndTraffic=groups.filter(group=>size(group,"works")&&(size(group,"parking")||size(group,"iod")||size(group,"sgw")));
   const severe=groups.filter(group=>(group.works||[]).some(item=>item.severeHindrance));
   const layerStates=Object.values(history?.layers||{}).map(layer=>layer?.status).filter(Boolean);
-  const historyState=!layerStates.length?"unavailable":layerStates.every(state=>state==="ok")?"ok":layerStates.some(state=>state==="error")?"unavailable":"stale";
+  // Besluit van 18-10-2026 ("niemand moet weten als er iets faalt, de momentopname blijft wel goed"): een laag die
+  // niet ververst raakte ("stale"), of die nog nooit lukte ("error") naast een laag die wel lukte, toont de laatste
+  // goede stand. Alleen zonder enige laag die ooit lukte, is er niets te tonen ("unavailable").
+  const historyState=!layerStates.length||layerStates.every(state=>state==="error")?"unavailable":layerStates.every(state=>state==="ok")?"ok":"stale";
   const changed=historyState==="unavailable"?null:groups.filter(group=>(group.changes||[]).length>0).length;
   const observedAt=typeof history?.observedAt==="string"?history.observedAt:"";
   const latestByStreet=historyState==="unavailable"||!observedAt?[]:groups.map(group=>({street:group.street,changes:(group.changes||[]).filter(change=>change.observedAt===observedAt)})).filter(entry=>entry.changes.length>0);
@@ -119,6 +122,21 @@ export function buildDistrictRadar(groups=[],history=null){
   const latestChangedStreets=historyState==="unavailable"?null:latestByStreet.length;
   const topOverlap=[...overlap].sort((a,b)=>domains(b).length-domains(a).length||b.total-a.total||a.street.name.localeCompare(b.street.name,"nl")).slice(0,5).map(group=>({street:group.street,domains:domains(group),total:group.total}));
   return{totalStreets:groups.length,multiDomainStreets:overlap.length,workAndTrafficStreets:workAndTraffic.length,severeHindranceStreets:severe.length,recentlyChangedStreets:changed,historyState,observedAt,latestChangeCounts,latestChangedStreets,topOverlap};
+}
+
+// De regels van de district-radar voor bezoekers: het aantal gewijzigde straten, de periode erbij en wat er sinds
+// de vorige verversing veranderde. Ze zeggen nooit dat de historiek oud is of faalt (besluit van 18-10-2026): een laag
+// die niet ververst raakte, toont de laatste goede stand. Zonder bruikbare historiek: leeg ("—", geen noot, geen
+// regel). Kan een laag de vorige verversing niet nakijken, dan beweert de radar ook niet dat er niets veranderde
+// (een lege regel in plaats van "Geen operationele wijzigingen").
+export function radarRegels(r,periode=null){
+  if(!r||r.historyState==="unavailable")return{aantal:"—",noot:"",delta:""};
+  const d=r.latestChangeCounts||{added:0,changed:0,removed:0},totaal=d.added+d.changed+d.removed;
+  return{
+    aantal:r.recentlyChangedStreets===null?"—":String(r.recentlyChangedStreets),
+    noot:radarPeriodeTekst(periode),
+    delta:totaal?`${d.added} nieuw · ${d.changed} gewijzigd · ${d.removed} afgelopen · ${r.latestChangedStreets} straten`:r.historyState==="ok"?"Geen operationele wijzigingen sinds de vorige verversing.":"",
+  };
 }
 
 if(typeof window!=="undefined"&&typeof document!=="undefined"){
@@ -137,15 +155,12 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     function line(kind,item){const timing=range(item);return`<li><span class="street-item-kind">${esc(kind)}</span><span><strong>${esc(item.title)}</strong>${item.status?` · ${esc(item.status)}`:""}${timing?` · ${esc(timing)}`:""}${item.detail?`<small>${esc(item.detail)}</small>`:""}</span>${item.sourceUrl?`<a href="${esc(item.sourceUrl)}" target="_blank" rel="noreferrer">${esc(item.sourceLabel||"bron")}</a>`:""}</li>`}
     function card(group){const timeline=buildStreetTimeline(group,{asOf:brusselsToday()}),badges=[group.works.length&&`${group.works.length} werken`,group.parking.length&&`${group.parking.length} parkeerverboden`,group.iod.length&&`${group.iod.length} innames`,group.sgw.length&&`${group.sgw.length} verkeer`,group.permits.length&&`${group.permits.length} vergunningen`,group.markets.length&&`${group.markets.length} markten`,group.agenda.length&&`${group.agenda.length} activiteiten`,group.works.some(item=>item.severeHindrance)&&"ernstige hinder",timeline.peakConcurrent>1&&`piek ${timeline.peakConcurrent} tegelijk`,group.changes.length&&`${group.changes.length} wijzigingen (${state.history?.periode?.alleenLaatste?"laatste verversing":`${state.history?.periode?.dagen||7}d`})`].filter(Boolean);const items=[...group.works.map(item=>line("Werk",item)),...group.parking.map(item=>line("Parkeren",item)),...group.iod.map(item=>line("Inname",item)),...group.sgw.map(item=>line("Verkeer",item)),...group.permits.map(item=>line("Vergunning",item)),...group.markets.map(item=>line("Markt",item)),...group.agenda.map(item=>line("Agenda",item))].join("");const timelineRows=timeline.entries.slice(0,12).map(item=>`<li class="${item.overlaps?"has-overlap":""}"><time>${esc(item.start===item.end?date(item.start):`${date(item.start)} – ${date(item.end)}`)}</time><span><b>${esc(item.kind)}</b> · ${esc(item.title)}</span></li>`).join("");const timelineMore=timeline.entries.length>12?`<small>+ ${timeline.entries.length-12} latere bekende items; alle details staan hieronder.</small>`:"";const timelineHtml=timeline.entries.length?`<div class="street-timeline"><div><strong>Tijdlijn</strong><span>${timeline.horizon?`bekend t/m ${esc(date(timeline.horizon))}`:""}${timeline.overlapEntries?` · ${timeline.overlapEntries} items overlappen`:""}</span></div><ol>${timelineRows}</ol>${timelineMore}</div>`:"";return`<details class="street-card"><summary><span><strong>${esc(group.street.name)}</strong>${group.street.postcode?` <small>${esc(group.street.postcode)}</small>`:""}</span><span class="street-badges">${badges.map(badge=>`<em>${esc(badge)}</em>`).join("")}</span></summary>${timelineHtml}<ul>${items}</ul></details>`}
     function render(){
+      if(state.mislukt){root.hidden=true;radarDetails.hidden=true;list.innerHTML="";return}
       const all=allGroups(),groups=filtered(),shown=groups.slice(0,state.shown),r=buildDistrictRadar(all,state.history);
       summary.textContent=`${groups.length} straten met actuele of geplande informatie`;
-      const changeValue=r.recentlyChangedStreets===null?"—":String(r.recentlyChangedStreets);
-      const changeNote=r.historyState==="ok"?radarPeriodeTekst(state.history?.periode):r.historyState==="stale"?"history verouderd":"na gezonde history-refresh";
-      const delta=r.latestChangeCounts;
-      const deltaTotal=delta?delta.added+delta.changed+delta.removed:0;
-      const deltaText=r.historyState==="unavailable"?"Beschikbaar na een gezonde history-refresh.":deltaTotal?`${delta.added} nieuw · ${delta.changed} gewijzigd · ${delta.removed} afgelopen · ${r.latestChangedStreets} straten`:"Geen operationele wijzigingen sinds de vorige verversing.";
-      const deltaHtml=`<div class="district-radar-delta${r.historyState==="unavailable"?" is-muted":""}"><strong>Sinds vorige verversing</strong><span>${esc(deltaText)}</span></div>`;
-      radar.innerHTML=`<div class="district-radar-title"><div><span>District-radar</span><strong>Waar meerdere signalen samenkomen</strong></div><small>Feitelijke overlap, geen beoordelingsscore.</small></div><div class="district-radar-stats"><div><strong>${r.multiDomainStreets}</strong><span>straten met 2+ domeinen</span></div><div><strong>${r.workAndTrafficStreets}</strong><span>werk + verkeersmaatregel</span></div><div><strong>${r.severeHindranceStreets}</strong><span>straten met ernstige hinder</span></div><div><strong>${changeValue}</strong><span>gewijzigde straten · ${esc(changeNote)}</span></div></div>${deltaHtml}${r.topOverlap.length?`<div class="district-radar-overlap"><span>Meeste soorten signalen</span>${r.topOverlap.map(entry=>`<button type="button" data-radar-street="${esc(entry.street.name)}">${esc(entry.street.name)}${entry.street.postcode?` · ${esc(entry.street.postcode)}`:""} <small>${entry.domains.length} domeinen · ${entry.total} items</small></button>`).join("")}</div>`:""}`;
+      const regels=radarRegels(r,state.history?.periode);
+      const deltaHtml=regels.delta?`<div class="district-radar-delta"><strong>Sinds vorige verversing</strong><span>${esc(regels.delta)}</span></div>`:"";
+      radar.innerHTML=`<div class="district-radar-title"><div><span>District-radar</span><strong>Waar meerdere signalen samenkomen</strong></div><small>Feitelijke overlap, geen beoordelingsscore.</small></div><div class="district-radar-stats"><div><strong>${r.multiDomainStreets}</strong><span>straten met 2+ domeinen</span></div><div><strong>${r.workAndTrafficStreets}</strong><span>werk + verkeersmaatregel</span></div><div><strong>${r.severeHindranceStreets}</strong><span>straten met ernstige hinder</span></div><div><strong>${esc(regels.aantal)}</strong><span>gewijzigde straten${regels.noot?` · ${esc(regels.noot)}`:""}</span></div></div>${deltaHtml}${r.topOverlap.length?`<div class="district-radar-overlap"><span>Meeste soorten signalen</span>${r.topOverlap.map(entry=>`<button type="button" data-radar-street="${esc(entry.street.name)}">${esc(entry.street.name)}${entry.street.postcode?` · ${esc(entry.street.postcode)}`:""} <small>${entry.domains.length} domeinen · ${entry.total} items</small></button>`).join("")}</div>`:""}`;
       radar.querySelectorAll("[data-radar-street]").forEach(button=>button.addEventListener("click",()=>{search.value=button.dataset.radarStreet||"";state.shown=30;render();root.scrollIntoView({block:"start"});}));
       list.innerHTML=shown.map(card).join("");more.hidden=shown.length>=groups.length;more.textContent=`Toon meer straten (${Math.max(0,groups.length-shown.length)})`;
       if(!state.streetIndex)note.textContent="Officiële straatas wordt geladen…";else if(!state.works.length&&!state.publicSpace.length)note.textContent="Straatas geladen. Live werken en maatregelen worden nog opgehaald.";else note.textContent="Gebundeld op officiële Antwerpse straatnamen. Alleen betrouwbare straatmatches worden opgenomen.";
@@ -158,7 +173,11 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     // live-layers.json: dat waren bij elk bezoek 8 tot 12 MB, alleen voor deze radar.
     const radarHistoriek=fetch("/history/radar.json",{headers:{Accept:"application/json"}}).then(response=>response.ok?response.json():null).then(historiekUitRadar).catch(()=>null);
     radarHistoriek.then(history=>{state.history=history;render()});
-    Promise.all([loadStreetIndex(),radarHistoriek]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(error=>{note.textContent=`Straatfiche tijdelijk niet beschikbaar: ${error?.message||"bronfout"}`});
+    Promise.all([loadStreetIndex(),radarHistoriek]).then(([streetIndex,history])=>{state.streetIndex=streetIndex;state.history=history;render()}).catch(()=>{
+      // Zonder straatas geen straatfiches en geen radar: dan valt dit deel weg, zonder melding dat iets faalt
+      // (besluit van 18-10-2026) en zonder "0 straten".
+      state.mislukt=true;render();
+    });
     render();
   }
 }

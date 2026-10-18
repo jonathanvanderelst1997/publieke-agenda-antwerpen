@@ -204,7 +204,10 @@ test("radar.json: een drukke week (twee verversingen per dag) past in het budget
   assert.equal(radarPeriodeTekst(periode), `laatste ${periode.dagen} ${periode.dagen === 1 ? "dag" : "dagen"} (ingekort)`);
   assert.ok(periode.dagen < 7);
   assert.equal(radarPeriodeTekst(historiekUitRadar(bouwRadar(history)).periode), "laatste 7 dagen", "niet ingekort");
-  assert.match(fs.readFileSync(path.join(repoRoot, "site", "street-overview.js"), "utf8"), /radarPeriodeTekst\(state\.history\?\.periode\)/);
+  // De periode staat bij het aantal gewijzigde straten (radarRegels, met de periode van de radar).
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "street-overview.js"), "utf8"), /radarRegels\(r,state\.history\?\.periode\)/);
+  const { radarRegels } = await import("../site/street-overview.js");
+  assert.equal(radarRegels({ historyState: "ok", recentlyChangedStreets: 2, latestChangeCounts: { added: 0, changed: 0, removed: 0 }, latestChangedStreets: 0 }, periode).noot, radarPeriodeTekst(periode));
 });
 
 test("radar.json: ook een verversing die bijna elke straat raakt, past in het budget (validate-data blijft groen)", async (t) => {
@@ -260,7 +263,8 @@ test("het kader rond een straat, het verschil en de zin onder de plek", () => {
   assert.equal(standZin({ ververst: VERVERST, nieuw: 1, nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22.");
   assert.equal(standZin({ ververst: VERVERST, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   assert.equal(standZin({ ververst: VERVERST, nieuw: 2, weg: 1, nu: NU }), "Live nagekeken: 2 nieuw, 1 niet meer in de bron sinds 05:22.");
-  assert.equal(standZin({ ververst: VERVERST, mislukt: true, nu: NU }), "Live nakijken lukte nu niet. Je ziet de stand van de verversing van 05:22.");
+  // Lukt live nakijken niet: gewoon de stand van de verversing, zonder te zeggen dat iets faalt (besluit van 18-10-2026).
+  assert.equal(standZin({ ververst: VERVERST, mislukt: true, nu: NU }), "Stand van de verversing van 05:22.");
   assert.equal(standZin({ ververst: VERVERST, bezig: true, nu: NU }), "Stand van de verversing van 05:22. Live nakijken…");
 });
 
@@ -426,11 +430,13 @@ test("laadStraat kijkt de hash na: een bestand met een andere inhoud wordt één
   // Klopt de hash meteen: geen tweede verzoek (zie de toets van laadStraat hierboven).
 });
 
-test("de zin onder de plek met een straal: eerlijk als live of de straatassen voor de straal niet laadden", () => {
-  assert.equal(standZin({ ververst: VERVERST, mislukt: true, straal: 500, nu: NU }), "Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand van de verversing van 05:22.");
+// Besluit van 18-10-2026 ("niemand moet weten als er iets faalt"): laden live of de straatassen voor de straal niet,
+// dan zegt de zin dat niet; ze noemt de stand van de verversing of wat live wel lukte.
+test("de zin onder de plek met een straal: laden live of de straatassen voor de straal niet, dan zonder melding", () => {
+  assert.equal(standZin({ ververst: VERVERST, mislukt: true, straal: 500, nu: NU }), "Stand van de verversing van 05:22.");
   assert.equal(standZin({ ververst: VERVERST, straal: 500, straalStand: "laadt", nu: NU }), "Live nagekeken: niets nieuw sinds 05:22. De straal rond de straat laadt nog…");
-  assert.equal(standZin({ ververst: VERVERST, nieuw: 1, straal: 250, straalStand: "mislukt", nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22. De straal rond de straat kon nu niet geladen worden: je ziet alleen de straat zelf.");
-  assert.equal(standZin({ ververst: VERVERST, mislukteDelen: ["vergunningen"], straal: 250, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22. Live nakijken lukte nu niet voor vergunningen: daarvan zie je alleen de straat zelf, met de stand van de verversing van 05:22.");
+  assert.equal(standZin({ ververst: VERVERST, nieuw: 1, straal: 250, straalStand: "mislukt", nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22.");
+  assert.equal(standZin({ ververst: VERVERST, mislukteDelen: ["vergunningen"], straal: 250, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   // Zonder straal: zoals voorheen.
   assert.equal(standZin({ ververst: VERVERST, straal: 0, straalStand: "laadt", nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   // De kaart zegt of de straatassen voor de straal er zijn.

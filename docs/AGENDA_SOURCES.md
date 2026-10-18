@@ -99,23 +99,69 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 ## Een falende bron: intern wel, voor bezoekers niet
 
 Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel
-goed". De site toont daarom nergens dat een bron faalt: geen bronwaarschuwing bovenaan (de melding
-`#agenda-source-warning` van #191 en `site/bron-waarschuwing.js` zijn weg, op de voorpagina en op de
-plekpagina), en de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon
-"ververst op …" met het moment van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of
-"verouderd". Ook de zin "Officiële broncontrole …" in datzelfde blok (`#agenda-refresh-note`,
-`refreshNoteText` in `site/agenda.js`) telt de punten van zo'n bron niet: ze noemt alleen verlopen punten
-en echte bronconflicten, en is dezelfde of een bron nu faalt of niet (vroeger stond er "punten met
-bronconflict of verouderde bron", en met eBesluit falend waren dat precies de punten van eBesluit).
+goed". De site toont daarom nergens dat een bron, een laag of een live aanvraag faalt of oud is: ze toont gewoon
+de laatste goede stand. Een echte lege toestand blijft leeg (geen verzonnen 0, geen "rustig", geen "niets
+gepland"), zonder uitleg waarom. `tests/bron-waarschuwing.test.mjs` houdt de zinnen van vroeger buiten
+`site/`.
+
+Op de agenda:
+
+- geen bronwaarschuwing bovenaan (de melding `#agenda-source-warning` van #191 en `site/bron-waarschuwing.js`
+  zijn weg, op de voorpagina en op de plekpagina);
+- de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon "ververst op …" met het moment
+  van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of "verouderd";
+- de zin "Officiële broncontrole …" in datzelfde blok (`#agenda-refresh-note`, `refreshNoteText` in
+  `site/agenda.js`) telt de punten van zo'n bron niet: ze noemt alleen verlopen punten en echte bronconflicten, en
+  is dezelfde of een bron nu faalt of niet (vroeger stond er "punten met bronconflict of verouderde bron", en met
+  eBesluit falend waren dat precies de punten van eBesluit);
+- laadt de gezamenlijke straatfilter (`site/agenda-view.js`) niet, dan blijft de gewone agenda, zonder zin
+  erover.
+
+Buiten de agendabronnen (live lagen, radar, historiek, kaart):
+
+- de zin onder een straat (`standZin` in `site/straat-snapshot.js`): lukt live nakijken niet, dan "Stand van de
+  verversing van 05:22."; lukt het deels, of laden de straatassen voor de straal niet, dan "Live nagekeken: …" met
+  wat wel lukte. Vroeger: "Live nakijken lukte nu niet …", "Rond de straat kon nu niet live geladen worden …",
+  "De straal rond de straat kon nu niet geladen worden …";
+- de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
+  in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
+  die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De weekzin en de
+  lege staat zeggen dan "niets gevonden" (`dezeWeek`, `legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in
+  `site/place-core.js`), niet "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is".
+  Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet geladen is), zegt de zin erbij;
+- de buurtinfo (`site/buurt-info.js`, `radarToestand` in `site/buurt-info-core.js`): is een bronlaag niet actueel
+  of de radar ouder dan 26 uur, dan dezelfde zin en dezelfde getallen als anders; zonder radar is het blok leeg.
+  Vroeger: "Niet alle bronlagen zijn actueel. Getallen worden niet als volledig voorgesteld.", "De radar is ouder
+  dan 26 uur …", "Het wijzigingsoverzicht kon niet worden geladen …";
+- de district-radar en de straatfiches op de voorpagina (`radarRegels` in `site/street-overview.js`): een laag
+  die niet ververst raakte, toont de laatste goede stand; zonder bruikbare historiek staat er "—" zonder uitleg, en
+  "Geen operationele wijzigingen" staat er alleen als alle lagen nagekeken zijn. Laadt de straatas niet, dan is
+  dit deel leeg. Vroeger: "history verouderd", "na gezonde history-refresh", "Straatfiche tijdelijk niet
+  beschikbaar";
+- de lijsten van het district (werken, innames, vergunningen, terrassen): laadt een lijst niet, dan is ze leeg,
+  zonder "0" en zonder notitie; laadt een aanvulling niet (de districtsgrens, de GIPOD-hinder, A-Sign, de
+  AWV-werfdata, of die is ouder dan 3 dagen), dan valt haar zin weg en blijft de rest. Vroeger o.a. "De AWV-werfdata
+  is ouder dan 3 dagen …", "… kon nu niet geladen worden", "Hinderbron tijdelijk niet geladen", "Werken tijdelijk
+  niet geladen", "Terrassen niet geladen", "Omgevingsdossiers tijdelijk niet geladen";
+- een werkkaart (`site/kaart-uitleg.js`) zegt niet meer "gevolgen voor het verkeer nu niet opgehaald" of "de
+  straat kon nu niet bepaald worden"; de historiek van een werk (`site/werk-historiek.js`) toont niets als het
+  archief niet laadt of onbruikbaar is;
+- de buurtkaart: laden de wijkgrenzen niet, dan geen zin erover; laadt de kaart niet, dan blijft de knop "Toon de
+  kaart" (vroeger "Kaart niet beschikbaar · opnieuw proberen").
+
 Intern blijft alles:
 
 - de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
   `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);
-- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar;
+- de status van de live lagen in de historiek en de radar (`status` per laag), en `live.failed` in de browser;
+- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar (de job `alarm` in
+  `.github/workflows/refresh.yml`);
 - de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
 
 Alleen als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat nog ("De agenda wordt even niet
-ververst"): dan is de momentopname zelf oud, en dat staat los van één falende bron.
+ververst"): dan is de momentopname zelf oud, en dat staat los van één falende bron. Wat niets met een bron te
+maken heeft, blijft ook: "Export niet beschikbaar" (het agendabestand maken in de browser), "Opslaan lukte niet"
+(een straat bewaren in de browser) en "Locatie niet beschikbaar" (de locatie van het toestel).
 
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2

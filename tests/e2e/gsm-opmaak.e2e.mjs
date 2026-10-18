@@ -525,18 +525,21 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     await context.close();
   });
 
-  // Nakijkbevinding 19 (rest): het geval van een laag die niet laadde, stond alleen in de helper getoetst.
-  await t.test("tijdlijn: laadden de werken niet, dan zegt elke lege dag dat (nooit 'niets gepland')", async () => {
+  // Nakijkbevinding 19 (rest): het geval van een laag die niet laadde, stond alleen in de helper getoetst. Sinds het
+  // besluit van 18-10-2026 ("niemand moet weten als er iets faalt") zegt een lege dag niet meer dat niet alles laadde,
+  // maar ook nooit "niets gepland".
+  await t.test("tijdlijn: laadden de werken niet, dan zegt elke lege dag 'niets gevonden' (nooit 'niets gepland', geen melding)", async () => {
     const { page, context, errors } = await openPlace(baseUrl, { weergave: "tijdlijn", werkenFout: true, agenda: [] });
     await page.waitForFunction(() => (window.PUBLIC_AGENDA_LIVE_STREETS?.failed?.works || []).length > 0, null, { timeout: 15000 });
-    await page.waitForFunction(() => /niet alles laadde/.test(document.querySelector(".pv-tl-dag")?.getAttribute("aria-label") || ""), null, { timeout: 10000 });
+    await page.waitForFunction(() => /: niets gevonden$/.test(document.querySelector(".pv-tl-dag")?.getAttribute("aria-label") || ""), null, { timeout: 10000 });
     const leeg = (await dagKnoppen(page)).filter((k) => !k.tekens.length);
     assert.equal(leeg.length, 13, "13 dagen zonder teken");
-    for (const k of leeg) assert.match(k.naam, /: niets gevonden in wat geladen is, niet alles laadde$/, k.naam);
+    for (const k of leeg) assert.match(k.naam, /: niets gevonden$/, k.naam);
     await page.click(`[data-tl-dag="${leeg[0].d}"]`);
     const tekst = await page.locator(".pv-results .pv-empty").innerText();
-    assert.match(tekst, /In wat wel geladen is, staat op die dag niets\./, tekst);
+    assert.match(tekst, /Op die dag is hier niets gevonden\./, tekst);
     assert.doesNotMatch(tekst, /niets gepland|niets op de agenda/i, tekst);
+    assert.doesNotMatch(tekst, /geladen|laadde|onvolledig|mislukt|lukte/i, tekst);
     assert.deepEqual(errors, []);
     await context.close();
   });

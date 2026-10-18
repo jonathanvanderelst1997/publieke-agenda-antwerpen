@@ -34,7 +34,7 @@ Ze staat nu in een apart, duidelijk benoemd blok "Hinder zonder gepubliceerd wer
 - weg: zonder gevolgen en niet ernstig, een einde meer dan 2 jaar ver, of al lopend en meer dan een jaar niet gewijzigd;
 - de plaats is alleen een straatnaam uit de straatas, nooit een huisnummer; de omschrijving, de beheerder en de contactorganisaties worden niet getoond;
 - geen bronlink per hinder: een vraag naar `HINDER_PUNT`, ook gefilterd op `HindranceGipodId`, toont het ruwe record met `HindranceContactOrganisations` (contactnaam, e-mail, telefoon). Onder het blok staat één bronvermelding "Bron: GIPOD (Digitaal Vlaanderen)" met een link naar de officiële datasetfiche op metadata.vlaanderen.be (2b4b3bb7);
-- zonder districtsgrens of hinderbron verschijnt het blok niet, en de notitie zegt dat.
+- zonder districtsgrens of hinderbron verschijnt het blok niet; de notitie zegt niet waarom (besluit van de eigenaar van 18-10-2026: de site zegt nergens dat een bron faalt, zie `docs/AGENDA_SOURCES.md`).
 
 Proef op de gemeten data van 17 oktober 2026 (1.214 getoonde werken): 52 items in het blok, waarvan 23 ernstig.
 

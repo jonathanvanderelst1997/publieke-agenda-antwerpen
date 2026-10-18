@@ -204,25 +204,24 @@ export function tijdstipTekst(iso, nu = new Date()) {
   return `${Number(dag.slice(8, 10))} ${MAANDEN[Number(dag.slice(5, 7)) - 1]} ${uur}`;
 }
 
-// De zin onder de plek. `stand`: het tijdstip van de ochtendverversing; `nieuw`/`weg`: wat de live
-// controle anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan);
-// `mislukteDelen`: de lagen die live niet lukten (de rest wel).
-// Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er
-// bij wat rond de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog)
-// of "mislukt" (de straatassen laadden niet: dan blijft het bij de straat zelf).
-export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, mislukteDelen = [], straal = 0, straalStand = "klaar", nu = new Date() } = {}) {
+// De zin onder de plek. `ververst`: het tijdstip van de ochtendverversing; `nieuw`/`weg`: wat de live controle
+// anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan); `mislukteDelen`: de
+// lagen die live niet lukten (de rest wel).
+// Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er bij wat rond
+// de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog) of "mislukt" (de
+// straatassen laadden niet: dan blijft het bij de straat zelf).
+// Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel goed". Lukt
+// live nakijken (deels) niet, dan zegt de zin dat niet: ze noemt de stand van de verversing, of wat live wel lukte.
+// `mislukt`, `mislukteDelen` en `straalStand` blijven intern (place-view.js zet ermee de lagen).
+export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, straal = 0, straalStand = "klaar", nu = new Date() } = {}) {
   const om = tijdstipTekst(ververst, nu);
   const sinds = om ? ` sinds ${om}` : "";
-  const vanDeVerversing = om ? ` van de verversing van ${om}` : " van de verversing";
   if (bezig) return om ? `Stand van de verversing van ${om}. Live nakijken…` : "Live nakijken…";
-  if (mislukt && straal > 0) return `Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand${vanDeVerversing}.`;
-  if (mislukt) return om ? `Live nakijken lukte nu niet. Je ziet de stand van de verversing van ${om}.` : "Live nakijken lukte nu niet.";
+  if (mislukt) return om ? `Stand van de verversing van ${om}.` : "";
   const delen = [];
   if (nieuw) delen.push(`${nieuw} nieuw`);
   if (weg) delen.push(`${weg} niet meer in de bron`);
   const zinnen = [delen.length ? `Live nagekeken: ${delen.join(", ")}${sinds}.` : `Live nagekeken: niets nieuw${sinds}.`];
-  if (mislukteDelen.length) zinnen.push(`Live nakijken lukte nu niet voor ${mislukteDelen.join(", ")}: daarvan zie je ${straal > 0 ? "alleen de straat zelf, met " : ""}de stand${vanDeVerversing}.`);
   if (straal > 0 && straalStand === "laadt") zinnen.push("De straal rond de straat laadt nog…");
-  if (straal > 0 && straalStand === "mislukt") zinnen.push("De straal rond de straat kon nu niet geladen worden: je ziet alleen de straat zelf.");
   return zinnen.join(" ");
 }

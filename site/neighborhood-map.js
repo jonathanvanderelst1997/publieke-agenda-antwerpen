@@ -469,7 +469,8 @@ export async function mountNeighborhoodMap(view) {
     wijken = wijkFeatures(wijkDoc).filter((f) => f.properties.code.startsWith(DISTRICT_PREFIX));
     geo = geoDoc && typeof geoDoc.entries === "object" ? geoDoc : { entries: {} };
   } catch {
-    status.textContent = "De wijkgrenzen konden nu niet geladen worden. De agenda en de straatfilter werken gewoon.";
+    // Geen wijkgrenzen: geen wijkkeuze, zonder melding dat iets faalt (besluit van 18-10-2026).
+    status.textContent = "";
     view.straalNietBeschikbaar?.();
     window.dispatchEvent(new CustomEvent("public-agenda:area-ready"));
     return;
@@ -578,7 +579,8 @@ export async function mountNeighborhoodMap(view) {
         return kaart;
       })
       .catch(() => {
-        laadKnop.textContent = "Kaart niet beschikbaar · opnieuw proberen";
+        // Geen melding dat de kaart faalt (besluit van 18-10-2026): de knop blijft, om het opnieuw te proberen.
+        laadKnop.textContent = "🗺️ Toon de kaart";
         mapEl.dataset.kaart = "geen";
         return null;
       })

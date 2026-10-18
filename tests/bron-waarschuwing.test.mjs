@@ -127,3 +127,173 @@ test("intern blijft de bronstatus: feed, sourceFreshness en source-health kennen
   // Binnen 48 uur is ze "stale": een waarschuwing in de run, nog altijd niet voor bezoekers.
   assert.equal(sourceHealthOf({ ...fout, retrievedAt: "2026-10-17T03:21:00.000Z" }, Date.parse(generatedAt)), "stale");
 });
+
+// ---- Vervolg (nakijkronde 18-10-2026): ook buiten de agendabronnen niets over falen ----
+// Ook buiten de agendabronnen zag een bezoeker dat een bron, een laag of een live aanvraag faalde of oud was: de
+// buurtinfo (de radar), de district-radar op de voorpagina, de zin onder een straat, de lijsten van werken,
+// innames, vergunningen en terrassen, de plekpagina (tegels, weekzin, lege toestand), de wijkkaart en de
+// historiek van een werk. Het besluit geldt ook daar: de site toont de laatste goede stand, zonder te zeggen dat
+// iets faalt. Een echte lege toestand blijft leeg (geen verzonnen 0, geen "rustig").
+const LIVE_WAARSCHUWINGEN = [
+  // site/buurt-info.js
+  "Niet alle bronlagen zijn actueel",
+  "Getallen worden niet als volledig voorgesteld",
+  "De radar is ouder dan 26 uur",
+  "Getallen worden niet als actueel voorgesteld",
+  "Het wijzigingsoverzicht kon niet worden geladen",
+  "bron tijdelijk niet bereikbaar",
+  // site/street-overview.js
+  "history verouderd",
+  "na gezonde history-refresh",
+  "Beschikbaar na een gezonde history-refresh",
+  "Straatfiche tijdelijk niet beschikbaar",
+  // site/straat-snapshot.js (de zin onder een straat)
+  "Live nakijken lukte nu niet",
+  "Rond de straat kon nu niet live geladen worden",
+  "De straal rond de straat kon nu niet geladen worden",
+  // site/works-live.js (en site/onbekend-zinnen.js)
+  "De AWV-werfdata is ouder dan 3 dagen",
+  "De AWV-werfdata kon nu niet geladen worden",
+  "Hinderbron tijdelijk niet geladen",
+  "De officiële grens kon nu niet worden geladen",
+  "Het aanvullende A-Sign-werfsignalisatiesignaal kon nu niet worden geladen",
+  "Hinder zonder gepubliceerd werk kon nu niet bepaald worden",
+  "Werken tijdelijk niet geladen",
+  "De live werkenbron kon niet worden gelezen",
+  "De GIPOD-hinderbron kon nu niet worden geladen",
+  // site/live-lagen.js, site/public-space-live.js, site/terraces-live.js, site/permits-live.js
+  "konden nu niet geladen worden",
+  "Dit overzicht is onvolledig",
+  "zijn verborgen omdat de officiële districtsgrens niet kon worden geladen",
+  "Terrassen niet geladen",
+  "Omgevingsdossiers tijdelijk niet geladen",
+  "Bron tijdelijk niet beschikbaar",
+  // site/place-core.js en site/place-view.js (weekzin, lege toestand, tegels)
+  "niet alles laadde",
+  "Niet alles laadde",
+  "zijn niet volledig geladen",
+  "In wat wel geladen is",
+  "De straatnamen konden nu niet geladen worden",
+  "Het archief is nu niet beschikbaar",
+  // site/werk-historiek.js
+  "De archiefbron bevat onvoldoende betrouwbare gegevens",
+  // site/kaart-uitleg.js
+  "nu niet opgehaald",
+  "de straat kon nu niet bepaald worden",
+  // site/neighborhood-map.js
+  "De wijkgrenzen konden nu niet geladen worden",
+  "Kaart niet beschikbaar",
+  // site/agenda.js
+  "De gezamenlijke straatfilter is tijdelijk niet beschikbaar",
+];
+
+test("geen script van de site zegt dat een live laag, de radar, de historiek of de kaart faalt of oud is", () => {
+  const scripts = fs.readdirSync(path.join(rootDir, "site")).filter((n) => n.endsWith(".js") && n !== "agenda-feed.js");
+  const gevonden = [];
+  for (const naam of scripts) {
+    const tekst = site(naam);
+    for (const zin of LIVE_WAARSCHUWINGEN) if (tekst.includes(zin)) gevonden.push(`${naam}: "${zin}"`);
+  }
+  assert.deepEqual(gevonden, []);
+  for (const naam of fs.readdirSync(path.join(rootDir, "site")).filter((n) => n.endsWith(".html")))
+    for (const zin of LIVE_WAARSCHUWINGEN) assert.ok(!site(naam).includes(zin), `${naam} bevat "${zin}"`);
+  // Geen melding "onvolledig" meer boven de tegels of in de lege toestand, en geen "?" als tegel.
+  for (const naam of [...scripts, ...fs.readdirSync(path.join(rootDir, "site")).filter((n) => n.endsWith(".css"))])
+    assert.doesNotMatch(site(naam), /pv-place-failed|pv-empty-warn/, naam);
+  assert.doesNotMatch(site("live-lagen.js"), /onvolledigMelding/);
+  assert.doesNotMatch(site("place-view.js"), /state\.werkenOnvolledig \? "\?"/);
+  // Intern blijft de boekhouding: welke lagen niet laadden (live.failed), voor "nooit rustig" en "nooit een valse 0".
+  assert.match(site("live-lagen.js"), /live\.failed = /);
+  assert.match(site("place-view.js"), /state\.werkenOnvolledig \? "–"/);
+});
+
+test("de zin onder een straat: lukt live nakijken (deels) niet, dan gewoon de stand van de verversing", async () => {
+  const { standZin } = await import("../site/straat-snapshot.js");
+  const ververst = "2099-03-11T04:22:00.000Z", nu = new Date("2099-03-11T09:00:00Z");
+  assert.equal(standZin({ ververst, mislukt: true, nu }), "Stand van de verversing van 05:22.");
+  assert.equal(standZin({ ververst, mislukt: true, straal: 500, nu }), "Stand van de verversing van 05:22.");
+  assert.equal(standZin({ ververst, nieuw: 1, mislukteDelen: ["vergunningen", "terrassen"], nu }), "Live nagekeken: 1 nieuw sinds 05:22.");
+  assert.equal(standZin({ ververst, mislukteDelen: ["vergunningen"], straal: 250, nu }), "Live nagekeken: niets nieuw sinds 05:22.");
+  assert.equal(standZin({ ververst, nieuw: 1, straal: 250, straalStand: "mislukt", nu }), "Live nagekeken: 1 nieuw sinds 05:22.");
+  // Wat er gewoon nog loopt, blijft.
+  assert.equal(standZin({ ververst, bezig: true, nu }), "Stand van de verversing van 05:22. Live nakijken…");
+  assert.equal(standZin({ ververst, straal: 500, straalStand: "laadt", nu }), "Live nagekeken: niets nieuw sinds 05:22. De straal rond de straat laadt nog…");
+  assert.equal(standZin({ mislukt: true, nu }), "");
+});
+
+test("weekzin en lege toestand: een laag die (deels) niet laadde, verraadt niets en maakt de week nooit 'rustig'", async () => {
+  const pc = await import("../site/place-core.js");
+  const vandaag = "2026-10-12";
+  const feest = pc.agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
+  const zinnen = [];
+  const met = pc.dezeWeek([feest], vandaag, { onvolledig: true });
+  assert.equal(met.zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
+  const leeg = pc.dezeWeek([], vandaag, { onvolledig: true });
+  assert.deepEqual(leeg, { licht: "onbekend", zin: "De komende 7 dagen in jouw straat: niets gevonden." });
+  const deels = [{ wat: "werken", uit: true, geladen: false, deels: true }];
+  assert.equal(pc.dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
+  assert.deepEqual(pc.dezeWeek([], vandaag, { onbekend: deels }), { licht: "onbekend", zin: "De komende 7 dagen in jouw straat: niets gevonden." });
+  // Wat met de keuze van de bezoeker te maken heeft (een soort staat uit), blijft gewoon.
+  const uit = [{ wat: "werken", uit: true, geladen: false }];
+  assert.equal(pc.dezeWeek([], vandaag, { onbekend: uit, onvolledig: true }).zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken staan uit. Of het rustig is, weten we dus niet.");
+  assert.equal(pc.dezeWeek([feest], vandaag, { onbekend: uit }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet geladen.");
+  assert.equal(pc.dezeWeek([], vandaag).licht, "rustig");
+  zinnen.push(met.zin, leeg.zin);
+
+  const straat = { type: "straat", label: "Proefstraat" };
+  for (const opties of [{ place: straat, aantalSoorten: 6 }, { place: straat, aantalSoorten: 6, gekozen: true }, { aantalSoorten: 6 }]) {
+    const zin = pc.legeStaatTekst({ ...opties, onvolledig: true });
+    assert.doesNotMatch(zin, /niets gepland|op de agenda/, "geen bewering die niet nagekeken is");
+    zinnen.push(zin);
+  }
+  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "Voor deze straat is niets gevonden.");
+  assert.equal(pc.legeDagLabel({ onvolledig: true }), "niets gevonden");
+  assert.equal(pc.legeDagLabel({ onvolledig: true, doorlopend: 1 }), "niets apart gevonden; 1 toelating van twee weken of langer loopt door");
+  assert.equal(pc.legeTijdlijnTekst({ onvolledig: true }), "De komende 14 dagen is hier niets gevonden.");
+  assert.equal(pc.legeTijdlijnTekst({ dag: true, onvolledig: true, doorlopend: 1 }), "Op die dag is hier niets gevonden behalve wat hieronder doorloopt.");
+  zinnen.push(pc.legeDagLabel({ onvolledig: true }), pc.legeTijdlijnTekst({ onvolledig: true }), pc.legeTijdlijnTekst({ dag: true, onvolledig: true }));
+  for (const zin of zinnen) assert.doesNotMatch(zin, /laad|geladen|faalt|mislukt|lukte|onvolledig|onbereikbaar|verouderd/i, zin);
+});
+
+test("buurtinfo en district-radar: de laatste goede stand, ook als een laag niet actueel is", async () => {
+  const { radarVoorStraat, radarToestand } = await import("../site/buurt-info-core.js");
+  const straat = { id: "101", name: "Proefstraat", postcode: "2000" };
+  const nu = Date.parse("2026-10-13T12:00:00Z");
+  const radar = { ververst: "2026-10-13T09:00:00Z", runs: ["2026-10-13T09:00:00Z"], lagen: { works: { status: "ok" }, publicSpace: { status: "ok" } }, straten: { "101|Proefstraat|2000": [[0, 2, 1, 0]] } };
+  const gewoon = radarToestand(radarVoorStraat(radar, straat, { nu }));
+  assert.deepEqual(gewoon, { zin: "Dit zijn waargenomen wijzigingen, niet de werkelijke start- of einddatum van de maatregelen.", cijfers: true });
+  // Een laag niet actueel, of de radar ouder dan 26 uur: dezelfde zin en dezelfde getallen.
+  const gedeeltelijk = radarVoorStraat({ ...radar, lagen: { works: { status: "stale" }, publicSpace: { status: "ok" } } }, straat, { nu });
+  const oud = radarVoorStraat({ ...radar, ververst: "2026-10-10T09:00:00Z" }, straat, { nu });
+  assert.deepEqual([gedeeltelijk.status, oud.status], ["gedeeltelijk", "verouderd"], "intern weet de radar het wel");
+  assert.deepEqual(radarToestand(gedeeltelijk), gewoon);
+  assert.deepEqual(radarToestand(oud), gewoon);
+  // Geen radar: leeg, geen zin.
+  assert.deepEqual(radarToestand(radarVoorStraat(null, straat, { nu })), { zin: "", cijfers: false });
+  assert.doesNotMatch(site("buurt-info.js"), /info\.status !== "ok"|info\.status === "verouderd"/);
+
+  const { buildDistrictRadar, radarRegels } = await import("../site/street-overview.js");
+  const groep = { street: { id: "1", name: "Astraat", postcode: "2000" }, works: [], parking: [], iod: [], sgw: [], markets: [], agenda: [], changes: [{ type: "added", observedAt: "2026-10-13T05:17:00Z" }], total: 1 };
+  const periode = { dagen: 7, ingekort: false };
+  const goed = buildDistrictRadar([groep], { observedAt: "2026-10-13T05:17:00Z", layers: { works: { status: "ok" }, publicSpace: { status: "ok" } } });
+  for (const lagen of [{ works: { status: "stale" }, publicSpace: { status: "ok" } }, { works: { status: "error" }, publicSpace: { status: "ok" } }]) {
+    const r = buildDistrictRadar([groep], { observedAt: "2026-10-13T05:17:00Z", layers: lagen });
+    assert.equal(r.recentlyChangedStreets, 1, JSON.stringify(lagen));
+    assert.deepEqual(r.latestChangeCounts, goed.latestChangeCounts);
+    assert.deepEqual(radarRegels(r, periode), radarRegels(goed, periode));
+  }
+  assert.deepEqual(radarRegels(goed, periode), { aantal: "1", noot: "laatste 7 dagen", delta: "1 nieuw · 0 gewijzigd · 0 afgelopen · 1 straten" });
+  // Niets nieuw sinds de vorige verversing: "Geen operationele wijzigingen" alleen als alle lagen nagekeken zijn; kon een
+  // laag niet ververst worden, dan geen regel (geen bewering die niet nagekeken is, en geen melding).
+  const rustig = { ...groep, changes: [{ type: "added", observedAt: "2026-10-12T05:17:00Z" }] };
+  assert.equal(radarRegels(buildDistrictRadar([rustig], { observedAt: "2026-10-13T05:17:00Z", layers: { works: { status: "ok" }, publicSpace: { status: "ok" } } }), periode).delta, "Geen operationele wijzigingen sinds de vorige verversing.");
+  assert.deepEqual(radarRegels(buildDistrictRadar([rustig], { observedAt: "2026-10-13T05:17:00Z", layers: { works: { status: "stale" }, publicSpace: { status: "ok" } } }), periode), { aantal: "1", noot: "laatste 7 dagen", delta: "" });
+  // Zonder straatas valt "Alles per straat" met de radar weg, zonder "0 straten" en zonder melding.
+  assert.match(site("street-overview.js"), /if\(state\.mislukt\)\{root\.hidden=true;/);
+  // Geen bruikbare historiek (geen radar, of geen enkele laag ooit gelukt): leeg, zonder uitleg waarom.
+  for (const history of [null, { layers: { works: { status: "error" }, publicSpace: { status: "error" } } }]) {
+    const r = buildDistrictRadar([groep], history);
+    assert.equal(r.recentlyChangedStreets, null);
+    assert.deepEqual(radarRegels(r, null), { aantal: "—", noot: "", delta: "" });
+  }
+});

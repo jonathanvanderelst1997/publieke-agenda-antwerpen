@@ -1477,8 +1477,9 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   });
 
   // Nakijkbevinding 9 (rest): zolang de evenementen op straat laden, zegt de zin dat (nooit "rustig"); en een
-  // werkenlaag die deels mislukte terwijl werken uit staan, telde als volledig geladen.
-  await t.test("de komende 7 dagen: met alleen evenementen en een trage A-Sign 'nog geladen', en werken die deels mislukten staan in de zin", async () => {
+  // werkenlaag die deels mislukte terwijl werken uit staan, telde als volledig geladen. Sinds het besluit van 18-10-2026
+  // ("niemand moet weten als er iets faalt") zegt de zin niet meer dat de werken maar deels laadden.
+  await t.test("de komende 7 dagen: met alleen evenementen en een trage A-Sign 'nog geladen', en werken die deels mislukten verraden niets", async () => {
     let open;
     const poort = new Promise((klaar) => { open = klaar; });
     // A-Sign antwoordt pas als de toets de poort opent.
@@ -1496,18 +1497,18 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
     assert.match(await week.innerText(), /\. Werken zijn niet geladen\.$/);
     // De werkenlaag laadt deels (zoals de lijst van het hele district die in beeld kwam en voor een deel mislukte),
-    // terwijl werken uit staan: de zin zegt dat de werken niet volledig geladen zijn.
+    // terwijl werken uit staan: de zin noemt alleen wat gevonden is, zonder te zeggen dat iets niet laadde.
     await page.evaluate(() => {
       const live = window.PUBLIC_AGENDA_LIVE_STREETS;
       live.works = [];
       live.failed = { ...(live.failed || {}), works: ["werken"] };
       window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "works", items: [], failed: ["werken"] } }));
     });
-    await page.waitForFunction(() => /niet volledig geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 5000 })
+    await page.waitForFunction(() => !/niet geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 5000 })
       .catch(async () => assert.fail(`na de deels mislukte werken zegt de zin "${await week.innerText()}"`));
     const tekst = await week.innerText();
     assert.match(tekst, WEEK_MET_FEEST);
-    assert.match(tekst, /\. Werken zijn niet volledig geladen\.$/);
+    assert.doesNotMatch(tekst, /geladen|laadde|mislukt|lukte|onvolledig|rustig/i);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -1616,29 +1617,33 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("een A-Sign-laag laadt niet: melding bovenaan en in de lege staat", async () => {
+  // Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel goed".
+  // Vroeger stond er bovenaan en in de lege staat "… konden nu niet geladen worden. Dit overzicht is onvolledig."
+  await t.test("een A-Sign-laag laadt niet: geen melding bovenaan of in de lege staat, en geen 'niets op de agenda'", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const asign = asignServer({ fail: [20, 47, 49] });
     // Een verzonnen feed zonder agendapunten: de toets verwacht een lege straat, los van de echte feed.
     const { page, context, errors } = await openPage(baseUrl, { street: peterselie, feed: proefFeed(today, []), asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
-    const melding = "Parkeerverboden, omleidingen en terrassen konden nu niet geladen worden. Dit overzicht is onvolledig.";
-    // De plek tekent opnieuw bij het volgende beeld; wacht tot de laatste laag erin zit.
-    await page.waitForFunction((m) => document.querySelector(".pv-place .pv-place-failed")?.innerText.trim() === m, melding, { timeout: 20000 }).catch(() => {});
-    assert.equal(await page.locator(".pv-place .pv-place-failed").count(), 1, "melding bovenaan de plek ontbreekt");
-    assert.equal((await page.locator(".pv-place .pv-place-failed").innerText()).trim(), melding);
+    // De plek tekent opnieuw bij het volgende beeld; wacht tot alle lagen er zijn (intern: welke onderdelen faalden).
+    await page.waitForFunction(() => {
+      const f = (window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed || {};
+      return (f.publicSpace || []).includes("parkeerverboden") && (f.publicSpace || []).includes("omleidingen") && (f.terraces || []).includes("terrassen");
+    }, null, { timeout: 20000 });
     const leeg = page.locator(".pv-results .pv-empty");
     await leeg.waitFor();
+    await page.waitForFunction(() => /Voor deze straat is niets gevonden\./.test(document.querySelector(".pv-results .pv-empty")?.innerText || ""), null, { timeout: 10000 })
+      .catch(async () => assert.fail(`de lege staat zegt "${await leeg.innerText()}"`));
     const tekst = await leeg.innerText();
     assert.match(tekst, /Niets gevonden in Peterseliestraat/);
-    assert.ok(tekst.includes(melding), tekst);
-    // Een laag laadde niet: alleen iets zeggen over wat wel geladen is.
-    assert.match(tekst, /In wat wel geladen is, staat niets voor deze straat\./);
+    // Een laag laadde niet: niet beweren dat er niets op de agenda staat, en ook niet zeggen dat iets niet laadde.
     assert.doesNotMatch(tekst, /Er staat niets op de agenda/);
-    // Op een gsm valt de melding binnen het eerste scherm: boven de tegels.
-    const melder = await page.locator(".pv-place .pv-place-failed").boundingBox();
-    const tegels = await page.locator(".pv-place .pv-stats").boundingBox();
-    assert.ok(melder && tegels && melder.y < tegels.y, "melding staat boven de tegels");
+    assert.doesNotMatch(tekst, /geladen|laadde|onvolledig|mislukt|lukte|⚠️/);
     assert.doesNotMatch(tekst, /gekozen soorten/);
+    assert.equal(await page.locator(".pv-place-failed, .pv-empty-warn").count(), 0, "geen melding bovenaan of in de lege staat");
+    const plek = await page.locator(".pv-place").innerText();
+    assert.doesNotMatch(plek, /konden nu niet|onvolledig|niet geladen|lukte nu niet|kon nu niet/, plek);
+    // De weekzin: nooit "rustig" als een laag niet laadde, en geen reden.
+    assert.doesNotMatch(await page.locator(".pv-dezeweek").innerText(), /rustig|geladen|laadde/i);
     assert.deepEqual(errors, []);
     await context.close();
   });
