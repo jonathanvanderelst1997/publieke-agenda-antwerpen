@@ -115,7 +115,10 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
   return { stats, handle };
 }
 
-async function routeSources(page, street, { asign = null, work: withWork = true, werkStukken = 1, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
+// `plat`: bronnen die niet antwoorden (zoals bij een storing): "alles" (alles buiten de lokale site), "gipod" (werken en
+// hinder), "hinder" (alleen HINDER_PUNT), "asign" (alle A-Sign-lagen) en "awv" (het AWV-bestand van de verversing).
+async function routeSources(page, street, { asign = null, work: withWork = true, werkStukken = 1, assen = [], vergunningen = [], evenement = null, aanvraag = true, plat = [] } = {}) {
+  if (plat.includes("awv")) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/awv-werf-supplement.json", (route) => route.abort());
   // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
   // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
   await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
@@ -146,6 +149,7 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const afbraak = evenement?.afbraakTot && { attributes: { ...parcours.attributes, faseId: "F2", innameId: "I2", faseNaam: "Afbraak", innameTypeNaam: "Parkeerverbod in Straat", faseStartDatum: fase, faseEindDatum: Date.parse(`${evenement.afbraakTot}T08:00:00Z`) }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
+    if (plat.includes("alles") || (plat.includes("gipod") && url.includes("/GIPOD/")) || (plat.includes("hinder") && url.includes("/collections/HINDER_PUNT/")) || (plat.includes("asign") && url.includes("/P_ASign/"))) return route.abort();
     if (url.includes("/collections/INNAME_PUNT/")) return route.fulfill(json(withWork ? work : { type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
@@ -203,7 +207,7 @@ function weekendFeed(dag, { uitstappen = 0, markten = [], langePlaats = false } 
   ]);
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null, plat = [] } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
@@ -221,7 +225,7 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
   page.on("requestfailed", (request) => { if (/geodata\.antwerpen\.be/.test(request.url())) geodataFouten.push(request.url()); });
-  await routeSources(page, street || pickStreet.fallback, { asign, work, werkStukken, assen, vergunningen, evenement, aanvraag });
+  await routeSources(page, street || pickStreet.fallback, { asign, work, werkStukken, assen, vergunningen, evenement, aanvraag, plat });
   // Een trage kaart (`kaartLaat`): de module van de buurtkaart komt pas als het plekoverzicht zijn lijst al
   // toonde (en de kaart dus al gemeld had hoeveel erin staat).
   if (kaartLaat) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/neighborhood-map.js", async (route) => {
@@ -1647,6 +1651,77 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.deepEqual(errors, []);
     await context.close();
   });
+  // Nakijkronde 2 (18-10-2026), Chromium op 1280 en 390 px: faalde een bron, dan toonden de lijsten van het district een
+  // verzonnen 0 ("0 maatregelen", "0 parkeerverboden · 0 innames · 0 werfzones/omleidingen", "0 met gekoppelde hinder ·
+  // 0 met A-Sign supplement · 0 met AWV-werfdata") en zei de A-Sign-lijst "A-Sign, geladen …". En een laag die niet laadde,
+  // "laadde" eeuwig: "werken en hinder worden geladen…" onder de kaart, "Live werken en maatregelen worden nog
+  // opgehaald." en "0 straten met actuele of geplande informatie" bij "Alles per straat".
+  const lijstTekst = (page) => page.evaluate(() => {
+    const t = (sel) => (document.querySelector(sel)?.textContent || "").trim();
+    return {
+      space: [t("#public-space-live [data-space-count]"), t("#public-space-live [data-space-meta]"), t("#public-space-live [data-space-note]")],
+      works: [t("#works-live [data-works-count]"), t("#works-live [data-works-meta]"), t("#works-live [data-works-note]")],
+      straat: [t("#street-overview [data-street-summary]"), t("#street-overview [data-street-note]")],
+      radar: t("#street-overview .district-radar-stats"),
+      straatVerborgen: Boolean(document.querySelector("#street-overview")?.hidden),
+    };
+  });
+  const lijstenInBeeld = async (page) => {
+    await page.click(".pv-more > summary");
+    for (const sel of ["#street-overview", "#works-live", "#public-space-live"]) await page.locator(sel).scrollIntoViewIfNeeded().catch(() => {});
+  };
+  const wachtOpMislukt = (page, lagen) => page.waitForFunction((l) => l.every((naam) => ((window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed?.[naam] || []).length), lagen, { timeout: 20000 });
+  await t.test("een bron faalt: de lijsten van het district tonen geen verzonnen 0 en geen 'geladen', en niets 'laadt' eeuwig (1280 en 390 px)", async () => {
+    const LAADT = /worden geladen…|worden nog opgehaald|wordt geladen/;
+    for (const [width, height] of [[1280, 900], [390, 844]]) {
+      for (const [naam, plat] of [["alles plat", ["alles"]], ["GIPOD en A-Sign plat, straatas en grens werken", ["gipod", "asign"]]]) {
+        const wat = `${naam}, ${width} px`;
+        const { page, context, errors } = await openPage(baseUrl, { width, height, plat, aanvraag: false, feed: proefFeed(today, []) });
+        await lijstenInBeeld(page);
+        await wachtOpMislukt(page, ["works", "publicSpace"]);
+        if (!plat.includes("alles")) await page.waitForFunction(() => /^Gebundeld|^Straatas geladen/.test(document.querySelector("#street-overview [data-street-note]")?.textContent || ""), null, { timeout: 15000 });
+        await page.waitForTimeout(300);
+        const tekst = await lijstTekst(page);
+        t.diagnostic(`${wat}: ${JSON.stringify(tekst)}`);
+        // Geen enkele A-Sign-laag laadde en GIPOD niet: de lijsten zijn leeg, zonder 0, zonder "geladen" en zonder notitie.
+        assert.deepEqual(tekst.space, ["", "", ""], `${wat}: publieke ruimte`);
+        assert.deepEqual(tekst.works, ["", "", ""], `${wat}: werken`);
+        if (plat.includes("alles")) assert.equal(tekst.straatVerborgen, true, `${wat}: zonder straatas valt "Alles per straat" weg`);
+        else {
+          // De straatas laadde: geen "worden nog opgehaald", geen "0 straten" en geen "0 straten met ernstige hinder".
+          assert.equal(tekst.straat[0], "", `${wat}: ${tekst.straat[0]}`);
+          assert.doesNotMatch(tekst.straat[1], LAADT, wat);
+          assert.match(tekst.radar, /—straten met ernstige hinder/, wat);
+        }
+        assert.deepEqual(errors, [], wat);
+        await context.close();
+      }
+      // Een postcode met alle soorten aan (ook werken): de zin onder de kaart blijft niet op "worden geladen…" staan.
+      const { page, context, errors } = await openPage(baseUrl, { width, height, plat: ["alles"], query: "?plek=2000" });
+      await page.locator(".buurt-status").waitFor({ timeout: 15000 });
+      await wachtOpMislukt(page, ["works", "publicSpace"]);
+      await page.waitForFunction(() => !/worden geladen/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 5000 })
+        .catch(async () => assert.fail(`${width} px: de kaart zegt "${await page.locator(".buurt-status").textContent()}"`));
+      const zin = await page.locator(".buurt-status").textContent();
+      assert.match(zin, /in de lijst/, zin);
+      assert.doesNotMatch(zin, /\b0 werken|geladen|laadt|faalt|mislukt/, zin);
+      assert.deepEqual(errors, [], `?plek=2000, ${width} px`);
+      await context.close();
+    }
+    // De werkenlijst met HINDER_PUNT, A-Sign en de AWV-werfdata plat (GIPOD zelf werkt): de aanvullingen tellen niet als 0.
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, plat: ["hinder", "asign", "awv"], aanvraag: false, feed: proefFeed(today, []), query: "?soort=werken" });
+    await lijstenInBeeld(page);
+    await page.waitForFunction(() => /^Live GIPOD/.test(document.querySelector("#works-live [data-works-note]")?.textContent || ""), null, { timeout: 20000 });
+    const { works } = await lijstTekst(page);
+    t.diagnostic(`werkenlijst, aanvullingen plat: ${JSON.stringify(works)}`);
+    assert.equal(works[0], "1 werken");
+    assert.match(works[1], /^0 in uitvoering · 1 gepland · /);
+    assert.doesNotMatch(works[1], /met gekoppelde hinder|met A-Sign supplement|met AWV-werfdata/, works[1]);
+    assert.doesNotMatch(works.join(" "), /geladen|faalt|mislukt|niet beschikbaar/, works.join(" "));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Herstelplan O2: de knoppen +250 m tot +1 km toonden nooit een parcours of een vergunning (die hebben
   // geen eigen punt). Nu telt een item mee als zijn eigen vorm binnen de straal ligt. Nakijkbevinding 3:
   // niet zijn straat; een vergunning 900 m verder op een lange straat die tot 200 m komt, blijft weg.

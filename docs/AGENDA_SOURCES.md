@@ -142,7 +142,16 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   zonder "0" en zonder notitie; laadt een aanvulling niet (de districtsgrens, de GIPOD-hinder, A-Sign, de
   AWV-werfdata, of die is ouder dan 3 dagen), dan valt haar zin weg en blijft de rest. Vroeger o.a. "De AWV-werfdata
   is ouder dan 3 dagen …", "… kon nu niet geladen worden", "Hinderbron tijdelijk niet geladen", "Werken tijdelijk
-  niet geladen", "Terrassen niet geladen", "Omgevingsdossiers tijdelijk niet geladen";
+  niet geladen", "Terrassen niet geladen", "Omgevingsdossiers tijdelijk niet geladen". Ook de regel met de
+  aantallen telt alleen wat laadde (`publiekeRuimteKop` in `site/public-space-live.js`, `werkenMeta` in
+  `site/works-live.js`): geen "0 parkeerverboden · 0 innames" voor een A-Sign-laag die niet laadde, geen "0 met
+  gekoppelde hinder", "0 met A-Sign supplement" of "0 met AWV-werfdata" voor een aanvulling die niet laadde, en
+  zonder enige A-Sign-laag geen "0 maatregelen" en geen "A-Sign, geladen …";
+- een laag die niet laadde, "laadt" niet eeuwig: onder de buurtkaart staat dan geen "werken en hinder worden
+  geladen…" (`kaartStatusZin` in `site/neighborhood-map.js` kijkt ook naar `live.failed`), en bij "Alles per
+  straat" op de voorpagina geen "Live werken en maatregelen worden nog opgehaald." en geen "0 straten met actuele
+  of geplande informatie" (`overzichtTekst` in `site/street-overview.js`); de district-radar toont dan "—" in
+  plaats van "0 straten met ernstige hinder";
 - een werkkaart (`site/kaart-uitleg.js`) zegt niet meer "gevolgen voor het verkeer nu niet opgehaald" of "de
   straat kon nu niet bepaald worden"; de historiek van een werk (`site/werk-historiek.js`) toont niets als het
   archief niet laadt of onbruikbaar is;

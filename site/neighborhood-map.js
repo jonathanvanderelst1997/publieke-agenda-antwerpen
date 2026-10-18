@@ -149,7 +149,9 @@ export function werkKaarten(werken = [], werfPerStuk = null) {
 // place-core.js). Verschilt dat van het aantal regels, dan zegt de zin beide, in de eenheid van het getal boven de lijst
 // ("N items uit officiële bronnen"): anders stonden er twee getallen voor dezelfde lijst (nakijkronde 13 oktober 2026:
 // "49 items uit officiële bronnen" boven de lijst en "21 in de lijst" onder de kaart).
-export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, metPlek = false, lijstAantal = null, lijstItems = null } = {}) {
+// `werkenMislukt`: de werken laadden niet (live.failed). Dan geen "werken en hinder worden geladen…" (dat bleef anders
+// eeuwig staan) en geen verzonnen "0 werken en hinder", zonder te zeggen dat iets faalt (besluit van 18-10-2026).
+export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, werkenMislukt = false, metPlek = false, lijstAantal = null, lijstItems = null } = {}) {
   const metWerken = werkenAan && werkenGeladen;
   const works = Number.isInteger(werkenGetekend) ? werkenGetekend : werkKaarten(werken, werfPerStuk);
   const totaal = Number.isInteger(opKaart) ? opKaart : mapped + (metWerken ? works : 0) + ander;
@@ -163,7 +165,7 @@ export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [
       ...(metWerken || (Number.isInteger(werkenGetekend) && works > 0) ? [`${works} werken en hinder`] : []),
       ...(ander > 0 ? [ander === 1 ? "1 evenement of vergunning" : `${ander} evenementen en vergunningen`] : []),
     ];
-  if (werkenAan && !werkenGeladen) parts.push("werken en hinder worden geladen…");
+  if (werkenAan && !werkenGeladen && !werkenMislukt) parts.push("werken en hinder worden geladen…");
   // Wat zonder vaste plek is, telt (zoals "op de kaart" en de legenda) wat er hier is, niet wat de lijst nu toont:
   // "hier", zodat het niet leest als een deel van "X in de lijst".
   if (without) parts.push(`${without} hier zonder vaste plek`);
@@ -706,7 +708,8 @@ export async function mountNeighborhoodMap(view) {
     mapEl.dataset.opKaart = String(lagen.opKaart);
     const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : view.area.postcode ? `postcode ${view.area.postcode}` : "district Antwerpen";
     const p = lagen.perSoort;
-    laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
+    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
+    laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(live.works), werkenMislukt: !Array.isArray(live.works) && Boolean(live.failed?.works?.length) };
     zetStatus();
   }
   // De zin onder de kaart (voor schermlezers ook de melding: aria-live). "Geen plek" staat daarnaast zichtbaar in

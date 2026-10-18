@@ -297,3 +297,95 @@ test("buurtinfo en district-radar: de laatste goede stand, ook als een laag niet
     assert.deepEqual(radarRegels(r, null), { aantal: "—", noot: "", delta: "" });
   }
 });
+
+// ---- Nakijkronde 2 (18-10-2026): geen verzonnen 0, geen "geladen" en geen eeuwige "wordt geladen" ----
+// Faalde een bron, dan toonden de lijsten van het district een 0 die niemand telde ("0 maatregelen", "0
+// parkeerverboden · 0 innames · 0 werfzones/omleidingen", "0 met gekoppelde hinder · 0 met A-Sign supplement · 0 met
+// AWV-werfdata"), en zei de A-Sign-lijst "A-Sign, geladen …" ook als geen enkele A-Sign-laag laadde. Dat spreekt "laadt
+// een lijst niet, dan is ze leeg, zonder 0 en zonder notitie" tegen (docs/AGENDA_SOURCES.md).
+test("lijst publieke ruimte: een A-Sign-laag die niet laadde, telt niet als 0, en zonder A-Sign is de lijst leeg", async () => {
+  const { publiekeRuimteKop } = await import("../site/public-space-live.js");
+  const moment = "18 okt 2026, 10:00";
+  const items = [{ kind: "parking" }, { kind: "parking" }, { kind: "iod" }, { kind: "sgw" }];
+  const GELADEN = "A-Sign, geladen 18 okt 2026, 10:00. Alleen goedgekeurde/bevestigde dossiers worden getoond.";
+  const GRENS = " IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.";
+  // Alles laadde: zoals altijd, ook met een echte 0.
+  assert.deepEqual(publiekeRuimteKop(items, { fail: [], district: true, moment }), { leeg: false, meta: "2 parkeerverboden · 1 innames · 1 werfzones/omleidingen", note: GELADEN + GRENS });
+  assert.equal(publiekeRuimteKop([], { fail: [], district: true, moment }).meta, "0 parkeerverboden · 0 innames · 0 werfzones/omleidingen", "een echte 0 blijft");
+  // Geen enkele A-Sign-laag laadde (GIPOD en A-Sign plat, straatas en grens werken): leeg, geen 0, geen "geladen".
+  const ALLE_ASIGN = ["parking", "iod22", "iod23", "sgw47", "sgw48"];
+  for (const fail of [ALLE_ASIGN, [...ALLE_ASIGN, "district", "streets"]])
+    assert.deepEqual(publiekeRuimteKop([], { fail, district: !fail.includes("district"), moment }), { leeg: true, meta: "", note: "" }, fail.join());
+  // De verwerking liep mis: ook leeg.
+  assert.deepEqual(publiekeRuimteKop([], { fail: [], district: true, moment, mislukt: true }), { leeg: true, meta: "", note: "" });
+  // Een deel laadde: alleen de soorten die volledig laadden, tellen; de rest valt weg, zonder melding.
+  assert.deepEqual(publiekeRuimteKop(items, { fail: ["parking"], district: true, moment }), { leeg: false, meta: "1 innames · 1 werfzones/omleidingen", note: GELADEN + GRENS });
+  assert.equal(publiekeRuimteKop(items, { fail: ["iod23"], district: true, moment }).meta, "2 parkeerverboden · 1 werfzones/omleidingen", "een halve laag telt niet als volledig");
+  // Zonder grens zijn innames en werfzones verborgen: geen "0 innames", en geen zin over de grens.
+  assert.deepEqual(publiekeRuimteKop(items.filter((i) => i.kind === "parking"), { fail: ["district"], district: false, moment }), { leeg: false, meta: "2 parkeerverboden", note: GELADEN });
+  assert.deepEqual(publiekeRuimteKop([], { fail: ["parking", "district"], district: false, moment }), { leeg: true, meta: "", note: "" });
+  // Alleen parkeerverboden: geen zin over IOD en SGW.
+  assert.equal(publiekeRuimteKop(items, { fail: ["iod22", "sgw48"], district: true, moment }).note, GELADEN);
+  // load() gebruikt dit, en de teller boven de lijst blijft dan leeg.
+  const code = site("public-space-live.js");
+  assert.match(code, /=publiekeRuimteKop\(state\.items,\{fail,district:Boolean\(districtGeometry\),moment:/);
+  assert.match(code, /count\.textContent=state\.leeg\?"":`\$\{items\.length\} maatregelen`/);
+  assert.doesNotMatch(code, /meta\.textContent=`\$\{s\.parking\} parkeerverboden/);
+});
+
+test("werkenlijst: een aanvulling die niet laadde (hinder, A-Sign, AWV), telt niet als '0 met …'", async () => {
+  const { werkenMeta } = await import("../site/works-live.js");
+  const werk = (extra) => ({ status: "In uitvoering", boundaryConfidence: "exact_snapshot", ...extra });
+  const items = [werk({ hindrance: { consequences: [] }, aSignSupplement: {}, awvSupplement: {} }), werk({ status: "Concreet gepland" })];
+  const alles = { hinderOk: true, aSignOk: true, awvOk: true };
+  assert.equal(werkenMeta(items, alles), "1 in uitvoering · 1 gepland · 1 met gekoppelde hinder · 1 met A-Sign supplement · 1 met AWV-werfdata · 2 exact grensbevestigd");
+  assert.equal(werkenMeta([werk({})], alles), "1 in uitvoering · 0 gepland · 0 met gekoppelde hinder · 0 met A-Sign supplement · 0 met AWV-werfdata · 1 exact grensbevestigd", "een echte 0 blijft");
+  // HINDER_PUNT, A-Sign en de AWV-werfdata plat (of die ouder dan 3 dagen): die delen vallen weg.
+  const plat = werkenMeta([werk({ status: "Concreet gepland" })], { hinderOk: false, aSignOk: false, awvOk: false });
+  assert.equal(plat, "0 in uitvoering · 1 gepland · 1 exact grensbevestigd");
+  assert.doesNotMatch(plat, /met gekoppelde hinder|met A-Sign supplement|met AWV-werfdata/);
+  assert.equal(werkenMeta(items, { ...alles, aSignOk: false }), "1 in uitvoering · 1 gepland · 1 met gekoppelde hinder · 1 met AWV-werfdata · 2 exact grensbevestigd");
+  // Nieuwe punten en hinder zonder gepubliceerd werk, zoals voorheen.
+  assert.equal(werkenMeta([werk({ boundaryConfidence: "point_inside_new" })], { ...alles, losse: [{}, {}] }), "1 in uitvoering · 0 gepland · 0 met gekoppelde hinder · 0 met A-Sign supplement · 0 met AWV-werfdata · 0 exact grensbevestigd · 1 nieuw sinds snapshot · 2 hinder zonder gepubliceerd werk");
+  const code = site("works-live.js");
+  assert.match(code, /meta\.textContent=werkenMeta\(state\.items,\{hinderOk:hinderResult\.ok,aSignOk:aSignResult\.ok,awvOk:awvResult\.ok,losse:state\.losse\}\)/);
+});
+
+// Bij een laag die niet laadde, bleef een "wordt geladen"-zin eeuwig staan: niet letterlijk een foutmelding, wel onwaar,
+// en zo zag een bezoeker toch dat het vastloopt. Onder de buurtkaart ("werken en hinder worden geladen…": kaartStatusZin
+// keek alleen of live.works er was, niet naar live.failed) en bij "Alles per straat" op de voorpagina ("Straatas
+// geladen. Live werken en maatregelen worden nog opgehaald." en "0 straten met actuele of geplande informatie").
+test("een laag die niet laadde, laadt niet eeuwig: de zin onder de kaart en 'Alles per straat'", async () => {
+  const { kaartStatusZin } = await import("../site/neighborhood-map.js");
+  const basis = { where: "postcode 2000", mapped: 25, werkenGetekend: 0, opKaart: 25, without: 14, werkenAan: true, metPlek: true, lijstAantal: 41, lijstItems: 46 };
+  assert.equal(kaartStatusZin({ ...basis, werkenGeladen: false }), "41 regels in de lijst (samen 46 items), 25 op de kaart in postcode 2000 · werken en hinder worden geladen… · 14 hier zonder vaste plek.", "nog bezig: zoals voorheen");
+  const mislukt = kaartStatusZin({ ...basis, werkenGeladen: false, werkenMislukt: true });
+  assert.equal(mislukt, "41 regels in de lijst (samen 46 items), 25 op de kaart in postcode 2000 · 14 hier zonder vaste plek.");
+  // Zonder lijst (geen plek): ook geen verzonnen "0 werken en hinder".
+  const zonderPlek = { where: "district Antwerpen", mapped: 12, werkenGetekend: 0, werkenAan: true, metPlek: false };
+  assert.equal(kaartStatusZin({ ...zonderPlek, werkenGeladen: false, werkenMislukt: true }), "12 agendapunten op de kaart in district Antwerpen.");
+  assert.equal(kaartStatusZin({ ...zonderPlek, werkenGeladen: true }), "12 agendapunten op de kaart in district Antwerpen · 0 werken en hinder.", "een echte 0 blijft");
+  // Wat de stand van de ochtend tekende, telt wel (werkenGetekend > 0).
+  assert.equal(kaartStatusZin({ ...zonderPlek, werkenGetekend: 3, werkenGeladen: false, werkenMislukt: true }), "12 agendapunten op de kaart in district Antwerpen · 3 werken en hinder.");
+  // drawAll leest de mislukte laag uit live.failed (intern), zoals de plekpagina.
+  assert.match(site("neighborhood-map.js"), /werkenMislukt: !Array\.isArray\(live\.works\) && Boolean\(live\.failed\?\.works\?\.length\)/);
+
+  const { overzichtTekst } = await import("../site/street-overview.js");
+  const LADEN = "Officiële straatas wordt geladen…", OPHALEN = "Straatas geladen. Live werken en maatregelen worden nog opgehaald.";
+  const GEBUNDELD = "Gebundeld op officiële Antwerpse straatnamen. Alleen betrouwbare straatmatches worden opgenomen.";
+  assert.deepEqual(overzichtTekst({ straatas: false, straten: 0, lagen: {} }), { summary: "0 straten met actuele of geplande informatie", note: LADEN });
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 0, lagen: {} }), { summary: "0 straten met actuele of geplande informatie", note: OPHALEN }, "nog bezig: zoals voorheen");
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 7, lagen: { works: "ok", publicSpace: "" } }), { summary: "7 straten met actuele of geplande informatie", note: GEBUNDELD });
+  // GIPOD en A-Sign plat: geen "worden nog opgehaald", en geen verzonnen "0 straten".
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 0, lagen: { works: "mislukt", publicSpace: "mislukt" } }), { summary: "", note: GEBUNDELD });
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 0, lagen: { works: "mislukt", publicSpace: "" } }), { summary: "", note: OPHALEN }, "A-Sign laadt nog");
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 3, lagen: { works: "mislukt", publicSpace: "mislukt" } }), { summary: "3 straten met actuele of geplande informatie", note: GEBUNDELD }, "wat er wel is (agenda), telt");
+  assert.deepEqual(overzichtTekst({ straatas: true, straten: 0, lagen: { works: "ok", publicSpace: "ok" } }), { summary: "0 straten met actuele of geplande informatie", note: GEBUNDELD }, "een echte 0 blijft");
+  // De radar telt geen "0 straten met ernstige hinder" als de werken niet laadden.
+  const code = site("street-overview.js");
+  assert.match(code, /const tekst=overzichtTekst\(\{straatas:Boolean\(state\.streetIndex\),straten:groups\.length,lagen:state\.lagen\}\)/);
+  assert.match(code, /if\(Object\.hasOwn\(state\.lagen,event\.detail\?\.name\)\)state\.lagen\[event\.detail\.name\]=laagStand\(event\.detail\)/);
+  assert.match(code, /const laagStand=detail=>detail\?\.failed\?\.length\?"mislukt":Array\.isArray\(detail\?\.items\)\?"ok":""/, "ook een laag die deels laadde (A-Sign plat, items [])");
+  assert.match(code, /<strong>\$\{tel\(r\.severeHindranceStreets\)\}<\/strong>/);
+  assert.match(code, /const onvolledig=state\.lagen\.works==="mislukt"\|\|state\.lagen\.publicSpace==="mislukt",tel=n=>onvolledig\?"—":String\(n\)/);
+});
