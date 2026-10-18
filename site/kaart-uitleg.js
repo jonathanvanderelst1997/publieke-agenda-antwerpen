@@ -16,7 +16,7 @@ import { gipodLink } from "./gipod-bron.js";
 import { geldigeHuisnummers, huisnummerBereik, huisnummersUitTekst } from "./huisnummers.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
 import { sleutel as straatSleutel, witteTekst } from "./witte-lijst.js";
-import { INNAME_LIFT, INNAME_WEG, VERHUIS, innameZonderVerhuis, werkZonderVerhuis, zonderVerhuis } from "./works-core.js";
+import { INNAME_LIFT, VERHUIS, innameZonderVerhuis, werkZonderVerhuis, zonderVerhuis } from "./works-core.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
 export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
@@ -129,10 +129,6 @@ const SOORTEN_WERK = [
   // "Renovatie" alleen bij een gebouw: "Renovatie Havenwegen" is een weg, geen bouwwerf.
   // "Onderbouw deel 2" en "bovenbouw" zijn de fasen van een gebouw in opbouw (stratentoets van 12 oktober 2026).
   [/ruwbouw|\b(?:onder|boven)bouw\b|nieuwbouw|appartement|verbouwing|(?:gevel|dak|woning|gebouw)renovatie|renovatie (?:van )?(?:de |het |een )?(?:woning|gebouw|pand|huis|school|kerk|gevel)|bouwwerf|bouwproject/i, "Bouwwerf"],
-  // Een verhuis is privé (besluit van 18 oktober 2026, site/works-core.js): het werk heet neutraal "Inname van de openbare
-  // weg". GIPOD-tekst met "verhuis" is bij de ingang al die vaste tekst (zonderVerhuis); het woord zelf staat hier nog voor
-  // een tekst uit een oudere verversing.
-  [/\bverhui[sz]|^inname van de openbare weg$/i, INNAME_WEG],
   [/\bcontainers?\b/i, "Container"],
   [/\bsnoei|\bboom\b|\bbomen\b|groenaanleg|beplanting/i, "Groenwerken"],
   // Woorden die beheerders vaak alleen in de fasenaam zetten (stratentoets van 12 oktober 2026): "Bijkomende
@@ -244,14 +240,6 @@ export function soortVanWerk({ omschrijving = "", fasen = [], occupancyTypes = [
     const ander = soortWerk(bronnen, { zonder: [HOOGTEWERKER] });
     if (ander.soort) tekst = ander; else { hoogtewerker = tekst; tekst = { soort: "", bron: "" }; }
   }
-  // "Inname van de openbare weg" (de vaste tekst voor een tekst met "verhuis", site/works-core.js) zegt alleen dat de weg
-  // ingenomen wordt: een ander woord in de tekst of de soort inname van GIPOD ("Lift/levering": "Inname voor een lift of
-  // levering") gaat voor. Pas als er niets anders is, blijft ze staan.
-  let innameWeg = null;
-  if (tekst.soort === INNAME_WEG) {
-    const ander = soortWerk(bronnen, { zonder: [INNAME_WEG, HOOGTEWERKER] });
-    if (ander.soort) tekst = ander; else { innameWeg = tekst; tekst = { soort: "", bron: "" }; }
-  }
   const inname = nettenUitInname(occupancyTypes, eigenaar);
   const netten = inname.length ? inname : nettenUitTekst([omschrijving, ...fasen]);
   const metInname = (bron) => (inname.length ? `${bron} en de soort inname in GIPOD` : bron);
@@ -291,8 +279,7 @@ export function soortVanWerk({ omschrijving = "", fasen = [], occupancyTypes = [
   for (const [type, soort] of INNAME_SOORT) if (types.includes(type)) return { soort, bron: "soort inname in GIPOD" };
   if (grondwerk.includes("klantaansluiting") && !netwerk && netten.length) return { soort: aansluitingSoort(netten), bron: "soort grondwerk in GIPOD" };
   if (hoogtewerker) return hoogtewerker;
-  const uitGrondwerk = soortWerk(grondwerk.map((t) => ({ tekst: t, bron: "soort grondwerk in GIPOD" })), { zonder: netwerk ? [AANSLUITING] : [] });
-  return uitGrondwerk.soort || !innameWeg ? uitGrondwerk : innameWeg;
+  return soortWerk(grondwerk.map((t) => ({ tekst: t, bron: "soort grondwerk in GIPOD" })), { zonder: netwerk ? [AANSLUITING] : [] });
 }
 
 // ---------- gevolgen ----------
@@ -397,12 +384,11 @@ const zonderDossiernummers = (t) => t.replace(/(?<![\p{L}\d])\d{7,}(?![\p{L}\d])
 const sleutel = (v) => clean(v, 300).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 // De tekst van de beheerder zoals GIPOD hem geeft, voor wie hem wil nalezen, met de huisnummers zoals hij ze schreef (de
 // plaats mag exact: besluit van de eigenaar van 18 oktober 2026, site/works-core.js). Zonder naam na een dossiercode;
-// leeg als er niets meer staat dan het adres op de kaart, als er contactgegevens in staan, of als het de vaste tekst is
-// die een tekst met "verhuis" vervangt (INNAME_WEG: dat zijn niet de woorden van de beheerder). Noemt de beheerder een
-// andere straat dan de kaart, dan blijft de tekst staan.
+// leeg als er niets meer staat dan het adres op de kaart, als er contactgegevens in staan, of als er "verhuis" in staat
+// (vangnet: zonderVerhuis, zoals bij de ingang). Noemt de beheerder een andere straat dan de kaart, dan blijft de tekst staan.
 export function beheerderTekst(tekst, { straten = [] } = {}) {
   const t = zonderNamen(zonderVerhuis(tekst));
-  if (!t || t === INNAME_WEG || CONTACT.test(t)) return "";
+  if (!t || CONTACT.test(t)) return "";
   return heeftInhoud(t, straten) ? t : "";
 }
 // Staat er meer dan het adres (postcode, gemeente, de straten van de kaart, nummers)?
@@ -486,7 +472,7 @@ export function faseBuitenDistrict(naam) {
 // zoals de beheerder het schreef (ook één nummer, en een nummer met een code eraan: "PROEFSTRAAT 1DN02" geeft "nr. 1DN02"),
 // anders dat van het adressenregister; bij een aansluiting, een container of een lift net zo goed als bij een ander werk.
 // Niets dat over een persoon of zijn huishouden vertelt: geen naam na een dossiercode, geen contactgegevens, en nooit
-// "verhuis" (een tekst met dat woord is de vaste tekst INNAME_WEG, zonderVerhuis).
+// "verhuis" (een tekst met dat woord telt als niet gegeven, zonderVerhuis in site/works-core.js).
 export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } = {}) {
   const omschrijving = zonderNamen(bruikbareOmschrijving(zonderVerhuis(werk.title)));
   const fasen = (werk.hindrance?.phases || [])
@@ -548,14 +534,14 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     hinderBekend: werk.hindrance ? true : werk.hindranceSourceLoaded === false ? null : false,
   };
 }
-// Feiten van een werk zonder "verhuis", ook uit een oudere verversing (kaart-uitleg.json had "Verhuis" en "Verhuislift of
-// levering" als soort en "verhuis" als naam van een fase): dezelfde regel als bij de ingang (werkZonderVerhuis in
-// site/works-core.js). Zoals soortVanWerk nu: de soort inname van GIPOD gaat voor op "Inname van de openbare weg" uit de
-// tekst. Zonder dat woord blijft het hetzelfde object.
+// Feiten van een werk zonder "verhuis", ook uit een oudere verversing (kaart-uitleg.json had dat woord als soort, als
+// soort inname en als naam van een fase): dezelfde regel als bij de ingang (werkZonderVerhuis in site/works-core.js), dus
+// alsof de tekst er niet was. Valt de soort zo weg, dan is de soort inname van GIPOD de soort, zoals soortVanWerk ze
+// kiest als de tekst niets zegt. Zonder dat woord blijft het hetzelfde object.
 export function feitenZonderVerhuis(f) {
   if (!f || typeof f !== "object" || !VERHUIS.test(JSON.stringify(f))) return f;
   const uit = werkZonderVerhuis(f);
-  if (uit.soort !== INNAME_WEG || !uit.innameSoort) return uit;
+  if (!f.soort || uit.soort || !uit.innameSoort) return uit;
   const { innameSoort, ...rest } = uit;
   return { ...rest, soort: innameSoort, soortBron: "soort inname in GIPOD" };
 }

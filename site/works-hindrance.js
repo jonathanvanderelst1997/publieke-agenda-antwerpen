@@ -31,7 +31,7 @@ export function collectHindrance(features=[]){
       const hindranceId=Number(p.HindranceGipodId);
       if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
       // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt. Met "verhuis" erin
-      // wordt ze de vaste, neutrale tekst (zonderVerhuis in site/works-core.js: nooit "verhuis" bij een werk).
+      // telt ze als een fase zonder omschrijving (zonderVerhuis in site/works-core.js: nooit "verhuis" bij een werk).
       const description=zonderVerhuis(gipodTekst(p.HindranceDescription).slice(0,160));
       if(description){const key=`${description}|${p.HindranceStart||""}|${p.HindranceEnd||""}`;const phase=current.phases.get(key)||{description,start:p.HindranceStart||"",end:p.HindranceEnd||"",consequences:new Set()};for(const consequence of consequences)phase.consequences.add(consequence);current.phases.set(key,phase)}
       byWork.set(gipodId,current);

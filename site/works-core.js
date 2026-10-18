@@ -17,15 +17,19 @@ export const gipodTekst=(value="")=>zonderToevoegingInTekst(normalizeText(value)
 // weg zoals voorheen. Dit is de ingang voor GIPOD (collectWorks, de hinderfasen in site/works-hindrance.js): de site, de
 // historiek, de straatbestanden en kaart-uitleg.json krijgen een werk zo binnen. werkZonderVerhuis past dezelfde regel
 // toe op wat al bewaard was (lib/historiek-privacy.mjs, feitenZonderVerhuis in site/kaart-uitleg.js).
-// - een tekst met "verhuis" (de omschrijving van een werk of van een hinderfase) wordt in zijn geheel de vaste,
-//   neutrale tekst INNAME_WEG: een naam, een reden of een ander adres dat erbij stond, valt zo mee weg;
-// - de soort inname "(Verhuis)lift/levering" (een vaste waarde van GIPOD) heet "Lift/levering", en een werk met die
-//   soort "Inname voor een lift of levering" (INNAME_LIFT); de soort die vroeger "Verhuis" heette, is INNAME_WEG;
+// Zo'n tekst laat geen eigen spoor na (nakijkronde van head 1ed84e65: een vaste vervangtekst stond alleen waar het woord
+// had gestaan, en wie deze code leest, kon dat terugrekenen):
+// - een tekst met "verhuis" (de omschrijving van een werk of van een hinderfase) telt als een tekst die de beheerder niet
+//   gaf: het werk krijgt de titel van een werk zonder omschrijving (GEEN_OMSCHRIJVING, zoals GIPOD een werk zonder
+//   Description geeft) en de fase is er niet, zoals een hinderfase zonder omschrijving; een naam, een reden of een ander
+//   adres dat erbij stond, valt zo mee weg;
+// - de vaste soort inname van GIPOD voor een lift of levering ("(Verhuis)lift/levering") heet "Lift/levering", en een werk
+//   met die soort INNAME_LIFT, zoals elk werk met die soort inname;
 // - een opdrachtgever met "verhuis" in zijn naam valt weg (zijn groep wordt "Andere").
 export const VERHUIS=/verhui[sz]/i;
-export const INNAME_WEG="Inname van de openbare weg";
+export const GEEN_OMSCHRIJVING="Werk in openbaar domein";
 export const INNAME_LIFT="Inname voor een lift of levering";
-export const zonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?INNAME_WEG:value);
+export const zonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?"":value);
 // "(Verhuis)lift/levering" wordt "Lift/levering", ook in een lijst ("Container;(Verhuis)lift/levering"). Een andere soort
 // met "verhuis" wordt "Andere" (zoals GIPOD een soort zonder naam noemt).
 export const innameZonderVerhuis=(value="")=>String(value??"").split(";").map(t=>{
@@ -33,10 +37,14 @@ export const innameZonderVerhuis=(value="")=>String(value??"").split(";").map(t=
   const zonder=t.replace(/\(\s*verhui[sz]\p{L}*\s*\)\s*/giu,"").trim();
   return !zonder||VERHUIS.test(zonder)?"Andere":zonder.charAt(0).toUpperCase()+zonder.slice(1);
 }).join(";");
-// Een soort (kaart-uitleg.json, een oudere verversing): "Verhuislift of levering" en "Verhuis" krijgen hun neutrale naam.
-export const soortZonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?(/lift|levering/i.test(value)?INNAME_LIFT:INNAME_WEG):value);
+// Een soort (kaart-uitleg.json, een oudere verversing): "Verhuislift of levering" (de vaste soort inname) is INNAME_LIFT;
+// een andere soort met dat woord is er niet (geen soort, zoals bij een werk waarvan de tekst niets zegt).
+export const soortZonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?(/lift|levering/i.test(value)?INNAME_LIFT:""):value);
 const INNAME_VELDEN=new Set(["occupancyTypes","workTypes"]);
 const SOORT_VELDEN=new Set(["soort","innameSoort"]);
+// Een lijst van fasen: de hinderfasen van een werk ("phases", met hun omschrijving) en de fasen in kaart-uitleg.json
+// ("fasen", met hun naam). Een fase met dat woord valt weg, zoals collectHindrance een fase zonder omschrijving weglaat.
+const FASE_TEKST=Object.freeze({phases:"description",fasen:"naam"});
 // Een werk (diep: de hinder en haar fasen, een wijziging in de historiek, de feiten in kaart-uitleg.json) zonder
 // "verhuis", per veld zoals hierboven. "inname" is de leesbare lijst van kaart-uitleg.json ("lift of levering").
 export function werkZonderVerhuis(waarde,sleutel=""){
@@ -44,13 +52,24 @@ export function werkZonderVerhuis(waarde,sleutel=""){
     if(!VERHUIS.test(waarde))return waarde;
     if(INNAME_VELDEN.has(sleutel))return innameZonderVerhuis(waarde);
     if(SOORT_VELDEN.has(sleutel))return soortZonderVerhuis(waarde);
-    if(sleutel==="inname")return /lift|levering/i.test(waarde)?"lift of levering":INNAME_WEG.toLowerCase();
-    if(sleutel==="owner"||sleutel==="opdrachtgever")return "";
+    if(sleutel==="inname")return /lift|levering/i.test(waarde)?"lift of levering":"";
     if(sleutel==="ownerGroup")return "Andere";
-    return INNAME_WEG;
+    if(sleutel==="title")return GEEN_OMSCHRIJVING;
+    return "";
   }
-  if(Array.isArray(waarde))return waarde.map(v=>werkZonderVerhuis(v,sleutel));
-  if(waarde&&typeof waarde==="object")return Object.fromEntries(Object.entries(waarde).map(([k,v])=>[k,werkZonderVerhuis(v,k)]));
+  if(Array.isArray(waarde)){
+    const veld=FASE_TEKST[sleutel];
+    const lijst=veld?waarde.filter(v=>!(v&&typeof v==="object"&&VERHUIS.test(String(v[veld]??"")))):waarde;
+    const uit=lijst.map(v=>werkZonderVerhuis(v,sleutel));
+    return sleutel==="inname"?uit.filter(Boolean):uit;
+  }
+  if(waarde&&typeof waarde==="object"){
+    const uit=Object.fromEntries(Object.entries(waarde).map(([k,v])=>[k,werkZonderVerhuis(v,k)]));
+    // Een soort die zo wegvalt, neemt haar bron mee; een soort inname zonder naam staat er niet.
+    if(typeof waarde.soort==="string"&&waarde.soort&&!uit.soort&&"soortBron" in uit)uit.soortBron="";
+    if("innameSoort" in uit&&!uit.innameSoort&&waarde.innameSoort)delete uit.innameSoort;
+    return uit;
+  }
   return waarde;
 }
 function pointOnSegment(point,a,b,e=1e-10){const[px,py]=point,[ax,ay]=a,[bx,by]=b;const c=(bx-ax)*(py-ay)-(by-ay)*(px-ax);if(Math.abs(c)>e)return false;return px>=Math.min(ax,bx)-e&&px<=Math.max(ax,bx)+e&&py>=Math.min(ay,by)-e&&py<=Math.max(ay,by)+e}
@@ -73,7 +92,7 @@ export function collectWorks(features=[],exactIds=new Set(),districtGeometry=nul
     const point=feature?.geometry?.coordinates;if(feature?.geometry?.type!=="Point"||!Array.isArray(point)||!point.slice(0,2).every(Number.isFinite))continue;
     const p=feature.properties||{},gipodId=Number(p.GipodId);if(!Number.isFinite(gipodId))continue;
     const exact=exactIds.has(gipodId),inside=districtGeometry?pointInGeometry(point,districtGeometry):false;if(!exact&&!inside)continue;
-    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:zonderVerhuis(gipodTekst(p.Description))||"Werk in openbaar domein",owner:werkZonderVerhuis(normalizeText(p.Owner),"owner"),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
+    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:zonderVerhuis(gipodTekst(p.Description))||GEEN_OMSCHRIJVING,owner:werkZonderVerhuis(normalizeText(p.Owner),"owner"),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
     cur.recordCount+=1;if(!cur.dossier)cur.dossier=werfDossier(p.Reference);cur.start=earlier(cur.start,p.Start||"");cur.end=later(cur.end,p.End||"");cur.lastModified=later(cur.lastModified,p.LastModifiedOn||"");if(p.Status==="In uitvoering")cur.status="In uitvoering";if(p.PublicDomainOccupancyTypes)cur.occupancyTypes.add(innameZonderVerhuis(normalizeText(p.PublicDomainOccupancyTypes)));if(p.GroundworkSpecification)cur.workTypes.add(innameZonderVerhuis(normalizeText(p.GroundworkSpecification)));if(exact)cur.boundaryConfidence="exact_snapshot";grouped.set(gipodId,cur);
   }
   return [...grouped.values()].map(({dossier,...i})=>({...i,...(dossier?{dossier}:{}),workTypes:[...i.workTypes],occupancyTypes:[...i.occupancyTypes]})).sort((a,b)=>(a.status==="In uitvoering"?0:1)-(b.status==="In uitvoering"?0:1)||String(a.start||"9999").localeCompare(String(b.start||"9999"))||a.title.localeCompare(b.title,"nl"));

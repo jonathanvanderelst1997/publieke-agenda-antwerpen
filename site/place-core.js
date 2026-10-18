@@ -5,7 +5,7 @@
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
 import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, feitenZonderVerhuis, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
-import { INNAME_WEG, werfDossier } from "./works-core.js";
+import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
@@ -1163,10 +1163,7 @@ function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
   // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
   const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";
-  // "Inname van de openbare weg" uit een fase (de vaste tekst voor een fase met "verhuis", site/works-core.js) zegt minder
-  // dan de soort inname van GIPOD ("Inname voor een lift of levering"): die gaat dan voor, zoals in soortVanWerk.
-  const uitFasen = echteSoort(f) ? null : soortVanWerk({ omschrijving: f.omschrijving, fasen: (f.fasen || []).map((x) => x.naam), eigenaar: f.opdrachtgever });
-  const opnieuw = uitFasen?.soort === INNAME_WEG && innameSoort ? { soort: "", bron: "" } : uitFasen;
+  const opnieuw = echteSoort(f) ? null : soortVanWerk({ omschrijving: f.omschrijving, fasen: (f.fasen || []).map((x) => x.naam), eigenaar: f.opdrachtgever });
   const feiten = !opnieuw ? f : opnieuw.soort ? { ...f, soort: opnieuw.soort, soortBron: opnieuw.bron, ...(innameSoort && innameSoort !== opnieuw.soort ? { innameSoort } : {}) }
     : innameSoort ? f : { ...f, soort: "", soortBron: "" };
   const k = werkKaartje(work, { vandaag, feiten, werf: { dossier: dossiers[0] } });

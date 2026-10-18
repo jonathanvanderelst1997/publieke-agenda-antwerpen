@@ -112,7 +112,8 @@ test("huisnummers: een aansluiting of een lift voor één adres toont het huisnu
   assert.doesNotMatch(alleTekst(k), /weggelaten/);
   const entry = pc.workEntry(werk({ title: "Verhuislift Voorbeeldstraat 12" }), { vandaag: VANDAAG, uitleg: { werken: { 90000101: { huisnummers: "nr. 12", huisnummerBron: "afgeleid" } } } });
   const getoond = `${entry.title} ${entry.location} ${entry.summary} ${entry.uitleg.regels.flat().join(" ")} ${entry.uitleg.bronTekst}`;
-  assert.match(entry.title, /^Inname van de openbare weg in de Voorbeeldstraat nr\. 12 /);
+  // Een tekst met dat woord telt als niet gegeven: de kaart zegt wat ze van een werk zonder omschrijving zegt, met het adres.
+  assert.match(entry.title, /^Werken in de Voorbeeldstraat nr\. 12 /);
   assert.doesNotMatch(getoond, /verhui/i);
 });
 
