@@ -1773,6 +1773,62 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkronde 3 (18-10-2026), Chromium 390×844 op /?plek=Kammenstraat met alles buiten de site plat: de chip
+  // "Werken & verkeer 0", de tegel "0 vergunningen" en in de ingeklapte "Volledige vooruitblik" "0 werken starten · 0
+  // eindigen · 0 maatregelen starten · 0 werken met ernstige hinder". Met alle lagen gezond maar leeg stonden er precies
+  // dezelfde getallen; de melding die vroeger ernaast stond, is weg (besluit van 18-10-2026). Nu: geen getal op de chip en
+  // een streepje op de tegel en in de vooruitblik. Een echte 0 blijft.
+  const tellers = (page) => page.evaluate(() => {
+    const t = (el) => (el?.textContent || "").replace(/\s+/g, " ").trim();
+    const chip = (g) => t(document.querySelector(`.pv-chip[data-group="${g}"] .pv-chip-n`));
+    const tegels = (g) => [...document.querySelectorAll(`.pv-stat button[data-only="${g}"] strong`)].map(t);
+    return {
+      chips: { werken: chip("werken"), vergunningen: chip("vergunningen") },
+      tegels: { werken: tegels("werken"), vergunningen: tegels("vergunningen") },
+      vooruitblik: [...document.querySelectorAll("#week-pulse .week-pulse-stats a")].map((a) => [t(a.querySelector("strong")), t(a.querySelector("small"))]),
+    };
+  });
+  await t.test("een bron faalt op de plekpagina: geen verzonnen 0 op de chip 'Werken & verkeer', de tegel vergunningen en in de vooruitblik; een echte 0 blijft (390 en 1280 px)", async () => {
+    const LAGEN = ["works", "publicSpace", "permits", "terraces"];
+    for (const [width, height] of [[390, 844], [1280, 900]]) {
+      for (const [naam, plat] of [["alles plat", ["alles"]], ["alles gezond en leeg", []]]) {
+        const wat = `${naam}, ${width} px`;
+        const { page, context, errors } = await openPage(baseUrl, { width, height, plat, work: false, aanvraag: false, feed: proefFeed(today, []), query: "?plek=Kammenstraat" });
+        if (plat.length) {
+          await wachtOpMislukt(page, ["works", "publicSpace", "terraces"]);
+          await page.waitForFunction(() => ((window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed?.permits || []).length, null, { timeout: 15000 }).catch(() => {});
+        } else {
+          await page.waitForFunction((l) => l.every((n) => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {})[n])), LAGEN, { timeout: 20000 });
+        }
+        await page.waitForTimeout(300);
+        const uit = await tellers(page);
+        t.diagnostic(`${wat}: ${JSON.stringify(uit)}`);
+        if (plat.length) {
+          assert.deepEqual(uit.chips, { werken: "", vergunningen: "" }, `${wat}: chips`);
+          assert.deepEqual(uit.tegels, { werken: ["–", "–"], vergunningen: ["–"] }, `${wat}: tegels`);
+          assert.deepEqual(uit.vooruitblik, [["0", ""], ["–", "– eindigen"], ["–", ""], ["–", ""]], `${wat}: vooruitblik`);
+        } else {
+          assert.deepEqual(uit.chips, { werken: "0", vergunningen: "0" }, `${wat}: chips`);
+          assert.deepEqual(uit.tegels, { werken: ["0", "0"], vergunningen: ["0"] }, `${wat}: tegels`);
+          assert.deepEqual(uit.vooruitblik, [["0", ""], ["0", "0 eindigen"], ["0", ""], ["0", ""]], `${wat}: vooruitblik`);
+        }
+        assert.doesNotMatch(await leesbareTekst(page), /konden nu niet geladen|tijdelijk niet geladen|Bron tijdelijk niet beschikbaar|onvolledig/, wat);
+        assert.deepEqual(errors, [], wat);
+        await context.close();
+      }
+    }
+    // De voorpagina (zonder plek): de vooruitblik zodra de lijsten van het district laden en niet lukken.
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, plat: ["alles"], aanvraag: false, feed: proefFeed(today, []) });
+    await lijstenInBeeld(page);
+    await wachtOpMislukt(page, ["works", "publicSpace"]);
+    await page.waitForTimeout(300);
+    const { vooruitblik } = await tellers(page);
+    t.diagnostic(`voorpagina, alles plat: ${JSON.stringify(vooruitblik)}`);
+    assert.deepEqual(vooruitblik, [["0", ""], ["–", "– eindigen"], ["–", ""], ["–", ""]], "voorpagina: vooruitblik");
+    assert.deepEqual(errors, [], "voorpagina");
+    await context.close();
+  });
+
   // Herstelplan O2: de knoppen +250 m tot +1 km toonden nooit een parcours of een vergunning (die hebben
   // geen eigen punt). Nu telt een item mee als zijn eigen vorm binnen de straal ligt. Nakijkbevinding 3:
   // niet zijn straat; een vergunning 900 m verder op een lange straat die tot 200 m komt, blijft weg.

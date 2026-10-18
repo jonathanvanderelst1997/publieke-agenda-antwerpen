@@ -27,7 +27,9 @@ refresh.yml
                        -> artefact data-lane-binding
   job source-health    rood als een bron blijvend faalde of te oud is; een tijdelijke
                        fout (5xx, 429, time-out) met vorige data < maxAgeHours is
-                       "stale": een waarschuwing; houdt publish-branch niet tegen
+                       "stale": een waarschuwing; houdt publish-branch niet tegen.
+                       Ook de live lagen (historiek, straatbestanden; artefact
+                       live-lagen.json): stale tot 48 uur een waarschuwing, daarna rood
   job freshness        rood als de LIVE agenda ouder is dan 48 uur
         |
         v

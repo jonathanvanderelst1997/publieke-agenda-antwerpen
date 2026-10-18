@@ -128,7 +128,17 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De weekzin en de
   lege staat zeggen dan "niets gevonden" (`dezeWeek`, `legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in
   `site/place-core.js`), niet "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is".
-  Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet geladen is), zegt de zin erbij;
+  Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet geladen is), zegt de zin erbij.
+  Nakijkronde 3 (18-10-2026): ook de chips en de tegel "vergunningen". Laadde een laag van "Werken & verkeer"
+  (GIPOD, of een deel van A-Sign: dan meldt de publieke ruimte `[]` met mislukte onderdelen) of van "Vergunningen"
+  (omgevingsdossiers, terrassen) niet, dan staat er op de chip geen getal in plaats van 0 (`chipGetal` in
+  `site/place-core.js`); laadden de omgevingsdossiers niet, dan toont de tegel "vergunningen" een streepje.
+  `site/permits-live.js` meldt daarvoor een mislukking in `live.failed` (`meldLiveLaag`, onderdeel "vergunningen"),
+  zoals de andere live lagen. Wat wel geteld is, blijft staan, een echte 0 ook;
+- de "Volledige vooruitblik" (in het ingeklapte blok "Bronnen en volledige vooruitblik", op de voorpagina en de
+  plekpagina, `vooruitblikTellers` in `site/week-pulse.js`): laadden de werken of de publieke ruimte niet, dan staat er
+  een streepje in plaats van "0 werken starten", "0 eindigen", "0 maatregelen starten" of "0 werken met ernstige
+  hinder" (de stand per laag volgt `laagStand` in `site/live-lagen.js`, zoals "Alles per straat");
 - de buurtinfo (`site/buurt-info.js`, `radarToestand` in `site/buurt-info-core.js`): is een bronlaag niet actueel
   of de radar ouder dan 26 uur, dan dezelfde zin en dezelfde getallen als anders; zonder radar is het blok leeg.
   Vroeger: "Niet alle bronlagen zijn actueel. Getallen worden niet als volledig voorgesteld.", "De radar is ouder
@@ -170,6 +180,16 @@ Intern blijft alles:
   ochtendverversing start de Gateway met `workflow_dispatch`, en de late cron slaat dan refresh en `source-health`
   over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
   eBesluit rood). Zonder melding op de site is dat het signaal voor de eigenaar;
+- ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
+  historiek (`site/history/live-layers.json`: de GIPOD-werken en de publieke ruimte, ook de bron van de radar) en de
+  straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen, evenementen). Dezelfde
+  regel als bij een agendabron (`liveLaagGezondheid` in `lib/live-history.mjs`): een laag die niet ververst raakte,
+  houdt haar vorige goede stand, en zolang die niet ouder is dan 48 uur is dat een waarschuwing (`::warning title=Live
+  laag stale` in de job `source-health`, "Live laag stale" of "Straatbestanden" in `npm run sources:health`). Geen
+  goede stand (`error` zonder `sinds` of `lastSuccessAt`), een goede stand van meer dan 48 uur of een onbekende status
+  is rood: de job `source-health` faalt (regel `BRON live-historiek …` of `BRON straatbestanden …`) en de job `alarm`
+  vult het alarm-issue aan. De job `refresh` geeft daarvoor de status per laag, zonder items, mee in het artefact
+  (`live-lagen.json`, stap "Stand van de live lagen"); ontbreekt dat bestand, dan faalt `source-health` dicht;
 - de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
 
 Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van

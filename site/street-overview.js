@@ -4,6 +4,7 @@ import {aanvraagStand,aanvraagTitel} from "./permit-clarity.js";
 import {onderzoekZin} from "./inzage-status.js";
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
+import {laagStand} from "./live-lagen.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
@@ -149,9 +150,6 @@ export function overzichtTekst({straatas=false,straten=0,lagen={}}={}){
   const note=!straatas?"Officiële straatas wordt geladen…":stand.includes("")&&!stand.includes("ok")?"Straatas geladen. Live werken en maatregelen worden nog opgehaald.":"Gebundeld op officiële Antwerpse straatnamen. Alleen betrouwbare straatmatches worden opgenomen.";
   return{summary,note};
 }
-// Wat een live laag meldde (site/live-lagen.js): de onderdelen die niet laadden ("mislukt", ook als een deel wel laadde:
-// de publieke ruimte meldt dan haar items en de mislukte onderdelen), of alleen items ("ok"); niets: nog niet binnen.
-const laagStand=detail=>detail?.failed?.length?"mislukt":Array.isArray(detail?.items)?"ok":"";
 
 if(typeof window!=="undefined"&&typeof document!=="undefined"){
   const root=document.getElementById("street-overview");

@@ -513,6 +513,15 @@ export const KIND_GROUPS = Object.freeze([
   Object.freeze({ key: "vergunningen", label: "Vergunningen", emoji: "📄", cat: "permits", themes: Object.freeze(["permits"]) }),
 ]);
 export const DEFAULT_GROUPS = Object.freeze(["evenementen"]);
+// De live lagen (window.PUBLIC_AGENDA_LIVE_STREETS) achter het getal van een soort op de chips.
+export const GROEP_LIVE_LAGEN = Object.freeze({ werken: Object.freeze(["works", "publicSpace"]), vergunningen: Object.freeze(["permits", "terraces"]) });
+// Laadde een live laag (of een deel ervan) niet: live.failed[laag] noemt dan de onderdelen (site/live-lagen.js), ook
+// als de laag haar items wel meldde (A-Sign plat: publicSpace = [] met mislukte onderdelen).
+export const laagMislukt = (failed, laag) => Array.isArray(failed?.[laag]) && failed[laag].length > 0;
+// Het getal op een chip: geen verzonnen 0. Laadde een live laag van die soort niet (helemaal of deels), dan zegt een 0
+// niets, en staat er geen getal; de site zegt niet waarom (besluit van 18-10-2026). Wat wel geteld is, blijft staan;
+// een echte 0 ook.
+export const chipGetal = (groep, n, failed = {}) => (!n && (GROEP_LIVE_LAGEN[groep] || []).some((laag) => laagMislukt(failed, laag)) ? undefined : n);
 export const themesForGroups = (groups) => KIND_GROUPS.filter((g) => groups.includes(g.key)).flatMap((g) => g.themes);
 export const groupOfTheme = (theme) => (KIND_GROUPS.find((g) => g.themes.includes(theme)) || KIND_GROUPS[0]).key;
 export function groupsForThemes(themes) {

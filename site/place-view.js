@@ -12,6 +12,7 @@ import {
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
   eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
+  chipGetal, laagMislukt,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
@@ -815,7 +816,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const radius = place.type === "straat" ? `<div class="pv-seg pv-radius" role="group" aria-label="Hoe ver rond de straat">${[0, 250, 500, 1000].map((r) => `<button type="button" data-radius="${r}" aria-pressed="${state.radius === r}">${r ? `+${r >= 1000 ? "1 km" : `${r} m`}` : "Alleen de straat"}</button>`).join("")}</div>` : "";
     const tile = (n, label, cls, group) => !state.groups.has(group)
       ? `<li class="pv-stat pv-stat-off ${cls}"><button type="button" data-only="${group}" aria-label="${esc(label)} staan uit; tik om ze te tonen"><strong>–</strong><span>${esc(label)} (uit)</span></button></li>`
-      : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "–" : n}</strong><span>${esc(label)}</span></button></li>`;
+      : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "–" : group === "vergunningen" && !n && state.vergunningenOnvolledig ? "–" : n}</strong><span>${esc(label)}</span></button></li>`;
     // In de DOM: label, naam (de kop), knoppen, meta. Wie met een schermlezer naar de kop springt en verder
     // leest, hoort de knoppen nog. Op het scherm staan de knoppen op de rij van het label (of eronder als ze er
     // niet naast passen) en de naam daaronder (CSS order). De kop krijgt geen focus: Tab gaat (bij een straat)
@@ -1022,19 +1023,20 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const sumThemes = (themes) => themes.reduce((n, t) => n + (Number(cc[t]) || 0), 0);
     const kaarten = (group) => new Set(liveEntries.filter((e) => e.group === group).map((e) => e.uid)).size;
     const loadedLayer = (rows) => Array.isArray(rows);
+    // Elke live module zet per laag de onderdelen die niet laadden in live.failed (site/live-lagen.js).
+    const mislukt = live.failed || {};
     state.counts = {};
     for (const g of KIND_GROUPS) {
       let n = sumThemes(g.themes.filter((t) => t !== "publicSpace" && t !== "permits"));
       if (g.key === "werken" && !loadedLayer(live.works) && !loadedLayer(live.publicSpace)) { state.counts[g.key] = view.hasPlace || n ? n || undefined : undefined; continue; }
       if (g.key === "vergunningen" && !loadedLayer(live.permits) && !loadedLayer(live.terraces)) { state.counts[g.key] = undefined; continue; }
-      n += kaarten(g.key);
-      state.counts[g.key] = n;
+      // Laadde een live laag van de soort (deels) niet, dan geen verzonnen 0 op de chip (chipGetal in place-core.js).
+      state.counts[g.key] = chipGetal(g.key, n + kaarten(g.key), mislukt);
     }
     // Live lagen: nog onderweg, of niet of maar half geladen. Elke live module zet per laag een mislukt-vlag in
     // live.failed; ook een laag die deels laadde, telt als onvolledig. Dat blijft intern (nooit "rustig", nooit een
     // valse 0); de site zegt niet dat iets faalt (besluit van 18-10-2026).
     const loading = [];
-    const mislukt = live.failed || {};
     const wants = view.hasPlace || view.wantsLiveLayers;
     // Een evenement op straat hoort bij de groep "evenementen", ook als de verkeersmaatregelen uit staan.
     const evenementenOpStraat = state.groups.has("evenementen");
@@ -1061,7 +1063,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       ...(!view.enabled("works") || (!loadedLayer(live.works) && !mislukt.works?.length) ? [{ wat: "werken", ...weekLaag(live.works, mislukt.works, !view.enabled("works")) }] : []),
       ...(!psAan || (!loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) ? ["parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, ...weekLaag(live.publicSpace, mislukt.publicSpace, !psAan) })) : []),
     ];
-    return { entries, loading, failed, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend };
+    return { entries, loading, failed, mislukt, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend };
   }
 
   // ---- weergave ----
@@ -1634,12 +1636,15 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   function render() {
     const today = brusselsToday();
     if (!state.cursor || state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor || today);
-    const { entries, loading, failed, opPlek, weekOnbekend } = collect();
+    const { entries, loading, failed, mislukt, opPlek, weekOnbekend } = collect();
     const summary = summarize(entries, today);
     const weekBezig = loading.filter((laag) => WEEK_LAGEN.includes(laag));
     state.layersPending = weekBezig.length > 0;
     state.weekBezig = weekBezig;
-    state.werkenOnvolledig = failed.some((o) => o !== "terrassen");
+    // Werken en verkeer: terrassen en vergunningen tellen niet mee (de weekzin, de werken-tegels).
+    state.werkenOnvolledig = failed.some((o) => o !== "terrassen" && o !== "vergunningen");
+    // De tegel vergunningen telt de omgevingsdossiers (zonder terrassen): laadden die niet, dan een streepje.
+    state.vergunningenOnvolledig = laagMislukt(mislukt, "permits");
     // Intern: een laag die de soortkeuze nodig heeft, laadde (deels) niet. Dan nooit "rustig" of "niets gepland", maar
     // de site zegt niet dat iets faalt (besluit van 18-10-2026).
     state.onvolledig = failed.length > 0;

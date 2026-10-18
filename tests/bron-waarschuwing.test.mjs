@@ -401,7 +401,72 @@ test("een laag die niet laadde, laadt niet eeuwig: de zin onder de kaart en 'All
   const code = site("street-overview.js");
   assert.match(code, /const tekst=overzichtTekst\(\{straatas:Boolean\(state\.streetIndex\),straten:groups\.length,lagen:state\.lagen\}\)/);
   assert.match(code, /if\(Object\.hasOwn\(state\.lagen,event\.detail\?\.name\)\)state\.lagen\[event\.detail\.name\]=laagStand\(event\.detail\)/);
-  assert.match(code, /const laagStand=detail=>detail\?\.failed\?\.length\?"mislukt":Array\.isArray\(detail\?\.items\)\?"ok":""/, "ook een laag die deels laadde (A-Sign plat, items [])");
+  // laagStand staat in site/live-lagen.js (ook de vooruitblik gebruikt haar).
+  assert.match(code, /import \{laagStand\} from "\.\/live-lagen\.js";/);
+  const { laagStand } = await import("../site/live-lagen.js");
+  assert.equal(laagStand({ items: [], failed: ["parkeerverboden"] }), "mislukt", "ook een laag die deels laadde (A-Sign plat, items [])");
+  assert.equal(laagStand({ items: null, failed: ["werken"] }), "mislukt");
+  assert.equal(laagStand({ items: [], failed: [] }), "ok");
+  assert.equal(laagStand({ items: null, failed: [] }), "");
+  assert.equal(laagStand(undefined), "");
   assert.match(code, /<strong>\$\{tel\(r\.severeHindranceStreets\)\}<\/strong>/);
   assert.match(code, /const onvolledig=state\.lagen\.works==="mislukt"\|\|state\.lagen\.publicSpace==="mislukt",tel=n=>onvolledig\?"—":String\(n\)/);
+});
+
+// Nakijkronde 3 (18-10-2026), Chromium 390×844 op /?plek=Kammenstraat met alle externe verzoeken onderschept: drie tellers
+// toonden nog een verzonnen 0, en zonder de melding van vroeger erbij zei die 0 zonder voorbehoud dat er niets is. De chip
+// "Werken & verkeer 0" (een A-Sign die niet laadde, meldt publicSpace = [] met mislukte onderdelen, en dat telde als
+// geladen), de tegel "0 vergunningen" (alleen de werken-tegel kende "–", en permits-live.js meldde een mislukking niet in
+// live.failed) en de "Volledige vooruitblik" ("0 werken starten · 0 eindigen · 0 maatregelen starten · 0 werken met
+// ernstige hinder"; week-pulse.js keek niet naar live.failed). Met alle lagen gezond maar leeg stonden er precies dezelfde
+// getallen. Nu: geen getal op de chip, een streepje op de tegel en in de vooruitblik; een echte 0 blijft.
+test("een live laag die niet laadde: geen verzonnen 0 op de chip, de tegel vergunningen en in de vooruitblik", async () => {
+  const pc = await import("../site/place-core.js");
+  const allesPlat = { works: ["werken"], publicSpace: ["parkeerverboden", "innames en parcours", "omleidingen", "werfzones"], terraces: ["terrassen"], permits: ["vergunningen"] };
+  // De chip: 0 met een (deels) mislukte laag van die soort is geen getal; wat wel geteld is, blijft staan.
+  assert.equal(pc.chipGetal("werken", 0, allesPlat), undefined);
+  assert.equal(pc.chipGetal("werken", 0, { works: [], publicSpace: ["parkeerverboden"] }), undefined, "A-Sign deels plat (items [])");
+  assert.equal(pc.chipGetal("werken", 0, { works: ["werken"] }), undefined);
+  assert.equal(pc.chipGetal("werken", 0, { works: [], publicSpace: ["parkeerverboden en innames"] }), undefined, "de stand van één straat (snelVoorStraat)");
+  assert.equal(pc.chipGetal("vergunningen", 0, { permits: ["vergunningen"], terraces: [] }), undefined);
+  assert.equal(pc.chipGetal("vergunningen", 0, { permits: [], terraces: ["terrassen"] }), undefined);
+  assert.equal(pc.chipGetal("werken", 3, allesPlat), 3, "wat er wel is, telt");
+  assert.equal(pc.chipGetal("werken", 0, { works: [], publicSpace: [] }), 0, "een echte 0 blijft");
+  assert.equal(pc.chipGetal("werken", 0, {}), 0);
+  assert.equal(pc.chipGetal("vergunningen", 0, { works: ["werken"] }), 0, "een andere soort telt niet mee");
+  assert.equal(pc.chipGetal("evenementen", 0, allesPlat), 0, "de agenda zelf laadde");
+  const view = site("place-view.js");
+  assert.match(view, /state\.counts\[g\.key\] = chipGetal\(g\.key, n \+ kaarten\(g\.key\), mislukt\);/);
+  // De tegel vergunningen: een streepje als de vergunningen niet laadden (zoals de werken-tegel), en de vergunningen
+  // tellen niet als werken (de weekzin).
+  assert.match(view, /group === "vergunningen" && !n && state\.vergunningenOnvolledig \? "–"/);
+  assert.match(view, /state\.vergunningenOnvolledig = laagMislukt\(mislukt, "permits"\);/);
+  assert.match(view, /state\.werkenOnvolledig = failed\.some\(\(o\) => o !== "terrassen" && o !== "vergunningen"\);/);
+  assert.equal(pc.laagMislukt({ permits: ["vergunningen"] }, "permits"), true);
+  assert.equal(pc.laagMislukt({ permits: [] }, "permits"), false);
+  assert.equal(pc.laagMislukt({}, "permits"), false);
+  // permits-live.js meldt de laag zoals de andere live lagen (meldLiveLaag): bij een fout zonder items, met het onderdeel.
+  const permits = site("permits-live.js");
+  assert.match(permits, /meldLiveLaag\("permits",state\.items,\[\]\)/);
+  assert.match(permits, /\.catch\(\(\)=>\{note\.textContent="";count\.textContent="";meldLiveLaag\("permits",null,\["vergunningen"\]\)\}\)/);
+  const { ONDERDELEN, ontbrekendeOnderdelen } = await import("../site/live-lagen.js");
+  assert.ok(ONDERDELEN.includes("vergunningen"));
+  assert.deepEqual(ontbrekendeOnderdelen({ permits: ["vergunningen"], works: [] }), ["vergunningen"], "de lege staat zegt dan nooit 'niets op de agenda'");
+
+  // De vooruitblik: per live laag "ok", "mislukt" of "" (nog niet binnen), zoals "Alles per straat".
+  const { buildWeekPulse, vooruitblikTellers } = await import("../site/week-pulse.js");
+  const leeg = buildWeekPulse({ fromDay: "2026-10-18", toDay: "2026-10-18", agendaItems: [{ id: "a", title: "Proefconcert", date: "2026-10-18" }] });
+  assert.deepEqual(vooruitblikTellers(leeg, { works: "mislukt", publicSpace: "mislukt" }), { agenda: "1", werkenStarten: "–", werkenEindigen: "–", maatregelen: "–", ernstig: "–" });
+  assert.deepEqual(vooruitblikTellers(leeg, { works: "mislukt", publicSpace: "ok" }), { agenda: "1", werkenStarten: "–", werkenEindigen: "–", maatregelen: "0", ernstig: "–" });
+  assert.deepEqual(vooruitblikTellers(leeg, { works: "ok", publicSpace: "ok" }), { agenda: "1", werkenStarten: "0", werkenEindigen: "0", maatregelen: "0", ernstig: "0" }, "een echte 0 blijft");
+  assert.deepEqual(vooruitblikTellers(leeg, {}), { agenda: "1", werkenStarten: "0", werkenEindigen: "0", maatregelen: "0", ernstig: "0" }, "nog niet binnen: zoals voorheen");
+  const met = buildWeekPulse({ fromDay: "2026-10-18", toDay: "2026-10-24", publicSpace: [{ id: "p", kind: "parking", title: "Parkeerverbod", start: "2026-10-19T08:00:00Z" }] });
+  assert.equal(vooruitblikTellers(met, { publicSpace: "mislukt" }).maatregelen, "1", "wat deels laadde, telt");
+  const pulse = site("week-pulse.js");
+  assert.match(pulse, /lagen:\{works:laagStand\(\{items:live\.works,failed:live\.failed\?\.works\}\),publicSpace:laagStand\(\{items:live\.publicSpace,failed:live\.failed\?\.publicSpace\}\)\}/);
+  assert.match(pulse, /if\(Object\.hasOwn\(state\.lagen,event\.detail\?\.name\)\)state\.lagen\[event\.detail\.name\]=laagStand\(event\.detail\)/);
+  assert.match(pulse, /const tel=vooruitblikTellers\(pulse,state\.lagen\)/);
+  for (const veld of ["agenda", "werkenStarten", "maatregelen", "ernstig"]) assert.match(pulse, new RegExp(`<strong>\\$\\{tel\\.${veld}\\}</strong>`), veld);
+  assert.match(pulse, /<small>\$\{tel\.werkenEindigen\} eindigen<\/small>/);
+  assert.doesNotMatch(pulse, /\$\{pulse\.(?:workStarts|workEnds|measureStarts|severeHindranceWorks)\}/, "geen ruw getal meer in de vooruitblik");
 });

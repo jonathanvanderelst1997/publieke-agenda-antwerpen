@@ -4,7 +4,7 @@
 // lijst betekent: alles geladen. Dat blijft intern: het plekoverzicht zegt daarmee nooit "rustig" of een valse 0,
 // maar toont geen melding dat iets faalt (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets
 // faalt, de momentopname blijft wel goed").
-export const ONDERDELEN = Object.freeze(["werken", "parkeerverboden", "innames en parcours", "omleidingen", "werfzones", "terrassen"]);
+export const ONDERDELEN = Object.freeze(["werken", "parkeerverboden", "innames en parcours", "omleidingen", "werfzones", "terrassen", "vergunningen"]);
 
 // De bronnen van de laag "publicSpace" en wat er wegvalt als één ervan niet laadt.
 const PUBLIC_SPACE_BRONNEN = Object.freeze({
@@ -32,6 +32,11 @@ export function ontbrekendeOnderdelen(failed = {}, enabled = () => true) {
   }
   return orden(uit);
 }
+
+// Wat een live laag meldde (het detail van "public-agenda:street-layer", of { items, failed } uit
+// window.PUBLIC_AGENDA_LIVE_STREETS): "mislukt" als een onderdeel niet laadde (ook als een deel wel laadde: de publieke
+// ruimte meldt dan haar items en de mislukte onderdelen), "ok" met alleen items, "" als ze nog niet binnen is.
+export const laagStand = (detail) => (detail?.failed?.length ? "mislukt" : Array.isArray(detail?.items) ? "ok" : "");
 
 // Een live laag melden aan de rest van de pagina: items (of null als de laag niet laadde) en de
 // mislukte onderdelen. Zonder browser (toetsen) doet dit niets.

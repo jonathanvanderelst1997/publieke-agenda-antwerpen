@@ -55,7 +55,7 @@ Na de nakijkronde:
 - **Dossiertype en hinder van een inname:** de verversing vraagt `type_dossier` en `innameHinder` op, maar alleen voor de straatbestanden; de historiek en `kaart-uitleg.json` blijven zoals ze waren.
 - **Radar binnen budget:** past de radar niet in 50 kB, dan vallen eerst de oudste dagen weg, dan alles behalve de laatste verversing, en dan de straten met de minste wijzigingen (`ingekort`, `weggelaten`). Zo maakt een drukke week de verversing nooit rood. `node scripts/build-straat-snapshots.mjs --alleen-radar` maakt alleen `radar.json` opnieuw (bv. na een merge met een nieuwere historiek).
 - **Privacy:** ook een nummer na "gevel", "pand", "woning", "huis" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase) valt weg, en de scan van `validate:data` ziet het.
-- **Zichtbaar:** `npm run sources:health` toont een regel `straatbestanden` en meldt (zonder rood) een laag op `stale` of `error` of een bouw van meer dan 26 uur oud.
+- **Zichtbaar:** `npm run sources:health` toont een regel `straatbestanden` en meldt een bouw van meer dan 26 uur oud. Een laag op `stale` (of `error` na een goede, lege stand) is een waarschuwing zolang haar vorige stand niet ouder is dan 48 uur; geen stand of een oudere is rood, net als in de job `source-health` (nakijkronde 3 van 18-10-2026, `liveLaagGezondheid` in `lib/live-history.mjs`; zie docs/AGENDA_SOURCES.md). Hetzelfde geldt voor de lagen van de historiek (`live-historiek:works`, `live-historiek:publicSpace`).
 
 Na de tweede nakijkronde:
 

@@ -151,6 +151,8 @@ test("source-health: de fase van een eBesluit-fout telt niet voor de vergelijkin
     try {
       fs.mkdirSync(path.join(temp, "in"));
       fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      // De stand van de live lagen (tests/live-lagen-alarm.test.mjs): hier geen, zodat alleen de bronnen tellen.
+      fs.writeFileSync(path.join(temp, "in", "live-lagen.json"), JSON.stringify({ lagen: [] }));
       const uit = spawnSync("bash", ["-c", stap.run], { env: { ...process.env, RUNNER_TEMP: temp }, encoding: "utf8" });
       return { code: uit.status, tekst: uit.stdout };
     } finally {
