@@ -1697,8 +1697,11 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.equal(await page.locator(".pv-place-failed, .pv-empty-warn").count(), 0, "geen melding bovenaan of in de lege staat");
     const plek = await page.locator(".pv-place").innerText();
     assert.doesNotMatch(plek, /konden nu niet|onvolledig|niet geladen|lukte nu niet|kon nu niet/, plek);
-    // De weekzin: nooit "rustig" als een laag niet laadde, en geen reden.
-    assert.doesNotMatch(await page.locator(".pv-dezeweek").innerText(), /rustig|geladen|laadde/i);
+    // De weekzin: nooit "rustig" als een laag niet laadde, en geen reden. Er is geen stand van de ochtend (geen
+    // straatbestanden) en live faalde: geen betrouwbare stand, dus geen weekzin, ook geen "Onbekend … niets gevonden."
+    // (nakijkronde 3, bevinding MIDDEL: dat label verraadde dat een laag faalde).
+    assert.equal(await page.locator(".pv-dezeweek").count(), 0, await page.locator(".pv-place").innerText());
+    assert.doesNotMatch(plek, /Onbekend|niets gevonden|rustig/i, plek);
     assert.deepEqual(errors, []);
     await context.close();
   });

@@ -2332,8 +2332,8 @@ export function summarize(entries, today) {
 // "7 dagen") op straat gebeurt. Hinder = een werk met ernstige hinder volgens GIPOD; let op = werken,
 // parkeerverboden, innames of evenementen; rustig = niets van dat. Laadde niet alles, of telt een laag
 // niet mee (`onbekend`), dan zeggen we nooit "rustig". Dat iets niet laadde, zegt de zin niet (besluit van de
-// eigenaar van 18-10-2026: "niemand moet weten als er iets faalt"): dan staat er alleen wat gevonden is, of
-// "niets gevonden".
+// eigenaar van 18-10-2026: "niemand moet weten als er iets faalt"): dan staat er alleen wat gevonden is, of valt de
+// zin weg (geen betrouwbare stand en niets gevonden; nakijkronde 3: "Onbekend … niets gevonden." verraadde de fout).
 const WEEKDAG_KORT = Object.freeze(["zo", "ma", "di", "wo", "do", "vr", "za"]);
 export const WEEK_LICHT = Object.freeze({ rustig: "Rustig", "let-op": "Let op", hinder: "Hinder", onbekend: "Onbekend" });
 function weekDag(dag, today) {
@@ -2379,7 +2379,8 @@ function inWeek(e, today, einde) {
 // maar deels is (`deels: true`, een deel laadde niet) maakt de zin nooit "rustig". Een laag die uit staat maar
 // wel volledig geladen is, is nagekeken: die telt gewoon mee, ook voor "rustig". Alleen wat met de keuze van de
 // bezoeker te maken heeft (een soort die uit staat en daarom niet geladen is), zegt de zin erbij; een laag die
-// (deels) niet laadde of nog niet geladen is, en `onvolledig`, maken de zin alleen "onbekend", zonder reden.
+// (deels) niet laadde of nog niet geladen is, en `onvolledig`, maken de zin nooit "rustig", zonder reden: is er dan
+// niets gevonden, dan is er geen zin (zin "").
 export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", onvolledig = false, onbekend = [] } = {}) {
   if (!isoDay(today)) return { licht: "onbekend", zin: "" };
   const einde = addDays(today, 6);
@@ -2437,7 +2438,7 @@ export function dezeWeek(entries = [], today = "", { waar = "in jouw straat", on
   const uit = lagen.filter((o) => o.uit && !o.deels).map((o) => o.wat);
   if (!delen.length) {
     if (uit.length) return { licht: "onbekend", zin: `${kop}: niets gevonden, maar ${opsomming(uit)} staan uit. Of het rustig is, weten we dus niet.` };
-    if (onvolledig || lagen.length) return { licht: "onbekend", zin: `${kop}: niets gevonden.` };
+    if (onvolledig || lagen.length) return { licht: "onbekend", zin: "" };
     return { licht: "rustig", zin: `${kop}: rustig. Geen werken, parkeerverboden of evenementen gepland.` };
   }
   return {

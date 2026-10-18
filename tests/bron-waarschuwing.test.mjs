@@ -244,11 +244,14 @@ test("weekzin en lege toestand: een laag die (deels) niet laadde, verraadt niets
   const zinnen = [];
   const met = pc.dezeWeek([feest], vandaag, { onvolledig: true });
   assert.equal(met.zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
+  // Niets gevonden en geen betrouwbare stand (een laag laadde niet, live noch in de momentopname): geen weekzin. Het
+  // label "Onbekend" met "niets gevonden" verraadde dat een laag faalde (nakijkronde 3, bevinding MIDDEL).
   const leeg = pc.dezeWeek([], vandaag, { onvolledig: true });
-  assert.deepEqual(leeg, { licht: "onbekend", zin: "De komende 7 dagen in jouw straat: niets gevonden." });
+  assert.deepEqual(leeg, { licht: "onbekend", zin: "" });
   const deels = [{ wat: "werken", uit: true, geladen: false, deels: true }];
   assert.equal(pc.dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
-  assert.deepEqual(pc.dezeWeek([], vandaag, { onbekend: deels }), { licht: "onbekend", zin: "De komende 7 dagen in jouw straat: niets gevonden." });
+  assert.deepEqual(pc.dezeWeek([], vandaag, { onbekend: deels }), { licht: "onbekend", zin: "" });
+  assert.deepEqual(pc.dezeWeek([], vandaag, { onbekend: [{ wat: "parkeerverboden", uit: false, geladen: false }] }), { licht: "onbekend", zin: "" });
   // Wat met de keuze van de bezoeker te maken heeft (een soort staat uit), blijft gewoon.
   const uit = [{ wat: "werken", uit: true, geladen: false }];
   assert.equal(pc.dezeWeek([], vandaag, { onbekend: uit, onvolledig: true }).zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken staan uit. Of het rustig is, weten we dus niet.");

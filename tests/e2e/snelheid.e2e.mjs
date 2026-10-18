@@ -483,6 +483,24 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkronde 3 (18-10-2026), bevinding MIDDEL: zonder betrouwbare stand stond er "Onbekend De komende 7 dagen in jouw
+  // straat: niets gevonden." Bij gezonde bronnen staat er "Rustig" of "Let op": dat grijze label verraadde dat een laag
+  // faalde. Nu valt de weekzin weg. Hier ontbreken beide: geen straatbestanden en alles naar buiten afgebroken.
+  for (const [width, height] of [[390, 844], [1280, 900]]) await t.test(`zonder stand van de ochtend en zonder live bronnen: geen weekzin, geen 'Onbekend … niets gevonden' (${width}×${height})`, async () => {
+    const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "geblokkeerd", width, height, feed: proefFeed("2099-03-10", []) });
+    // Alles wat de weekzin nodig heeft, faalde (intern, live.failed): niets is nog onderweg.
+    await page.waitForFunction(() => { const f = (window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed || {}; return (f.works || []).length > 0 && (f.publicSpace || []).length > 0; }, null, { timeout: 20000 });
+    await page.locator(".pv-place .pv-stats").waitFor();
+    await page.waitForTimeout(800);
+    const plek = (await page.locator(".pv-place").innerText()).replace(/\s+/g, " ");
+    assert.equal(await page.locator(".pv-dezeweek").count(), 0, plek);
+    assert.doesNotMatch(plek, /Onbekend|niets gevonden|rustig|nog geladen|geladen|laadde|lukte/i, plek);
+    // Geen verzonnen 0 bij de werken: een streepje, zonder uitleg.
+    assert.match(await page.locator(".pv-place .pv-stat.pv-stat-planned strong").innerText(), /^–$/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Nakijkbevinding (weekzin): met de stand van de ochtend zijn alle lagen geladen, ook die van soorten die uit
   // staan. Een rustige week bleef met alle soorten aan "Rustig", maar werd met ?soort=inspraak "Onbekend ... staan
   // uit", terwijl alles nagekeken was. Verzonnen ochtend: alleen een werk dat pas na de 7 dagen begint.

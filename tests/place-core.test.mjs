@@ -389,9 +389,10 @@ test("de komende 7 dagen: staat een laag uit of is ze niet geladen, dan nooit 'r
   assert.equal(leeg.licht, "onbekend");
   assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken staan uit. Of het rustig is, weten we dus niet.");
   assert.doesNotMatch(leeg.zin, /rustig\.|Geen werken/);
-  // Niet geladen zonder dat de bezoeker ze uit zette: nooit "rustig", maar ook geen reden (besluit van 18-10-2026).
+  // Niet geladen zonder dat de bezoeker ze uit zette: nooit "rustig", maar ook geen reden (besluit van 18-10-2026). Niets
+  // gevonden zonder betrouwbare stand: geen weekzin (nakijkronde 3: "Onbekend … niets gevonden." verraadde de fout).
   const nietGeladen = dezeWeek([], vandaag, { onbekend: [{ wat: "parkeerverboden", uit: false, geladen: false }, { wat: "evenementen op straat", uit: false, geladen: false }] });
-  assert.deepEqual(nietGeladen, { licht: "onbekend", zin: "De komende 7 dagen in jouw straat: niets gevonden." });
+  assert.deepEqual(nietGeladen, { licht: "onbekend", zin: "" });
   // Iets gevonden: dat staat er, met wat uit staat en daarom niet geladen is.
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
   assert.equal(dezeWeek([feest], vandaag, { onbekend: uit }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet geladen.");
@@ -418,6 +419,6 @@ test("de komende 7 dagen: een laag die maar deels laadde, is nooit 'rustig', zon
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
   assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
   const leeg = dezeWeek([], vandaag, { onbekend: deels });
-  assert.equal(leeg.licht, "onbekend");
-  assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden.");
+  assert.notEqual(leeg.licht, "rustig");
+  assert.equal(leeg.zin, "", "niets gevonden zonder betrouwbare stand: geen weekzin");
 });

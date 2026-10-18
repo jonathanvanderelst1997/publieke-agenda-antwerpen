@@ -133,10 +133,13 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   `tests/e2e/snelheid.e2e.mjs`);
 - de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
   in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
-  die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De weekzin en de
-  lege staat zeggen dan "niets gevonden" (`dezeWeek`, `legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in
-  `site/place-core.js`), niet "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is".
-  Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet geladen is), zegt de zin erbij.
+  die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat
+  zegt dan "niets gevonden" (`legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in `site/place-core.js`), niet
+  "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is". De weekzin (`dezeWeek`) noemt wat
+  gevonden is; is er niets gevonden en geen betrouwbare stand (live noch in de momentopname), dan valt ze weg
+  (nakijkronde 3: het grijze label "Onbekend" met "niets gevonden." verraadde dat een laag faalde; bij gezonde
+  bronnen staat er "Rustig" of "Let op"). Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet
+  geladen is), zegt de zin erbij, en zolang een laag nog onderweg is, zegt de zin dat ze nog geladen wordt.
   Nakijkronde 3 (18-10-2026): ook de chips en de tegel "vergunningen". Laadde een laag van "Werken & verkeer"
   (GIPOD, of een deel van A-Sign: dan meldt de publieke ruimte `[]` met mislukte onderdelen) of van "Vergunningen"
   (omgevingsdossiers, terrassen) niet, dan staat er op de chip geen getal in plaats van 0 (`chipGetal` in
