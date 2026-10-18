@@ -18,7 +18,8 @@
 // dit script alles over de straten.
 //
 // Privacy, met dezelfde regels als de historiek (lib/historiek-privacy.mjs): alleen district Antwerpen,
-// geen huisnummers (ook niet in titels), geen vrije beschrijving van een inname (innameBeschrijving),
+// geen huisnummers (ook niet in titels), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
+// `reason`; site/adres-privacy.js), geen vrije beschrijving van een inname (innameBeschrijving),
 // geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
 // precieze plek kan naar één woning wijzen), en nooit de velden creator, assignee of lockOwner.
 //
@@ -48,6 +49,7 @@ import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets, str
 import { collectTerraces } from "../site/terraces-live-core.js";
 import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
 import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/straat-snapshot.js";
+import { parkeerverbodZonderReden } from "../site/adres-privacy.js";
 import { heeftToevoeging, zonderToevoegingInData } from "../site/witte-lijst.js";
 import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
 
@@ -62,6 +64,8 @@ const kort = (tekst) => crypto.createHash("sha256").update(tekst).digest("hex").
 // Draagt een item (ook dieper) nog een homoniemtoevoeging van de straatas in een tekst ("Proefstraat_AN")?
 const metToevoeging = (waarde) => (typeof waarde === "string" ? heeftToevoeging(waarde)
   : Array.isArray(waarde) ? waarde.some(metToevoeging) : isObject(waarde) ? Object.values(waarde).some(metToevoeging) : false);
+// Een parkeerverbod uit een vorig straatbestand: titel "Parkeerverbod", geen `reason` (site/adres-privacy.js).
+const zonderParkeerReden = (item) => (item?.kind === "parking" || String(item?.id || "").startsWith("parking:") ? parkeerverbodZonderReden(item) : item);
 
 // ---------- privacy per item ----------
 
@@ -375,7 +379,7 @@ export const SAMENVATTING_WEG = Object.freeze(["kindLabel", "title", "location",
 // werfzone per rij, een parkeerverbod als één rij met de andere straten.
 const BUNDEL_VELDEN = Object.freeze({
   sgw: ["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"],
-  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "reason", "title", "streets"],
+  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets"],
 });
 const refSleutel = (ref) => [ref?.id || "", clean(ref?.name), ref?.postcode || ""].join("|");
 const uniekeRefs = (refs) => [...new Map(refs.filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
@@ -694,12 +698,13 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     if (!/^\d+$/.test(id) || !straten.perId.has(id)) continue;
     const delen = { ...(perStraat.get(id) || {}) };
     const vorigDoc = vorigeDocs.get(id);
-    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026). Een item
-    // uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat: in
-    // "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item,
+    // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026) en zonder
+    // de reden van een parkeerverbod (uit een straatbestand van vóór 18 oktober 2026: titel "Parkeerverbod", geen
+    // `reason`). Een item uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat:
+    // in "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item,
     // als er nog iets privé in staat), zoals bij een nieuw item.
     for (const naam of houdVorige) {
-      const items = straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item));
+      const items = straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map(zonderParkeerReden);
       delen[naam] = new Map(items.map((item) => (metToevoeging(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
     }
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });

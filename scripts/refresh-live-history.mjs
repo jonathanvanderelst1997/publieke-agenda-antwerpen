@@ -226,8 +226,9 @@ export async function fetchPublicSpaceHistory({ fetch: fetchImpl = globalThis.fe
       asignLayer(20, {
         where: `District='ANTWERPEN' AND Einddatum >= ${dateSql} AND Status IN ('Goedgekeurd','In effect')`,
         // Postcode en uren: niet voor de historiek (lib/live-history.mjs bewaart ze niet), wel voor de
-        // straatbestanden (scripts/build-straat-snapshots.mjs), zoals de browser ze ophaalt.
-        outFields: "Dossiernummer,Locatienummer,Status,Adres,Postcode,Reden,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",
+        // straatbestanden (scripts/build-straat-snapshots.mjs), zoals de browser ze ophaalt. Geen Reden: de verversing
+        // bewaart nooit waarom er een parkeerverbod is (site/adres-privacy.js); alleen de browser vraagt ze, voor de logica.
+        outFields: "Dossiernummer,Locatienummer,Status,Adres,Postcode,Startdatum,Einddatum,Starttijd,Eindtijd,EnkelWeekdagen,GipodID,District",
         // De lijn van elk parkeerverbod: alleen voor het kader van een straatbestand (waar haar items liggen).
         geometry: true,
       }, fetchImpl),

@@ -138,7 +138,8 @@ test("toetsen: een echte straatnaam krijgt alleen huisnummer 999", () => {
 });
 
 const parkeer = (id, location, extra = {}) => ({
-  id: `parking:D${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location,
+  // De titel zoals de historiek ze nu bewaart: altijd "Parkeerverbod", nooit de reden (tests/parkeerverbod-zonder-reden.test.mjs).
+  id: `parking:D${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location,
   start: "2026-10-12T06:00:00.000Z", end: "2026-10-13T18:00:00.000Z", status: "Goedgekeurd", reference: `D${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null, ...extra,
 });
