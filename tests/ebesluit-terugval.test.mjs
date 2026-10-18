@@ -11,7 +11,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { EBESLUIT_FALLBACK_PAGE_SIZES, EBESLUIT_KEYWORDS, EBESLUIT_PAGE_SIZE, searchKeyword } from "../lib/ebesluit-discovery.mjs";
+import { EBESLUIT_FALLBACK_PAGE_SIZES, EBESLUIT_KEYWORDS, EBESLUIT_PAGE_SIZE, pageSizeChoice, searchKeyword } from "../lib/ebesluit-discovery.mjs";
 import { keepPreviousOnError, readSourceDocument, statusEntry } from "../lib/fetch-util.mjs";
 import { sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 import { buildFeed } from "../scripts/build-sources.mjs";
@@ -69,9 +69,66 @@ test("pagina's van 500 rijen geven HTTP 500, met 100 antwoordt eBesluit: de zoek
   assert.equal(doc.fetchStatus, "ok");
   assert.ok(!("lastError" in doc) && !("lastSuccessAt" in doc), "een geslaagde verversing heeft geen lastError");
   assert.deepEqual(doc.items.map((item) => item.externalId).sort(), ["2026_DCAN_00001", "2026_DCAN_00002"]);
-  // Per zoekterm en jaar: 500 (met de bestaande herkansing: 2 verzoeken), dan 100; nooit 50.
-  const perZoekronde = EBESLUIT_KEYWORDS.length * 2;
-  assert.deepEqual(zoekGroottes(calls), Array.from({ length: perZoekronde }, () => [500, 500, 100]).flat());
+  // De hele run (alle zoektermen, beide jaren) vraagt de pagina van 500 maar één keer, met de bestaande herkansing (2
+  // verzoeken); daarna begint elk venster meteen bij 100 (pageSizeChoice). Vroeger 8 keer: per zoekterm en per jaar.
+  const zoekrondes = EBESLUIT_KEYWORDS.length * 2;
+  assert.equal(zoekGroottes(calls).filter((n) => n === 500).length, 2);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, ...Array.from({ length: zoekrondes }, () => 100)]);
+  // Elke zoekterm, elk jaar: nog altijd gezocht.
+  const rondes = calls.filter((u) => u.pathname === "/zoeken").map((u) => `${u.searchParams.get("query")}|${u.searchParams.get("meetingDateStart").slice(0, 4)}`);
+  assert.equal(new Set(rondes).size, zoekrondes);
+});
+
+// Nakijkbevinding: de terugval begon per zoekterm en per jaar opnieuw bij 500 rijen, zodat elke verversing de geweigerde
+// pagina van 500 opnieuw vroeg (8 keer bij district-ebesluit) en het tijdsbudget opging. Nu deelt de hele run van één
+// bron de gekozen paginagrootte; de volgende run begint weer bij 500 (geen bestand).
+test("eén paginagrootte per run: de pagina van 500 één keer per run, niet per zoekterm of jaar, en niet over runs heen", async (t) => {
+  const root = makeRoot(t);
+  for (const nacht of [NOW, new Date("2026-09-29T06:00:00Z")]) {
+    const calls = [];
+    const [status] = await draai(root, nepEbesluit({ weigert: (n) => n === 500, calls }), nacht);
+    assert.equal(status.fetchStatus, "ok");
+    const groottes = zoekGroottes(calls);
+    assert.deepEqual(groottes.slice(0, 3), [500, 500, 100], "elke run begint weer bij 500");
+    assert.equal(groottes.filter((n) => n === 500).length, 2, `500 in deze run: ${groottes.join(",")}`);
+  }
+  // Ook in de functies zelf: wie dezelfde keuze doorgeeft, deelt ze; zonder keuze begint elke zoekterm bij 500.
+  const opties = { retryDelayMs: 0, sleepImpl: noSleep };
+  const gedeeld = [], keuze = pageSizeChoice();
+  for (const term of ["markt", "foor"]) await searchKeyword(nepEbesluit({ weigert: (n) => n === 500, calls: gedeeld }), term, 2026, opties, keuze);
+  assert.deepEqual(zoekGroottes(gedeeld), [500, 500, 100, 100]);
+  const los = [];
+  for (const term of ["markt", "foor"]) await searchKeyword(nepEbesluit({ weigert: (n) => n === 500, calls: los }), term, 2026, opties);
+  assert.deepEqual(zoekGroottes(los), [500, 500, 100, 500, 500, 100]);
+  // De keuze gaat alleen naar kleinere pagina's en blijft binnen [500, 100, 50]; een ongeldige keuze begint bij 500.
+  assert.deepEqual(keuze, { from: 1 });
+  const vreemd = [];
+  await searchKeyword(nepEbesluit({ calls: vreemd }), "markt", 2026, opties, { from: 7 });
+  assert.deepEqual(zoekGroottes(vreemd), [500]);
+});
+
+test("eén paginagrootte per run, ook als 100 later faalt: dan 50 voor de rest van de run, en een onvolledige ronde blijft onvolledig", async (t) => {
+  // 500 faalt altijd; 100 alleen voor de tweede zoekterm. Dan schuift de keuze naar 50 en blijft daar; de run is
+  // volledig (50 werkt), met alleen verzoeken van 100 en 50 na de eerste geweigerde 500.
+  const root = makeRoot(t);
+  const calls = [];
+  const tweede = EBESLUIT_KEYWORDS[1];
+  const fetchImpl = nepEbesluit({ calls });
+  const metFouten = async (url) => {
+    const u = new URL(String(url));
+    const n = Number(u.searchParams.get("pageSize"));
+    if (u.pathname === "/zoeken" && (n === 500 || (n === 100 && u.searchParams.get("query") === tweede))) { calls.push(u); return resp("", 500); }
+    return fetchImpl(url);
+  };
+  const [status] = await draai(root, metFouten);
+  assert.equal(status.fetchStatus, "ok");
+  const groottes = zoekGroottes(calls);
+  assert.equal(groottes.filter((n) => n === 500).length, 2);
+  assert.equal(groottes.filter((n) => n === 100).length, 1 + 2, "100 lukt voor de eerste term en faalt (met herkansing) voor de tweede");
+  assert.ok(groottes.slice(groottes.lastIndexOf(100) + 1).every((n) => n === 50), groottes.join(","));
+  // Fail-closed blijft: 50 faalt ook, dan is de zoekronde nooit volledig.
+  const [fout] = await draai(root, nepEbesluit({ weigert: ALTIJD }), new Date("2026-09-30T06:00:00Z"));
+  assert.equal(fout.fetchStatus, "error");
 });
 
 test("binnen de paginagrenzen: met 100 rijen per pagina wordt een venster helemaal doorlopen, en het volgende venster begint meteen bij 100", async () => {

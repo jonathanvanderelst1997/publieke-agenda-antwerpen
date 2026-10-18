@@ -2,7 +2,7 @@ import crypto from "node:crypto";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
-import {discoverCivicDecisions} from "../lib/ebesluit-discovery.mjs";
+import {discoverCivicDecisions,pageSizeChoice} from "../lib/ebesluit-discovery.mjs";
 import {FetchError,errorCodeOf,isMainModule,keepPreviousOnError,readSourceDocument,screenItems,statusEntry,writeSourceDocument} from "../lib/fetch-util.mjs";
 import {brusselsDate} from "../lib/html-text.mjs";
 import {sourceDocument} from "../lib/source-feed.mjs";
@@ -13,9 +13,11 @@ const itemId=row=>`ebesluit-${slug(row.decisionCode)}-${row.start}-${crypto.crea
 const item=(row,retrievedAt)=>({id:itemId(row),externalId:row.decisionCode,title:row.category==="fair"?row.title:`Openbare markt ${row.location}`,theme:"Activiteit",className:"activity",date:row.start,endDate:row.end&&row.end!==row.start?row.end:null,timeSlot:"Info",timeText:"",location:row.location,postcodes:[],info:row.category==="fair"?"Goedgekeurde foorperiode volgens eBesluit.":"Goedgekeurde feestdagregeling voor deze openbare markt.",kind:"activity",sourceUrl:row.sourceUrl,retrievedAt,reviewRequired:false,inDistrict:true});
 const dedupe=(rows,key)=>[...new Map(rows.map(row=>[key(row),row])).values()];
 
+// Eén paginagrootte voor de hele run (pageSizeChoice): weigert eBesluit 500 rijen, dan vraagt geen enkele zoekterm
+// van geen van beide jaren die pagina nog eens.
 async function discoverKnownYears(fetchImpl,years,sleep){
-  const results=[];
-  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year,...(sleep?{sleepImpl:sleep}:{})}));
+  const results=[],pageSizes=pageSizeChoice();
+  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year,pageSizes,...(sleep?{sleepImpl:sleep}:{})}));
   return{
     years,
     complete:results.every(result=>result.complete),

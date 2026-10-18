@@ -397,8 +397,19 @@ test("terugval: weigert eBesluit zoekpagina's van 500 rijen, dan lukt het met 10
   const document = readJson(root, `${SOURCE_ID}.json`);
   assert.ok(!("lastError" in document));
   const groottes = calls.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
-  // Per zoekterm één venster: 500 (met de herkansing), dan 100.
-  assert.deepEqual(groottes, EVENEMENT_ZOEKTERMEN.flatMap(() => [500, 500, 100]));
+  // De hele run vraagt de pagina van 500 maar één keer (met de bestaande herkansing); daarna begint elke zoekterm meteen
+  // bij 100 (pageSizeChoice in lib/ebesluit-discovery.mjs). Vroeger 6 keer: per zoekterm opnieuw.
+  assert.equal(groottes.filter((n) => n === 500).length, 2);
+  assert.deepEqual(groottes, [500, 500, ...EVENEMENT_ZOEKTERMEN.map(() => 100)]);
+  // Elke zoekterm is nog altijd gezocht, met een volledige zoekronde.
+  assert.deepEqual([...new Set(calls.filter((u) => u.pathname === "/zoeken").map((u) => u.searchParams.get("query")))], EVENEMENT_ZOEKTERMEN);
+
+  // Niet over runs heen: de volgende run begint weer bij 500 (geen bestand, alleen het geheugen van één run).
+  const calls2 = [];
+  await runOnce(root, nepEbesluit({ weigertPagina: [500], calls: calls2 }));
+  const tweede = calls2.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
+  assert.deepEqual(tweede.slice(0, 3), [500, 500, 100]);
+  assert.equal(tweede.filter((n) => n === 500).length, 2);
 });
 
 test("agendapunten: alleen wat nog komt; uitzondering en toekenning over hetzelfde feest worden één punt", () => {

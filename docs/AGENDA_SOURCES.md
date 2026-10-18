@@ -204,7 +204,12 @@ evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar
 - elke poging blijft binnen 20 pagina's (`EBESLUIT_MAX_PAGES`, dus 2.000 rijen bij 100 en 1.000 bij 50): meer
   treffers maken het venster onvolledig, en dan splitst het bestaande kwartaal-/maandpad zoals voorheen.
   Het tijdsbudget van de bron (6 en 4 minuten) blijft gelden;
-- weigert eBesluit een grootte, dan begint het volgende venster van dezelfde zoekterm meteen bij de kleinere;
+- weigert eBesluit een grootte, dan begint elk volgend venster van **dezelfde run van die bron** meteen bij de
+  kleinere: over alle zoektermen en, bij `district-ebesluit`, over beide jaren (`pageSizeChoice`). De geweigerde
+  pagina van 500 wordt zo per run maar één keer gevraagd (met de herkansing: 2 verzoeken), niet per zoekterm en
+  jaar (vroeger 8 keer bij `district-ebesluit` en 6 keer bij de evenementen, en zo ging het tijdsbudget op). De
+  keuze gaat alleen naar kleinere pagina's en leeft alleen in die run: geen bestand, de volgende run begint weer
+  bij 500;
 - pas als ook pagina's van 50 falen, is het venster onvolledig, met de foutcode erbij. Faalt zo ook een
   kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `http_500`): ze kan
   niet meer volledig worden, en verder vragen belast een server in storing. Bij een aanhoudende 500 zijn dat
