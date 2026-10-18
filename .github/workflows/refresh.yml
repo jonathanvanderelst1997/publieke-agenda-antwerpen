@@ -572,16 +572,21 @@ jobs:
           fi
 
   # Zichtbaar alarm: faalt de verversing, de datatak, de bronstatus of de live
-  # versheid bij een geplande run, dan komt er één open issue bij (of een reactie
-  # op het bestaande). Zo valt een stille agenda op zonder dat iemand de
-  # Actions-pagina moet openen. De bronstatus (source-health) telt mee sinds het
-  # besluit van 18-10-2026: de site zegt bezoekers niet meer dat een bron faalt,
-  # dus is een rode source-health het enige signaal voor de eigenaar.
+  # versheid, dan komt er één open issue bij (of een reactie op het bestaande).
+  # Zo valt een stille agenda op zonder dat iemand de Actions-pagina moet openen.
+  # De bronstatus (source-health) telt mee sinds het besluit van 18-10-2026: de
+  # site zegt bezoekers niet meer dat een bron faalt, dus is een rode
+  # source-health het enige signaal voor de eigenaar.
+  # Bij een geplande run én bij een dispatch (behalve een proefrun, aanleiding
+  # "test"): de echte ochtendverversing start de Gateway met workflow_dispatch,
+  # en de late cron slaat refresh en source-health dan over (al-vers). Alleen
+  # bij de cron kwam er bij een rode bronstatus dus nooit een issue.
   # Alleen publieke runinfo; geen data, geen geheimen. Sluiten doet de eigenaar.
   alarm:
     needs: [refresh, publish-branch, source-health, freshness]
     if: >-
-      always() && github.event_name == 'schedule' &&
+      always() &&
+      (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.reason != 'test')) &&
       (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.source-health.result == 'failure' || needs.freshness.result == 'failure')
     runs-on: ubuntu-latest
     timeout-minutes: 3
@@ -593,6 +598,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+          REASON: ${{ inputs.reason }}
           R_REFRESH: ${{ needs.refresh.result }}
           R_PUBLISH: ${{ needs.publish-branch.result }}
           R_HEALTH: ${{ needs.source-health.result }}
@@ -601,8 +608,12 @@ jobs:
           set -euo pipefail
           title="Alarm: agendaverversing of live versheid faalt"
           when=$(TZ=Europe/Brussels date '+%Y-%m-%d %H:%M')
+          case "$EVENT" in
+            schedule) soort="Geplande run" ;;
+            *) soort="Run (${EVENT}, aanleiding ${REASON:-onbekend})" ;;
+          esac
           body=$(printf '%s\n' \
-            "Geplande run van ${when} (Brussel) faalde: ${RUN_URL}" \
+            "${soort} van ${when} (Brussel) faalde: ${RUN_URL}" \
             "" \
             "- verversen: ${R_REFRESH}" \
             "- datatak: ${R_PUBLISH}" \

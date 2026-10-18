@@ -154,10 +154,13 @@ Intern blijft alles:
 - de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
   `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);
 - de status van de live lagen in de historiek en de radar (`status` per laag), en `live.failed` in de browser;
-- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar: faalt `source-health` bij een
-  geplande run, dan vult de job `alarm` in `.github/workflows/refresh.yml` het open alarm-issue "Alarm:
-  agendaverversing of live versheid faalt" aan (of opent het, als er geen open is), net als bij een falende
-  verversing, datatak of live versheid. Zonder melding op de site is dat het signaal voor de eigenaar;
+- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar: faalt `source-health`, dan vult
+  de job `alarm` in `.github/workflows/refresh.yml` het open alarm-issue "Alarm: agendaverversing of live versheid
+  faalt" aan (of opent het, als er geen open is), net als bij een falende verversing, datatak of live versheid. Dat
+  gebeurt bij een geplande run én bij een dispatch (behalve een proefrun met aanleiding "test"): de echte
+  ochtendverversing start de Gateway met `workflow_dispatch`, en de late cron slaat dan refresh en `source-health`
+  over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
+  eBesluit rood). Zonder melding op de site is dat het signaal voor de eigenaar;
 - de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
 
 Alleen als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat nog ("De agenda wordt even niet

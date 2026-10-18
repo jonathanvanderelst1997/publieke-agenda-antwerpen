@@ -71,10 +71,11 @@ test("elke job achter al-vers heeft een statusfunctie, zodat een dispatch een da
 // source-health het enige signaal voor de eigenaar, en die alleen opende of vulde geen alarm-issue. Nu loopt de job
 // alarm ook als alleen source-health faalt, op dezelfde manier: één bestaand alarm-issue aanvullen, geen nieuw per nacht.
 // De voorwaarde van de job, uitgerekend voor verzonnen uitkomsten van de jobs ervoor.
-function alarmLoopt(uitkomst, event = "schedule") {
+function alarmLoopt(uitkomst, event = "schedule", reason = "") {
   const expressie = ifOf(jobBlock("alarm"))
     .replace(/always\(\)/g, "true")
     .replace(/github\.event_name/g, JSON.stringify(event))
+    .replace(/inputs\.reason/g, JSON.stringify(event === "workflow_dispatch" ? reason : ""))
     .replace(/needs\.([a-z-]+)\.result/g, (_, job) => JSON.stringify(uitkomst[job] ?? "success"))
     .replace(/([!=])=/g, "$1==")
     .replace(/'/g, '"');
@@ -88,10 +89,33 @@ test("alarm: loopt ook als alleen source-health faalt, bij een geplande run", ()
   assert.equal(alarmLoopt({}), false, "alles groen: geen alarm");
   assert.equal(alarmLoopt({ "source-health": "failure" }), true, "alleen source-health rood: wel alarm");
   for (const job of ["refresh", "publish-branch", "freshness"]) assert.equal(alarmLoopt({ [job]: "failure" }), true, job);
-  // Overgeslagen of geannuleerd is geen rode bronstatus; een dispatch van de Gateway opent nooit een alarm.
+  // Overgeslagen of geannuleerd is geen rode bronstatus.
   assert.equal(alarmLoopt({ "source-health": "skipped" }), false);
   assert.equal(alarmLoopt({ "source-health": "cancelled" }), false);
-  assert.equal(alarmLoopt({ "source-health": "failure" }, "workflow_dispatch"), false);
+});
+
+// Nakijkbevinding (18-10-2026): de echte verversing start de Gateway elke ochtend om 05:17 met workflow_dispatch; de
+// cron komt 5 tot 8 uur later, ziet een live agenda jonger dan 20 uur (al-vers) en slaat refresh en dus ook
+// source-health over. Liep alarm alleen bij een geplande run, dan kwam er bij een rode bronstatus nooit een issue: zo
+// bleef het 15 tot 18 oktober (eBesluit rood), met deze uitkomsten van de echte runs.
+test("alarm: een rode bronstatus in de ochtendverversing van de Gateway (workflow_dispatch) geeft een alarm-issue", () => {
+  const dispatch = { refresh: "success", "publish-branch": "success", "source-health": "failure", freshness: "success" }; // run 39093073261
+  const lateCron = { refresh: "skipped", "publish-branch": "skipped", "source-health": "skipped", freshness: "success" }; // run 39109714672
+  assert.equal(alarmLoopt(lateCron, "schedule"), false, "de late cron ziet de bronstatus niet");
+  for (const reason of ["handmatig", "brain"]) assert.equal(alarmLoopt(dispatch, "workflow_dispatch", reason), true, reason);
+  // Dezelfde voorwaarden als bij de cron: elke rode schakel, nooit groen, overgeslagen of geannuleerd.
+  for (const job of ["refresh", "publish-branch", "freshness"]) assert.equal(alarmLoopt({ [job]: "failure" }, "workflow_dispatch", "handmatig"), true, job);
+  assert.equal(alarmLoopt({}, "workflow_dispatch", "handmatig"), false, "alles groen: geen alarm");
+  assert.equal(alarmLoopt({ "source-health": "skipped" }, "workflow_dispatch", "handmatig"), false);
+  // Een proefrun (aanleiding "test") opent geen alarm.
+  assert.equal(alarmLoopt(dispatch, "workflow_dispatch", "test"), false);
+  assert.equal(alarmLoopt(dispatch, "push"), false, "alleen de cron en een dispatch");
+  // Het issue zegt welke run het was, niet altijd "Geplande run"; de aanleiding komt via env.
+  const blok = jobBlock("alarm"), run = blok.slice(blok.indexOf("run: |"));
+  assert.match(blok, /EVENT: \$\{\{ github\.event_name \}\}/);
+  assert.match(blok, /REASON: \$\{\{ inputs\.reason \}\}/);
+  assert.doesNotMatch(run, /Geplande run van/);
+  assert.match(run, /\$\{EVENT\}/);
 });
 
 test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; alleen een nieuw issue als er geen open is", () => {
