@@ -328,8 +328,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const bar = page.locator(".pv-bar.multi.cat-works").first();
     await bar.waitFor({ timeout: 15000 });
     const spans = await page.locator(".pv-bar.multi.cat-works").evaluateAll((els) => els.map((el) => Number((el.style.gridColumn.match(/span (\d+)/) || [])[1] || 1)));
-    // Elke week waarin het werk loopt krijgt een balk; samen dekken ze de dagen van deze maand.
-    assert.ok(spans.reduce((a, b) => a + b, 0) >= 7, `balken: ${spans}`);
+    // Elke week waarin het werk loopt krijgt een balk; samen dekken ze precies de dagen van het werk die in dit
+    // maandrooster staan (ook de grijze dagen van de volgende maand). Vroeger ">= 7": dat hing af van de weekdag
+    // waarop het werk start, en faalde als de rest van het rooster korter was dan een week.
+    const zichtbaar = await page.locator("[data-day]").evaluateAll((els, [van, tot]) => els.filter((el) => el.dataset.day >= van && el.dataset.day <= tot).length, [start, end]);
+    assert.ok(zichtbaar > 0, "het werk valt in dit rooster");
+    assert.equal(spans.reduce((a, b) => a + b, 0), zichtbaar, `balken: ${spans}, dagen van het werk in het rooster: ${zichtbaar}`);
     assert.match(await bar.getAttribute("title"), new RegExp(`${Number(start.slice(8))} .* → ${Number(end.slice(8))} `));
     await page.click(`[data-day="${start}"]`);
     await page.locator(`.pv-cal-daypanel ${WORK_ROW}`).waitFor();
