@@ -629,11 +629,13 @@ jobs:
   # "test"): de echte ochtendverversing start de Gateway met workflow_dispatch,
   # en de late cron slaat refresh en source-health dan over (al-vers). Alleen
   # bij de cron kwam er bij een rode bronstatus dus nooit een issue.
+  # Alleen vanaf de standaardtak (refs/heads/main): een handmatige run vanaf
+  # een andere tak faalt bewust (stap "Alleen vanaf main") en is geen alarm.
   # Alleen publieke runinfo; geen data, geen geheimen. Sluiten doet de eigenaar.
   alarm:
     needs: [refresh, publish-branch, source-health, freshness]
     if: >-
-      always() &&
+      always() && github.ref == 'refs/heads/main' &&
       (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.reason != 'test')) &&
       (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.source-health.result == 'failure' || needs.freshness.result == 'failure')
     runs-on: ubuntu-latest

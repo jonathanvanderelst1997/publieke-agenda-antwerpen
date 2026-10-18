@@ -190,7 +190,9 @@ Intern blijft alles:
   gebeurt bij een geplande run én bij een dispatch (behalve een proefrun met aanleiding "test"): de echte
   ochtendverversing start de Gateway met `workflow_dispatch`, en de late cron slaat dan refresh en `source-health`
   over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
-  eBesluit rood). Zonder melding op de site is dat het signaal voor de eigenaar;
+  eBesluit rood). Het alarm loopt alleen vanaf de standaardtak (`github.ref == 'refs/heads/main'`): een handmatige
+  run vanaf een andere tak faalt bewust (stap "Alleen vanaf main") en opent of vult geen alarm-issue. Zonder melding
+  op de site is dat het signaal voor de eigenaar;
 - ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
   historiek (`site/history/live-layers.json`: de GIPOD-werken en de publieke ruimte, ook de bron van de radar) en de
   straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen, evenementen). Dezelfde

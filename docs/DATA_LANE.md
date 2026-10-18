@@ -135,7 +135,8 @@ gh workflow run refresh.yml -R jonathanvanderelst1997/publieke-agenda-antwerpen 
 
 `reason` is een keuzelijst: `handmatig`, `brain` of `test`. Het is alleen een
 label en verandert niets aan wat de run doet. Er is geen vrij tekstveld, want
-alles in een run is publiek. Een run vanaf een andere tak dan main faalt.
+alles in een run is publiek. Een run vanaf een andere tak dan main faalt,
+zonder alarm-issue (de job `alarm` loopt alleen vanaf main).
 
 ## Een datatak wordt nooit bijgewerkt
 

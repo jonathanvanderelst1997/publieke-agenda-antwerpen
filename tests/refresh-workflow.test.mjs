@@ -71,16 +71,18 @@ test("elke job achter al-vers heeft een statusfunctie, zodat een dispatch een da
 // source-health het enige signaal voor de eigenaar, en die alleen opende of vulde geen alarm-issue. Nu loopt de job
 // alarm ook als alleen source-health faalt, op dezelfde manier: één bestaand alarm-issue aanvullen, geen nieuw per nacht.
 // De voorwaarde van de job, uitgerekend voor verzonnen uitkomsten van de jobs ervoor.
-function alarmLoopt(uitkomst, event = "schedule", reason = "") {
+// `ref`: de tak waarvan de run start (github.ref); een geplande run start altijd van de standaardtak.
+function alarmLoopt(uitkomst, event = "schedule", reason = "", ref = "refs/heads/main") {
   const expressie = ifOf(jobBlock("alarm"))
     .replace(/always\(\)/g, "true")
     .replace(/github\.event_name/g, JSON.stringify(event))
+    .replace(/github\.ref/g, JSON.stringify(ref))
     .replace(/inputs\.reason/g, JSON.stringify(event === "workflow_dispatch" ? reason : ""))
     .replace(/needs\.([a-z-]+)\.result/g, (_, job) => JSON.stringify(uitkomst[job] ?? "success"))
     .replace(/([!=])=/g, "$1==")
     .replace(/'/g, '"');
   // Alleen nog letterlijke waarden en operatoren: niets anders wordt uitgevoerd.
-  assert.match(expressie, /^[\s"a-z_()=!&|]+$/, expressie);
+  assert.match(expressie, /^[\s"a-z0-9_()=!&|/-]+$/, expressie);
   return Function(`"use strict"; return (${expressie});`)();
 }
 
@@ -116,6 +118,23 @@ test("alarm: een rode bronstatus in de ochtendverversing van de Gateway (workflo
   assert.match(blok, /REASON: \$\{\{ inputs\.reason \}\}/);
   assert.doesNotMatch(run, /Geplande run van/);
   assert.match(run, /\$\{EVENT\}/);
+});
+
+// Nakijkronde 3 (18-10-2026), bevinding LAAG: sinds het alarm ook bij een dispatch loopt, keek het niet naar de tak. Een
+// handmatige run vanaf een andere tak (aanleiding handmatig of brain) laat refresh bewust falen (stap "Alleen vanaf main"),
+// en opende of vulde zo toch het alarm-issue. Het alarm loopt alleen vanaf de standaardtak (refs/heads/main).
+test("alarm: alleen vanaf de standaardtak (refs/heads/main), ook bij een dispatch", () => {
+  assert.match(ifOf(jobBlock("alarm")), /github\.ref == 'refs\/heads\/main'/);
+  const rood = { refresh: "failure", "publish-branch": "skipped", "source-health": "skipped", freshness: "success" };
+  for (const ref of ["refs/heads/claude/proef", "refs/heads/data/refresh-20990310-1", "refs/tags/v1", "refs/pull/1/merge"]) {
+    for (const reason of ["handmatig", "brain"]) assert.equal(alarmLoopt(rood, "workflow_dispatch", reason, ref), false, `${reason} vanaf ${ref}`);
+    assert.equal(alarmLoopt({ "source-health": "failure" }, "workflow_dispatch", "handmatig", ref), false, ref);
+  }
+  // Vanaf main blijft alles zoals het was.
+  assert.equal(alarmLoopt(rood, "workflow_dispatch", "handmatig", "refs/heads/main"), true);
+  assert.equal(alarmLoopt({ "source-health": "failure" }, "schedule", "", "refs/heads/main"), true);
+  // De stap "Alleen vanaf main" in refresh kijkt naar dezelfde tak.
+  assert.match(jobBlock("refresh"), /if \[ "\$GITHUB_REF" != "refs\/heads\/main" \]; then/);
 });
 
 test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; alleen een nieuw issue als er geen open is", () => {
