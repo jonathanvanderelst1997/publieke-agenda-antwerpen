@@ -102,6 +102,43 @@ test("binnen de paginagrenzen: met 100 rijen per pagina wordt een venster helema
   assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 100]);
 });
 
+// Nakijkbevinding (mutatieproef): zonder resultatenteller is een venster pas volledig als een pagina minder rijen geeft
+// dan de paginagrootte van DIE poging (100 of 50), niet minder dan 500. Anders gaat een volle pagina van 100 of 50 rijen
+// door als "alles" en wordt een onvolledige zoekronde als volledig aanvaard (#186).
+test("zonder resultatenteller: een volle pagina van 100 of 50 rijen is niet het einde, de volgende pagina wordt gelezen", async () => {
+  // Een zoekpagina zonder "x resultaten gevonden", met `treffers` verzonnen rijen in het venster.
+  const zonderTeller = (treffers, weigert, calls) => nepEbesluit({
+    calls,
+    weigert,
+    zoek: (u) => {
+      const p = Number(u.searchParams.get("page")), grootte = Number(u.searchParams.get("pageSize"));
+      return Array.from({ length: Math.max(0, Math.min(grootte, treffers - p * grootte)) }, (_, i) => zoekRij(`r-${p * grootte + i + 1}`, "m-test")).join("");
+    },
+  });
+  const opties = { retryDelayMs: 0, sleepImpl: noSleep };
+  const oktober = { start: "2026-10-01", end: "2026-10-31" };
+
+  // 500 rijen geeft HTTP 500, 100 werkt: 250 treffers in drie pagina's van 100 (100, 100, 50).
+  const calls = [];
+  const honderd = await searchKeyword(zonderTeller(250, (n) => n === 500, calls), "markt", oktober, opties);
+  assert.deepEqual([honderd.coverage.complete, honderd.rows.length], [true, 250]);
+  assert.equal(new Set(honderd.rows.map((row) => row.id)).size, 250);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 100]);
+  assert.deepEqual(calls.filter((u) => u.searchParams.get("pageSize") === "100").map((u) => u.searchParams.get("page")), ["0", "1", "2"]);
+
+  // 500 en 100 geven HTTP 500, 50 werkt: 120 treffers in drie pagina's van 50 (50, 50, 20).
+  const calls2 = [];
+  const vijftig = await searchKeyword(zonderTeller(120, (n) => n !== 50, calls2), "markt", oktober, opties);
+  assert.deepEqual([vijftig.coverage.complete, vijftig.rows.length], [true, 120]);
+  assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 50, 50, 50]);
+
+  // Precies een veelvoud van de paginagrootte (200 treffers, pagina's van 100): de lege derde pagina sluit het af.
+  const calls3 = [];
+  const precies = await searchKeyword(zonderTeller(200, (n) => n === 500, calls3), "markt", oktober, opties);
+  assert.deepEqual([precies.coverage.complete, precies.rows.length], [true, 200]);
+  assert.deepEqual(zoekGroottes(calls3), [500, 500, 100, 100, 100]);
+});
+
 test("ook een kleinere pagina die halverwege faalt, telt niet: de rijen van die poging vallen weg en 50 begint opnieuw", async () => {
   // 120 treffers; 500 geeft altijd 503, 100 alleen op pagina 1, 50 werkt.
   const calls = [];

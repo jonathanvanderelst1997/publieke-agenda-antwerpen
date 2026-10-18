@@ -13,12 +13,13 @@ import { fileURLToPath } from "node:url";
 
 import { sourceHealthOf, statusEntry } from "../lib/fetch-util.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
-import { noClockDate } from "../scripts/agenda-source.mjs";
+import { loadAgendaRuntime, noClockDate } from "../scripts/agenda-source.mjs";
 import { buildFeed } from "../scripts/build-sources.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const site = (naam) => fs.readFileSync(path.join(rootDir, "site", naam), "utf8");
-// Wat een bezoeker vroeger las als een bron faalde (bovenaan en in de bronnenlijst).
+// Wat een bezoeker vroeger las als een bron faalde (bovenaan, in de bronnenlijst en in de zin "Officiële broncontrole
+// …" in hetzelfde ingeklapte blok, die de punten van een falende bron telde als "verouderde bron").
 const WAARSCHUWINGEN = [
   "Sommige officiële bronnen zijn tijdelijk onbereikbaar",
   "Niet alle officiële bronnen zijn actueel",
@@ -27,6 +28,7 @@ const WAARSCHUWINGEN = [
   "bron tijdelijk onbereikbaar",
   "laatste ophaalpoging mislukt",
   "verouderd sinds",
+  "verouderde bron",
 ];
 
 test("de voorpagina heeft geen bronwaarschuwing meer: geen blok, geen script, geen stijl", () => {
@@ -53,6 +55,44 @@ test("geen script van de site zegt een bezoeker dat een bron faalt", () => {
   assert.match(agenda, /function renderSourceStatus\(/);
   assert.doesNotMatch(agenda, /entry\.fetchStatus === "error"/);
   assert.match(agenda, /class="source-fresh">ververst op \$\{esc\(formatInstant\(entry\.retrievedAt\)\)\}/);
+});
+
+// Nakijkbevinding: de zin "Officiële broncontrole …" (#agenda-refresh-note, in het ingeklapte blok "Bronnen en volledige
+// vooruitblik") telde "punten met bronconflict of verouderde bron". Met eBesluit falend waren dat precies de punten
+// van eBesluit (reviewReason "stale_source"): zo zag een bezoeker toch dat er iets faalt. Nu telt de zin alleen
+// verlopen punten en echte bronconflicten, en is ze dezelfde of een bron nu faalt of niet.
+test("de zin 'Officiële broncontrole …' verraadt geen falende bron: punten die alleen door een niet-ververste bron wegvallen, tellen niet", () => {
+  const runtime = loadAgendaRuntime(rootDir);
+  assert.equal(typeof runtime.refreshNoteText, "function");
+  const controle = "2026-10-18T03:18:00.000Z";
+  const nu = Date.parse("2026-10-18T08:00:00.000Z");
+  const punt = (classification, reviewReason = null) => ({ classification, reviewReason });
+  const stand = (auditItems) => ({
+    auditItems,
+    counts: auditItems.reduce((n, item) => ({ ...n, [item.classification]: n[item.classification] + 1 }), { expired: 0, current: 0, future: 0, review_required: 0 }),
+  });
+  const gewoon = [punt("expired"), punt("expired"), punt("expired"), punt("future"), punt("current")];
+  // Dezelfde stand, maar de bron van de twee komende punten faalt: ze vallen weg als "stale_source".
+  const bronFaalt = [punt("expired"), punt("expired"), punt("expired"), punt("review_required", "stale_source"), punt("review_required", "stale_source")];
+  const zin = runtime.refreshNoteText(controle, nu, stand(gewoon), 0);
+  assert.equal(zin, "Officiële broncontrole vandaag om 05.18: 3 verlopen punten worden niet als actueel getoond.");
+  assert.equal(runtime.refreshNoteText(controle, nu, stand(bronFaalt), 0), zin, "een falende bron verandert de zin niet");
+  assert.doesNotMatch(zin, /verouderd|faalt|mislukt|onbereikbaar/);
+
+  // Een echt bronconflict (een punt dat de bron niet bevestigt) telt wel, een falende bron ernaast nog altijd niet.
+  const metConflict = [...bronFaalt, punt("review_required", "unverified_feed_item"), punt("review_required", "manual_source_changed")];
+  assert.equal(
+    runtime.refreshNoteText(controle, nu, stand(metConflict), 0),
+    "Officiële broncontrole vandaag om 05.18: 3 verlopen punten en 2 punten met een bronconflict worden niet als actueel getoond."
+  );
+  // Achterstand van de hele agenda (meer dan 48 uur, de melding bovenaan blijft): de punten met "Laatst bevestigd".
+  assert.equal(
+    runtime.refreshNoteText(controle, nu, stand(bronFaalt), 2),
+    "Officiële broncontrole vandaag om 05.18: 3 verlopen punten worden niet als actueel getoond; 2 punten blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt."
+  );
+  assert.equal(runtime.refreshNoteText("", nu, stand([]), 0), "Officiële broncontrole op een onbekend moment: 0 verlopen punten worden niet als actueel getoond.");
+  // renderCounts gebruikt deze zin.
+  assert.match(site("agenda.js"), /getElementById\("agenda-refresh-note"\)\.textContent = refreshNoteText\(/);
 });
 
 test("intern blijft de bronstatus: feed, sourceFreshness en source-health kennen de falende eBesluit-bron", () => {

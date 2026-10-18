@@ -1033,9 +1033,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   };
   const metFalendeBron = (feed) => falendeBronnen(feed, EBESLUIT);
   const bronnenNagekeken = (page) => page.waitForFunction(() => !/controleren/i.test(document.querySelector("#agenda-freshness")?.textContent || ""), null, { timeout: 10000 });
-  // Wat een bezoeker vroeger las als een bron faalde (bovenaan en in de bronnenlijst).
+  // Wat een bezoeker vroeger las als een bron faalde (bovenaan, in de bronnenlijst en in de zin "Officiële broncontrole
+  // …", die de punten van een falende bron telde als "verouderde bron").
   // ("versheid per bron" zelf staat wel nog in de uitleg van "Alle lijsten, bronnen en instellingen": dat is geen melding.)
-  const BRONFOUT = /tijdelijk onbereikbaar|ophaalpoging mislukt|verouderd sinds|officiële bronnen zijn|Bekijk de versheid/i;
+  const BRONFOUT = /tijdelijk onbereikbaar|ophaalpoging mislukt|verouderd sinds|verouderde bron|officiële bronnen zijn|Bekijk de versheid/i;
+  // Alle tekst die een bezoeker kan lezen, ook in een ingeklapt blok (body.innerText laat de inhoud van een dicht
+  // <details> weg; nakijkbevinding: zo bleef "verouderde bron" in "Bronnen en volledige vooruitblik" onopgemerkt).
+  const leesbareTekst = (page) => page.evaluate(() => [document.body.innerText, ...[...document.querySelectorAll("details")].map((el) => el.textContent)].join("\n"));
   await t.test("geen bronwaarschuwing (besluit 18-10-2026): met de eBesluit-bronnen falend staat er niets over, op de voorpagina en bij een straat", async () => {
     const dag = volgendeWeekdag(today, 3);
     const ebesluitLabels = echteFeed().sources.filter((bron) => EBESLUIT.includes(bron.sourceId)).map((bron) => bron.label);
@@ -1053,7 +1057,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       await page.waitForFunction(() => document.querySelector("#agenda-source-status li"), null, { timeout: 10000 });
       const lijst = await page.locator("#agenda-source-status").evaluate((el) => [...el.querySelectorAll("li")].map((li) => li.textContent.replace(/\s+/g, " ").trim()));
       for (const label of ebesluitLabels) assert.ok(lijst.some((regel) => regel.startsWith(`${label}: ververst op `)), `${naam}: ${label} in ${JSON.stringify(lijst)}`);
-      assert.doesNotMatch(await page.evaluate(() => document.body.innerText + document.querySelector("#agenda-source-status").textContent), BRONFOUT, naam);
+      assert.doesNotMatch(await leesbareTekst(page), BRONFOUT, naam);
+      // De zin over de broncontrole staat in dat ingeklapte blok en telt de punten van de falende bron niet mee.
+      const notitie = await page.locator("#agenda-refresh-note").textContent();
+      assert.match(notitie, /^Officiële broncontrole /, naam);
+      assert.ok(await page.locator(".agenda-technical-details #agenda-refresh-note").count(), `${naam}: de zin staat in "Bronnen en volledige vooruitblik"`);
+      assert.doesNotMatch(notitie, BRONFOUT, naam);
       assert.deepEqual(errors, [], naam);
       await context.close();
     }

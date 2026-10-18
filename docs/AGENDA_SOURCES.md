@@ -103,7 +103,11 @@ goed". De site toont daarom nergens dat een bron faalt: geen bronwaarschuwing bo
 `#agenda-source-warning` van #191 en `site/bron-waarschuwing.js` zijn weg, op de voorpagina en op de
 plekpagina), en de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon
 "ververst op …" met het moment van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of
-"verouderd". Intern blijft alles:
+"verouderd". Ook de zin "Officiële broncontrole …" in datzelfde blok (`#agenda-refresh-note`,
+`refreshNoteText` in `site/agenda.js`) telt de punten van zo'n bron niet: ze noemt alleen verlopen punten
+en echte bronconflicten, en is dezelfde of een bron nu faalt of niet (vroeger stond er "punten met
+bronconflict of verouderde bron", en met eBesluit falend waren dat precies de punten van eBesluit).
+Intern blijft alles:
 
 - de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
   `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);

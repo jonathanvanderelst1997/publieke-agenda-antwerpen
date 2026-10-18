@@ -1529,7 +1529,7 @@ const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
 const uitgaan = window.PublicAgendaUitgaan || null;
 // Versheid: alleen als de laatste geslaagde verversing ouder is dan 48 uur (een achterstand),
-// blijven BRONITEMS (uit de automatische feed) die alleen daardoor als "verouderde bron" vielen nog
+// blijven BRONITEMS (uit de automatische feed) die alleen daardoor wegvielen (reviewReason "stale_source") nog
 // STALE_GRACE_DAYS zichtbaar, gemarkeerd met "Laatst bevestigd". Handmatige items hebben die
 // gratie niet nodig: ze blijven zichtbaar tot en met hun laatste dag (zie agenda-refresh.js).
 // Verlopen datums, bronconflicten en onbevestigde bronnen blijven altijd verborgen.
@@ -2517,12 +2517,31 @@ function renderCounts(items, categoryCounts) {
     .reduce((sum, [, count]) => sum + count, 0);
   document.getElementById("agenda-count-detail").textContent =
     `${uitgaanCount} om uit te gaan. District ${district}, stad ${stad}.${extra ? ` ${extra} andere punten met één klik.` : ""}`;
-  const { expired, review_required: reviewRequired } = agendaReconciliation.counts;
-  document.getElementById("agenda-refresh-note").textContent =
-    `Officiële broncontrole ${freshnessWhen(refreshEngine.config.retrievedAt, agendaNow().getTime()) || "op een onbekend moment"}: ` +
-    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict of verouderde bron worden niet als actueel getoond` +
-    (graceAgendaItems.length ? `; ${graceAgendaItems.length} daarvan blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt.` : ".");
+  document.getElementById("agenda-refresh-note").textContent = refreshNoteText(
+    refreshEngine.config.retrievedAt,
+    agendaNow().getTime(),
+    agendaReconciliation,
+    graceAgendaItems.length
+  );
   renderSourceStatus();
+}
+
+// De zin "Officiële broncontrole …" (#agenda-refresh-note, op de plekpagina in het ingeklapte blok "Bronnen en
+// volledige vooruitblik"). Besluit van de eigenaar (18-10-2026): een bezoeker ziet niet dat een bron faalt. Een punt
+// dat alleen verborgen is omdat zijn bron niet tijdig ververst werd (reviewReason "stale_source"), telt hier daarom
+// niet mee: vroeger telde de zin ze apart (als verouderd), en met eBesluit falend waren dat precies de punten van
+// eBesluit. De zin is dus dezelfde of een bron nu faalt of niet. Wel: verlopen punten en echte bronconflicten (een
+// punt dat de bron niet bevestigt). `grace`: bij een achterstand van de hele agenda (meer dan 48 uur, de melding
+// bovenaan blijft) de punten die met "Laatst bevestigd" zichtbaar blijven.
+function refreshNoteText(retrievedAt, nowMs, reconciliation, grace = 0) {
+  const items = Array.isArray(reconciliation?.auditItems) ? reconciliation.auditItems : [];
+  const expired = reconciliation?.counts?.expired ?? 0;
+  const conflicts = items.filter((item) => item.classification === "review_required" && item.reviewReason !== "stale_source").length;
+  return (
+    `Officiële broncontrole ${freshnessWhen(retrievedAt, nowMs) || "op een onbekend moment"}: ` +
+    `${expired} verlopen punten${conflicts ? ` en ${conflicts} punten met een bronconflict` : ""} worden niet als actueel getoond` +
+    (grace ? `; ${grace} punten blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt.` : ".")
+  );
 }
 
 const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
