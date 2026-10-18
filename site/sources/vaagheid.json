@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "638448b950af6a9b",
- "code": "7bda4387c81f6ee5",
+ "invoer": "20c4e9ca604e659a",
+ "code": "2193b726513979f7",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -678,53 +678,27 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "f6b65a4a1f5e3193",
-   "code": "d9f5accd771cdc5b"
+   "invoer": "638448b950af6a9b",
+   "code": "7bda4387c81f6ee5"
   },
   "agenda": {
    "ok": true,
-   "stijging": -0.5,
+   "stijging": 0,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
-   "ok": false,
-   "stijging": -2.5,
-   "gestegen": [
-    {
-     "id": "uur-onbekend",
-     "van": 41,
-     "naar": 49
-    },
-    {
-     "id": "generieke-titel",
-     "van": 15,
-     "naar": 27
-    },
-    {
-     "id": "werf-zonder-doel",
-     "van": 0,
-     "naar": 6
-    },
-    {
-     "id": "losse-vaag",
-     "van": 64,
-     "naar": 80
-    },
-    {
-     "id": "losse-vaag:agenda:district-asign-evenementen",
-     "van": 4,
-     "naar": 20
-    }
-   ]
+   "ok": true,
+   "stijging": 0,
+   "gestegen": []
   },
   "buiten": {
    "ok": true,
-   "stijging": -1.5,
+   "stijging": 0,
    "gestegen": []
   }
  }

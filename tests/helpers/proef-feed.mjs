@@ -11,7 +11,8 @@ const feedText = fs.readFileSync(path.join(site, "agenda-feed.js"), "utf8");
 export const echteFeed = () => JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1));
 
 const KALENDER = "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen";
-const MARKTEN = "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items";
+// De bronlink van een markt is de datasetfiche van GIPOD, nooit een INNAME_PUNT-rij (site/gipod-bron.js).
+const MARKTEN = "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
 
 // Een agendapunt van de districtskalender, opgehaald op `stempel`; `eigen`: id, titel, dag, plek ...
 export function kalenderItem(stempel, eigen = {}) {

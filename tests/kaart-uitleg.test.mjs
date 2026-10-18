@@ -11,6 +11,7 @@ import { normalizeIod } from "../site/public-space-core.js";
 import { publicSpaceEntries, workEntry } from "../site/place-core.js";
 import { bouwKaartUitleg, inVenster, validateKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { privacyFindings } from "../lib/source-feed.mjs";
+import { GIPOD_METADATA_URL } from "../site/gipod-bron.js";
 
 const VANDAAG = "2026-10-06";
 
@@ -168,7 +169,9 @@ test("de site bundelt innames per dossier en geeft werken een duidelijke titel",
   assert.equal(parking[0].title, "Parkeerverbod voor een verhuis");
   const w = workEntry(werk(), { vandaag: VANDAAG, uitleg: { werken: { 90000001: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } });
   assert.equal(w.title, "Stelling (steiger) in de Voorbeeldstraat nr. 12–40: voetgangers beperkt tot 13 november (nog 38 dagen)");
-  assert.match(w.sourceUrl, /GipodId%3D90000001/);
+  // Geen filterlink naar het ruwe INNAME_PUNT-record (contactgegevens): de bron is de datasetfiche.
+  assert.equal(w.sourceUrl, GIPOD_METADATA_URL);
+  assert.doesNotMatch(w.sourceUrl, /GipodId|geo\.api\.vlaanderen\.be/);
   assert.equal(workEntry(werk()).title, "Werk in openbaar domein"); // zonder vandaag: ongewijzigd
 });
 

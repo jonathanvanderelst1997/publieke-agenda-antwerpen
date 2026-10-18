@@ -94,6 +94,7 @@ const javascriptFiles = [
   "tests/awv-werf.test.mjs",
   "tests/works-awv-supplement.test.mjs",
   "tests/works-losse-hinder.test.mjs",
+  "tests/gipod-geen-ruwe-links.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).

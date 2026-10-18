@@ -135,6 +135,9 @@ test("validate-data leest een geschreven dagshard en mist alleen een echt ontbre
       fs.copyFileSync(path.join(repoRoot, "site", "onbekend-zinnen.js"), path.join(root, "site", "onbekend-zinnen.js"));
       // lib/awv-werf.mjs haalt de vaste lijst soorten werk (AWV_SOORTEN) uit site/works-awv-supplement.js.
       fs.copyFileSync(path.join(repoRoot, "site", "works-awv-supplement.js"), path.join(root, "site", "works-awv-supplement.js"));
+      // De regel voor GIPOD-links (ruwGipodRecord) staat in site/gipod-bron.js: lib/source-feed.mjs, de kaartjes en
+      // validate-data gebruiken ze.
+      fs.copyFileSync(path.join(repoRoot, "site", "gipod-bron.js"), path.join(root, "site", "gipod-bron.js"));
 
       const baseline = { schemaVersion: 1, layers: { works: { observedAt: T1, items: [{ id: "work:1" }] }, publicSpace: null } };
       const day = updateHistoryArchiveDay(null, T2, [event(T2, "work:2")]);

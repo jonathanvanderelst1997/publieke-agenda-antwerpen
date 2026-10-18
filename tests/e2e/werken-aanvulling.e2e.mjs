@@ -66,6 +66,9 @@ async function routeSources(page, { awv }) {
   const werk = { type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: {
     GipodId: WERK, Description: "Proefwerk aan de verkeerslichten (e2e)", Owner: "Agentschap Wegen en Verkeer - Afdeling Wegen en Verkeer Antwerpen", Status: "In uitvoering", Type: "Werk",
     Start: "2026-10-01T05:00:00Z", End: "2026-11-30T16:00:00Z",
+    // Zoals een ruw GIPOD-record: een Uri en (verzonnen) contactgegevens. Geen van beide mag op de kaart komen.
+    Uri: `https://gipod.api.vlaanderen.be/api/v1/works/${WERK}`,
+    ContactOrganisations: JSON.stringify([{ ContactRole: "Dossierbeheerder", OrganisationName: "Voorbeeldorganisatie", ContactName: "Voorbeeld Persoon", Email: "voorbeeld@example.org" }]),
   } }] };
   const hinder = { type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: mid }, properties: {
     HindranceStatus: "Gevalideerd", HindranceGipodId: LOSSE_HINDER, ZoneType: "WerfZone", SevereHindrance: true,
@@ -117,6 +120,19 @@ test("werkenlijst: AWV-werfdata op hetzelfde GIPOD-id, en losse hinder in een ei
     assert.doesNotMatch(await awv.innerText(), /Verzonnen Proefsoort/);
     // De status blijft die van GIPOD.
     assert.equal(await kaart.locator(".works-live-status").innerText(), "In uitvoering");
+    // Geen link naar het ruwe GIPOD-record (contactgegevens, site/gipod-bron.js), ook niet via Hinder in Kaart
+    // met gipodid (dat opent het detailpaneel van het record): op de kaart geen link; onder de lijst de algemene
+    // kaart van Hinder in Kaart en één bronvermelding met de datasetfiche.
+    assert.equal(await kaart.locator("footer a").count(), 0);
+    assert.doesNotMatch(await kaart.innerHTML(), /Technische GIPOD-bron|Hinder in Kaart|gipodid=|gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be|Voorbeeld Persoon|example\.org/i);
+    const bron = page.locator("#works-live [data-works-bron]");
+    assert.equal(await bron.isVisible(), true);
+    assert.deepEqual(await bron.locator("a").evaluateAll((els) => els.map((a) => [a.textContent, a.href])), [
+      ["Officiële kaart: Hinder in Kaart", "https://www.geopunt.be/?app=hinder-in-kaart"],
+      ["Bron: GIPOD (Digitaal Vlaanderen)", "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"],
+    ]);
+    const alleLinks = await page.locator("#works-live a").evaluateAll((els) => els.map((a) => a.href));
+    assert.equal(alleLinks.some((h) => /gipod\.api\.vlaanderen\.be|geo\.api\.vlaanderen\.be\/GIPOD|gipodid=/i.test(h)), false, alleLinks.join(" "));
     const los = page.locator("#works-live [data-works-loose]");
     await los.waitFor({ state: "visible", timeout: 5000 });
     const tekst = await los.innerText();
