@@ -2,9 +2,13 @@
 // de late cron ververst niet opnieuw als de live agenda al vers is, en één bron met een
 // tijdelijke fout (503) maakt de bronstatus niet rood zolang haar vorige data binnen maxAgeHours valt.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 import { isTransientErrorCode } from "../lib/fetch-util.mjs";
+import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 
 const workflow = fs.readFileSync(new URL("../.github/workflows/refresh.yml", import.meta.url), "utf8");
 
@@ -109,4 +113,39 @@ test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; a
   assert.match(run, /"- bronstatus: \$\{R_HEALTH\}"/);
   // Het issue zegt niet meer dat bezoekers een melding zien (besluit van 18-10-2026).
   assert.doesNotMatch(run, /vriendelijke melding/);
+});
+
+// Een fout van eBesluit draagt haar fase in de foutcode (search_<code> of detail_<code>, metFase in
+// lib/ebesluit-discovery.mjs). De stap "Elke bron gezond" van source-health draait hier echt (bash en jq, met een
+// verzonnen refresh-status.json): een tijdelijke fout met fase blijft een waarschuwing binnen maxAgeHours, zoals
+// isTransientErrorCode zegt, en de melding noemt de hele code, zodat de run zegt waar eBesluit faalt.
+test("source-health: de fase van een eBesluit-fout telt niet voor de vergelijking, en staat wel in de melding", { skip: spawnSync("bash", ["-c", "command -v jq"]).status === 0 ? false : "bash of jq ontbreekt" }, () => {
+  const stap = leesWerkstroom(workflow).get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  assert.ok(stap?.run, "stap Elke bron gezond");
+  const draai = (bronnen) => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "source-health-"));
+    try {
+      fs.mkdirSync(path.join(temp, "in"));
+      fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      const uit = spawnSync("bash", ["-c", stap.run], { env: { ...process.env, RUNNER_TEMP: temp }, encoding: "utf8" });
+      return { code: uit.status, tekst: uit.stdout };
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  };
+  const recent = new Date(Date.now() - 2 * 3_600_000).toISOString();
+  const oud = new Date(Date.now() - 60 * 3_600_000).toISOString();
+  const fout = (sourceId, errorCode, retrievedAt = recent) => ({ sourceId, fetchStatus: "error", retrievedAt, errorCode, maxAgeHours: 48 });
+  for (const errorCode of ["search_http_500", "detail_http_500", "http_500", "channel_http_503"]) {
+    const { code, tekst } = draai([fout("district-ebesluit", errorCode)]);
+    assert.equal(code, 0, `${errorCode}: ${tekst}`);
+    assert.equal(isTransientErrorCode(errorCode), true, errorCode);
+    assert.match(tekst, new RegExp(`stale \\(${errorCode}\\)`), tekst);
+  }
+  // Blijvend, of te oud: rood, met de hele code in de regel.
+  for (const [errorCode, retrievedAt] of [["detail_http_404", recent], ["search_incomplete", recent], ["search_http_500", oud]]) {
+    const { code, tekst } = draai([fout("district-ebesluit", errorCode, retrievedAt)]);
+    assert.equal(code, 1, `${errorCode}: ${tekst}`);
+    assert.match(tekst, new RegExp(`BRON district-ebesluit: fetchStatus error \\(${errorCode}\\)`), tekst);
+  }
 });

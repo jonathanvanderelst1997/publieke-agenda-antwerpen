@@ -377,13 +377,14 @@ test("een fout bij het zoeken laat beide bestanden staan en meldt error, met de 
   const voor = [EVENEMENT_BESLUITEN_FILE, `${SOURCE_ID}.json`].map((n) => fs.readFileSync(path.join(root, "site", "sources", n), "utf8"));
   const calls = [];
   const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500, calls }), { clock: () => new Date("2026-10-11T04:00:00Z") });
-  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "http_500", 3]);
+  // De fase staat in de foutcode: het zoeken faalde (search_), niet een detailpagina.
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "search_http_500", 3]);
   assert.equal(fs.readFileSync(path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE), "utf8"), voor[0]);
   const document = readJson(root, `${SOURCE_ID}.json`);
   assert.equal(document.fetchStatus, "error");
   assert.deepEqual(document.items, JSON.parse(voor[1]).items);
   // De reden en sinds wanneer (keepPreviousOnError): intern, de site toont het nergens.
-  assert.deepEqual([document.lastError, document.lastSuccessAt, document.retrievedAt], [{ code: "http_500", at: "2026-10-11T04:00:00.000Z" }, NOW.toISOString(), NOW.toISOString()]);
+  assert.deepEqual([document.lastError, document.lastSuccessAt, document.retrievedAt], [{ code: "search_http_500", at: "2026-10-11T04:00:00.000Z" }, NOW.toISOString(), NOW.toISOString()]);
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: SOURCE_ID }), []);
   // Begrensd: het venster met 500, 100 en 50 rijen (elk met de herkansing), dan de eerste maand met 50; geen detailpagina.
   assert.deepEqual(calls.map((u) => [u.pathname, Number(u.searchParams.get("pageSize"))]), [500, 500, 100, 100, 50, 50, 50, 50].map((n) => ["/zoeken", n]));

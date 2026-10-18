@@ -20,13 +20,13 @@ test("eBesluit probeert een tijdelijke 503 precies één keer opnieuw",async()=>
 test("eBesluit blijft fail-closed bij een aanhoudende 503, ook met kleinere pagina's, en begrensd",async()=>{
   let calls=0;
   const always503=async()=>{calls++;return resp("",503)};
-  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_503");
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="search_http_503");
   assert.equal(calls,10);
 });
 test("eBesluit herhaalt een niet-tijdelijke 404 niet",async()=>{
   let calls=0;
   const always404=async()=>{calls++;return resp("",404)};
-  await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_404");
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="search_http_404");
   assert.equal(calls,1);
 });
 

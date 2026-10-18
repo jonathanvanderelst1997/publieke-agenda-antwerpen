@@ -11,9 +11,9 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { EBESLUIT_FALLBACK_PAGE_SIZES, EBESLUIT_KEYWORDS, EBESLUIT_PAGE_SIZE, pageSizeChoice, searchKeyword } from "../lib/ebesluit-discovery.mjs";
-import { keepPreviousOnError, readSourceDocument, statusEntry } from "../lib/fetch-util.mjs";
-import { sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
+import { EBESLUIT_FALLBACK_PAGE_SIZES, EBESLUIT_FASEN, EBESLUIT_KEYWORDS, EBESLUIT_PAGE_SIZE, metFase, pageSizeChoice, searchKeyword } from "../lib/ebesluit-discovery.mjs";
+import { FetchError, isTransientErrorCode, keepPreviousOnError, readSourceDocument, sourceHealthOf, statusEntry } from "../lib/fetch-util.mjs";
+import { ERROR_CODE_PATTERN, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 import { buildFeed } from "../scripts/build-sources.mjs";
 import { SOURCE_ID, run } from "../scripts/fetch-sources-ebesluit.mjs";
 
@@ -222,7 +222,7 @@ test("ook een kleinere pagina die halverwege faalt, telt niet: de rijen van die 
 
 // ---------- 1. de reden in het bronbestand ----------
 
-test("altijd HTTP 500: fout http_500 met lastError in het bronbestand, de vorige items blijven, begrensd aantal verzoeken", async (t) => {
+test("altijd HTTP 500: fout search_http_500 met lastError in het bronbestand, de vorige items blijven, begrensd aantal verzoeken", async (t) => {
   const root = makeRoot(t);
   await draai(root, nepEbesluit());
   const vorige = leesBron(root);
@@ -231,11 +231,12 @@ test("altijd HTTP 500: fout http_500 met lastError in het bronbestand, de vorige
   const toen = new Date("2026-09-29T06:00:00Z");
   const calls = [];
   const [status] = await draai(root, nepEbesluit({ weigert: ALTIJD, calls }), toen);
-  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount, status.retrievedAt], ["error", "http_500", 2, NOW.toISOString()]);
+  // De fase staat in de foutcode (metFase): het zoeken faalde, niet een detailpagina.
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount, status.retrievedAt], ["error", "search_http_500", 2, NOW.toISOString()]);
   const doc = leesBron(root);
   assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
   assert.equal(doc.fetchStatus, "error");
-  assert.deepEqual(doc.lastError, { code: "http_500", at: toen.toISOString() });
+  assert.deepEqual(doc.lastError, { code: "search_http_500", at: toen.toISOString() });
   assert.equal(doc.lastSuccessAt, NOW.toISOString());
   assert.equal(doc.retrievedAt, NOW.toISOString());
   assert.deepEqual(doc.items, vorige.items, "de vorige, geverifieerde items blijven");
@@ -254,7 +255,7 @@ test("altijd HTTP 500: fout http_500 met lastError in het bronbestand, de vorige
   const nog = new Date("2026-09-30T06:00:00Z");
   await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
   const tweede = leesBron(root);
-  assert.deepEqual([tweede.lastError, tweede.lastSuccessAt], [{ code: "http_500", at: nog.toISOString() }, NOW.toISOString()]);
+  assert.deepEqual([tweede.lastError, tweede.lastSuccessAt], [{ code: "search_http_500", at: nog.toISOString() }, NOW.toISOString()]);
   assert.deepEqual(tweede.items, vorige.items);
 
   // Lukt het weer, dan valt de reden weg.
@@ -264,6 +265,65 @@ test("altijd HTTP 500: fout http_500 met lastError in het bronbestand, de vorige
   const hersteld = leesBron(root);
   assert.equal(hersteld.retrievedAt, weer.toISOString());
   assert.ok(!("lastError" in hersteld) && !("lastSuccessAt" in hersteld));
+});
+
+// Nakijkbevinding: lastError http_500 kon bij district-ebesluit ook van een detailpagina komen (getHtml in
+// discoverCivicDecisions stond buiten elke try), en dan zei het bronbestand niet waar eBesluit faalt. Nu draagt de
+// foutcode een vaste fase: search_ (een zoekpagina) of detail_ (een detailpagina), zonder URL of zoekterm.
+test("de fase in de foutcode: een detailpagina die faalt is detail_http_500, het zoeken search_http_500", async (t) => {
+  const root = makeRoot(t);
+  await draai(root, nepEbesluit());
+  const vorige = leesBron(root);
+  // Het zoeken lukt (500 rijen per pagina), de detailpagina van de foor geeft altijd HTTP 500.
+  const toen = new Date("2026-09-29T06:00:00Z");
+  const calls = [];
+  const zoekenOk = nepEbesluit({ calls });
+  const detailFaalt = async (url) => (new URL(String(url)).pathname.endsWith("/foor") ? (calls.push(new URL(String(url))), resp("Internal Server Error", 500)) : zoekenOk(url));
+  const [status] = await draai(root, detailFaalt, toen);
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "detail_http_500", 2]);
+  const doc = leesBron(root);
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+  assert.deepEqual(doc.lastError, { code: "detail_http_500", at: toen.toISOString() });
+  assert.deepEqual(doc.items, vorige.items, "de vorige, geverifieerde items blijven");
+  assert.doesNotMatch(JSON.stringify(doc.lastError), /:\/\/|zoeken|zittingen|query|speelstraat|kermis|foor|markt/);
+  // De detailpagina met de bestaande herkansing: 2 verzoeken, en alle zoekpagina's met 500 rijen (geen terugval).
+  assert.equal(calls.filter((u) => u.pathname.endsWith("/foor")).length, 2);
+  assert.ok(zoekGroottes(calls).every((n) => n === 500));
+
+  // Het zoeken faalt: search_http_500. Twee nachten na elkaar zeggen zo ondubbelzinnig waar eBesluit faalt.
+  const nog = new Date("2026-09-30T06:00:00Z");
+  const [zoeken] = await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
+  assert.equal(zoeken.errorCode, "search_http_500");
+  assert.deepEqual(leesBron(root).lastError, { code: "search_http_500", at: nog.toISOString() });
+  // Een niet-tijdelijke fout op een detailpagina: detail_http_404, één verzoek.
+  const [weg] = await draai(root, async (url) => (new URL(String(url)).pathname.endsWith("/markt") ? resp("", 404) : nepEbesluit()(url)), new Date("2026-10-01T06:00:00Z"));
+  assert.equal(weg.errorCode, "detail_http_404");
+});
+
+test("de fasecode past in ERROR_CODE_PATTERN, blijft tijdelijk voor isTransientErrorCode en sourceHealthOf, en komt er maar één keer bij", () => {
+  assert.deepEqual([...EBESLUIT_FASEN], ["search", "detail"]);
+  for (const code of ["search_http_500", "detail_http_500", "detail_http_503", "search_http_429", "search_timeout", "detail_network_error", "detail_body_read_failed"]) {
+    assert.match(code, ERROR_CODE_PATTERN, code);
+    assert.equal(isTransientErrorCode(code), true, code);
+  }
+  for (const code of ["detail_http_404", "search_http_404", "search_incomplete", "no_decisions"]) assert.equal(isTransientErrorCode(code), false, code);
+  // De bronstatus: binnen 48 uur een waarschuwing (stale), daarna een fout; zoals http_500 zonder fase.
+  const at = Date.parse("2026-10-18T03:18:00.000Z");
+  const entry = (errorCode, retrievedAt) => statusEntry(SOURCE_ID, { fetchStatus: "error", retrievedAt, itemCount: 2, errorCode });
+  assert.equal(sourceHealthOf(entry("detail_http_500", "2026-10-17T03:21:00.000Z"), at), "stale");
+  assert.equal(sourceHealthOf(entry("search_http_500", "2026-10-12T03:21:00.000Z"), at), "error");
+  assert.equal(sourceHealthOf(entry("detail_http_404", "2026-10-17T03:21:00.000Z"), at), "error");
+  // metFase: één fase, niet twee; de codes van het tijdsbudget en een fout die geen FetchError is, blijven zoals ze zijn.
+  assert.equal(metFase("detail", new FetchError("http_500")).code, "detail_http_500");
+  assert.equal(metFase("detail", metFase("search", new FetchError("http_500"))).code, "search_http_500");
+  assert.equal(metFase("search", new FetchError("search_incomplete")).code, "search_incomplete");
+  for (const code of ["source_timeout", "refresh_budget_exhausted"]) assert.equal(metFase("search", new FetchError(code)).code, code);
+  const vreemd = new TypeError("kapot");
+  assert.equal(metFase("detail", vreemd), vreemd);
+  assert.equal(metFase("onbekend", new FetchError("http_500")).code, "http_500");
+  // validate:data aanvaardt een bronbestand met een fasecode in lastError.
+  const doc = sourceDocument(SOURCE_ID, { retrievedAt: NOW.toISOString(), fetchStatus: "error", lastError: { code: "detail_http_500", at: "2026-10-19T03:21:00.000Z" }, lastSuccessAt: NOW.toISOString() });
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
 });
 
 test("ook een andere fout staat er: no_decisions en search_incomplete", async (t) => {

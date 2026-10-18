@@ -177,11 +177,19 @@ Bij elke fout bewaart een fetcher de vorige, geverifieerde items (`keepPreviousO
 ```json
 "fetchStatus": "error",
 "lastSuccessAt": "2026-10-12T03:21:58.546Z",
-"lastError": { "code": "http_500", "at": "2026-10-19T03:21:00.000Z" }
+"lastError": { "code": "search_http_500", "at": "2026-10-19T03:21:00.000Z" }
 ```
 
 - `lastError.code` is de vaste foutcode van de laatste poging (`http_500`, `search_incomplete`,
   `no_decisions`, `timeout`, `source_timeout`, `suspicious_drop` …), `lastError.at` het moment van die poging;
+  dezelfde code staat als `errorCode` in `refresh-status.json`;
+- bij eBesluit (`district-ebesluit`, `district-ebesluit-evenementen`) draagt de code een vaste fase
+  (`metFase` in `lib/ebesluit-discovery.mjs`): `search_<code>` als een zoekpagina faalde, `detail_<code>` als
+  de detailpagina van een agendapunt faalde, bv. `search_http_500` of `detail_http_500` (vroeger zei `http_500`
+  bij `district-ebesluit` niet welk van de twee). Een code die al een fase heeft (`search_incomplete`) of die
+  van het tijdsbudget is (`source_timeout`, `refresh_budget_exhausted`), blijft zoals ze is.
+  `isTransientErrorCode` (`lib/fetch-util.mjs`) en de job `source-health` kijken door de fase heen:
+  `search_http_500` is tijdelijk zoals `http_500`, `detail_http_404` blijvend; de melding toont de hele code;
   `lastSuccessAt` is de laatste geslaagde verversing (gelijk aan de bewaarde `retrievedAt`). Zo staat in de
   repo welke fout er is en sinds wanneer, ook als de logs van de verversing niet te lezen zijn.
 - Alleen een foutcode (`[a-z0-9_]`, hoogstens 60 tekens) en twee tijdstippen: nooit een URL, een zoekterm of
@@ -211,7 +219,7 @@ evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar
   keuze gaat alleen naar kleinere pagina's en leeft alleen in die run: geen bestand, de volgende run begint weer
   bij 500;
 - pas als ook pagina's van 50 falen, is het venster onvolledig, met de foutcode erbij. Faalt zo ook een
-  kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `http_500`): ze kan
+  kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `search_http_500`): ze kan
   niet meer volledig worden, en verder vragen belast een server in storing. Bij een aanhoudende 500 zijn dat
   10 verzoeken voor `district-ebesluit` en 8 voor `district-ebesluit-evenementen`;
 - fail-closed blijft: een onvolledige zoekronde wordt nooit als volledig aanvaard (#186); de bron krijgt
