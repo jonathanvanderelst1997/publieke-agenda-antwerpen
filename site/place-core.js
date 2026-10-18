@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, feitenZonderVerhuis, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, feitenZonderVerhuis, geldigeHuisnummers, isEvenementDossier, koppelEvenement, lijstTitel, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -2204,7 +2204,8 @@ function workEntryBasis(work) {
   const uren = urenVanWerk(work?.start, work?.end);
   return {
     uid: `works:${work?.gipodId}`, id: `gipod-${work?.gipodId}`, source: "works", theme: "works", group: "werken",
-    title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
+    // Zonder vandaag (geen kaartje): de titel zoals een lijst hem toont, bij één huis zonder vrije tekst (lijstTitel).
+    title: lijstTitel(work) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
     time: uren?.time || "", timeText: uren?.timeText || "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
     // Geen link naar het ruwe GIPOD-record (site/gipod-bron.js): de bron is de datasetfiche. Per werk linkt

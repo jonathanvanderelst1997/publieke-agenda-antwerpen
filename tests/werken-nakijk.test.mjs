@@ -81,11 +81,13 @@ test("3. bij één adres staat het huisnummer zoals de beheerder het schreef bij
     // De tekst zelf houdt het nummer zoals de beheerder het schreef.
     assert.equal(ku.beheerderTekst(tekst, { straten: [] }), tekst, vorm);
     // Een aansluiting is een werk voor één huis (tests/werken-een-huis.test.mjs): geen vrije tekst van de beheerder op de
-    // kaart, wel de soort en, op de straat van de kaart, het huisnummer; nergens "weggelaten".
+    // kaart, wel de soort en, op de straat van de kaart, het huisnummer; nergens "weggelaten". Het adres dat de beheerder
+    // noemt, staat er ook op een andere straat, zoals hij het schreef (bij "Waar": nakijkronde van head c4bb2927).
     const k = kaart(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
     assert.match(k.titel, /^Nieuwe aansluiting op het elektriciteitsnet /, vorm);
     assert.equal(k.bronTekst, "", vorm);
     assert.doesNotMatch(alleTekst(k), /weggelaten|achterbouw/, vorm);
+    if (vorm !== "VOORBEELDSTRAAT 6werf") assert.ok(regels(k).Waar.includes(vorm), `${vorm} → ${regels(k).Waar}`);
   }
   // Op de straat van de kaart: het nummer met zijn aanhangsel bij "Waar" en in de titel.
   const eigen = kaart(werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDSTRAAT 6werf", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));

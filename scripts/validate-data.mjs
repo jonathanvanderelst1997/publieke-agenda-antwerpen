@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs";
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
+import { vrijeTekstBijEenHuis } from "../site/kaart-uitleg.js";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
@@ -34,7 +35,7 @@ import {
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
-import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import { historiekPrivacyBevindingen, isOfficieleStraat } from "../lib/historiek-privacy.mjs";
 import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -68,6 +69,8 @@ if (!fs.existsSync(sourcesDir)) {
     }
     if (name === KAART_UITLEG_FILE) {
       for (const error of validateKaartUitleg(json)) problems.push(`${name}: ${error}`);
+      // Een werk voor één huis met vrije tekst van de beheerder naast het adres (vrijeTekstBijEenHuis in site/kaart-uitleg.js).
+      for (const error of vrijeTekstBijEenHuis(json, { isStraat: isOfficieleStraat })) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === EVENEMENT_IDENTITEIT_FILE) {

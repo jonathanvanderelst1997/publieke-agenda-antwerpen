@@ -1,7 +1,7 @@
 // Besluit van de eigenaar (18 oktober 2026) voor de werken van GIPOD: de PLAATS mag exact (de straat met het huisnummer of
 // het bereik, zoals de bron ze geeft, ook als het nummer aan een code plakt: "PROEFSTRAAT 1DN02"), maar niets dat over een
 // persoon of zijn huishouden vertelt. Het woord "verhuis" komt bij een werk nergens publiek: een werk met de soort inname
-// "(Verhuis)lift/levering" heet "Inname voor een lift of levering", een tekst met "verhuis" telt als niet gegeven (zonder
+// "(Verhuis)lift/levering" heet "Inname voor een lift of levering", een tekst met "verhuis" houdt alleen zijn adres (zonder
 // eigen spoor: tests/werken-verhuis-spoor.test.mjs). Namen en contactgegevens blijven weg. De regel staat in site/works-core.js (de ingang), site/kaart-uitleg.js (de
 // kaart), lib/kaart-uitleg-refresh.mjs, lib/historiek-privacy.mjs en lib/straat-bestanden.mjs (wat bewaard wordt, met de
 // scans van validate-data). Een parkeerverbod verandert hier niet (tak claude/parkeerverbod-zonder-reden).
@@ -19,7 +19,7 @@ import { GEEN_OMSCHRIJVING, INNAME_LIFT, collectWorks, innameZonderVerhuis, werk
 import { attachHindrance } from "../site/works-hindrance.js";
 import { publicSpaceEntries, samenWerven, werkEntries, workEntry } from "../site/place-core.js";
 import { compactWorkItem, updateLiveHistory } from "../lib/live-history.mjs";
-import { historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek, resultaatVoorHistoriek, tekstZonderHuisnummers } from "../lib/historiek-privacy.mjs";
+import { historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek, resultaatVoorHistoriek, tekstZonderHuisnummers, werkenZoalsBekend } from "../lib/historiek-privacy.mjs";
 import { straatItemPrivacy } from "../lib/straat-bestanden.mjs";
 import { STRAAT_SCHEMA, itemVoorStraat, schrijfStraatSnapshots, straatBestandenProblemen } from "../scripts/build-straat-snapshots.mjs";
 import { bouwKaartUitleg, kaartUitlegVoorPubliek, schoonWerk } from "../lib/kaart-uitleg-refresh.mjs";
@@ -36,7 +36,7 @@ const gipod = (id, properties) => ({ type: "Feature", geometry: { type: "Point",
 const hinder = (gipodId, description) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { HindranceStatus: "Gevalideerd", HindranceConsequenceOf: `https://gipod.api.vlaanderen.be/api/v1/works/${gipodId}`, HindranceGipodId: gipodId + 5000, HindranceDescription: description, HindranceStart: "2099-03-12T06:00:00Z", HindranceEnd: "2099-03-12T16:00:00Z", Consequences: "Parkeerverbod" } });
 const AANSLUITING = gipod(990801, { Description: "2018 ANTWERPEN, PROEFSTRAAT 1DN02", Owner: "Fluvius System Operator", PublicDomainOccupancyTypes: "Elektriciteit", GroundworkSpecification: "klantaansluiting" });
 const LIFT = gipod(990802, { Description: "2000 ANTWERPEN, TESTLAAN 12", Owner: "Stad Antwerpen - Proefdienst", PublicDomainOccupancyTypes: "(Verhuis)lift/levering" });
-// Een tekst met "verhuis" en een naam (verzonnen): hij komt in zijn geheel niet op de site.
+// Een tekst met "verhuis" en een naam (verzonnen): alleen het adres komt op de site.
 const MET_NAAM = gipod(990803, { Description: "Verhuis fam. Proefmans, Testlaan 14", Owner: "Verhuizingen Proefmans BV", PublicDomainOccupancyTypes: "Container;(Verhuis)lift/levering" }); // verzonnen
 const STRATEN = { 990801: [{ id: "9101", name: "Proefstraat", postcode: "2018" }], 990802: [{ id: "9102", name: "Testlaan", postcode: "2000" }], 990803: [{ id: "9102", name: "Testlaan", postcode: "2000" }] };
 const werken = () => attachHindrance(collectWorks([AANSLUITING, LIFT, MET_NAAM], new Set([990801, 990802, 990803])), [hinder(990802, "Verhuis"), hinder(990803, "Verhuislift fam. Proefmans")], true)
@@ -55,11 +55,14 @@ const getoond = (k) => [k.titel, k.samenvatting, k.plek, k.bronTekst, ...k.regel
 
 // ---------- de ingang: GIPOD ----------
 
-test("ingang: een tekst met 'verhuis' telt als niet gegeven, '(Verhuis)lift/levering' heet 'Lift/levering', een opdrachtgever met 'verhuis' valt weg", () => {
+test("ingang: een tekst met 'verhuis' houdt alleen zijn adres, '(Verhuis)lift/levering' heet 'Lift/levering', een opdrachtgever met 'verhuis' valt weg", () => {
   const w = per(werken());
   assert.equal(w[990801].title, "2018 ANTWERPEN, PROEFSTRAAT 1DN02", "een titel zonder 'verhuis' blijft zoals GIPOD hem geeft");
   assert.deepEqual(w[990802].occupancyTypes, ["Lift/levering"]);
-  assert.equal(w[990803].title, GEEN_OMSCHRIJVING, "de hele tekst, ook de naam en het andere adres: de titel van een werk zonder omschrijving");
+  // Alleen het adres zoals de beheerder het schreef (nakijkronde van head c4bb2927: de plaats exact, ook bij één huis); de
+  // naam en het woord vallen weg. Zonder adres: de titel van een werk zonder omschrijving.
+  assert.equal(w[990803].title, "Testlaan 14"); // verzonnen
+  assert.equal(collectWorks([gipod(990806, { Description: "Verhuislift fam. Proefmans" })], new Set([990806]))[0].title, GEEN_OMSCHRIJVING); // verzonnen
   assert.equal(w[990803].owner, "");
   assert.deepEqual(w[990803].occupancyTypes, ["Container;Lift/levering"]);
   // De hinderfase met dat woord is er niet (zoals een fase zonder omschrijving); haar gevolgen blijven bij het werk.
@@ -109,12 +112,12 @@ test("kaart: een werk met '(Verhuis)lift/levering' toont zijn adres en heet neut
   // Wat GIPOD als leesbare soort geeft, ook naast een andere soort.
   assert.deepEqual(KU.innameLeesbaar(["Container;(Verhuis)lift/levering"]), ["container", "lift of levering"]);
   const twee = kaart(per(werken())[990803]);
-  // Het adres stond alleen in de tekst met "verhuis" en die komt niet over: alleen de straat van het punt.
-  assert.match(twee.titel, new RegExp(`^${INNAME_LIFT} in de Testlaan: `));
+  // Het adres in de tekst met "verhuis" blijft (nakijkronde van head c4bb2927), de rest van die tekst niet.
+  assert.match(twee.titel, new RegExp(`^${INNAME_LIFT} in de Testlaan nr\\. 14: `));
   assert.match(regels(twee).Wat, /Volgens GIPOD: container · lift of levering\./);
   // De vaste tekst is niet de tekst van de beheerder: geen "De beheerder schrijft", geen naam, geen opdrachtgever.
   assert.equal(twee.bronTekst, "");
-  assert.doesNotMatch(getoond(twee), /De beheerder schrijft|Proefmans|Testlaan 14/); // verzonnen
+  assert.doesNotMatch(getoond(twee), /De beheerder schrijft|Proefmans/); // verzonnen
   nergensVerhuis(twee, "kaartje met een naam");
   // Het woord zelf geeft geen soort; de soort inname van GIPOD wel.
   assert.equal(KU.soortVanWerk({ fasen: ["Verhuis"] }).soort, "");
@@ -205,12 +208,13 @@ test("historiek: een werk houdt zijn huisnummer en heeft nergens 'verhuis'; een 
   // Een oude stand (van vóór 18 oktober 2026) met "verhuis": de scan meldt het pad, nooit de waarde; de opkuis maakt het neutraal.
   const oud = { ...h, layers: { ...h.layers, works: { ...h.layers.works, items: [{ ...werk[990802], occupancyTypes: ["(Verhuis)lift/levering"], title: "Verhuis Testlaan 12" }] } } }; // verzonnen
   const vondsten = historiekPrivacyBevindingen(oud);
-  assert.deepEqual(vondsten.map((v) => v.code), ["verhuis", "verhuis"]);
+  // Ook "vrije_tekst": een lift is een werk voor één huis, en "Verhuis" naast het adres is vrije tekst van de beheerder.
+  assert.deepEqual(vondsten.map((v) => v.code), ["vrije_tekst", "verhuis", "verhuis"]);
   assert.ok(vondsten.every((v) => !/verhuis|Testlaan/i.test(v.path)));
   const schoon = historiekVoorPubliek(oud);
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
   assert.deepEqual(schoon.layers.works.items[0].occupancyTypes, ["Lift/levering"]);
-  assert.equal(schoon.layers.works.items[0].title, GEEN_OMSCHRIJVING);
+  assert.equal(schoon.layers.works.items[0].title, "Testlaan 12", "alleen het adres"); // verzonnen
   // Een wijziging van een werk (zonder id in de velden) volgt dezelfde regel.
   const wijziging = historiekVoorPubliek({ ...h, changes: [{ observedAt: T, layer: "works", id: "work:990802", type: "changed", fields: ["occupancyTypes", "title"], before: { occupancyTypes: [], title: "Testlaan 10" }, after: { occupancyTypes: ["(Verhuis)lift/levering"], title: "Testlaan 12" } }] }); // verzonnen
   assert.deepEqual(wijziging.changes[0].after, { occupancyTypes: ["Lift/levering"], title: "Testlaan 12" }); // verzonnen
@@ -220,29 +224,52 @@ test("historiek: een werk houdt zijn huisnummer en heeft nergens 'verhuis'; een 
   assert.deepEqual(historiekPrivacyBevindingen({ title: "2000 Antwerpen, Proefstraat 12" }).map((v) => v.code), ["huisnummer"]); // verzonnen
 });
 
-test("historiek: de overgang maakt geen valse wijziging; een werk dat nu zijn huisnummer houdt, is niet 'changed'", () => {
+test("historiek: de overgang maakt geen valse wijziging; een werk voor één huis houdt de titel die de historiek kende, een ander werk zijn huisnummer", () => {
   const T1 = "2099-03-09T03:00:00.000Z", T2 = "2099-03-10T03:00:00.000Z", T3 = "2099-03-11T03:00:00.000Z";
   const resultaat = (items) => resultaatVoorHistoriek({ ok: true, items });
   const leeg = { ok: true, items: [] };
-  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: resultaat(werken()), publicSpaceResult: leeg });
+  // Naast de werken voor één huis een publiek project (riolering) met een huisnummer (verzonnen).
+  const RIOOL = { ...per(werken())[990801], gipodId: 990820, title: "2018 ANTWERPEN, PROEFSTRAAT 30 - vervanging riolering", owner: "Proefwater", ownerGroup: "Andere", occupancyTypes: ["Riolering"], workTypes: [] }; // verzonnen
+  const lijst = () => [...werken(), RIOOL];
+  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: resultaat(lijst()), publicSpaceResult: leeg });
   // De historiek zoals de regel van vóór 18 oktober 2026 ze schreef: zonder huisnummers in de titel.
   const oud = { ...eerst, layers: { ...eerst.layers, works: { ...eerst.layers.works, items: eerst.layers.works.items.map((w) => ({ ...w, title: tekstZonderHuisnummers(w.title) })) } } };
   assert.ok(oud.layers.works.items.some((w) => w.title === "2000 ANTWERPEN, TESTLAAN"), "de oude stand had geen huisnummer");
-  const daarna = updateLiveHistory(oud, { observedAt: T2, worksResult: resultaat(werken()), publicSpaceResult: leeg });
-  assert.deepEqual(daarna.changes.filter((c) => c.layer === "works"), [], "geen 'changed' omdat het huisnummer nu blijft");
-  assert.ok(daarna.layers.works.items.some((w) => w.title === "2000 ANTWERPEN, TESTLAAN 12"), "nu met het huisnummer");
-  // Een echte wijziging van het adres blijft een wijziging.
-  const ander = werken().map((w) => (w.gipodId === 990802 ? { ...w, title: "2000 ANTWERPEN, TESTLAAN 14" } : w));
-  const later = updateLiveHistory(daarna, { observedAt: T3, worksResult: resultaat(ander), publicSpaceResult: leeg });
-  assert.deepEqual(later.changes.filter((c) => c.layer === "works").map((c) => [c.id, c.type, c.fields]), [["work:990802", "changed", ["title"]]]);
+  // Zoals scripts/refresh-live-history.mjs: eerst werkenZoalsBekend (lib/historiek-privacy.mjs), dan de historiek.
+  const nu = (items, vorige) => resultaat(werkenZoalsBekend(items, vorige.layers.works));
+  const daarna = updateLiveHistory(oud, { observedAt: T2, worksResult: nu(lijst(), oud), publicSpaceResult: leeg });
+  assert.deepEqual(daarna.changes.filter((c) => c.layer === "works"), [], "geen 'changed'");
+  const titel = Object.fromEntries(daarna.layers.works.items.map((w) => [w.gipodId, w.title]));
+  // Een werk voor één huis wordt niet onthullender dan wat de historiek kende (nakijkronde van head c4bb2927).
+  assert.equal(titel[990802], "2000 ANTWERPEN, TESTLAAN");
+  // De oude regel van de historiek liet een nummer met een code staan ("1DN02"): dat kende ze dus al.
+  assert.equal(titel[990801], "2018 ANTWERPEN, PROEFSTRAAT 1DN02");
+  // Een publiek project krijgt zijn huisnummer terug (werkenVoorVergelijking): dat stond al in kaart-uitleg.json van main.
+  assert.equal(titel[990820], "2018 ANTWERPEN, PROEFSTRAAT 30 - vervanging riolering");
+  // Een nieuw werk voor één huis krijgt zijn exacte adres; een andere plaats in GIPOD blijft een wijziging. Alleen een ander
+  // huisnummer is dat niet: de historiek kende het werk zonder nummer, en zo blijft het.
+  const ander = lijst().map((w) => (w.gipodId === 990802 ? { ...w, title: "2000 ANTWERPEN, VOORBEELDLAAN 14 - levering" } : w.gipodId === 990802 + 18 ? { ...w, title: "2018 ANTWERPEN, PROEFSTRAAT 32 - vervanging riolering" } : w)); // verzonnen
+  const later = updateLiveHistory(daarna, { observedAt: T3, worksResult: nu([...ander, { ...per(werken())[990802], gipodId: 990821 }], daarna), publicSpaceResult: leeg });
+  assert.deepEqual(later.changes.filter((c) => c.layer === "works").map((c) => [c.id, c.type, c.fields]), [["work:990802", "changed", ["title"]], ["work:990820", "changed", ["title"]], ["work:990821", "added", []]]);
+  assert.equal(later.layers.works.items.find((w) => w.gipodId === 990821).title, "2000 ANTWERPEN, TESTLAAN 12");
+  assert.equal(later.layers.works.items.find((w) => w.gipodId === 990802).title, "2000 ANTWERPEN, VOORBEELDLAAN 14");
+  // Bij een publiek project is een ander huisnummer wel een wijziging.
+  assert.equal(later.layers.works.items.find((w) => w.gipodId === 990820).title, "2018 ANTWERPEN, PROEFSTRAAT 32 - vervanging riolering");
 });
 
 test("straatbestanden: een werk houdt zijn huisnummer (ook na 'gevel nummer'), zonder 'verhuis'; de scan van validate-data volgt", () => {
   const w = per(werken());
-  const item = itemVoorStraat({ ...w[990801], hindrance: { severe: false, consequences: [], phases: [{ description: "stelling aan gevel nummer 3", start: "2099-03-12T06:00:00Z", end: "2099-03-12T16:00:00Z", consequences: [] }] } }, { laag: "werken" });
+  const fase = { description: "stelling aan gevel nummer 3", start: "2099-03-12T06:00:00Z", end: "2099-03-12T16:00:00Z", consequences: ["Parkeerverbod"] };
+  const item = itemVoorStraat({ ...w[990801], hindrance: { severe: false, consequences: [], phases: [fase] } }, { laag: "werken" });
   assert.equal(item.title, "2018 ANTWERPEN, PROEFSTRAAT 1DN02");
-  assert.equal(item.hindrance.phases[0].description, "stelling aan gevel nummer 3");
+  // Een aansluiting is een werk voor één huis: de fase houdt haar dag en gevolgen, haar vrije tekst niet
+  // (tests/werken-nakijk3.test.mjs 3). Een publiek project (riolering) houdt de tekst, met het nummer na "gevel nummer".
+  assert.equal(item.hindrance.phases[0].description, "");
+  assert.deepEqual(item.hindrance.phases[0].consequences, ["Parkeerverbod"]);
   assert.deepEqual(straatItemPrivacy({ werken: [item] }), []);
+  const riool = itemVoorStraat({ ...w[990801], gipodId: 990899, title: "2018 ANTWERPEN, PROEFSTRAAT 1-9 - riolering", occupancyTypes: ["Riolering"], workTypes: [], hindrance: { severe: false, consequences: [], phases: [fase] } }, { laag: "werken" }); // verzonnen
+  assert.equal(riool.hindrance.phases[0].description, "stelling aan gevel nummer 3");
+  assert.deepEqual(straatItemPrivacy({ werken: [riool] }), []);
   const lift = itemVoorStraat(w[990802], { laag: "werken" });
   assert.equal(lift.title, "2000 ANTWERPEN, TESTLAAN 12");
   nergensVerhuis(lift, "straatbestand");
@@ -375,13 +402,16 @@ test("straat: het adres van de beheerder wint niet als hij de straat van het pun
       assert.deepEqual(w.streets.map((s) => s.name), ["Testlaan"], `${wie}: ${wat}`);
       assert.equal(w.streetResolution, "nearest_official_axis", `${wie}: ${wat}`);
     }
-    // Het nummer hoort bij de Proefstraat: bij de Testlaan staat het niet.
-    assert.equal(regels(kaart(eigen)).Waar, "Testlaan", wie);
-    // Ver van het punt: het adres staat niet als werk bij "Wat"; een aansluiting is een werk voor één huis, dus ook de
-    // tekst van de beheerder staat er niet (tests/werken-een-huis.test.mjs).
+    // Het nummer hoort bij de Proefstraat: bij de Testlaan staat het niet als huisnummer; wel als het adres dat de beheerder
+    // noemt (een aansluiting is een werk voor één huis, zijn tekst staat er niet: alleen straat en nummer).
+    assert.equal(regels(kaart(eigen)).Waar, "Testlaan; de beheerder noemt PROEFSTRAAT 12", wie);
+    // Ver van het punt: het adres staat niet als werk bij "Wat" en de tekst van de beheerder staat er niet
+    // (tests/werken-een-huis.test.mjs), maar het adres zelf wel, bij "Waar" (nakijkronde van head c4bb2927: het stond
+    // daarna nergens meer op de kaart).
     const k = kaart(ver);
     assert.doesNotMatch(regels(k).Wat, /Volgens de beheerder/, wie);
     assert.equal(k.bronTekst, "", wie);
+    assert.equal(regels(k).Waar, "Testlaan; de beheerder noemt PROEFSTRAAT 1DN02", wie);
   }
 });
 

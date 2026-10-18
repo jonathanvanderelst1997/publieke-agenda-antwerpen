@@ -185,8 +185,10 @@ test("homoniem: de historiek houdt geen toevoeging, en buiten een werk geen huis
   geenToevoeging(schoon, "historiek");
   nergens(schoon.layers.publicSpace, "historiek: parkeerverbod");
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
-  // Een werk houdt zijn huisnummer, zonder toevoeging; een wijziging van dat huisnummer is een andere plaats en blijft.
-  assert.deepEqual(schoon.layers.works.items.map((w) => w.title).sort(), ["2000 ANTWERPEN, PROEFSTRAAT 12 DN40", "2018 ANTWERPEN, PROEFSTRAAT 12", "Nieuwe aansluiting", "Nieuwe aansluiting Proefstraat 12"]);
+  // Een werk houdt zijn huisnummer, zonder toevoeging; een wijziging van dat huisnummer is een andere plaats en blijft. Een werk
+  // voor één huis houdt alleen zijn adres, geen vrije tekst (tests/werken-nakijk3.test.mjs 3): "Nieuwe aansluiting
+  // Proefstraat 12" wordt "Proefstraat 12".
+  assert.deepEqual(schoon.layers.works.items.map((w) => w.title).sort(), ["2000 ANTWERPEN, PROEFSTRAAT 12 DN40", "2018 ANTWERPEN, PROEFSTRAAT 12", "Nieuwe aansluiting", "Proefstraat 12"]);
   assert.equal(schoon.changes.length, 2);
   assert.deepEqual(schoon.changes[1].after, { title: "2018 ANTWERPEN, PROEFSTRAAT 14" });
   const resultaat = resultaatVoorHistoriek({ ok: true, items: werken });
