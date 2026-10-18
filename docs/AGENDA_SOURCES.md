@@ -172,10 +172,15 @@ Intern blijft alles:
   eBesluit rood). Zonder melding op de site is dat het signaal voor de eigenaar;
 - de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
 
-Alleen als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat nog ("De agenda wordt even niet
-ververst"): dan is de momentopname zelf oud, en dat staat los van één falende bron. Wat niets met een bron te
-maken heeft, blijft ook: "Export niet beschikbaar" (het agendabestand maken in de browser), "Opslaan lukte niet"
-(een straat bewaren in de browser) en "Locatie niet beschikbaar" (de locatie van het toestel).
+Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van
+18-10-2026): geen melding "De agenda wordt even niet ververst … We werken eraan.", geen oranje pil "Laatst
+bijgewerkt", geen badge "Laatst bevestigd …" en geen "… omdat de verversing achterloopt" in de zin over de
+broncontrole. De kop toont "Bijgewerkt …" met het tijdstip van de momentopname, en de bronitems blijven 14 dagen
+zichtbaar (`graceStale`, intern). Zo eindigen ook dan op een gsm de plek en "Dit weekend" boven 600 px (P6, P8;
+met de melding waren dat 573/691/845 px en 791 px). De eigenaar krijgt het signaal via de job `freshness` en het
+alarm-issue. Wat niets met een bron te maken heeft, blijft: "Export niet beschikbaar" (het agendabestand maken in
+de browser), "Opslaan lukte niet" (een straat bewaren in de browser) en "Locatie niet beschikbaar" (de locatie van
+het toestel).
 
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
@@ -295,8 +300,8 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
   `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
   vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
   2 dagen.
-- "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
-  48 uur.
+- De gratie van 14 dagen (`graceStale`) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is
+  dan 48 uur. Een bezoeker ziet ze als gewone items, zonder "Laatst bevestigd" (besluit van 18-10-2026).
 - Per bron toont de site "ververst op …" (het moment van de laatste goede stand, ook als de laatste
   ophaalpoging faalde), in het oranje "leeg sinds …" of "nog niet actief".
 

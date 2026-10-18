@@ -1530,9 +1530,11 @@ const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.f
 const uitgaan = window.PublicAgendaUitgaan || null;
 // Versheid: alleen als de laatste geslaagde verversing ouder is dan 48 uur (een achterstand),
 // blijven BRONITEMS (uit de automatische feed) die alleen daardoor wegvielen (reviewReason "stale_source") nog
-// STALE_GRACE_DAYS zichtbaar, gemarkeerd met "Laatst bevestigd". Handmatige items hebben die
-// gratie niet nodig: ze blijven zichtbaar tot en met hun laatste dag (zie agenda-refresh.js).
-// Verlopen datums, bronconflicten en onbevestigde bronnen blijven altijd verborgen.
+// STALE_GRACE_DAYS zichtbaar (graceStale, intern). Een bezoeker ziet ze als gewone items, zonder badge met de
+// datum van de laatste bevestiging en zonder melding (besluit van de eigenaar van 18-10-2026: "niemand moet weten
+// als er iets faalt, de momentopname blijft wel goed"). Handmatige items hebben die gratie niet nodig: ze blijven
+// zichtbaar tot en met hun laatste dag (zie agenda-refresh.js). Verlopen datums, bronconflicten en onbevestigde
+// bronnen blijven altijd verborgen.
 const FRESH_LIMIT_HOURS = 48;
 const STALE_GRACE_DAYS = 14;
 const agendaFreshness = uitgaan
@@ -1723,9 +1725,9 @@ function dateRange(startIso, endIso, limit = 120) {
 }
 
 // Wanneer de agenda ververst is, altijd met het uur: "vandaag om 05.22", "gisteren om 05.21" of
-// "op 8 oktober 2026 om 05.21". Zo ziet een bezoeker meteen of de stand van vanochtend is, ook als
-// zijn browser het uur niet zelf in de datum zet. Leeg als het moment onbekend is.
-function freshnessWhen(iso, nowMs) {
+// "op 8 oktober 2026 om 05.21" (kort, voor de pil bovenaan: "op 8 okt om 05.21"). Zo ziet een bezoeker meteen of de
+// stand van vanochtend is, ook als zijn browser het uur niet zelf in de datum zet. Leeg als het moment onbekend is.
+function freshnessWhen(iso, nowMs, { kort = false } = {}) {
   const value = Date.parse(String(iso || ""));
   if (!Number.isFinite(value)) return "";
   const zone = { timeZone: "Europe/Brussels" };
@@ -1742,7 +1744,10 @@ function freshnessWhen(iso, nowMs) {
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     if (day === yesterday.toISOString().slice(0, 10)) return `gisteren om ${time}`;
   }
-  const date = new Intl.DateTimeFormat("nl-BE", { ...zone, day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
+  // `kort` (de pil bovenaan): "op 18 okt. om 05.18", het jaar alleen als dat niet het huidige is. Zo blijft de pil ook
+  // voor een momentopname van een paar dagen oud op één regel op een gsm van 360 px (P8).
+  const anderJaar = !Number.isFinite(nowMs) || day.slice(0, 4) !== dayOf(nowMs).slice(0, 4);
+  const date = new Intl.DateTimeFormat("nl-BE", { ...zone, day: "numeric", month: kort ? "short" : "long", ...(!kort || anderJaar ? { year: "numeric" } : {}) }).format(new Date(value));
   return `op ${date} om ${time}`;
 }
 
@@ -2101,7 +2106,7 @@ function eventTemplate(item) {
         <div class="meta">
           ${item.location ? `<span>${esc(item.location)}</span>` : ""}
           ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
-          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : `<span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>`}
+          <span>${item.classification === "current" || (item.graceStale && item.date <= todayIso()) ? "Lopend" : "Toekomstig"}</span>
           ${item.nietGoedgekeurd ? `<span class="aanvraag-badge">${esc(NIET_GOEDGEKEURD_LABEL)}</span>` : ""}
           <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
@@ -2171,13 +2176,6 @@ function formatShortDate(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
   const [year, month, day] = iso.split("-").map(Number);
   return new Intl.DateTimeFormat("nl-BE", { weekday: "short", day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
-}
-
-function formatConfirmedDate(instant) {
-  const iso = String(instant || "").slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
-  const [year, month, day] = iso.split("-").map(Number);
-  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
 }
 
 function emptyStateTemplate() {
@@ -2306,7 +2304,6 @@ function highlightCardTemplate(item, range) {
           <strong class="hl-title">${esc(item.title)}</strong>
           <span class="hl-when">${esc(highlightWhen(item, range))}</span>
           ${place ? `<span class="hl-where">${esc(place)}</span>` : ""}
-          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : ""}
         </span>
       </button>
     </li>
@@ -2476,35 +2473,15 @@ function onHighlightTabKey(event) {
   document.getElementById(`hl-tab-${highlightTab}`)?.focus();
 }
 
-// Bovenaan: wanneer de agenda het laatst ververst is, en een vriendelijke melding als dat
-// langer dan 48 uur geleden is.
+// Bovenaan: wanneer de agenda het laatst ververst is (het tijdstip van de momentopname). Ook als dat langer dan
+// 48 uur geleden is, zonder melding en zonder andere kleur (besluit van 18-10-2026; vroeger een banner bovenaan en
+// een oranje pil): het alarm gaat naar de eigenaar (de job freshness in refresh.yml).
 function renderFreshness() {
   const pill = document.getElementById("agenda-freshness");
-  const banner = document.getElementById("agenda-stale-banner");
-  const when = agendaFreshness.generatedAt ? formatInstant(agendaFreshness.generatedAt) : "";
-  if (pill) {
-    pill.className = `freshness-pill ${agendaFreshness.stale ? "is-stale" : "is-fresh"}`;
-    const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime()) : "";
-    pill.textContent = moment ? `${agendaFreshness.stale ? "Laatst bijgewerkt" : "Bijgewerkt"} ${moment}` : "Bijwerkmoment onbekend";
-  }
-  if (!banner) return;
-  if (!agendaFreshness.stale || !agendaFreshness.known) {
-    banner.hidden = true;
-    banner.textContent = "";
-    return;
-  }
-  const days = agendaFreshness.ageDays;
-  const ago = days >= 2 ? `${days} dagen geleden` : "meer dan 48 uur geleden";
-  banner.hidden = false;
-  banner.innerHTML = `
-    <span class="stale-emoji" aria-hidden="true">⏳</span>
-    <div>
-      <strong>De agenda wordt even niet ververst.</strong>
-      <p>De laatste update was op ${esc(when)} (${esc(ago)}). We tonen wat toen bevestigd was${
-        graceAgendaItems.length ? `; items met “Laatst bevestigd” check je best even bij de officiële bron` : ""
-      }. We werken eraan.</p>
-    </div>
-  `;
+  if (!pill) return;
+  pill.className = "freshness-pill is-fresh";
+  const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime(), { kort: true }) : "";
+  pill.textContent = moment ? `Bijgewerkt ${moment}` : "Bijwerkmoment onbekend";
 }
 
 function renderCounts(items, categoryCounts) {
@@ -2520,8 +2497,7 @@ function renderCounts(items, categoryCounts) {
   document.getElementById("agenda-refresh-note").textContent = refreshNoteText(
     refreshEngine.config.retrievedAt,
     agendaNow().getTime(),
-    agendaReconciliation,
-    graceAgendaItems.length
+    agendaReconciliation
   );
   renderSourceStatus();
 }
@@ -2530,17 +2506,16 @@ function renderCounts(items, categoryCounts) {
 // volledige vooruitblik"). Besluit van de eigenaar (18-10-2026): een bezoeker ziet niet dat een bron faalt. Een punt
 // dat alleen verborgen is omdat zijn bron niet tijdig ververst werd (reviewReason "stale_source"), telt hier daarom
 // niet mee: vroeger telde de zin ze apart (als verouderd), en met eBesluit falend waren dat precies de punten van
-// eBesluit. De zin is dus dezelfde of een bron nu faalt of niet. Wel: verlopen punten en echte bronconflicten (een
-// punt dat de bron niet bevestigt). `grace`: bij een achterstand van de hele agenda (meer dan 48 uur, de melding
-// bovenaan blijft) de punten die met "Laatst bevestigd" zichtbaar blijven.
-function refreshNoteText(retrievedAt, nowMs, reconciliation, grace = 0) {
+// eBesluit. De zin is dus dezelfde of een bron nu faalt of niet, en ook bij een achterstand van de hele agenda (meer
+// dan 48 uur; vroeger telde de zin dan ook de punten die met een badge zichtbaar bleven). Wel: verlopen punten en
+// echte bronconflicten (een punt dat de bron niet bevestigt).
+function refreshNoteText(retrievedAt, nowMs, reconciliation) {
   const items = Array.isArray(reconciliation?.auditItems) ? reconciliation.auditItems : [];
   const expired = reconciliation?.counts?.expired ?? 0;
   const conflicts = items.filter((item) => item.classification === "review_required" && item.reviewReason !== "stale_source").length;
   return (
     `Officiële broncontrole ${freshnessWhen(retrievedAt, nowMs) || "op een onbekend moment"}: ` +
-    `${expired} verlopen punten${conflicts ? ` en ${conflicts} punten met een bronconflict` : ""} worden niet als actueel getoond` +
-    (grace ? `; ${grace} punten blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt.` : ".")
+    `${expired} verlopen punten${conflicts ? ` en ${conflicts} punten met een bronconflict` : ""} worden niet als actueel getoond.`
   );
 }
 

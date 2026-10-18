@@ -1097,6 +1097,57 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
   });
 
+  // Nakijkronde 2 (18-10-2026): de melding dat de hele agenda meer dan 48 uur niet ververst is ("⏳ De agenda wordt even
+  // niet ververst. … We werken eraan."), de oranje pil "Laatst bijgewerkt", de badge "Laatst bevestigd …" en "… omdat de
+  // verversing achterloopt" in de bronnenlijst bleven staan: zo wist een bezoeker toch dat er iets faalt, tegen het
+  // besluit in ("niemand moet weten als er iets faalt, de momentopname blijft wel goed"). Op een gsm eindigden "Dit
+  // weekend" (791 px) en de plek (573/691/845 px) zo ook weer onder 600 px (P6, P8). Nu: de momentopname met haar
+  // tijdstip, zonder melding. Intern blijft het alarm (de job freshness in refresh.yml).
+  const DRIE_DAGEN = 3 * 86400000;
+  const oudeFeed = (feed) => {
+    const toen = new Date(Date.parse(feed.generatedAt) - DRIE_DAGEN).toISOString();
+    const oud = JSON.parse(JSON.stringify(feed).replaceAll(feed.generatedAt, toen));
+    return Object.assign(oud, { generatedAt: toen, classificationAsOf: toen.slice(0, 10) });
+  };
+  const ACHTERSTAND = /wordt even niet ververst|We werken eraan|Laatst bevestigd|achterloopt|check je best even|Laatst bijgewerkt/i;
+  await t.test("de hele agenda is 3 dagen oud en de bronnen falen: geen melding, de momentopname blijft, en op de gsm alles boven 600 px", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const onder = {};
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      const { page, context, errors } = await openPage(baseUrl, { dag, width, height, feed: metFalendeBron(oudeFeed(weekendFeed(dag, { uitstappen: 9, langePlaats: true }))) });
+      await bronnenNagekeken(page);
+      await page.locator("#dit-weekend .dw-titel").waitFor();
+      // De momentopname blijft: de kaarten van het weekend staan er (intern met graceStale), zonder badge.
+      assert.equal(await page.locator("#dit-weekend .hl-card").count(), 6, `${width} px: de kaarten van het weekend staan er`);
+      assert.ok(await page.evaluate(() => (window.PUBLIC_AGENDA_VISIBLE_ITEMS || []).some((i) => i.graceStale)), "intern: de punten blijven, met graceStale");
+      assert.equal(await page.locator("#agenda-stale-banner, .stale-banner, .grace-badge").count(), 0, `${width} px`);
+      assert.doesNotMatch(await page.locator("#agenda-freshness").getAttribute("class"), /is-stale/);
+      assert.match(await page.locator("#agenda-freshness").textContent(), /^Bijgewerkt /, "het tijdstip van de momentopname");
+      assert.doesNotMatch(await leesbareTekst(page), ACHTERSTAND, `${width} px`);
+      assert.doesNotMatch(await page.locator("#agenda-refresh-note").textContent(), ACHTERSTAND);
+      onder[`Dit weekend ${width} px`] = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+      assert.deepEqual(errors, [], `${width} px`);
+      await context.close();
+    }
+    const plekDag = addDays(today, 3);
+    const feed = gezondeBronnen(echteFeed());
+    feed.items.push(kalenderItem(feed.generatedAt, proefAgendapunt(addDays(today, 4), street)));
+    const { page, context, errors } = await openPage(baseUrl, { dag: plekDag, street, query: plekQuery, feed: metFalendeBron(feed) });
+    await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    await bronnenNagekeken(page);
+    assert.equal(await page.locator("#agenda-stale-banner, .stale-banner, .grace-badge").count(), 0, "plek");
+    assert.doesNotMatch(await leesbareTekst(page), ACHTERSTAND, "plek");
+    Object.assign(onder, await page.evaluate(() => Object.fromEntries([".pv-place-name", ".pv-dezeweek", ".pv-stats"].map((sel) => {
+      const r = document.querySelector(sel)?.getBoundingClientRect();
+      return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
+    }))));
+    assert.deepEqual(errors, [], "plek");
+    await context.close();
+    t.diagnostic(`agenda 3 dagen oud, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
+  });
+
   // Nakijkbevindingen (kaart-tellers): "X in de lijst, Y op de kaart" onder de kaart. X is wat de lijst echt
   // toont: met de periode, of de 14 dagen van de tijdlijn en de gekozen dag; de maand heeft geen lijst en
   // krijgt de gewone zin. Y telt wat de kaart tekent, op dezelfde manier: een werf in stukken één keer.

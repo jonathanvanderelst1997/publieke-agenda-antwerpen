@@ -38,9 +38,27 @@ test("de voorpagina heeft geen bronwaarschuwing meer: geen blok, geen script, ge
   assert.equal(fs.existsSync(path.join(rootDir, "site", "bron-waarschuwing.js")), false);
   for (const naam of fs.readdirSync(path.join(rootDir, "site")).filter((n) => n.endsWith(".css")))
     assert.doesNotMatch(site(naam), /source-warning|source-stale/, naam);
-  // De melding dat de hele agenda niet meer ververst wordt (meer dan 48 uur), blijft: dat is geen bronfout maar een
-  // oude momentopname.
-  assert.match(html, /id="agenda-stale-banner"/);
+});
+
+// Nakijkronde 2 (18-10-2026): ook de melding dat de hele agenda meer dan 48 uur niet ververst is ("De agenda wordt even
+// niet ververst. … We werken eraan."), de oranje pil "Laatst bijgewerkt", de badge "Laatst bevestigd …" en "… omdat de
+// verversing achterloopt" zeiden een bezoeker dat er iets faalt, en braken op een gsm P6 en P8. Het besluit geldt ook
+// daar: de site toont de momentopname met haar tijdstip ("Bijgewerkt …"). Intern blijft alles: agendaFreshness, de
+// gratie van 14 dagen voor bronitems (graceStale), en de job freshness in refresh.yml met haar alarm-issue.
+test("een oude momentopname (meer dan 48 uur): geen melding, geen oranje pil, geen 'Laatst bevestigd'", () => {
+  const html = site("index.html");
+  assert.doesNotMatch(html, /agenda-stale-banner|stale-banner/);
+  for (const naam of fs.readdirSync(path.join(rootDir, "site")).filter((n) => n.endsWith(".css")))
+    assert.doesNotMatch(site(naam), /stale-banner|stale-emoji|grace-badge|is-stale/, naam);
+  const agenda = site("agenda.js");
+  for (const zin of ["wordt even niet ververst", "We werken eraan", "Laatst bevestigd", "Laatst bijgewerkt", "achterloopt", "check je best even"])
+    assert.ok(!agenda.includes(zin), `agenda.js bevat "${zin}"`);
+  assert.doesNotMatch(agenda, /agenda-stale-banner|grace-badge|is-stale/);
+  assert.match(agenda, /pill\.textContent = moment \? `Bijgewerkt \$\{moment\}` : "Bijwerkmoment onbekend"/);
+  // Intern: de achterstand en de gratie voor bronitems blijven (de momentopname blijft wel goed).
+  assert.match(agenda, /inStaleGrace\(.*backlog: agendaFreshness\.stale/);
+  assert.match(agenda, /\.map\(\(item\) => \(\{ \.\.\.item, graceStale: true \}\)\)/);
+  assert.match(fs.readFileSync(path.join(rootDir, ".github", "workflows", "refresh.yml"), "utf8"), /\n  freshness:\n[\s\S]*Live agenda niet ouder dan 48 uur/);
 });
 
 test("geen script van de site zegt een bezoeker dat een bron faalt", () => {
@@ -85,11 +103,9 @@ test("de zin 'Officiële broncontrole …' verraadt geen falende bron: punten di
     runtime.refreshNoteText(controle, nu, stand(metConflict), 0),
     "Officiële broncontrole vandaag om 05.18: 3 verlopen punten en 2 punten met een bronconflict worden niet als actueel getoond."
   );
-  // Achterstand van de hele agenda (meer dan 48 uur, de melding bovenaan blijft): de punten met "Laatst bevestigd".
-  assert.equal(
-    runtime.refreshNoteText(controle, nu, stand(bronFaalt), 2),
-    "Officiële broncontrole vandaag om 05.18: 3 verlopen punten worden niet als actueel getoond; 2 punten blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt."
-  );
+  // Ook een achterstand van de hele agenda (meer dan 48 uur, punten die met graceStale zichtbaar blijven) verandert de
+  // zin niet: vroeger kwam er "; 2 punten blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt" bij.
+  assert.equal(runtime.refreshNoteText(controle, nu, stand(bronFaalt), 2), zin);
   assert.equal(runtime.refreshNoteText("", nu, stand([]), 0), "Officiële broncontrole op een onbekend moment: 0 verlopen punten worden niet als actueel getoond.");
   // renderCounts gebruikt deze zin.
   assert.match(site("agenda.js"), /getElementById\("agenda-refresh-note"\)\.textContent = refreshNoteText\(/);

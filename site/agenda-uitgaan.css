@@ -171,8 +171,6 @@ body.agenda-focused {
 }
 .freshness-pill.is-fresh { background: var(--pa-fresh-soft); border-color: transparent; color: var(--pa-fresh) !important; }
 .freshness-pill.is-fresh::before { background: var(--pa-fresh); box-shadow: 0 0 0 4px color-mix(in srgb, var(--pa-fresh) 22%, transparent); }
-.freshness-pill.is-stale { background: var(--pa-warn-soft); border-color: var(--pa-warn-line); color: var(--pa-warn) !important; }
-.freshness-pill.is-stale::before { background: var(--pa-warn); }
 .theme-toggle {
   min-height: 36px;
   padding: 6px 12px;
@@ -196,23 +194,6 @@ body.agenda-focused {
 .agenda-focused .agenda-count small,
 .agenda-count strong,
 .agenda-focused .agenda-count strong { color: var(--pa-muted); }
-
-/* ---- versheidsbanner ---- */
-.stale-banner {
-  display: flex;
-  gap: 14px;
-  align-items: flex-start;
-  margin: 14px 0 4px;
-  padding: 16px 18px;
-  border-radius: 16px;
-  background: var(--pa-warn-soft);
-  border: 1px solid var(--pa-warn-line);
-  color: var(--pa-ink);
-}
-.stale-banner[hidden] { display: none; }
-.stale-banner strong { display: block; color: var(--pa-warn); font-size: 1rem; }
-.stale-banner p { margin: 4px 0 0; font-size: 0.9rem; line-height: 1.55; color: var(--pa-ink); }
-.stale-emoji { font-size: 1.6rem; line-height: 1; }
 
 /* ---- filters ---- */
 .agenda-controls,
@@ -462,7 +443,6 @@ body.agenda-focused {
   color: var(--pa-ink);
   border: 1.5px solid var(--pa-line-strong);
 }
-.grace-badge,
 .aanvraag-badge {
   justify-self: start;
   padding: 2px 8px;
@@ -608,8 +588,6 @@ body.agenda-focused {
   .hl-grid > li { scroll-snap-align: start; }
   .hl-art { height: 92px; }
   .view-themes .view-chip { min-height: 40px; padding: 6px 11px 6px 7px; font-size: 0.82rem; }
-  .stale-banner { padding: 14px; }
-  .stale-banner p { font-size: 0.85rem; }
   .freshness-pill { font-size: 0.78rem !important; }
 }
 
