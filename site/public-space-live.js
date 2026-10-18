@@ -149,8 +149,9 @@ if(root){
     const jobs=[...asignJobs(dateSql),["district",district()],["streets",loadStreetIndex()]];
     const settled=await settleSources(jobs);
     const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
-    // Per bron bijhouden wat ontbreekt (intern, live.failed): een halve laag mag niet als volledig doorgaan. De
-    // notitie zegt niet dat iets faalt (besluit van 18-10-2026), en de regel telt alleen wat laadde (publiekeRuimteKop).
+    // Per bron bijhouden wat ontbreekt (intern, live.failed): een halve laag mag niet als volledig doorgaan, en vervangt
+    // of leegt de momentopname van een straat nooit (kiesLaag in site/live-lagen.js). De notitie zegt niet dat iets faalt
+    // (besluit van 18-10-2026), en de regel telt alleen wat laadde (publiekeRuimteKop).
     let mislukt=mislukteOnderdelenPublicSpace(fail),verwerkingMislukt=false;
     const districtGeometry=v.district instanceof Error?null:v.district;
     const parking=v.parking instanceof Error?[]:v.parking,iod=[...(v.iod22 instanceof Error?[]:v.iod22),...(v.iod23 instanceof Error?[]:v.iod23)];

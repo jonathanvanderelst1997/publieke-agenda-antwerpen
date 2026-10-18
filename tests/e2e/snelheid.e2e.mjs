@@ -431,6 +431,58 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkronde 3 (18-10-2026), bevinding HOOG: klapte de bezoeker "Alle lijsten, bronnen en instellingen" open terwijl
+  // A-Sign en GIPOD niet antwoordden, dan verdween de stand van de ochtend zonder melding. De lijst van het hele district
+  // (site/public-space-live.js) meldde een lege laag "voor het hele district" en zette die over de straatlaag heen, en
+  // site/works-live.js zette de werken op mislukt: de parkeerverboden, de inname en het evenement vielen weg uit de
+  // weekzin, de tegels en de lijst ("– werken gepland"), terwijl er nog "Stand van de verversing van 05:22." stond. Een
+  // live laag die faalt, vervangt of leegt de momentopname nooit (besluit van 18-10-2026: "de momentopname blijft wel
+  // goed"). Alles naar buiten wordt afgebroken (route.abort): niets wordt echt opgehaald.
+  const plekStand = (page) => page.evaluate(() => {
+    const t = (el) => (el?.innerText || "").replace(/\s+/g, " ").trim();
+    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
+    return {
+      week: [document.querySelector(".pv-dezeweek")?.className || "", t(document.querySelector(".pv-dezeweek"))],
+      tegels: t(document.querySelector(".pv-place .pv-stats")),
+      stand: t(document.querySelector(".pv-place .pv-stand")),
+      sub: t(document.querySelector(".pv-sub")),
+      chips: [...document.querySelectorAll(".pv-chip")].map(t),
+      rijen: [...document.querySelectorAll(".pv-results .pv-row")].map((r) => [r.dataset.uid, t(r.querySelector(".pv-row-btn") || r)]),
+      lagen: Object.fromEntries(["works", "publicSpace", "permits", "terraces"].map((naam) => [naam, Array.isArray(live[naam]) ? live[naam].length : null])),
+      mislukt: live.failed || {},
+    };
+  });
+  for (const [width, height] of [[390, 844], [1280, 900]]) await t.test(`alle lijsten openklappen terwijl A-Sign en GIPOD niet antwoorden: dezelfde weekzin, tegels en items uit de stand van de ochtend (${width}×${height})`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width, height });
+    await page.waitForFunction(() => /Stand van de verversing van [^.…]+\.\s*$/.test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), null, { timeout: 10000 });
+    await page.waitForFunction(() => document.querySelector(".pv-dezeweek") && !/nog geladen/.test(document.querySelector(".pv-dezeweek").textContent), null, { timeout: 10000 });
+    await page.waitForTimeout(500);
+    const voor = await plekStand(page);
+    // De verzonnen ochtend: het werk, het parkeerverbod, de inname en het evenement staan er.
+    assert.ok(voor.rijen.some(([uid]) => uid === "works:990001"), JSON.stringify(voor.rijen));
+    assert.ok(voor.rijen.some(([uid]) => uid.startsWith("publicSpace:")), JSON.stringify(voor.rijen));
+    assert.ok(voor.lagen.publicSpace > 0, JSON.stringify(voor.lagen));
+    // Zoals een bezoeker: het blok met de lijsten openen en naar elke lijst scrollen. Elke lijst van het district laadt
+    // dan, en faalt (alles naar buiten afgebroken): de notitie is leeg, zonder melding.
+    const extraVoor = extern.length;
+    await page.locator("details:has(#works-live) > summary").first().click();
+    for (const id of ["works-live", "public-space-live", "permits-live", "terraces-live"]) {
+      await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+      await page.waitForTimeout(300);
+    }
+    await page.waitForFunction(() => ["#works-live [data-works-note]", "#public-space-live [data-space-note]"].every((sel) => document.querySelector(sel)?.textContent.trim() === "")
+      && !document.querySelector("#works-live.loading, #public-space-live.loading"), null, { timeout: 20000 });
+    assert.ok(extern.slice(extraVoor).some((u) => decodeURIComponent(u).includes(DISTRICT_BBOX)), "de werkenlijst van het district probeerde te laden");
+    assert.ok(extern.slice(extraVoor).some((u) => /P_ASign\/ASign\/MapServer\/20\/query/.test(u) && !/[?&]geometry=/.test(u)), "de A-Sign-lijst van het district probeerde te laden");
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(800);
+    assert.deepEqual(await plekStand(page), voor);
+    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Stand van de verversing van 05:22.");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Nakijkbevinding (weekzin): met de stand van de ochtend zijn alle lagen geladen, ook die van soorten die uit
   // staan. Een rustige week bleef met alle soorten aan "Rustig", maar werd met ?soort=inspraak "Onbekend ... staan
   // uit", terwijl alles nagekeken was. Verzonnen ochtend: alleen een werk dat pas na de 7 dagen begint.

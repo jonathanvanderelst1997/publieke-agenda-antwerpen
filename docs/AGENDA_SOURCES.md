@@ -123,6 +123,14 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   verversing van 05:22."; lukt het deels, of laden de straatassen voor de straal niet, dan "Live nagekeken: …" met
   wat wel lukte. Vroeger: "Live nakijken lukte nu niet …", "Rond de straat kon nu niet live geladen worden …",
   "De straal rond de straat kon nu niet geladen worden …";
+- de momentopname van een straat (`site/straat/<id>.json`) blijft staan als een live laag faalt, ook als de bezoeker
+  "Alle lijsten, bronnen en instellingen" openklapt en de lijsten van het hele district dan laden en falen (nakijkronde
+  3 van 18-10-2026: de parkeerverboden, werfzones en evenementen van de straat vielen toen stil weg uit de weekzin,
+  de tegels en de lijst). Per laag zijn er twee bronnen, de straat en het district; `kiesLaag` in `site/live-lagen.js`
+  kiest: een gelukte lijst van het hele district, anders de laag van de straat (de momentopname of het gelukte live
+  kader), anders wat er wel is. Alleen een gelukte live laag vervangt de momentopname; een die (deels) faalt, vervangt of
+  leegt ze nooit, en de zin eronder blijft "Stand van de verversing van …" (`tests/momentopname-live-laag.test.mjs`,
+  `tests/e2e/snelheid.e2e.mjs`);
 - de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
   in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
   die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De weekzin en de

@@ -16,7 +16,7 @@ import {
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
-import { ontbrekendeOnderdelen } from "./live-lagen.js";
+import { meldLiveLaag, ontbrekendeOnderdelen, wisLiveLaag } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
@@ -431,13 +431,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // De straatassen van het hele district (dezelfde belofte als hierboven bij het laden van de pagina): voor
   // de rijen van een dossier buiten het kader (publiekeRuimteInKader).
   const volledigeStraatIndex = () => import("./street-source.js").then(({ loadStreetIndex }) => loadStreetIndex());
-  const levend = () => (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
+  // De laag van de straat (de momentopname of het gelukte live kader) melden als bron "straat" (site/live-lagen.js):
+  // een gelukte lijst van het hele district gaat voor, maar een lijst van het district die (deels) faalt, vervangt of
+  // leegt de momentopname nooit. Zonder items en zonder mislukking: de straatlaag gaat weg (weg van de straat).
   function zetSnelLaag(naam, items, mislukt = []) {
-    const live = levend();
-    if (live.heelDistrict?.[naam]) return; // de lijst van het hele district is er al: die is vollediger
-    if (Array.isArray(items)) live[naam] = items; else delete live[naam];
-    live.failed = { ...(live.failed || {}), [naam]: [...mislukt] };
-    window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: naam, items: Array.isArray(items) ? items : null, failed: [...mislukt], bron: "straat" } }));
+    if (Array.isArray(items) || mislukt.length) meldLiveLaag(naam, items, mislukt, { bron: "straat" });
+    else wisLiveLaag(naam, "straat");
   }
   // Wat telt als "hetzelfde" bij het vergelijken: één kaart per evenementendossier en per werfzone,
   // één per parkeerverbod (dossier, periode en uren), anders het item zelf.
@@ -457,7 +456,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const [stand, inzage] = await Promise.all([laadStraat(place.id).catch(() => null), inzageStatus()]);
       if (beurt !== snelBeurt) return;
       if (!stand) {
-        // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district.
+        // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district (zonder de laag van een vorige straat).
+        for (const [naam] of SNEL_LAGEN) zetSnelLaag(naam, null);
         snelMogelijk = false;
         view.straatSnel = false;
         state.snel = null;
@@ -472,7 +472,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const k = Array.isArray(stand.doc?.kader) && stand.doc.kader.length === 4 ? stand.doc.kader : null, b = place.box;
       const kader = k && Array.isArray(b) ? [Math.min(k[0], b[0], b[2]), Math.min(k[1], b[1], b[3]), Math.max(k[2], b[0], b[2]), Math.max(k[3], b[1], b[3])] : k || b;
       snel = { straat: place.key, kader, ochtend: {}, ververst: tijden[0] || stand.index.ververst || "", inzage, bezig: true, nieuw: 0, weg: 0, mislukt: false, mislukteDelen: [] };
-      for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) { snel.ochtend[naam] = lagen[naam]; zetSnelLaag(naam, lagen[naam]); }
+      // Een laag zonder bruikbare stand: niet die van een vorige straat laten staan; het live kader beslist.
+      for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) { snel.ochtend[naam] = lagen[naam]; zetSnelLaag(naam, lagen[naam]); } else zetSnelLaag(naam, null);
       state.snel = snel;
     }
     snel.bezig = true;

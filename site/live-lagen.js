@@ -1,9 +1,8 @@
 // Welke live lagen niet geladen konden worden, per onderdeel dat een bewoner kent.
-// Elke live module zet per laag een lijst mislukte onderdelen in
-// window.PUBLIC_AGENDA_LIVE_STREETS.failed (bv. failed.publicSpace = ["parkeerverboden"]); een lege
-// lijst betekent: alles geladen. Dat blijft intern: het plekoverzicht zegt daarmee nooit "rustig" of een valse 0,
-// maar toont geen melding dat iets faalt (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets
-// faalt, de momentopname blijft wel goed").
+// Per laag staat in window.PUBLIC_AGENDA_LIVE_STREETS.failed een lijst mislukte onderdelen (bv. failed.publicSpace =
+// ["parkeerverboden"]) van wat de pagina toont (kiesLaag hieronder); een lege lijst betekent: alles geladen. Dat blijft
+// intern: het plekoverzicht zegt daarmee nooit "rustig" of een valse 0, maar toont geen melding dat iets faalt
+// (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets faalt, de momentopname blijft wel goed").
 export const ONDERDELEN = Object.freeze(["werken", "parkeerverboden", "innames en parcours", "omleidingen", "werfzones", "terrassen", "vergunningen"]);
 
 // De bronnen van de laag "publicSpace" en wat er wegvalt als één ervan niet laadt.
@@ -38,15 +37,55 @@ export function ontbrekendeOnderdelen(failed = {}, enabled = () => true) {
 // ruimte meldt dan haar items en de mislukte onderdelen), "ok" met alleen items, "" als ze nog niet binnen is.
 export const laagStand = (detail) => (detail?.failed?.length ? "mislukt" : Array.isArray(detail?.items) ? "ok" : "");
 
-// Een live laag melden aan de rest van de pagina: items (of null als de laag niet laadde) en de
-// mislukte onderdelen. Zonder browser (toetsen) doet dit niets.
-export function meldLiveLaag(naam, items, mislukt = []) {
+// Twee bronnen per laag (live.bronnen): "district", de lijst van het hele district (works-live.js, public-space-live.js,
+// permits-live.js, terraces-live.js), en "straat", de momentopname van één straat (site/straat/<id>.json) of het gelukte
+// live kader van die straat (place-view.js). Wat de pagina toont (live[naam] en live.failed[naam]), kiest kiesLaag:
+// 1. een gelukte lijst van het hele district (niets mislukt): die is vollediger dan één straat (live.heelDistrict);
+// 2. anders de straatlaag met items: een live laag die (deels) faalt, vervangt of leegt de momentopname nooit (besluit
+//    van de eigenaar van 18-10-2026: "de momentopname blijft wel goed"; nakijkronde 3: klapte de bezoeker "Alle
+//    lijsten" open terwijl A-Sign of GIPOD niet antwoordde, dan verdwenen de parkeerverboden en de werken van de straat);
+// 3. anders wat er wel is: de lijst van het district (deels, of null met de mislukte onderdelen), of een straat zonder
+//    momentopname waarvan het live kader faalde (null met de mislukte onderdelen).
+// Geeft { items, mislukt, heelDistrict }, of null als geen bron de laag meldde.
+export function kiesLaag({ district = null, straat = null } = {}) {
+  const uit = (b, heelDistrict = false) => ({ items: Array.isArray(b.items) ? b.items : null, mislukt: [...(b.mislukt || [])], heelDistrict });
+  if (district && Array.isArray(district.items) && !district.mislukt?.length) return uit(district, true);
+  if (straat && Array.isArray(straat.items)) return uit(straat);
+  if (district) return uit(district);
+  return straat ? uit(straat) : null;
+}
+
+// Eén bron van een laag zetten ({ items, mislukt }) of weghalen (null) in `live` (window.PUBLIC_AGENDA_LIVE_STREETS), en
+// opnieuw kiezen wat de pagina toont (kiesLaag). Geeft het detail van "public-agenda:street-layer".
+export function zetLaagBron(live, naam, bron, waarde) {
+  const bronnen = (live.bronnen = { ...(live.bronnen || {}) });
+  const perLaag = (bronnen[bron] = { ...(bronnen[bron] || {}) });
+  if (waarde) perLaag[naam] = { items: Array.isArray(waarde.items) ? waarde.items : null, mislukt: [...(waarde.mislukt || [])] };
+  else delete perLaag[naam];
+  const keuze = kiesLaag({ district: bronnen.district?.[naam], straat: bronnen.straat?.[naam] });
+  const items = keuze ? keuze.items : null;
+  if (items) live[naam] = items; else delete live[naam];
+  live.failed = { ...(live.failed || {}), [naam]: keuze ? keuze.mislukt : [] };
+  const heel = { ...(live.heelDistrict || {}) };
+  if (keuze?.heelDistrict) heel[naam] = true; else delete heel[naam];
+  live.heelDistrict = heel;
+  return { name: naam, items, failed: [...live.failed[naam]] };
+}
+
+const meld = (naam, bron, waarde) => {
   if (typeof window === "undefined") return;
   const live = (window.PUBLIC_AGENDA_LIVE_STREETS = window.PUBLIC_AGENDA_LIVE_STREETS || {});
-  // De laag van het hele district: de plekpagina zet er dan geen stand van één straat meer over (place-view.js).
-  if (Array.isArray(items)) { live[naam] = items; live.heelDistrict = { ...(live.heelDistrict || {}), [naam]: true }; }
-  live.failed = { ...(live.failed || {}), [naam]: [...mislukt] };
-  window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: naam, items: Array.isArray(items) ? items : null, failed: [...mislukt] } }));
+  window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { ...zetLaagBron(live, naam, bron, waarde), bron } }));
+};
+// Een live laag melden aan de rest van de pagina: items (of null als de laag niet laadde) en de mislukte onderdelen.
+// `bron`: "district" (de lijsten van het hele district) of "straat" (place-view.js). Zonder browser (toetsen) doet dit
+// niets.
+export function meldLiveLaag(naam, items, mislukt = [], { bron = "district" } = {}) {
+  meld(naam, bron, { items, mislukt });
+}
+// De laag van één bron weghalen (de bezoeker verlaat de straat): dan telt weer wat de andere bron meldde.
+export function wisLiveLaag(naam, bron = "straat") {
+  meld(naam, bron, null);
 }
 
 // Een volledige lijst (werken, publieke ruimte, vergunningen, terrassen van het hele district) laadt pas als
