@@ -1486,19 +1486,21 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await parkeer.waitFor({ timeout: 15000 });
     const parkeerTekst = await parkeer.innerText();
     // Streng, wat onder beide keuzes van vraag 1 (hieronder) geldt: elke regel met de straat is precies een van twee
-    // vormen, de straat met de postcode of met het bereik zoals publiekParkeerAdres het schrijft ("12–14"). Nooit één
-    // los nummer, een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
+    // vormen, de straat met de postcode of met het huisnummer zoals publiekParkeerAdres het schrijft. Voor de bron
+    // "12-14" in deze proef is dat het bereik "12–14". Nooit een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
     const toegelaten = [`${street.name}, ${street.postcode} Antwerpen`, `${street.name} 12–14, ${street.postcode} Antwerpen`];
     const adresRegels = parkeerTekst.split("\n").map((r) => r.trim()).filter((r) => r.includes(street.name));
     assert.ok(adresRegels.length > 0, `geen regel met de straat: ${JSON.stringify(parkeerTekst)}`);
     for (const regel of adresRegels) assert.ok(toegelaten.includes(regel), `"${regel}" is geen van de twee toegelaten vormen (${toegelaten.join(" of ")})`);
     assert.doesNotMatch(parkeerTekst, /\bbus\b|12\s*-\s*14/i, "geen bus en nooit het adres zoals de bron het schrijft");
-    // Open vraag aan de eigenaar (vraag 1): #178 (01cbc52) en #179 (a4c1d2f) tonen live het bereik van de huisnummers
-    // van een goedgekeurd parkeerverbod ("Xstraat 12–14, 2000 Antwerpen", publiekParkeerAdres in
-    // site/adres-privacy.js). De kop van dat bestand en deze toets zeggen "nooit het huisnummer". Tot de eigenaar beslist,
+    // Open vraag aan de eigenaar (vraag 1): #178 (01cbc52) en #179 (a4c1d2f) tonen live het huisnummer van een
+    // goedgekeurd parkeerverbod (publiekParkeerAdres in site/adres-privacy.js): een bereik ("Xstraat 12–14, 2000
+    // Antwerpen"), of één nummer als de bron "N-N" schrijft ("Xstraat 26-26" wordt "Xstraat 26, ..."). Bij een
+    // verhuis voor één woning is dat het adres van die woning. De kop van dat bestand en deze toets zeggen "nooit het
+    // huisnummer". Tot de eigenaar beslist,
     // blijft die strengere regel hier staan als todo: hij draait elke keer en meldt wat de site toont, zonder main rood
     // te maken. Ook de en-dash telt (vroeger zocht de toets alleen "12-14").
-    await st.test("parkeerverbod zonder huisnummer", { todo: "vraag 1 aan de eigenaar: live het huisnummerbereik van een parkeerverbod tonen (#178, #179) of nooit" }, () => {
+    await st.test("parkeerverbod zonder huisnummer", { todo: "vraag 1 aan de eigenaar: live het huisnummer van een parkeerverbod tonen, als bereik of als één nummer (#178, #179), of nooit" }, () => {
       assert.match(parkeerTekst, new RegExp(`${street.name}, ${street.postcode} Antwerpen`));
       assert.doesNotMatch(parkeerTekst, /\b12\s*[-–]\s*14\b/, "geen huisnummer bij een parkeerverbod");
     });

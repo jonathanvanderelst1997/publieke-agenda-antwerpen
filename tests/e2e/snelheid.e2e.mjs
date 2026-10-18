@@ -366,6 +366,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", kaart: "leaflet", width: 1280, height: 1200, zuinig: true });
     await page.waitForFunction(() => /databesparing/.test(document.querySelector(".buurt-map-load")?.textContent || ""), null, { timeout: 10000 });
     await page.locator('.pv-results .pv-row[data-uid="works:990001"]').waitFor({ timeout: 5000 });
+    // Op 1280x1200 staat de kaart onder het beeld; zonder scrollen start ze nooit vanzelf en toetst dit niets.
+    await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
     await page.waitForTimeout(2000);
     assert.equal(await page.locator(".buurt-map").getAttribute("data-kaart"), "geen");
     assert.deepEqual(extern.filter((u) => /openfreemap|maplibre-gl|leaflet|tile\.openstreetmap/.test(u)), []);
