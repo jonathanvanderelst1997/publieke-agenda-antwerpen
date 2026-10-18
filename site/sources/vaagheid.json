@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "20c4e9ca604e659a",
- "code": "2193b726513979f7",
+ "invoer": "d4e977e4a65e744c",
+ "code": "de016616a93c075e",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -340,10 +340,10 @@
   "detail": {
    "metOntbreekt": 299,
    "meerDanEen": 287,
-   "zinnen": 753,
+   "zinnen": 761,
    "perPatroon": {
     "niet-in-de-bron": 89,
-    "huisnummers-niet-gepubliceerd": 38,
+    "huisnummers-niet-gepubliceerd": 46,
     "organisator-niet-gepubliceerd": 21,
     "uren-niet-gepubliceerd": 20,
     "beheerder-geen-omschrijving": 9
@@ -678,8 +678,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "638448b950af6a9b",
-   "code": "7bda4387c81f6ee5"
+   "invoer": "20c4e9ca604e659a",
+   "code": "2193b726513979f7"
   },
   "agenda": {
    "ok": true,
@@ -692,14 +692,29 @@
    "gestegen": []
   },
   "straten": {
-   "ok": true,
+   "ok": false,
    "stijging": 0,
-   "gestegen": []
+   "gestegen": [
+    {
+     "id": "detail:huisnummers-niet-gepubliceerd",
+     "van": 38,
+     "naar": 46
+    }
+   ]
   },
   "buiten": {
    "ok": true,
    "stijging": 0,
    "gestegen": []
   }
- }
+ },
+ "aanvaard": [
+  {
+   "waar": "straten",
+   "id": "detail:huisnummers-niet-gepubliceerd",
+   "van": 38,
+   "naar": 46,
+   "reden": "Besluit van de eigenaar van 18 oktober 2026: een werk voor één adres zegt niet meer 'huisnummer weggelaten'. Zonder bekend huisnummer zegt de kaart 'huisnummers niet gepubliceerd'; de historiek van vóór het besluit bewaarde het huisnummer niet, de volgende verversing vult het aan."
+  }
+ ]
 }
