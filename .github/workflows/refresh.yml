@@ -170,7 +170,7 @@ jobs:
       # De status per live laag, zonder items: de historiek (site/history/live-layers.json, ook de bron van de
       # radar) en de straatbestanden (site/straat-index.json). De site zegt bezoekers niet dat een laag faalt
       # (besluit van 18-10-2026); de job source-health kijkt deze stand na en wordt rood als een laag te lang
-      # niet ververst raakte.
+      # niet ververst raakte, of als een bestand of een laag ontbreekt (dan staat ze hier niet in).
       - name: Stand van de live lagen (voor source-health)
         run: |
           set -euo pipefail
@@ -179,9 +179,13 @@ jobs:
           {
             if [ -f site/history/live-layers.json ]; then
               jq -c '(.layers // {}) | to_entries[] | {bron: "live-historiek", laag: .key, status: .value.status, sinds: .value.lastSuccessAt, errorCode: .value.errorCode}' site/history/live-layers.json
+            else
+              echo "site/history/live-layers.json ontbreekt; source-health wordt rood." >&2
             fi
             if [ -f site/straat-index.json ]; then
               jq -c '(.lagen // {}) | to_entries[] | {bron: "straatbestanden", laag: .key, status: .value.status, sinds: .value.sinds, errorCode: .value.errorCode}' site/straat-index.json
+            else
+              echo "site/straat-index.json ontbreekt; source-health wordt rood." >&2
             fi
           } | jq -s '{lagen: .}' > "$out/live-lagen.json"
           jq -r '.lagen[] | "\(.bron) \(.laag): \(.status)"' "$out/live-lagen.json"
@@ -562,10 +566,18 @@ jobs:
           # het signaal voor de eigenaar. Dezelfde regel als liveLaagGezondheid in lib/live-history.mjs: een laag
           # die niet ververst raakte, houdt haar vorige goede stand; tot die 48 uur oud is, een waarschuwing.
           # Geen goede stand, een oudere of een onbekende status: rood. Ontbreekt de stand, dan faalt dit dicht.
+          # Elke laag die docs/AGENDA_SOURCES.md noemt (de lagen van lib/live-history.mjs en lib/straat-bestanden.mjs)
+          # moet erin staan: ontbrak het bestand in de verversing, of staat de laag er niet in, dan is dat rood.
           l="$RUNNER_TEMP/in/live-lagen.json"
+          verwacht="live-historiek:works live-historiek:publicSpace straatbestanden:werken straatbestanden:publiekeRuimte straatbestanden:vergunningen straatbestanden:terrassen straatbestanden:evenementen"
           if ! jq -e '.lagen | type == "array" and all(.[]; type == "object")' "$l" >/dev/null 2>&1; then
             echo "BRON live lagen: live-lagen.json ontbreekt of is ongeldig"; bad=1
           else
+            for v in $verwacht; do
+              if ! jq -e --arg b "${v%%:*}" --arg n "${v#*:}" 'any(.lagen[]; .bron == $b and .laag == $n)' "$l" >/dev/null; then
+                echo "BRON ${v%%:*} ${v#*:}: ontbreekt in de stand van de live lagen (bestand of laag niet in de verversing)"; bad=1
+              fi
+            done
             while IFS=$'\t' read -r bron laag status sinds code; do
               [ "$code" = "-" ] && code=""
               wat="${bron} ${laag}: ${status}${code:+ (${code})}"

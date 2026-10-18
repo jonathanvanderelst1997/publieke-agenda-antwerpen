@@ -194,15 +194,19 @@ Intern blijft alles:
   run vanaf een andere tak faalt bewust (stap "Alleen vanaf main") en opent of vult geen alarm-issue. Zonder melding
   op de site is dat het signaal voor de eigenaar;
 - ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
-  historiek (`site/history/live-layers.json`: de GIPOD-werken en de publieke ruimte, ook de bron van de radar) en de
-  straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen, evenementen). Dezelfde
+  historiek (`site/history/live-layers.json`: `works`, de GIPOD-werken, en `publicSpace`, de publieke ruimte; ook de
+  bron van de radar) en de straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen,
+  evenementen). Dezelfde
   regel als bij een agendabron (`liveLaagGezondheid` in `lib/live-history.mjs`): een laag die niet ververst raakte,
   houdt haar vorige goede stand, en zolang die niet ouder is dan 48 uur is dat een waarschuwing (`::warning title=Live
   laag stale` in de job `source-health`, "Live laag stale" of "Straatbestanden" in `npm run sources:health`). Geen
   goede stand (`error` zonder `sinds` of `lastSuccessAt`), een goede stand van meer dan 48 uur of een onbekende status
   is rood: de job `source-health` faalt (regel `BRON live-historiek …` of `BRON straatbestanden …`) en de job `alarm`
   vult het alarm-issue aan. De job `refresh` geeft daarvoor de status per laag, zonder items, mee in het artefact
-  (`live-lagen.json`, stap "Stand van de live lagen"); ontbreekt dat bestand, dan faalt `source-health` dicht;
+  (`live-lagen.json`, stap "Stand van de live lagen"); ontbreekt dat bestand, dan faalt `source-health` dicht. Elke
+  laag hierboven moet erin staan: ontbrak de historiek of `site/straat-index.json` in de verversing, of staat een laag
+  er niet in, dan is `source-health` ook rood (regel `BRON … ontbreekt in de stand van de live lagen`, nakijkronde 3
+  van 18-10-2026: vroeger bleef ze dan groen) en vult de job `alarm` het alarm-issue aan;
 - de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
 
 Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van

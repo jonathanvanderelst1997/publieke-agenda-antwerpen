@@ -15,8 +15,8 @@ import path from "node:path";
 import test from "node:test";
 
 import { statusEntry } from "../lib/fetch-util.mjs";
-import { LIVE_HISTORY_FILE, liveLaagGezondheid } from "../lib/live-history.mjs";
-import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
+import { LIVE_HISTORY_FILE, LIVE_HISTORY_LAYERS, liveLaagGezondheid } from "../lib/live-history.mjs";
+import { STRAAT_INDEX, STRAAT_LAGEN, straatIndexStand } from "../lib/straat-bestanden.mjs";
 import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 import { checkHealth } from "../scripts/sources-health.mjs";
 
@@ -48,6 +48,9 @@ function straatIndex(lagen, nu = NU) {
 }
 const GEZOND_HISTORIEK = { works: ["ok", 0], publicSpace: ["ok", 0] };
 const GEZOND_STRAAT = { werken: ["ok", 0], publiekeRuimte: ["ok", 0], vergunningen: ["ok", 0], terrassen: ["ok", 0], evenementen: ["ok", 0] };
+// Elke laag die docs/AGENDA_SOURCES.md noemt: de historiek (de GIPOD-werken en de publieke ruimte) en de straatbestanden
+// (werken, publiekeRuimte, vergunningen, terrassen, evenementen), zoals de bouwers ze schrijven.
+const VERWACHT = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])];
 
 test("liveLaagGezondheid: de regel van een agendabron (48 uur), ook voor een live laag", () => {
   const at = NU;
@@ -124,7 +127,7 @@ test("refresh: de stand van de live lagen (zonder items) gaat mee in het artefac
     assert.equal(uit.status, 0, uit.stderr);
     return JSON.parse(fs.readFileSync(path.join(runner, "data-patch", "live-lagen.json"), "utf8"));
   };
-  // Zonder historiek en straatbestanden: een lege lijst.
+  // Zonder historiek en straatbestanden: een lege lijst (en dan is source-health rood, zie hieronder).
   assert.deepEqual(draai(), { lagen: [] });
   fs.mkdirSync(path.join(werk, "site", "history"), { recursive: true });
   fs.writeFileSync(path.join(werk, LIVE_HISTORY_FILE), JSON.stringify(historiek({ works: ["stale", 10, "http_503"], publicSpace: ["error", null, "street_axis_missing"] })));
@@ -156,23 +159,27 @@ test("source-health: een live laag die niet ververst raakte, geeft een ::warning
     }
   };
   const laag = (bron, naam, status, uur, errorCode = null) => ({ bron, laag: naam, status, sinds: uur === null ? null : geleden(uur, nu), errorCode });
-  const gezond = [laag("live-historiek", "works", "ok", 0), laag("live-historiek", "publicSpace", "ok", 0), laag("straatbestanden", "werken", "ok", 0)];
+  const gezond = VERWACHT.map(([bron, naam]) => laag(bron, naam, "ok", 0));
+  const met = (...anders) => [...gezond.filter((g) => !anders.some((a) => a.bron === g.bron && a.laag === g.laag)), ...anders];
 
   const groen = draai(gezond);
   assert.equal(groen.code, 0, groen.tekst);
   assert.match(groen.tekst, /Laag live-historiek works: ok/);
   assert.doesNotMatch(groen.tekst, /::warning title=Live laag/);
 
-  const stale = draai([laag("live-historiek", "works", "stale", 10, "http_503"), laag("straatbestanden", "terrassen", "error", 5, "terraces_fetch_failed")]);
+  const stale = draai(met(laag("live-historiek", "works", "stale", 10, "http_503"), laag("straatbestanden", "terrassen", "error", 5, "terraces_fetch_failed")));
   assert.equal(stale.code, 0, stale.tekst);
   assert.match(stale.tekst, /::warning title=Live laag stale::live-historiek works: stale \(http_503\); de vorige stand van .+ blijft staan tot ze 48 uur oud is\./);
   assert.match(stale.tekst, /::warning title=Live laag stale::straatbestanden terrassen: error \(terraces_fetch_failed\)/);
 
   for (const [wat, lagen, regel] of [
-    ["dagen stale", [...gezond, laag("live-historiek", "publicSpace", "stale", 60, "http_503")], /BRON live-historiek publicSpace: stale \(http_503\), laatste goede stand .+ uur oud \(ouder dan 48 uur\)/],
-    ["nooit gelukt", [...gezond, laag("live-historiek", "works", "error", null, "street_axis_missing")], /BRON live-historiek works: error \(street_axis_missing\), geen goede stand/],
-    ["straatbestand zonder stand", [...gezond, laag("straatbestanden", "evenementen", "error", null, "agenda_niet_gelezen")], /BRON straatbestanden evenementen: error \(agenda_niet_gelezen\), geen goede stand/],
-    ["onbekende status", [laag("straatbestanden", "werken", "raar", 1)], /BRON straatbestanden werken: onbekende status raar/],
+    ["dagen stale", met(laag("live-historiek", "publicSpace", "stale", 60, "http_503")), /BRON live-historiek publicSpace: stale \(http_503\), laatste goede stand .+ uur oud \(ouder dan 48 uur\)/],
+    ["nooit gelukt", met(laag("live-historiek", "works", "error", null, "street_axis_missing")), /BRON live-historiek works: error \(street_axis_missing\), geen goede stand/],
+    ["straatbestand zonder stand", met(laag("straatbestanden", "evenementen", "error", null, "agenda_niet_gelezen")), /BRON straatbestanden evenementen: error \(agenda_niet_gelezen\), geen goede stand/],
+    ["onbekende status", met(laag("straatbestanden", "werken", "raar", 1)), /BRON straatbestanden werken: onbekende status raar/],
+    // Nakijkronde 3 (18-10-2026), bevinding LAAG: ontbrak een bronbestand of een laag, dan bleef source-health groen.
+    ["geen enkele laag (beide bestanden ontbraken)", [], /BRON live-historiek works: ontbreekt in de stand van de live lagen/],
+    ["een laag ontbreekt", gezond.filter((g) => g.laag !== "evenementen"), /BRON straatbestanden evenementen: ontbreekt in de stand van de live lagen/],
   ]) {
     const { code, tekst } = draai(lagen);
     assert.equal(code, 1, `${wat}: ${tekst}`);
@@ -185,10 +192,60 @@ test("source-health: een live laag die niet ververst raakte, geeft een ::warning
   assert.match(zonder.tekst, /BRON live lagen: live-lagen\.json ontbreekt of is ongeldig/);
 });
 
+// Nakijkronde 3 (18-10-2026), bevinding LAAG: ontbrak site/history/live-layers.json of site/straat-index.json, dan schreef de
+// stap "Stand van de live lagen" gewoon {lagen: []} (of sloeg die bron over), en bleef source-health groen: geen signaal
+// voor de eigenaar. docs/AGENDA_SOURCES.md noemt elke laag van beide bestanden; ontbreekt een bestand of een laag, dan
+// is source-health nu rood (en dan komt er een alarm). De stap van refresh en die van source-health draaien hier echt.
+test("source-health: een ontbrekend bestand of een ontbrekende laag van de live lagen is rood", { skip: heeftJq ? false : "bash of jq ontbreekt" }, (t) => {
+  const refresh = stappen.get("refresh").steps.find((s) => s.name === "Stand van de live lagen (voor source-health)");
+  const health = stappen.get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  const werk = fs.mkdtempSync(path.join(os.tmpdir(), "live-lagen-ontbreekt-"));
+  t.after(() => fs.rmSync(werk, { recursive: true, force: true }));
+  const nu = Date.now();
+  // Eerst de stap van refresh in een werkmap met (of zonder) de bestanden, dan source-health op het artefact.
+  const draai = ({ h = null, s = null } = {}) => {
+    const map = fs.mkdtempSync(path.join(werk, "repo-"));
+    fs.mkdirSync(path.join(map, "site", "history"), { recursive: true });
+    if (h) fs.writeFileSync(path.join(map, LIVE_HISTORY_FILE), JSON.stringify(historiek(h, nu)));
+    if (s) fs.writeFileSync(path.join(map, STRAAT_INDEX), JSON.stringify(straatIndex(s, nu)));
+    const runner = fs.mkdtempSync(path.join(werk, "runner-"));
+    const stap1 = spawnSync("bash", ["-c", refresh.run], { cwd: map, env: { ...process.env, RUNNER_TEMP: runner }, encoding: "utf8" });
+    assert.equal(stap1.status, 0, stap1.stderr);
+    fs.mkdirSync(path.join(runner, "in"));
+    fs.copyFileSync(path.join(runner, "data-patch", "live-lagen.json"), path.join(runner, "in", "live-lagen.json"));
+    fs.writeFileSync(path.join(runner, "in", "refresh-status.json"), JSON.stringify({ sources: [{ sourceId: "district-kalender", fetchStatus: "ok", retrievedAt: geleden(1, nu), errorCode: null, maxAgeHours: 48 }] }));
+    const stap2 = spawnSync("bash", ["-c", health.run], { env: { ...process.env, RUNNER_TEMP: runner }, encoding: "utf8" });
+    return { code: stap2.status, tekst: stap2.stdout };
+  };
+  const groen = draai({ h: GEZOND_HISTORIEK, s: GEZOND_STRAAT });
+  assert.equal(groen.code, 0, groen.tekst);
+  for (const [wat, opties, ontbreekt] of [
+    ["geen historiek en geen straatbestanden", {}, VERWACHT],
+    ["geen historiek", { s: GEZOND_STRAAT }, VERWACHT.filter(([bron]) => bron === "live-historiek")],
+    ["geen straatbestanden", { h: GEZOND_HISTORIEK }, VERWACHT.filter(([bron]) => bron === "straatbestanden")],
+    ["historiek zonder publieke ruimte", { h: { works: ["ok", 0] }, s: GEZOND_STRAAT }, [["live-historiek", "publicSpace"]]],
+    ["straatbestanden zonder evenementen", { h: GEZOND_HISTORIEK, s: { ...GEZOND_STRAAT, evenementen: undefined } }, [["straatbestanden", "evenementen"]]],
+  ]) {
+    if (opties.s) opties.s = Object.fromEntries(Object.entries(opties.s).filter(([, v]) => v));
+    const { code, tekst } = draai(opties);
+    assert.equal(code, 1, `${wat}: ${tekst}`);
+    for (const [bron, laag] of ontbreekt) assert.match(tekst, new RegExp(`BRON ${bron} ${laag}: ontbreekt in de stand van de live lagen`), `${wat}: ${tekst}`);
+    assert.equal((tekst.match(/: ontbreekt in de stand van de live lagen/g) || []).length, ontbreekt.length, `${wat}: ${tekst}`);
+    assert.match(tekst, /::error title=Bronstatus::/, wat);
+  }
+  // De lijst in de workflow is die van de bouwers (lib/live-history.mjs, lib/straat-bestanden.mjs).
+  const lijst = (health.run.match(/\n\s*verwacht="([^"]+)"/) || [])[1] || "";
+  assert.deepEqual(lijst.split(/\s+/).filter(Boolean), VERWACHT.map(([bron, laag]) => `${bron}:${laag}`));
+});
+
 test("de documentatie belooft alleen wat de alarmen doen", () => {
   const docs = fs.readFileSync(new URL("../docs/AGENDA_SOURCES.md", import.meta.url), "utf8");
   assert.match(docs, /`liveLaagGezondheid`/);
   assert.match(docs, /live-lagen\.json/);
+  // Een ontbrekend bestand of een ontbrekende laag is rood (de toets hierboven); de documentatie zegt dat ook.
+  assert.match(docs, /BRON … ontbreekt in de stand van de live lagen/);
+  assert.match(workflow, /ontbreekt in de stand van de live lagen/);
+  for (const [, laag] of VERWACHT) assert.match(docs, new RegExp(`\\b${laag}\\b`), laag);
   const code = fs.readFileSync(new URL("../lib/straat-bestanden.mjs", import.meta.url), "utf8") + fs.readFileSync(new URL("../scripts/sources-health.mjs", import.meta.url), "utf8");
   assert.doesNotMatch(code, /de plekpagina zegt het zelf ook|is anders alleen op de plekpagina te zien/);
 });

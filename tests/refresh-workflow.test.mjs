@@ -8,6 +8,8 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { isTransientErrorCode } from "../lib/fetch-util.mjs";
+import { LIVE_HISTORY_LAYERS } from "../lib/live-history.mjs";
+import { STRAAT_LAGEN } from "../lib/straat-bestanden.mjs";
 import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 
 const workflow = fs.readFileSync(new URL("../.github/workflows/refresh.yml", import.meta.url), "utf8");
@@ -170,8 +172,12 @@ test("source-health: de fase van een eBesluit-fout telt niet voor de vergelijkin
     try {
       fs.mkdirSync(path.join(temp, "in"));
       fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
-      // De stand van de live lagen (tests/live-lagen-alarm.test.mjs): hier geen, zodat alleen de bronnen tellen.
-      fs.writeFileSync(path.join(temp, "in", "live-lagen.json"), JSON.stringify({ lagen: [] }));
+      // De stand van de live lagen (tests/live-lagen-alarm.test.mjs): hier elke laag gezond, zodat alleen de bronnen
+      // tellen (een ontbrekende laag is rood).
+      const sinds = new Date().toISOString();
+      const lagen = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
+        .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds, errorCode: null }));
+      fs.writeFileSync(path.join(temp, "in", "live-lagen.json"), JSON.stringify({ lagen }));
       const uit = spawnSync("bash", ["-c", stap.run], { env: { ...process.env, RUNNER_TEMP: temp }, encoding: "utf8" });
       return { code: uit.status, tekst: uit.stdout };
     } finally {
