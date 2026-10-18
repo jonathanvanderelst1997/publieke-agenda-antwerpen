@@ -13,10 +13,12 @@ import os from "node:os";
 import path from "node:path";
 
 import * as KU from "../site/kaart-uitleg.js";
+import * as SC from "../site/street-core.js";
+import * as LSR from "../lib/street-resolver.mjs";
 import { INNAME_LIFT, INNAME_WEG, collectWorks, innameZonderVerhuis, werkZonderVerhuis, zonderVerhuis } from "../site/works-core.js";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { publicSpaceEntries, samenWerven, werkEntries, workEntry } from "../site/place-core.js";
-import { updateLiveHistory } from "../lib/live-history.mjs";
+import { compactWorkItem, updateLiveHistory } from "../lib/live-history.mjs";
 import { historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek, resultaatVoorHistoriek, tekstZonderHuisnummers } from "../lib/historiek-privacy.mjs";
 import { straatItemPrivacy } from "../lib/straat-bestanden.mjs";
 import { STRAAT_SCHEMA, itemVoorStraat, schrijfStraatSnapshots, straatBestandenProblemen } from "../scripts/build-straat-snapshots.mjs";
@@ -305,4 +307,108 @@ test("verversing: GIPOD met '1DN02' en '(Verhuis)lift/levering' geeft een histor
   assert.deepEqual(straat.werken.map((w) => w.title).sort(), ["2018 ANTWERPEN, PROEFSTRAAT 12", "2018 ANTWERPEN, PROEFSTRAAT 1DN02"]);
   nergensVerhuis(straat, "straatbestand");
   assert.deepEqual(straatItemPrivacy(straat), []);
+});
+
+// ---------- het nummer na een scheiding, en het adres van de beheerder op een andere straat dan het punt ----------
+
+test("kaart: het huisnummer na een scheiding ('PROEFSTRAAT | 12', '- PROEFSTRAAT - 12 -', 'thv 12') staat bij 'Waar' en in de titel", () => {
+  // GIPOD schrijft een adres vaak met een scheiding tussen de straat en het nummer (verzonnen straten en nummers).
+  const met = [
+    ["2000 | Antwerpen | PROEFSTRAAT | 12", "nr. 12"], ["- PROEFSTRAAT - 12 -", "nr. 12"], ["Proefstraat, 12", "nr. 12"], ["Proefstraat: 12", "nr. 12"], // verzonnen
+    ["Proefstraat thv 12", "nr. 12"], ["Proefstraat t.h.v. 12", "nr. 12"], ["Proefstraat ter hoogte van 12", "nr. 12"], ["Proefstraat nr. 12", "nr. 12"], // verzonnen
+    ["Proefstraat (12)", "nr. 12"], ["Proefstraat - 12 bus 3", "nr. 12"], ["2000 | Antwerpen | PROEFSTRAAT | 12-14", "nr. 12–14"], ["PROEFSTRAAT | 1DN02", "nr. 1DN02"], // verzonnen
+    ["2000 | ANTWERPEN | DESIRE PROEFSTRAAT | 12", "nr. 12", "Désiré Proefstraat"], // verzonnen
+  ];
+  for (const [t, nr, straat = "Proefstraat"] of met) assert.equal(KU.huisnummersUitTekst(t, straat), nr, t);
+  // Geen huisnummer: een duur, een maat, een postcode, een aantal, een volgnummer, een uur, 0.
+  for (const t of ["Proefstraat, 3 dagen", "Proefstraat - 30 m", "Proefstraat | 30m", "Proefstraat, 2000 Antwerpen", "Proefstraat: 2 rijstroken", "Proefstraat - deel 3", "Proefstraat - 8u tot 17u", "Proefstraat | 0"]) { // verzonnen
+    assert.equal(KU.huisnummersUitTekst(t, "Proefstraat"), "", t);
+  }
+  const werk = { gipodId: 990809, title: "2000 | Antwerpen | PROEFSTRAAT | 12", status: "In uitvoering", start: "2099-03-01T06:00:00Z", end: "2099-03-30T16:00:00Z", owner: "Proefnet", ownerGroup: "Andere", streets: [{ name: "Proefstraat" }], occupancyTypes: ["Hoogtewerker"], workTypes: [], hindrance: null }; // verzonnen
+  const k = kaart(werk);
+  assert.equal(regels(k).Waar, "Proefstraat, nr. 12 (omschrijving van de beheerder)");
+  assert.match(k.titel, /in de Proefstraat nr\. 12\b/);
+  assert.doesNotMatch(k.ontbreekt.join(" · "), /huisnummers niet gepubliceerd/);
+  assert.equal(KU.werkKaartje({ ...werk, title: "- PROEFSTRAAT - 12 -" }, { vandaag: VANDAAG }).plek, "Proefstraat nr. 12"); // verzonnen
+  // Ook de bewaarde feiten (kaart-uitleg.json): het nummer van de beheerder komt terug uit zijn tekst.
+  assert.equal(schoonWerk({ soort: "Nutswerken met een hoogtewerker", soortBron: "soort inname in GIPOD", omschrijving: "2000 | Antwerpen | PROEFSTRAAT | 12", straten: ["Proefstraat"], huisnummers: "", huisnummerBron: "", fasen: [], gevolgen: [] }).huisnummers, "nr. 12"); // verzonnen
+});
+
+// Twee verzonnen straten op een hoek: de Testlaan loopt noord-zuid, de Proefstraat begint aan de hoek en loopt naar het oosten.
+const straatas = (id, naam, postcode, coords) => ({ type: "Feature", properties: { LSTRNMID: id, LSTRNM: naam, RSTRNMID: id, RSTRNM: naam, postcode, DISTRICT: "ANTWERPEN" }, geometry: { type: "LineString", coordinates: coords } });
+const HOEKSTRATEN = [straatas("9101", "Proefstraat", "2018", [[4.4, 51.22], [4.402, 51.22]]), straatas("9103", "Testlaan", "2018", [[4.4, 51.219], [4.4, 51.223]])];
+// Het punt van GIPOD: 20 m van de Testlaan, 40 m van de Proefstraat. Op de hoek: even ver van allebei. Ver: 166 m van de Proefstraat.
+const BIJ_TESTLAAN = [4.40029, 51.22036], OP_DE_HOEK = [4.40014, 51.22009], VER = [4.40029, 51.2215];
+const aansluiting = (id, point, Description = "2018 ANTWERPEN, PROEFSTRAAT 1DN02") => collectWorks([{ ...gipod(id, { Description, Owner: "Fluvius System Operator", PublicDomainOccupancyTypes: "Elektriciteit", GroundworkSpecification: "klantaansluiting" }), geometry: { type: "Point", coordinates: point } }], new Set([id]))[0]; // verzonnen
+const RESOLVERS = [["site", SC.applyWorkStreetResolution, SC.buildStreetIndex(HOEKSTRATEN)], ["historiek", LSR.applyWorkStreetResolution, LSR.buildStreetIndex(HOEKSTRATEN)]];
+
+test("straat: het adres van de beheerder ('PROEFSTRAAT 1DN02') is de plaats, ook als het punt van GIPOD dichter bij een zijstraat ligt", () => {
+  for (const [wie, apply, index] of RESOLVERS) {
+    const [bij, hoek] = apply([aansluiting(990810, BIJ_TESTLAAN), aansluiting(990811, OP_DE_HOEK)], index);
+    assert.deepEqual(bij.streets.map((s) => s.name), ["Proefstraat"], wie);
+    assert.equal(bij.streetResolution, "official_address_match", wie);
+    assert.equal(bij.streetDistanceMeters, 40, wie);
+    assert.deepEqual(hoek.streets.map((s) => s.name), ["Proefstraat"], `${wie}: op de hoek`);
+    assert.equal(hoek.streetResolution, "official_address_match", `${wie}: op de hoek`);
+    // De kaart: het exacte adres in de titel en bij "Waar", niet de zijstraat en niet "huisnummers niet gepubliceerd".
+    const k = kaart(bij);
+    assert.match(k.titel, /^Nieuwe aansluiting op het elektriciteitsnet in de Proefstraat nr\. 1DN02 /, wie);
+    assert.equal(regels(k).Waar, "Proefstraat, nr. 1DN02 (straat en huisnummer uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 40 m van)", wie);
+    assert.doesNotMatch(getoond(k), /Testlaan|huisnummers niet gepubliceerd/, wie);
+    assert.doesNotMatch(regels(k).Wat, /1DN02/, `${wie}: "Wat" zegt wat, niet waar`);
+  }
+});
+
+test("straat: het adres van de beheerder wint niet als hij de straat van het punt zelf noemt, als het verder dan 150 m ligt of als er geen huisnummer bij staat", () => {
+  for (const [wie, apply, index] of RESOLVERS) {
+    const [eigen, ver, zonderNummer] = apply([
+      aansluiting(990812, BIJ_TESTLAAN, "2018 ANTWERPEN, TESTLAAN - PROEFSTRAAT 12"), // verzonnen
+      aansluiting(990813, VER),
+      aansluiting(990814, BIJ_TESTLAAN, "2018 ANTWERPEN, PROEFSTRAAT - kabelwerken"),
+    ], index);
+    for (const [w, wat] of [[eigen, "de straat van het punt staat in de tekst"], [ver, "166 m ver"], [zonderNummer, "geen huisnummer"]]) {
+      assert.deepEqual(w.streets.map((s) => s.name), ["Testlaan"], `${wie}: ${wat}`);
+      assert.equal(w.streetResolution, "nearest_official_axis", `${wie}: ${wat}`);
+    }
+    // Het nummer hoort bij de Proefstraat: bij de Testlaan staat het niet.
+    assert.equal(regels(kaart(eigen)).Waar, "Testlaan", wie);
+    // Ver van het punt: het adres staat niet als werk bij "Wat", wel in de tekst van de beheerder.
+    const k = kaart(ver);
+    assert.doesNotMatch(regels(k).Wat, /Volgens de beheerder/, wie);
+    assert.equal(k.bronTekst, "2018 ANTWERPEN, PROEFSTRAAT 1DN02", wie); // verzonnen
+  }
+});
+
+test("verversing: het adres van de beheerder op een andere straat komt in de historiek, kaart-uitleg.json en op de plekpagina", async () => {
+  const [resolved] = LSR.applyWorkStreetResolution([aansluiting(990815, BIJ_TESTLAAN)], LSR.buildStreetIndex(HOEKSTRATEN));
+  const live = compactWorkItem(resolved);
+  assert.deepEqual(live.streets.map((s) => s.name), ["Proefstraat"]);
+  const { document } = await bouwKaartUitleg({ works: [resolved], fetch: null, clock: () => new Date("2099-03-10T03:00:00Z") });
+  const bewaard = document.werken["990815"];
+  assert.deepEqual(bewaard.straten, ["Proefstraat"]);
+  assert.equal(bewaard.huisnummers, "nr. 1DN02");
+  assert.equal(bewaard.straatBron, "omschrijving van de beheerder");
+  const e = workEntry(live, { vandaag: VANDAAG, uitleg: document });
+  assert.match(e.title, /^Nieuwe aansluiting op het elektriciteitsnet in de Proefstraat nr\. 1DN02 /);
+  assert.equal(e.location, "Proefstraat nr. 1DN02");
+  assert.doesNotMatch(e.uitleg.ontbreekt.join(" · "), /huisnummers niet gepubliceerd/);
+});
+
+test("historiek: een werk dat nu de straat van het adres van de beheerder krijgt, is geen wijziging; een ander adres wel", () => {
+  const T1 = "2099-03-09T03:00:00.000Z", T2 = "2099-03-10T03:00:00.000Z", T3 = "2099-03-11T03:00:00.000Z";
+  const leeg = { ok: true, items: [] };
+  const index = LSR.buildStreetIndex(HOEKSTRATEN);
+  const nu = LSR.applyWorkStreetResolution([aansluiting(990816, BIJ_TESTLAAN), aansluiting(990817, OP_DE_HOEK)], index);
+  // De historiek van vóór deze regel: de straat van het punt (de zijstraat), of geen straat bij twijfel op de hoek.
+  const vroeger = nu.map((w) => (w.gipodId === 990816
+    ? { ...w, streets: [{ id: "9103", name: "Testlaan", postcode: "2018" }], streetResolution: "nearest_official_axis", streetDistanceMeters: 20 }
+    : { ...w, streets: [], streetResolution: "ambiguous", streetDistanceMeters: 10 }));
+  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: resultaatVoorHistoriek({ ok: true, items: vroeger }), publicSpaceResult: leeg });
+  const daarna = updateLiveHistory(eerst, { observedAt: T2, worksResult: resultaatVoorHistoriek({ ok: true, items: nu }), publicSpaceResult: leeg });
+  assert.deepEqual(daarna.changes.filter((c) => c.layer === "works"), [], "geen 'changed' omdat de straat nu die van het adres is");
+  assert.deepEqual(daarna.layers.works.items.map((w) => w.streets.map((s) => s.name)), [["Proefstraat"], ["Proefstraat"]]);
+  // Een ander adres in GIPOD blijft een wijziging.
+  const ander = LSR.applyWorkStreetResolution([aansluiting(990816, BIJ_TESTLAAN, "2018 ANTWERPEN, PROEFSTRAAT 3"), aansluiting(990817, OP_DE_HOEK)], index); // verzonnen
+  const later = updateLiveHistory(daarna, { observedAt: T3, worksResult: resultaatVoorHistoriek({ ok: true, items: ander }), publicSpaceResult: leeg });
+  assert.deepEqual(later.changes.filter((c) => c.layer === "works").map((c) => [c.id, c.type, c.fields]), [["work:990816", "changed", ["title"]]]);
 });

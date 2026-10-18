@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "d4e977e4a65e744c",
- "code": "de016616a93c075e",
+ "invoer": "d92babe90728c9b0",
+ "code": "bfc25de7948f3db4",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -340,10 +340,10 @@
   "detail": {
    "metOntbreekt": 299,
    "meerDanEen": 287,
-   "zinnen": 761,
+   "zinnen": 760,
    "perPatroon": {
     "niet-in-de-bron": 89,
-    "huisnummers-niet-gepubliceerd": 46,
+    "huisnummers-niet-gepubliceerd": 45,
     "organisator-niet-gepubliceerd": 21,
     "uren-niet-gepubliceerd": 20,
     "beheerder-geen-omschrijving": 9
@@ -698,7 +698,7 @@
     {
      "id": "detail:huisnummers-niet-gepubliceerd",
      "van": 38,
-     "naar": 46
+     "naar": 45
     }
    ]
   },
@@ -713,8 +713,8 @@
    "waar": "straten",
    "id": "detail:huisnummers-niet-gepubliceerd",
    "van": 38,
-   "naar": 46,
-   "reden": "Besluit van de eigenaar van 18 oktober 2026: een werk voor één adres zegt niet meer 'huisnummer weggelaten'. Zonder bekend huisnummer zegt de kaart 'huisnummers niet gepubliceerd'; de historiek van vóór het besluit bewaarde het huisnummer niet, de volgende verversing vult het aan."
+   "naar": 45,
+   "reden": "Besluit van de eigenaar van 18 oktober 2026: een werk voor één adres zegt niet meer 'huisnummer weggelaten'. Met een huisnummer van de beheerder (ook na een scheiding: 'STRAAT | 12') of uit het adressenregister staat het nummer erbij; zonder bekend huisnummer zegt de kaart 'huisnummers niet gepubliceerd'. De historiek van vóór het besluit bewaarde het huisnummer niet en het register werd bij één adres niet gevraagd; de volgende verversing vult het aan."
   }
  ]
 }

@@ -13,6 +13,7 @@ import {
   versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
 import { gipodLink } from "./gipod-bron.js";
+import { geldigeHuisnummers, huisnummerBereik, huisnummersUitTekst } from "./huisnummers.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
 import { sleutel as straatSleutel, witteTekst } from "./witte-lijst.js";
 import { INNAME_LIFT, INNAME_WEG, VERHUIS, innameZonderVerhuis, werkZonderVerhuis, zonderVerhuis } from "./works-core.js";
@@ -336,55 +337,8 @@ export function openbaarVervoer(teksten = []) {
 
 // ---------- huisnummers ----------
 
-const nr = (v) => { const m = String(v).match(/^(\d+)([a-z]?)/i); return m ? [Number(m[1]), m[2].toLowerCase()] : [Infinity, ""]; };
-// "47–60" of "nr. 12" uit een lijst huisnummers (uit het adressenregister of de bron).
-export function huisnummerBereik(nummers = []) {
-  const list = uniek(nummers).filter((v) => /^\d+[a-z]?$/i.test(v)).sort((a, b) => nr(a)[0] - nr(b)[0] || nr(a)[1].localeCompare(nr(b)[1]));
-  if (!list.length) return "";
-  const lo = nr(list[0])[0], hi = nr(list.at(-1))[0];
-  return lo === hi ? `nr. ${list[0]}` : `nr. ${lo}–${hi}`;
-}
-// Een huisnummer bestaat niet als het 0 is, en "2001" na een straatnaam is een postcode of een
-// dossiercode, geen huisnummer: zulke nummers tonen we nooit (ook niet uit een oudere verversing).
-const echtNummer = (v) => { const n = Number(String(v).match(/^\d+/)?.[0]); return Number.isInteger(n) && n > 0 && n < 1000; };
-// Een huisnummer met een code eraan, zoals GIPOD een aansluiting schrijft ("PROEFSTRAAT 1DN02", "8werf", "12RO", "3B_BIS"):
-// hoogstens drie cijfers en meteen daarna een letter. Of het een huisnummer met een code is of een code die met cijfers
-// begint, is niet te zien: het blijft heel staan, zoals de bron het geeft (besluit van de eigenaar van 18 oktober 2026,
-// site/works-core.js). Nooit een maat ("30m", "10kV"), een uur ("8u") of een rangtelwoord ("2de fase"), ook niet als
-// gewoon huisnummer.
-const NUMMER_MET_CODE = String.raw`\d{1,3}[\p{L}_][\p{L}\d_]{0,11}(?![\p{L}\d_])`;
-const GEEN_HUISNUMMER = /^\d+(?:m|m2|m²|km|cm|mm|kv|u|uur|h|meter|de|ste)$/iu;
-export function geldigeHuisnummers(tekst) {
-  const t = clean(tekst, 40);
-  const m = t.match(/^nr\. (\d+[a-z]?)(?:–(\d+[a-z]?))?$/i);
-  if (!m) {
-    const code = t.match(new RegExp(`^nr\\. (${NUMMER_MET_CODE})$`, "u"));
-    return code && echtNummer(code[1]) && !GEEN_HUISNUMMER.test(code[1]) ? t : "";
-  }
-  if (!echtNummer(m[1]) || GEEN_HUISNUMMER.test(m[1]) || (m[2] && (!echtNummer(m[2]) || nr(m[2])[0] < nr(m[1])[0]))) return "";
-  return t;
-}
-// Huisnummers die de beheerder zelf in een tekst zette: "Kammenstraat 18 - 24", "Schilderstraat 1-25", "Proefstraat 12".
-// Een reeks in elke schrijfwijze telt als reeks: "13 tem 15", "13 t.e.m. 15", "13 tot en met 15", "13 t/m 15",
-// "13 tot 15", "13 → 15", "13 en 15" en "13, 15 en 17" geven allemaal "nr. 13–15" (of 13–17), nooit "nr. 13".
-// Hoogstens drie cijfers: "Proefstraat 13, 2000 Antwerpen" is geen reeks tot 2000. Na een komma of "en"
-// telt een getal alleen als er geen woord op volgt ("Proefstraat 12, 3 dagen" is geen reeks). Een nummer met een code
-// eraan ("PROEFSTRAAT 1DN02") blijft heel: "nr. 1DN02".
-const NUMMER = String.raw`\d{1,3}[a-z]?(?![\d\p{L}])`;
-const REEKS = String.raw`\s*(?:-|–|—|→|tot en met|t\.\s?e\.\s?m\.?|tem|t\/m|tot)\s*`;
-const OPSOMMING = String.raw`\s*(?:,|en)\s*`;
-const NA_OPSOMMING = String.raw`(?=\s*(?:$|[.;:,)/|]|[-–→]|(?:en|tem|tot|t\/m)(?!\p{L})))`;
-export function huisnummersUitTekst(tekst, straat) {
-  const t = clean(tekst, 400), s = clean(straat, 120);
-  if (!t || !s) return "";
-  const esc = s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const m = t.match(new RegExp(`${esc}\\s+(${NUMMER}(?:${REEKS}${NUMMER}|${OPSOMMING}${NUMMER}${NA_OPSOMMING})*)`, "iu"));
-  // Een maat of een uur ("8u tot 17u", "30m") is geen huisnummer, ook niet in een reeks.
-  const delen = m ? m[1].match(/\d{1,3}[a-z]?/gi) : [];
-  if (m) return delen.some((d) => GEEN_HUISNUMMER.test(d)) ? "" : geldigeHuisnummers(huisnummerBereik(delen));
-  const code = t.match(new RegExp(`${esc}\\s+(${NUMMER_MET_CODE})`, "iu"));
-  return code ? geldigeHuisnummers(`nr. ${code[1]}`) : "";
-}
+// De regels staan in site/huisnummers.js (ook voor het adres van de beheerder in site/street-core.js).
+export { geldigeHuisnummers, huisnummerBereik, huisnummersUitTekst };
 
 // Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette. Ook een mailadres zonder
 // gewone @ (nakijkronde van head 0b264665): "naam(at)voorbeeld.test", "naam[at]...", een volle-breedte ＠ (na NFKC een
@@ -480,7 +434,8 @@ const LEEG_STUK = [
   /^(?:\d{4}\s+)?\(?(?:antwerpen|antwerp|anterwerpen)\)?$/i, // de gemeente
   /^\([\p{L}\s-]+\)$/u, // een gemeente tussen haakjes: "(Hoboken)"
   /^\d{4}\s+[\p{L}-]+$/u, // postcode en gemeente: "2610 WILRIJK"
-  /^\p{Lu}[\p{Lu}'.-]+(?:\s+\p{Lu}[\p{Lu}'.-]+){0,3}\s+\d{1,4}[a-zA-Z]?$/u, // een straat in hoofdletters met nummer: "PROEFBROEK 5"
+  // Een straat in hoofdletters met nummer: "PROEFBROEK 5", ook met een code eraan ("PROEFBROEK 1DN02"; site/huisnummers.js).
+  /^\p{Lu}[\p{Lu}'.-]+(?:\s+\p{Lu}[\p{Lu}'.-]+){0,3}\s+(?:\d{1,4}[a-zA-Z]?|\d{1,3}[\p{L}_][\p{L}\d_]{0,11})$/u,
   /^\(?\s*(?:lengte:?\s*)?\d+(?:[.,]\d+)?\s?(?:m|km|m²|m2)\.?\s*\)?$/i, // een maat
   /^(?:andere|werk in openbaar domein|rioleringswerk(?:en)?)$/i,
 ];
