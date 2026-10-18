@@ -123,11 +123,12 @@ test("2b. de legendaknoppen van de kaart: tekst en getal halen minstens 4,5:1, v
   assert.equal(n, KAART_SOORTEN.length * 2 * 2);
 });
 
-// ---------- 3. privacy: een reeks huisnummers is nooit één huisnummer ----------
-// De hertest zag "Proefstraat nr. 13" op een kaart, terwijl de beheerder "13 tem 15" schreef. Regel, zoals
-// elders op de site: één los huisnummer kan een woning zijn en valt weg (alleen de straat); een reeks
-// blijft als reeks, in elke schrijfwijze. Ook de regel "Volgens de beheerder" toont geen adressen.
-test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los nummer valt weg, alleen de straat", async () => {
+// ---------- 3. een reeks huisnummers is nooit één huisnummer ----------
+// De hertest zag "Proefstraat nr. 13" op een kaart, terwijl de beheerder "13 tem 15" schreef. Regel: een reeks
+// blijft als reeks, in elke schrijfwijze. Besluit van de eigenaar van 18 oktober 2026 (site/works-core.js): bij een
+// werk mag de plaats exact zijn, dus ook één los huisnummer blijft staan, zoals de beheerder het schreef. De regel
+// "Volgens de beheerder" toont geen adressen (die staan bij "Waar").
+test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los nummer blijft (de plaats mag exact)", async () => {
   const ku = await import("../site/kaart-uitleg.js");
   const werk = (title) => ({
     gipodId: 90000901, title, status: "In uitvoering", start: "2026-05-02T05:00:00Z", end: "2026-11-02T16:00:00Z",
@@ -144,12 +145,13 @@ test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los n
   }
   // Een opsomming wordt de hele reeks.
   assert.match(kaart("Proefstraat 13, 15 en 17 - werken aan nutsleiding").titel, /Proefstraat nr\. 13–17 /);
-  // Eén los huisnummer: alleen de straat, en de kaart zegt waarom.
+  // Eén los huisnummer: het staat in de titel en bij "Waar", zoals de beheerder het schreef.
   const los = kaart("2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
-  assert.doesNotMatch([los.titel, los.samenvatting, waar(los)].join(" "), /nr\. 12|\b12\b/);
-  assert.match(waar(los), /^Proefstraat \(huisnummer weggelaten: één adres kan een woning zijn\)$/);
-  // Ook een los nummer uit het adressenregister of uit een oudere verversing wordt niet bewaard of getoond.
-  assert.equal(ku.werkFeiten(werk("Werk in openbaar domein"), { huisnummers: "nr. 8", huisnummerBron: "register" }).huisnummers, "");
+  assert.match(los.titel, /in de Proefstraat nr\. 12 tot 2 november/);
+  assert.match(waar(los), /^Proefstraat, nr\. 12 \(omschrijving van de beheerder\)$/);
+  assert.doesNotMatch(waar(los), /weggelaten/);
+  // Ook een los nummer uit het adressenregister wordt bewaard en getoond.
+  assert.equal(ku.werkFeiten(werk("Werk in openbaar domein"), { huisnummers: "nr. 8", huisnummerBron: "register" }).huisnummers, "nr. 8");
   assert.equal(ku.werkFeiten(werk("Werk in openbaar domein"), { huisnummers: "nr. 8–14", huisnummerBron: "register" }).huisnummers, "nr. 8–14");
   // Een getal na een komma dat geen huisnummer is, maakt geen reeks; een postcode ook niet.
   assert.equal(ku.huisnummersUitTekst("Proefstraat 12, 3 dagen", "Proefstraat"), "nr. 12");
@@ -158,8 +160,10 @@ test("3. een reeks huisnummers in elke schrijfwijze wordt een reeks; één los n
 
 // Nakijken van de samenvoeging: de ingeklapte "Tekst van de beheerder in GIPOD" (bronTekst), de regel
 // "Volgens de beheerder", de fasen en "Bus en tram" toonden een los huisnummer nog letterlijk, ook als
-// "Waar" zei dat het weggelaten was ("thv 31", "ter hoogte van nr 31"). Een reeks blijft overal staan.
-test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen geen los huisnummer; een reeks blijft", async () => {
+// "Waar" zei dat het weggelaten was ("thv 31", "ter hoogte van nr 31"). Sinds het besluit van 18 oktober 2026
+// (de plaats mag exact) zeggen ze allemaal hetzelfde: het huisnummer zoals de beheerder het schreef. "Volgens de
+// beheerder" laat een stuk dat alleen een adres is weg ("thv 31"): dat staat bij "Waar" en in zijn tekst.
+test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen het huisnummer zoals de beheerder het schreef", async () => {
   const ku = await import("../site/kaart-uitleg.js");
   const werk = (title, extra = {}) => ({
     gipodId: 90000902, title, status: "In uitvoering", start: "2026-05-02T05:00:00Z", end: "2026-11-02T16:00:00Z",
@@ -168,38 +172,38 @@ test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen geen los 
   });
   const kaart = (title, extra) => ku.werkKaartje(werk(title, extra), { vandaag: "2026-10-10" });
   const getoond = (k) => [k.titel, k.samenvatting, k.bronTekst, ...k.regels.map(([, v]) => v)].join(" ¶ ");
-  // Eén los nummer: "Waar" zegt dat het weggelaten is, en nergens staat het nog.
+  // Eén los nummer: "Waar" en de tekst van de beheerder noemen het, niets is weggelaten.
   const los = kaart("2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
-  assert.match(Object.fromEntries(los.regels).Waar, /huisnummer weggelaten/);
-  assert.equal(los.bronTekst, "2018 Antwerpen - Proefstraat - werken aan nutsleiding");
+  assert.match(Object.fromEntries(los.regels).Waar, /^Proefstraat, nr\. 12 /);
+  assert.equal(los.bronTekst, "2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
   for (const [titel, nummer] of [
-    ["Proefstraat thv 31 - vervangen voetpadkast", /31/],
-    ["Vervangen voetpadkast ter hoogte van nr 31 Voorbeeldlaan", /31/],
-    ["Voetpadkast thv 31 - Voorbeeldlaan", /31/],
-    ["Voorbeeldlaan nr. 7 bus 2 - herstelling", /\b7\b|bus 2/],
-    ["Proefstraat 12 A - herstelling", /\b12\b|\bA\b/],
-    ["2020 ANTWERPEN, PROEFBROEK 4B_BIS - herstelling", /\b4B?\b/],
-    ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", /\b12\b/],
+    ["Proefstraat thv 31 - vervangen voetpadkast", /thv 31/],
+    ["Vervangen voetpadkast ter hoogte van nr 31 Voorbeeldlaan", /ter hoogte van nr 31/],
+    ["Voetpadkast thv 31 - Voorbeeldlaan", /thv 31/],
+    ["Voorbeeldlaan nr. 7 bus 2 - herstelling", /nr\. 7 bus 2/],
+    ["Proefstraat 12 A - herstelling", /Proefstraat 12 A/],
+    ["2020 ANTWERPEN, PROEFBROEK 4B_BIS - herstelling", /4B_BIS/],
+    ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", /Proefstraat 12, 2000 Antwerpen - kabel 30 m/],
   ]) {
     const k = kaart(titel);
-    assert.doesNotMatch(getoond(k), nummer, titel);
+    assert.match(getoond(k), nummer, titel);
+    assert.doesNotMatch(getoond(k), /weggelaten/, titel);
     assert.match(Object.fromEntries(k.regels).Wat, /Volgens de beheerder|De beheerder schrijft/, `${titel}: de rest van de tekst blijft`);
   }
-  // Een postcode en een maat blijven.
-  assert.equal(ku.zonderLosseHuisnummers("Proefstraat 12, 2000 Antwerpen - kabel 30 m", ["Proefstraat"]), "Proefstraat, 2000 Antwerpen - kabel 30 m");
-  // Een reeks blijft, in elke schrijfwijze; een volgnummer ook.
-  for (const reeks of ["13 tem 15", "13-15", "13 t.e.m. 15", "13, 15 en 17", "thv 13-15"]) {
-    assert.equal(ku.zonderLosseHuisnummers(`Proefstraat ${reeks} - werken`, ["Proefstraat"]), `Proefstraat ${reeks} - werken`, reeks);
+  // "Volgens de beheerder" zegt wat het werk is, niet waar: een stuk dat alleen een huisnummer is, staat er niet in.
+  assert.doesNotMatch(Object.fromEntries(kaart("Proefstraat thv 31 - vervangen voetpadkast").regels).Wat, /thv|31/);
+  // Een postcode, een maat, een reeks en een volgnummer blijven in de tekst van de beheerder, net als een los nummer.
+  for (const tekst of ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", "Fase 2: Voorbeeldlaan 4 en Proefstraat 6-8", ...["13 tem 15", "13-15", "13 t.e.m. 15", "13, 15 en 17", "thv 13-15"].map((reeks) => `Proefstraat ${reeks} - werken`)]) {
+    assert.equal(ku.beheerderTekst(tekst, { straten: ["Proefstraat"] }), tekst, tekst);
   }
-  assert.equal(ku.zonderLosseHuisnummers("Fase 2: Voorbeeldlaan 4 en Proefstraat 6-8", []), "Fase 2: Voorbeeldlaan en Proefstraat 6-8");
   assert.match(kaart("Proefstraat 13 tem 15 - vervangen voetpadkast").bronTekst, /Proefstraat 13 tem 15/);
-  // De fasen: geen los nummer, een reeks blijft.
+  // De fasen: een los nummer en een reeks blijven.
   const fase = (description, dag) => ({ description, start: `2026-10-0${dag}T06:00:00Z`, end: `2026-10-0${dag}T16:00:00Z`, consequences: [] });
   const fasen = kaart("Herstelling voetpad", { hindrance: { start: "2026-10-01T06:00:00Z", end: "2026-10-09T16:00:00Z", consequences: [], phases: [fase("Fase 1 Proefstraat 8", 1), fase("Fase 2 Proefstraat 8-14", 6)] } });
-  assert.match(Object.fromEntries(fasen.regels).Fasen, /^Fase 1 Proefstraat \(.+\) · Fase 2 Proefstraat 8-14 \(/);
-  // Bus en tram: de omschrijving zonder los nummer.
+  assert.match(Object.fromEntries(fasen.regels).Fasen, /^Fase 1 Proefstraat 8 \(.+\) · Fase 2 Proefstraat 8-14 \(/);
+  // Bus en tram: de omschrijving zoals de beheerder ze schreef.
   const tram = kaart("Proefstraat 21 - herstelling tramspoor");
-  assert.equal(Object.fromEntries(tram.regels)["Bus en tram"], "Proefstraat - herstelling tramspoor");
+  assert.equal(Object.fromEntries(tram.regels)["Bus en tram"], "Proefstraat 21 - herstelling tramspoor");
 });
 
 // ---------- 4. een evenement van vandaag staat bovenaan "Loopt nu" ----------

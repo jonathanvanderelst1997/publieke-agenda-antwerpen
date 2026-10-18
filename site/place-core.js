@@ -4,8 +4,8 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
-import { werfDossier } from "./works-core.js";
+import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, feitenZonderVerhuis, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { INNAME_WEG, werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
@@ -578,9 +578,11 @@ export function agendaEntry(item, theme = item?.category || "other") {
 }
 // Feiten uit de verversing (site/sources/kaart-uitleg.json) aanvullen met de live laag: live is
 // verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
-// Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet).
-function samenWerk(live, bewaard) {
-  if (!bewaard) return live;
+// Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet), en een oudere
+// verversing zegt nooit "verhuis" (feitenZonderVerhuis in site/kaart-uitleg.js: besluit van 18 oktober 2026).
+function samenWerk(live, oud) {
+  if (!oud) return live;
+  const bewaard = feitenZonderVerhuis(oud);
   const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
   return {
     ...live,
@@ -629,7 +631,8 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
 // werfzones van Ringpark Zuid) wordt één kaart, met alle GIPOD-nummers erbij. Huisnummers in de
-// omschrijving tellen niet: twee aansluitingen naast elkaar zijn één kaart.
+// omschrijving tellen niet, die in de titel wel (de plaats mag exact, besluit van 18 oktober 2026): twee
+// aansluitingen met elk een eigen huisnummer zijn twee kaarten, elk met zijn adres; zonder huisnummer één kaart.
 export function werkEntries(works = [], opties = {}) {
   const groepen = new Map();
   for (const work of works) {
@@ -989,7 +992,7 @@ function parkeerRegel(lijst, vandaag) {
 const WERF_DOEL = new WeakMap();
 export function werfDoel(feiten) {
   if (feiten && typeof feiten === "object" && WERF_DOEL.has(feiten)) return WERF_DOEL.get(feiten);
-  const f = herzieneSoort(feiten);
+  const f = herzieneSoort(feitenZonderVerhuis(feiten));
   const soort = echteSoort(f);
   const fasen = soort ? [] : faseDoelen((f?.fasen || []).map((x) => x?.naam));
   const uit = soort ? { kort: soort.charAt(0).toLowerCase() + soort.slice(1), lijst: [soort], bron: cleanText(f.soortBron) || "de tekst in GIPOD" }
@@ -1019,7 +1022,8 @@ function gipodPerDossier(uitleg) {
   let gipod = GIPOD_PER_DOSSIER.get(uitleg);
   if (!gipod) {
     gipod = new Map();
-    for (const [id, w] of Object.entries(uitleg.werken || {})) { const d = werfDossier(w?.dossier); if (d && !gipod.has(d)) gipod.set(d, { gipodId: Number(id), feiten: w }); }
+    // De feiten van een oudere verversing zonder "verhuis" (feitenZonderVerhuis): het doel en de beheerder van de werf.
+    for (const [id, w] of Object.entries(uitleg.werken || {})) { const d = werfDossier(w?.dossier); if (d && !gipod.has(d)) gipod.set(d, { gipodId: Number(id), feiten: feitenZonderVerhuis(w) }); }
     GIPOD_PER_DOSSIER.set(uitleg, gipod);
   }
   return gipod;
@@ -1155,11 +1159,14 @@ function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag
   const work = e.item || {};
   const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]));
   // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
-  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Verhuislift of levering"), zoals op de losse
+  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname voor een lift of levering"), zoals op de losse
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
   // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
   const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";
-  const opnieuw = echteSoort(f) ? null : soortVanWerk({ omschrijving: f.omschrijving, fasen: (f.fasen || []).map((x) => x.naam), eigenaar: f.opdrachtgever });
+  // "Inname van de openbare weg" uit een fase (de vaste tekst voor een fase met "verhuis", site/works-core.js) zegt minder
+  // dan de soort inname van GIPOD ("Inname voor een lift of levering"): die gaat dan voor, zoals in soortVanWerk.
+  const uitFasen = echteSoort(f) ? null : soortVanWerk({ omschrijving: f.omschrijving, fasen: (f.fasen || []).map((x) => x.naam), eigenaar: f.opdrachtgever });
+  const opnieuw = uitFasen?.soort === INNAME_WEG && innameSoort ? { soort: "", bron: "" } : uitFasen;
   const feiten = !opnieuw ? f : opnieuw.soort ? { ...f, soort: opnieuw.soort, soortBron: opnieuw.bron, ...(innameSoort && innameSoort !== opnieuw.soort ? { innameSoort } : {}) }
     : innameSoort ? f : { ...f, soort: "", soortBron: "" };
   const k = werkKaartje(work, { vandaag, feiten, werf: { dossier: dossiers[0] } });

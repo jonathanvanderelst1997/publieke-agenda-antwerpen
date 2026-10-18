@@ -22967,7 +22967,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -23165,7 +23165,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -23766,7 +23766,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {

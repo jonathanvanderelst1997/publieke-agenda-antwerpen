@@ -10,7 +10,7 @@
       "lastSuccessAt": "2026-10-18T03:18:47.715Z",
       "errorCode": null,
       "count": 1238,
-      "digest": "5fb71c2265d12468316be0eac7880bb6276b77409436779599d7d7eccc17237b",
+      "digest": "0e32e01df21bd89e5a6362f05be6954c787bfd5057387f9e8a5f3b9822dad5aa",
       "items": [
         {
           "id": "work:11264719",
@@ -19105,7 +19105,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [],
           "streetResolution": "ambiguous",
@@ -20634,7 +20634,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -121856,7 +121856,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -122237,7 +122237,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -122691,7 +122691,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -123557,7 +123557,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -124023,7 +124023,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -124595,7 +124595,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -124705,7 +124705,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -125174,7 +125174,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -125940,7 +125940,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -126020,7 +126020,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -127485,7 +127485,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -150566,7 +150566,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -150826,7 +150826,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -178304,7 +178304,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -178393,7 +178393,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -178435,7 +178435,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -178898,7 +178898,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -205986,7 +205986,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -230946,7 +230946,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -231144,7 +231144,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -231745,7 +231745,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -241051,7 +241051,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -262021,7 +262021,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -262350,7 +262350,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -263814,7 +263814,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -263887,7 +263887,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -299005,7 +299005,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -299299,7 +299299,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -299336,7 +299336,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -308730,7 +308730,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -308872,7 +308872,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -320592,7 +320592,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -326607,7 +326607,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -342149,7 +342149,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -354165,7 +354165,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -362268,7 +362268,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {

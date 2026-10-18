@@ -1,6 +1,6 @@
 // Werkkaarten, nakijkronde: wat de kaart zegt moet kloppen. Een netproject is geen aansluiting van één
-// adres; "geen straat in de buurt" alleen als er gezocht is; geen huisnummer in de tekst van de
-// beheerder bij één adres; een hoogtewerker zegt niet wat er gebeurt; "doorloopstelling" is geen sloop;
+// adres; "geen straat in de buurt" alleen als er gezocht is; bij één adres het huisnummer zoals de beheerder het schreef
+// (besluit van de eigenaar van 18 oktober 2026: de plaats van een werk mag exact); een hoogtewerker zegt niet wat er gebeurt; "doorloopstelling" is geen sloop;
 // geen "werken tot" vóór de hinder; "op 12 oktober" en geen dubbele datum; maanden in plaats van
 // "ruim een jaar"; alleen een kruispunt als de straten elkaar raken; en de straat die de beheerder noemt
 // verdwijnt niet. Alle data is verzonnen; "vandaag" ligt vast. Namespace-imports: op de oude code faalt
@@ -57,9 +57,9 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(genoemd.streets.map((s) => s.name), ["Voorbeeldplein"]);
   assert.equal(genoemd.streetResolution, "official_address_match");
   const k = kaart(werk({ ...genoemd, occupancyTypes: ["Water"] }));
-  // Eén los huisnummer kan een woning zijn: alleen de straat, met de reden (hertest, restpunt 3).
-  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein tot /);
-  assert.match(regels(k).Waar, /^Voorbeeldplein \(huisnummer weggelaten: één adres kan een woning zijn; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  // De straat en het huisnummer uit de omschrijving (de plaats mag exact, besluit van 18 oktober 2026).
+  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein nr\. 26 tot /);
+  assert.match(regels(k).Waar, /^Voorbeeldplein, nr\. 26 \(straat en huisnummer uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
   // Gezocht, en geen straat met naam binnen 150 m: zeg dat, niet "geen straat in de buurt".
   assert.deepEqual(niets.streets, []);
   assert.deepEqual(niets.streetNearby, []);
@@ -72,18 +72,25 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   for (const x of [leeg, onbekend]) assert.doesNotMatch(alleTekst(x), /geen straat in de buurt gevonden/);
 });
 
-test("3. bij één adres staat nergens een huisnummer, ook niet in de tekst van de beheerder", () => {
+// Besluit van de eigenaar van 18 oktober 2026: bij één adres (een aansluiting) blijft het huisnummer staan zoals de
+// beheerder het schreef, ook met een code of een woord eraan; niets wordt weggeschreven.
+test("3. bij één adres staat het huisnummer zoals de beheerder het schreef, ook in zijn tekst", () => {
   const vormen = ["LANGE VOORBEELDSTRAAT 79WERF", "VOORBEELDSTRAAT 6werf", "VOORBEELDBROEK 4B_BIS", "SINT-VOORBEELDVLIET 9", "VOORBEELDUIT 29", "Voorbeeldsteeg | 13"];
   for (const vorm of vormen) {
-    const t = ku.beheerderTekst(`2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, { zonderNummers: true, straten: [] });
-    assert.match(t, /achterbouw/, vorm);
-    assert.doesNotMatch(t.replace(/\b\d{4}\b/g, ""), /\d/, `${vorm} → ${t}`);
-    const k = kaart(werk({ ...fluvius, title: `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
-    assert.match(regels(k).Waar, /huisnummer weggelaten: het gaat om één adres/);
-    assert.doesNotMatch(alleTekst(k).replace(/\b\d{4}\b/g, "").replace(/\b\d+ (?:dagen|dag|maanden|jaar|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\b/g, ""), /\d/, `${vorm} → ${alleTekst(k)}`);
+    const tekst = `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`;
+    assert.equal(ku.beheerderTekst(tekst, { straten: [] }), tekst, vorm);
+    const k = kaart(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
+    assert.match(k.titel, /^Nieuwe aansluiting op het elektriciteitsnet /, vorm);
+    assert.ok(alleTekst(k).includes(vorm), `${vorm} → ${alleTekst(k)}`);
+    assert.doesNotMatch(alleTekst(k), /weggelaten|één adres/, vorm);
   }
+  // Op de straat van de kaart: het nummer met zijn aanhangsel bij "Waar" en in de titel.
+  const eigen = kaart(werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDSTRAAT 6werf", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
+  assert.match(eigen.titel, /in de Voorbeeldstraat nr\. 6werf /);
+  assert.match(regels(eigen).Waar, /^Voorbeeldstraat, nr\. 6werf \(omschrijving van de beheerder\)$/);
   // Een maat of een postcode is geen huisnummer.
-  assert.equal(ku.beheerderTekst("2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m", { zonderNummers: true }), "2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m");
+  assert.equal(ku.beheerderTekst("2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m"), "2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m");
+  assert.equal(ku.huisnummersUitTekst("2000 Antwerpen - Voorbeeldstraat 25m leidingen", "Voorbeeldstraat"), "");
 });
 
 // Een tunnelsluiting heette hier eerst "Wegenwerken" (de soort inname van GIPOD); sinds het vaagheidsplan van
@@ -180,8 +187,8 @@ test("9. alleen een kruispunt als de straten elkaar raken; de straat die de behe
 });
 
 test("10. noemt de beheerder een andere straat dan de kaart, dan blijft zijn tekst staan", () => {
-  // De tekst blijft, zonder het losse huisnummer: één adres kan een woning zijn (hertest, restpunt 3).
-  assert.equal(ku.beheerderTekst("2000 | Antwerpen | Anderestraat | 38", { straten: ["Voorbeeldstraat"] }), "2000 | Antwerpen | Anderestraat");
+  // De tekst blijft, met het huisnummer: de plaats van een werk mag exact (besluit van 18 oktober 2026).
+  assert.equal(ku.beheerderTekst("2000 | Antwerpen | Anderestraat | 38", { straten: ["Voorbeeldstraat"] }), "2000 | Antwerpen | Anderestraat | 38");
   const k = kaart(werk({ title: "2000 | Antwerpen | Anderestraat | 38", occupancyTypes: ["Hoogtewerker;Nutswerken"] }));
   assert.match(k.bronTekst, /Anderestraat/);
   // Alleen het adres van de kaart zelf (ook in hoofdletters zonder trema): geen herhaling.

@@ -249,14 +249,16 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   assert.equal(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"), indexVooraf);
   for (const relative of ["site/history/live-layers.json", "site/history/archive/baseline.json"]) {
     const inhoud = fs.readFileSync(path.join(root, relative), "utf8");
-    assert.equal(inhoud.includes("Xstraat 2") || inhoud.includes("Xstraat 12") || inhoud.includes("2100"), false, relative);
+    assert.equal(inhoud.includes("Xstraat 2") || inhoud.includes("2100"), false, relative);
+    // Het werk houdt zijn huisnummer: de plaats van een werk mag exact (besluit van 18 oktober 2026).
+    assert.ok(inhoud.includes("2000 Antwerpen, Xstraat 12"), `${relative}: het werk houdt zijn huisnummer`);
   }
 
   const eerste = opkuisHistoriekPrivacy({ rootDir: root, write: true });
   assert.deepEqual(eerste.leegGeworden, ["site/history/archive/2026-10-10.json"], "de enige wijziging lag buiten het district");
   const tekst = fs.readdirSync(path.join(root, "site/history/archive")).map((name) => fs.readFileSync(path.join(root, "site/history/archive", name), "utf8")).join("\n")
     + fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  for (const verboden of ["Xstraat 2", "Xstraat 12", "Ystraat", "2100"]) assert.equal(tekst.includes(verboden), false, verboden);
+  for (const verboden of ["Xstraat 2", "Ystraat", "2100"]) assert.equal(tekst.includes(verboden), false, verboden);
   const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
   assert.deepEqual(index.days, []);
 
@@ -270,8 +272,9 @@ test("opkuis: wat niet lukt, houdt de rest niet tegen en wordt gemeld", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-opkuis-rest-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const T = "2026-10-10T03:00:00.000Z";
-  // Een werk met een straat buiten het district: dat haalt de opkuis niet weg (de scan meldt het wel).
-  const werk = { id: "work:8", gipodId: 8, title: "Proefstraat 12", streets: [{ id: "1", name: "Proefstraat", postcode: "2100" }], status: "In uitvoering", start: T, end: T };
+  // Een werk met een straat buiten het district: dat haalt de opkuis niet weg (de scan meldt het wel). Zijn huisnummer
+  // blijft (de plaats van een werk mag exact); dat van het parkeerverbod valt weg.
+  const werk = { id: "work:8", gipodId: 8, title: "Proefstraat 31", streets: [{ id: "1", name: "Proefstraat", postcode: "2100" }], status: "In uitvoering", start: T, end: T };
   const schrijf = (relative, inhoud) => {
     fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
     fs.writeFileSync(path.join(root, relative), inhoud);
@@ -281,7 +284,8 @@ test("opkuis: wat niet lukt, houdt de rest niet tegen en wordt gemeld", (t) => {
 
   const rapport = opkuisHistoriekPrivacy({ rootDir: root, write: true });
   const live = fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  assert.equal(live.includes("Proefstraat 12"), false, "het huisnummer is toch weg");
+  assert.equal(live.includes("Proefstraat 12"), false, "het huisnummer van het parkeerverbod is toch weg");
+  assert.ok(live.includes("\"Proefstraat 31\""), "het werk houdt zijn huisnummer");
   assert.deepEqual(rapport.nogBevindingen, { "site/history/live-layers.json": 1 });
   assert.deepEqual(rapport.nietGeschreven, { "site/history/archive/2026-10-09.json": "geen geldige JSON" });
   assert.equal(JSON.stringify(rapport).includes("Proefstraat 12"), false, "het rapport toont geen inhoud");
