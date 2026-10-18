@@ -209,7 +209,7 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
   // De echte feed met verzonnen agendapunten erbij (`agendaErbij`, met een vaste letterlijke basis), of een volledig
   // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed. De echte items, maar de bronnen
-  // gezond (gezondeBronnen): een bron die die dag faalde, zet anders de bronwaarschuwing boven de plek.
+  // gezond (gezondeBronnen), zodat de opmaak niet afhangt van de bronstatus op de dag van de data.
   if (agendaErbij.length && !feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
     const echt = gezondeBronnen(echteFeed());
     echt.items.push(...agendaErbij.map((item) => kalenderItem(echt.generatedAt, item)));
@@ -1018,13 +1018,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  // De bronwaarschuwing (#191) op een gsm. De toetsen hierboven nemen gezonde bronnen (gezondeBronnen), zodat hun opmaak
-  // niet afhangt van de bronstatus op de dag van de data. Maar in de echte feed falen de twee eBesluit-bronnen sinds
-  // 13 oktober 2026, en dan staat de waarschuwing bij elke bezoeker bovenaan, boven de plek en "Dit weekend". Deze twee
-  // toetsen nemen dat na (falendeBronnen): eerst dat de waarschuwing er dan staat (en met gezonde bronnen niet), dan waar
-  // de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) dan eindigen. Dat laatste is een open vraag aan de
-  // eigenaar (todo): de waarschuwing zo bovenaan houden, of op een gsm compacter of lager zetten. De todo meet alleen
-  // waar die blokken eindigen; zet de site de waarschuwing lager, dan slaagt ze ("ok … # TODO") en mag "todo" weg.
+  // Geen bronwaarschuwing meer (#191 is weg): besluit van de eigenaar (18-10-2026), "niemand moet weten als er iets
+  // faalt, de momentopname blijft wel goed". In de echte feed falen de twee eBesluit-bronnen sinds 13 oktober 2026;
+  // ook dan ziet een bezoeker daar niets van, niet bovenaan (op de voorpagina en bij een straat) en niet in de
+  // bronnenlijst ("Bronnen en volledige vooruitblik"): die zegt wanneer de bron het laatst goed ververst is. De
+  // bronstatus blijft wel in de feed (intern: de job source-health en de alarmen naar de eigenaar). De toetsen hierboven
+  // nemen gezonde bronnen (gezondeBronnen); deze twee nemen de falende bronnen na (falendeBronnen): eerst dat er niets
+  // over staat, dan dat de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) ook dan boven 600 px eindigen.
   const EBESLUIT = ["district-ebesluit", "district-ebesluit-evenementen"];
   const plekFeedMet = (bronnen) => {
     const feed = bronnen(gezondeBronnen(echteFeed()));
@@ -1033,25 +1033,35 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   };
   const metFalendeBron = (feed) => falendeBronnen(feed, EBESLUIT);
   const bronnenNagekeken = (page) => page.waitForFunction(() => !/controleren/i.test(document.querySelector("#agenda-freshness")?.textContent || ""), null, { timeout: 10000 });
-  await t.test("bronwaarschuwing (#191): met een falende bron staat ze bovenaan, op de voorpagina en bij een straat; met gezonde bronnen niet", async () => {
+  // Wat een bezoeker vroeger las als een bron faalde (bovenaan en in de bronnenlijst).
+  // ("versheid per bron" zelf staat wel nog in de uitleg van "Alle lijsten, bronnen en instellingen": dat is geen melding.)
+  const BRONFOUT = /tijdelijk onbereikbaar|ophaalpoging mislukt|verouderd sinds|officiële bronnen zijn|Bekijk de versheid/i;
+  await t.test("geen bronwaarschuwing (besluit 18-10-2026): met de eBesluit-bronnen falend staat er niets over, op de voorpagina en bij een straat", async () => {
     const dag = volgendeWeekdag(today, 3);
-    for (const [naam, opties, waarschuwing] of [
-      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }, true],
-      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }, true],
-      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }, false],
-      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }, false],
+    const ebesluitLabels = echteFeed().sources.filter((bron) => EBESLUIT.includes(bron.sourceId)).map((bron) => bron.label);
+    assert.equal(ebesluitLabels.length, 2);
+    for (const [naam, opties] of [
+      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }],
+      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }],
+      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }],
+      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }],
     ]) {
       const { page, context, errors } = await openPage(baseUrl, opties);
       await bronnenNagekeken(page);
-      const banner = page.locator("#agenda-source-warning");
-      assert.equal(await banner.isVisible(), waarschuwing, naam);
-      if (waarschuwing) assert.match(await banner.innerText(), /Niet alle officiële bronnen zijn actueel\.\s+2 bronnen zijn niet binnen de toegestane versheidsgrens bevestigd\./, naam);
+      assert.equal(await page.locator("#agenda-source-warning").count(), 0, naam);
+      // Ook niet in de ingeklapte bronnenlijst: daar staat bij eBesluit het moment van de laatste goede stand.
+      await page.waitForFunction(() => document.querySelector("#agenda-source-status li"), null, { timeout: 10000 });
+      const lijst = await page.locator("#agenda-source-status").evaluate((el) => [...el.querySelectorAll("li")].map((li) => li.textContent.replace(/\s+/g, " ").trim()));
+      for (const label of ebesluitLabels) assert.ok(lijst.some((regel) => regel.startsWith(`${label}: ververst op `)), `${naam}: ${label} in ${JSON.stringify(lijst)}`);
+      assert.doesNotMatch(await page.evaluate(() => document.body.innerText + document.querySelector("#agenda-source-status").textContent), BRONFOUT, naam);
       assert.deepEqual(errors, [], naam);
       await context.close();
     }
   });
 
-  await t.test("gsm met de bronwaarschuwing: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", { todo: "vraag 2 aan de eigenaar: de bronwaarschuwing staat op een gsm boven de plek en 'Dit weekend' (17-10-2026, eBesluit faalt: plek 543/679/833 px, 'Dit weekend' 819 px op 390 en 850 px op 360)" }, async () => {
+  // Vroeger een todo (vraag 2 aan de eigenaar): met de bronwaarschuwing eindigden de plek en "Dit weekend" op een gsm
+  // onder 600 px (17-10-2026, eBesluit faalt: plek 543/679/833 px, "Dit weekend" 819 px op 390 en 850 px op 360).
+  await t.test("gsm met falende eBesluit-bronnen: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", async () => {
     const dag = volgendeWeekdag(today, 3);
     const onder = {};
     for (const [width, height] of [[390, 844], [360, 780]]) {
@@ -1070,7 +1080,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
     }))));
     await context.close();
-    t.diagnostic(`met de bronwaarschuwing, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    t.diagnostic(`met falende eBesluit-bronnen, onderkant op de pagina: ${JSON.stringify(onder)}`);
     for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
   });
 

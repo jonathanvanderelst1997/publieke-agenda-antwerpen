@@ -2476,43 +2476,6 @@ function onHighlightTabKey(event) {
   document.getElementById(`hl-tab-${highlightTab}`)?.focus();
 }
 
-// Bovenaan: toon afzonderlijk een bronalarm, ook als de dataverversing net slaagde.
-function renderBronWaarschuwing() {
-  const banner = document.getElementById("agenda-source-warning");
-  if (!banner) return;
-  const summary = window.PUBLIC_AGENDA_SOURCE_WARNING?.samenvatting(agendaReconciliation.sourceFreshness);
-  if (!summary || summary.kind === "ok") {
-    banner.hidden = true;
-    banner.textContent = "";
-    return;
-  }
-  // De agenda kan net zijn ververst terwijl afzonderlijke officiële bronnen oud zijn.
-  // Alleen bewezen versheidsgegevens, geen gok dat een evenement is afgelast.
-  const title = summary.kind === "expired"
-    ? "Niet alle officiële bronnen zijn actueel."
-    : summary.kind === "temporary"
-      ? "Sommige officiële bronnen zijn tijdelijk onbereikbaar."
-      : "De versheid van de officiële bronnen is nog niet bekend.";
-  const detail = summary.kind === "expired"
-    ? `${summary.expired} bron${summary.expired === 1 ? "" : "nen"} zijn niet binnen de toegestane versheidsgrens bevestigd. Onbevestigde agenda-items worden niet als actueel getoond; dat betekent niet dat ze zijn afgelast.`
-    : summary.kind === "temporary"
-      ? `Bij ${summary.temporary} bron${summary.temporary === 1 ? "" : "nen"} mislukte de laatste ophaalpoging, maar de vorige gegevens vallen nog binnen de versheidsgrens. Controleer de officiële bron voor actuele details.`
-      : "De bronstatus ontbreekt. Controleer belangrijke informatie bij de officiële organisator.";
-  banner.hidden = false;
-  banner.innerHTML = `<span class="stale-emoji" aria-hidden="true">!</span><div>
-    <strong>${title}</strong>
-    <p>${detail}</p>
-    <button class="source-warning-action" type="button">Bekijk de versheid per bron</button>
-  </div>`;
-  banner.querySelector(".source-warning-action")?.addEventListener("click", () => {
-    const details = document.querySelector(".agenda-technical-details");
-    if (!details) return;
-    details.open = true;
-    details.scrollIntoView({ block: "start" });
-    details.querySelector("summary")?.focus();
-  });
-}
-
 // Bovenaan: wanneer de agenda het laatst ververst is, en een vriendelijke melding als dat
 // langer dan 48 uur geleden is.
 function renderFreshness() {
@@ -2524,7 +2487,6 @@ function renderFreshness() {
     const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime()) : "";
     pill.textContent = moment ? `${agendaFreshness.stale ? "Laatst bijgewerkt" : "Bijgewerkt"} ${moment}` : "Bijwerkmoment onbekend";
   }
-  renderBronWaarschuwing();
   if (!banner) return;
   if (!agendaFreshness.stale || !agendaFreshness.known) {
     banner.hidden = true;
@@ -2565,8 +2527,11 @@ function renderCounts(items, categoryCounts) {
 
 const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
 
-// Per bron: "ververst op …", in het oranje "leeg sinds …" (al 3 kalenderdagen op rij niets komends),
-// in het rood "verouderd sinds …", of "nog niet actief".
+// Per bron: "ververst op …" (het laatste geslaagde ophalen), in het oranje "leeg sinds …" (al 3 kalenderdagen
+// op rij niets komends), of "nog niet actief". Besluit van de eigenaar (18-10-2026): een bezoeker ziet niet dat
+// een bron faalt; de site toont gewoon de laatste goede stand. Geen bronwaarschuwing bovenaan meer (#191), en
+// ook hier geen "mislukt", "onbereikbaar" of "verouderd". De bronstatus zelf (fetchStatus, errorCode, state)
+// blijft in de feed en in sourceFreshness; de job source-health en de alarmen naar de eigenaar lezen haar daar.
 function renderSourceStatus() {
   const root = document.getElementById("agenda-source-status");
   if (!root) return;
@@ -2580,17 +2545,11 @@ function renderSourceStatus() {
           : `<span>Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)</span>`;
       const lines = entries.map((entry) => {
         let status;
-        if (entry.state === "inactive") status = `<span class="source-inactive">nog niet actief</span>`;
-        else if (entry.state === "stale") status = `<span class="source-stale">verouderd sinds ${esc(formatInstant(entry.staleSince))}</span>`;
+        if (entry.state === "inactive" || !formatInstant(entry.retrievedAt)) status = `<span class="source-inactive">nog niet actief</span>`;
         else if (entry.state === "empty")
           status = `<span class="source-empty">leeg sinds ${esc(formatSimpleDate(entry.emptySince))}</span>: geen komende items (nagekeken op ${esc(formatInstant(entry.retrievedAt))})`;
+        // Ook een bron waarvan de laatste ophaalpoging faalde: het moment van haar laatste goede stand.
         else status = `<span class="source-fresh">ververst op ${esc(formatInstant(entry.retrievedAt))}</span>`;
-        // Een tijdelijke fout (5xx, time-out) met vorige gegevens heet "stale": de bron is even
-        // onbereikbaar en haar vorige items blijven staan tot ze 48 uur oud zijn.
-        const transient = /^(?:channel_)?(?:http_(?:5\d\d|429)|timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$/.test(String(entry.errorCode ?? ""));
-        const failed = entry.fetchStatus === "error" && entry.state !== "inactive"
-          ? ` <span class="source-stale">(${transient && entry.state !== "stale" ? "bron tijdelijk onbereikbaar; vorige gegevens blijven staan" : "laatste ophaalpoging mislukt"})</span>`
-          : "";
         // Een bron die afkapt (UiT), zegt tot wanneer ze volledig is en hoeveel er in totaal was.
         const coverage = entry.coverage?.capped
           ? `<br><span class="source-capped">${
@@ -2607,7 +2566,7 @@ function renderSourceStatus() {
                   : esc(sourceAttribution.text)
               }</span>`
             : "";
-        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}${ownAttribution}</li>`;
+        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${coverage}${ownAttribution}</li>`;
       });
       const canonicalNote =
         scope === "stad" && !onCanonicalHost

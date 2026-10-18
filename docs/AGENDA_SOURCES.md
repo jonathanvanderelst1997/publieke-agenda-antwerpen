@@ -92,9 +92,26 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 
 - **`stale`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt. Dat is een waarschuwing:
   `npm run sources:health` en de job `source-health` blijven groen, de andere bronnen worden gewoon
-  ververst, en de site toont "(bron tijdelijk onbereikbaar; vorige gegevens blijven staan)";
+  ververst;
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
+
+## Een falende bron: intern wel, voor bezoekers niet
+
+Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel
+goed". De site toont daarom nergens dat een bron faalt: geen bronwaarschuwing bovenaan (de melding
+`#agenda-source-warning` van #191 en `site/bron-waarschuwing.js` zijn weg, op de voorpagina en op de
+plekpagina), en de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon
+"ververst op …" met het moment van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of
+"verouderd". Intern blijft alles:
+
+- de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
+  `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);
+- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar;
+- de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
+
+Alleen als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat nog ("De agenda wordt even niet
+ververst"): dan is de momentopname zelf oud, en dat staat los van één falende bron.
 
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
@@ -152,15 +169,16 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 ## Versheid
 
 - Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
-  `stale_source`) en toont de site in het rood "verouderd sinds …".
+  `stale_source`). De site zegt dat niet aan bezoekers (besluit van 18-10-2026, zie "Een falende bron"
+  hierboven); `sources:health` meldt het wel.
 - Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
   `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
   vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
   2 dagen.
 - "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
   48 uur.
-- Per bron toont de site "ververst op …", in het oranje "leeg sinds …", in het rood "verouderd sinds …" of
-  "nog niet actief".
+- Per bron toont de site "ververst op …" (het moment van de laatste goede stand, ook als de laatste
+  ophaalpoging faalde), in het oranje "leeg sinds …" of "nog niet actief".
 
 ## Leeg: antwoordt wel, levert niets
 

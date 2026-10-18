@@ -108,8 +108,6 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "nieuws-uur": { zin: "Het uur staat niet in het bericht.", meter: "uur-niet-in-bron", kern: true, waar: "lijst" },
   "bijwerkmoment": { zin: "Bijwerkmoment onbekend", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
   "bijwerkmoment-kort": { zin: "op een onbekend moment", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
-  // De banner bovenaan de agenda (agenda.js, renderBronWaarschuwing) als de bronstatus ontbreekt.
-  "bronversheid-onbekend": { zin: "De versheid van de officiële bronnen is nog niet bekend.", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
 });
 
 // De zin met een id, met {naam} ingevuld. Een onbekend id is een fout in de code: dan gooit de functie, zodat een
