@@ -46,59 +46,64 @@ const dossierPunt = (dossier, dag, title, { tot = null, straten = ["Proefplein"]
 });
 const markt = (dag, plein = "Proefplein") => ({ id: `markt-proef-${dag}`, sourceId: "stad-markten", title: `Gemengde markt ${plein}`, date: dag, timeSlot: "08:00", location: `${plein}, 2060 Antwerpen`, category: "markets" });
 
-test("parkeerverbod voor een evenement: precies één evenement in de straat op die dag geeft de naam; twee niet", () => {
+// Besluit van de eigenaar (18 oktober 2026): de titel van een parkeerverbod is altijd "Parkeerverbod", nooit waarvoor
+// (vroeger "Parkeerverbod voor een evenement" of "Parkeerverbod, vermoedelijk voor ..."). De reden van A-Sign telt alleen
+// intern: is er precies één evenement, dan zegt de regel "Evenement" welk, met de bron, en noemt de evenementkaart het
+// parkeerverbod. "Ook gepland hier die dag" staat niet bij een parkeerverbod: die regel stond alleen bij de reden
+// "evenement" en zou zo de reden verraden. De beslissing zelf (één kandidaat, geen markt, elke dag) blijft dezelfde.
+test("parkeerverbod met de reden evenement: precies één evenement in de straat op die dag staat in de regel; twee niet; de titel blijft 'Parkeerverbod'", () => {
   const ev = evenementen([inname("ET2099000001", "2099-03-14")], { dossiers: { ET2099000001: fiche("Proefloop") } });
   const agendaItems = [dossierPunt("ET2099000001", "2099-03-14", "Proefloop")];
   const p = parkeer(1, "2099-03-14");
-  assert.equal(p.title, "Parkeerverbod voor een evenement");
+  assert.equal(p.title, "Parkeerverbod");
   const [pn, en] = verrijkMetContext([p, ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
-  assert.equal(pn.title, "Parkeerverbod, vermoedelijk voor Proefloop");
+  assert.equal(pn.title, "Parkeerverbod");
   assert.match(regel(pn, "Evenement"), /^Proefloop \(A-Sign, dossier ET2099000001\): het enige evenement in deze straat op die dag\. A-Sign zet bij een parkeerverbod geen dossiernummer\.$/);
-  // "Vermoedelijk": A-Sign legt het verband niet (nakijkronde 13 oktober 2026). Geen vage kaart: de naam staat erin.
-  assert.deepEqual(vaagheidVanKaart({ titel: pn.title }).patronen, ["vermoedelijk"]);
+  // Geen vage kaart: "Parkeerverbod" met waar en wanneer is de hele kaart.
+  assert.deepEqual(vaagheidVanKaart({ titel: pn.title }).patronen, []);
   assert.equal(vaagheidVanKaart({ titel: pn.title }).kern, false);
   // De evenementkaart: het parkeerverbod onder "Wat merk je".
   assert.match(en.uitleg.kern.find(([k]) => k === "Wat merk je")[1], /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein 14 mrt \(2099-00001\)\./);
-  // Twee evenementen die dag (het tweede alleen als kaart van de plek): geen naam, wel context.
+  // Twee evenementen die dag (het tweede alleen als kaart van de plek): geen regel, en geen context bij het parkeerverbod.
   const twee = [...ev, ...evenementen([inname("ET2099000002", "2099-03-14")])];
   const [pt] = verrijkMetContext([p, ...twee], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
-  assert.equal(pt.title, "Parkeerverbod voor een evenement");
+  assert.equal(pt.title, "Parkeerverbod");
   assert.equal(regel(pt, "Evenement"), "");
-  // Beide evenementen als context, elk met de bron (kortste eerst, dan op titel).
-  assert.match(regel(pt, "Ook gepland hier die dag"), /^Inname op het Proefplein \(14 mrt; A-Sign, dossier ET2099000002\) · Proefloop \(14 mrt; A-Sign, dossier ET2099000001\)\./);
-  assert.match(regel(pt, "Ook gepland hier die dag"), /Context: het zegt niet wat deze kaart is\.$/);
-  // Alleen een kaart van de plek (niet in de agenda): die houdt een naam tegen, maar geeft er nooit een.
+  assert.equal(regel(pt, "Ook gepland hier die dag"), "");
+  assert.deepEqual(pt, p, "zonder kandidaat blijft het parkeerverbod zoals het was");
+  // Alleen een kaart van de plek (niet in de agenda): die houdt een regel tegen, maar geeft er nooit een.
   const [pp] = verrijkMetContext([p, ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [] });
-  assert.equal(pp.title, "Parkeerverbod voor een evenement");
+  assert.equal(pp.title, "Parkeerverbod");
   assert.equal(regel(pp, "Evenement"), "");
 });
 
-test("een markt die dag, in de straat of in de straten van het evenement: geen naam, alleen ook gepland hier", () => {
+test("een markt die dag, in de straat of in de straten van het evenement: geen regel 'Evenement'", () => {
   // De foor loopt drie weken op het Proefplein en in de Tweedestraat; de markt staat op woensdag op het Proefplein.
   const foor = dossierPunt("ET2099000020", "2099-03-07", "Najaarsfoor Proefplein", { tot: "2099-03-28", straten: ["Proefplein", "Tweedestraat"], info: "Naam automatisch herkend via de foorlijst van de stad (zelfde plein en periode).", category: "festival" });
   const agendaItems = [foor, markt("2099-03-11"), markt("2099-03-18")];
-  // Op het plein zelf, op een marktdag: twee items, geen naam.
+  // Op het plein zelf, op een marktdag: twee items, geen regel.
   const opPlein = parkeer(21, "2099-03-11");
   const [a] = verrijkMetContext([opPlein, agendaEntry(markt("2099-03-11"), "markets"), agendaEntry(foor, "festival")], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
-  assert.equal(a.title, "Parkeerverbod voor een evenement");
+  assert.equal(a.title, "Parkeerverbod");
   assert.equal(regel(a, "Evenement"), "");
-  assert.match(regel(a, "Ook gepland hier die dag"), /^Gemengde markt Proefplein \(11 mrt; GIPOD\) · Najaarsfoor Proefplein \(7–28 mrt; A-Sign, dossier ET2099000020\)\. Context: /);
-  // In de Tweedestraat, op een marktdag: de markt staat niet in die straat, wel in een straat van de foor. Ook geen naam.
+  assert.equal(regel(a, "Ook gepland hier die dag"), "");
+  // In de Tweedestraat, op een marktdag: de markt staat niet in die straat, wel in een straat van de foor. Ook geen regel.
   const naast = publicSpaceEntry({ id: "parking:2099-000022|1", kind: "parking", kindLabel: "Parkeerverbod", title: "Aanvraag voor evenementen gesteund door de stad", reason: "Aanvraag voor evenementen gesteund door de stad", location: "Tweedestraat, 2000 Antwerpen", start: "2099-03-18T00:00:00.000Z", end: "2099-03-18T00:00:00.000Z", status: "Goedgekeurd", reference: "2099-000022", startTime: "00:00", endTime: "23:59", streets: [straat("Tweedestraat")] });
   const [b] = verrijkMetContext([naast], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems });
-  assert.equal(b.title, "Parkeerverbod voor een evenement");
-  // Op een dag zonder markt: de foor is het enige item, dan wel de naam.
+  assert.equal(b.title, "Parkeerverbod");
+  assert.equal(regel(b, "Evenement"), "");
+  // Op een dag zonder markt: de foor is het enige item, dan wel de regel.
   const dinsdag = publicSpaceEntry({ ...naast.item, id: "parking:2099-000023|1", reference: "2099-000023", start: "2099-03-17T00:00:00.000Z", end: "2099-03-17T00:00:00.000Z" });
   const [c] = verrijkMetContext([dinsdag], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems });
-  assert.equal(c.title, "Parkeerverbod, vermoedelijk voor Najaarsfoor Proefplein");
-  assert.match(regel(c, "Evenement"), /\(A-Sign, dossier ET2099000020\): het enige evenement in deze straat op die dag/);
+  assert.equal(c.title, "Parkeerverbod");
+  assert.match(regel(c, "Evenement"), /^Najaarsfoor Proefplein \(A-Sign, dossier ET2099000020\): het enige evenement in deze straat op die dag/);
   // Een ouder bronbestand zonder `stratenVolledig`: de straten van de foor tellen dan nog om de markt ernaast te zien.
   const oud = [{ ...foor, stratenVolledig: undefined }, markt("2099-03-11"), markt("2099-03-18")];
-  assert.equal(verrijkMetContext([naast], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems: oud })[0].title, "Parkeerverbod voor een evenement");
-  assert.equal(verrijkMetContext([dinsdag], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems: oud })[0].title, "Parkeerverbod, vermoedelijk voor Najaarsfoor Proefplein");
+  assert.equal(regel(verrijkMetContext([naast], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems: oud })[0], "Evenement"), "");
+  assert.match(regel(verrijkMetContext([dinsdag], { straat: "Tweedestraat", vandaag: VANDAAG, agendaItems: oud })[0], "Evenement"), /^Najaarsfoor Proefplein /);
 });
 
-test("één beslissing per parkeerverbod: op elke straatpagina dezelfde titel, over al zijn straten", () => {
+test("één beslissing per parkeerverbod: op elke straatpagina dezelfde regel, over al zijn straten", () => {
   // Eén parkeerverbod in twee straten. In de Proefstraat loopt een stoet, in de Tweedestraat ligt die dag ook een
   // verkeersvrije zone (een dossier van de verversing zonder agendapunt).
   const rijen = [
@@ -113,15 +118,17 @@ test("één beslissing per parkeerverbod: op elke straatpagina dezelfde titel, o
     assert.deepEqual(p.straten, ["Proefplein", "Tweedestraat"], "alle straten van het A-Sign-nummer, ook buiten de plek");
     return verrijkMetContext(kaarten, { straat: naam, vandaag: VANDAAG, agendaItems, uitleg }).find((e) => e.item?.kind === "parking");
   };
-  // Met de zone: op beide pagina's geen naam (op de Proefplein-pagina staat de zone niet, maar ze telt mee).
+  // Met de zone: op beide pagina's geen regel (op de Proefplein-pagina staat de zone niet, maar ze telt mee).
   const met = { evenementen: zone, werken: {} };
-  assert.deepEqual([pagina("Proefplein", met).title, pagina("Tweedestraat", met).title], ["Parkeerverbod voor een evenement", "Parkeerverbod voor een evenement"]);
-  // Zonder de zone: op beide pagina's de naam, en "deze straten".
+  const [a, b] = [pagina("Proefplein", met), pagina("Tweedestraat", met)];
+  assert.deepEqual([a.title, b.title], ["Parkeerverbod", "Parkeerverbod"]);
+  assert.deepEqual([regel(a, "Evenement"), regel(b, "Evenement")], ["", ""]);
+  // Zonder de zone: op beide pagina's de regel, en "deze straten". De titel blijft "Parkeerverbod".
   const zonder = { evenementen: {}, werken: {} };
   const [x, y] = [pagina("Proefplein", zonder), pagina("Tweedestraat", zonder)];
-  assert.deepEqual([x.title, y.title], ["Parkeerverbod, vermoedelijk voor Proefstoet", "Parkeerverbod, vermoedelijk voor Proefstoet"]);
+  assert.deepEqual([x.title, y.title], ["Parkeerverbod", "Parkeerverbod"]);
   assert.equal(regel(x, "Evenement"), regel(y, "Evenement"));
-  assert.match(regel(y, "Evenement"), /het enige evenement in deze straten op die dag/);
+  assert.match(regel(y, "Evenement"), /^Proefstoet \(A-Sign, dossier ET2099000031\): het enige evenement in deze straten op die dag/);
 });
 
 test("geen kandidaat: een lang dossier, een evenement dat niet elke dag loopt, of een agendapunt uit UiT", () => {
@@ -130,44 +137,43 @@ test("geen kandidaat: een lang dossier, een evenement dat niet elke dag loopt, o
   const half = evenementen([inname("ET2099000004", "2099-03-15")], { dossiers: { ET2099000004: fiche("Proefdag") } });
   const uit = agendaEntry({ id: "uit-1", sourceId: "stad-uit", title: "Proefconcert", date: "2099-03-14", endDate: "2099-03-15", location: "Proefplein", theme: "culture" }, "culture");
   const [pn] = verrijkMetContext([p, ...lang, ...half, uit], { straat: "Proefplein", vandaag: VANDAAG });
-  assert.equal(pn.title, "Parkeerverbod voor een evenement");
-  // Context: de dag ernaast staat erbij; het jaardossier niet (langer dan 14 dagen: geen "gepland hier die dag"), UiT ook niet.
-  const ctx = regel(pn, "Ook gepland hier op die dagen");
-  assert.match(ctx, /Proefdag/);
-  assert.doesNotMatch(ctx, /Proefjaar/);
-  assert.doesNotMatch(ctx, /Proefconcert/);
-  // Zonder gekozen straat (een wijk): geen context.
+  assert.equal(pn.title, "Parkeerverbod");
+  assert.equal(regel(pn, "Evenement"), "");
+  // Geen context bij een parkeerverbod (die zou alleen bij de reden "evenement" staan), ook niet zonder gekozen straat.
+  assert.equal(regel(pn, "Ook gepland hier op die dagen"), "");
   const [zonder] = verrijkMetContext([p, ...half], { straat: "", vandaag: VANDAAG });
   assert.equal(regel(zonder, "Ook gepland hier op die dagen"), "");
 });
 
-test("een agendapunt uit een andere bron als enige kandidaat, en een vermoede naam", () => {
+test("een agendapunt uit een andere bron als enige kandidaat, en een vermoede naam: in de regel, nooit in de titel", () => {
   const p = parkeer(3, "2099-03-20");
   const kalender = { id: "kal-1", sourceId: "district-kalender", title: "Proefbraderie", date: "2099-03-20", location: "Proefplein", category: "shopping" };
   const [pn] = verrijkMetContext([p, agendaEntry(kalender, "shopping")], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [kalender] });
-  assert.equal(pn.title, "Parkeerverbod, vermoedelijk voor Proefbraderie");
-  assert.match(regel(pn, "Evenement"), /\(districtskalender\)/);
+  assert.equal(pn.title, "Parkeerverbod");
+  assert.match(regel(pn, "Evenement"), /^Proefbraderie \(districtskalender\)/);
   const vermoed = dossierPunt("ET2099000005", "2099-03-20", "Vermoedelijk Proefstoet", { info: "Naam vermoed via de kalender van vorig jaar; niet bevestigd.", category: "parade" });
   const [pv] = verrijkMetContext([p, agendaEntry(vermoed, "parade")], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [vermoed] });
-  assert.equal(pv.title, "Parkeerverbod, vermoedelijk voor Proefstoet");
-  // Een dossier zonder naam dat zelf zegt wat het is (de soort uit het dossier): die titel, zonder "Parkeerverbod: ".
+  assert.equal(pv.title, "Parkeerverbod");
+  assert.match(regel(pv, "Evenement"), /^Proefstoet \(A-Sign, dossier ET2099000005\)/);
+  // Een dossier zonder naam dat zelf zegt wat het is (de soort uit het dossier): die titel in de regel.
   // De evenementkaart van de plek krijgt het parkeerverbod onder "Wat merk je".
   const soort = dossierPunt("ET2099000009", "2099-03-20", "Buurtfeest op het Proefplein", { info: "", category: "neighborhood" });
   const kaart = { uid: "publicSpace:dossier:ET2099000009", id: "ET2099000009", source: "publicSpace", group: "evenementen", title: "Buurtfeest op het Proefplein", start: "2099-03-20", end: "",
     straten: ["Proefplein"], item: { kind: "event", streets: [straat("Proefplein")] }, uitleg: { watBron: "soort", kern: [["Wat merk je", "Kramen."]], regels: [] } };
   const [pm, em] = verrijkMetContext([p, kaart], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [soort] });
-  assert.equal(pm.title, "Parkeerverbod, vermoedelijk voor buurtfeest op het Proefplein");
+  assert.equal(pm.title, "Parkeerverbod");
+  assert.match(regel(pm, "Evenement"), /^Buurtfeest op het Proefplein \(A-Sign, dossier ET2099000009\)/);
   assert.match(em.uitleg.kern[0][1], /^Kramen\. Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein 20 mrt \(2099-00003\)\./);
-  // Een evenementendossier dat (vermoedelijk) een markt is, als enige: ook geen naam, alleen ook gepland hier.
+  // Een evenementendossier dat (vermoedelijk) een markt is, als enige: geen regel, en geen context bij het parkeerverbod.
   const marktDossier = dossierPunt("ET2099000011", "2099-03-20", "Vermoedelijk een markt op het Proefplein", { info: "", category: "shopping" });
   const [pk] = verrijkMetContext([p, agendaEntry(marktDossier, "shopping")], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [marktDossier] });
-  assert.equal(pk.title, "Parkeerverbod voor een evenement");
+  assert.equal(pk.title, "Parkeerverbod");
   assert.equal(regel(pk, "Evenement"), "");
-  assert.match(regel(pk, "Ook gepland hier die dag"), /^Vermoedelijk een markt op het Proefplein \(20 mrt; A-Sign, dossier ET2099000011\)\. Context: /);
-  // "Vermoedelijk ..." of "Evenement in ..." zonder naam: geen titel, wel de regel.
+  assert.equal(regel(pk, "Ook gepland hier die dag"), "");
+  // "Vermoedelijk ..." of "Evenement in ..." zonder naam: de regel met de titel van het dossier.
   const leeg = dossierPunt("ET2099000010", "2099-03-20", "Evenement op het Proefplein", { info: "" });
   const [pl] = verrijkMetContext([p], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [leeg] });
-  assert.equal(pl.title, "Parkeerverbod voor een evenement");
+  assert.equal(pl.title, "Parkeerverbod");
   assert.match(regel(pl, "Evenement"), /^Evenement op het Proefplein \(A-Sign, dossier ET2099000010\): het enige evenement/);
 });
 

@@ -128,7 +128,7 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
 // - een werfzone of omleiding die het kader maar half raakt: live dan alleen "Omleiding", terwijl het een
 //   werfzone met omleiding is. Dan de soorten, straten en periode van de ochtend erbij.
 // Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg. Een
-// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dag, uren en reden): een
+// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dagen en uren; maatregelSleutel): een
 // parkeerverbod dat live naar een andere dag schoof, houdt anders de oude dag van de ochtend.
 const refSleutel = (ref) => [ref?.id || "", ref?.name || "", ref?.postcode || ""].join("|");
 const samenRefs = (a = [], b = []) => [...new Map([...a, ...b].filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];

@@ -1,10 +1,28 @@
 // Alleen de pure regel van de straatnaam als import (site/witte-lijst.js, zelf zonder imports): ook lib/live-history.mjs
 // (de verversing) gebruikt dit.
 import{zonderToevoegingInTekst}from"./witte-lijst.js";
-// Een parkeerverbod is vaak een verhuis of een container voor één woning: het huisnummer is dan
-// een privéadres. We houden de straat en de postcode, nooit het huisnummer. A-Sign schrijft
-// "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
+// Een parkeerverbod (A-Sign laag 20/21), besluit van de eigenaar van 18 oktober 2026: de site zegt DAT er een
+// parkeerverbod is, WAAR exact en WANNEER (data en uren), en NOOIT waarom. Of iemand verhuist, een container of een
+// lift zet, trouwt, filmt, een evenement of een werf heeft: dat staat nergens, niet in de titel, niet in een zin, niet
+// in de technische details, de historiek, de straatbestanden, de feed, de eventpagina's of een .ics.
+// - De plaats exact: live (de browser vraagt A-Sign zelf) de straat met het huisnummer of het bereik zoals
+//   publiekParkeerAdres hieronder het schrijft ("Xstraat 12–14, 2000 Antwerpen"), anders de straat met de postcode
+//   (adresZonderHuisnummer). Wat de verversing bewaart (historiek, straatbestanden), houdt de straat en de postcode.
+// - De reden nooit: de titel is altijd PARKEERVERBOD_TITEL, en een bewaard of getoond parkeerverbod draagt geen veld
+//   `reason` (parkeerverbodZonderReden). In de browser mag de reden van A-Sign intern nog meetellen voor de logica
+//   (een parkeerverbod bij zijn werfzone of evenement hangen, site/place-core.js), zolang ze nergens getoond wordt.
+// A-Sign schrijft "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
 // "Ystraat hoek-64 2060 Antwerpen" (verzonnen straten).
+export const PARKEERVERBOD_TITEL="Parkeerverbod";
+// Een parkeerverbod (een item, of de velden van een wijziging) zoals het getoond of bewaard mag worden: de titel
+// "Parkeerverbod" (als er een titel is) en geen `reason`. De rest blijft zoals het was; geen kopie als er niets wijzigt.
+export function parkeerverbodZonderReden(waarde){
+  if(!waarde||typeof waarde!=="object"||Array.isArray(waarde))return waarde;
+  const metTitel="title"in waarde&&waarde.title!==PARKEERVERBOD_TITEL;
+  if(!metTitel&&!("reason"in waarde))return waarde;
+  const{reason,...rest}=waarde;
+  return metTitel?{...rest,title:PARKEERVERBOD_TITEL}:rest;
+}
 const HUISNUMMER=/^(?:\d+\s*[a-z]{0,3}|hoek|onbekend|hnr nvt|nvt)(?:\s*bus\s*\w+)?$/i;
 const vouw=(t)=>String(t??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toLowerCase();
 // Officiële straatnamen met een cijfer ("4 septemberpad", "De 7 schakenpad", "Kanaaldok B1-Oostkaai"):
@@ -33,9 +51,9 @@ function zonderNummerwoord(straat){
   return uit;
 }
 // `straatnamen`: optioneel, de officiële straatnamen (bv. uit de stratenlijst van het district).
-// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod kan preciezer zijn dan het
-// bewaarde straatbestand. Dit adres wordt alleen live getoond; de historiek en snapshots
-// blijven verplicht geschoond. Geen naam, bus, hoekwaarde of onzekere bron erbij verzinnen.
+// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod: waar exact, met het huisnummer of het
+// bereik van de bron. Dit adres wordt alleen live getoond; de historiek en de straatbestanden houden de
+// straat en de postcode. Geen naam, bus, hoekwaarde of onzekere bron erbij verzinnen.
 export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = null) {
   const raw = zonderToevoegingInTekst(String(bronAdres ?? "").replace(/\s+/g, " ").trim().slice(0, 220));
   const m = /^(.*?)\s+([1-9]\d{0,3}[a-z]{0,2})\s*[-–]\s*([1-9]\d{0,3}[a-z]{0,2})\s+(\d{4})\s+Antwerpen$/i.exec(raw);

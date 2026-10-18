@@ -84,17 +84,18 @@ test("kaarten op de plekpagina: de eerlijk-onbekend-zinnen worden geteld", () =>
   const k = vaagheidVanKaart({ titel: "Innames op 26 plekken verspreid over de stad", uur: "Uur onbekend", regels: ["Wat: De stad gaf toelating voor een inname van de openbare ruimte. Wat er gebeurt of wat er staat, zegt het dossier niet."] });
   for (const id of ["generieke-titel", "plek-verspreid", "uur-onbekend", "wat-zegt-dossier-niet"]) assert.ok(k.patronen.includes(id), id);
   assert.equal(k.kern, true);
-  assert.equal(vaagheidVanKaart({ titel: "Parkeerverbod voor een verhuis", uur: "7.00", regels: ["Niet parkeren 7 tot 17 uur."] }).kern, false);
+  assert.equal(vaagheidVanKaart({ titel: "Parkeerverbod", uur: "7.00", regels: ["Niet parkeren 7 tot 17 uur."] }).kern, false);
 });
 
-test("nieuwe patronen: terras zonder periode, werk zonder wat, parkeerverbod zonder welk; en wat als veld ontbreekt", () => {
+test("nieuwe patronen: terras zonder periode, werk zonder wat; een parkeerverbod is niet vaag; en wat als veld ontbreekt", () => {
   assert.ok(vaagheidVanKaart({ titel: "Terras met vergunning", regels: ["Een terras op het openbaar domein, met een vergunning van de stad. Een periode publiceert de stad niet."] }).patronen.includes("periode-onbekend"));
   assert.ok(vaagheidVanKaart({ titel: "Werken van Stad Antwerpen in de Proefstraat tot 31 december" }).kern);
   assert.ok(vaagheidVanKaart({ titel: "Werken in de Proefstraat vanaf 3 november" }).patronen.includes("werk-zonder-wat"));
   // Een soort met "Werken aan ..." is wel een wat.
   assert.ok(!vaagheidVanKaart({ titel: "Werken aan het elektriciteitsnet in de Proefstraat op 26 oktober" }).kern);
-  assert.ok(vaagheidVanKaart({ titel: "Parkeerverbod voor een werf" }).patronen.includes("parkeerverbod-welk"));
-  assert.ok(!vaagheidVanKaart({ titel: "Parkeerverbod voor een verhuis" }).kern);
+  // "Parkeerverbod" is de hele titel: waarvoor staat er nooit bij (besluit van 18 oktober 2026), en dat is geen vaagheid.
+  assert.deepEqual(vaagheidVanKaart({ titel: "Parkeerverbod" }).patronen, []);
+  assert.ok(!vaagheidVanKaart({ titel: "Parkeerverbod" }).kern);
   // Een veld dat zegt wat ontbreekt (de zin staat één keer per sectie): telt als patroon, en als vaag als het een kern is.
   const k = vaagheidVanKaart({ titel: "Studentenactiviteit op het Proefplein", uur: "", onbekend: [{ meter: "uur-onbekend", kern: true }, "naam-stad-niet"] });
   assert.deepEqual(k.patronen, ["naam-stad-niet", "uur-onbekend"]);

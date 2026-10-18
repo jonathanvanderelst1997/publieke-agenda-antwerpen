@@ -19,7 +19,6 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "werfzone-waarvoor": { zin: "De stad publiceert niet waarvoor deze {wat} dient.", meter: "wat-zegt-stad-niet", kern: true, waar: "kaart" },
   "werfzones-waarvoor": { zin: "Waarvoor deze werfzones en omleidingen dienen, staat niet in A-Sign, en GIPOD noemt geen werk met hetzelfde dossiernummer of alleen genummerde fasen.", meter: "wat-zegt-stad-niet", kern: true, waar: "bundel" },
   "werf-zonder-doel": { zin: "Waarvoor de werf dient, staat niet in A-Sign en niet in de fasen van GIPOD.", meter: "werf-zonder-doel", kern: true, waar: "kaart" },
-  "parkeerverbod-waarvoor": { zin: "De stad publiceert niet waarvoor.", meter: "wat-zegt-stad-niet", kern: true, waar: "kaart" },
 
   // ---- evenementendossiers en innames (A-Sign) ----
   "inname-wat": { zin: "Wat er gebeurt of wat er staat, zegt het dossier niet.", meter: "wat-zegt-dossier-niet", kern: true, waar: "kaart" },
@@ -88,8 +87,6 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   // helemaal laadde (place-view.js).
   "niet-in-de-bron-kop": { zin: "Niet in de bron", meter: "niet-in-de-bron", kern: false, waar: "detail" },
   "werken-onvolledig": { zin: "onbekend: niet alles laadde", meter: "niet-in-de-bron", kern: false, waar: "kaart" },
-  // De districtslijst van de parkeerverboden (public-space-live.js) zonder reden.
-  "reden-niet-gepubliceerd": { zin: "Niet gepubliceerd", meter: "parkeerverbod-welk", kern: true, waar: "lijst" },
 
   // ---- agenda (bronnen van de stad en het district) ----
   "koopzondag-uren": { zin: "De stad noemt geen uren; zie de officiële pagina.", meter: "uur-onbekend", kern: false, waar: "agenda" },
