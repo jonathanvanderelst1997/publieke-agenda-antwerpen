@@ -172,18 +172,27 @@ test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen het huisn
   });
   const kaart = (title, extra) => ku.werkKaartje(werk(title, extra), { vandaag: "2026-10-10" });
   const getoond = (k) => [k.titel, k.samenvatting, k.bronTekst, ...k.regels.map(([, v]) => v)].join(" ¶ ");
-  // Eén los nummer: "Waar" en de tekst van de beheerder noemen het, niets is weggelaten.
+  // Eén los nummer op de straat van de kaart: "Waar" noemt het, niets is weggelaten. Dat is een werk voor één huis
+  // (tests/werken-een-huis.test.mjs): de vrije tekst van de beheerder staat er dan niet naast.
   const los = kaart("2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
   assert.match(Object.fromEntries(los.regels).Waar, /^Proefstraat, nr\. 12 /);
-  assert.equal(los.bronTekst, "2018 Antwerpen - Proefstraat 12 - werken aan nutsleiding");
+  assert.equal(los.bronTekst, "");
   for (const [titel, nummer] of [
-    ["Proefstraat thv 31 - vervangen voetpadkast", /thv 31/],
+    ["Proefstraat thv 31 - vervangen voetpadkast", /Proefstraat, nr\. 31/],
+    ["Proefstraat 12 A - herstelling", /Proefstraat, nr\. 12/],
+    ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", /Proefstraat, nr\. 12/],
+  ]) {
+    const k = kaart(titel);
+    assert.match(getoond(k), nummer, titel);
+    assert.doesNotMatch(getoond(k), /weggelaten|voetpadkast|herstelling|kabel 30/, titel);
+    assert.doesNotMatch(Object.fromEntries(k.regels).Wat, /Volgens de beheerder|De beheerder schrijft/, titel);
+  }
+  // Een huisnummer op een andere straat dan die van de kaart: geen huis van dit werk, de tekst blijft met het nummer.
+  for (const [titel, nummer] of [
     ["Vervangen voetpadkast ter hoogte van nr 31 Voorbeeldlaan", /ter hoogte van nr 31/],
     ["Voetpadkast thv 31 - Voorbeeldlaan", /thv 31/],
     ["Voorbeeldlaan nr. 7 bus 2 - herstelling", /nr\. 7 bus 2/],
-    ["Proefstraat 12 A - herstelling", /Proefstraat 12 A/],
     ["2020 ANTWERPEN, PROEFBROEK 4B_BIS - herstelling", /4B_BIS/],
-    ["Proefstraat 12, 2000 Antwerpen - kabel 30 m", /Proefstraat 12, 2000 Antwerpen - kabel 30 m/],
   ]) {
     const k = kaart(titel);
     assert.match(getoond(k), nummer, titel);
@@ -199,11 +208,12 @@ test("3b. de tekst van de beheerder, de fasen en \"Bus en tram\" tonen het huisn
   assert.match(kaart("Proefstraat 13 tem 15 - vervangen voetpadkast").bronTekst, /Proefstraat 13 tem 15/);
   // De fasen: een los nummer en een reeks blijven.
   const fase = (description, dag) => ({ description, start: `2026-10-0${dag}T06:00:00Z`, end: `2026-10-0${dag}T16:00:00Z`, consequences: [] });
-  const fasen = kaart("Herstelling voetpad", { hindrance: { start: "2026-10-01T06:00:00Z", end: "2026-10-09T16:00:00Z", consequences: [], phases: [fase("Fase 1 Proefstraat 8", 1), fase("Fase 2 Proefstraat 8-14", 6)] } });
+  const fasen = kaart("Herstelling voetpad Proefstraat 2-20", { hindrance: { start: "2026-10-01T06:00:00Z", end: "2026-10-09T16:00:00Z", consequences: [], phases: [fase("Fase 1 Proefstraat 8", 1), fase("Fase 2 Proefstraat 8-14", 6)] } });
   assert.match(Object.fromEntries(fasen.regels).Fasen, /^Fase 1 Proefstraat 8 \(.+\) · Fase 2 Proefstraat 8-14 \(/);
-  // Bus en tram: de omschrijving zoals de beheerder ze schreef.
-  const tram = kaart("Proefstraat 21 - herstelling tramspoor");
-  assert.equal(Object.fromEntries(tram.regels)["Bus en tram"], "Proefstraat 21 - herstelling tramspoor");
+  // Bus en tram: de omschrijving zoals de beheerder ze schreef (bij één huis niet: dan alleen de gevolgen van GIPOD).
+  const tram = kaart("Proefstraat 21-25 - herstelling tramspoor");
+  assert.equal(Object.fromEntries(tram.regels)["Bus en tram"], "Proefstraat 21-25 - herstelling tramspoor");
+  assert.equal(Object.fromEntries(kaart("Proefstraat 21 - herstelling tramspoor").regels)["Bus en tram"], undefined);
 });
 
 // ---------- 4. een evenement van vandaag staat bovenaan "Loopt nu" ----------

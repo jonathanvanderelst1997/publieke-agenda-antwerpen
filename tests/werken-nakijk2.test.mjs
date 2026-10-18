@@ -62,12 +62,17 @@ test("2. bij één adres staat het huisnummer ook in de naam van een fase, zoals
   });
   const k = kaart(w);
   assert.match(regels(k).Waar, /^Voorbeeldlaan, nr\. 8 \(omschrijving van de beheerder\)$/);
-  assert.equal(regels(k).Fasen, "Fase 1 Voorbeeldlaan 8 (15 oktober – 16 oktober): voetgangers beperkt");
+  // Een aansluiting is een werk voor één huis (tests/werken-een-huis.test.mjs): het adres staat bij "Waar" en in de titel,
+  // de fase met haar dag en gevolgen, maar zonder haar naam (vrije tekst van de beheerder).
+  assert.equal(regels(k).Fasen, "15 oktober – 16 oktober: voetgangers beperkt");
   assert.doesNotMatch([k.titel, k.samenvatting, k.bronTekst, ...k.regels.flat()].join(" "), /weggelaten/);
   // Ook als de fasen uit een oudere verversing komen (kaart-uitleg.json) en de live laag er geen heeft.
   const bewaard = { werken: { 90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], huisnummers: "nr. 8", huisnummerBron: "x" } } };
   const e = pc.workEntry({ ...w, title: "Werk in openbaar domein", hindrance: null }, { vandaag: VANDAAG, uitleg: bewaard });
-  assert.equal(Object.fromEntries(e.uitleg.regels).Fasen, "Fase 1 Voorbeeldlaan 8 (15 oktober – 16 oktober)");
+  assert.equal(Object.fromEntries(e.uitleg.regels).Fasen, "15 oktober – 16 oktober");
+  // Bij een reeks huisnummers is het geen werk voor één huis: de naam van de fase blijft, met het huisnummer erin.
+  const reeks = kaart(werk({ ...w, title: "2018 ANTWERPEN, VOORBEELDLAAN 8-14", occupancyTypes: ["Elektriciteit"], workTypes: ["distributienet"] }));
+  assert.equal(regels(reeks).Fasen, "Fase 1 Voorbeeldlaan 8 (15 oktober – 16 oktober): voetgangers beperkt");
   assert.match(e.title, /in de Voorbeeldlaan nr\. 8 /);
   // Een volgnummer van een fase is geen huisnummer.
   assert.equal(ku.huisnummersUitTekst("Fase 2 Voorbeeldlaan 14 - deel 3", "Voorbeeldlaan"), "nr. 14");

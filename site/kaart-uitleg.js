@@ -648,6 +648,22 @@ export function faseDoelen(fasen = []) {
   return uit;
 }
 
+// Een werk voor één huis (nakijkronde van head 1ed84e65): een nieuwe aansluiting, een container, een lift of levering, of
+// elk werk waar het exacte huisnummer staat (één nummer, ook met een code: "nr. 12", "nr. 1DN02"; een reeks "nr. 12–40" niet).
+// Daar staat geen vrije tekst van de beheerder naast het adres: een naam ("Container voor Proefmans, Proefstraat 12") is in
+// vrije tekst niet betrouwbaar te herkennen, dus de kaart toont dan alleen de soort (vaste woorden) en het adres, nooit
+// "Volgens de beheerder", de tekst van de beheerder, de namen van de fasen of een fase als doel van een werf.
+const EEN_HUIS_SOORT = /^(?:Nieuwe aansluiting\b|Container$)/;
+export function isEenHuis(f = {}, nummers = geldigeHuisnummers(f?.huisnummers)) {
+  const soort = clean(f?.soort, 160);
+  return EEN_HUIS_SOORT.test(soort) || soort === INNAME_LIFT || Boolean(nummers && !nummers.includes("–"));
+}
+// De naam van een fase bij een werk voor één huis: alleen een vaste vorm ("Fase 2", "deel 3") of een vast woord van een fase
+// die niets zegt (LEGE_FASE: "Werken", "Inname", "Parkeerverbod" ...); anders geen naam, wel haar dag en gevolgen.
+const FASE_LABEL = /^(?:fase|deel|zone|nacht|dag|week)\s*-?\s*\d{1,3}[a-z]?$/i;
+const veiligeFaseNaam = (naam) => { const n = clean(naam, 160); return FASE_LABEL.test(n) || LEGE_FASE.test(n) ? n : ""; };
+const EEN_HUIS_NOOT = "Bij een werk aan één adres staat geen vrije tekst van de beheerder op de site.";
+
 // Titel, korte uitleg en details voor één werk. `werf`: { dossier } als het werk in GIPOD hetzelfde
 // dossiernummer heeft als een werfzone in A-Sign (samenWerven in place-core.js). Zo'n werk is de werfzone zelf, door
 // de dienst die de vergunning geeft in GIPOD gezet: geen "Werken van Stad Antwerpen", wel "Werf", met de fasen van
@@ -663,8 +679,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const nummers = geldigeHuisnummers(f.huisnummers);
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
   const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
-  // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zonder naam (zoals de regel "Fasen").
-  const doelen = werf && !f.soort ? faseDoelen((f.fasen || []).map((x) => x.naam)) : [];
+  // Eén huis: de soort en het adres, geen vrije tekst van de beheerder (isEenHuis).
+  const eenHuis = isEenHuis(f, nummers);
+  // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zonder naam (zoals de regel "Fasen"); niet bij één huis.
+  const doelen = werf && !f.soort && !eenHuis ? faseDoelen((f.fasen || []).map((x) => x.naam)) : [];
   const beheerderLabel = werf ? "Beheerder in GIPOD" : "Opdrachtgever";
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
   // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
@@ -702,8 +720,11 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   if (!eind) ontbreekt.push(onbekendZin("werk-einde"));
 
   // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt), met de huisnummers
-  // zoals hij ze schreef.
-  const bronTekst = beheerderTekst(f.omschrijving, { straten: f.straten });
+  // zoals hij ze schreef. Bij één huis niet, en dan zegt "Wat" dat (EEN_HUIS_NOOT) als er tekst of een fasenaam wegvalt.
+  const tekstBeheerder = beheerderTekst(f.omschrijving, { straten: f.straten });
+  const bronTekst = eenHuis ? "" : tekstBeheerder;
+  const fasen = f.fasen.filter((x) => x.naam);
+  const noot = eenHuis && (tekstBeheerder || fasen.some((x) => !veiligeFaseNaam(x.naam))) ? ` ${EEN_HUIS_NOOT}` : "";
   // Het werk of project in de woorden van de beheerder ("R1 - Ringpark Zuid") staat zichtbaar bij "Wat",
   // tenzij het alleen de soort herhaalt ("Riolering" bij "Rioleringswerken"). projectTekst laat een stuk weg
   // dat alleen een adres is ("PROEFBROEK 5", "Xstraat thv 31"): de plaats staat bij "Waar".
@@ -712,13 +733,22 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const inname = (f.inname || []).length > 1 ? ` Volgens GIPOD: ${f.inname.join(" · ")}.` : "";
   const regels = [];
   regels.push(["Wat", f.soort
-    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.innameSoort && !inname ? ` De soort inname in GIPOD: ${f.innameSoort.charAt(0).toLowerCase()}${f.innameSoort.slice(1)}.` : ""}${f.omschrijving ? "" : ` ${onbekendZin("beheerder-geen-omschrijving")}`}`
-    : werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.${doelen.length ? ` De fasen in GIPOD zeggen wat er gebeurt: ${doelen.map((x) => `“${x}”`).join(", ")}.` : ""}${bronTekst ? ` De beheerder schrijft: “${bronTekst}”` : ""}`
+    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.innameSoort && !inname ? ` De soort inname in GIPOD: ${f.innameSoort.charAt(0).toLowerCase()}${f.innameSoort.slice(1)}.` : ""}${f.omschrijving ? "" : ` ${onbekendZin("beheerder-geen-omschrijving")}`}${noot}`
+    : werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.${doelen.length ? ` De fasen in GIPOD zeggen wat er gebeurt: ${doelen.map((x) => `“${x}”`).join(", ")}.` : ""}${bronTekst ? ` De beheerder schrijft: “${bronTekst}”` : ""}${noot}`
     : bronTekst ? `De beheerder schrijft: “${bronTekst}”`
+    : noot ? EEN_HUIS_NOOT
     : onbekendZin(f.omschrijving ? "werk-alleen-adres" : "werk-wat")]);
-  // De fasen zoals GIPOD ze noemt, met hun huisnummers (de plaats mag exact); zonder naam en nooit met "verhuis".
-  const fasen = f.fasen.filter((x) => x.naam);
-  if (fasen.length) regels.push(["Fasen", fasen.map((x) => `${x.naam}${x.buiten || faseBuitenDistrict(x.naam) ? " (buiten district Antwerpen)" : ""}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
+  // De fasen zoals GIPOD ze noemt, met hun huisnummers (de plaats mag exact); zonder naam na een dossiercode en nooit met
+  // "verhuis". Bij één huis alleen een vaste naam (veiligeFaseNaam), anders de dag en de gevolgen zonder naam.
+  const faseTekst = (x) => {
+    const naam = eenHuis ? veiligeFaseNaam(x.naam) : x.naam;
+    const periode = x.start || x.eind ? periodeTekst(x.start, x.eind, v) : "";
+    const buiten = x.buiten || faseBuitenDistrict(x.naam) ? "buiten district Antwerpen" : "";
+    const kop = naam ? `${naam}${buiten ? ` (${buiten})` : ""}${periode ? ` (${periode})` : ""}` : [periode, buiten ? `(${buiten})` : ""].filter(Boolean).join(" ");
+    return `${kop}${x.gevolgen?.length ? `${kop ? ": " : ""}${x.gevolgen.join(", ")}` : ""}`;
+  };
+  const faseRegels = fasen.map(faseTekst).filter(Boolean);
+  if (faseRegels.length) regels.push(["Fasen", faseRegels.join(" · ")]);
   regels.push([beheerderLabel, f.opdrachtgever || onbekendZin("niet-gepubliceerd")]);
   // Een straat uit de omschrijving van de beheerder: zeg dat, en hoe ver het punt in GIPOD ervan ligt.
   const uitTekst = straat && f.straatBron ? [
@@ -736,8 +766,9 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
     : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
   // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, en niets als er contactgegevens in staan.
+  // Bij één huis alleen de gevolgen van GIPOD (vaste woorden), geen vrije tekst.
   const ovOmschrijving = zonderNamen(f.omschrijving);
-  const ov = openbaarVervoer([...f.gevolgen, ...fasen.map((x) => x.naam), CONTACT.test(ovOmschrijving) ? "" : ovOmschrijving]);
+  const ov = openbaarVervoer([...f.gevolgen, ...(eenHuis ? [] : [...fasen.map((x) => x.naam), CONTACT.test(ovOmschrijving) ? "" : ovOmschrijving])]);
   const deelsBuiten = f.titelGevolgen ? " · deels in een fase buiten district Antwerpen (zie Fasen)" : "";
   if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}${deelsBuiten}`]);
   // Geen gevolgen in GIPOD: dat staat één keer in "Niet in de bron" (ontbreekt), niet nog eens als eigen regel.

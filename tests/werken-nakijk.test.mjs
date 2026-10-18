@@ -74,15 +74,18 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
 
 // Besluit van de eigenaar van 18 oktober 2026: bij één adres (een aansluiting) blijft het huisnummer staan zoals de
 // beheerder het schreef, ook met een code of een woord eraan; niets wordt weggeschreven.
-test("3. bij één adres staat het huisnummer zoals de beheerder het schreef, ook in zijn tekst", () => {
+test("3. bij één adres staat het huisnummer zoals de beheerder het schreef bij \"Waar\"; zijn vrije tekst niet", () => {
   const vormen = ["LANGE VOORBEELDSTRAAT 79WERF", "VOORBEELDSTRAAT 6werf", "VOORBEELDBROEK 4B_BIS", "SINT-VOORBEELDVLIET 9", "VOORBEELDUIT 29", "Voorbeeldsteeg | 13"];
   for (const vorm of vormen) {
     const tekst = `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`;
+    // De tekst zelf houdt het nummer zoals de beheerder het schreef.
     assert.equal(ku.beheerderTekst(tekst, { straten: [] }), tekst, vorm);
+    // Een aansluiting is een werk voor één huis (tests/werken-een-huis.test.mjs): geen vrije tekst van de beheerder op de
+    // kaart, wel de soort en, op de straat van de kaart, het huisnummer; nergens "weggelaten".
     const k = kaart(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
     assert.match(k.titel, /^Nieuwe aansluiting op het elektriciteitsnet /, vorm);
-    assert.ok(alleTekst(k).includes(vorm), `${vorm} → ${alleTekst(k)}`);
-    assert.doesNotMatch(alleTekst(k), /weggelaten|één adres/, vorm);
+    assert.equal(k.bronTekst, "", vorm);
+    assert.doesNotMatch(alleTekst(k), /weggelaten|achterbouw/, vorm);
   }
   // Op de straat van de kaart: het nummer met zijn aanhangsel bij "Waar" en in de titel.
   const eigen = kaart(werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDSTRAAT 6werf", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));

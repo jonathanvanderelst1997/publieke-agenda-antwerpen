@@ -377,10 +377,11 @@ test("straat: het adres van de beheerder wint niet als hij de straat van het pun
     }
     // Het nummer hoort bij de Proefstraat: bij de Testlaan staat het niet.
     assert.equal(regels(kaart(eigen)).Waar, "Testlaan", wie);
-    // Ver van het punt: het adres staat niet als werk bij "Wat", wel in de tekst van de beheerder.
+    // Ver van het punt: het adres staat niet als werk bij "Wat"; een aansluiting is een werk voor één huis, dus ook de
+    // tekst van de beheerder staat er niet (tests/werken-een-huis.test.mjs).
     const k = kaart(ver);
     assert.doesNotMatch(regels(k).Wat, /Volgens de beheerder/, wie);
-    assert.equal(k.bronTekst, "2018 ANTWERPEN, PROEFSTRAAT 1DN02", wie); // verzonnen
+    assert.equal(k.bronTekst, "", wie);
   }
 });
 
