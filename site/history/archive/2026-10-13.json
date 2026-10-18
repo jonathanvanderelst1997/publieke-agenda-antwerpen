@@ -19783,10 +19783,10 @@
         "title"
       ],
       "before": {
-        "title": "2000 ANTWERPEN PLANTINKAAI E, OV Klantaansluiting, LV uitbreiding net"
+        "title": "2000 ANTWERPEN PLANTINKAAI E"
       },
       "after": {
-        "title": "2000 ANTWERPEN VLAANDERNSTRAAT E, OV Klantaansluiting, LV uitbreiding net"
+        "title": "2000 ANTWERPEN VLAANDERNSTRAAT E"
       }
     },
     {
@@ -21527,7 +21527,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -21821,7 +21821,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -21858,7 +21858,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
@@ -22095,7 +22095,7 @@
       "after": {
         "id": "work:20706598",
         "gipodId": 20706598,
-        "title": "2000 Antwerpen - Goedehoopstraat - Plaatsen leidingen - 3m",
+        "title": "2000 Antwerpen - Goedehoopstraat",
         "status": "In uitvoering",
         "start": "2026-10-12T00:00:00Z",
         "end": "2026-10-26T00:00:00Z",

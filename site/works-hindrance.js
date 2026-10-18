@@ -1,4 +1,4 @@
-import {gipodTekst,pointInGeometry} from "./works-core.js";
+import {gipodTekst,pointInGeometry,zonderVerhuis} from "./works-core.js";
 import {GIPOD_BRON,GIPOD_METADATA_URL} from "./gipod-bron.js";
 import {onbekendZin} from "./onbekend-zinnen.js";
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
@@ -30,8 +30,9 @@ export function collectHindrance(features=[]){
       current.end=later(current.end,p.HindranceEnd||"");
       const hindranceId=Number(p.HindranceGipodId);
       if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
-      // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt.
-      const description=gipodTekst(p.HindranceDescription).slice(0,160);
+      // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt. Met "verhuis" erin
+      // telt ze als een fase zonder omschrijving (zonderVerhuis in site/works-core.js: nooit "verhuis" bij een werk).
+      const description=zonderVerhuis(gipodTekst(p.HindranceDescription).slice(0,160));
       if(description){const key=`${description}|${p.HindranceStart||""}|${p.HindranceEnd||""}`;const phase=current.phases.get(key)||{description,start:p.HindranceStart||"",end:p.HindranceEnd||"",consequences:new Set()};for(const consequence of consequences)phase.consequences.add(consequence);current.phases.set(key,phase)}
       byWork.set(gipodId,current);
     }

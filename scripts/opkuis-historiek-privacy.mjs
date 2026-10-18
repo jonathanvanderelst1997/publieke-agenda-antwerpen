@@ -1,5 +1,6 @@
-// Eenmalige opkuis van site/history (live-layers.json en archive/): alleen district Antwerpen en geen
-// huisnummers (lib/historiek-privacy.mjs). Daarna houdt de verversing (scripts/refresh-live-history.mjs)
+// Eenmalige opkuis van site/history (live-layers.json en archive/): alleen district Antwerpen, geen
+// huisnummers buiten een werk, en bij een werk nooit "verhuis" (lib/historiek-privacy.mjs; een werk houdt zijn
+// huisnummer: besluit van 18 oktober 2026). Daarna houdt de verversing (scripts/refresh-live-history.mjs)
 // het zo; ze draait deze opkuis ook zelf vooraf, zodat een oud bestand dat toch terugkomt (bv. uit een
 // oudere datatak) bij de volgende verversing schoon wordt. Veilig om opnieuw te draaien: een schoon
 // bestand blijft gelijk en wordt niet herschreven.

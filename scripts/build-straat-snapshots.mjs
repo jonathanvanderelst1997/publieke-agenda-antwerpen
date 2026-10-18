@@ -18,7 +18,8 @@
 // dit script alles over de straten.
 //
 // Privacy, met dezelfde regels als de historiek (lib/historiek-privacy.mjs): alleen district Antwerpen,
-// geen huisnummers (ook niet in titels), geen vrije beschrijving van een inname (innameBeschrijving),
+// geen huisnummers (ook niet in titels) behalve bij een werk van GIPOD (daar mag de plaats exact zijn, maar nooit het
+// woord "verhuis": besluit van de eigenaar van 18 oktober 2026), geen vrije beschrijving van een inname (innameBeschrijving),
 // geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
 // precieze plek kan naar één woning wijzen), en nooit de velden creator, assignee of lockOwner.
 //
@@ -92,8 +93,8 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   }
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
-  // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
-  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
+  // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode; bij een werk het huisnummer
+  // wel, "verhuis" niet), dan een nummer na "gevel", "pand" of "nummer" in vrije tekst (niet bij een werk).
   // De naam van de fase van een inname (faseNaam, vrij in te vullen) alleen als vaste vorm, district of straat van de inname
   // (veiligeFase in site/witte-lijst.js), ook in `detail`; zo leest straatItems hetzelfde terug.
   const schoon = itemZonderPandnummers(itemVoorHistoriek(veiligeInname(zonder)));
@@ -695,12 +696,14 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     const delen = { ...(perStraat.get(id) || {}) };
     const vorigDoc = vorigeDocs.get(id);
     // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026). Een item
-    // uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat: in
-    // "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item,
-    // als er nog iets privé in staat), zoals bij een nieuw item.
+    // uit een ouder bestand dat nog een homoniemtoevoeging draagt, of waarin de scan iets vindt (een werk met "verhuis",
+    // van vóór 18 oktober 2026), gaat opnieuw door itemVoorStraat: in "PROEFSTRAAT_AN 1" is die 1 na het weghalen van de
+    // toevoeging een huisnummer, en dat valt dan weg (of het item, als er nog iets privé in staat), zoals bij een nieuw
+    // item; een werk krijgt zijn neutrale tekst.
+    const opnieuw = (item) => metToevoeging(item) || straatItemPrivacy(item).length > 0;
     for (const naam of houdVorige) {
       const items = straatItems(vorigDoc, naam).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item));
-      delen[naam] = new Map(items.map((item) => (metToevoeging(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
+      delen[naam] = new Map(items.map((item) => (opnieuw(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
     }
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });
     if (!aantalItems(doc)) continue;

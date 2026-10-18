@@ -17729,7 +17729,7 @@
         {
           "id": "work:20423910",
           "gipodId": 20423910,
-          "title": "2030 Antwerpen - Polderdijkweg - Plaatsen leidingen - 0m",
+          "title": "2030 Antwerpen - Polderdijkweg",
           "status": "Concreet gepland",
           "start": "2026-10-28T00:00:00Z",
           "end": "2026-10-28T21:59:00Z",
@@ -18308,7 +18308,7 @@
         {
           "id": "work:20472585",
           "gipodId": 20472585,
-          "title": "2000 Antwerpen - Britselei Klantaansluiting BM engineering - Britselei trenching in open sleuf - Jan Frans Willemsstraat trenching in open sleuf.",
+          "title": "2000 Antwerpen - Britselei - Jan Frans Willemsstraat",
           "status": "Concreet gepland",
           "start": "2026-10-18T22:00:00Z",
           "end": "2026-10-23T22:00:00Z",
@@ -20062,7 +20062,7 @@
         {
           "id": "work:20541947",
           "gipodId": 20541947,
-          "title": "2000 Antwerpen - Catharina Pepijnstraat - Kruising Catharina Pepijnstraat door middel van een doorsteek in open sleuf.",
+          "title": "2000 Antwerpen - Catharina Pepijnstraat",
           "status": "Concreet gepland",
           "start": "2026-10-11T22:00:00Z",
           "end": "2026-10-16T22:00:00Z",
@@ -21753,7 +21753,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -22046,7 +22046,7 @@
           "boundaryConfidence": "exact_snapshot",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [],
           "streetResolution": "ambiguous",
@@ -22396,7 +22396,7 @@
           "boundaryConfidence": "exact_snapshot",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -22882,7 +22882,7 @@
         {
           "id": "work:20629535",
           "gipodId": 20629535,
-          "title": "Werkorder: 553868755 Dossiernummer: 453322474 Leveranciernummer: 10219 Beschrijving: Fluvius ex-Eandis Vestiging: VS20 Werkaanvraag: ELDMESYS",
+          "title": "Werk in openbaar domein",
           "status": "Concreet gepland",
           "start": "2026-10-02T00:00:00Z",
           "end": "2026-10-07T20:00:00Z",
@@ -23070,7 +23070,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -23432,7 +23432,7 @@
           "boundaryConfidence": "exact_snapshot",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -23876,7 +23876,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -23962,7 +23962,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -24327,7 +24327,7 @@
           "boundaryConfidence": "exact_snapshot",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -24909,7 +24909,7 @@
           "boundaryConfidence": "exact_snapshot",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -24973,7 +24973,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -26103,7 +26103,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "(Verhuis)lift/levering"
+            "Lift/levering"
           ],
           "streets": [
             {
@@ -26187,7 +26187,7 @@
         {
           "id": "work:20717586",
           "gipodId": 20717586,
-          "title": "2000 Antwerpen - Nationalestraat - Plaatsen leidingen - 1m",
+          "title": "2000 Antwerpen - Nationalestraat",
           "status": "In uitvoering",
           "start": "2026-09-28T00:00:00Z",
           "end": "2026-10-26T00:00:00Z",
@@ -26799,7 +26799,7 @@
         {
           "id": "work:20724261",
           "gipodId": 20724261,
-          "title": "2030 Antwerpen - Noorderlaan - Plaatsen leidingen - 0m",
+          "title": "2030 Antwerpen - Noorderlaan",
           "status": "Concreet gepland",
           "start": "2026-10-26T07:00:00Z",
           "end": "2026-10-26T16:00:00Z",
@@ -26868,7 +26868,7 @@
         {
           "id": "work:20724294",
           "gipodId": 20724294,
-          "title": "2030 Antwerpen - Noorderlaan - Plaatsen leidingen - 0m",
+          "title": "2030 Antwerpen - Noorderlaan",
           "status": "Concreet gepland",
           "start": "2026-10-26T07:00:00Z",
           "end": "2026-10-26T16:00:00Z",

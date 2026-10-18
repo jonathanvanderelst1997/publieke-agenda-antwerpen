@@ -4077,21 +4077,6 @@
     {
       "observedAt": "2026-10-07T03:23:19.122Z",
       "layer": "works",
-      "id": "work:18865418",
-      "type": "changed",
-      "fields": [
-        "title"
-      ],
-      "before": {
-        "title": "2018 ANTWERPEN ANNEESSENSSTRAAT E Klantaansluiting, HV uitbreiding net (lengte: 8m) MET SPOED AUB!!"
-      },
-      "after": {
-        "title": "2018 ANTWERPEN ANNEESSENSSTRAAT E Klantaansluiting, HV uitbreiding net (lengte: 8m)"
-      }
-    },
-    {
-      "observedAt": "2026-10-07T03:23:19.122Z",
-      "layer": "works",
       "id": "work:19069773",
       "type": "removed",
       "fields": [],
@@ -4969,7 +4954,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [],
         "streetResolution": "ambiguous",

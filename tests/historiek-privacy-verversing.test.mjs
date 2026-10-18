@@ -1,4 +1,5 @@
-// P4: de verversing van de historiek schrijft alleen district Antwerpen en geen huisnummers.
+// P4: de verversing van de historiek schrijft alleen district Antwerpen en geen huisnummers bij een parkeerverbod.
+// Een werk houdt zijn huisnummer (besluit van de eigenaar van 18 oktober 2026: de plaats van een werk mag exact).
 // Verzonnen gegevens; deze toets gebruikt alleen wat ook op main bestaat (de verversing zelf), zodat
 // hij op main faalt en met lib/historiek-privacy.mjs slaagt.
 import assert from "node:assert/strict";
@@ -49,7 +50,7 @@ const STRAAT = {
 const WERK = {
   type: "Feature",
   geometry: { type: "Point", coordinates: [4.4, 51.22] },
-  properties: { GipodId: 990001, Description: "2000 Antwerpen, Proefstraat 12", Owner: "Proefbedrijf", Status: "In uitvoering", Start: "2026-10-01T06:00:00Z", End: "2026-10-30T18:00:00Z" },
+  properties: { GipodId: 990001, Description: "2000 Antwerpen, Proefstraat 31", Owner: "Proefbedrijf", Status: "In uitvoering", Start: "2026-10-01T06:00:00Z", End: "2026-10-30T18:00:00Z" },
 };
 
 const nepFetch = maakNepFetch(WERK);
@@ -78,7 +79,9 @@ const oudParkeer = (id, adres) => ({
   start: new Date(START).toISOString(), end: new Date(EINDE).toISOString(), status: "Goedgekeurd", reference: `PROEF-${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null,
 });
-const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 12", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
+// Zoals main een werk bewaarde: met de straat van zijn punt (de straatas). Een werk voor één huis houdt alleen een straat die we
+// kennen (adresDeel in site/huisnummers.js), en de verzonnen Proefstraat staat niet in de stratenlijst van de repo.
+const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 31", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null, streets: [{ id: "9001", name: "Proefstraat", postcode: "2000" }] };
 
 function oudeStand(root) {
   const oud = (...ids) => ({ ok: true, items: ids.map((id) => oudParkeer(id, PARKEER[id - 1].adres)) });
@@ -133,7 +136,8 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
   assert.deepEqual(parkeer.map((item) => item.id).sort(), ["parking:PROEF-1|L1", "parking:PROEF-2|L2", "parking:PROEF-4|L4"]);
   assert.ok(parkeer.every((item) => item.location === "Proefstraat, 2000 Antwerpen"));
   assert.ok(parkeer.every((item) => item.streets.length === 1 && item.streets[0].postcode === "2000"), "de straat blijft gekend");
-  assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat");
+  // Een werk houdt zijn huisnummer: de plaats mag exact (besluit van 18 oktober 2026).
+  assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat 31");
 
   // De overgang maakt geen massa wijzigingen: wegvallende huisnummers zijn geen "changed", het verbod
   // buiten het district is geen "removed".
@@ -153,9 +157,10 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
 });
 
 // Een titel met een lange lijst nummers (verzonnen): de opkuis vooraf en de nieuwe ophaling moeten
-// hetzelfde vaste punt geven. Anders blijft er elke dag een nummer staan, komt er een valse
-// "changed:title" bij en houdt validate-data de hele verversing tegen.
-test("verversing: een lange lijst nummers raakt helemaal weg, ook na drie verversingen", async (t) => {
+// hetzelfde vaste punt geven. Anders komt er elke dag een valse "changed:title" bij en houdt validate-data de hele
+// verversing tegen. Bij een werk blijven de nummers staan zoals GIPOD ze geeft (de plaats mag exact), en de scan
+// vindt er niets in.
+test("verversing: een lange lijst nummers bij een werk blijft staan, zonder valse wijziging, ook na drie verversingen", async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-lijst-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   // Dynamisch: zo faalt de eerste toets van dit bestand op main om de juiste reden.
@@ -164,7 +169,7 @@ test("verversing: een lange lijst nummers raakt helemaal weg, ook na drie verver
   const runs = ["2026-10-11T03:00:00.000Z", "2026-10-12T03:00:00.000Z", "2026-10-13T03:00:00.000Z"];
   for (const [index, observedAt] of runs.entries()) {
     const history = await refreshLiveHistory({ rootDir: root, fetch: maakNepFetch(werk), clock: () => new Date(observedAt), log: () => {} });
-    assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat", `run ${index + 1}`);
+    assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat 12 14 16 18 20 22 24", `run ${index + 1}`);
     if (index > 0) assert.deepEqual(history.changes.filter((change) => change.observedAt === observedAt && change.layer === "works"), [], `run ${index + 1}: geen valse wijziging`);
     for (const [file, inhoud] of historiekTekst(root)) {
       assert.deepEqual(historiekPrivacyBevindingen(JSON.parse(inhoud)), [], `run ${index + 1}: ${file}`);

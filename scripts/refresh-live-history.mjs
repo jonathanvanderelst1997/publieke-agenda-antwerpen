@@ -27,7 +27,8 @@ import { worksExactSnapshot } from "../site/works-snapshot.js";
 import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
-import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { straatasPredicaat } from "../site/street-core.js";
+import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek, werkenZoalsBekend } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
 
@@ -199,7 +200,8 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets);
+    // De straatas: het adres van een omschrijving met "verhuis" is alleen een straat die we kennen (adresDeel in site/huisnummers.js).
+    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district, { isStraat: straatasPredicaat(streets) }), hindrance, true), streets);
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };
@@ -309,13 +311,17 @@ export async function refreshLiveHistory({
     const previousErrors = validateLiveHistory(previous);
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
-  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
+  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksOpgehaald,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
   // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
   // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
+  const vorigePubliek = historiekVoorPubliek(previous);
+  // Een werk voor één huis dat de historiek al kende, wordt niet onthullender (werkenZoalsBekend): dezelfde lijst gaat naar
+  // de historiek, kaart-uitleg.json en de straatbestanden.
+  const worksResult = worksOpgehaald?.ok ? { ...worksOpgehaald, items: werkenZoalsBekend(worksOpgehaald.items, vorigePubliek?.layers?.works) } : worksOpgehaald;
   const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
   const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
   log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
-  const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
+  const history = updateLiveHistory(vorigePubliek, { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
   const errors = validateLiveHistory(history);
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });

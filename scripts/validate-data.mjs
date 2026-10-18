@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 import { validateEventContract } from "../lib/event-contract.mjs";
 import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs";
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
+import { vrijeTekstBijEenHuis } from "../site/kaart-uitleg.js";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
@@ -34,7 +35,7 @@ import {
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
-import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import { historiekPrivacyBevindingen, isOfficieleStraat } from "../lib/historiek-privacy.mjs";
 import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -68,6 +69,8 @@ if (!fs.existsSync(sourcesDir)) {
     }
     if (name === KAART_UITLEG_FILE) {
       for (const error of validateKaartUitleg(json)) problems.push(`${name}: ${error}`);
+      // Een werk voor één huis met vrije tekst van de beheerder naast het adres (vrijeTekstBijEenHuis in site/kaart-uitleg.js).
+      for (const error of vrijeTekstBijEenHuis(json, { isStraat: isOfficieleStraat })) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === EVENEMENT_IDENTITEIT_FILE) {
@@ -212,7 +215,8 @@ if (fs.existsSync(archiveDir)) {
 }
 
 // Privacy van de historiek (lib/historiek-privacy.mjs): in elk bestand onder site/history alleen
-// district Antwerpen en geen huisnummer. De melding noemt het pad, nooit de waarde.
+// district Antwerpen, geen huisnummer buiten een werk, en bij een werk nooit "verhuis" (een werk houdt zijn huisnummer:
+// besluit van de eigenaar van 18 oktober 2026). De melding noemt het pad, nooit de waarde.
 const historyDir = path.join(rootDir, "site", "history");
 const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const target = path.join(dir, entry.name);
@@ -236,7 +240,8 @@ for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() :
 if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
 // Straatbestanden (P5, scripts/build-straat-snapshots.mjs): elk onder 100 kB, de radar onder 50 kB, de
-// index klopt met de bestanden, en dezelfde privacyscan als de historiek en de bronnen.
+// index klopt met de bestanden, en dezelfde privacyscan als de historiek en de bronnen (ook "verhuis" bij een werk).
+// kaart-uitleg.json: validateKaartUitleg hierboven (een werk met "verhuis" is ongeldig, werkFouten).
 const straatProblemen = straatBestandenProblemen(rootDir);
 problems.push(...straatProblemen.slice(0, 50));
 if (straatProblemen.length > 50) problems.push(`site/straat: nog ${straatProblemen.length - 50} problemen`);

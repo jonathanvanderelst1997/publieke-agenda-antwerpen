@@ -1000,7 +1000,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const agendaRuw = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
     const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
     const liveRuw = [
-      ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg }),
+      ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg, isStraat: straatas }),
       ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: identiteitSamen(evenementIdentiteit, evenementAuto), agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan, isStraat: straatas }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...terrasEntries(inPlace(live.terraces)),
