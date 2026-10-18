@@ -76,6 +76,19 @@ test("de vaste vervangtekst van vroeger staat nergens meer in de code of de docs
   assert.doesNotMatch(fs.readFileSync(path.join(root, "docs", "PUBLIC_SPACE_SOURCE_POLICY.md"), "utf8"), /verhuis[^.]{0,80}\bwordt\b[^.]{0,60}\bvaste tekst/i);
 });
 
+test("de bewaarde bestanden: geen vaste vervangtekst van vroeger en nergens 'verhuis' bij een werk", () => {
+  const OUD = /Inname van de openbare weg/i;
+  const uitleg = fs.readFileSync(path.join(root, "site", "sources", "kaart-uitleg.json"), "utf8");
+  assert.doesNotMatch(uitleg, OUD, "kaart-uitleg.json");
+  nergensVerhuis(JSON.parse(uitleg).werken, "kaart-uitleg.json");
+  for (const f of fs.readdirSync(path.join(root, "site", "straat")).filter((x) => x.endsWith(".json"))) {
+    const tekst = fs.readFileSync(path.join(root, "site", "straat", f), "utf8");
+    assert.doesNotMatch(tekst, OUD, f);
+    nergensVerhuis(JSON.parse(tekst).werken || [], f);
+  }
+  nergensVerhuis(JSON.parse(fs.readFileSync(path.join(root, "site", "history", "live-layers.json"), "utf8")).layers?.works, "live-layers.json");
+});
+
 // ---------- het woord met een verborgen teken of een accent ----------
 
 test("'verhuis' met een zachte afbreking, een zero-width teken, een accent of in volle breedte telt ook, bij de ingang en in de scans", () => {
