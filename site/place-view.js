@@ -699,7 +699,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (!stad) await Promise.race([laadStad(), new Promise((ok) => setTimeout(ok, 2500))]);
     if (beurt !== enterBeurt || search.value !== query) return; // intussen verder getypt
     renderSuggestions({ behoud: true });
-    const keuze = enterKeuze(suggestions, { actief: active, gekozen });
+    const keuze = enterKeuze(suggestions, { actief: active, gekozen, vraag: query });
     if (keuze.place) { kies(keuze.place); return; }
     if (keuze.keuze !== "niets") renderSuggestions({ melding: keuzeMelding(keuze, query) });
   }
@@ -818,14 +818,14 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       : `<li class="pv-stat ${cls}"><button type="button" data-only="${group}" aria-label="Toon alleen ${esc(label)}${group === "werken" && !n && state.werkenOnvolledig ? ` (${onbekendZin("werken-onvolledig")})` : ""}"><strong>${group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "?" : n}</strong><span>${esc(label)}</span></button></li>`;
     // In de DOM: label, naam (de kop), knoppen, meta. Wie met een schermlezer naar de kop springt en verder
     // leest, hoort de knoppen nog. Op het scherm staan de knoppen op de rij van het label (of eronder als ze er
-    // niet naast passen) en de naam daaronder (CSS order). De kop krijgt geen focus: Tab gaat Deel, Andere
-    // plek, dan de wijk, in de volgorde die je ziet.
+    // niet naast passen) en de naam daaronder (CSS order). De kop krijgt geen focus: Tab gaat (bij een straat)
+    // Bewaar straat, Deel, Andere plek, dan de wijk, in de volgorde die je ziet.
     placeBox.innerHTML = `
       <div class="pv-place-top">
         <span class="pv-place-kind">${placeIcon(place)} ${kind}</span>
         <h2 class="pv-place-name">${esc(place.label)}</h2>
         <div class="pv-place-actions">
-          ${place.type === "straat" ? '<button type="button" class="pv-btn pv-btn-ghost pv-save" aria-pressed="' + isBewaardeStraat(plaatsOpslag, place) + '">' + (isBewaardeStraat(plaatsOpslag, place) ? "Bewaard ✓" : "Bewaar straat") + '</button>' : ""}
+          ${place.type === "straat" ? '<button type="button" class="pv-btn pv-btn-ghost pv-save" aria-pressed="' + isBewaardeStraat(plaatsOpslag, place) + '"><span class="pv-save-tekst">' + (isBewaardeStraat(plaatsOpslag, place) ? "Bewaard ✓" : "Bewaar straat") + '</span></button>' : ""}
           <button type="button" class="pv-btn pv-share" aria-label="Deel de link naar deze plek"><span aria-hidden="true">🔗</span> Deel</button>
           <button type="button" class="pv-btn pv-btn-ghost pv-close">Andere plek</button>
         </div>
@@ -848,6 +848,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (event.target.closest(".pv-save")) {
       const uitkomst = wisselBewaardeStraat(index, plaatsOpslag, state.place);
       bewaardStatus.textContent = uitkomst.message;
+      // Op een gsm met een plek staat het blok "Bewaarde straten" niet in beeld (P6): een fout blijft daar wel zichtbaar.
+      bewaardStatus.classList.toggle("pv-bewaard-fout", !uitkomst.ok);
       toonBewaardeStraten();
       render();
       return;

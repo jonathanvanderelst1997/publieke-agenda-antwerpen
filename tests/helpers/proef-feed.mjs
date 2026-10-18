@@ -32,14 +32,37 @@ export function marktItem(stempel, eigen = {}) {
   };
 }
 
-// De feed van dag `dag` (05:00 UTC): alle bronnen die ochtend opgehaald, met alleen de verzonnen `items`
-// (of een functie die ze maakt met de stempel van die ochtend).
+// Alle bronnen van `feed` opgehaald op `stempel`, en met succes: een bron die in de echte feed faalde (fetchStatus
+// "error", zoals eBesluit sinds 13 oktober 2026) zou anders de bronwaarschuwing bovenaan zetten (#191), en dan hing
+// een toets van de opmaak af van de gezondheid van de bronnen op de dag van de data. Een bron zonder sleutel of
+// uitgezet blijft zoals ze is. De items houden hun eigen stempel.
+export function gezondeBronnen(feed, stempel = feed.generatedAt) {
+  for (const bron of feed.sources) {
+    bron.retrievedAt = stempel;
+    if (bron.fetchStatus === "error") Object.assign(bron, { fetchStatus: "ok", errorCode: null });
+  }
+  return feed;
+}
+
+// Het omgekeerde, zoals de echte feed sinds 13 oktober 2026: de bronnen `ids` faalden bij de laatste verversingen
+// (fetchStatus "error") en zijn laatst opgehaald `dagen` dagen voor de feed. Dan staat de bronwaarschuwing bovenaan (#191).
+// Voor de toets die meet wat die waarschuwing op een gsm doet (tests/e2e/plek.e2e.mjs).
+export function falendeBronnen(feed, ids, dagen = 5) {
+  const toen = new Date(Date.parse(feed.generatedAt) - dagen * 86400000).toISOString();
+  const bronnen = feed.sources.filter((bron) => ids.includes(bron.sourceId));
+  if (bronnen.length !== ids.length) throw new Error(`falendeBronnen: niet alle bronnen staan in de feed: ${ids.join(", ")}`);
+  for (const bron of bronnen) Object.assign(bron, { fetchStatus: "error", errorCode: "http_500", retrievedAt: toen });
+  return feed;
+}
+
+// De feed van dag `dag` (05:00 UTC): alle bronnen die ochtend opgehaald (gezondeBronnen), met alleen de verzonnen
+// `items` (of een functie die ze maakt met de stempel van die ochtend).
 export function proefFeed(dag, items = []) {
   const feed = echteFeed();
   const stempel = `${dag}T05:00:00.000Z`;
   feed.generatedAt = stempel;
   feed.classificationAsOf = dag;
-  for (const bron of feed.sources) bron.retrievedAt = stempel;
+  gezondeBronnen(feed, stempel);
   feed.items = typeof items === "function" ? items(stempel) : items;
   return feed;
 }

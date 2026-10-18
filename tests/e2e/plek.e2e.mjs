@@ -12,6 +12,8 @@ import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { resolveAddressStreets } from "../../site/street-core.js";
+import { buildPlaceIndex, foldText } from "../../site/place-core.js";
+import { falendeBronnen, gezondeBronnen } from "../helpers/proef-feed.mjs";
 import { locationKey } from "../../site/neighborhood-core.js";
 import { GIPOD_BRON, GIPOD_METADATA_URL } from "../../site/gipod-bron.js";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
@@ -60,6 +62,14 @@ for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name)
 // stad laat met Enter kiezen (bouwplan stap 3). De toetsen die gewoon een straat openen, nemen er een zonder.
 const stadStraten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten-stad.json"), "utf8"));
 const elders = new Set(stadStraten.straten.map((r) => locationKey(r[0])));
+// Een straat die zo heet als een wijk of een andere naam van een wijk (de Meir: de wijk "Theaterbuurt & Meir") laat met
+// Enter zonder huisnummer ook kiezen (enterKeuze, #196): "2 plekken heten …". Ook die nemen de toetsen die gewoon een
+// straat openen niet ("geen horizontale scroll" typt de naam zonder nummer). Met een huisnummer opent Enter de straat:
+// dat toetst "Enter op de Meir met een huisnummer" hieronder, met de Meir zelf.
+const wijkDoc = JSON.parse(fs.readFileSync(path.join(site, "geo", "wijken.geo.json"), "utf8"));
+const wijkIndex = buildPlaceIndex({ wijken: wijkDoc.features.filter((f) => String(f.properties?.code || "").startsWith("ANT")).map((f) => ({ code: f.properties.code, naam: f.properties.naam })) });
+const wijkNamen = new Set(wijkIndex.places.filter((p) => p.type === "wijk").flatMap((p) => [p.compact, ...(p.aliases || [])]));
+const heetAlsWijk = (naam) => wijkNamen.has(foldText(naam).replace(/ /g, ""));
 const feedText = fs.readFileSync(path.join(site, "agenda-feed.js"), "utf8");
 const generatedAt = JSON.parse(feedText.slice(feedText.indexOf("{"), feedText.lastIndexOf("}") + 1)).generatedAt;
 const today = generatedAt.slice(0, 10);
@@ -198,9 +208,10 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
   // De echte feed met verzonnen agendapunten erbij (`agendaErbij`, met een vaste letterlijke basis), of een volledig
-  // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed.
+  // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed. De echte items, maar de bronnen
+  // gezond (gezondeBronnen): een bron die die dag faalde, zet anders de bronwaarschuwing boven de plek.
   if (agendaErbij.length && !feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
-    const echt = echteFeed();
+    const echt = gezondeBronnen(echteFeed());
     echt.items.push(...agendaErbij.map((item) => kalenderItem(echt.generatedAt, item)));
     return route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(echt) });
   });
@@ -243,7 +254,7 @@ async function pickStreet(baseUrl) {
   for (const item of items.sort((a, b) => a.date.localeCompare(b.date))) {
     if (item.date < today || item.date > horizon || item.endDate || ["markets", "meetings", "works"].includes(item.category)) continue;
     const streets = resolveAddressStreets(item.location, { byName }).streets;
-    if (streets.length !== 1 || elders.has(locationKey(streets[0].name))) continue;
+    if (streets.length !== 1 || elders.has(locationKey(streets[0].name)) || heetAlsWijk(streets[0].name)) continue;
     gekozen ||= { event: item, street: streets[0] };
     if (isStudent(item)) student ||= { event: item, street: streets[0] };
   }
@@ -317,8 +328,12 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const bar = page.locator(".pv-bar.multi.cat-works").first();
     await bar.waitFor({ timeout: 15000 });
     const spans = await page.locator(".pv-bar.multi.cat-works").evaluateAll((els) => els.map((el) => Number((el.style.gridColumn.match(/span (\d+)/) || [])[1] || 1)));
-    // Elke week waarin het werk loopt krijgt een balk; samen dekken ze de dagen van deze maand.
-    assert.ok(spans.reduce((a, b) => a + b, 0) >= 7, `balken: ${spans}`);
+    // Elke week waarin het werk loopt krijgt een balk; samen dekken ze precies de dagen van het werk die in dit
+    // maandrooster staan (ook de grijze dagen van de volgende maand). Vroeger ">= 7": dat hing af van de weekdag
+    // waarop het werk start, en faalde als de rest van het rooster korter was dan een week.
+    const zichtbaar = await page.locator("[data-day]").evaluateAll((els, [van, tot]) => els.filter((el) => el.dataset.day >= van && el.dataset.day <= tot).length, [start, end]);
+    assert.ok(zichtbaar > 0, "het werk valt in dit rooster");
+    assert.equal(spans.reduce((a, b) => a + b, 0), zichtbaar, `balken: ${spans}, dagen van het werk in het rooster: ${zichtbaar}`);
     assert.match(await bar.getAttribute("title"), new RegExp(`${Number(start.slice(8))} .* → ${Number(end.slice(8))} `));
     await page.click(`[data-day="${start}"]`);
     await page.locator(`.pv-cal-daypanel ${WORK_ROW}`).waitFor();
@@ -472,8 +487,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     const input = page.locator("#agenda-street-jump");
     await input.focus();
     await page.keyboard.type("zurenb");
+    // De straten van heel de stad komen pas bij het typen binnen en zetten de Zurenborgbrug (Berchem, buiten deze agenda)
+    // tussen de wijk en de Zurenborgstraat. Kwamen ze tussen de twee pijltjes, dan koos ArrowUp de brug (de lijst houdt de
+    // gekozen suggestie vast, die schoof een plaats op). Een bewoner ziet de lijst; de toets wacht er dus op.
+    await page.locator("#pv-suggestions .pv-sugg-buiten").first().waitFor();
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("ArrowUp");
+    assert.equal(await page.locator('#pv-suggestions [aria-selected="true"]').evaluate((el) => `${el.className}|${el.querySelector("strong").textContent}`), "pv-sugg pv-sugg-wijk|Zurenborg", "ArrowDown en ArrowUp: terug op de wijk");
     await page.keyboard.press("Enter");
     assert.equal(await page.locator(".pv-place-name").innerText(), "Zurenborg");
     assert.match(page.url(), /plek=Zurenborg/);
@@ -789,6 +809,28 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkbevinding (17 oktober 2026): Enter op de Meir met een huisnummer zei "2 plekken heten …": de wijk Theaterbuurt &
+  // Meir (andere naam "Meir") en de straat Meir. Een huisnummer hoort bij een straat, nooit bij een wijk (enterKeuze).
+  // Het huisnummer is verzonnen.
+  await t.test("Enter op de Meir met een huisnummer ('meir 999') opent de straat Meir, niet de keuze met de wijk Theaterbuurt & Meir", async () => {
+    const meir = byName.get(locationKey("Meir"));
+    assert.equal(meir?.length, 1, "één straat Meir in district Antwerpen");
+    const { page, context, errors } = await openPage(baseUrl, { street: meir[0] });
+    const input = page.locator("#agenda-street-jump");
+    await input.fill("meir 999");
+    // De wijk staat in de suggesties, en eerst: Enter kiest dus niet gewoon de eerste.
+    await page.locator("#pv-suggestions .pv-sugg-wijk", { hasText: "Theaterbuurt & Meir" }).waitFor();
+    assert.equal(await page.locator("#pv-suggestions [role=option]").first().evaluate((el) => el.classList.contains("pv-sugg-wijk")), true);
+    await input.press("Enter");
+    await page.waitForFunction(() => new URL(location.href).searchParams.has("plek"), null, { timeout: 5000 })
+      .catch(async () => assert.fail(`Enter opende niets: ${await page.locator("#pv-search-help").innerText()}`));
+    assert.equal(new URL(page.url()).searchParams.get("plek"), "Meir");
+    assert.equal(await page.locator(".pv-place-name").innerText(), "Meir");
+    assert.match(await page.locator(".pv-place-kind").innerText(), /straat/i);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   await t.test("gsm (390 px): geen horizontale scroll in zoeken, plek, lijst, tijdlijn en maand", async () => {
     const { page, context } = await openPage(baseUrl, { street });
     const noScroll = async (label) => {
@@ -974,6 +1016,62 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.waitForFunction((n) => new RegExp(`^${n} (?:in de lijst|regels? in de lijst \\(samen \\d+ items?\\)), \\d+ op de kaart in `).test(document.querySelector(".buurt-status")?.textContent || ""), inLijst, { timeout: 10000 });
     assert.deepEqual(errors, []);
     await context.close();
+  });
+
+  // De bronwaarschuwing (#191) op een gsm. De toetsen hierboven nemen gezonde bronnen (gezondeBronnen), zodat hun opmaak
+  // niet afhangt van de bronstatus op de dag van de data. Maar in de echte feed falen de twee eBesluit-bronnen sinds
+  // 13 oktober 2026, en dan staat de waarschuwing bij elke bezoeker bovenaan, boven de plek en "Dit weekend". Deze twee
+  // toetsen nemen dat na (falendeBronnen): eerst dat de waarschuwing er dan staat (en met gezonde bronnen niet), dan waar
+  // de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) dan eindigen. Dat laatste is een open vraag aan de
+  // eigenaar (todo): de waarschuwing zo bovenaan houden, of op een gsm compacter of lager zetten. De todo meet alleen
+  // waar die blokken eindigen; zet de site de waarschuwing lager, dan slaagt ze ("ok … # TODO") en mag "todo" weg.
+  const EBESLUIT = ["district-ebesluit", "district-ebesluit-evenementen"];
+  const plekFeedMet = (bronnen) => {
+    const feed = bronnen(gezondeBronnen(echteFeed()));
+    feed.items.push(kalenderItem(feed.generatedAt, proefAgendapunt(today, street)));
+    return feed;
+  };
+  const metFalendeBron = (feed) => falendeBronnen(feed, EBESLUIT);
+  const bronnenNagekeken = (page) => page.waitForFunction(() => !/controleren/i.test(document.querySelector("#agenda-freshness")?.textContent || ""), null, { timeout: 10000 });
+  await t.test("bronwaarschuwing (#191): met een falende bron staat ze bovenaan, op de voorpagina en bij een straat; met gezonde bronnen niet", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    for (const [naam, opties, waarschuwing] of [
+      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }, true],
+      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }, true],
+      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }, false],
+      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }, false],
+    ]) {
+      const { page, context, errors } = await openPage(baseUrl, opties);
+      await bronnenNagekeken(page);
+      const banner = page.locator("#agenda-source-warning");
+      assert.equal(await banner.isVisible(), waarschuwing, naam);
+      if (waarschuwing) assert.match(await banner.innerText(), /Niet alle officiële bronnen zijn actueel\.\s+2 bronnen zijn niet binnen de toegestane versheidsgrens bevestigd\./, naam);
+      assert.deepEqual(errors, [], naam);
+      await context.close();
+    }
+  });
+
+  await t.test("gsm met de bronwaarschuwing: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", { todo: "vraag 2 aan de eigenaar: de bronwaarschuwing staat op een gsm boven de plek en 'Dit weekend' (17-10-2026, eBesluit faalt: plek 543/679/833 px, 'Dit weekend' 819 px op 390 en 850 px op 360)" }, async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const onder = {};
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      const { page, context } = await openPage(baseUrl, { dag, width, height, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9, langePlaats: true })) });
+      await bronnenNagekeken(page);
+      await page.locator("#dit-weekend .dw-titel").waitFor();
+      onder[`Dit weekend ${width} px`] = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+      await context.close();
+    }
+    const { page, context } = await openPage(baseUrl, { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) });
+    await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    await bronnenNagekeken(page);
+    Object.assign(onder, await page.evaluate(() => Object.fromEntries([".pv-place-name", ".pv-dezeweek", ".pv-stats"].map((sel) => {
+      const r = document.querySelector(sel)?.getBoundingClientRect();
+      return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
+    }))));
+    await context.close();
+    t.diagnostic(`met de bronwaarschuwing, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
   });
 
   // Nakijkbevindingen (kaart-tellers): "X in de lijst, Y op de kaart" onder de kaart. X is wat de lijst echt
@@ -1396,7 +1494,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   });
 
   // Herstelplan O1: de A-Sign-lagen faalden bij elke laadbeurt (URL's van 3.000 tot 4.800 tekens).
-  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod zonder huisnummer en terras in de straat", async () => {
+  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met straat en postcode (huisnummerbereik: vraag 1) en terras in de straat", async (st) => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];
     const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2], d = 0.00004;
     const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
@@ -1415,8 +1513,26 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.ok(asign.stats.urls.length > 120, `${asign.stats.urls.length} verzoeken: alle blokken opgevraagd`);
     const parkeer = page.locator(".pv-results .pv-row", { hasText: "Verhuis (e2e)" }).first();
     await parkeer.waitFor({ timeout: 15000 });
-    assert.match(await parkeer.innerText(), new RegExp(`${street.name}, ${street.postcode} Antwerpen`));
-    assert.doesNotMatch(await parkeer.innerText(), /12-14/, "geen huisnummer bij een parkeerverbod");
+    const parkeerTekst = await parkeer.innerText();
+    // Streng, wat onder beide keuzes van vraag 1 (hieronder) geldt: elke regel met de straat is precies een van twee
+    // vormen, de straat met de postcode of met het huisnummer zoals publiekParkeerAdres het schrijft. Voor de bron
+    // "12-14" in deze proef is dat het bereik "12–14". Nooit een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
+    const toegelaten = [`${street.name}, ${street.postcode} Antwerpen`, `${street.name} 12–14, ${street.postcode} Antwerpen`];
+    const adresRegels = parkeerTekst.split("\n").map((r) => r.trim()).filter((r) => r.includes(street.name));
+    assert.ok(adresRegels.length > 0, `geen regel met de straat: ${JSON.stringify(parkeerTekst)}`);
+    for (const regel of adresRegels) assert.ok(toegelaten.includes(regel), `"${regel}" is geen van de twee toegelaten vormen (${toegelaten.join(" of ")})`);
+    assert.doesNotMatch(parkeerTekst, /\bbus\b|12\s*-\s*14/i, "geen bus en nooit het adres zoals de bron het schrijft");
+    // Open vraag aan de eigenaar (vraag 1): #178 (01cbc52) en #179 (a4c1d2f) tonen live het huisnummer van een
+    // goedgekeurd parkeerverbod (publiekParkeerAdres in site/adres-privacy.js): een bereik ("Xstraat 12–14, 2000
+    // Antwerpen"), of één nummer als de bron "N-N" schrijft ("Xstraat 26-26" wordt "Xstraat 26, ..."). Bij een
+    // verhuis voor één woning is dat het adres van die woning. De kop van dat bestand en deze toets zeggen "nooit het
+    // huisnummer". Tot de eigenaar beslist,
+    // blijft die strengere regel hier staan als todo: hij draait elke keer en meldt wat de site toont, zonder main rood
+    // te maken. Ook de en-dash telt (vroeger zocht de toets alleen "12-14").
+    await st.test("parkeerverbod zonder huisnummer", { todo: "vraag 1 aan de eigenaar: live het huisnummer van een parkeerverbod tonen, als bereik of als één nummer (#178, #179), of nooit" }, () => {
+      assert.match(parkeerTekst, new RegExp(`${street.name}, ${street.postcode} Antwerpen`));
+      assert.doesNotMatch(parkeerTekst, /\b12\s*[-–]\s*14\b/, "geen huisnummer bij een parkeerverbod");
+    });
     // Een titel in gewone taal; de technische bron zit ingeklapt.
     assert.match(await parkeer.innerText(), /Parkeerverbod voor een verhuis/);
     assert.doesNotMatch(await parkeer.innerText(), /Parkeerverbod: /);
@@ -1455,7 +1571,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.locator('.pv-results .pv-row.pv-bundel', { hasText: /innames? zonder omschrijving/ }).first().waitFor({ timeout: 20000 });
     // (1) Los, niet in een bundel, met de uren en de laatste dag van het lopende parkeerverbod in de kop.
     assert.equal(await werfzone.evaluate((el) => Boolean(el.closest(".pv-bundel"))), false, "de werfzone met een parkeerverbod staat niet in een bundel");
-    const kop = await werfzone.locator(".pv-row-summary").innerText();
+    // De samenvatting zelf, niet de bronnoot eronder (die heeft dezelfde klasse, #173).
+    const kop = await werfzone.locator(".pv-row-summary:not(.pv-bronnoot)").innerText();
     assert.match(kop, new RegExp(`Niet parkeren van 7\\.00 tot 17\\.00 uur, t/m ${Number(eindFase1.slice(8))} \\S+ \\(A-Sign, 2099-000881\\)`), kop);
     // De werfzones zonder parkeerverbod blijven samen ingeklapt.
     assert.equal(await page.locator(".pv-results .pv-row.pv-bundel", { hasText: "2 werfzones of omleidingen zonder doel in de bron" }).count(), 1);

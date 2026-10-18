@@ -112,6 +112,15 @@ test("Enter opent nooit een gok", () => {
   assert.equal(enterKeuze(zoekOveral(index, "De Keyserlei")).keuze, "naamgenoten");
   assert.equal(enterKeuze([{ place: p("Kempischplein", { id: "1" }), match: "exact" }, { place: p("Kempischplein", { id: "2" }), match: "exact" }]).place.id, "1");
   assert.deepEqual(enterKeuze([]), { keuze: "niets", n: 0 });
+  // Met een huisnummer (verzonnen: 999) telt alleen een straat: de straat Meir, niet de wijk Theaterbuurt & Meir (andere
+  // naam "Meir"). Twee straten met die naam blijven een keuze, ook met een huisnummer; een postcode is geen huisnummer.
+  const meir = (vraag) => { const keuze = enterKeuze(zoekOveral(index, vraag), { vraag }); return keuze.place ? wat(keuze.place) : keuze.keuze; };
+  assert.deepEqual(zoekOveral(index, "meir 999").filter((r) => r.match === "exact").map((r) => wat(r.place)), ["wijk:Theaterbuurt & Meir", "Meir|Antwerpen|2000"]);
+  assert.equal(meir("meir 999"), "Meir|Antwerpen|2000");
+  assert.equal(meir("Meir 999b, 2000 Antwerpen"), "Meir|Antwerpen|2000");
+  assert.equal(meir("Meir 2000"), "naamgenoten");
+  assert.equal(enterKeuze(zoekOveral(index, "meir 999")).keuze, "naamgenoten", "zonder de vraag: zoals vroeger");
+  assert.equal(enterKeuze(zoekOveral(index, "De Keyserlei 999"), { vraag: "De Keyserlei 999" }).keuze, "naamgenoten");
 });
 
 test("zoeken in heel de stad: district in de vraag, postcode, districtsnaam en volgorde", () => {

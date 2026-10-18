@@ -64,12 +64,16 @@ const ref = (r) => ({ id: String(r[0]), name: r[1], postcode: String(r[2]) });
 const parcoursStraten = [STRAAT, ...straten.filter((r) => r[2] === "2060" && r[1] !== STRAAT.name).slice(0, 39).map(ref)];
 
 // Innames van één evenementendossier, zoals iodItems() in public-space-live-core.js ze aanmaakt.
+// De omschrijvingen zijn vrije tekst zoals een aanvrager ze intikt. De privacyfilter laat er alleen hele straatnamen uit
+// de straatas van over (de grondregel van site/witte-lijst.js, #196): "parcours jeugd 5 km over de X" toont de kaart als
+// "Parcours: X", de rest van de tekst nergens. Elke straat hoort bij de straten van haar inname.
+const straatVan = (i) => parcoursStraten[i].name;
 function parcoursRijen(dagen = 8) {
   const dag = addDays(today, dagen);
+  const s = straatVan;
   const onderdelen = [
-    // Kleine letters: een gewoon woord met een hoofdletter vooraan ("Parcours", "Ronde") kan een naam zijn (privacyfilter).
-    ["Parcours", "parcours volwassenen 10 km"], ["Parcours", "parcours jeugd 5 km"], ["Parkeerverbod", "Parkeerverbod langs het parcours"],
-    ["Omleiding", "omleiding voor fietsers tijdens de wedstrijd"], ["Parkeerverbod", "Servicepunt aan de start"], ["Parcours", "ronde voor de jeugd, halve ronde"],
+    ["Parcours", `parcours volwassenen 10 km over de ${s(1)} en de ${s(2)}`], ["Parcours", `parcours jeugd 5 km over de ${s(2)}`], ["Parkeerverbod", `Parkeerverbod langs het parcours in de ${s(3)}`],
+    ["Omleiding", `omleiding voor fietsers tijdens de wedstrijd via de ${s(4)}`], ["Parkeerverbod", `Servicepunt aan de start in de ${s(5)}`], ["Parcours", `ronde voor de jeugd, halve ronde over de ${s(6)}`],
   ];
   return onderdelen.map(([type, beschrijving], i) => ({
     id: `iod:${DOSSIER}|${i + 1}|${i + 1}`, kind: "iod", kindLabel: "Inname openbaar domein", title: type, innameType: type,
@@ -194,10 +198,27 @@ async function openPlace(baseUrl, { width = 390, height = 844, weergave = "", da
   page.on("pageerror", (error) => errors.push(error.message));
   if (agenda) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(proefFeed(today, agenda)) }));
   await routeSources(page, { werkenHangen, werkenFout });
+  // De site tekent de lijst opnieuw telkens een eigen live laag of een uitlegbestand binnenkomt (kaart-uitleg.json en
+  // de identiteit van evenementendossiers, vraagKaartUitleg in place-view.js), en haar eigen vergunningen vervangen de
+  // verzonnen. Landt dat pas na het inschuiven (op een drukke machine), dan verdwijnen ingeschoven rijen of komt een
+  // knop los van de pagina. Hier: welke uitlegbestanden de site verwerkt heeft, een taak na haar eigen .then/.finally.
+  await page.addInitScript(() => {
+    const json = Response.prototype.json, verwerkt = (window.__e2eUitleg = new Set());
+    Response.prototype.json = function () {
+      const p = json.call(this), pad = new URL(this.url, location.href).pathname;
+      if (/^\/sources\/(kaart-uitleg|evenement-identiteit(-auto)?)\.json$/.test(pad)) p.catch(() => {}).then(() => setTimeout(() => verwerkt.add(pad), 0));
+      return p;
+    };
+  });
   await page.goto(`${baseUrl}/?plek=${encodeURIComponent(STRAAT.name)}&periode=alles${weergave ? `&weergave=${weergave}` : ""}`);
   await page.waitForSelector(".pv-place-name");
-  // Eerst de (lege) live laag laten landen, dan het parcours inschuiven zoals de laag het zelf doet.
-  await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.publicSpace), null, { timeout: 15000 });
+  // Eerst alles laten landen wat de site zelf laadt, dan het parcours inschuiven zoals de laag het zelf doet: elke
+  // (lege) live laag geladen of als mislukt gemeld (hangen de werken, dan niet op de werken wachten), de vergunningen
+  // van de site binnen, en de drie uitlegbestanden verwerkt.
+  await page.waitForFunction((werken) => {
+    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {}, klaar = (laag) => Array.isArray(live[laag]) || Boolean(live.failed?.[laag]?.length);
+    return klaar("publicSpace") && klaar("terraces") && Array.isArray(live.permits) && (!werken || klaar("works")) && window.__e2eUitleg?.size === 3;
+  }, !werkenHangen, { timeout: 20000 });
   await page.evaluate(([rows, permits]) => {
     window.PUBLIC_AGENDA_LIVE_STREETS.publicSpace = rows;
     window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "publicSpace", items: rows } }));
@@ -254,6 +275,8 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       const bron = li.querySelector("details.pv-bron-dossier");
       return {
         tekst,
+        // Alles op de kaart, ook wat ingeklapt staat.
+        alles: li.textContent,
         labels: [...li.querySelectorAll(".pv-detail dt")].filter(zichtbaar).map((d) => d.textContent.trim()),
         // Wat dicht staat onder "Bron en dossier": regels en links.
         dicht: [...(bron?.querySelectorAll("dt") || [])].map((d) => d.textContent.trim()),
@@ -264,10 +287,14 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       };
     }, DOSSIER);
     // Welk parcours: elk parcoursdeel uit het dossier staat zichtbaar (Jonathan: "welke race, welk parcours"),
-    // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt.
-    for (const deel of ["parcours volwassenen 10 km", "parcours jeugd 5 km", "ronde voor de jeugd, halve ronde", "omleiding voor fietsers tijdens de wedstrijd"]) assert.match(zicht.tekst, new RegExp(deel), deel);
-    assert.doesNotMatch(zicht.tekst, /Parkeerverbod langs het parcours|Servicepunt aan de start/);
+    // en wat er verder gebeurt (de omleiding) ook. Alleen de parkeerverboden staan ingeklapt. Sinds de grondregel
+    // van de privacyfilter (#196) is dat wat er van de omschrijving overblijft: de straten.
+    const s = straatVan;
+    for (const deel of [`Parcours: ${s(1)} … ${s(2)}`, `Parcours: ${s(2)}`, `Parcours: ${s(6)}`, `Omleiding: ${s(4)}`]) assert.ok(zicht.tekst.includes(deel), `${deel} staat niet zichtbaar: ${zicht.tekst}`);
+    for (const verbod of [`Parkeerverbod: ${s(3)}`, `Parkeerverbod: ${s(5)}`]) assert.ok(zicht.alles.includes(verbod) && !zicht.tekst.includes(verbod), `${verbod} staat niet ingeklapt op de kaart`);
     assert.ok(zicht.knoppen.includes("Toon de 2 parkeerverboden uit het dossier"), zicht.knoppen.join(" | "));
+    // De rest van de vrije tekst staat nergens op de kaart, ook niet ingeklapt.
+    assert.doesNotMatch(zicht.alles, /volwassenen|jeugd|\d+ km|fietsers|Servicepunt|halve ronde|langs het parcours in/);
     for (const label of ["Wat", "Wanneer", "Waar"]) assert.ok(zicht.labels.includes(label), `${label} zichtbaar: ${zicht.labels.join(", ")}`);
     // Waarom het in de agenda staat, blijft zichtbaar (of de kaart het zo noemt of niet).
     assert.match(zicht.tekst, /toegelaten inname|toelating/);
@@ -843,7 +870,7 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
     assert.deepEqual(fout, []);
   });
 
-  await t.test("plekkop op gsm: Tab volgt de volgorde op het scherm (Deel, Andere plek, dan de wijk)", async () => {
+  await t.test("plekkop op gsm: Tab volgt de volgorde op het scherm (Bewaar straat, Deel, Andere plek, dan de wijk)", async () => {
     const { page, context, errors } = await openPlace(baseUrl);
     // Wachten tot de kop niet meer opnieuw getekend wordt: anders valt de focus tussen twee Tabs weg.
     await page.evaluate(() => new Promise((klaar) => {
@@ -861,12 +888,13 @@ test("opmaak op gsm en toegankelijkheid", { skip }, async (t) => {
       if (f.in) volgorde.push(f);
       else if (volgorde.length) break;
     }
-    assert.deepEqual(volgorde.map((f) => f.naam), ["🔗 Deel", "Andere plek", "Stuivenberg"]);
+    // Bij een straat staat "Bewaar straat" (#171) vooraan in de knoppen, op het scherm een ster links van Deel.
+    assert.deepEqual(volgorde.map((f) => f.naam), ["Bewaar straat", "🔗 Deel", "Andere plek", "Stuivenberg"]);
     // Nakijkbevinding (gsm-kop, afweging): voor een schermlezer staat de kop (de straatnaam) vóór Deel en Andere
     // plek, zodat wie met H naar de kop springt en verder leest, de knoppen nog hoort.
     const snap = await page.locator(".pv-place-top").ariaSnapshot();
-    const kopAt = snap.indexOf(`heading "${STRAAT.name}"`), deelAt = snap.indexOf('button "Deel de link naar deze plek"'), andereAt = snap.indexOf('button "Andere plek"'), wijkAt = snap.indexOf('button "Stuivenberg"');
-    assert.ok(kopAt >= 0 && kopAt < deelAt && deelAt < andereAt && andereAt < wijkAt, snap);
+    const kopAt = snap.indexOf(`heading "${STRAAT.name}"`), bewaarAt = snap.indexOf('button "Bewaar straat"'), deelAt = snap.indexOf('button "Deel de link naar deze plek"'), andereAt = snap.indexOf('button "Andere plek"'), wijkAt = snap.indexOf('button "Stuivenberg"');
+    assert.ok(kopAt >= 0 && kopAt < bewaarAt && bewaarAt < deelAt && deelAt < andereAt && andereAt < wijkAt, snap);
     // Elke volgende knop staat lager, of op dezelfde rij rechts ervan: nooit terug omhoog.
     for (let i = 1; i < volgorde.length; i += 1) {
       const [a, b] = [volgorde[i - 1], volgorde[i]];
