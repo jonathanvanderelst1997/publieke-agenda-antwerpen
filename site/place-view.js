@@ -16,7 +16,7 @@ import {
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
-import { meldLiveLaag, ontbrekendeOnderdelen, wisLiveLaag } from "./live-lagen.js";
+import { meldLiveLaag, mislukteOnderdelenPublicSpace, ontbrekendeOnderdelen, wisLiveLaag } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
@@ -417,7 +417,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // verzoeken), en zeggen we wat er sinds de verversing bij kwam. Lukt dat niet, dan blijft de stand van
   // de ochtend staan, met een eerlijke zin. Zonder stand (nog geen straatbestanden) werkt alles zoals vroeger.
   const SNEL_LAGEN = [["works", "werken"], ["publicSpace", "publiekeRuimte"], ["permits", "vergunningen"], ["terraces", "terrassen"]];
-  const SNEL_ONDERDEEL = { works: "werken", publicSpace: "parkeerverboden en innames", permits: "vergunningen", terraces: "terrassen" };
+  // Wat er per laag ontbreekt als het kader van de straat niet laadde, in de woorden van ONDERDELEN (site/live-lagen.js).
+  // Vroeger stond hier "parkeerverboden en innames": dat staat niet in ONDERDELEN, viel weg, en dan gold de laag als
+  // volledig (een valse "Rustig").
+  const SNEL_ONDERDEEL = { works: ["werken"], publicSpace: mislukteOnderdelenPublicSpace(["streets"]), permits: ["vergunningen"], terraces: ["terrassen"] };
   let snelMogelijk = true, snelBeurt = 0, districtBelofte = null, inzageBelofte = null;
   // De nagekeken stand van het Inzageloket (zoals permits-live.js): zonder die stand geen "bezwaar
   // indienen kan nu" bovenaan. Ontbreekt het bestand, dan zegt de kaart niets over een openbaar onderzoek.
@@ -492,11 +495,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const [{ werkenInKader }, { publiekeRuimteInKader }, { vergunningenInKader }, { terrassenInKader }] = modules;
       const vraag = { district, streetIndex };
       return Promise.all([
-        werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: true, items: r.items }), () => ({ naam: "works", ok: false })),
+        // Zonder GIPOD-hinder is het kader deels geladen (werkenMislukt in works-live.js): dan blijven de werken van de
+        // ochtend, met hun hinder (nakijkronde 4: de ernstige hinder verdween).
+        werkenInKader(kader, vraag).then((r) => ({ naam: "works", ok: !r.mislukt.length, items: r.items, mislukt: r.mislukt }), () => ({ naam: "works", ok: false })),
         // Opbouw en afbraak van een evenement, de andere fasen van een werfzone, de andere plaatsen van een
         // parkeerverbod: vaak buiten het kader. Live op dossiernummer, met de straatassen van het hele district
         // (die laden hierboven al); lukt dat niet, dan vult de stand van de ochtend aan.
-        publiekeRuimteInKader(kader, { ...vraag, dossierIndex: volledigeStraatIndex }).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.dossiers === "ok" ? r.items : aanvullenMetOchtend(r.items, snel.ochtend.publicSpace) }), () => ({ naam: "publicSpace", ok: false })),
+        publiekeRuimteInKader(kader, { ...vraag, dossierIndex: volledigeStraatIndex }).then((r) => ({ naam: "publicSpace", ok: !r.mislukt.length, items: r.dossiers === "ok" ? r.items : aanvullenMetOchtend(r.items, snel.ochtend.publicSpace), mislukt: r.mislukt }), () => ({ naam: "publicSpace", ok: false })),
         vergunningenInKader(kader, { ...vraag, volledigeIndex: volledigeStraatIndex }).then((items) => ({ naam: "permits", ok: true, items: metInzage(metStratenVanDeOchtend(items, snel.ochtend.permits), snel.inzage, brusselsVandaag()) }), () => ({ naam: "permits", ok: false })),
         terrassenInKader(kader, vraag).then((items) => ({ naam: "terraces", ok: true, items }), () => ({ naam: "terraces", ok: false })),
       ]);
@@ -506,11 +511,13 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const inStraat = (item) => (view.refsOf(item) || []).some((ref) => sameStreet(ref, gekozen));
     let nieuw = 0, weg = 0;
     const mislukt = [];
-    for (const { naam, ok, items } of uitslagen) {
+    for (const { naam, ok, items, mislukt: delen } of uitslagen) {
       if (!ok) {
-        mislukt.push(SNEL_ONDERDEEL[naam]);
-        // Geen stand van de ochtend én geen live laag: eerlijk melden dat ze ontbreekt.
-        if (!snel.ochtend[naam]) zetSnelLaag(naam, null, [SNEL_ONDERDEEL[naam]]);
+        const onderdelen = delen?.length ? delen : SNEL_ONDERDEEL[naam];
+        mislukt.push(...onderdelen);
+        // Deels of niet geladen: de stand van de ochtend blijft. Zonder stand: wat het kader wel gaf (of niets), intern als
+        // mislukt (nooit "rustig", nooit een valse 0), zonder melding.
+        if (!snel.ochtend[naam]) zetSnelLaag(naam, Array.isArray(items) ? items : null, onderdelen);
         continue;
       }
       if (snel.ochtend[naam]) {
@@ -519,7 +526,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       }
       zetSnelLaag(naam, items);
     }
-    Object.assign(snel, { bezig: false, nieuw, weg, mislukt: mislukt.length === SNEL_LAGEN.length || !kader, mislukteDelen: mislukt });
+    Object.assign(snel, { bezig: false, nieuw, weg, mislukt: uitslagen.every((u) => !u.ok) || !kader, mislukteDelen: mislukt });
     schedule();
   }
   // De zin onder de tegels, bij elke tekenbeurt opnieuw: met een straal hangt ze ook af van de straatassen

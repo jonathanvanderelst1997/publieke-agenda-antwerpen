@@ -69,15 +69,17 @@ const NU = new Date("2099-03-10T09:00:00.000Z");
 const DISTRICT_BBOX = "4.300791,51.175458,4.444331,51.313629";
 
 // De straatbestanden van de verzonnen ochtend, gemaakt door de echte bouwer in een tijdelijke map.
-async function standVanDeOchtend(t) {
+// `werken`: andere verzonnen werken dan die van de fixture; `index`: past de index aan (bv. de stand van één laag).
+async function standVanDeOchtend(t, { werken = null, index: pasAan = null } = {}) {
   if (!fixture) return null;
   const map = fs.mkdtempSync(path.join(os.tmpdir(), "snelheid-e2e-"));
   t.after(() => fs.rmSync(map, { recursive: true, force: true }));
   fixture.maakWerkmap(map);
-  await fixture.bouw(map);
+  await fixture.bouw(map, werken ? { bronnenDoc: await fixture.schoneBronnen({ werken }) } : {});
   const lees = (rel) => fs.readFileSync(path.join(map, rel), "utf8");
   const index = JSON.parse(lees("site/straat-index.json"));
-  return { index: lees("site/straat-index.json"), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
+  if (pasAan) pasAan(index);
+  return { index: JSON.stringify(index), bestanden: Object.fromEntries(Object.keys(index.straten).map((id) => [id, lees(`site/straat/${id}.json`)])) };
 }
 
 // ---- een volledige nagebootste stad (voor "dezelfde kaartjes als met alle live lagen") ----
@@ -160,6 +162,26 @@ function arcgis(records, url) {
   return { features: records.filter((r) => ids.has(r.id)).map((r) => r.feature) };
 }
 
+// ---- nakijkronde 4 (18-10-2026): een live laag die maar deels laadt ----
+// De verzonnen ochtend: het werk 990001 in de Kammenstraat loopt al, met ernstige hinder volgens GIPOD.
+const ERNSTIGE_HINDER = { gipodId: 990001, severe: true, consequences: ["Geen doorgang voor gemotoriseerd verkeer"], start: "2099-03-05T06:00:00Z", end: "2099-04-09T16:00:00Z", hindranceIds: [880001], sourceUrls: [], phases: [] };
+const WERK_MET_HINDER = { status: "In uitvoering", start: ERNSTIGE_HINDER.start, end: ERNSTIGE_HINDER.end, hindrance: ERNSTIGE_HINDER, hindranceSourceLoaded: true };
+// Live: hetzelfde werk en dezelfde gevalideerde hinder in GIPOD, de districtsgrens en de straatassen. A-Sign, de
+// vergunningen en de rest antwoorden niet (afgebroken), en ook niet wat in `faal` staat: "inname" (de GIPOD-werken),
+// "hinder" (de GIPOD-hinder), "grens" (de districtsgrens) of "assen" (de straatassen).
+function deelsLive(faal = []) {
+  const f = new Set(faal);
+  const werk = { type: "Feature", geometry: { type: "Point", coordinates: midden }, properties: { GipodId: 990001, Description: "Proefwerk riolering (snel)", Owner: "water-link", Status: "In uitvoering", Start: ERNSTIGE_HINDER.start, End: ERNSTIGE_HINDER.end, Uri: "https://gipod.api.vlaanderen.be/api/v1/groundworks/990001" } };
+  const hinder = { type: "Feature", geometry: { type: "Point", coordinates: midden }, properties: { HindranceStatus: "Gevalideerd", HindranceConsequenceOf: "https://gipod.api.vlaanderen.be/api/v1/groundworks/990001", Consequences: "Geen doorgang voor gemotoriseerd verkeer", SevereHindrance: true, HindranceStart: ERNSTIGE_HINDER.start, HindranceEnd: ERNSTIGE_HINDER.end, HindranceGipodId: 880001 } };
+  return (url) => {
+    if (url.includes("/collections/INNAME_PUNT/")) return f.has("inname") ? null : json({ type: "FeatureCollection", links: [], features: [werk] });
+    if (url.includes("/collections/HINDER_PUNT/")) return f.has("hinder") ? null : json({ type: "FeatureCollection", links: [], features: [hinder] });
+    if (url.includes("/MapServer/109/")) return f.has("grens") ? null : json(district);
+    if (url.includes("/MapServer/905/")) return f.has("assen") ? null : json({ type: "FeatureCollection", features: assen });
+    return null;
+  };
+}
+
 // Een nagebootste OpenFreeMap voor de vectorkaart (alleen met MAPLIBRE_DIR): een kleine eigen stijl met de bron
 // "openmaptiles", een tilejson met de laag-id's van het echte schema (OpenMapTiles) en lege vectortegels.
 const OFM = "https://tiles.openfreemap.org";
@@ -232,6 +254,10 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
     const bibliotheek = kaart === "geblokkeerd" ? null : kaartAntwoord(url, { maplibreDir }) || openfreemapAntwoord(url, openfreemap);
     if (bibliotheek) return route.fulfill(bibliotheek);
     if (bronnen === "geblokkeerd") return route.abort();
+    // "hangen": niets antwoordt, ook geen fout (de live lagen blijven onderweg).
+    if (bronnen === "hangen") return undefined;
+    // Een eigen nagebootste stad: een functie die per URL een antwoord geeft, of null (afgebroken).
+    if (typeof bronnen === "function") { const antwoord = bronnen(url); return antwoord ? route.fulfill(antwoord) : route.abort(); }
     // "volledig": de hele nagebootste stad hierboven, met het kader nagekeken.
     if (bronnen === "volledig") {
       if (url.includes("/collections/INNAME_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: midden }, properties: { GipodId: 990001, Description: "Proefwerk riolering (snel)", Owner: "water-link", Status: "Concreet gepland", Start: "2099-03-19T06:00:00Z", End: "2099-04-09T16:00:00Z", Uri: "https://gipod.api.vlaanderen.be/api/v1/groundworks/990001" } }] }));
@@ -449,7 +475,8 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       chips: [...document.querySelectorAll(".pv-chip")].map(t),
       rijen: [...document.querySelectorAll(".pv-results .pv-row")].map((r) => [r.dataset.uid, t(r.querySelector(".pv-row-btn") || r)]),
       lagen: Object.fromEntries(["works", "publicSpace", "permits", "terraces"].map((naam) => [naam, Array.isArray(live[naam]) ? live[naam].length : null])),
-      mislukt: live.failed || {},
+      // Alleen de lagen van de plekpagina (de werkenlijst van het district meldt ook "losseHinder").
+      mislukt: Object.fromEntries(["works", "publicSpace", "permits", "terraces"].filter((naam) => live.failed?.[naam]).map((naam) => [naam, live.failed[naam]])),
     };
   });
   for (const [width, height] of [[390, 844], [1280, 900]]) await t.test(`alle lijsten openklappen terwijl A-Sign en GIPOD niet antwoorden: dezelfde weekzin, tegels en items uit de stand van de ochtend (${width}×${height})`, async (st) => {
@@ -497,6 +524,102 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.doesNotMatch(plek, /Onbekend|niets gevonden|rustig|nog geladen|geladen|laadde|lukte/i, plek);
     // Geen verzonnen 0 bij de werken: een streepje, zonder uitleg.
     assert.match(await page.locator(".pv-place .pv-stat.pv-stat-planned strong").innerText(), /^–$/);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // ---- nakijkronde 4 (18-10-2026): een live laag die maar deels laadt ----
+  // Wacht tot de zin onder de tegels af is (niet meer "Live nakijken…") en de weekzin niet meer laadt.
+  const standKlaar = async (page) => {
+    await page.waitForFunction(() => { const s = document.querySelector(".pv-place .pv-stand")?.textContent || ""; return s && !/nakijken…/.test(s); }, null, { timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 10000 });
+    await page.waitForTimeout(500);
+  };
+  // Zoals een bezoeker: "Alle lijsten" openen en naar elke lijst scrollen. Wacht tot de werkenlijst van het district
+  // geladen is (GIPOD antwoordt: "N werken") en de lijst van de publieke ruimte gefaald (A-Sign antwoordt niet).
+  const openAlleLijsten = async (page) => {
+    await page.locator("details:has(#works-live) > summary").first().click();
+    for (const id of ["works-live", "public-space-live", "permits-live", "terraces-live"]) {
+      await page.locator(`#${id}`).scrollIntoViewIfNeeded();
+      await page.waitForTimeout(300);
+    }
+    await page.waitForFunction(() => /^\d+ werken$/.test(document.querySelector("#works-live [data-works-count]")?.textContent.trim() || "")
+      && !document.querySelector("#works-live.loading, #public-space-live.loading")
+      && document.querySelector("#public-space-live [data-space-note]")?.textContent.trim() === "", null, { timeout: 20000 });
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await page.waitForTimeout(800);
+  };
+  const MET_HINDER = () => [fixture.werk(990001, WERK_MET_HINDER)];
+
+  // Bevinding HOOG: de werkenlijst van het hele district ging door als volledig, ook als de districtsgrens of de
+  // straatassen niet laadden, en verving dan de momentopname van de straat. Zonder grens bleven alleen de werken van de
+  // exacte snapshot over, zonder straatassen hing geen werk nog aan een straat: het werk 990001 met ernstige hinder viel
+  // zo stil weg uit de weekzin, de tegels en de lijst. Nu is zo'n lijst deels geladen (intern live.failed) en blijft de
+  // momentopname. Alles naar buiten is nagebootst of afgebroken (route.abort): niets wordt echt opgehaald.
+  for (const [faal, width, height] of [[["grens", "assen"], 390, 844], [["grens"], 1280, 900], [["assen"], 390, 844]]) await t.test(`alle lijsten openklappen terwijl GIPOD antwoordt maar ${faal.map((f) => (f === "grens" ? "de districtsgrens" : "de straatassen")).join(" en ")} niet: de werken van de ochtend blijven (${width}×${height})`, async (st) => {
+    const stand = await standVanDeOchtend(st, { werken: MET_HINDER() });
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: deelsLive(faal), width, height, feed: proefFeed("2099-03-10", []) });
+    await standKlaar(page);
+    const voor = await plekStand(page);
+    assert.ok(voor.rijen.some(([uid]) => uid === "works:990001"), JSON.stringify(voor.rijen));
+    assert.match(voor.week[1], /met ernstige hinder/, voor.week[1]);
+    const extraVoor = extern.length;
+    await openAlleLijsten(page);
+    assert.ok(extern.slice(extraVoor).some((u) => u.includes("/collections/INNAME_PUNT/") && decodeURIComponent(u).includes(DISTRICT_BBOX)), "de werkenlijst van het district laadde");
+    assert.deepEqual(await plekStand(page), voor);
+    assert.equal((await page.locator(".pv-place .pv-stand").innerText()).trim(), "Stand van de verversing van 05:22.");
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Bevinding MIDDEL: een live kader van de straat zonder GIPOD-hinder gold als gelukt en verving de werken van de
+  // ochtend: de ernstige hinder verdween uit de weekzin en uit de kaart van het werk. Nu is zo'n kader deels geladen: de
+  // straat ziet er precies uit als wanneer GIPOD helemaal niet antwoordt (de stand van de ochtend), ook met een straal en
+  // ook na het openklappen van alle lijsten (dan laadt de werkenlijst van het district, ook zonder hinder).
+  for (const [width, height, query] of [[390, 844, "?plek=Kammenstraat"], [1280, 900, "?plek=Kammenstraat"], [1280, 900, "?plek=Kammenstraat&straal=500"]]) await t.test(`zonder GIPOD-hinder blijven de werken van de ochtend met hun ernstige hinder (${width}×${height}${query.includes("straal") ? ", +500 m" : ""})`, async (st) => {
+    const stand = await standVanDeOchtend(st, { werken: MET_HINDER() });
+    const feed = proefFeed("2099-03-10", []);
+    const ref = await openStraat(baseUrl, { stand, bronnen: deelsLive(["inname", "hinder"]), width, height, query, feed });
+    await standKlaar(ref.page);
+    const verwacht = await plekStand(ref.page);
+    await ref.context.close();
+    assert.match(verwacht.week[1], /met ernstige hinder/, verwacht.week[1]);
+    const { page, context, errors, extern } = await openStraat(baseUrl, { stand, bronnen: deelsLive(["hinder"]), width, height, query, feed });
+    await standKlaar(page);
+    assert.ok(extern.some((u) => u.includes("/collections/INNAME_PUNT/")) && extern.some((u) => u.includes("/collections/HINDER_PUNT/")), "het kader vroeg de werken en de hinder");
+    assert.deepEqual(await plekStand(page), verwacht);
+    await openAlleLijsten(page);
+    assert.deepEqual(await plekStand(page), verwacht);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Bij het herstel gevonden: zonder bruikbare werkenlaag in de stand van de ochtend (ouder dan 48 uur: "error") toont
+  // een live kader zonder hinder de werken wel (wat er is), maar intern als deels geladen: nooit "rustig", nooit een
+  // valse 0.
+  await t.test("zonder bruikbare werkenlaag van de ochtend en zonder GIPOD-hinder: de live werken staan er, als deels geladen", async (st) => {
+    const stand = await standVanDeOchtend(st, { werken: MET_HINDER(), index: (index) => { index.lagen.werken = { status: "error", errorCode: "niet_geladen" }; } });
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: deelsLive(["hinder"]), feed: proefFeed("2099-03-10", []) });
+    await standKlaar(page);
+    const s = await plekStand(page);
+    assert.ok(s.rijen.some(([uid]) => uid === "works:990001"), JSON.stringify(s.rijen));
+    assert.deepEqual(s.mislukt.works, ["werken"]);
+    assert.doesNotMatch(s.week[1], /rustig/i, s.week[1]);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Bij het herstel gevonden: lukte het live kader van de publieke ruimte niet en had de stand van de ochtend geen
+  // bruikbare laag publieke ruimte, dan meldde de plekpagina die laag mislukt met een onderdeel dat niet in ONDERDELEN
+  // (site/live-lagen.js) staat ("parkeerverboden en innames"). Dat viel weg, en de weekzin zei "Rustig" over
+  // parkeerverboden en evenementen die niemand had nagekeken. (Het werk van de fixture begint pas na de 7 dagen.)
+  await t.test("een publieke ruimte zonder bruikbare stand en zonder live kader: nooit 'Rustig'", async (st) => {
+    const stand = await standVanDeOchtend(st, { index: (index) => { index.lagen.publiekeRuimte = { status: "error", errorCode: "niet_geladen" }; } });
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed: proefFeed("2099-03-10", []) });
+    await standKlaar(page);
+    const s = await plekStand(page);
+    assert.doesNotMatch(s.week.join(" "), /rustig/i, s.week.join(" "));
+    assert.ok((s.mislukt.publicSpace || []).includes("parkeerverboden"), JSON.stringify(s.mislukt));
     assert.deepEqual(errors, []);
     await context.close();
   });

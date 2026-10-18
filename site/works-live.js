@@ -7,7 +7,7 @@ import {onbekendZin} from "./onbekend-zinnen.js";
 import {loadStreetIndex} from "./street-source.js";
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {asignLayer} from "./asign-query.js";
-import {laadAlsInBeeld,meldLiveLaag} from "./live-lagen.js";
+import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelen} from "./live-lagen.js";
 import {kaderRond} from "./straat-snapshot.js";
 import {AWV_METADATA_URL,attachAwvWorkSupplement,awvBron,awvTekst,laadAwvSupplement} from "./works-awv-supplement.js";
 
@@ -43,11 +43,20 @@ const supplementVraag=(day,extra={})=>({where:`EINDDATUM >= DATE '${day}' AND ST
 let awvBelofte=null;
 const awvSupplement=()=>(awvBelofte||=laadAwvSupplement());
 
+// Wat de werkenlaag mist (intern, live.failed; site/live-lagen.js): zonder districtsgrens blijven alleen de werken van de
+// exacte snapshot over, zonder straatassen hangt geen werk aan een straat, zonder de gevalideerde GIPOD-hinder ontbreekt
+// de (ernstige) hinder. Dan is de laag deels geladen: ze vervangt de momentopname van een straat niet (kiesLaag). De
+// lijst van het hele district en het kader van één straat vragen het allebei hier (nakijkronde 4 van 18-10-2026: de
+// lijst meldde zich altijd volledig, het kader zonder hinder ook). A-Sign en de AWV-werfdata vullen alleen de werkkaart
+// van de lijst aan; zonder hen is de laag voor de plekpagina wel volledig.
+export const werkenMislukt=({grens=true,assen=true,hinder=true}={})=>mislukteOnderdelen("works",[!grens&&"district",!assen&&"streets",!hinder&&"hinder"].filter(Boolean));
+
 // Snelheid (P5): alleen de werken in het kader van één straat, voor de plekpagina (site/place-view.js). Een
 // paar kleine verzoeken in plaats van 7 pagina's werken, 7 pagina's hinder en de A-Sign-blokken van het
 // hele district. Zelfde regels als de lijst hieronder: districtsgrens (of de exacte snapshot), gevalideerde
 // hinder en het A-Sign-supplement op hetzelfde GIPOD-id. De hinder: een iets ruimer kader (een hinderpunt
-// ligt niet altijd bij het werk). Geeft { items, hinderOk }; faalt GIPOD zelf, dan faalt de belofte.
+// ligt niet altijd bij het werk). Geeft { items, hinderOk, mislukt } (mislukt: werkenMislukt); faalt GIPOD zelf, dan
+// faalt de belofte.
 export async function werkenInKader(kader,{district=null,streetIndex=null}={}){
   const bbox=kader.join(","),ruimer=(kaderRond([kader[0],kader[1],kader[2],kader[3]],300)||kader).join(",");
   const[features,hinder,supplement,awv]=await Promise.all([
@@ -59,7 +68,7 @@ export async function werkenInKader(kader,{district=null,streetIndex=null}={}){
   let items=attachAsSignWorkSupplement(attachHindrance(collectWorks(features,new Set(worksExactSnapshot.exactGipodIds),district),hinder.features,hinder.ok),supplement.rows,supplement.ok);
   items=attachAwvWorkSupplement(items,awv.items,awv.ok,{vandaag:brusselsDag()});
   if(streetIndex)items=applyWorkStreetResolution(items,streetIndex);
-  return{items,hinderOk:hinder.ok};
+  return{items,hinderOk:hinder.ok,mislukt:werkenMislukt({grens:Boolean(district),assen:Boolean(streetIndex),hinder:hinder.ok})};
 }
 
 // De regel met de aantallen boven de werkenlijst van het district. Een aanvulling die niet laadde (de GIPOD-hinder,
@@ -119,8 +128,9 @@ if(root){
   // De notitie zegt alleen wat er getoond wordt: laadde de grens, de hinderbron, A-Sign of de AWV-werfdata niet (of is
   // die ouder dan 3 dagen), dan valt die zin weg, en in de regel met de aantallen dat deel (werkenMeta), zonder melding
   // dat iets faalt (besluit van 18-10-2026). Laadt GIPOD zelf niet, dan is de lijst leeg, zonder "0 werken", en blijven
-  // de werken van de momentopname van een straat staan (kiesLaag in site/live-lagen.js).
-  async function load(){if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Actuele GIPOD-werken worden opgehaald…";try{const[features,geom,hinderResult,aSignResult,streetResult,awvResult]=await Promise.all([gipod(),district().catch(()=>null),hindrance().then(features=>({ok:true,features})).catch(()=>({ok:false,features:[]})),asignSupplement().then(rows=>({ok:true,rows})).catch(()=>({ok:false,rows:[]})),loadStreetIndex().then(index=>({ok:true,index})).catch(()=>({ok:false,index:null})),awvSupplement()]);state.items=attachAwvWorkSupplement(attachAsSignWorkSupplement(attachHindrance(collectWorks(features,exactIds,geom),hinderResult.features,hinderResult.ok),aSignResult.rows,aSignResult.ok),awvResult.items,awvResult.ok,{vandaag:brusselsDag()});state.awvBijgewerkt=awvResult.bijgewerkt;if(streetResult.ok)state.items=applyWorkStreetResolution(state.items,streetResult.index);const losse=hinderResult.ok?losseHinder(hinderResult.features,{getoond:new Set(state.items.map(i=>Number(i.gipodId))),inRespons:new Set(features.map(f=>Number(f?.properties?.GipodId)).filter(Number.isFinite)),district:geom,nu:new Date()}):null;state.losse=losse&&streetResult.ok?applyWorkStreetResolution(losse,streetResult.index):losse;state.ready=true;meldLiveLaag("works",state.items,[]);meldLiveLaag("losseHinder",state.losse,[]);const s=worksStats(state.items),owners=Object.keys(s.owners).sort((a,b)=>a.localeCompare(b,"nl"));owner.innerHTML='<option value="">Alle beheerders</option>'+owners.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");meta.textContent=werkenMeta(state.items,{hinderOk:hinderResult.ok,aSignOk:aSignResult.ok,awvOk:awvResult.ok,losse:state.losse});note.textContent=(geom?`Live GIPOD, gecontroleerd tegen de officiële districtsgrens. Exacte polygonsnapshot: ${date(worksExactSnapshot.observedAt)}. Nieuwe punten binnen de grens worden apart gemarkeerd.`:`Live GIPOD, binnen de exact gevalideerde snapshot van ${date(worksExactSnapshot.observedAt)}.`)+(hinderResult.ok?` ${onbekendZin("hinder-koppeling")}`:"")+(aSignResult.ok?" A-Sign werfsignalisatie wordt alleen als aanvullend bedrijf/fasesignaal gekoppeld via hetzelfde GIPOD-id.":"")+(awvResult.ok?" AWV-werfdata (open data van het Agentschap Wegen en Verkeer) vult een werk alleen aan op hetzelfde GIPOD-id; de status blijft die van GIPOD.":"");render()}catch{state.items=[];count.textContent="";meta.textContent="";note.textContent="";list.innerHTML="";meldLiveLaag("works",null,["werken"])}finally{root.classList.remove("loading")}}
+  // de werken van de momentopname van een straat staan (kiesLaag in site/live-lagen.js); laadden de grens, de straatassen
+  // of de hinder niet, dan meldt de lijst zich deels geladen (werkenMislukt) en blijft die momentopname ook.
+  async function load(){if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Actuele GIPOD-werken worden opgehaald…";try{const[features,geom,hinderResult,aSignResult,streetResult,awvResult]=await Promise.all([gipod(),district().catch(()=>null),hindrance().then(features=>({ok:true,features})).catch(()=>({ok:false,features:[]})),asignSupplement().then(rows=>({ok:true,rows})).catch(()=>({ok:false,rows:[]})),loadStreetIndex().then(index=>({ok:true,index})).catch(()=>({ok:false,index:null})),awvSupplement()]);state.items=attachAwvWorkSupplement(attachAsSignWorkSupplement(attachHindrance(collectWorks(features,exactIds,geom),hinderResult.features,hinderResult.ok),aSignResult.rows,aSignResult.ok),awvResult.items,awvResult.ok,{vandaag:brusselsDag()});state.awvBijgewerkt=awvResult.bijgewerkt;if(streetResult.ok)state.items=applyWorkStreetResolution(state.items,streetResult.index);const losse=hinderResult.ok?losseHinder(hinderResult.features,{getoond:new Set(state.items.map(i=>Number(i.gipodId))),inRespons:new Set(features.map(f=>Number(f?.properties?.GipodId)).filter(Number.isFinite)),district:geom,nu:new Date()}):null;state.losse=losse&&streetResult.ok?applyWorkStreetResolution(losse,streetResult.index):losse;state.ready=true;meldLiveLaag("works",state.items,werkenMislukt({grens:Boolean(geom),assen:streetResult.ok,hinder:hinderResult.ok}));meldLiveLaag("losseHinder",state.losse,[]);const s=worksStats(state.items),owners=Object.keys(s.owners).sort((a,b)=>a.localeCompare(b,"nl"));owner.innerHTML='<option value="">Alle beheerders</option>'+owners.map(v=>`<option value="${esc(v)}">${esc(v)}</option>`).join("");meta.textContent=werkenMeta(state.items,{hinderOk:hinderResult.ok,aSignOk:aSignResult.ok,awvOk:awvResult.ok,losse:state.losse});note.textContent=(geom?`Live GIPOD, gecontroleerd tegen de officiële districtsgrens. Exacte polygonsnapshot: ${date(worksExactSnapshot.observedAt)}. Nieuwe punten binnen de grens worden apart gemarkeerd.`:`Live GIPOD, binnen de exact gevalideerde snapshot van ${date(worksExactSnapshot.observedAt)}.`)+(hinderResult.ok?` ${onbekendZin("hinder-koppeling")}`:"")+(aSignResult.ok?" A-Sign werfsignalisatie wordt alleen als aanvullend bedrijf/fasesignaal gekoppeld via hetzelfde GIPOD-id.":"")+(awvResult.ok?" AWV-werfdata (open data van het Agentschap Wegen en Verkeer) vult een werk alleen aan op hetzelfde GIPOD-id; de status blijft die van GIPOD.":"");render()}catch{state.items=[];count.textContent="";meta.textContent="";note.textContent="";list.innerHTML="";meldLiveLaag("works",null,["werken"])}finally{root.classList.remove("loading")}}
   // Bij één straat (view.straatSnel) haalt de plekpagina zelf alleen het kader van die straat op
   // (werkenInKader); de lijst van het hele district laadt dan pas als ze in beeld komt.
   window.addEventListener("public-agenda:view-change",()=>{state.shown=60;const v=window.PUBLIC_AGENDA_VIEW;if(v?.enabled("works")&&(v.hasPlace||v.wantsLiveLayers)&&!v.straatSnel)load();if(state.ready)render()});

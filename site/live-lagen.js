@@ -5,21 +5,38 @@
 // (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets faalt, de momentopname blijft wel goed").
 export const ONDERDELEN = Object.freeze(["werken", "parkeerverboden", "innames en parcours", "omleidingen", "werfzones", "terrassen", "vergunningen"]);
 
-// De bronnen van de laag "publicSpace" en wat er wegvalt als één ervan niet laadt.
-const PUBLIC_SPACE_BRONNEN = Object.freeze({
-  parking: ["parkeerverboden"],
-  iod22: ["innames en parcours"],
-  iod23: ["innames en parcours"],
-  sgw47: ["omleidingen"],
-  sgw48: ["werfzones"],
-  // Zonder districtsgrens worden innames, omleidingen en werfzones verborgen.
-  district: ["innames en parcours", "omleidingen", "werfzones"],
-  // Zonder stratenlijst hangt niets aan een straat.
-  streets: ["parkeerverboden", "innames en parcours", "omleidingen", "werfzones"],
+// Per live laag: haar bronnen en wat er wegvalt als één ervan niet laadt. Elke lijst van het district en elk kader van
+// een straat vraagt hier wat ze mist (mislukteOnderdelen), in plaats van zelf "alles geladen" te beslissen: een laag
+// die maar deels laadde, gaat zo nooit door als volledig, en vervangt de momentopname van een straat niet (kiesLaag).
+const LAAG_BRONNEN = Object.freeze({
+  publicSpace: Object.freeze({
+    parking: ["parkeerverboden"],
+    iod22: ["innames en parcours"],
+    iod23: ["innames en parcours"],
+    sgw47: ["omleidingen"],
+    sgw48: ["werfzones"],
+    // Zonder districtsgrens worden innames, omleidingen en werfzones verborgen.
+    district: ["innames en parcours", "omleidingen", "werfzones"],
+    // Zonder stratenlijst hangt niets aan een straat.
+    streets: ["parkeerverboden", "innames en parcours", "omleidingen", "werfzones"],
+  }),
+  // De werken (GIPOD, site/works-live.js). Zonder districtsgrens blijven alleen de werken van de exacte snapshot over,
+  // zonder straatassen hangt geen werk aan een straat, zonder de gevalideerde hinder ontbreekt de (ernstige) hinder.
+  works: Object.freeze({ inname: ["werken"], hinder: ["werken"], district: ["werken"], streets: ["werken"] }),
 });
-const orden = (lijst) => ONDERDELEN.filter((o) => lijst.includes(o));
+// In de volgorde van ONDERDELEN; een onderdeel dat daar niet in staat, valt nooit weg (het komt achteraan): een
+// mislukking met een andere naam mag een laag niet volledig laten lijken (nooit een valse "rustig").
+const orden = (lijst) => [...ONDERDELEN.filter((o) => lijst.includes(o)), ...new Set(lijst.filter((o) => !ONDERDELEN.includes(o)))];
+// De onderdelen van `laag` ("works" of "publicSpace") die wegvallen als deze `bronnen` niet laadden. Een bron die de laag
+// niet kent, telt als alles van die laag (dicht falen).
+export function mislukteOnderdelen(laag, bronnen = []) {
+  const perBron = LAAG_BRONNEN[laag];
+  if (!perBron) throw new Error(`onbekende live laag: ${laag}`);
+  const alles = [...new Set(Object.values(perBron).flat())];
+  return orden(bronnen.flatMap((b) => perBron[b] || alles));
+}
 export function mislukteOnderdelenPublicSpace(bronnen = []) {
-  return orden(bronnen.flatMap((b) => PUBLIC_SPACE_BRONNEN[b] || []));
+  return mislukteOnderdelen("publicSpace", bronnen);
 }
 
 // Welke onderdelen ontbreken voor de soorten die aanstaan. `enabled(laag)` zoals PUBLIC_AGENDA_VIEW.

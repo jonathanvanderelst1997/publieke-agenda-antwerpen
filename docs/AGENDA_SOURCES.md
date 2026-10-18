@@ -130,7 +130,13 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   kiest: een gelukte lijst van het hele district, anders de laag van de straat (de momentopname of het gelukte live
   kader), anders wat er wel is. Alleen een gelukte live laag vervangt de momentopname; een die (deels) faalt, vervangt of
   leegt ze nooit, en de zin eronder blijft "Stand van de verversing van …" (`tests/momentopname-live-laag.test.mjs`,
-  `tests/e2e/snelheid.e2e.mjs`);
+  `tests/e2e/snelheid.e2e.mjs`). Wat een laag mist, vraagt elke lijst van het district en elk kader van een straat aan
+  `mislukteOnderdelen` in `site/live-lagen.js` (per laag haar bronnen); nakijkronde 4 van 18-10-2026: de werkenlijst
+  van het district ging door als volledig zonder districtsgrens of straatassen (een werk viel dan weg uit de straat), en
+  het kader van een straat zonder GIPOD-hinder ook (de ernstige hinder verdween). Nu zijn beide deels geladen
+  (`werkenMislukt` in `site/works-live.js`: zonder grens, straatassen of hinder). Een mislukt onderdeel dat niet in
+  `ONDERDELEN` staat, of een bron die de laag niet kent, valt nooit weg (vroeger maakte "parkeerverboden en innames"
+  een week zonder nagekeken publieke ruimte "Rustig");
 - de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
   in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
   die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat

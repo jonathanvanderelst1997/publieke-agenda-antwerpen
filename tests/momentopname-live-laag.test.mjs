@@ -134,3 +134,67 @@ test("kiesLaag: gelukt district, dan de straat met items, dan wat er wel is", ()
   assert.deepEqual(kiesLaag({ straat: { items: null, mislukt: ["werken"] } }), { items: null, mislukt: ["werken"], heelDistrict: false });
   assert.equal(kiesLaag({}), null);
 });
+
+// ---- nakijkronde 4 (18-10-2026): een live laag die maar deels laadt ----
+// Bevinding HOOG: de werkenlijst van het hele district (site/works-live.js) meldde zich als volledig, ook als de
+// districtsgrens, de straatassen of de GIPOD-hinder niet laadden, en verving zo de momentopname van een straat. Bevinding
+// MIDDEL: het live kader van een straat (werkenInKader) gold zonder GIPOD-hinder als gelukt. Beide vragen nu dezelfde
+// functie wat de werkenlaag mist (werkenMislukt): zonder grens blijven alleen de werken van de exacte snapshot over,
+// zonder straatassen hangt geen werk aan een straat, zonder hinder ontbreekt de (ernstige) hinder.
+test("werkenMislukt: zonder districtsgrens, straatassen of GIPOD-hinder is de werkenlaag deels geladen, en vervangt ze de momentopname niet", async (t) => {
+  const { werkenMislukt } = await import("../site/works-live.js");
+  assert.deepEqual(werkenMislukt(), []);
+  assert.deepEqual(werkenMislukt({ grens: true, assen: true, hinder: true }), []);
+  for (const ontbreekt of ["grens", "assen", "hinder"]) assert.deepEqual(werkenMislukt({ [ontbreekt]: false }), ["werken"], ontbreekt);
+  const { live } = venster(t);
+  metOchtend();
+  const voor = watJeZiet(live());
+  meldLiveLaag("works", [], werkenMislukt({ grens: false }));
+  assert.deepEqual(watJeZiet(live()), voor);
+  assert.equal(live().heelDistrict?.works, undefined);
+});
+
+// Het kader van één straat, met een nagebootst net: alleen verzonnen antwoorden, niets gaat naar buiten.
+async function kaderMet(t, { hinderOk = true } = {}) {
+  const vorige = globalThis.fetch;
+  t.after(() => { globalThis.fetch = vorige; });
+  const punt = [4.401, 51.217];
+  const vraag = [];
+  globalThis.fetch = async (input) => {
+    const url = String(input?.url || input);
+    vraag.push(url);
+    const json = (body) => new Response(JSON.stringify(body), { status: 200, headers: { "content-type": "application/json" } });
+    if (url.includes("/collections/INNAME_PUNT/")) return json({ type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: punt }, properties: { GipodId: 990001, Description: "Proefwerk (verzonnen)", Owner: "water-link", Status: "In uitvoering", Start: "2099-03-05T06:00:00Z", End: "2099-04-09T16:00:00Z" } }] });
+    if (url.includes("/collections/HINDER_PUNT/")) return hinderOk ? json({ type: "FeatureCollection", links: [], features: [] }) : new Response("", { status: 500 });
+    if (url.includes("returnIdsOnly")) return json({ objectIds: [] });
+    return new Response("", { status: 404 });
+  };
+  const { werkenInKader } = await import("../site/works-live.js");
+  const { buildStreetIndex } = await import("../site/street-core.js");
+  const { default: fs } = await import("node:fs");
+  const district = JSON.parse(fs.readFileSync(new URL("../lib/district-antwerpen-grens.geojson", import.meta.url), "utf8"));
+  const grens = district.type === "FeatureCollection" ? district.features[0].geometry : district.geometry || district;
+  const as = { type: "Feature", geometry: { type: "LineString", coordinates: [[4.4005, 51.2165], [4.4015, 51.2175]] }, properties: { LSTRNMID: 1416, LSTRNM: "Kammenstraat", RSTRNMID: 1416, RSTRNM: "Kammenstraat", postcode: 2000, DISTRICT: "Antwerpen" } };
+  const r = await werkenInKader([4.4, 51.216, 4.402, 51.218], { district: grens, streetIndex: buildStreetIndex([as]) });
+  return { r, vraag };
+}
+test("werkenInKader: zonder GIPOD-hinder is het kader van de straat deels geladen (mislukt), met hinder volledig", async (t) => {
+  const zonder = await kaderMet(t, { hinderOk: false });
+  assert.ok(zonder.vraag.some((u) => u.includes("/collections/HINDER_PUNT/")), "het kader vroeg de hinder");
+  assert.deepEqual(zonder.r.items.map((i) => [i.gipodId, i.hindranceSourceLoaded]), [[990001, false]]);
+  assert.deepEqual(zonder.r.mislukt, ["werken"]);
+  const met = await kaderMet(t, { hinderOk: true });
+  assert.deepEqual(met.r.items.map((i) => [i.gipodId, i.hindranceSourceLoaded]), [[990001, true]]);
+  assert.deepEqual(met.r.mislukt, []);
+});
+
+// Bij het herstel gevonden: een mislukt onderdeel dat niet in ONDERDELEN staat (de plekpagina meldde
+// "parkeerverboden en innames"), viel weg in ontbrekendeOnderdelen; de laag gold dan als volledig ("Rustig"). Een
+// onbekend onderdeel of een onbekende bron telt nu als mislukt.
+test("een onbekend mislukt onderdeel of een onbekende bron valt nooit weg", () => {
+  assert.deepEqual(ontbrekendeOnderdelen({ publicSpace: ["parkeerverboden en innames"] }), ["parkeerverboden en innames"]);
+  assert.deepEqual(ontbrekendeOnderdelen({ works: ["werken"], publicSpace: ["iets anders", "omleidingen"] }), ["werken", "omleidingen", "iets anders"]);
+  assert.deepEqual(mislukteOnderdelenPublicSpace(["onbekend"]), mislukteOnderdelenPublicSpace(["streets"]));
+  assert.deepEqual(liveLagen.mislukteOnderdelen("works", ["onbekend"]), ["werken"]);
+  assert.deepEqual(liveLagen.mislukteOnderdelen("works", []), []);
+});
