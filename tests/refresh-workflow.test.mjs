@@ -62,3 +62,51 @@ test("elke job achter al-vers heeft een statusfunctie, zodat een dispatch een da
   assert.match(ifOf(jobBlock("publish-branch")), /needs\.refresh\.result == 'success'/);
   assert.match(ifOf(jobBlock("publish-branch")), /needs\.refresh\.outputs\.changed == 'true'/);
 });
+
+// Besluit van de eigenaar (18-10-2026): de site zegt bezoekers niet meer dat een bron faalt. Dan is een rode
+// source-health het enige signaal voor de eigenaar, en die alleen opende of vulde geen alarm-issue. Nu loopt de job
+// alarm ook als alleen source-health faalt, op dezelfde manier: één bestaand alarm-issue aanvullen, geen nieuw per nacht.
+// De voorwaarde van de job, uitgerekend voor verzonnen uitkomsten van de jobs ervoor.
+function alarmLoopt(uitkomst, event = "schedule") {
+  const expressie = ifOf(jobBlock("alarm"))
+    .replace(/always\(\)/g, "true")
+    .replace(/github\.event_name/g, JSON.stringify(event))
+    .replace(/needs\.([a-z-]+)\.result/g, (_, job) => JSON.stringify(uitkomst[job] ?? "success"))
+    .replace(/([!=])=/g, "$1==")
+    .replace(/'/g, '"');
+  // Alleen nog letterlijke waarden en operatoren: niets anders wordt uitgevoerd.
+  assert.match(expressie, /^[\s"a-z_()=!&|]+$/, expressie);
+  return Function(`"use strict"; return (${expressie});`)();
+}
+
+test("alarm: loopt ook als alleen source-health faalt, bij een geplande run", () => {
+  assert.deepEqual(needsOf(jobBlock("alarm")).sort(), ["freshness", "publish-branch", "refresh", "source-health"]);
+  assert.equal(alarmLoopt({}), false, "alles groen: geen alarm");
+  assert.equal(alarmLoopt({ "source-health": "failure" }), true, "alleen source-health rood: wel alarm");
+  for (const job of ["refresh", "publish-branch", "freshness"]) assert.equal(alarmLoopt({ [job]: "failure" }), true, job);
+  // Overgeslagen of geannuleerd is geen rode bronstatus; een dispatch van de Gateway opent nooit een alarm.
+  assert.equal(alarmLoopt({ "source-health": "skipped" }), false);
+  assert.equal(alarmLoopt({ "source-health": "cancelled" }), false);
+  assert.equal(alarmLoopt({ "source-health": "failure" }, "workflow_dispatch"), false);
+});
+
+test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; alleen een nieuw issue als er geen open is", () => {
+  const blok = jobBlock("alarm");
+  assert.match(blok, /\n    runs-on: ubuntu-latest\n/, "nooit op een self-hosted runner");
+  assert.doesNotMatch(workflow, /self-hosted/);
+  assert.match(blok, /\n    permissions:\n      issues: write\n    steps:/, "alleen issues");
+  assert.doesNotMatch(blok, /actions\/checkout|node scripts|npm /, "geen code van de repo met een schrijftoken");
+  const run = blok.slice(blok.indexOf("run: |"));
+  assert.doesNotMatch(run, /\$\{\{/, "uitkomsten via env, niet in het script geplakt");
+  // Dezelfde titel als voorheen: een open alarm-issue van vroeger wordt aangevuld, er komt er geen tweede bij.
+  assert.match(run, /title="Alarm: agendaverversing of live versheid faalt"/);
+  assert.match(run, /gh issue list --state open --search "\\"\$\{title\}\\" in:title"/);
+  assert.match(run, /select\(\.title == \\"\$\{title\}\\"\)/);
+  const comment = run.indexOf('gh issue comment "$num"'), create = run.indexOf('gh issue create --title "$title"'), anders = run.indexOf("else");
+  assert.ok(comment > 0 && create > anders && anders > comment, "eerst aanvullen; alleen anders een nieuw issue");
+  // De uitkomst van source-health staat in het issue.
+  assert.match(blok, /R_HEALTH: \$\{\{ needs\.source-health\.result \}\}/);
+  assert.match(run, /"- bronstatus: \$\{R_HEALTH\}"/);
+  // Het issue zegt niet meer dat bezoekers een melding zien (besluit van 18-10-2026).
+  assert.doesNotMatch(run, /vriendelijke melding/);
+});

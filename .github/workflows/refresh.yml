@@ -566,15 +566,18 @@ jobs:
             exit 1
           fi
 
-  # Zichtbaar alarm: faalt de verversing, de datatak of de live versheid bij een
-  # geplande run, dan komt er één open issue bij (of een reactie op het bestaande).
-  # Zo valt een stille agenda op zonder dat iemand de Actions-pagina moet openen.
+  # Zichtbaar alarm: faalt de verversing, de datatak, de bronstatus of de live
+  # versheid bij een geplande run, dan komt er één open issue bij (of een reactie
+  # op het bestaande). Zo valt een stille agenda op zonder dat iemand de
+  # Actions-pagina moet openen. De bronstatus (source-health) telt mee sinds het
+  # besluit van 18-10-2026: de site zegt bezoekers niet meer dat een bron faalt,
+  # dus is een rode source-health het enige signaal voor de eigenaar.
   # Alleen publieke runinfo; geen data, geen geheimen. Sluiten doet de eigenaar.
   alarm:
     needs: [refresh, publish-branch, source-health, freshness]
     if: >-
       always() && github.event_name == 'schedule' &&
-      (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.freshness.result == 'failure')
+      (needs.refresh.result == 'failure' || needs.publish-branch.result == 'failure' || needs.source-health.result == 'failure' || needs.freshness.result == 'failure')
     runs-on: ubuntu-latest
     timeout-minutes: 3
     permissions:
@@ -601,14 +604,14 @@ jobs:
             "- bronstatus: ${R_HEALTH}" \
             "- live niet ouder dan 48 uur: ${R_FRESH}" \
             "" \
-            "De site blijft bruikbaar: bezoekers zien een vriendelijke melding en de laatst bevestigde items." \
+            "De site blijft bruikbaar: bezoekers zien de laatste goede stand en geen melding dat een bron faalt (besluit van 18-10-2026). Bij een rode bronstatus staan de falende bronnen in de job source-health, op de regels die met BRON beginnen." \
             "Sluit dit issue zodra een run weer groen is.")
           num=$(gh issue list --state open --search "\"${title}\" in:title" --json number,title \
             --jq "map(select(.title == \"${title}\")) | .[0].number // empty")
           if [ -n "$num" ]; then
             gh issue comment "$num" --body "$body"
-            echo "::error title=Agenda-alarm::Verversing faalt; reactie op issue #${num}."
+            echo "::error title=Agenda-alarm::Verversing, datatak, bronstatus of live versheid faalt; reactie op issue #${num}."
           else
             gh issue create --title "$title" --body "$body"
-            echo "::error title=Agenda-alarm::Verversing faalt; nieuw alarm-issue geopend."
+            echo "::error title=Agenda-alarm::Verversing, datatak, bronstatus of live versheid faalt; nieuw alarm-issue geopend."
           fi
