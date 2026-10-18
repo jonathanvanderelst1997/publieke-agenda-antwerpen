@@ -4026,7 +4026,7 @@
       "after": {
         "id": "work:16939110",
         "gipodId": 16939110,
-        "title": "2018 ANTWERPEN, MARIA-HENRIËTTALEI_AN 1",
+        "title": "2018 ANTWERPEN, MARIA-HENRIËTTALEI",
         "status": "Concreet gepland",
         "start": "2026-11-02T01:00:00Z",
         "end": "2026-11-09T21:00:00Z",
@@ -4159,7 +4159,7 @@
         "streets": [
           {
             "id": "1946",
-            "name": "Maria-Theresialei_AN",
+            "name": "Maria-Theresialei",
             "postcode": "2018"
           }
         ],
