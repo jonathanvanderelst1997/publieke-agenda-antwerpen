@@ -62,8 +62,12 @@ test("parkeerverbod met de reden evenement: precies één evenement in de straat
   // Geen vage kaart: "Parkeerverbod" met waar en wanneer is de hele kaart.
   assert.deepEqual(vaagheidVanKaart({ titel: pn.title }).patronen, []);
   assert.equal(vaagheidVanKaart({ titel: pn.title }).kern, false);
-  // De evenementkaart: het parkeerverbod onder "Wat merk je".
-  assert.match(en.uitleg.kern.find(([k]) => k === "Wat merk je")[1], /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein 14 mrt \(2099-00001\)\./);
+  // De evenementkaart: het parkeerverbod onder "Wat merk je", waar en wanneer: de dagen en de uren, zoals de werfkaart
+  // (nakijkronde van 18 oktober 2026: hier stonden alleen de dagen).
+  assert.match(en.uitleg.kern.find(([k]) => k === "Wat merk je")[1], /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein, 2000 Antwerpen: 14 mrt, hele dag \(2099-00001\)\./);
+  const metUren = { ...p, item: { ...p.item, startTime: "08:00", endTime: "18:00", weekdaysOnly: true } };
+  const [, eu] = verrijkMetContext([metUren, ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
+  assert.match(eu.uitleg.kern.find(([k]) => k === "Wat merk je")[1], /A-Sign: Proefplein, 2000 Antwerpen: 14 mrt, van 8\.00 tot 18\.00 uur, alleen op weekdagen \(2099-00001\)\./);
   // Twee evenementen die dag (het tweede alleen als kaart van de plek): geen regel, en geen context bij het parkeerverbod.
   const twee = [...ev, ...evenementen([inname("ET2099000002", "2099-03-14")])];
   const [pt] = verrijkMetContext([p, ...twee], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
@@ -145,6 +149,31 @@ test("geen kandidaat: een lang dossier, een evenement dat niet elke dag loopt, o
   assert.equal(regel(zonder, "Ook gepland hier op die dagen"), "");
 });
 
+// Nakijkronde van 18 oktober 2026: een evenementkaart uit de ochtendstand noemde het parkeerverbod onder "Wat merk je" met
+// alleen de straat en de postcode, zonder de zin dat het huisnummer alleen live in A-Sign staat (die zeggen de werfkaart,
+// parkeerRegel, en de kaart van het parkeerverbod wel). De ochtendstand bewaart bewust geen huisnummer (besluit van de
+// eigenaar van 18 oktober 2026); live, met het huisnummer, staat de zin er niet. De vaagheidsmeter telt ze.
+test("evenementkaart uit de ochtendstand: het parkeerverbod onder 'Wat merk je' zegt dat het huisnummer alleen live in A-Sign staat, en de meter telt het", () => {
+  const ev = evenementen([inname("ET2099000001", "2099-03-14")], { dossiers: { ET2099000001: fiche("Proefloop") } });
+  const agendaItems = [dossierPunt("ET2099000001", "2099-03-14", "Proefloop")];
+  // Zoals een straatbestand het bewaart: geen reden, wel het evenement (evenementSleutel) en plaatsVanDeOchtend.
+  const ochtendRij = { id: "parking:2099-00001|1", kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: "Proefplein, 2000 Antwerpen", start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "Goedgekeurd", reference: "2099-00001", startTime: "08:00", endTime: "18:00", weekdaysOnly: false, streets: [straat("Proefplein")], evenementSleutel: "ET2099000001", plaatsVanDeOchtend: true };
+  const [po, eo] = verrijkMetContext([publicSpaceEntry(ochtendRij), ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
+  assert.match(po.summary, /Het huisnummer staat alleen in de live gegevens van A-Sign/);
+  const watMerkJe = eo.uitleg.kern.find(([k]) => k === "Wat merk je")[1];
+  assert.match(watMerkJe, /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein, 2000 Antwerpen: 14 mrt, van 8\.00 tot 18\.00 uur \(2099-00001\)\. Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn \(nog\) niet geladen\. Zelfde straat en dagen/);
+  const meting = vaagheidVanKaart({ titel: eo.title, regels: eo.uitleg.kern.map(([k, v]) => `${k}: ${v}`) });
+  assert.ok(meting.patronen.includes("huisnummer-alleen-live"), JSON.stringify(meting.patronen));
+  assert.equal(meting.kern, true, "de plaats van het parkeerverbod is niet exact: de meter telt de kaart als vaag");
+  assert.ok(meting.detail.ontbreekt >= 1);
+  // Live, met het huisnummer (publiekParkeerAdres): exact, zonder die zin, en de meter ziet niets.
+  const p = parkeer(1, "2099-03-14");
+  const [, el] = verrijkMetContext([p, ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
+  const live = el.uitleg.kern.find(([k]) => k === "Wat merk je")[1];
+  assert.doesNotMatch(live, /huisnummer staat alleen in de live gegevens/);
+  assert.equal(vaagheidVanKaart({ titel: el.title, regels: el.uitleg.kern.map(([k, v]) => `${k}: ${v}`) }).patronen.includes("huisnummer-alleen-live"), false);
+});
+
 test("een agendapunt uit een andere bron als enige kandidaat, en een vermoede naam: in de regel, nooit in de titel", () => {
   const p = parkeer(3, "2099-03-20");
   const kalender = { id: "kal-1", sourceId: "district-kalender", title: "Proefbraderie", date: "2099-03-20", location: "Proefplein", category: "shopping" };
@@ -163,7 +192,7 @@ test("een agendapunt uit een andere bron als enige kandidaat, en een vermoede na
   const [pm, em] = verrijkMetContext([p, kaart], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [soort] });
   assert.equal(pm.title, "Parkeerverbod");
   assert.match(regel(pm, "Evenement"), /^Buurtfeest op het Proefplein \(A-Sign, dossier ET2099000009\)/);
-  assert.match(em.uitleg.kern[0][1], /^Kramen\. Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein 20 mrt \(2099-00003\)\./);
+  assert.match(em.uitleg.kern[0][1], /^Kramen\. Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein, 2000 Antwerpen: 20 mrt, hele dag \(2099-00003\)\./);
   // Een evenementendossier dat (vermoedelijk) een markt is, als enige: geen regel, en geen context bij het parkeerverbod.
   const marktDossier = dossierPunt("ET2099000011", "2099-03-20", "Vermoedelijk een markt op het Proefplein", { info: "", category: "shopping" });
   const [pk] = verrijkMetContext([p, agendaEntry(marktDossier, "shopping")], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [marktDossier] });

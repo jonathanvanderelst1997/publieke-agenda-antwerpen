@@ -16,6 +16,8 @@ import { buildPlaceIndex, foldText } from "../../site/place-core.js";
 import { falendeBronnen, gezondeBronnen } from "../helpers/proef-feed.mjs";
 import { locationKey } from "../../site/neighborhood-core.js";
 import { GIPOD_BRON, GIPOD_METADATA_URL } from "../../site/gipod-bron.js";
+import { adresZonderHuisnummer, publiekParkeerAdres } from "../../site/adres-privacy.js";
+import { echteAdresStukken, laadStraatnamen } from "../../lib/echte-adressen.mjs";
 import { echteFeed, feedScript, kalenderItem, marktItem, proefFeed } from "../helpers/proef-feed.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
@@ -56,6 +58,8 @@ function serve() {
 
 // ---- data en vaste antwoorden ----
 const straten = JSON.parse(fs.readFileSync(path.join(site, "geo", "straten.json"), "utf8"));
+// De officiële straatnamen: een echte straat krijgt in een fixture alleen huisnummer 999 (lib/echte-adressen.mjs).
+const ECHTE_STRATEN = laadStraatnamen(path.join(site, "geo", "straten.json"));
 const byName = new Map();
 for (const [id, name, postcode] of straten.streets) byName.set(locationKey(name), [...(byName.get(locationKey(name)) || []), { id: String(id), name, postcode }]);
 // De straatnamen van de andere districten (site/geo/straten-stad.json): een straat met een naamgenoot elders in de
@@ -1498,13 +1502,42 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
 
   // Herstelplan O1: de A-Sign-lagen faalden bij elke laadbeurt (URL's van 3.000 tot 4.800 tekens).
   // Het parkeerverbod: dat er een is, waar exact en wanneer, nooit waarom (besluit van de eigenaar van 18 oktober 2026,
-  // site/adres-privacy.js). De verzonnen reden "Verhuis (e2e)" in A-Sign komt nergens op de pagina.
-  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met waar en wanneer zonder reden, en terras in de straat", async () => {
+  // site/adres-privacy.js; daarmee is vraag 1 beslist). Waar exact: live het huisnummer of het bereik zoals
+  // publiekParkeerAdres het schrijft, nooit alleen de straat en de postcode. Wanneer: de dagen en de uren van A-Sign,
+  // letterlijk. De verzonnen reden "Verhuis (e2e)" in A-Sign komt nergens op de pagina, ook niet op de buurtkaart.
+  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met het huisnummerbereik, de dagen en de uren zonder reden, en terras in de straat", async () => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];
     const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2], d = 0.00004;
     const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
+    // A-Sign bewaart een uur (Starttijd, Eindtijd) als een tijdstip op 30 december 1899.
+    const uur = (hhmm) => Date.parse(`1899-12-30T${hhmm}:00Z`);
+    const [van, tot] = [addDays(today, 2), addDays(today, 3)];
+    // De straat is echt (de data kiest ze): daarom geen bestaand huisnummer naast de verzonnen verhuis, alleen 999 (met een
+    // letter), zoals een echte straat in de toetsen (tests/historiek-privacy.test.mjs; nakijkronde van 18 oktober 2026: hier
+    // stonden nog 990 tot 999). Hieronder nagekeken met dezelfde regel als de commitscan (lib/echte-adressen.mjs).
+    const bronAdres = `${street.name} 999A-999C ${street.postcode} Antwerpen`;
+    // Waar exact, letterlijk: het bereik "999A–999C" (met een en-dash) zoals publiekParkeerAdres het schrijft. Nooit de
+    // terugval zonder huisnummer ("Straat, 2000 Antwerpen"), nooit een bus of de ruwe vorm van de bron.
+    const PLAATS = `${street.name} 999A–999C, ${street.postcode} Antwerpen`;
+    const ZONDER_NUMMER = `${street.name}, ${street.postcode} Antwerpen`;
+    assert.equal(publiekParkeerAdres(bronAdres, adresZonderHuisnummer(bronAdres)), PLAATS, "de proef volgt de vorm van publiekParkeerAdres");
+    // Wanneer, letterlijk: de eerste en de laatste dag en de uren van de fixture (8.00 tot 18.00 uur).
+    const volleDag = (iso) => `${Number(iso.slice(8))} ${MAANDEN[Number(iso.slice(5, 7)) - 1]} ${iso.slice(0, 4)}`;
+    const WANNEER = `${volleDag(van)} – ${volleDag(tot)} · van 8.00 tot 18.00 uur`;
+    // Eén parkeerverbod op vier plaatsen in de straat (één A-Sign-nummer, dezelfde dagen en uren; tweede nakijkronde van 18
+    // oktober 2026: dat werd "Straat", zonder huisnummer). Dicht de eerste drie plaatsen exact, "Toon alle 4 plaatsen" alle.
+    // Elk één huisnummer, zoals A-Sign het schrijft ("999B-999B"; publiekParkeerAdres maakt er "999B" van): 999 en 999
+    // met een letter, vier verschillende plaatsen.
+    const NUMMERS = ["999", "999B", "999D", "999F"];
+    const VIER = NUMMERS.map((n) => `${street.name} ${n}, ${street.postcode} Antwerpen`);
+    const vierVerboden = NUMMERS.map((n, i) => ({ id: 700200 + i, feature: { attributes: { Dossiernummer: "2026-999002", Locatienummer: String(i + 1), Status: "Goedgekeurd", Adres: `${street.name} ${n}-${n} ${street.postcode} Antwerpen`, Reden: REDEN_E2E, Startdatum: ms(van), Einddatum: ms(tot), Starttijd: uur("08:00"), Eindtijd: uur("18:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [[[x1, y1], [x2, y2]]] } } }));
+    // Met de lijn van het parkeerverbod langs de straat, zoals laag 20 die geeft: zo heeft het een plek op de buurtkaart.
+    const laag20 = [{ id: 700123, feature: { attributes: { Dossiernummer: "2026-999001", Locatienummer: "1", Status: "Goedgekeurd", Adres: bronAdres, Reden: REDEN_E2E, Startdatum: ms(van), Einddatum: ms(tot), Starttijd: uur("08:00"), Eindtijd: uur("18:00"), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" }, geometry: { paths: [[[x1, y1], [x2, y2]]] } } }, ...vierVerboden];
+    // Elk adres in de fixture, en elke plaats die de toets verwacht: een echte straat met alleen 999-vormen.
+    const echt = [...laag20.map((f) => f.feature.attributes.Adres), PLAATS, ...VIER].filter((a) => echteAdresStukken(a, ECHTE_STRATEN).length);
+    assert.deepEqual(echt.length, 0, "een echte straat krijgt in deze toets alleen huisnummer 999 (met een letter)");
     const asign = asignServer({ fixtures: {
-      20: [{ id: 700123, feature: { attributes: { Dossiernummer: "2026-999001", Locatienummer: "1", Status: "Goedgekeurd", Adres: `${street.name} 12-14 ${street.postcode} Antwerpen`, Reden: REDEN_E2E, Startdatum: ms(addDays(today, 2)), Einddatum: ms(addDays(today, 3)), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" } } }],
+      20: laag20,
       49: [{ id: 1234, feature: { attributes: { OBJECTID: 1234, ROLnet_ID: "E2E-1", TypeTerrasZone: "Terraszone (e2e)", Status: "Actief", adres: street.name, postcode: Number(street.postcode) }, geometry: { rings: [[[mx - d, my - d], [mx + d, my - d], [mx + d, my + d], [mx - d, my + d], [mx - d, my - d]]] } } }],
     } });
     const query = `?plek=${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
@@ -1519,32 +1552,78 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     // De rij op haar A-Sign-nummer (de reden staat er niet in, dus daarop zoeken kan niet meer).
     const parkeer = page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:2026-999001"]').first();
     await parkeer.waitFor({ timeout: 15000 });
-    const parkeerTekst = await parkeer.innerText();
+    const dichtTekst = await parkeer.innerText();
     // Wat: de titel is "Parkeerverbod", niets meer.
     assert.equal((await parkeer.locator(".pv-row-title").innerText()).trim(), "Parkeerverbod");
-    // Waar exact: elke regel met de straat is precies een van twee vormen, de straat met de postcode of met het
-    // huisnummer zoals publiekParkeerAdres het schrijft. Voor de bron "12-14" in deze proef is dat het bereik "12–14".
-    // Nooit een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
-    const toegelaten = [`${street.name}, ${street.postcode} Antwerpen`, `${street.name} 12–14, ${street.postcode} Antwerpen`];
-    const adresRegels = parkeerTekst.split("\n").map((r) => r.trim()).filter((r) => r.includes(street.name));
-    assert.ok(adresRegels.length > 0, `geen regel met de straat: ${JSON.stringify(parkeerTekst)}`);
-    for (const regel of adresRegels) assert.ok(toegelaten.includes(regel), `"${regel}" is geen van de twee toegelaten vormen (${toegelaten.join(" of ")})`);
-    assert.doesNotMatch(parkeerTekst, /\bbus\b|12\s*-\s*14/i, "geen bus en nooit het adres zoals de bron het schrijft");
-    assert.doesNotMatch(parkeerTekst, /Parkeerverbod: /);
-    // Opengeklapt, met de ingeklapte technische details: ook daar nooit de reden.
+    // Al in de dichte rij: waar exact (met het bereik) en de uren.
+    assert.equal((await parkeer.locator(".pv-row-where").innerText()).trim(), PLAATS, "de dichte rij toont het huisnummerbereik");
+    assert.equal((await parkeer.locator(".pv-row-summary:not(.pv-bronnoot)").innerText()).trim(), "Niet parkeren van 8.00 tot 18.00 uur.");
+    // Opengeklapt: "Wanneer" is letterlijk de dagen en de uren, "Waar" letterlijk de plaats met het bereik.
     await parkeer.locator(".pv-row-btn").click();
     await parkeer.locator(".pv-tech summary").waitFor();
-    // Wanneer: de eerste en de laatste dag van het parkeerverbod.
+    const regel = (naam) => parkeer.evaluate((el, n) => [...el.querySelectorAll(".pv-detail dt")].filter((dt) => dt.textContent.trim() === n).map((dt) => (dt.nextElementSibling?.textContent || "").trim()), naam);
+    assert.deepEqual(await regel("Wanneer"), [WANNEER], "de dagen en de uren van het parkeerverbod");
+    assert.deepEqual(await regel("Waar"), [PLAATS], "de plaats met het huisnummerbereik");
+    // Elke regel met de straat, dicht en open, is die plaats: geen terugval zonder huisnummer, geen bus, geen bronvorm.
     const openTekst = await parkeer.innerText();
-    assert.match(openTekst, /Wanneer/);
-    for (const d of [addDays(today, 2), addDays(today, 3)]) assert.ok(openTekst.includes(String(Number(d.slice(8)))), `${d} niet in ${JSON.stringify(openTekst)}`);
+    for (const [stand, tekst, minstens] of [["dicht", dichtTekst, 1], ["open", openTekst, 2]]) {
+      const adresRegels = tekst.split("\n").map((r) => r.trim()).filter((r) => r.includes(street.name));
+      assert.ok(adresRegels.length >= minstens, `${stand}: ${adresRegels.length} regels met de straat: ${JSON.stringify(tekst)}`);
+      for (const r of adresRegels) assert.equal(r, PLAATS, `${stand}: "${r}" is niet de plaats met het huisnummerbereik`);
+      assert.equal(tekst.includes(ZONDER_NUMMER), false, `${stand}: de terugval zonder huisnummer ("${ZONDER_NUMMER}")`);
+      assert.doesNotMatch(tekst, /\bbus\b|999A\s*-\s*999C/i, `${stand}: geen bus en nooit het adres zoals de bron het schrijft`);
+      assert.doesNotMatch(tekst, /Parkeerverbod: /);
+    }
     assert.equal(await parkeer.locator(".pv-tech").evaluate((el) => el.open), false, "technische details dicht");
     await parkeer.locator(".pv-tech summary").click();
-    // Alles van de rij (ook wat ingeklapt is, textContent) en alles op de pagina: geen reden, geen "voor een ...".
-    const rijAlles = await parkeer.evaluate((el) => `${el.textContent}\n${[...el.querySelectorAll("[title],[aria-label],a[href]")].map((x) => `${x.getAttribute("title") || ""} ${x.getAttribute("aria-label") || ""} ${x.getAttribute("href") || ""}`).join("\n")}`);
+    // Alles van de rij (ook wat ingeklapt is, textContent) en alles op de pagina: geen reden, geen "voor een ...". Ook elk
+    // attribuut, met zijn naam, van de rij zelf (li.pv-row) en van elk element erin: title, aria-*, alt, href, data-* ...
+    // (nakijkronde van 18 oktober 2026: een title met de reden op de rij zelf viel door de mand, en data-* werd niet gelezen).
+    const rijAlles = await parkeer.evaluate((el) => `${el.textContent}\n${[el, ...el.querySelectorAll("*")].map((x) => [...x.attributes].map((a) => `${a.name}="${a.value}"`).join(" ")).join("\n")}`);
+    assert.match(rijAlles, /data-uid="publicSpace:parking:2026-999001/, "de attributen van de rij zelf tellen mee");
     assert.doesNotMatch(rijAlles, VERRAAD_E2E, `de reden staat in de rij: ${JSON.stringify(rijAlles)}`);
     assert.doesNotMatch(rijAlles, /Parkeerverbod (?:voor|met)\b|Parkeerverbod,|[Rr]eden|waarvoor/, `een reden of een zin erover in de rij: ${JSON.stringify(rijAlles)}`);
     assert.doesNotMatch(await page.evaluate(() => document.body.textContent), VERRAAD_E2E, "de reden staat ergens op de pagina");
+    const paginaAttributen = await page.evaluate(() => [...document.querySelectorAll("*")].map((x) => [...x.attributes].map((a) => `${a.name}="${a.value}"`).join(" ")).join("\n"));
+    assert.doesNotMatch(paginaAttributen, VERRAAD_E2E, "de reden staat in een attribuut ergens op de pagina");
+    // De buurtkaart (site/kaart-lagen.js): het parkeerverbod staat er bij benadering (een afgerond punt, privacy) en
+    // nooit exact; de popup zegt dat ("Plek bij benadering"), met de plaats exact in de tekst. Geen tekst noemt de reden.
+    await page.waitForFunction((uid) => (window.PUBLIC_AGENDA_KAART?.teken || []).some((e) => String(e?.uid || "").startsWith(uid)), "publicSpace:parking:2026-999001", { timeout: 10000 });
+    const kaart = await page.evaluate(async ({ uid, vandaag }) => {
+      const { kaartLagen, popupHtml } = await import("/kaart-lagen.js");
+      const e = window.PUBLIC_AGENDA_KAART.teken.find((x) => String(x?.uid || "").startsWith(uid));
+      const { fc, ongeveer } = kaartLagen([e]);
+      const pop = document.createElement("div");
+      pop.innerHTML = popupHtml([e], vandaag);
+      return { exact: fc.features.filter((f) => !f.properties.ongeveer).length, ongeveer: ongeveer.filter((g) => g.uids.includes(e.uid)).length, tekst: pop.textContent };
+    }, { uid: "publicSpace:parking:2026-999001", vandaag: today });
+    assert.deepEqual([kaart.exact, kaart.ongeveer], [0, 1], "op de buurtkaart één plek bij benadering, nooit de lijn zelf");
+    assert.match(kaart.tekst, /Plek bij benadering \(privacy\)/);
+    assert.ok(kaart.tekst.includes(PLAATS), `de popup noemt de plaats exact: ${JSON.stringify(kaart.tekst)}`);
+    // Wanneer, ook in de popup: de dagen met de uren zoals de kaart ze zegt (nakijkronde van 18 oktober 2026: de popup
+    // zei bij meer dagen geen uren, bij één dag alleen "08.00").
+    assert.match(kaart.tekst, / · van 8\.00 tot 18\.00 uur · /, `de popup noemt de uren: ${JSON.stringify(kaart.tekst)}`);
+    assert.doesNotMatch(kaart.tekst, VERRAAD_E2E, `de reden staat in de popup: ${JSON.stringify(kaart.tekst)}`);
+    assert.doesNotMatch(kaart.tekst, /Parkeerverbod (?:voor|met)\b|[Rr]eden|waarvoor/, `een reden of een zin erover in de popup: ${JSON.stringify(kaart.tekst)}`);
+    // Het parkeerverbod op vier plaatsen: dicht en bij "Waar" de eerste drie plaatsen exact, en "Toon alle 4 plaatsen" elke
+    // plaats exact, één per regel. Nooit alleen de straatnaam, nooit "andere straten", nooit de reden.
+    const vier = page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:2026-999002"]').first();
+    await vier.waitFor({ timeout: 15000 });
+    const KORT = `${VIER[0]}; ${VIER[1]} en ${VIER[2]} + 1 andere plaats`;
+    assert.equal((await vier.locator(".pv-row-where").innerText()).trim(), KORT, "de dichte rij noemt de plaatsen exact");
+    await vier.locator(".pv-row-btn").click();
+    const waarVier = await vier.evaluate((el) => {
+      const dd = [...el.querySelectorAll(".pv-detail dt")].find((dt) => dt.textContent.trim() === "Waar")?.nextElementSibling;
+      const details = dd?.querySelector("details.pv-streets");
+      if (details) details.open = true;
+      return { eerst: dd?.firstChild?.textContent?.trim() || "", summary: details?.querySelector("summary")?.textContent.trim() || "", lijst: details ? details.querySelector("p").innerText.split("\n").map((r) => r.trim()).filter(Boolean) : [] };
+    });
+    assert.equal(waarVier.eerst, KORT);
+    assert.equal(waarVier.summary, "Toon alle 4 plaatsen");
+    assert.deepEqual(waarVier.lijst, VIER, "elke plaats exact in de lijst");
+    const vierAlles = await vier.evaluate((el) => el.textContent);
+    assert.doesNotMatch(vierAlles, /andere straten|Toon alle \d+ straten/);
+    assert.doesNotMatch(vierAlles, VERRAAD_E2E);
     await page.locator(".pv-results .pv-row", { hasText: "Terraszone (e2e)" }).first().waitFor({ timeout: 15000 });
     assert.equal(await page.locator(".pv-place-failed").count(), 0);
     assert.deepEqual(errors, []);

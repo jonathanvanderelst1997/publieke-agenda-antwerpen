@@ -13,7 +13,7 @@ import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsS
 import { GIPOD_METADATA_URL } from "./gipod-bron.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
 import { zonderToevoegingInTekst } from "./witte-lijst.js";
-import { PARKEERVERBOD_TITEL } from "./adres-privacy.js";
+import { EVENEMENT_SLEUTEL, PARKEERVERBOD_TITEL } from "./adres-privacy.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -1003,8 +1003,11 @@ const uurKortTekst = (row) => parkeerUren(row);
 // Wat de losse kaart van een parkeerverbod zei, blijft in de werfkaart staan (nakijkronde 13 oktober 2026: geen kaart
 // mag minder feiten tonen dan vroeger): waar (de plaats van de losse kaart: live met het huisnummer of bereik van
 // publiekParkeerAdres, nakijkronde 18 oktober 2026), de periode, de uren, het nummer en de status in A-Sign. Nooit de
-// reden van de stad (besluit van 18 oktober 2026, site/adres-privacy.js).
-const parkeerPlaats = (p) => cleanText(p?.location || p?.item?.location);
+// reden van de stad (besluit van 18 oktober 2026, site/adres-privacy.js). Een parkeerverbod op meer plaatsen: elke
+// plaats exact (`plaatsen`, bundelMaatregelen; tweede nakijkronde van 18 oktober 2026: dat werd "Proefstraat"). Een plaats
+// uit de ochtendstand (zonder huisnummer): met de zin dat het huisnummer alleen live in A-Sign staat.
+const parkeerPlaats = (p) => (Array.isArray(p?.plaatsen) && p.plaatsen.length ? plaatsenTekst(p.plaatsen) : cleanText(p?.location || p?.item?.location));
+const parkeerUitOchtend = (p) => (p?.rijen?.length ? p.rijen : [p?.item]).some(isOchtendPlaats);
 function parkeerRegel(lijst, vandaag) {
   const delen = lijst.map((p) => {
     const r = p.item || {};
@@ -1014,7 +1017,8 @@ function parkeerRegel(lijst, vandaag) {
     const plaats = parkeerPlaats(p);
     return `${plaats ? `${plaats}: ` : ""}${periode}${uren ? `, ${uren}` : ""}${alleenWeekdagen(r) ? ", alleen op weekdagen" : ""} (${[cleanText(r.reference) || "A-Sign", status ? kleineLetter(status) : ""].filter(Boolean).join(", ")})`;
   });
-  return ["Parkeerverbod", `${delen.join(" · ")}. Zelfde straat en dezelfde dagen als een fase van de werfzone; A-Sign zet bij een parkeerverbod geen dossiernummer.`];
+  const ochtend = lijst.some(parkeerUitOchtend) ? ` ${HUISNUMMER_LIVE}` : "";
+  return ["Parkeerverbod", `${delen.join(" · ")}.${ochtend} Zelfde straat en dezelfde dagen als een fase van de werfzone; A-Sign zet bij een parkeerverbod geen dossiernummer.`];
 }
 // Wat GIPOD over de werf van een werfzone zegt: de soort uit de tekst van de beheerder of de fasen, anders de fasen
 // die iets zeggen (faseDoelen). Leeg als GIPOD alleen genummerde fasen heeft.
@@ -1180,7 +1184,8 @@ function werfKaartBewaard(e, opties) {
   const sleutel = JSON.stringify([opties.vandaag, opties.dossiers, [e.uid, e.title, e.summary, e.start, e.end, e.location, e.info, e.reference, e.status, ids(e.rijen)],
     (opties.sgw || []).map((z) => [z.uid, z.title, z.time, z.timeText, z.item?.reference, z.regels, ids(z.rijen)]),
     // Met de plaats: de ochtendstand zegt "Proefstraat, 2000 Antwerpen", live hetzelfde parkeerverbod "Proefstraat 12–14, ...".
-    (opties.parkeer || []).map((p) => [p.uid, p.item?.reference, p.item?.start, p.item?.end, p.item?.startTime, p.item?.endTime, p.item?.weekdaysOnly, p.item?.detail, parkeerPlaats(p), ids(p.rijen)])]);
+    // En of een plaats uit de ochtendstand komt: live zonder bruikbaar huisnummer (een hoek) zegt ook "Proefstraat, ...".
+    (opties.parkeer || []).map((p) => [p.uid, p.item?.reference, p.item?.start, p.item?.end, p.item?.startTime, p.item?.endTime, p.item?.weekdaysOnly, p.item?.detail, parkeerPlaats(p), parkeerUitOchtend(p), ids(p.rijen)])]);
   if (!kaarten.has(sleutel)) {
     if (kaarten.size > 20) kaarten.clear();
     kaarten.set(sleutel, werfKaart(e, opties));
@@ -1431,7 +1436,16 @@ const BRON_KORT = Object.freeze({
   "stad-districten": "nieuws van de districten", "mail-district": "nieuwsbrief van het district", "mail-stad": "nieuwsbrief van de stad", "stad-koopzondagen": "stad Antwerpen",
 });
 const isDossierKaart = (e) => String(e?.uid || "").startsWith("publicSpace:dossier:");
-const isEvenementParkeerverbod = (e) => e?.source === "publicSpace" && e.item?.kind === "parking" && /evenement/i.test(parkeerReden(e.item));
+// Een parkeerverbod met de reden "evenement" (live, alleen intern), of uit de ochtendstand met de sleutel van het
+// evenement dat de verversing erbij vond (`evenementSleutel`, parkeerverbodenAanEvenement): een straatbestand bewaart de
+// reden niet (site/adres-privacy.js), en zo viel in de ochtendstand elk verband met een evenement weg (nakijkronde van 18
+// oktober 2026: op origin/main 43 parkeerverbodkaarten in 39 straten, daarna 0; live kwam het terug, de kaart sprong).
+// Alleen een dossiernummer of een agendapunt, nooit vrije tekst (EVENEMENT_SLEUTEL in site/adres-privacy.js;
+// lib/straat-bestanden.mjs, geldigEvenementSleutel).
+const bewaardEvenement = (r) => (typeof r?.evenementSleutel === "string" && EVENEMENT_SLEUTEL.test(r.evenementSleutel) ? r.evenementSleutel : "");
+const metEvenementReden = (e) => /evenement/i.test(parkeerReden(e?.item));
+const bewaardEvenementVan = (e) => [e?.item, ...(Array.isArray(e?.rijen) ? e.rijen : [])].map(bewaardEvenement).find(Boolean) || "";
+const isEvenementParkeerverbod = (e) => e?.source === "publicSpace" && e.item?.kind === "parking" && (metEvenementReden(e) || Boolean(bewaardEvenementVan(e)));
 const dagNr = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(String(d || "")) ? Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 86_400_000 : NaN);
 // De dagen van een kaart: de losse dagen (een maandag per maand), anders van begin tot einde.
 function dagenVanKaart(e) {
@@ -1637,6 +1651,9 @@ function evenementVanParkeerverboden(entries, { vandaag = "", agendaItems = [], 
     if (!isEvenementParkeerverbod(p)) continue;
     const b = beslisParkeerverbod(p, idx, plek);
     if (!b) continue;
+    // Uit de ochtendstand (zonder reden): alleen als deze pagina hetzelfde evenement vindt als de verversing. Nooit een
+    // ander evenement raden met een sleutel die voor een ander evenement bewaard werd.
+    if (!metEvenementReden(p) && b.kandidaat.sleutel !== bewaardEvenementVan(p)) continue;
     const { kandidaat, ev, straten, pd } = b;
     const naam = naamVanEvenement(ev);
     // A-Sign legt geen verband tussen een parkeerverbod en een evenement; het is het enige evenement in die straten op
@@ -1653,20 +1670,58 @@ function evenementVanParkeerverboden(entries, { vandaag = "", agendaItems = [], 
       evenementSleutel: kandidaat.sleutel,
     };
     if (kaart) {
-      const wanneer = kortePeriode(pd.van, dagen ? pd.tot : "", vandaag);
-      const waar = straten.length > 3 ? `${straten.slice(0, 3).join(", ")} en ${straten.length - 3} andere straten` : straten.join(", ");
+      // Wanneer: de dagen en de uren, zoals de werfkaart (parkeerRegel) en de eigen kaart van het parkeerverbod
+      // (nakijkronde van 18 oktober 2026: hier stonden alleen de dagen).
+      const r = p.item || {};
+      const uren = parkeerUren(r);
+      const wanneer = `${kortePeriode(pd.van, dagen ? pd.tot : "", vandaag)}${uren ? `, ${uren}` : ""}${alleenWeekdagen(r) ? ", alleen op weekdagen" : ""}`;
+      // Waar exact: de plaatsen van het parkeerverbod (bundelMaatregelen), niet alleen de straatnamen.
+      const plaatsen = Array.isArray(p.plaatsen) && p.plaatsen.length ? p.plaatsen : [cleanText(p.location)].filter(Boolean);
+      const waar = !plaatsen.length ? (straten.length > 3 ? `${straten.slice(0, 3).join(", ")} en ${straten.length - 3} andere straten` : straten.join(", "))
+        : plaatsen.length > 3 ? `${plaatsen.slice(0, 3).join("; ")} en ${plaatsen.length - 3} andere plaatsen` : plaatsenTekst(plaatsen);
       if (!perEvenement.has(kaart.uid)) perEvenement.set(kaart.uid, []);
-      perEvenement.get(kaart.uid).push(`${waar} ${wanneer}${p.item?.reference ? ` (${cleanText(p.item.reference)})` : ""}`);
+      perEvenement.get(kaart.uid).push({ tekst: `${waar}: ${wanneer}${p.item?.reference ? ` (${cleanText(p.item.reference)})` : ""}`, ochtend: parkeerUitOchtend(p) });
     }
   }
-  // De evenementkaart: het parkeerverbod onder "Wat merk je".
+  // De evenementkaart: het parkeerverbod onder "Wat merk je". Een plaats uit de ochtendstand (de straat en de postcode,
+  // zonder huisnummer): met de zin dat het huisnummer alleen live in A-Sign staat, zoals de werfkaart (parkeerRegel) en de
+  // kaart van het parkeerverbod zelf (nakijkronde van 18 oktober 2026: hier ontbrak ze, en de meter zag het niet).
   return uit.map((e) => {
     const lijst = perEvenement.get(e.uid);
     if (!lijst || !e.uitleg?.kern) return e;
-    const zin = `Ook een parkeerverbod in de laag parkeerverboden van A-Sign: ${lijst.join(" · ")}. Zelfde straat en dagen, en dit is daar het enige evenement.`;
+    const ochtend = lijst.some((x) => x.ochtend) ? ` ${HUISNUMMER_LIVE}` : "";
+    const zin = `Ook een parkeerverbod in de laag parkeerverboden van A-Sign: ${lijst.map((x) => x.tekst).join(" · ")}.${ochtend} Zelfde straat en dagen, en dit is daar het enige evenement.`;
     const kern = e.uitleg.kern.some(([k]) => k === "Wat merk je") ? e.uitleg.kern.map(([k, v]) => (k === "Wat merk je" ? [k, metZin(v, zin)] : [k, v])) : [...e.uitleg.kern, ["Wat merk je", zin]];
     return { ...e, uitleg: { ...e.uitleg, kern } };
   });
+}
+
+// Voor de verversing (scripts/build-straat-snapshots.mjs), zolang ze de reden van A-Sign nog intern kent: elk
+// parkeerverbod met de reden "evenement" dat bij precies één evenement hoort (dezelfde beslissing als hierboven, met de
+// kandidaten van de hele stad: `agendaItems` zoals de site ze toont, `uitleg` kaart-uitleg.json), krijgt de sleutel van
+// dat evenement (`evenementSleutel`): het dossier ("ET2099000001") of het agendapunt ("agenda:<id>"). Zo bewaart een
+// straatbestand bij welk evenement het hoort, nooit waarom (de reden gaat daarna weg: itemVoorStraat), zoals
+// `werfzoneDossier` bij een werfzone. De plekpagina beslist zelf opnieuw en hangt het er alleen aan bij dezelfde uitkomst.
+// Per parkeerverbod alle rijen samen (maatregelSleutel, zoals de kaart in bundelMaatregelen). Een rij zonder verband
+// blijft hetzelfde object.
+export function parkeerverbodenAanEvenement(rijen = [], { agendaItems = [], uitleg = null } = {}) {
+  const lijst = Array.isArray(rijen) ? rijen : [];
+  const groepen = new Map();
+  for (const r of lijst) {
+    if (r?.kind !== "parking" || !r.reference) continue;
+    const sleutel = maatregelSleutel(r);
+    groepen.set(sleutel, [...(groepen.get(sleutel) || []), r]);
+  }
+  const voorEvenement = [...groepen.values()].filter((groep) => groep.every((r) => /evenement/i.test(parkeerReden(r))));
+  if (!voorEvenement.length || !Array.isArray(agendaItems) || !agendaItems.length) return lijst;
+  const idx = stadsKandidaten(agendaItems, uitleg);
+  const sleutelVan = new Map();
+  for (const groep of voorEvenement) {
+    const p = { ...publicSpaceEntry(groep[0]), straten: stratenVan(groep), rijen: groep };
+    const b = beslisParkeerverbod(p, idx, new Map());
+    if (b && EVENEMENT_SLEUTEL.test(String(b.kandidaat.sleutel))) for (const r of groep) sleutelVan.set(r, b.kandidaat.sleutel);
+  }
+  return lijst.map((r) => (sleutelVan.has(r) && r.evenementSleutel !== sleutelVan.get(r) ? { ...r, evenementSleutel: sleutelVan.get(r) } : r));
 }
 
 // Stap 2: ook gepland hier die dag.
@@ -2091,6 +2146,46 @@ export function waarKort(straten = [], gekozen = "") {
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
+// ---- waar een parkeerverbod ligt: elke plaats exact ----
+// Besluit van 18 oktober 2026 (site/adres-privacy.js): WAAR exact, de straat met het huisnummer of het bereik zoals
+// publiekParkeerAdres het schrijft ("Proefstraat 12–14, 2000 Antwerpen"). Eén parkeerverbod (één A-Sign-nummer met
+// dezelfde dagen en uren) ligt vaak op meer plaatsen. Tweede nakijkronde van 18 oktober 2026: de kaart maakte daar
+// "Proefstraat" of "Proefstraat + 2 andere straten" van (waarKort op de straatnamen, zoals bij een werfzone), ook als de
+// eigen rij exact bekend was, en "Toon alle N straten" gaf alleen straatnamen. Nu: de plaatsen van de rijen zelf.
+// De plaatsen van één rij, zoals de rij ze zegt. Een bundelrij uit een straatbestand (de andere straten van hetzelfde
+// parkeerverbod, in één rij) heeft geen plaats: dan elke straat met haar postcode, zoals de ochtendstand een plaats schrijft.
+const parkeerPlaatsenVanRij = (r) => (cleanText(r?.location) ? [cleanText(r.location)]
+  : (r?.streets || []).filter((s) => cleanText(s?.name)).map((s) => (s.postcode ? `${cleanText(s.name)}, ${s.postcode} Antwerpen` : cleanText(s.name))));
+const sorteerPlaatsen = (lijst) => [...new Set(lijst.filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl", { numeric: true }));
+// "A", "A en B", "A; B en C": een plaats heeft zelf een komma ("Proefstraat 12–14, 2000 Antwerpen").
+function plaatsenTekst(plaatsen = []) {
+  const lijst = plaatsen.map(cleanText).filter(Boolean);
+  return lijst.length <= 2 ? lijst.join(" en ") : `${lijst.slice(0, -1).join("; ")} en ${lijst.at(-1)}`;
+}
+// Dicht op de kaart hoogstens zoveel plaatsen; de rest staat in "Toon alle N plaatsen" (allePlaatsenVan).
+const MAX_PLAATSEN_KORT = 3;
+// `groep`: de rijen van het parkeerverbod op deze plek; `dossierRijen`: al zijn rijen (ook buiten de plek). De plaatsen in
+// de gekozen straat eerst, dan de andere van de plek, dan de rest; elk deel op straat en huisnummer. Twee plaatsen staan er
+// allebei; vanaf drie de plaatsen in de gekozen straat (hoogstens drie) en "+ N andere plaatsen".
+function parkeerWaar(groep, dossierRijen, straat = "") {
+  const eigenStraat = foldText(straat);
+  const inStraat = (r) => !eigenStraat || (r?.streets || []).some((s) => foldText(s?.name) === eigenStraat);
+  const eigen = sorteerPlaatsen(groep.filter(inStraat).flatMap(parkeerPlaatsenVanRij));
+  const plaatsen = [...new Set([...eigen, ...sorteerPlaatsen(groep.flatMap(parkeerPlaatsenVanRij)), ...sorteerPlaatsen(dossierRijen.flatMap(parkeerPlaatsenVanRij))])];
+  const toon = plaatsen.length <= 2 ? plaatsen : (eigen.length ? eigen : plaatsen).slice(0, MAX_PLAATSEN_KORT);
+  const rest = plaatsen.length - toon.length;
+  return { plaatsen, getoond: toon.length, kort: rest ? `${plaatsenTekst(toon)} + ${rest} ${rest === 1 ? "andere plaats" : "andere plaatsen"}` : plaatsenTekst(toon) };
+}
+// Voor "Toon alle N plaatsen" (site/place-view.js): alle plaatsen van een parkeerverbod, als "Waar" er niet alle noemt.
+export const allePlaatsenVan = (e) => (e?.item?.kind === "parking" && Array.isArray(e.plaatsen) && e.plaatsen.length > (Number(e.plaatsenGetoond) || e.plaatsen.length) ? [...e.plaatsen] : []);
+// De ochtendstand (een straatbestand) bewaart bij een parkeerverbod de straat en de postcode, nooit het huisnummer
+// (site/adres-privacy.js); vulAan in site/straat-snapshot.js markeert zo'n rij (`plaatsVanDeOchtend`). De kaart zegt dan
+// dat het huisnummer alleen live in A-Sign staat (nakijkronde van 18 oktober 2026: de ochtendstand, en de stand die blijft
+// als A-Sign live niet laadt, zei er niets over). Geen belofte: laadt A-Sign niet, dan komt het ook niet.
+const isOchtendPlaats = (r) => r?.plaatsVanDeOchtend === true;
+// Uit de vaste lijst (site/onbekend-zinnen.js): de vaagheidsmeter telt ze als een plaats die niet exact is (derde
+// nakijkronde van 18 oktober 2026: de zin stond hier los, en de meter zag ze niet).
+const HUISNUMMER_LIVE = onbekendZin("parkeerverbod-huisnummer-live");
 // Ook voor scripts/build-straat-snapshots.mjs: welke rijen samen één kaart worden. Een parkeerverbod: hetzelfde
 // A-Sign-nummer, dezelfde dagen en uren (zonder de reden: die staat niet in een straatbestand, en de kaart noemt ze niet).
 export const maatregelSleutel = (row) => (row?.kind === "sgw" && row.reference ? `sgw|${row.reference}`
@@ -2119,8 +2214,15 @@ function bundelMaatregelen(rows, { alle = rows, straat = "", vandaag = "" } = {}
     entry.straten = straten;
     // De rijen van het dossier (alle plaatsen van het parkeerverbod, alle fasen van de werfzone), voor de buurtkaart.
     entry.rijen = dossierRijen;
-    const plaatsen = [...new Set(groep.map((r) => cleanText(r.location)).filter(Boolean))];
-    entry.location = straten.length > 2 ? waarKort(straten, straat) : plaatsen.length === 1 ? plaatsen[0] : waarKort(straten.length ? straten : plaatsen, straat);
+    if (first.kind === "parking") {
+      // Elke plaats van het parkeerverbod exact (parkeerWaar), nooit alleen de straatnamen.
+      const waar = parkeerWaar(groep, dossierRijen, straat);
+      Object.assign(entry, { location: waar.kort, plaatsen: waar.plaatsen, plaatsenGetoond: waar.getoond });
+      if (!isOchtendPlaats(first) && dossierRijen.some(isOchtendPlaats)) entry.summary = metZin(entry.summary, HUISNUMMER_LIVE);
+    } else {
+      const plaatsen = [...new Set(groep.map((r) => cleanText(r.location)).filter(Boolean))];
+      entry.location = straten.length > 2 ? waarKort(straten, straat) : plaatsen.length === 1 ? plaatsen[0] : waarKort(straten.length ? straten : plaatsen, straat);
+    }
     if (first.kind === "sgw") Object.assign(entry, werfzoneEntry(dossierRijen, { vandaag, straat }));
     out.push(entry);
   }
@@ -2231,19 +2333,36 @@ export function publicSpaceEntry(row) {
   };
   if (row?.kind !== "parking") return base;
   // Parkeerverbod: dat er een is, waar (location) en wanneer (dagen en uren). Nooit waarom: niet in de titel, niet in
-  // een zin en niet in de info (besluit van 18 oktober 2026, site/adres-privacy.js).
+  // een zin en niet in de info (besluit van 18 oktober 2026, site/adres-privacy.js). Uit de ochtendstand (de straat en de
+  // postcode, geen huisnummer) zegt de kaart dat het huisnummer alleen live in A-Sign staat (HUISNUMMER_LIVE).
   const uren = parkeerUren(row);
   const weekdagen = alleenWeekdagen(row);
   const end = dayOf(row?.end);
   const enkeleDag = !end || end === base.start;
+  const wanneer = `Niet parkeren${uren ? (uren === "hele dag" ? ", de hele dag" : ` ${uren}`) : ""}${weekdagen ? ", alleen op weekdagen" : ""}.`;
   return {
     ...base,
     title: PARKEERVERBOD_TITEL,
-    summary: `Niet parkeren${uren ? (uren === "hele dag" ? ", de hele dag" : ` ${uren}`) : ""}${weekdagen ? ", alleen op weekdagen" : ""}.`,
+    summary: isOchtendPlaats(row) ? `${wanneer} ${HUISNUMMER_LIVE}` : wanneer,
     time: enkeleDag && uren && uren !== "hele dag" ? row.startTime : "",
     timeText: uren ? `${uren}${weekdagen ? ", alleen op weekdagen" : ""}` : weekdagen ? "alleen op weekdagen" : "",
     info: "",
   };
+}
+// Wat een lijst buiten de plekpagina over een parkeerverbod zegt ("Alles wat er in een straat speelt" in
+// site/street-overview.js, de vooruitblik in site/week-pulse.js): WAAR exact en WANNEER, zoals de kaart hierboven, nooit
+// waarom. Derde nakijkronde van 18 oktober 2026: elke lijst schreef dat zelf uit de ruwe velden, en "Alles per straat"
+// toonde dan geen uren en bij "alleen op weekdagen" ook geen plaats (`detail || location`); de vooruitblik had geen uren.
+// Nu zeggen ze het hiermee (de districtslijst in site/public-space-live.js toont de plaats en de uren apart, met
+// parkeerUren). `waar`: de plaats van de rij (live met het huisnummer of bereik van
+// publiekParkeerAdres); een rij zonder plaats (een bundelrij uit een straatbestand, de andere straten van hetzelfde
+// parkeerverbod) de straat `straat` met haar postcode, zoals de ochtendstand een plaats schrijft, of anders elke straat zo.
+// `periode`: de dagen ("12–13 mrt"); `wanneer`: de zin van de kaart (de uren, alleen op weekdagen, en uit de ochtendstand
+// dat het huisnummer alleen live in A-Sign staat).
+export function parkeerverbodInLijst(row, { straat = null, vandaag = "" } = {}) {
+  const kaart = publicSpaceEntry(row);
+  const waar = cleanText(row?.location) || (straat?.name ? parkeerPlaatsenVanRij({ streets: [straat] })[0] : plaatsenTekst(parkeerPlaatsenVanRij(row)));
+  return { waar: waar || "", periode: kortePeriode(kaart.start, kaart.end, vandaag), wanneer: kaart.summary || "" };
 }
 // Een terraszone uit A-Sign: "binnen kern", "buiten kern" of "uitstalling". Wat "kern" precies
 // betekent, publiceert de laag niet; we tonen het woord van de stad, maar niet als titel.

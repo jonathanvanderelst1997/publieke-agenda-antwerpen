@@ -38,12 +38,12 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import {
   BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
-  STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, geldigWerfzoneDossier, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
+  PARKEERVERBOD_VERBAND, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
 } from "../lib/straat-bestanden.mjs";
 import { loadExpandedAgendaItems } from "./agenda-source.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
 import { collectPermits } from "../site/permits-live-core.js";
-import { dayOf, maatregelSleutel, parkeerverbodenAanWerfzone } from "../site/place-core.js";
+import { dayOf, maatregelSleutel, parkeerverbodenAanEvenement, parkeerverbodenAanWerfzone } from "../site/place-core.js";
 import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { applyWorkStreetResolution, buildStreetIndex, resolveAddressStreets, straatasNaam } from "../site/street-core.js";
@@ -53,6 +53,10 @@ import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/st
 import { parkeerverbodZonderReden } from "../site/adres-privacy.js";
 import { heeftToevoeging, zonderToevoegingInData } from "../site/witte-lijst.js";
 import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
+// De soort en de categorie van een agendapunt zoals de site ze geeft (site/agenda.js): voor het evenement van een
+// parkeerverbod (agendaZoalsDeSite). Deze twee bestanden zetten hun functies op globalThis.
+import "../site/event-types.js";
+import "../site/agenda-uitgaan.js";
 
 export {
   BRONNEN_BESTAND, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA,
@@ -95,8 +99,9 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
     if (NOOIT.has(sleutel) || waarde === undefined || sleutel === "id") continue;
     zonder[sleutel] = waarde;
   }
-  // Het dossier van de werfzone van een parkeerverbod alleen als dossiernummer (geldigWerfzoneDossier), anders weg.
-  if ("werfzoneDossier" in zonder && !geldigWerfzoneDossier(zonder)) delete zonder.werfzoneDossier;
+  // Het verband van een parkeerverbod (PARKEERVERBOD_VERBAND): het dossier van zijn werfzone alleen als dossiernummer
+  // (geldigWerfzoneDossier), de sleutel van zijn evenement alleen als sleutel (geldigEvenementSleutel); anders weg.
+  for (const [veld, { geldig }] of Object.entries(PARKEERVERBOD_VERBAND)) if (veld in zonder && !geldig(zonder)) delete zonder[veld];
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
@@ -228,11 +233,29 @@ export async function haalTerrassen({ fetch: fetchImpl, sleep, districtGeometry,
   }
 }
 
+// De agenda zoals de site ze aan de plekpagina geeft (window.PUBLIC_AGENDA_PUBLIC_ITEMS in site/agenda.js): wat vandaag of
+// later nog loopt, met de soort (classifyEventType), de wekelijkse reeksen en de categorie. Daarmee beslist de verversing
+// bij welk evenement een parkeerverbod hoort (parkeerverbodenAanEvenement), zoals de plekpagina dat doet. `items`: de
+// uitgevouwen agenda (loadExpandedAgendaItems).
+export function agendaZoalsDeSite(items = [], vandaag = "") {
+  const U = globalThis.PublicAgendaUitgaan, E = globalThis.PublicAgendaEventTypes;
+  const lopend = (Array.isArray(items) ? items : []).filter((item) => isObject(item) && (!vandaag || String(item.endDate || item.date || "").slice(0, 10) >= vandaag));
+  const metSoort = lopend.map((item) => ({ ...item, eventType: E?.classifyEventType?.(item) || "other" }));
+  return (typeof U?.markeerWekelijkseReeksen === "function" ? U.markeerWekelijkseReeksen(metSoort) : metSoort).map((item) => ({ ...item, category: U ? U.categoryOf(item) : "other" }));
+}
+
+// Uit de repo (site/agenda.js en site/agenda-feed.js). Lukt dat niet, dan geen agenda: dan hangt de verversing geen
+// parkeerverbod aan een evenement (nooit gokken), en de rest gaat gewoon door.
+function agendaVanDeSite(rootDir, vandaag) {
+  try { return agendaZoalsDeSite(loadExpandedAgendaItems(rootDir), vandaag); } catch { return []; }
+}
+
 // Tijdens scripts/refresh-live-history.mjs: de items van alle lagen zoals de browser ze maakt, met de
 // straten zoals de browser ze vindt (site/street-core.js), privacyveilig in .cache/straat-bronnen.json.
 // Faalt hier iets, dan gaat de verversing gewoon door: de straatbestanden houden dan hun vorige stand.
 // `fetch` null: geen vergunningen en terrassen ophalen (die lagen houden dan hun vorige stand).
-export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {} }) {
+// `siteAgenda`: de agenda zoals de site ze toont (agendaZoalsDeSite); zonder: uit site/agenda.js en site/agenda-feed.js.
+export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {}, siteAgenda = undefined }) {
   const bestand = path.join(rootDir, BRONNEN_BESTAND);
   const laag = (result, items) => (result?.ok ? { ok: true, items } : { ok: false, items: [], errorCode: result?.errorCode || "niet_geladen" });
   try {
@@ -240,11 +263,13 @@ export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, 
     const district = publicSpaceResult?.district || null;
     const works = worksResult?.ok && index ? applyWorkStreetResolution(worksResult.items, index) : [];
     const raw = publicSpaceResult?.ok ? publicSpaceResult.features : null;
-    // Een parkeerverbod voor een werf krijgt hier het dossiernummer van zijn werfzone (werfzoneDossier), met de reden van
-    // A-Sign die de verversing alleen intern kent: schoon() (itemVoorStraat) haalt de reden daarna weg, en zo bundelt de
-    // ochtendstand een parkeerverbod nog altijd bij zijn werfzone (site/place-core.js, parkeerverbodVoorWerf).
+    // Een parkeerverbod voor een werf krijgt hier het dossiernummer van zijn werfzone (werfzoneDossier), en een parkeerverbod
+    // voor een evenement de sleutel van dat evenement (evenementSleutel), met de reden van A-Sign die de verversing alleen
+    // intern kent: schoon() (itemVoorStraat) haalt de reden daarna weg, en zo hangt de ochtendstand een parkeerverbod nog
+    // altijd aan zijn werfzone of evenement (site/place-core.js, parkeerverbodVoorWerf en evenementVanParkeerverboden).
     const publicSpace = raw && index && district
-      ? parkeerverbodenAanWerfzone(collectPublicSpace({ parkingFeatures: raw.parking || [], iodFeatures: raw.iod || [], sgwFeatures: raw.sgw || [], districtGeometry: district, streetIndex: index, postcodes: DISTRICT_POSTCODES }))
+      ? parkeerverbodenAanEvenement(parkeerverbodenAanWerfzone(collectPublicSpace({ parkingFeatures: raw.parking || [], iodFeatures: raw.iod || [], sgwFeatures: raw.sgw || [], districtGeometry: district, streetIndex: index, postcodes: DISTRICT_POSTCODES })),
+        { agendaItems: siteAgenda === undefined ? agendaVanDeSite(rootDir, brusselsDate(new Date(observedAt))) : siteAgenda, uitleg: leesJson(path.join(rootDir, "site", "sources", "kaart-uitleg.json")) })
       : [];
     const ophalen = Boolean(index && district && typeof fetchImpl === "function");
     const zonder = { ok: false, items: [], errorCode: typeof fetchImpl !== "function" ? "niet_opgehaald" : index ? "district_boundary_missing" : "street_axis_missing" };
@@ -382,11 +407,12 @@ export const SAMENVATTING_WEG = Object.freeze(["kindLabel", "title", "location",
 // uren: bundelMaatregelen in site/place-core.js) en toont dan "Werfzone met omleiding", de hele periode, de
 // fasen en "+ 4 andere straten". Een straatbestand bevat alleen de rijen van de straat zelf. Daarom komen de
 // andere rijen van zo'n bundel er kort bij (`bundel`: zonder vorm, adres of omschrijving): een fase van een
-// werfzone per rij, een parkeerverbod als één rij met de andere straten (met het dossier van zijn werfzone, als het er
-// een heeft: de kaart is één parkeerverbod, en elke rij ervan hoort bij die werfzone).
-const BUNDEL_VELDEN = Object.freeze({
-  sgw: ["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"],
-  parking: ["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets", "werfzoneDossier"],
+// werfzone per rij, een parkeerverbod als één rij met de andere straten, met zijn verband (PARKEERVERBOD_VERBAND: het
+// dossier van zijn werfzone en de sleutel van zijn evenement, als het er een heeft): de kaart is één parkeerverbod, en elke
+// rij ervan hoort erbij. parkeerverbodVoorWerf (site/place-core.js) eist het dossier van de werfzone op elke rij.
+export const BUNDEL_VELDEN = Object.freeze({
+  sgw: Object.freeze(["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"]),
+  parking: Object.freeze(["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets", ...Object.keys(PARKEERVERBOD_VERBAND)]),
 });
 const refSleutel = (ref) => [ref?.id || "", clean(ref?.name), ref?.postcode || ""].join("|");
 const uniekeRefs = (refs) => [...new Map(refs.filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
@@ -645,7 +671,9 @@ export function agendaPerStraat(items, { byName, locaties = {}, vandaag }) {
 // `herschrijf`: niets nieuws ophalen of lezen, alleen de bestaande straatbestanden opnieuw schrijven met de regels van nu
 // (na een wijziging van de privacyregels, zoals scripts/opkuis-straatnamen.mjs); elke laag houdt haar vorige stand, en de
 // index houdt het tijdstip en de stand van de laatste verversing.
-export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaItems = undefined, history = undefined, clock = () => new Date(), log = () => {}, herschrijf = false } = {}) {
+// `siteAgenda`: de agenda zoals de site ze toont (agendaZoalsDeSite), alleen voor het evenement van een parkeerverbod uit een
+// vorig straatbestand met de reden; zonder: uit `agendaItems`.
+export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaItems = undefined, siteAgenda = undefined, history = undefined, clock = () => new Date(), log = () => {}, herschrijf = false } = {}) {
   const map = path.join(rootDir, STRAAT_MAP);
   const indexBestand = path.join(rootDir, STRAAT_INDEX);
   const vorigeIndex = leesJson(indexBestand);
@@ -684,13 +712,19 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
   const straten = leesStraten(rootDir);
   const locaties = leesJson(path.join(rootDir, "site", "geo", "locaties.json"))?.entries || {};
   const uitleg = leesJson(path.join(rootDir, "site", "sources", "kaart-uitleg.json"));
-  let agenda = [];
+  let agenda = [], uitgevouwen = [];
   try {
-    agenda = agendaPerStraat(agendaItems === undefined ? loadExpandedAgendaItems(rootDir) : agendaItems, { byName: straten.byName, locaties, vandaag });
+    uitgevouwen = agendaItems === undefined ? loadExpandedAgendaItems(rootDir) : agendaItems;
+    agenda = agendaPerStraat(uitgevouwen, { byName: straten.byName, locaties, vandaag });
     stand.evenementen = { status: "ok", sinds: ververst };
   } catch {
     stand.evenementen = { status: "error", errorCode: "agenda_niet_gelezen" };
   }
+  // Voor een parkeerverbod uit een vorig straatbestand dat nog de reden draagt (van vóór 18 oktober 2026): de agenda zoals
+  // de site ze toont, één keer, en alleen als er zo een is.
+  let koppelAgenda = null;
+  const agendaVoorKoppeling = () => (koppelAgenda ??= siteAgenda === undefined ? agendaZoalsDeSite(uitgevouwen, vandaag) : siteAgenda);
+  const metReden = (item) => item?.kind === "parking" && (typeof item.reason === "string" || (typeof item.title === "string" && !/^(?:Parkeerverbod|Tijdelijk parkeerverbod)$/.test(item.title)));
   lagen.evenementen = agenda;
   const perStraat = verdeelOverStraten(lagen, { extra: (item) => extraStratenVan(item, { uitleg, byName: straten.byName }), dossier: (ref) => dossierStraten(ref, { uitleg, byName: straten.byName }) });
   const bewaard = (ref) => Boolean(uitleg?.evenementen?.[ref]);
@@ -708,13 +742,16 @@ export function schrijfStraatSnapshots({ rootDir, bronnen = undefined, agendaIte
     // De vorige stand zonder links naar een ruw GIPOD-record (uit een straatbestand van vóór 17 oktober 2026) en zonder
     // de reden van een parkeerverbod (uit een straatbestand van vóór 18 oktober 2026: titel "Parkeerverbod", geen
     // `reason`). Wat die reden intern deed, blijft: een parkeerverbod voor een werf krijgt eerst het dossier van zijn
-    // werfzone (parkeerverbodenAanWerfzone, met de rijen van dat bestand, zoals de plekpagina ze toen bundelde). Een item
+    // werfzone (parkeerverbodenAanWerfzone, met de rijen van dat bestand, zoals de plekpagina ze toen bundelde), een
+    // parkeerverbod voor een evenement de sleutel van zijn evenement (parkeerverbodenAanEvenement). Een item
     // uit een ouder bestand dat nog een homoniemtoevoeging draagt, gaat opnieuw door itemVoorStraat: in "PROEFSTRAAT_AN 1"
     // is die 1 na het weghalen van de toevoeging een huisnummer, en dat valt dan weg (of het item, als er nog iets privé in
     // staat), zoals bij een nieuw item.
     for (const naam of houdVorige) {
       const vorige = straatItems(vorigDoc, naam);
-      const items = (naam === "publiekeRuimte" ? parkeerverbodenAanWerfzone(vorige) : vorige).filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map(zonderParkeerReden);
+      const metVerband = naam !== "publiekeRuimte" ? vorige
+        : parkeerverbodenAanEvenement(parkeerverbodenAanWerfzone(vorige), { agendaItems: vorige.some(metReden) ? agendaVoorKoppeling() : [], uitleg });
+      const items = metVerband.filter((item) => naam === "vergunningen" || naam === "terrassen" || loopt(item)).map(zonderParkeerReden);
       delen[naam] = new Map(items.map((item) => (metToevoeging(item) ? itemVoorStraat(item, { laag: naam }) : zonderRuweGipodLinks(item))).filter(Boolean).map((item) => [item.id, item]));
     }
     const doc = straatDocument(id, delen, { namen: straten.perId.get(id), ververst, bewaard, extraKaders: houdVorige.size && Array.isArray(vorigDoc?.kader) ? [vorigDoc.kader] : [] });

@@ -8,7 +8,9 @@
 //    status, maar niet het adres (het huisnummer of bereik van publiekParkeerAdres, live).
 // 3. Het nieuwe veld `werfzoneDossier` is publiek (een straatbestand): alleen een dossiernummer van een werfzone, alleen bij
 //    een parkeerverbod. De bouwer laat al het andere weg, en validate-data meldt het zonder de waarde te noemen.
-// Verzonnen straten, nummers en dossiers; echte straat-id's alleen uit site/geo/straten.json (Kammenstraat).
+// Verzonnen straten, nummers en dossiers; echte straat-id's alleen uit site/geo/straten.json (Kammenstraat). Een echte
+// straat krijgt alleen huisnummer 999 ("Kammenstraat 999-999", zoals A-Sign één nummer schrijft), dat daar niet bestaat:
+// de repo is publiek, en een bestaand adres naast een verhuis hoort nergens (tests/historiek-privacy.test.mjs).
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import os from "node:os";
@@ -19,10 +21,10 @@ import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { bundelLijst, parkeerverbodVoorWerf, publicSpaceEntries, samenWerven, werkEntries } from "../site/place-core.js";
 import { duidelijkeKaart } from "../site/permit-clarity.js";
 import { lagenUitStand } from "../site/straat-snapshot.js";
-import { itemVoorStraat, schrijfStraatSnapshots, verzamelStraatBronnen } from "../scripts/build-straat-snapshots.mjs";
+import { BUNDEL_VELDEN, bundelAanvulling, bundelRijen, itemVoorStraat, schrijfStraatSnapshots, verzamelStraatBronnen } from "../scripts/build-straat-snapshots.mjs";
 import { fetchPublicSpaceHistory } from "../scripts/refresh-live-history.mjs";
-import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
-import { KAM, maakWerkmap } from "./helpers/straat-fixture.mjs";
+import { PARKEERVERBOD_VERBAND, straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
+import { KAM, PET, maakWerkmap } from "./helpers/straat-fixture.mjs";
 
 const VANDAAG = "2099-03-01";
 const PROEF = { id: "Proefstraat", name: "Proefstraat", postcode: "2000" };
@@ -50,17 +52,20 @@ test("werfkaart: het parkeerverbod staat er met zijn plaats, exact (huisnummer o
   assert.match(regel, /^Proefstraat 12–14, 2000 Antwerpen: 20 feb – 20 mrt, van 7\.00 tot 17\.00 uur \(2099-000901, /, regel);
   assert.doesNotMatch(zichtbaar(werfzone), VERRAAD);
 
-  // Een werfkaart met een werk in GIPOD (werfKaart, bewaard per werk): eerst de ochtendstand (straat en postcode), dan live
-  // met het bereik. Zelfde parkeerverbod, zelfde dagen: de bewaarde kaart mag niet de plaats van de ochtend houden.
+  // Een werfkaart met een werk in GIPOD (werfKaart, bewaard per werk): eerst de ochtendstand (straat en postcode, met de
+  // markering van site/straat-snapshot.js), dan live met het bereik. Zelfde parkeerverbod, zelfde dagen: de bewaarde kaart
+  // mag niet de plaats van de ochtend houden. De ochtend zegt dat het huisnummer alleen live komt (tweede nakijkronde van 18
+  // oktober 2026: deze toets eiste vroeger alleen "Proefstraat, 2000 Antwerpen", zonder die zin).
   const uitleg = { werken: { 901: { dossier: "GW2099-000901", soort: "", soortBron: "", omschrijving: "", opdrachtgever: "Proefbeheerder", straten: ["Proefstraat"], gevolgen: [], huisnummers: "", huisnummerBron: "", bijgewerkt: "", fasen: [] } } };
   const werk = { gipodId: 901, title: "Werk in openbaar domein", owner: "Proefbeheerder", ownerGroup: "Proefbeheerder", status: "In uitvoering", start: "2099-02-20T06:00:00Z", end: "2099-03-20T16:00:00Z", workTypes: [], occupancyTypes: ["Andere"], point: [4.43, 51.23], streets: [PROEF] };
   const bouw = (verbod) => samenWerven([...werkEntries([werk], { vandaag: VANDAAG, uitleg }), ...publicSpaceEntries([zone, verbod], { vandaag: VANDAAG, alle: [zone, verbod], uitleg, straat: PROEF.name })], { uitleg, straat: PROEF.name, vandaag: VANDAAG, alle: [zone, verbod] }).find((e) => e.source === "works");
-  const ochtend = bouw({ ...live, location: "Proefstraat, 2000 Antwerpen" });
-  assert.match(JSON.stringify(ochtend.uitleg.regels), /"Parkeerverbod","Proefstraat, 2000 Antwerpen: 20 feb – 20 mrt/);
+  const ochtend = bouw({ ...live, location: "Proefstraat, 2000 Antwerpen", plaatsVanDeOchtend: true });
+  assert.match(JSON.stringify(ochtend.uitleg.regels), /"Parkeerverbod","Proefstraat, 2000 Antwerpen: 20 feb – 20 mrt[^"]*\. Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn \(nog\) niet geladen\. Zelfde straat/);
   const nu = bouw(live);
   assert.deepEqual(nu.werf.parkeerverboden, ["2099-000901"]);
   const tekst = zichtbaar(nu);
   assert.ok(tekst.includes("Proefstraat 12–14, 2000 Antwerpen: 20 feb – 20 mrt"), tekst);
+  assert.ok(!tekst.includes("Het huisnummer staat alleen in de live gegevens"), "live: geen zin over de ochtend");
   assert.doesNotMatch(tekst, VERRAAD);
 });
 
@@ -106,20 +111,20 @@ const werkmap = (t) => {
   maakWerkmap(root, { uitleg: { schemaVersion: 1, werken: {}, evenementen: {} } });
   return root;
 };
-// Wat de plekpagina van de Kammenstraat toont uit alleen het straatbestand (live A-Sign laadt niet).
-function ochtendKaarten(root, vandaag) {
-  const doc = JSON.parse(fs.readFileSync(path.join(root, "site", "straat", `${KAM.id}.json`), "utf8"));
+// Wat de plekpagina van een straat (de Kammenstraat) toont uit alleen het straatbestand (live A-Sign laadt niet).
+function ochtendKaarten(root, vandaag, straat = KAM) {
+  const doc = JSON.parse(fs.readFileSync(path.join(root, "site", "straat", `${straat.id}.json`), "utf8"));
   const rijen = lagenUitStand({ doc }, { vandaag }).publicSpace;
-  const hier = rijen.filter((r) => (r.streets || []).some((s) => s.id === KAM.id));
-  const kaarten = samenWerven(publicSpaceEntries(hier, { vandaag, alle: rijen, straat: KAM.name }), { straat: KAM.name, vandaag, alle: rijen });
-  return { doc, kaarten, lijst: bundelLijst(kaarten, { straat: KAM.name, vandaag }) };
+  const hier = rijen.filter((r) => (r.streets || []).some((s) => s.id === straat.id));
+  const kaarten = samenWerven(publicSpaceEntries(hier, { vandaag, alle: rijen, straat: straat.name }), { straat: straat.name, vandaag, alle: rijen });
+  return { doc, kaarten, lijst: bundelLijst(kaarten, { straat: straat.name, vandaag }) };
 }
 
 test("ochtendstand na een verversing: het parkeerverbod voor een werf hangt aan zijn werfzone, zonder reden in het bestand", async (t) => {
   const [x1, y1, x2, y2] = [4.40025, 51.21571, 4.40208, 51.21878]; // langs de Kammenstraat
   const lijn = { paths: [[[x1, y1], [x2, y2]]] };
   const vlak = { rings: [[[x1 - 0.0002, y1 - 0.0002], [x2 + 0.0002, y1 - 0.0002], [x2 + 0.0002, y2 + 0.0002], [x1 - 0.0002, y2 + 0.0002], [x1 - 0.0002, y1 - 0.0002]]] };
-  const verbod = (oid, dossier, reden) => ({ attributes: { ...asignVerbod({ Dossiernummer: dossier, Adres: "Kammenstraat 3-5 2000 Antwerpen", Reden: reden, Startdatum: ms("2099-03-08"), Einddatum: ms("2099-03-20") }).attributes, OBJECTID: oid }, geometry: lijn });
+  const verbod = (oid, dossier, reden) => ({ attributes: { ...asignVerbod({ Dossiernummer: dossier, Adres: "Kammenstraat 999-999 2000 Antwerpen", Reden: reden, Startdatum: ms("2099-03-08"), Einddatum: ms("2099-03-20") }).attributes, OBJECTID: oid }, geometry: lijn });
   const zones = [{ attributes: { OBJECTID: 11, reference_id: "GW2099-000881", phase_id: "P1", status: "vergund", StartDate: ms("2099-03-08"), EndDate: ms("2099-03-20") }, geometry: vlak }];
   const verboden = [verbod(1, "2099-000881", WERF), verbod(2, "2099-000882", "Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen")];
   const nep = nepAsign({ verboden, zones });
@@ -145,6 +150,63 @@ test("ochtendstand na een verversing: het parkeerverbod voor een werf hangt aan 
   assert.ok(lijst.losse.includes(werf));
   assert.equal(lijst.bundels.length, 0);
   assert.doesNotMatch(zichtbaar(werf), VERRAAD);
+});
+
+// Derde nakijkronde van 18 oktober 2026: een parkeerverbod in meer straten staat in elk straatbestand als eigen rij plus
+// een bundelrij met de andere straten (bundelAanvulling in scripts/build-straat-snapshots.mjs). parkeerverbodVoorWerf eist
+// het dossier van de werfzone op elke rij van het parkeerverbod. Viel `werfzoneDossier` weg uit de bundelrij, dan verloor
+// de ochtendstand bij de volgende verversing ongeveer de helft van de koppelingen (437 -> 234), en geen toets merkte het:
+// de toets hierboven heeft een parkeerverbod in één straat, die hieronder loopt via de vorige stand.
+test("ochtendstand na een verversing: een parkeerverbod voor een werf in twee straten hangt in elke straat aan zijn werfzone, ook via de bundelrij", async (t) => {
+  const kam = [4.40025, 51.21571, 4.40208, 51.21878]; // langs de Kammenstraat
+  const pet = [4.40325, 51.21571, 4.40508, 51.21878]; // een verzonnen as voor de Peterseliestraat, ernaast
+  const lijn = ([x1, y1, x2, y2]) => ({ paths: [[[x1, y1], [x2, y2]]] });
+  const [x1, y1, x2, y2] = [kam[0], kam[1], pet[2], pet[3]];
+  const vlak = { rings: [[[x1 - 0.0002, y1 - 0.0002], [x2 + 0.0002, y1 - 0.0002], [x2 + 0.0002, y2 + 0.0002], [x1 - 0.0002, y2 + 0.0002], [x1 - 0.0002, y1 - 0.0002]]] };
+  // Eén parkeerverbod (één A-Sign-nummer, dezelfde dagen en uren) op twee plaatsen, in elk van beide straten één.
+  const verbod = (oid, nr, adres, as, extra = {}) => ({ attributes: { ...asignVerbod({ Dossiernummer: "2099-000881", Locatienummer: String(nr), Adres: adres, Startdatum: ms("2099-03-08"), Einddatum: ms("2099-03-20"), ...extra }).attributes, OBJECTID: oid }, geometry: lijn(as) });
+  const verboden = [verbod(1, 1, "Kammenstraat 999-999 2000 Antwerpen", kam), verbod(2, 2, "Peterseliestraat 999-999 2000 Antwerpen", pet),
+    // Een ander parkeerverbod op dezelfde plaatsen en dagen, maar niet voor de werf: dat hangt nergens aan.
+    verbod(3, 1, "Kammenstraat 999-999 2000 Antwerpen", kam, { Dossiernummer: "2099-000882", Reden: "Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen" }),
+    verbod(4, 2, "Peterseliestraat 999-999 2000 Antwerpen", pet, { Dossiernummer: "2099-000882", Reden: "Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen" })];
+  const zones = [{ attributes: { OBJECTID: 11, reference_id: "GW2099-000881", phase_id: "P1", status: "vergund", StartDate: ms("2099-03-08"), EndDate: ms("2099-03-20") }, geometry: vlak }];
+  const resultaat = await fetchPublicSpaceHistory({ fetch: nepAsign({ verboden, zones }), clock: () => new Date("2099-03-10T04:00:00Z"), streets: null });
+  assert.equal(resultaat.ok, true, JSON.stringify(resultaat));
+  const root = werkmap(t);
+  const as = (s, [a, b, c, d]) => ({ type: "Feature", properties: { LSTRNMID: Number(s.id), LSTRNM: s.name, RSTRNMID: Number(s.id), RSTRNM: s.name, postcode: 2000, DISTRICT: "Antwerpen" }, geometry: { type: "LineString", coordinates: [[a, b], [c, d]] } });
+  const bronnen = await verzamelStraatBronnen({ rootDir: root, observedAt: "2099-03-10T04:22:00.000Z", worksResult: { ok: true, items: [] }, publicSpaceResult: resultaat, streetFeatures: [as(KAM, kam), as(PET, pet)] });
+  schrijfStraatSnapshots({ rootDir: root, bronnen, agendaItems: [], history: null, clock: () => new Date("2099-03-10T09:00:00.000Z") });
+  assert.deepEqual(straatBestandenProblemen(root), []);
+  for (const [straat, ander] of [[KAM, PET], [PET, KAM]]) {
+    const { doc, kaarten, lijst } = ochtendKaarten(root, "2099-03-10", straat);
+    assert.doesNotMatch(JSON.stringify(doc), /"reason"|werfsignal|\bikv\b|verhuis/i, straat.name);
+    // In elk straatbestand: de eigen rij en de bundelrij (de andere straat), elk met het dossier van de werfzone.
+    const ref = (i) => doc.straten[i]?.[1];
+    assert.deepEqual(doc.publiekeRuimte.filter((i) => i.kind === "parking").map((i) => [i.reference, i.bundel === true, (i.streets || []).map(ref).join(","), i.werfzoneDossier ?? null]).sort(),
+      [["2099-000881", false, straat.name, "GW2099-000881"], ["2099-000881", true, ander.name, "GW2099-000881"], ["2099-000882", false, straat.name, null], ["2099-000882", true, ander.name, null]], straat.name);
+    // De plekpagina uit dat bestand: één werfkaart met het parkeerverbod voor de werf, met zijn twee plaatsen; dat voor
+    // de verhuis blijft een losse kaart.
+    const werf = kaarten.find((e) => e.item?.kind === "sgw");
+    assert.deepEqual(werf?.werf?.parkeerverboden, ["2099-000881"], straat.name);
+    assert.deepEqual(kaarten.filter((e) => e.item?.kind === "parking").map((e) => e.item.reference), ["2099-000882"], straat.name);
+    assert.ok(((werf.regels || []).find(([k]) => k === "Parkeerverbod")?.[1] || "").startsWith(`${straat.name}, 2000 Antwerpen en ${ander.name}, 2000 Antwerpen: 8–20 mrt, van 7.00 tot 17.00 uur (2099-000881, `), straat.name);
+    assert.ok(lijst.losse.includes(werf), straat.name);
+    assert.doesNotMatch(zichtbaar(werf), VERRAAD);
+  }
+});
+
+test("een bundelrij draagt elk verband van haar parkeerverbod mee (PARKEERVERBOD_VERBAND), en niets anders dan de vaste velden", () => {
+  assert.deepEqual(Object.keys(PARKEERVERBOD_VERBAND).sort(), ["evenementSleutel", "werfzoneDossier"]);
+  const rij = (nr, straat) => ({ id: `parking:2099-000881|${nr}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: `${straat.name}, 2000 Antwerpen`, reference: "2099-000881", status: "Goedgekeurd", detail: "", postcode: "2000", start: "2099-03-08T00:00:00.000Z", end: "2099-03-20T00:00:00.000Z", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, streets: [straat], werfzoneDossier: "GW2099-000881", evenementSleutel: "ET2099000041" });
+  const eigen = rij(1, KAM), ander = rij(2, PET);
+  const [bundel] = bundelAanvulling([eigen], bundelRijen([eigen, ander]));
+  assert.equal(bundel.id, "parking:2099-000881|2|bundel");
+  for (const veld of Object.keys(PARKEERVERBOD_VERBAND)) {
+    assert.ok(BUNDEL_VELDEN.parking.includes(veld), veld);
+    assert.equal(bundel[veld], ander[veld], veld);
+  }
+  // Geen plaats, geen omschrijving en geen status in een bundelrij: die staan in het bestand van haar eigen straat.
+  assert.deepEqual(Object.keys(bundel).sort(), [...BUNDEL_VELDEN.parking, "bundel"].sort());
 });
 
 test("ochtendstand uit een straatbestand van vóór 18 oktober (de reden als titel): herschreven zonder reden, met het verband", (t) => {

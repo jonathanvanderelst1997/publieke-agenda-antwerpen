@@ -179,3 +179,17 @@ test("ratel: ook de uitleg buiten district Antwerpen telt, en een meting die weg
   // Een bestand zonder "buiten" (van voor die meting): niets te vergelijken.
   assert.deepEqual(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(30) }, { agenda: leeg, eventpaginas: leeg, straten: leeg }), []);
 });
+
+// Vierde nakijkronde van 18 oktober 2026: de reden van losse-vaag:publicSpace:sgw sprak van "vijf werfzones" die hun
+// parkeerverbod terugkrijgen; het zijn er vier, de vijfde staat los omdat haar bundel van twee uiteenvalt. Elke kaart die
+// erbij komt, staat nu met haar dossier in de reden: precies zoveel dossiers als de stijging (naar - van), en de reden
+// noemt niet meer werfzones met een parkeerverbod dan er zijn.
+test("aanvaard: de reden van de werfkaarten noemt elke kaart die erbij komt, met haar dossier", () => {
+  const doc = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", VAAGHEID_FILE), "utf8"));
+  const a = (doc.aanvaard || []).find((x) => x.waar === "straten" && x.id === "losse-vaag:publicSpace:sgw");
+  if (!a) return;
+  const dossiers = new Set(a.reden.match(/\bGW\d{4}-\d{6}\b/g) || []);
+  assert.equal(dossiers.size, a.naar - a.van, `${a.naar - a.van} kaarten erbij, ${dossiers.size} dossiers in de reden`);
+  assert.doesNotMatch(a.reden, /\b(?:Vijf|vijf) werfzones\b[^.]*parkeerverbod terug/);
+  assert.match(a.reden, /\bVier werfzones\b[^.]*parkeerverbod terug/);
+});

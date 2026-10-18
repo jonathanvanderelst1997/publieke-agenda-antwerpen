@@ -247,6 +247,10 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
 
 // Wat een bewoner ziet: de tegels, elke sectie met haar dichte kaartjes (soort, titel, wanneer, badge,
 // melding) en elke open kaart van de publieke ruimte (evenement, werfzone, parkeerverbod).
+// De ochtendstand bewaart bij een parkeerverbod de straat en de postcode, nooit het huisnummer: zolang A-Sign live niet laadt,
+// zegt de kaart dat (tweede nakijkronde van 18 oktober 2026, HUISNUMMER_LIVE in site/place-core.js). Verder dezelfde kaartjes.
+const HUISNUMMER_LIVE = " Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn (nog) niet geladen.";
+const zonderOchtendZin = (gezien) => JSON.parse(JSON.stringify(gezien).replaceAll(HUISNUMMER_LIVE, ""));
 async function watJeZiet(page) {
   const lijst = await page.evaluate(() => ({
     tegels: document.querySelector(".pv-place .pv-stats")?.innerText.trim() || "",
@@ -463,7 +467,9 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     // fase, en de hele werfzone in één regel (vaagheidsplan 12-10-2026, stap 4).
     assert.match(alles, /Hele werfzone/i);
     assert.match(alles, /8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart; andere fasen: 1–10 apr\)/);
-    assert.match(alles, /Kammenstraat \+ 2 andere straten/);
+    // Waar exact: de plaatsen van het parkeerverbod (A-Sign geeft hier geen huisnummer), niet alleen de straatnamen.
+    assert.match(alles, /Kammenstraat, 2000 Antwerpen \+ 2 andere plaatsen/);
+    assert.match(alles, /Toon alle 3 plaatsen/);
     // 2. De stand van de ochtend: de echte bouwer, op de items die de browser hierboven zelf maakte.
     const lagen = await basis.page.evaluate(() => { const l = window.PUBLIC_AGENDA_LIVE_STREETS || {}; return { works: l.works, publicSpace: l.publicSpace, permits: l.permits }; });
     assert.deepEqual(basis.errors, []);
@@ -480,7 +486,9 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
       const snel = await openStraat(baseUrl, { stand, bronnen, inzage: INZAGE, uitleg: UITLEG, evenement });
       await snel.page.waitForFunction((re) => new RegExp(re).test(document.querySelector(".pv-place .pv-stand")?.textContent || ""), klaar.source, { timeout: 15000 });
       await snel.page.waitForTimeout(500);
-      assert.deepEqual(await watJeZiet(snel.page), verwacht, `snel, bronnen ${bronnen}`);
+      const gezien = await watJeZiet(snel.page);
+      assert.equal(JSON.stringify(gezien).includes(HUISNUMMER_LIVE), bronnen === "geblokkeerd", `snel, bronnen ${bronnen}: de zin over het huisnummer alleen zolang A-Sign niet laadt`);
+      assert.deepEqual(zonderOchtendZin(gezien), verwacht, `snel, bronnen ${bronnen}`);
       if (bronnen === "volledig") assert.match(await snel.page.locator(".pv-place .pv-stand").innerText(), /^Live nagekeken: niets nieuw sinds 05:22\.$/);
       assert.deepEqual(snel.errors, []);
       await snel.context.close();
@@ -500,7 +508,11 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const verwacht = await watJeZiet(basis.page);
     // Het parkeerverbod in de buurstraat geldt ook op twee plaatsen ver weg; het evenement heeft opbouw en
     // afbraak ver weg, met een parkeerverbod in de Huikstraat.
-    assert.match(verwacht.open["publicSpace:parking:PROEF-PV78|L1"], /Huikstraat \+ 2 andere straten\nToon alle 3 straten/);
+    // Drie plaatsen, geen in de gekozen straat: alle drie exact (zoals A-Sign ze geeft; die in de straal eerst), niet
+    // "Huikstraat + 2 andere straten".
+    const buurOpen = verwacht.open["publicSpace:parking:PROEF-PV78|L1"];
+    assert.equal(buurOpen.split("\nWaar\n")[1]?.split("\n")[0], `${BUUR[1]}, 2000 Antwerpen; ${DERDE[1]}, 2000 Antwerpen en ${ANDERE[1]}, 2000 Antwerpen`, buurOpen);
+    assert.doesNotMatch(buurOpen, /andere straten|Toon alle 3 straten/);
     const buurEvenement = verwacht.open["publicSpace:dossier:ET2099000078"];
     assert.match(buurEvenement, /Opbouw vanaf .*12 maart en afbraak tot .*16 maart/, buurEvenement);
     assert.match(buurEvenement, /Parkeerverbod in Huikstraat/, buurEvenement);
