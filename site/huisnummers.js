@@ -191,11 +191,17 @@ export function huisAanwijzing(teksten = [], straten = []) {
 // alleen een postcode, de gemeente, een straat (met haar huisnummer of code) of een nummer na zo'n straat zijn. Voor een werk
 // waar de vrije tekst niet getoond wordt (één huis: site/kaart-uitleg.js werkVoorPubliek; een tekst met "verhuis":
 // site/works-core.js), zodat de plaats exact blijft ("Container voor Proefmans, Proefstraat 12" geeft "Proefstraat 12").
-// Een straat is een naam met een gekende uitgang ("Proefstraat", "Voorbeeldsteeg", "PROEFSTRAAT"), met alleen vaste woorden
-// ervoor ("Lange", "Sint-", "van de") of in hoofdletters zoals GIPOD een adres schrijft ("LANGE VOORBEELDSTRAAT 79WERF"),
-// of één woord in hoofdletters mét een nummer ("VOORBEELDBROEK 4B_BIS"); een straat van de kaart (`straten`) ook binnen een
-// stuk ("Herstelling voetpad Proefstraat 12" geeft "Proefstraat 12"). Geen gewoon woord met een hoofdletter ervoor: een naam
-// ("Jan Proefmans Voorbeeldlaan 7") komt zo niet mee. `weg`: woorden die eerst wegvallen (site/works-core.js: "verhuis").
+// DE REGEL, zoals de grondregel van de privacyfilter (site/witte-lijst.js): een straat is alleen een straat die we KENNEN, een
+// straat van de kaart (`straten`: de straten van het werk, uit de straatas) of een volledige officiële straat (`isStraat`: de
+// straatas van het district, site/geo/straten.json in de verversing, de straatlaag in de browser). Een woord dat op een straat
+// lijkt, is geen bewijs (nakijkronde van head bc86a6ee): een familienaam op -berg, -hof of -veld ("Fam. Vandenproefberg"),
+// het woord "Levering", of een naam in dezelfde hoofdletters als de straat erachter, zoals GIPOD een adres schrijft
+// ("CONTAINER PROEFMANS PROEFSTRAAT 12" geeft "PROEFSTRAAT 12"). Binnen een langer stuk blijft alleen de bekende straat met
+// haar nummer, de langste bekende naam eerst ("Container voor Proefmans Lange Proefstraat 12" geeft "Lange Proefstraat 12"
+// als de straatas die straat kent, anders "Proefstraat 12" als de kaart de Proefstraat kent). Een losse letter na een straat
+// die al een nummer heeft, is een initiaal ("Proefstraat 12, J. Proefmans" geeft "Proefstraat 12"); na een straat zonder
+// nummer is ze een blok ("PROEFLAAN | A"). Zonder straatas en zonder straat van de kaart blijft hoogstens de postcode: liever
+// geen adres dan een naam. `weg`: woorden die eerst wegvallen (site/works-core.js: "verhuis").
 const GEMEENTE = "(?:antwerpen|antwerp|anterwerpen|berchem|borgerhout|deurne|hoboken|merksem|wilrijk|ekeren|zurenborg)";
 const POSTCODE_STUK = new RegExp(String.raw`^(?:\d{4}(?:\s+\(?${GEMEENTE}\)?)?|\(?${GEMEENTE}\)?)$`, "iu");
 // Het nummer zoals GIPOD het schrijft, ook met een code erachter ("12 DN40") of een lijst ("12 14 16").
@@ -204,9 +210,6 @@ const NUMMERDEEL = String.raw`${VOOR_NUMMER}(?:\d{1,4}[\p{L}\d_]{0,12}|[A-Za-z]{
 const NUMMER_STUK = new RegExp(String.raw`^\(?\s*${NUMMERDEEL}\s*\)?\.?$`, "iu");
 const NUMMER_ACHTER = new RegExp(String.raw`(?:\s+|\s*\(\s*)${NUMMERDEEL}\s*\)?\.?$`, "iu");
 const NUMMER_VOORAAN = new RegExp(String.raw`^(?:\s+|\s*[|,:(–—-]\s*)${NUMMERDEEL}(?![\p{L}\d_])\s*\)?`, "iu");
-const VAST_WOORD = "(?:van|de|der|den|het|ten|ter|la|le|du|des|sint|st|onze|lieve|vrouw|oude|oud|nieuwe|nieuw|lange|korte|grote|groot|kleine|klein|hoge|lage|zuid|noord|oost|west|binnen|buiten|boven|beneden|achter|op|in|aan|over|sint-\\p{L}+)";
-const STRAATNAAM = new RegExp(String.raw`^(?:${VAST_WOORD}[\s\-]+){0,4}\p{Lu}[\p{L}'’.\-]*?(?:${UITGANG}|str\.?)$`, "iu");
-const STRAATNAAM_HOOFDLETTERS = new RegExp(String.raw`^(?:\p{Lu}[\p{Lu}'’.\-]*[\s\-]+){0,4}\p{Lu}[\p{Lu}'’.\-]*?(?:${UITGANG.toUpperCase()}|STR\.?)$`, "u");
 const DEEL_SPLIT = /(\s+[-–—|:]\s+|\s*[|;]\s*|,\s*|\.\s+(?=\p{Lu}))/u;
 const POST_VOORAAN = new RegExp(String.raw`^(?:\d{4}\s+)?(?:${GEMEENTE}\s+)?`, "iu");
 // Is `naam` een straat? Een straat van de kaart (`kaart`: zonder accenten, in kleine letters), of een officiële straat
@@ -218,38 +221,39 @@ function soortStuk(stuk, naStraat, kaart, isStraat) {
   if (naStraat && NUMMER_STUK.test(stuk)) return "nummer";
   const nummer = stuk.match(NUMMER_ACHTER);
   const naam = (nummer ? stuk.slice(0, nummer.index) : stuk).replace(POST_VOORAAN, "").trim();
-  if (isBekendeStraat(naam, kaart, isStraat)) return "straat";
-  // De eerste letter van de straat is een hoofdletter (zoals een straatnaam), ook met vaste woorden ervoor.
-  if (naam && /^\p{Lu}|^(?:van|de|der|den|het|ten|ter|sint|st|onze|oude|nieuwe|lange|korte|grote|kleine)\b/u.test(naam) && (STRAATNAAM.test(naam) || STRAATNAAM_HOOFDLETTERS.test(naam))) return "straat";
-  if (nummer && HOOFDLETTERWOORD.test(naam) && !GEEN_STRAAT_HOOFDLETTERS.test(naam)) return "straat";
-  return "";
+  return isBekendeStraat(naam, kaart, isStraat) ? "straat" : "";
 }
-// Een straat van de kaart met haar nummer binnen een langer stuk, of een officiële straat (met haar nummer als dat erachter
-// staat): alleen die twee ("Herstelling voetpad Proefstraat 12" geeft "Proefstraat 12").
+// Een bekende straat binnen een langer stuk (een straat van de kaart of een officiële straat, de langste naam eerst), met haar
+// nummer als dat erachter staat: alleen dat ("Herstelling voetpad Proefstraat 12" geeft "Proefstraat 12").
 function straatIn(stuk, kaart, isStraat) {
   const plat = zonderAccenten(stuk), laag = plat.toLowerCase();
   if (laag.length !== stuk.length) return "";
+  const kandidaten = [];
   for (const s of kaart) {
     for (let i = laag.indexOf(s); i >= 0; i = laag.indexOf(s, i + 1)) {
-      if (/[\p{L}\d]/u.test(laag.charAt(i - 1) || " ")) continue;
-      const m = NUMMER_VOORAAN.exec(plat.slice(i + s.length));
-      if (m && !EENHEID_ERNA.test(plat.slice(i + s.length + m[0].length))) return stuk.slice(i, i + s.length + m[0].length).trim();
+      if (/[\p{L}\d]/u.test(laag.charAt(i - 1) || " ") || /\p{L}/u.test(laag.charAt(i + s.length) || " ")) continue;
+      kandidaten.push({ begin: i, lengte: s.length });
     }
   }
-  if (!isStraat) return "";
-  // De langste reeks woorden die een officiële straat is (hoogstens vijf woorden), met het nummer erachter als dat er staat.
-  const woorden = [...stuk.matchAll(/[^\s]+/gu)];
-  for (let lengte = Math.min(5, woorden.length); lengte >= 1; lengte -= 1) {
-    for (let i = 0; i + lengte <= woorden.length; i += 1) {
-      const begin = woorden[i].index, einde = woorden[i + lengte - 1].index + woorden[i + lengte - 1][0].length;
-      const naam = stuk.slice(begin, einde).replace(/[,.;:]+$/u, "");
-      if (!/\p{L}{2}/u.test(naam) || !isStraat(naam)) continue;
-      const m = NUMMER_VOORAAN.exec(stuk.slice(begin + naam.length));
-      const metNummer = m && !EENHEID_ERNA.test(stuk.slice(begin + naam.length + m[0].length));
-      return stuk.slice(begin, begin + naam.length + (metNummer ? m[0].length : 0)).trim();
+  if (isStraat) {
+    // Elke reeks van hoogstens vijf woorden die een officiële straat is.
+    const woorden = [...stuk.matchAll(/[^\s]+/gu)];
+    for (let lengte = Math.min(5, woorden.length); lengte >= 1; lengte -= 1) {
+      for (let i = 0; i + lengte <= woorden.length; i += 1) {
+        const begin = woorden[i].index, einde = woorden[i + lengte - 1].index + woorden[i + lengte - 1][0].length;
+        const naam = stuk.slice(begin, einde).replace(/[,.;:]+$/u, "");
+        if (/\p{L}{2}/u.test(naam) && isStraat(naam)) kandidaten.push({ begin, lengte: naam.length });
+      }
     }
   }
-  return "";
+  // Een straat binnen een langere bekende straat telt niet ("Proefstraat" in "Lange Proefstraat"); dan de eerste in de tekst.
+  const binnen = (a, b) => b.lengte > a.lengte && b.begin <= a.begin && b.begin + b.lengte >= a.begin + a.lengte;
+  const [k] = kandidaten.filter((a) => !kandidaten.some((b) => binnen(a, b))).sort((a, b) => a.begin - b.begin);
+  if (!k) return "";
+  const na = plat.slice(k.begin + k.lengte);
+  const m = NUMMER_VOORAAN.exec(na);
+  const metNummer = m && !EENHEID_ERNA.test(na.slice(m[0].length));
+  return stuk.slice(k.begin, k.begin + k.lengte + (metNummer ? m[0].length : 0)).trim();
 }
 // De stukken van het adres: { tekst, soort: "post" of "straat", voor: de scheiding ervoor }. Een nummer in een eigen stuk na
 // zijn straat ("Voorbeeldsteeg | 13") hoort bij die straat. `isStraat`: is dit een officiële straat (hele naam)?
@@ -266,7 +270,11 @@ export function adresStukken(tekst, { straten = [], weg = null, isStraat = null 
     const soort = soortStuk(stuk, naStraat, kaart, isStraat);
     const behoud = soort ? stuk : straatIn(stuk, kaart, isStraat);
     if (!behoud) { naStraat = false; continue; }
-    if (soort === "nummer" && uit.length) { uit.at(-1).tekst += `${delen[i - 1]}${behoud}`; naStraat = false; continue; }
+    if (soort === "nummer" && uit.length) {
+      // Een losse letter na een straat met een huisnummer is een initiaal, geen blok.
+      if (/\d/.test(uit.at(-1).tekst) && !/\d/.test(behoud)) { naStraat = false; continue; }
+      uit.at(-1).tekst += `${delen[i - 1]}${behoud}`; naStraat = false; continue;
+    }
     // Twee keer dezelfde straat ("Proeflei ... - Proeflei ..."): één keer.
     if (uit.some((g) => zonderAccenten(g.tekst).toLowerCase() === zonderAccenten(behoud).toLowerCase())) { naStraat = soort !== "post"; continue; }
     uit.push({ tekst: behoud, soort: soort === "post" ? "post" : "straat", voor: uit.length ? delen[i - 1] : "" });
@@ -275,6 +283,3 @@ export function adresStukken(tekst, { straten = [], weg = null, isStraat = null 
   return uit;
 }
 export const adresDeel = (tekst, opties = {}) => adresStukken(tekst, opties).map((g) => `${g.voor}${g.tekst}`).join("").replace(/[\s|,;:–—-]+$/u, "").trim();
-// Een woord met de uitgang van een straatnaam ("Proefstraat", "Proefstr.", "TESTLEI"): voor site/kaart-uitleg.js (een naam
-// na "voor" of "bij" is geen straat).
-export const isStraatWoord = (woord) => STRAATWOORD.test(clean(woord, 120));

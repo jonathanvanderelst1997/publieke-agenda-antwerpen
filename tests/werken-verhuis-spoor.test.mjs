@@ -25,7 +25,9 @@ const PUNT = [4.4, 51.22];
 // Een GIPOD-werk zoals INNAME_PUNT het geeft, en een hinderfase (verzonnen).
 const gipod = (id, properties) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { GipodId: id, Status: "In uitvoering", Start: "2099-03-01T06:00:00Z", End: "2099-03-30T16:00:00Z", LastModifiedOn: "2099-02-01T00:00:00Z", ...properties } });
 const hinder = (gipodId, HindranceDescription, nr = 1) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { HindranceStatus: "Gevalideerd", HindranceConsequenceOf: `https://gipod.api.vlaanderen.be/api/v1/works/${gipodId}`, HindranceGipodId: gipodId * 10 + nr, HindranceDescription, HindranceStart: `2099-03-1${nr}T06:00:00Z`, HindranceEnd: `2099-03-1${nr}T16:00:00Z`, Consequences: "Parkeerverbod" } });
-const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG });
+// De straatas (verzonnen), zoals de ingang en de kaart ze krijgen: alleen een straat die we kennen is een straat.
+const isStraat = (naam) => ["proefstraat"].includes(String(naam).toLowerCase());
+const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG, isStraat });
 const teksten = (waarde, uit = []) => {
   if (typeof waarde === "string") uit.push(waarde);
   else if (Array.isArray(waarde)) for (const v of waarde) teksten(v, uit);
@@ -39,13 +41,13 @@ const nergensVerhuis = (waarde, wat) => { for (const t of teksten(waarde)) asser
 test("een werk met 'verhuis' in de tekst is precies een werk waarvoor GIPOD alleen het adres geeft: dezelfde titel, fasen, kaart, historiek en straatbestand", () => {
   const id = 990901;
   const eigen = { Owner: "Stad Antwerpen - Proefdienst", PublicDomainOccupancyTypes: "Andere" };
-  const met = attachHindrance(collectWorks([gipod(id, { ...eigen, Description: "Verhuis fam. Proefmans, Proefstraat 12" })], new Set([id])), [hinder(id, "Verhuislift fam. Proefmans", 1), hinder(id, "Fase 2", 2)], true); // verzonnen
-  const zonder = attachHindrance(collectWorks([gipod(id, { ...eigen, Description: "Proefstraat 12" })], new Set([id])), [hinder(id, "", 1), hinder(id, "Fase 2", 2)], true); // verzonnen
+  const met = attachHindrance(collectWorks([gipod(id, { ...eigen, Description: "Verhuis fam. Proefmans, Proefstraat 12" })], new Set([id]), null, { isStraat }), [hinder(id, "Verhuislift fam. Proefmans", 1), hinder(id, "Fase 2", 2)], true); // verzonnen
+  const zonder = attachHindrance(collectWorks([gipod(id, { ...eigen, Description: "Proefstraat 12" })], new Set([id]), null, { isStraat }), [hinder(id, "", 1), hinder(id, "Fase 2", 2)], true); // verzonnen
   assert.deepEqual(met, zonder, "de ingang: het adres blijft, de rest van de tekst en de fase met dat woord zijn er gewoon niet");
   assert.equal(met[0].title, "Proefstraat 12", "dezelfde titel als een werk waarvoor GIPOD alleen het adres geeft"); // verzonnen
   // Zonder adres in de tekst: precies een werk zonder omschrijving.
-  const [geenAdres] = collectWorks([gipod(id, { ...eigen, Description: "Verhuislift voor Proefmans" })], new Set([id])); // verzonnen
-  assert.deepEqual(geenAdres, collectWorks([gipod(id, eigen)], new Set([id]))[0]);
+  const [geenAdres] = collectWorks([gipod(id, { ...eigen, Description: "Verhuislift voor Proefmans" })], new Set([id]), null, { isStraat }); // verzonnen
+  assert.deepEqual(geenAdres, collectWorks([gipod(id, eigen)], new Set([id]), null, { isStraat })[0]);
   assert.equal(geenAdres.title, GEEN_OMSCHRIJVING);
   assert.deepEqual(met[0].hindrance.phases.map((f) => f.description), ["Fase 2"]);
   const metStraat = (lijst) => lijst.map((w) => ({ ...w, streets: [{ id: "9101", name: "Proefstraat", postcode: "2018" }], streetResolution: "nearest_official_axis", streetDistanceMeters: 2 }));
@@ -58,7 +60,8 @@ test("een werk met 'verhuis' in de tekst is precies een werk waarvoor GIPOD alle
 
 test("wat al bewaard was (een oudere verversing) wordt hetzelfde als zonder die tekst, niet een vaste vervangtekst", () => {
   const fase1 = { description: "Fase 1", start: "2099-03-12T06:00:00Z", end: "2099-03-12T16:00:00Z", consequences: [] };
-  const oud = { id: "work:990902", gipodId: 990902, title: "Verhuis Proefstraat 12", owner: "Stad Antwerpen - Proefdienst", ownerGroup: "Stad Antwerpen", occupancyTypes: ["Andere"], hindrance: { severe: false, consequences: [], phases: [{ ...fase1, description: "Verhuislift" }, fase1] } }; // verzonnen
+  // Met de straat van het werk, zoals de historiek een werk bewaart (alleen een straat die we kennen houdt het adres).
+  const oud = { id: "work:990902", gipodId: 990902, title: "Verhuis Proefstraat 12", owner: "Stad Antwerpen - Proefdienst", ownerGroup: "Stad Antwerpen", occupancyTypes: ["Andere"], streets: [{ id: "9101", name: "Proefstraat", postcode: "2018" }], hindrance: { severe: false, consequences: [], phases: [{ ...fase1, description: "Verhuislift" }, fase1] } }; // verzonnen
   const zonder = { ...oud, title: "Proefstraat 12", hindrance: { ...oud.hindrance, phases: [fase1] } }; // verzonnen
   assert.deepEqual(werkZonderVerhuis(oud), zonder);
   assert.deepEqual(historiekVoorPubliek({ layers: { works: { items: [oud] } } }).layers.works.items[0], zonder, "de historiek en de straatbestanden");
@@ -108,7 +111,7 @@ test("'verhuis' met een zachte afbreking, een zero-width teken, een accent of in
   assert.equal(innameZonderVerhuis("Container;(Verh\u00FAis)lift/levering"), "Container;Lift/levering");
   assert.equal(innameZonderVerhuis("Olie, gas, chemicali\u00EBn"), "Olie, gas, chemicali\u00EBn", "een soort zonder dat woord blijft letterlijk");
   // De ingang: de titel (alleen het adres) en de fase.
-  const [w] = attachHindrance(collectWorks([gipod(990903, { Description: "Ver\u00ADhuis fam. Proefmans, Proefstraat 12", Owner: "Stad Antwerpen - Proefdienst" })], new Set([990903])), [hinder(990903, "Verhu\u0301islift")], true); // verzonnen
+  const [w] = attachHindrance(collectWorks([gipod(990903, { Description: "Ver\u00ADhuis fam. Proefmans, Proefstraat 12", Owner: "Stad Antwerpen - Proefdienst" })], new Set([990903]), null, { isStraat }), [hinder(990903, "Verhu\u0301islift")], true); // verzonnen
   assert.equal(w.title, "Proefstraat 12"); // verzonnen
   assert.deepEqual(w.hindrance.phases, []);
   // De scans van validate-data: de historiek, de straatbestanden en kaart-uitleg.json; en de opkuis van wat bewaard was.

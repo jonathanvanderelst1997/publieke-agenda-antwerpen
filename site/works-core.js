@@ -21,15 +21,19 @@ export const gipodTekst=(value="")=>zonderToevoegingInTekst(normalizeText(value)
 // Zo'n tekst laat geen eigen spoor na (nakijkronde van head 1ed84e65: een vaste vervangtekst stond alleen waar het woord
 // had gestaan, en wie deze code leest, kon dat terugrekenen):
 // - een omschrijving van een werk met "verhuis" houdt alleen haar adres, zoals de beheerder het schreef (adresDeel in
-//   site/huisnummers.js: de stukken die alleen een postcode, de gemeente, een straat of een huisnummer zijn): "2060 Antwerpen,
-//   Proefstraat 12 - verhuislift" wordt "2060 Antwerpen, Proefstraat 12", precies de titel van een werk waarvoor GIPOD alleen
-//   het adres geeft (dat komt vaak voor). Zonder adres erin is het de titel van een werk zonder omschrijving (GEEN_OMSCHRIJVING,
-//   zoals GIPOD een werk zonder Description geeft). Een naam of een reden die erbij stond, valt zo mee weg; het adres niet
-//   (nakijkronde van head c4bb2927: "het exacte adres tonen, ook bij één huis");
+//   site/huisnummers.js: de stukken die alleen een postcode, de gemeente, een straat die we kennen of een huisnummer zijn):
+//   "2060 Antwerpen, Proefstraat 12 - verhuislift" wordt "2060 Antwerpen, Proefstraat 12", precies de titel van een werk
+//   waarvoor GIPOD alleen het adres geeft (dat komt vaak voor). Een straat die we kennen: de straatas (`isStraat`, collectWorks
+//   krijgt ze mee) of de straat van het werk. Zonder adres erin is het de titel van een werk zonder omschrijving
+//   (GEEN_OMSCHRIJVING, zoals GIPOD een werk zonder Description geeft). Een naam of een reden die erbij stond, valt zo mee weg,
+//   ook een naam in hoofdletters vóór de straat; het adres niet (nakijkronde van head c4bb2927: "het exacte adres tonen, ook
+//   bij één huis");
 // - een hinderfase met "verhuis" is er niet, zoals een hinderfase zonder omschrijving;
 // - de vaste soort inname van GIPOD voor een lift of levering ("(Verhuis)lift/levering") heet "Lift/levering", en een werk
 //   met die soort INNAME_LIFT, zoals elk werk met die soort inname;
-// - een opdrachtgever met "verhuis" in zijn naam valt weg (zijn groep wordt "Andere").
+// - een opdrachtgever met "verhuis" in zijn naam valt weg, en zijn groep wordt die van een werk zonder opdrachtgever in GIPOD
+//   (ownerGroup van de lege naam): zo is het precies een werk waarvoor GIPOD geen Owner gaf (nakijkronde van head bc86a6ee:
+//   een lege naam met de groep "Andere" kwam alleen zo voor).
 // Het woord telt ook met een verborgen teken of een accent erin: de vergelijking gebeurt op de NFKD-vorm zonder opmaaktekens
 // (\p{Cf}: een zachte afbreking U+00AD, een zero-width teken U+200B of U+2060 ...) en zonder combinerende accenten (\p{M}),
 // zodat "Ver\u00ADhuis", "Ver\u200Bhuislift", "Verhúis" en "ｖｅｒｈｕｉｓ" niet langs de regel glippen (nakijkronde van head
@@ -40,8 +44,9 @@ export const VERHUIS=Object.freeze({test:(value)=>VERHUIS_WOORD.test(verhuisVorm
 export const GEEN_OMSCHRIJVING="Werk in openbaar domein";
 export const INNAME_LIFT="Inname voor een lift of levering";
 export const zonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?"":value);
-// Een omschrijving van een werk: met "verhuis" alleen haar adres (zonder de woorden met dat woord), of "".
-export const adresZonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?adresDeel(value,{weg:(woord)=>VERHUIS.test(woord)}):value);
+// Een omschrijving van een werk: met "verhuis" alleen haar adres (zonder de woorden met dat woord), of "". `opties`: de straten
+// die we kennen ({ straten, isStraat }, zoals adresDeel).
+export const adresZonderVerhuis=(value="",opties={})=>(VERHUIS.test(String(value??""))?adresDeel(value,{...opties,weg:(woord)=>VERHUIS.test(woord)}):value);
 // "(Verhuis)lift/levering" wordt "Lift/levering", ook in een lijst ("Container;(Verhuis)lift/levering"). Een andere soort
 // met "verhuis" wordt "Andere" (zoals GIPOD een soort zonder naam noemt).
 export const innameZonderVerhuis=(value="")=>String(value??"").split(";").map(t=>{
@@ -58,26 +63,31 @@ const SOORT_VELDEN=new Set(["soort","innameSoort"]);
 // ("fasen", met hun naam). Een fase met dat woord valt weg, zoals collectHindrance een fase zonder omschrijving weglaat.
 const FASE_TEKST=Object.freeze({phases:"description",fasen:"naam"});
 // Een werk (diep: de hinder en haar fasen, een wijziging in de historiek, de feiten in kaart-uitleg.json) zonder
-// "verhuis", per veld zoals hierboven. "inname" is de leesbare lijst van kaart-uitleg.json ("lift of levering").
-export function werkZonderVerhuis(waarde,sleutel=""){
+// "verhuis", per veld zoals hierboven. "inname" is de leesbare lijst van kaart-uitleg.json ("lift of levering"). `opties`: de
+// straten die we kennen voor het adres ({ straten, isStraat }); de straten van het werk zelf (streets, straten) tellen mee.
+export function werkZonderVerhuis(waarde,sleutel="",opties={}){
   if(typeof waarde==="string"){
     if(!VERHUIS.test(waarde))return waarde;
     if(INNAME_VELDEN.has(sleutel))return innameZonderVerhuis(waarde);
     if(SOORT_VELDEN.has(sleutel))return soortZonderVerhuis(waarde);
     if(sleutel==="inname")return /lift|levering/i.test(waarde)?"lift of levering":"";
-    if(sleutel==="ownerGroup")return "Andere";
-    if(sleutel==="title")return adresZonderVerhuis(waarde)||GEEN_OMSCHRIJVING;
-    if(sleutel==="omschrijving")return adresZonderVerhuis(waarde);
+    if(sleutel==="ownerGroup")return ownerGroup("");
+    if(sleutel==="title")return adresZonderVerhuis(waarde,opties)||GEEN_OMSCHRIJVING;
+    if(sleutel==="omschrijving")return adresZonderVerhuis(waarde,opties);
     return "";
   }
   if(Array.isArray(waarde)){
     const veld=FASE_TEKST[sleutel];
     const lijst=veld?waarde.filter(v=>!(v&&typeof v==="object"&&VERHUIS.test(String(v[veld]??"")))):waarde;
-    const uit=lijst.map(v=>werkZonderVerhuis(v,sleutel));
+    const uit=lijst.map(v=>werkZonderVerhuis(v,sleutel,opties));
     return sleutel==="inname"?uit.filter(Boolean):uit;
   }
   if(waarde&&typeof waarde==="object"){
-    const uit=Object.fromEntries(Object.entries(waarde).map(([k,v])=>[k,werkZonderVerhuis(v,k)]));
+    const eigen=[...(Array.isArray(waarde.streets)?waarde.streets.map(s=>s?.name):[]),...(Array.isArray(waarde.straten)?waarde.straten:[])].filter(n=>typeof n==="string"&&n);
+    const metStraten=eigen.length?{...opties,straten:[...(opties.straten||[]),...eigen]}:opties;
+    const uit=Object.fromEntries(Object.entries(waarde).map(([k,v])=>[k,werkZonderVerhuis(v,k,metStraten)]));
+    // Een opdrachtgever die zo wegvalt: de groep van een werk zonder opdrachtgever, geen eigen groep.
+    if(typeof waarde.owner==="string"&&VERHUIS.test(waarde.owner)&&"ownerGroup" in waarde)uit.ownerGroup=ownerGroup(uit.owner);
     // Een soort die zo wegvalt, neemt haar bron mee; een soort inname zonder naam staat er niet.
     if(typeof waarde.soort==="string"&&waarde.soort&&!uit.soort&&"soortBron" in uit)uit.soortBron="";
     if("innameSoort" in uit&&!uit.innameSoort&&waarde.innameSoort)delete uit.innameSoort;
@@ -99,13 +109,14 @@ export const werfDossier=(value)=>{const t=normalizeText(value);return WERF_DOSS
 // De werken in het district, per GIPOD-id. Nooit de Uri of een andere link naar het ruwe INNAME_PUNT-record
 // (site/gipod-bron.js): dat record draagt ContactOrganisations. De site linkt naar de algemene kaart van Hinder in
 // Kaart, nooit met gipodid (site/bezoekers-bronnen.js).
-export function collectWorks(features=[],exactIds=new Set(),districtGeometry=null){
+// `isStraat`: de straatas (een hele naam is een officiële straat), voor het adres van een omschrijving met "verhuis".
+export function collectWorks(features=[],exactIds=new Set(),districtGeometry=null,{isStraat=null}={}){
   const grouped=new Map();
   for(const feature of features){
     const point=feature?.geometry?.coordinates;if(feature?.geometry?.type!=="Point"||!Array.isArray(point)||!point.slice(0,2).every(Number.isFinite))continue;
     const p=feature.properties||{},gipodId=Number(p.GipodId);if(!Number.isFinite(gipodId))continue;
     const exact=exactIds.has(gipodId),inside=districtGeometry?pointInGeometry(point,districtGeometry):false;if(!exact&&!inside)continue;
-    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:adresZonderVerhuis(gipodTekst(p.Description))||GEEN_OMSCHRIJVING,owner:werkZonderVerhuis(normalizeText(p.Owner),"owner"),ownerGroup:ownerGroup(p.Owner),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
+    const cur=grouped.get(gipodId)||{gipodId,dossier:"",title:adresZonderVerhuis(gipodTekst(p.Description),{isStraat})||GEEN_OMSCHRIJVING,owner:werkZonderVerhuis(normalizeText(p.Owner),"owner"),ownerGroup:ownerGroup(werkZonderVerhuis(normalizeText(p.Owner),"owner")),status:normalizeText(p.Status)||"Onbekend",start:p.Start||"",end:p.End||"",workTypes:new Set(),occupancyTypes:new Set(),lastModified:p.LastModifiedOn||"",point:point.slice(0,2),recordCount:0,boundaryConfidence:exact?"exact_snapshot":"point_inside_new"};
     cur.recordCount+=1;if(!cur.dossier)cur.dossier=werfDossier(p.Reference);cur.start=earlier(cur.start,p.Start||"");cur.end=later(cur.end,p.End||"");cur.lastModified=later(cur.lastModified,p.LastModifiedOn||"");if(p.Status==="In uitvoering")cur.status="In uitvoering";if(p.PublicDomainOccupancyTypes)cur.occupancyTypes.add(innameZonderVerhuis(normalizeText(p.PublicDomainOccupancyTypes)));if(p.GroundworkSpecification)cur.workTypes.add(innameZonderVerhuis(normalizeText(p.GroundworkSpecification)));if(exact)cur.boundaryConfidence="exact_snapshot";grouped.set(gipodId,cur);
   }
   return [...grouped.values()].map(({dossier,...i})=>({...i,...(dossier?{dossier}:{}),workTypes:[...i.workTypes],occupancyTypes:[...i.occupancyTypes]})).sort((a,b)=>(a.status==="In uitvoering"?0:1)-(b.status==="In uitvoering"?0:1)||String(a.start||"9999").localeCompare(String(b.start||"9999"))||a.title.localeCompare(b.title,"nl"));

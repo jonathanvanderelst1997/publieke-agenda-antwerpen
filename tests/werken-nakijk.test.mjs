@@ -76,6 +76,9 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
 // beheerder het schreef, ook met een code of een woord eraan; niets wordt weggeschreven.
 test("3. bij één adres staat het huisnummer zoals de beheerder het schreef bij \"Waar\"; zijn vrije tekst niet", () => {
   const vormen = ["LANGE VOORBEELDSTRAAT 79WERF", "VOORBEELDSTRAAT 6werf", "VOORBEELDBROEK 4B_BIS", "SINT-VOORBEELDVLIET 9", "VOORBEELDUIT 29", "Voorbeeldsteeg | 13"];
+  // De straatas (verzonnen), zoals de plekpagina ze de kaart geeft: het adres op een andere straat staat er alleen als die
+  // straat een officiële straat is (adresDeel in site/huisnummers.js: geen woord dat op een straat lijkt).
+  const isStraat = (naam) => ["lange voorbeeldstraat", "voorbeeldstraat", "voorbeeldbroek", "sint-voorbeeldvliet", "voorbeelduit", "voorbeeldsteeg"].includes(String(naam).toLowerCase());
   for (const vorm of vormen) {
     const tekst = `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`;
     // De tekst zelf houdt het nummer zoals de beheerder het schreef.
@@ -83,8 +86,10 @@ test("3. bij één adres staat het huisnummer zoals de beheerder het schreef bij
     // Een aansluiting is een werk voor één huis (tests/werken-een-huis.test.mjs): geen vrije tekst van de beheerder op de
     // kaart, wel de soort en, op de straat van de kaart, het huisnummer; nergens "weggelaten". Het adres dat de beheerder
     // noemt, staat er ook op een andere straat, zoals hij het schreef (bij "Waar": nakijkronde van head c4bb2927).
-    const k = kaart(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
+    const k = ku.werkKaartje(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }), { vandaag: VANDAAG, isStraat });
     assert.match(k.titel, /^Nieuwe aansluiting op het elektriciteitsnet /, vorm);
+    // Zonder straatas: geen adres buiten de kaart (het lijkt op een straat, maar dat is geen bewijs), en de tekst nog altijd niet.
+    if (vorm !== "VOORBEELDSTRAAT 6werf") assert.doesNotMatch(regels(kaart(werk({ ...fluvius, title: tekst, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }))).Waar, /de beheerder noemt/, vorm);
     assert.equal(k.bronTekst, "", vorm);
     assert.doesNotMatch(alleTekst(k), /weggelaten|achterbouw/, vorm);
     if (vorm !== "VOORBEELDSTRAAT 6werf") assert.ok(regels(k).Waar.includes(vorm), `${vorm} → ${regels(k).Waar}`);

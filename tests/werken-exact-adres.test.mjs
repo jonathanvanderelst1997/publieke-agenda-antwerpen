@@ -39,7 +39,10 @@ const LIFT = gipod(990802, { Description: "2000 ANTWERPEN, TESTLAAN 12", Owner: 
 // Een tekst met "verhuis" en een naam (verzonnen): alleen het adres komt op de site.
 const MET_NAAM = gipod(990803, { Description: "Verhuis fam. Proefmans, Testlaan 14", Owner: "Verhuizingen Proefmans BV", PublicDomainOccupancyTypes: "Container;(Verhuis)lift/levering" }); // verzonnen
 const STRATEN = { 990801: [{ id: "9101", name: "Proefstraat", postcode: "2018" }], 990802: [{ id: "9102", name: "Testlaan", postcode: "2000" }], 990803: [{ id: "9102", name: "Testlaan", postcode: "2000" }] };
-const werken = () => attachHindrance(collectWorks([AANSLUITING, LIFT, MET_NAAM], new Set([990801, 990802, 990803])), [hinder(990802, "Verhuis"), hinder(990803, "Verhuislift fam. Proefmans")], true)
+// De straatas zoals de ingang ze krijgt (collectWorks, verzonnen): alleen een straat die we kennen is een straat (adresDeel in
+// site/huisnummers.js).
+const isStraat = (naam) => ["proefstraat", "testlaan", "voorbeeldlaan"].includes(String(naam).toLowerCase());
+const werken = () => attachHindrance(collectWorks([AANSLUITING, LIFT, MET_NAAM], new Set([990801, 990802, 990803]), null, { isStraat }), [hinder(990802, "Verhuis"), hinder(990803, "Verhuislift fam. Proefmans")], true)
   .map((w) => ({ ...w, streets: STRATEN[w.gipodId], streetResolution: "nearest_official_axis", streetDistanceMeters: 2 }));
 const per = (lijst) => Object.fromEntries(lijst.map((w) => [w.gipodId, w]));
 const teksten = (waarde, uit = []) => {
@@ -49,7 +52,7 @@ const teksten = (waarde, uit = []) => {
   return uit;
 };
 const nergensVerhuis = (waarde, wat) => { for (const t of teksten(waarde)) assert.doesNotMatch(plat(t), VERHUIS, `${wat}: ${JSON.stringify(t)}`); };
-const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG });
+const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG, isStraat });
 const regels = (k) => Object.fromEntries(k.regels);
 const getoond = (k) => [k.titel, k.samenvatting, k.plek, k.bronTekst, ...k.regels.flat(), ...k.ontbreekt].join(" ¶ ");
 
@@ -187,9 +190,9 @@ test("kaart: namen, contactgegevens en vrije tekst blijven geweerd", () => {
   assert.doesNotMatch(getoond(contact), /@|0470/);
   assert.match(contact.titel, /Proefstraat nr\. 12 /, "het adres zelf blijft");
   // De vrije tekst van een inname van A-Sign: nog altijd alleen een volledige straatnaam (de grondregel).
-  const isStraat = (n) => n === "Proefstraat";
-  assert.equal(KU.veiligeTekst("Verhuis fam. Proefmans Proefstraat 12", { isStraat }), "Proefstraat"); // verzonnen
-  assert.equal(KU.veiligeTekst("Verhuislift voor Proefmans", { isStraat }), "");
+  const alleenProefstraat = (n) => n === "Proefstraat";
+  assert.equal(KU.veiligeTekst("Verhuis fam. Proefmans Proefstraat 12", { isStraat: alleenProefstraat }), "Proefstraat"); // verzonnen
+  assert.equal(KU.veiligeTekst("Verhuislift voor Proefmans", { isStraat: alleenProefstraat }), "");
 });
 
 // ---------- wat bewaard wordt: historiek, straatbestanden, kaart-uitleg.json ----------
@@ -248,7 +251,9 @@ test("historiek: de overgang maakt geen valse wijziging; een werk voor één hui
   assert.equal(titel[990820], "2018 ANTWERPEN, PROEFSTRAAT 30 - vervanging riolering");
   // Een nieuw werk voor één huis krijgt zijn exacte adres; een andere plaats in GIPOD blijft een wijziging. Alleen een ander
   // huisnummer is dat niet: de historiek kende het werk zonder nummer, en zo blijft het.
-  const ander = lijst().map((w) => (w.gipodId === 990802 ? { ...w, title: "2000 ANTWERPEN, VOORBEELDLAAN 14 - levering" } : w.gipodId === 990802 + 18 ? { ...w, title: "2018 ANTWERPEN, PROEFSTRAAT 32 - vervanging riolering" } : w)); // verzonnen
+  // De andere plaats ligt aan een andere straat: die krijgt het werk ook (de straatas; alleen een straat die we kennen houdt
+  // een werk voor één huis in zijn titel).
+  const ander = lijst().map((w) => (w.gipodId === 990802 ? { ...w, title: "2000 ANTWERPEN, VOORBEELDLAAN 14 - levering", streets: [{ id: "9104", name: "Voorbeeldlaan", postcode: "2000" }] } : w.gipodId === 990802 + 18 ? { ...w, title: "2018 ANTWERPEN, PROEFSTRAAT 32 - vervanging riolering" } : w)); // verzonnen
   const later = updateLiveHistory(daarna, { observedAt: T3, worksResult: nu([...ander, { ...per(werken())[990802], gipodId: 990821 }], daarna), publicSpaceResult: leeg });
   assert.deepEqual(later.changes.filter((c) => c.layer === "works").map((c) => [c.id, c.type, c.fields]), [["work:990802", "changed", ["title"]], ["work:990820", "changed", ["title"]], ["work:990821", "added", []]]);
   assert.equal(later.layers.works.items.find((w) => w.gipodId === 990821).title, "2000 ANTWERPEN, TESTLAAN 12");
@@ -371,7 +376,7 @@ const straatas = (id, naam, postcode, coords) => ({ type: "Feature", properties:
 const HOEKSTRATEN = [straatas("9101", "Proefstraat", "2018", [[4.4, 51.22], [4.402, 51.22]]), straatas("9103", "Testlaan", "2018", [[4.4, 51.219], [4.4, 51.223]])];
 // Het punt van GIPOD: 20 m van de Testlaan, 40 m van de Proefstraat. Op de hoek: even ver van allebei. Ver: 166 m van de Proefstraat.
 const BIJ_TESTLAAN = [4.40029, 51.22036], OP_DE_HOEK = [4.40014, 51.22009], VER = [4.40029, 51.2215];
-const aansluiting = (id, point, Description = "2018 ANTWERPEN, PROEFSTRAAT 1DN02") => collectWorks([{ ...gipod(id, { Description, Owner: "Fluvius System Operator", PublicDomainOccupancyTypes: "Elektriciteit", GroundworkSpecification: "klantaansluiting" }), geometry: { type: "Point", coordinates: point } }], new Set([id]))[0]; // verzonnen
+const aansluiting = (id, point, Description = "2018 ANTWERPEN, PROEFSTRAAT 1DN02") => collectWorks([{ ...gipod(id, { Description, Owner: "Fluvius System Operator", PublicDomainOccupancyTypes: "Elektriciteit", GroundworkSpecification: "klantaansluiting" }), geometry: { type: "Point", coordinates: point } }], new Set([id]), null, { isStraat })[0]; // verzonnen
 const RESOLVERS = [["site", SC.applyWorkStreetResolution, SC.buildStreetIndex(HOEKSTRATEN)], ["historiek", LSR.applyWorkStreetResolution, LSR.buildStreetIndex(HOEKSTRATEN)]];
 
 test("straat: het adres van de beheerder ('PROEFSTRAAT 1DN02') is de plaats, ook als het punt van GIPOD dichter bij een zijstraat ligt", () => {
@@ -439,7 +444,9 @@ test("historiek: een werk dat nu de straat van het adres van de beheerder krijgt
   const vroeger = nu.map((w) => (w.gipodId === 990816
     ? { ...w, streets: [{ id: "9103", name: "Testlaan", postcode: "2018" }], streetResolution: "nearest_official_axis", streetDistanceMeters: 20 }
     : { ...w, streets: [], streetResolution: "ambiguous", streetDistanceMeters: 10 }));
-  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: resultaatVoorHistoriek({ ok: true, items: vroeger }), publicSpaceResult: leeg });
+  // Zoals die historiek ze schreef (zonder de regel voor één huis van nu, die alleen een straat kent die we kennen: de
+  // verzonnen Proefstraat staat niet in de stratenlijst van de repo).
+  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: vroeger }, publicSpaceResult: leeg });
   const daarna = updateLiveHistory(eerst, { observedAt: T2, worksResult: resultaatVoorHistoriek({ ok: true, items: nu }), publicSpaceResult: leeg });
   assert.deepEqual(daarna.changes.filter((c) => c.layer === "works"), [], "geen 'changed' omdat de straat nu die van het adres is");
   assert.deepEqual(daarna.layers.works.items.map((w) => w.streets.map((s) => s.name)), [["Proefstraat"], ["Proefstraat"]]);

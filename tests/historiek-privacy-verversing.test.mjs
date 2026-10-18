@@ -79,7 +79,9 @@ const oudParkeer = (id, adres) => ({
   start: new Date(START).toISOString(), end: new Date(EINDE).toISOString(), status: "Goedgekeurd", reference: `PROEF-${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null,
 });
-const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 31", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
+// Zoals main een werk bewaarde: met de straat van zijn punt (de straatas). Een werk voor één huis houdt alleen een straat die we
+// kennen (adresDeel in site/huisnummers.js), en de verzonnen Proefstraat staat niet in de stratenlijst van de repo.
+const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 31", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null, streets: [{ id: "9001", name: "Proefstraat", postcode: "2000" }] };
 
 function oudeStand(root) {
   const oud = (...ids) => ({ ok: true, items: ids.map((id) => oudParkeer(id, PARKEER[id - 1].adres)) });

@@ -595,6 +595,9 @@ function samenWerk(live, oud) {
     })(),
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
+    // Een werk van vóór de overgang zonder bewaard huisnummer (lib/kaart-uitleg-refresh.mjs): de kaart zegt dat het nummer
+    // weggelaten is, tenzij GIPOD het nu zelf geeft (de live laag toont wat GIPOD publiceert).
+    ...(bewaard.huisnummerWeggelaten === true && !live.huisnummers && !bewaardeNummers ? { huisnummerWeggelaten: true } : {}),
     // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
     straten: werkStraten(live.straten, bewaard),
   };
@@ -622,11 +625,12 @@ export function identiteitSamen(hand = null, auto = null) {
   return { ...(hand || {}), dossiers: { ...auto.dossiers, ...(hand?.dossiers || {}) } };
 }
 
-// Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js).
-export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
+// Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js). `isStraat`: de straatas, voor
+// het adres van de beheerder bij één huis (werkKaartje).
+export function workEntry(work, { vandaag = "", uitleg = null, isStraat = null } = {}) {
   const base = workEntryBasis(work);
   if (!vandaag) return base;
-  const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
+  const k = werkKaartje(work, { vandaag, isStraat, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k };
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de

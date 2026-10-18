@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "270bf826f35d06be",
- "code": "08ed5e75f435b054",
+ "invoer": "a616b29c58ac38d1",
+ "code": "5a091acbd31c30f9",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -340,10 +340,10 @@
   "detail": {
    "metOntbreekt": 299,
    "meerDanEen": 287,
-   "zinnen": 760,
+   "zinnen": 752,
    "perPatroon": {
     "niet-in-de-bron": 89,
-    "huisnummers-niet-gepubliceerd": 45,
+    "huisnummers-niet-gepubliceerd": 37,
     "organisator-niet-gepubliceerd": 21,
     "uren-niet-gepubliceerd": 20,
     "beheerder-geen-omschrijving": 9
@@ -679,7 +679,7 @@
  "vergelijking": {
   "vorige": {
    "invoer": "270bf826f35d06be",
-   "code": "3cae43bb2a088931"
+   "code": "08ed5e75f435b054"
   },
   "agenda": {
    "ok": true,
@@ -701,14 +701,5 @@
    "stijging": 0,
    "gestegen": []
   }
- },
- "aanvaard": [
-  {
-   "waar": "straten",
-   "id": "detail:huisnummers-niet-gepubliceerd",
-   "van": 37,
-   "naar": 45,
-   "reden": "Besluit van de eigenaar van 18 oktober 2026: een werk voor één adres zegt niet meer 'huisnummer weggelaten'. Met een huisnummer van de beheerder (ook na een scheiding of afgekort: 'STRAAT | 12', 'Proefstr. 12') of uit het adressenregister staat het nummer erbij; zonder bekend huisnummer zegt de kaart 'huisnummers niet gepubliceerd'. Een werk dat de site al publiceerde, krijgt geen huisnummer dat de oude regel niet toonde (nakijkronde van head c4bb2927: uit de oude en de nieuwe stand samen viel anders een privé-adres af te leiden; adresRegel in lib/kaart-uitleg-refresh.mjs, werkenZoalsBekend in lib/historiek-privacy.mjs). Die werken blijven zonder nummer tot ze aflopen; een nieuw werk krijgt zijn exacte adres."
-  }
- ]
+ }
 }

@@ -226,7 +226,8 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-opkuis-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const T1 = "2026-10-09T03:00:00.000Z", T2 = "2026-10-10T03:00:00.000Z";
-  const werk = { gipodId: 7, title: "2000 Antwerpen, Xstraat 12", status: "In uitvoering", start: T1, end: T2, owner: "Proef", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
+  // Met de straat van zijn punt, zoals de historiek een werk bewaart (een werk voor één huis houdt alleen een straat die we kennen).
+  const werk = { gipodId: 7, title: "2000 Antwerpen, Xstraat 12", status: "In uitvoering", start: T1, end: T2, owner: "Proef", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null, streets: [{ id: "1", name: "Xstraat", postcode: "2000" }] };
   const h1 = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen")] } });
   const h2 = updateLiveHistory(h1, { observedAt: T2, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen")] } });
   const dag = { schemaVersion: 1, date: "2026-10-10", events: h2.changes };

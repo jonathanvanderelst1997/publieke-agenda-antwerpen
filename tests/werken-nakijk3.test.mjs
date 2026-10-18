@@ -42,7 +42,9 @@ const werk = (extra = {}) => ({
 });
 const fase = (description, consequences = ["Parkeerverbod"]) => ({ description, start: "2099-03-12T06:00:00Z", end: "2099-03-12T16:00:00Z", consequences });
 const metFasen = (...fasen) => ({ severe: false, consequences: [...new Set(fasen.flatMap((f) => f.consequences))], start: "2099-03-12T06:00:00Z", end: "2099-03-12T16:00:00Z", phases: fasen });
-const kaart = (w, opties = {}) => KU.werkKaartje(w, { vandaag: VANDAAG, ...opties });
+// De straatas (verzonnen), zoals de site ze de kaart en de ingang geeft: alleen een straat die we kennen is een straat.
+const isStraat = (naam) => ["proefstraat", "testlaan", "testlei", "voorbeeldlaan"].includes(String(naam).toLowerCase());
+const kaart = (w, opties = {}) => KU.werkKaartje(w, { vandaag: VANDAAG, isStraat, ...opties });
 const regels = (k) => Object.fromEntries(k.regels);
 const getoond = (k) => [k.titel, k.samenvatting, k.plek, k.bronTekst, ...k.regels.flat(), ...k.ontbreekt].join(" ¶ ");
 const REGISTER = "afgeleid uit de werfzone en het adressenregister";
@@ -312,22 +314,22 @@ test("5. de verversing bewaart het ene nummer van het register niet naast vrije 
 
 test("6. een titel met 'verhuis' houdt zijn adres: precies een werk waarvoor GIPOD alleen het adres gaf", () => {
   const gipod = (id, Description) => ({ type: "Feature", geometry: { type: "Point", coordinates: [4.4, 51.22] }, properties: { GipodId: id, Status: "In uitvoering", Start: "2099-03-01T06:00:00Z", End: "2099-03-30T16:00:00Z", Description, Owner: "Stad Antwerpen - Proefdienst", PublicDomainOccupancyTypes: "Andere" } });
-  const [met] = WC.collectWorks([gipod(990968, "2060 Antwerpen, Proefstraat 12 - verhuislift")], new Set([990968])); // verzonnen
-  const [zonder] = WC.collectWorks([gipod(990968, "2060 Antwerpen, Proefstraat 12")], new Set([990968])); // verzonnen
+  const [met] = WC.collectWorks([gipod(990968, "2060 Antwerpen, Proefstraat 12 - verhuislift")], new Set([990968]), null, { isStraat }); // verzonnen
+  const [zonder] = WC.collectWorks([gipod(990968, "2060 Antwerpen, Proefstraat 12")], new Set([990968]), null, { isStraat }); // verzonnen
   assert.deepEqual(met, zonder);
   const k = kaart({ ...met, streets: [PROEFSTRAAT] });
   assert.equal(regels(k).Waar, "Proefstraat, nr. 12 (omschrijving van de beheerder)");
   assert.doesNotMatch(k.ontbreekt.join(" · "), /huisnummers niet gepubliceerd/);
   // Ook in één stuk en met een naam: alleen het adres blijft.
-  assert.equal(WC.collectWorks([gipod(990969, "Verhuis fam. Proefmans, Testlaan 14")], new Set([990969]))[0].title, "Testlaan 14"); // verzonnen
-  assert.equal(WC.collectWorks([gipod(990969, "Proefstraat 12 verhuislift")], new Set([990969]))[0].title, "Proefstraat 12"); // verzonnen
-  assert.equal(WC.collectWorks([gipod(990969, "Verhuislift voor Proefmans")], new Set([990969]))[0].title, WC.GEEN_OMSCHRIJVING); // verzonnen
-  // Wat bewaard was, met dezelfde regel.
-  assert.equal(WC.werkZonderVerhuis({ title: "Verhuis Proefstraat 12" }).title, "Proefstraat 12"); // verzonnen
+  assert.equal(WC.collectWorks([gipod(990969, "Verhuis fam. Proefmans, Testlaan 14")], new Set([990969]), null, { isStraat })[0].title, "Testlaan 14"); // verzonnen
+  assert.equal(WC.collectWorks([gipod(990969, "Proefstraat 12 verhuislift")], new Set([990969]), null, { isStraat })[0].title, "Proefstraat 12"); // verzonnen
+  assert.equal(WC.collectWorks([gipod(990969, "Verhuislift voor Proefmans")], new Set([990969]), null, { isStraat })[0].title, WC.GEEN_OMSCHRIJVING); // verzonnen
+  // Wat bewaard was, met dezelfde regel (de straat van het werk).
+  assert.equal(WC.werkZonderVerhuis({ title: "Verhuis Proefstraat 12", streets: [PROEFSTRAAT] }).title, "Proefstraat 12"); // verzonnen
   // Het adres van de beheerder op een andere straat (binnen 150 m) wint, zoals bij elke titel met een adres.
   const as = (id, naam, coords) => ({ type: "Feature", properties: { LSTRNMID: id, LSTRNM: naam, RSTRNMID: id, RSTRNM: naam, postcode: "2060", DISTRICT: "ANTWERPEN" }, geometry: { type: "LineString", coordinates: coords } });
   const index = SC.buildStreetIndex([as("9201", "Proefstraat", [[4.4, 51.22], [4.402, 51.22]]), as("9202", "Testlei", [[4.4, 51.219], [4.4, 51.223]])]);
-  const [hoek] = WC.collectWorks([{ ...gipod(990970, "2060 | Antwerpen | Testlei | 12 | verhuis"), geometry: { type: "Point", coordinates: [4.40101, 51.22003] } }], new Set([990970])); // verzonnen
+  const [hoek] = WC.collectWorks([{ ...gipod(990970, "2060 | Antwerpen | Testlei | 12 | verhuis"), geometry: { type: "Point", coordinates: [4.40101, 51.22003] } }], new Set([990970]), null, { isStraat }); // verzonnen
   const [opgelost] = SC.applyWorkStreetResolution([hoek], index);
   assert.deepEqual(opgelost.streets.map((s) => s.name), ["Testlei"]);
   assert.match(regels(kaart(opgelost)).Waar, /^Testlei, nr\. 12 /);

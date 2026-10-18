@@ -8,6 +8,9 @@ const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 // naam blijven verschillend door hun id (refKey), nooit door een toevoeging in de naam.
 export const straatasNaam=value=>zonderToevoeging(clean(value));
 const nameKey=value=>clean(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+// Staat deze hele naam in de straatas (index.byName)? Zonder straatas: null. Voor het adres van een werk (adresDeel in
+// site/huisnummers.js: alleen een straat die we kennen is een straat).
+export const straatasPredicaat=index=>index?.byName instanceof Map?(naam=>index.byName.has(nameKey(naam))):null;
 const uniqRefs=refs=>[...new Map((refs||[]).filter(r=>r?.name).map(r=>[`${r.id||""}|${r.name}|${r.postcode||""}`,{id:clean(r.id),name:clean(r.name),postcode:clean(r.postcode)}])).values()].sort((a,b)=>a.name.localeCompare(b.name,"nl")||a.postcode.localeCompare(b.postcode));
 const refKey=ref=>`${ref.id}|${ref.name}|${ref.postcode}`;
 const CELL=0.002;

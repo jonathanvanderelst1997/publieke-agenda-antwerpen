@@ -27,6 +27,7 @@ import { worksExactSnapshot } from "../site/works-snapshot.js";
 import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
+import { straatasPredicaat } from "../site/street-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek, werkenZoalsBekend } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
@@ -199,7 +200,8 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets);
+    // De straatas: het adres van een omschrijving met "verhuis" is alleen een straat die we kennen (adresDeel in site/huisnummers.js).
+    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district, { isStraat: straatasPredicaat(streets) }), hindrance, true), streets);
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };
