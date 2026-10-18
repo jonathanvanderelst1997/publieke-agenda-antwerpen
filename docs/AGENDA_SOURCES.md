@@ -136,7 +136,9 @@ Buiten de agendabronnen (live lagen, radar, historiek, kaart):
   het kader van een straat zonder GIPOD-hinder ook (de ernstige hinder verdween). Nu zijn beide deels geladen
   (`werkenMislukt` in `site/works-live.js`: zonder grens, straatassen of hinder). Een mislukt onderdeel dat niet in
   `ONDERDELEN` staat, of een bron die de laag niet kent, valt nooit weg (vroeger maakte "parkeerverboden en innames"
-  een week zonder nagekeken publieke ruimte "Rustig");
+  een week zonder nagekeken publieke ruimte "Rustig"). Kiest de bezoeker een andere plek, dan haalt de plekpagina de
+  lagen van de vorige straat in één keer weg (`zetStraatStand` in `site/place-view.js`): weg van de straat, zonder
+  stand, of een laag zonder bruikbare stand;
 - de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
   in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
   die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat

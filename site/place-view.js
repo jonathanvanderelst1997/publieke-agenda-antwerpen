@@ -441,6 +441,12 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (Array.isArray(items) || mislukt.length) meldLiveLaag(naam, items, mislukt, { bron: "straat" });
     else wisLiveLaag(naam, "straat");
   }
+  // Alle lagen van de straat tegelijk: per laag de items van de stand van de ochtend, en elke andere laag weg. Zo blijft
+  // nooit de laag van een vorige straat staan, als een volledige laag voor de nieuwe plek (een valse "Rustig" of valse
+  // aantallen): weg van de straat, zonder stand, of een laag zonder bruikbare stand (nakijkronde 4 van 18-10-2026).
+  function zetStraatStand(lagen = {}) {
+    for (const [naam] of SNEL_LAGEN) zetSnelLaag(naam, Array.isArray(lagen[naam]) ? lagen[naam] : null);
+  }
   // Wat telt als "hetzelfde" bij het vergelijken: één kaart per evenementendossier en per werfzone,
   // één per parkeerverbod (dossier, periode en uren), anders het item zelf.
   const snelSleutel = (item) => item?.kind === "iod" && isEvenementDossier(item) ? `ev:${item.reference}`
@@ -451,7 +457,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const beurt = ++snelBeurt;
     if (place?.type !== "straat" || !snelMogelijk) {
       // Weg van de straat: haar stand mag geen deel van een wijk of het district lijken.
-      if (state.snel) { for (const [naam] of SNEL_LAGEN) zetSnelLaag(naam, null); state.snel = null; }
+      if (state.snel) { zetStraatStand(); state.snel = null; }
       return;
     }
     let snel = state.snel?.straat === place.key ? state.snel : null;
@@ -460,7 +466,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       if (beurt !== snelBeurt) return;
       if (!stand) {
         // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district (zonder de laag van een vorige straat).
-        for (const [naam] of SNEL_LAGEN) zetSnelLaag(naam, null);
+        zetStraatStand();
         snelMogelijk = false;
         view.straatSnel = false;
         state.snel = null;
@@ -476,7 +482,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const kader = k && Array.isArray(b) ? [Math.min(k[0], b[0], b[2]), Math.min(k[1], b[1], b[3]), Math.max(k[2], b[0], b[2]), Math.max(k[3], b[1], b[3])] : k || b;
       snel = { straat: place.key, kader, ochtend: {}, ververst: tijden[0] || stand.index.ververst || "", inzage, bezig: true, nieuw: 0, weg: 0, mislukt: false, mislukteDelen: [] };
       // Een laag zonder bruikbare stand: niet die van een vorige straat laten staan; het live kader beslist.
-      for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) { snel.ochtend[naam] = lagen[naam]; zetSnelLaag(naam, lagen[naam]); } else zetSnelLaag(naam, null);
+      for (const [naam, laag] of SNEL_LAGEN) if (bruikbaar(laag)) snel.ochtend[naam] = lagen[naam];
+      zetStraatStand(snel.ochtend);
       state.snel = snel;
     }
     snel.bezig = true;

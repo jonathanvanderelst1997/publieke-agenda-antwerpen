@@ -528,7 +528,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
-  // ---- nakijkronde 4 (18-10-2026): een live laag die maar deels laadt ----
+  // ---- nakijkronde 4 (18-10-2026): een live laag die maar deels laadt, en een andere plek kiezen ----
   // Wacht tot de zin onder de tegels af is (niet meer "Live nakijken…") en de weekzin niet meer laadt.
   const standKlaar = async (page) => {
     await page.waitForFunction(() => { const s = document.querySelector(".pv-place .pv-stand")?.textContent || ""; return s && !/nakijken…/.test(s); }, null, { timeout: 15000 });
@@ -620,6 +620,68 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     const s = await plekStand(page);
     assert.doesNotMatch(s.week.join(" "), /rustig/i, s.week.join(" "));
     assert.ok((s.mislukt.publicSpace || []).includes("parkeerverboden"), JSON.stringify(s.mislukt));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Bevinding MIDDEL: de regels die de laag van een straat weghalen als de bezoeker een andere plek kiest, waren niet
+  // getoetst. Zonder die regels bleef de momentopname van de vorige straat staan als volledige laag: de postcode 2000
+  // kreeg de werken en parkeerverboden van de Kammenstraat, en een straat zonder stand ("alleenLive") een valse
+  // "Rustig". Na de straat moet een plek er precies zo uitzien als wanneer je ze meteen opent. Alles naar buiten
+  // afgebroken.
+  const kies = async (page, tekst, optie = null) => {
+    const input = page.locator("#agenda-street-jump");
+    await input.fill(tekst);
+    const opties = page.locator("#pv-suggestions [role=option]");
+    await opties.first().waitFor({ timeout: 5000 });
+    if (!optie) { await input.press("Enter"); return; }
+    const teksten = await opties.allInnerTexts();
+    const i = teksten.findIndex((x) => optie.test(x));
+    assert.ok(i >= 0, teksten.join(" | "));
+    await opties.nth(i).click();
+  };
+  // De lijsten van het hele district hebben elke laag gemeld (en zijn dus gefaald: alles naar buiten afgebroken).
+  const districtGemeld = (page) => page.waitForFunction(() => ["works", "publicSpace", "permits", "terraces"].every((n) => window.PUBLIC_AGENDA_LIVE_STREETS?.bronnen?.district?.[n]), null, { timeout: 20000 });
+  for (const [naar, query, zoek, optie, alleenLive] of [["de postcode 2000", "?plek=2000", "2000", /^\W*2000(?!\d)/, false], ["een straat zonder stand (alleenLive)", "?plek=Nationalestraat", "Nationalestraat", null, true]]) await t.test(`van een straat met stand naar ${naar}: dezelfde plek als rechtstreeks, zonder de laag van de vorige straat`, async (st) => {
+    const nat = straten.find((r) => r[1] === "Nationalestraat" && String(r[2]) === "2000");
+    const stand = await standVanDeOchtend(st, alleenLive ? { index: (index) => { index.alleenLive = [String(nat[0])]; } } : {});
+    const feed = proefFeed("2099-03-10", []);
+    const ref = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", query, feed, width: 1280, height: 900 });
+    await districtGemeld(ref.page);
+    await ref.page.waitForTimeout(800);
+    const verwacht = await plekStand(ref.page);
+    await ref.context.close();
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed, width: 1280, height: 900 });
+    await standKlaar(page);
+    assert.ok((await plekStand(page)).lagen.works > 0, "de Kammenstraat heeft haar stand");
+    await kies(page, zoek, optie);
+    await districtGemeld(page);
+    await page.waitForTimeout(800);
+    assert.deepEqual(await plekStand(page), verwacht);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+  // En een laag zonder bruikbare stand (hier de werken): de live laag van de vorige straat blijft niet hangen terwijl de
+  // nieuwe straat nog live nakijkt. Rechtstreeks geopend laden de werken dan nog; na de Kammenstraat ook.
+  await t.test("van een straat naar een andere: een laag zonder bruikbare stand houdt de live laag van de vorige straat niet", async (st) => {
+    const stand = await standVanDeOchtend(st, { index: (index) => { index.lagen.werken = { status: "error", errorCode: "niet_geladen" }; } });
+    const feed = proefFeed("2099-03-10", []);
+    const nogGeladen = (page) => page.waitForFunction(() => /werken worden nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 10000 }).catch(() => {});
+    const ref = await openStraat(baseUrl, { stand, bronnen: "hangen", query: "?plek=Peterseliestraat", feed });
+    await nogGeladen(ref.page);
+    await ref.page.waitForTimeout(800);
+    const verwacht = await plekStand(ref.page);
+    await ref.context.close();
+    assert.match(verwacht.week[1], /werken worden nog geladen/, verwacht.week[1]);
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: deelsLive([]), feed });
+    await standKlaar(page);
+    assert.ok((await plekStand(page)).rijen.some(([uid]) => uid === "works:990001"), "de werken van de Kammenstraat, live uit het kader");
+    // Vanaf nu antwoordt niets meer naar buiten (de nieuwste route gaat voor).
+    await page.route((url) => url.hostname !== "127.0.0.1", () => {});
+    await kies(page, "Peterseliestraat");
+    await nogGeladen(page);
+    await page.waitForTimeout(800);
+    assert.deepEqual(await plekStand(page), verwacht);
     assert.deepEqual(errors, []);
     await context.close();
   });
