@@ -76,6 +76,9 @@ const today = generatedAt.slice(0, 10);
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const WORK_TITLE = "Proefwerk riolering (e2e)";
+// De verzonnen reden van een parkeerverbod in A-Sign (laag 20), en wat haar zou verraden: die mag nergens op de pagina.
+const REDEN_E2E = "Verhuis (e2e)";
+const VERRAAD_E2E = /verhuis/i;
 // De titel van een werk komt uit de kaartuitleg; de rij vinden we daarom op haar id.
 const WORK_ROW = '.pv-row[data-uid="works:999999901"]';
 // Een verzonnen omgevingsaanvraag met een naam en een telefoonnummer in het vrije onderwerp:
@@ -1494,12 +1497,14 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   });
 
   // Herstelplan O1: de A-Sign-lagen faalden bij elke laadbeurt (URL's van 3.000 tot 4.800 tekens).
-  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met straat en postcode (huisnummerbereik: vraag 1) en terras in de straat", async (st) => {
+  // Het parkeerverbod: dat er een is, waar exact en wanneer, nooit waarom (besluit van de eigenaar van 18 oktober 2026,
+  // site/adres-privacy.js). De verzonnen reden "Verhuis (e2e)" in A-Sign komt nergens op de pagina.
+  await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met waar en wanneer zonder reden, en terras in de straat", async () => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];
     const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2], d = 0.00004;
     const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
     const asign = asignServer({ fixtures: {
-      20: [{ id: 700123, feature: { attributes: { Dossiernummer: "2026-999001", Locatienummer: "1", Status: "Goedgekeurd", Adres: `${street.name} 12-14 ${street.postcode} Antwerpen`, Reden: "Verhuis (e2e)", Startdatum: ms(addDays(today, 2)), Einddatum: ms(addDays(today, 3)), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" } } }],
+      20: [{ id: 700123, feature: { attributes: { Dossiernummer: "2026-999001", Locatienummer: "1", Status: "Goedgekeurd", Adres: `${street.name} 12-14 ${street.postcode} Antwerpen`, Reden: REDEN_E2E, Startdatum: ms(addDays(today, 2)), Einddatum: ms(addDays(today, 3)), EnkelWeekdagen: 0, GipodID: null, District: "ANTWERPEN" } } }],
       49: [{ id: 1234, feature: { attributes: { OBJECTID: 1234, ROLnet_ID: "E2E-1", TypeTerrasZone: "Terraszone (e2e)", Status: "Actief", adres: street.name, postcode: Number(street.postcode) }, geometry: { rings: [[[mx - d, my - d], [mx + d, my - d], [mx + d, my + d], [mx - d, my + d], [mx - d, my - d]]] } } }],
     } });
     const query = `?plek=${encodeURIComponent(street.name)}${byName.get(locationKey(street.name)).length > 1 ? `%20${street.postcode}` : ""}`;
@@ -1511,34 +1516,35 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.ok(Math.max(...asign.stats.urls) < 1800, `langste URL ${Math.max(...asign.stats.urls)}`);
     assert.ok(asign.stats.maxBezig <= 4, `${asign.stats.maxBezig} verzoeken tegelijk`);
     assert.ok(asign.stats.urls.length > 120, `${asign.stats.urls.length} verzoeken: alle blokken opgevraagd`);
-    const parkeer = page.locator(".pv-results .pv-row", { hasText: "Verhuis (e2e)" }).first();
+    // De rij op haar A-Sign-nummer (de reden staat er niet in, dus daarop zoeken kan niet meer).
+    const parkeer = page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:2026-999001"]').first();
     await parkeer.waitFor({ timeout: 15000 });
     const parkeerTekst = await parkeer.innerText();
-    // Streng, wat onder beide keuzes van vraag 1 (hieronder) geldt: elke regel met de straat is precies een van twee
-    // vormen, de straat met de postcode of met het huisnummer zoals publiekParkeerAdres het schrijft. Voor de bron
-    // "12-14" in deze proef is dat het bereik "12–14". Nooit een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
+    // Wat: de titel is "Parkeerverbod", niets meer.
+    assert.equal((await parkeer.locator(".pv-row-title").innerText()).trim(), "Parkeerverbod");
+    // Waar exact: elke regel met de straat is precies een van twee vormen, de straat met de postcode of met het
+    // huisnummer zoals publiekParkeerAdres het schrijft. Voor de bron "12-14" in deze proef is dat het bereik "12–14".
+    // Nooit een bus of de ruwe vorm van de bron ("12-14 2000 Antwerpen").
     const toegelaten = [`${street.name}, ${street.postcode} Antwerpen`, `${street.name} 12–14, ${street.postcode} Antwerpen`];
     const adresRegels = parkeerTekst.split("\n").map((r) => r.trim()).filter((r) => r.includes(street.name));
     assert.ok(adresRegels.length > 0, `geen regel met de straat: ${JSON.stringify(parkeerTekst)}`);
     for (const regel of adresRegels) assert.ok(toegelaten.includes(regel), `"${regel}" is geen van de twee toegelaten vormen (${toegelaten.join(" of ")})`);
     assert.doesNotMatch(parkeerTekst, /\bbus\b|12\s*-\s*14/i, "geen bus en nooit het adres zoals de bron het schrijft");
-    // Open vraag aan de eigenaar (vraag 1): #178 (01cbc52) en #179 (a4c1d2f) tonen live het huisnummer van een
-    // goedgekeurd parkeerverbod (publiekParkeerAdres in site/adres-privacy.js): een bereik ("Xstraat 12–14, 2000
-    // Antwerpen"), of één nummer als de bron "N-N" schrijft ("Xstraat 26-26" wordt "Xstraat 26, ..."). Bij een
-    // verhuis voor één woning is dat het adres van die woning. De kop van dat bestand en deze toets zeggen "nooit het
-    // huisnummer". Tot de eigenaar beslist,
-    // blijft die strengere regel hier staan als todo: hij draait elke keer en meldt wat de site toont, zonder main rood
-    // te maken. Ook de en-dash telt (vroeger zocht de toets alleen "12-14").
-    await st.test("parkeerverbod zonder huisnummer", { todo: "vraag 1 aan de eigenaar: live het huisnummer van een parkeerverbod tonen, als bereik of als één nummer (#178, #179), of nooit" }, () => {
-      assert.match(parkeerTekst, new RegExp(`${street.name}, ${street.postcode} Antwerpen`));
-      assert.doesNotMatch(parkeerTekst, /\b12\s*[-–]\s*14\b/, "geen huisnummer bij een parkeerverbod");
-    });
-    // Een titel in gewone taal; de technische bron zit ingeklapt.
-    assert.match(await parkeer.innerText(), /Parkeerverbod voor een verhuis/);
-    assert.doesNotMatch(await parkeer.innerText(), /Parkeerverbod: /);
+    assert.doesNotMatch(parkeerTekst, /Parkeerverbod: /);
+    // Opengeklapt, met de ingeklapte technische details: ook daar nooit de reden.
     await parkeer.locator(".pv-row-btn").click();
     await parkeer.locator(".pv-tech summary").waitFor();
+    // Wanneer: de eerste en de laatste dag van het parkeerverbod.
+    const openTekst = await parkeer.innerText();
+    assert.match(openTekst, /Wanneer/);
+    for (const d of [addDays(today, 2), addDays(today, 3)]) assert.ok(openTekst.includes(String(Number(d.slice(8)))), `${d} niet in ${JSON.stringify(openTekst)}`);
     assert.equal(await parkeer.locator(".pv-tech").evaluate((el) => el.open), false, "technische details dicht");
+    await parkeer.locator(".pv-tech summary").click();
+    // Alles van de rij (ook wat ingeklapt is, textContent) en alles op de pagina: geen reden, geen "voor een ...".
+    const rijAlles = await parkeer.evaluate((el) => `${el.textContent}\n${[...el.querySelectorAll("[title],[aria-label],a[href]")].map((x) => `${x.getAttribute("title") || ""} ${x.getAttribute("aria-label") || ""} ${x.getAttribute("href") || ""}`).join("\n")}`);
+    assert.doesNotMatch(rijAlles, VERRAAD_E2E, `de reden staat in de rij: ${JSON.stringify(rijAlles)}`);
+    assert.doesNotMatch(rijAlles, /Parkeerverbod (?:voor|met)\b|Parkeerverbod,|[Rr]eden|waarvoor/, `een reden of een zin erover in de rij: ${JSON.stringify(rijAlles)}`);
+    assert.doesNotMatch(await page.evaluate(() => document.body.textContent), VERRAAD_E2E, "de reden staat ergens op de pagina");
     await page.locator(".pv-results .pv-row", { hasText: "Terraszone (e2e)" }).first().waitFor({ timeout: 15000 });
     assert.equal(await page.locator(".pv-place-failed").count(), 0);
     assert.deepEqual(errors, []);
@@ -1582,8 +1588,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     // (3) Het parkeerverbod van de tweede fase staat op zijn eerste dag, met de werf erbij.
     const later = page.locator(`.pv-results section[data-sectie="d:${beginFase2}"] .pv-row[data-uid^="publicSpace:parking:2099-000882"]`);
     assert.equal(await later.count(), 1, "het begin van de tweede fase staat in zijn dagsectie");
-    assert.match(await later.innerText(), /Parkeerverbod voor de werfzone in de Peterseliestraat/);
+    // De titel blijft "Parkeerverbod" (nooit waarvoor, besluit van 18 oktober 2026); de werf staat in de zin.
+    assert.equal((await later.locator(".pv-row-title").innerText()).trim(), "Parkeerverbod");
     assert.match(await later.innerText(), /Zelfde straat en dagen als een fase van “Werfzone” \(dossier GW2099-000881\)/);
+    // De reden van A-Sign ("Melding ikv werfsignalisaties") hangt het parkeerverbod aan de werfzone, maar staat nergens op
+    // de kaarten, ook niet ingeklapt (textContent). (De uitleg van de werkenlaag noemt de A-Sign-laag "werfsignalisatie"
+    // van de werken; die gaat niet over een parkeerverbod.)
+    for (const rij of [later, werfzone]) assert.doesNotMatch(await rij.evaluate((el) => el.textContent), /werfsignal|\bikv\b|in het kader van|[Rr]eden|Parkeerverbod voor/);
     // (4) De inname in de bundel: de sectie zegt dat evenementendossiers geen uren hebben, de kaart wat niet in het dossier staat.
     const sectie = page.locator('.pv-results section[data-sectie="zonder-omschrijving"]');
     assert.match(await sectie.locator(".pv-sectie-onbekend").innerText(), /Evenementendossiers van de stad \(A-Sign\) hebben geen uren/);
