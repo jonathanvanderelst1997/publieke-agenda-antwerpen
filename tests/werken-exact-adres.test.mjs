@@ -17,7 +17,7 @@ import { INNAME_LIFT, INNAME_WEG, collectWorks, innameZonderVerhuis, werkZonderV
 import { attachHindrance } from "../site/works-hindrance.js";
 import { publicSpaceEntries, samenWerven, werkEntries, workEntry } from "../site/place-core.js";
 import { updateLiveHistory } from "../lib/live-history.mjs";
-import { historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek, resultaatVoorHistoriek, tekstZonderHuisnummers } from "../lib/historiek-privacy.mjs";
 import { straatItemPrivacy } from "../lib/straat-bestanden.mjs";
 import { STRAAT_SCHEMA, itemVoorStraat, schrijfStraatSnapshots, straatBestandenProblemen } from "../scripts/build-straat-snapshots.mjs";
 import { bouwKaartUitleg, kaartUitlegVoorPubliek, schoonWerk } from "../lib/kaart-uitleg-refresh.mjs";
@@ -211,6 +211,23 @@ test("historiek: een werk houdt zijn huisnummer en heeft nergens 'verhuis'; een 
   // Buiten een werk blijft de oude regel: een huisnummer valt weg, en "verhuis" is daar geen vondst van deze regel.
   assert.deepEqual(itemVoorHistoriek({ title: "2000 Antwerpen, Proefstraat 12" }).title, "2000 Antwerpen, Proefstraat"); // verzonnen
   assert.deepEqual(historiekPrivacyBevindingen({ title: "2000 Antwerpen, Proefstraat 12" }).map((v) => v.code), ["huisnummer"]); // verzonnen
+});
+
+test("historiek: de overgang maakt geen valse wijziging; een werk dat nu zijn huisnummer houdt, is niet 'changed'", () => {
+  const T1 = "2099-03-09T03:00:00.000Z", T2 = "2099-03-10T03:00:00.000Z", T3 = "2099-03-11T03:00:00.000Z";
+  const resultaat = (items) => resultaatVoorHistoriek({ ok: true, items });
+  const leeg = { ok: true, items: [] };
+  const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: resultaat(werken()), publicSpaceResult: leeg });
+  // De historiek zoals de regel van vóór 18 oktober 2026 ze schreef: zonder huisnummers in de titel.
+  const oud = { ...eerst, layers: { ...eerst.layers, works: { ...eerst.layers.works, items: eerst.layers.works.items.map((w) => ({ ...w, title: tekstZonderHuisnummers(w.title) })) } } };
+  assert.ok(oud.layers.works.items.some((w) => w.title === "2000 ANTWERPEN, TESTLAAN"), "de oude stand had geen huisnummer");
+  const daarna = updateLiveHistory(oud, { observedAt: T2, worksResult: resultaat(werken()), publicSpaceResult: leeg });
+  assert.deepEqual(daarna.changes.filter((c) => c.layer === "works"), [], "geen 'changed' omdat het huisnummer nu blijft");
+  assert.ok(daarna.layers.works.items.some((w) => w.title === "2000 ANTWERPEN, TESTLAAN 12"), "nu met het huisnummer");
+  // Een echte wijziging van het adres blijft een wijziging.
+  const ander = werken().map((w) => (w.gipodId === 990802 ? { ...w, title: "2000 ANTWERPEN, TESTLAAN 14" } : w));
+  const later = updateLiveHistory(daarna, { observedAt: T3, worksResult: resultaat(ander), publicSpaceResult: leeg });
+  assert.deepEqual(later.changes.filter((c) => c.layer === "works").map((c) => [c.id, c.type, c.fields]), [["work:990802", "changed", ["title"]]]);
 });
 
 test("straatbestanden: een werk houdt zijn huisnummer (ook na 'gevel nummer'), zonder 'verhuis'; de scan van validate-data volgt", () => {
