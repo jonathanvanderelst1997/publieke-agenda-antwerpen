@@ -41,7 +41,7 @@ test("1. hinder vóór of bij de start van een gepland werk krijgt altijd haar b
   // Zoals 17022995: hinder vanaf de eerste dag, maar veel korter dan het werk.
   const kort = kaart(werk({ start: "2026-10-19T00:00:00Z", end: "2027-01-08T16:00:00Z", hindrance: hinder([fase("Fase 1", "2026-10-19T06:00:00Z", "2026-10-23T16:00:00Z", ["Geen doorgang voor gemotoriseerd verkeer"])]) }));
   assert.equal(kort.titel, "Werken in de Voorbeeldlaan: afgesloten voor auto's van 19 tot 23 oktober; werken vanaf 19 oktober (start over 9 dagen)");
-  // Zoals 19929983: twee dagen hinder in een werk van een week: niet "vanaf 15 oktober" alsof ze blijft duren.
+  // Zoals een aansluiting in GIPOD: twee dagen hinder in een werk van een week: niet "vanaf 15 oktober" alsof ze blijft duren.
   const paar = kaart(werk({ start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z", hindrance: hinder([fase("Fase 1", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]) }));
   assert.equal(paar.titel, "Werken in de Voorbeeldlaan: voetgangers beperkt van 15 tot 16 oktober; werken vanaf 14 oktober (start over 4 dagen)");
   // Hinder die samen met het werk start en (bijna) even lang loopt: één "vanaf", zoals voorheen.
@@ -54,8 +54,8 @@ test("1. hinder vóór of bij de start van een gepland werk krijgt altijd haar b
 });
 
 test("2. bij één adres staat het huisnummer ook in de naam van een fase, zoals GIPOD het schrijft", () => {
-  // Zoals 19929983: "Fase 1 Simonsstraat 8" stond naast "huisnummer weggelaten: het gaat om één adres". Sinds het besluit
-  // van 18 oktober 2026 zeggen ze hetzelfde: het huisnummer, nergens "weggelaten".
+  // Zoals een aansluiting in GIPOD (verzonnen: "Fase 1 Voorbeeldlaan 8") stond naast "huisnummer weggelaten: het gaat om één
+  // adres". Sinds het besluit van 18 oktober 2026 staat het huisnummer erbij, nergens "weggelaten".
   const w = werk({
     ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"], start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z",
     hindrance: hinder([fase("Fase 1 Voorbeeldlaan 8", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]),
