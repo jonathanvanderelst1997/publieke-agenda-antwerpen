@@ -57,12 +57,14 @@ const DETAILS = {
 
 // Nep-eBesluit: "Evenementen" geeft de verzonnen zoekpagina (plus extraRijen), de andere termen niets.
 // extraDetails: { id: fixturenaam } bovenop DETAILS.
-function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, extraRijen = "", extraDetails = {} } = {}) {
+// `weigertPagina`: paginagroottes waarop het zoeken HTTP 500 geeft (de terugval naar kleinere pagina's).
+function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, weigertPagina = [], extraRijen = "", extraDetails = {} } = {}) {
   return async (url) => {
     const u = new URL(String(url));
     calls.push(u);
     if (u.pathname === "/zoeken") {
       if (zoekStatus !== 200) return resp("", zoekStatus);
+      if (weigertPagina.includes(Number(u.searchParams.get("pageSize")))) return resp("", 500);
       // Deze fictieve zoekserver moet de totaalstand mee aanpassen bij extra testbesluiten.
       // Echte bronresultaten met een afwijkend totaal blijven fail-closed.
       if (u.searchParams.get("query") !== "Evenementen") return resp('<span class="result-count">0 resultaten gevonden</span>');
@@ -369,15 +371,34 @@ test("hoogstens N detailpagina's per verversing; de rest volgt later", async () 
   assert.equal(result.teLezen, 2);
 });
 
-test("een fout bij het zoeken laat beide bestanden staan en meldt error", async (t) => {
+test("een fout bij het zoeken laat beide bestanden staan en meldt error, met de reden in het bronbestand", async (t) => {
   const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const voor = [EVENEMENT_BESLUITEN_FILE, `${SOURCE_ID}.json`].map((n) => fs.readFileSync(path.join(root, "site", "sources", n), "utf8"));
-  const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500 }), { clock: () => new Date("2026-10-11T04:00:00Z") });
+  const calls = [];
+  const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500, calls }), { clock: () => new Date("2026-10-11T04:00:00Z") });
   assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "http_500", 3]);
   assert.equal(fs.readFileSync(path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE), "utf8"), voor[0]);
-  assert.equal(readJson(root, `${SOURCE_ID}.json`).fetchStatus, "error");
-  assert.deepEqual(readJson(root, `${SOURCE_ID}.json`).items, JSON.parse(voor[1]).items);
+  const document = readJson(root, `${SOURCE_ID}.json`);
+  assert.equal(document.fetchStatus, "error");
+  assert.deepEqual(document.items, JSON.parse(voor[1]).items);
+  // De reden en sinds wanneer (keepPreviousOnError): intern, de site toont het nergens.
+  assert.deepEqual([document.lastError, document.lastSuccessAt, document.retrievedAt], [{ code: "http_500", at: "2026-10-11T04:00:00.000Z" }, NOW.toISOString(), NOW.toISOString()]);
+  assert.deepEqual(validateSourceDocument(document, { expectedSourceId: SOURCE_ID }), []);
+  // Begrensd: het venster met 500, 100 en 50 rijen (elk met de herkansing), dan de eerste maand met 50; geen detailpagina.
+  assert.deepEqual(calls.map((u) => [u.pathname, Number(u.searchParams.get("pageSize"))]), [500, 500, 100, 100, 50, 50, 50, 50].map((n) => ["/zoeken", n]));
+});
+
+test("terugval: weigert eBesluit zoekpagina's van 500 rijen, dan lukt het met 100 en is de bron gewoon ok", async (t) => {
+  const root = makeRoot(t);
+  const calls = [];
+  const [status] = await runOnce(root, nepEbesluit({ weigertPagina: [500], calls }));
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["ok", null, 3]);
+  const document = readJson(root, `${SOURCE_ID}.json`);
+  assert.ok(!("lastError" in document));
+  const groottes = calls.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
+  // Per zoekterm één venster: 500 (met de herkansing), dan 100.
+  assert.deepEqual(groottes, EVENEMENT_ZOEKTERMEN.flatMap(() => [500, 500, 100]));
 });
 
 test("agendapunten: alleen wat nog komt; uitzondering en toekenning over hetzelfde feest worden één punt", () => {

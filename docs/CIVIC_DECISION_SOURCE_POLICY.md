@@ -4,7 +4,7 @@ Stand: 28 september 2026.
 
 Bron: eBesluit Antwerpen, publieke zoek- en agendapuntpagina's met Referer-header.
 
-De discovery doorloopt zoekresultaten gepagineerd (maximaal 20 pagina's per zoekterm) en rapporteert expliciet of de zoekdekking compleet was. Alleen gepubliceerde agendapunten worden gelezen.
+De discovery doorloopt zoekresultaten gepagineerd (maximaal 20 pagina's per zoekvenster, 500 rijen per pagina; bij een aanhoudende serverfout hetzelfde venster opnieuw met 100 en dan 50 rijen, zie "eBesluit: kleinere zoekpagina's bij een serverfout" in `docs/AGENDA_SOURCES.md`) en rapporteert expliciet of de zoekdekking compleet was. Een onvolledige zoekronde wordt nooit als volledig aanvaard. Alleen gepubliceerde agendapunten worden gelezen.
 
 De classifier onderscheidt concrete goedgekeurde speelstraatperioden, weigeringen, reglementswijzigingen, kermis/foorbesluiten en marktafwijkingen.
 

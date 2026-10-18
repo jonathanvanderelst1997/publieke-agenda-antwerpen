@@ -117,6 +117,49 @@ De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) p
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
 en 5 seconden).
 
+## De reden van een fout in het bronbestand (`lastError`)
+
+Bij elke fout bewaart een fetcher de vorige, geverifieerde items (`keepPreviousOnError` in
+`lib/fetch-util.mjs`). Het bronbestand zegt sindsdien ook waarom en sinds wanneer:
+
+```json
+"fetchStatus": "error",
+"lastSuccessAt": "2026-10-12T03:21:58.546Z",
+"lastError": { "code": "http_500", "at": "2026-10-19T03:21:00.000Z" }
+```
+
+- `lastError.code` is de vaste foutcode van de laatste poging (`http_500`, `search_incomplete`,
+  `no_decisions`, `timeout`, `source_timeout`, `suspicious_drop` …), `lastError.at` het moment van die poging;
+  `lastSuccessAt` is de laatste geslaagde verversing (gelijk aan de bewaarde `retrievedAt`). Zo staat in de
+  repo welke fout er is en sinds wanneer, ook als de logs van de verversing niet te lezen zijn.
+- Alleen een foutcode (`[a-z0-9_]`, hoogstens 60 tekens) en twee tijdstippen: nooit een URL, een zoekterm of
+  andere vrije tekst. `validateSourceDocument` (`lib/source-feed.mjs`, ook `npm run validate:data`) aanvaardt
+  de twee velden alleen samen en alleen bij `fetchStatus: "error"`; een bestand zonder blijft geldig.
+- Een geslaagde verversing schrijft het bestand opnieuw zonder deze velden.
+- Intern: de feed (`scripts/build-sources.mjs`) neemt ze niet over en de site toont ze nergens (besluit van
+  18-10-2026, zie hierboven). `refresh-status.json` houdt zoals voorheen `errorCode` per bron.
+
+## eBesluit: kleinere zoekpagina's bij een serverfout
+
+eBesluit levert tot 500 rijen per zoekpagina (`EBESLUIT_PAGE_SIZE`). Sinds 12/13 oktober 2026 faalden
+`district-ebesluit` en `district-ebesluit-evenementen` elke nacht met HTTP 500 (#180, #186); bij de
+evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar eigen fouten op. Daarom
+(`lib/ebesluit-discovery.mjs`):
+
+- geeft een zoekpagina na de bestaande herkansing (`getHtml`, één keer na 1,5 s) nog een 5xx, dan wordt
+  **hetzelfde venster** opnieuw doorzocht met pagina's van 100 en daarna 50 rijen
+  (`EBESLUIT_FALLBACK_PAGE_SIZES`). De rijen van een mislukte poging tellen niet;
+- elke poging blijft binnen 20 pagina's (`EBESLUIT_MAX_PAGES`, dus 2.000 rijen bij 100 en 1.000 bij 50): meer
+  treffers maken het venster onvolledig, en dan splitst het bestaande kwartaal-/maandpad zoals voorheen.
+  Het tijdsbudget van de bron (6 en 4 minuten) blijft gelden;
+- weigert eBesluit een grootte, dan begint het volgende venster van dezelfde zoekterm meteen bij de kleinere;
+- pas als ook pagina's van 50 falen, is het venster onvolledig, met de foutcode erbij. Faalt zo ook een
+  kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `http_500`): ze kan
+  niet meer volledig worden, en verder vragen belast een server in storing. Bij een aanhoudende 500 zijn dat
+  10 verzoeken voor `district-ebesluit` en 8 voor `district-ebesluit-evenementen`;
+- fail-closed blijft: een onvolledige zoekronde wordt nooit als volledig aanvaard (#186); de bron krijgt
+  `fetchStatus: "error"` met de vorige items en `lastError`.
+
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
 De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
