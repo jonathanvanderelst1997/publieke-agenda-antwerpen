@@ -10,11 +10,13 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import * as KU from "../site/kaart-uitleg.js";
-import { GEEN_OMSCHRIJVING, INNAME_LIFT, collectWorks, werkZonderVerhuis } from "../site/works-core.js";
+import { GEEN_OMSCHRIJVING, INNAME_LIFT, VERHUIS, collectWorks, innameZonderVerhuis, werkZonderVerhuis, zonderVerhuis } from "../site/works-core.js";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { updateLiveHistory } from "../lib/live-history.mjs";
-import { historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { historiekPrivacyBevindingen, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
+import { straatItemPrivacy } from "../lib/straat-bestanden.mjs";
 import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
+import { validateKaartUitleg, werkFouten } from "../lib/kaart-uitleg-validatie.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const VANDAAG = "2099-03-10";
@@ -23,6 +25,15 @@ const PUNT = [4.4, 51.22];
 const gipod = (id, properties) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { GipodId: id, Status: "In uitvoering", Start: "2099-03-01T06:00:00Z", End: "2099-03-30T16:00:00Z", LastModifiedOn: "2099-02-01T00:00:00Z", ...properties } });
 const hinder = (gipodId, HindranceDescription, nr = 1) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { HindranceStatus: "Gevalideerd", HindranceConsequenceOf: `https://gipod.api.vlaanderen.be/api/v1/works/${gipodId}`, HindranceGipodId: gipodId * 10 + nr, HindranceDescription, HindranceStart: `2099-03-1${nr}T06:00:00Z`, HindranceEnd: `2099-03-1${nr}T16:00:00Z`, Consequences: "Parkeerverbod" } });
 const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG });
+const teksten = (waarde, uit = []) => {
+  if (typeof waarde === "string") uit.push(waarde);
+  else if (Array.isArray(waarde)) for (const v of waarde) teksten(v, uit);
+  else if (waarde && typeof waarde === "object") for (const v of Object.values(waarde)) teksten(v, uit);
+  return uit;
+};
+// Een eigen vergelijking (niet die van site/works-core.js), ook met een verborgen teken of een accent.
+const plat = (t) => String(t).normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu, "");
+const nergensVerhuis = (waarde, wat) => { for (const t of teksten(waarde)) assert.doesNotMatch(plat(t), /verhui[sz]/i, `${wat}: ${JSON.stringify(t)}`); };
 
 test("een werk met 'verhuis' in de tekst is precies een werk zonder omschrijving: dezelfde titel, fasen, kaart, historiek en straatbestand", () => {
   const id = 990901;
@@ -63,4 +74,33 @@ test("de vaste vervangtekst van vroeger staat nergens meer in de code of de docs
     assert.doesNotMatch(fs.readFileSync(path.join(root, f), "utf8"), OUD, f);
   }
   assert.doesNotMatch(fs.readFileSync(path.join(root, "docs", "PUBLIC_SPACE_SOURCE_POLICY.md"), "utf8"), /verhuis[^.]{0,80}\bwordt\b[^.]{0,60}\bvaste tekst/i);
+});
+
+// ---------- het woord met een verborgen teken of een accent ----------
+
+test("'verhuis' met een zachte afbreking, een zero-width teken, een accent of in volle breedte telt ook, bij de ingang en in de scans", () => {
+  const vormen = ["Ver\u00ADhuis fam. Proefmans", "Ver\u200Bhuislift", "Verh\u00FAis Proefstraat 12", "Verhu\u0301is", "VER\u2060HUIZING", "\uFF56\uFF45\uFF52\uFF48\uFF55\uFF49\uFF53"]; // verzonnen
+  for (const t of vormen) {
+    assert.equal(VERHUIS.test(t), true, JSON.stringify(t));
+    assert.equal(zonderVerhuis(t), "", JSON.stringify(t));
+  }
+  assert.equal(zonderVerhuis("Levering van een container"), "Levering van een container");
+  assert.equal(innameZonderVerhuis("(Ver\u00ADhuis)lift/levering"), "Lift/levering");
+  assert.equal(innameZonderVerhuis("Container;(Verh\u00FAis)lift/levering"), "Container;Lift/levering");
+  assert.equal(innameZonderVerhuis("Olie, gas, chemicali\u00EBn"), "Olie, gas, chemicali\u00EBn", "een soort zonder dat woord blijft letterlijk");
+  // De ingang: de titel en de fase.
+  const [w] = attachHindrance(collectWorks([gipod(990903, { Description: "Ver\u00ADhuis fam. Proefmans, Proefstraat 12", Owner: "Stad Antwerpen - Proefdienst" })], new Set([990903])), [hinder(990903, "Verhu\u0301islift")], true); // verzonnen
+  assert.equal(w.title, GEEN_OMSCHRIJVING);
+  assert.deepEqual(w.hindrance.phases, []);
+  // De scans van validate-data: de historiek, de straatbestanden en kaart-uitleg.json; en de opkuis van wat bewaard was.
+  const feiten = (t) => ({ soort: "", soortBron: "", omschrijving: t, opdrachtgever: "", straten: [], huisnummers: "", huisnummerBron: "", gevolgen: [], fasen: [] });
+  for (const t of vormen) {
+    assert.deepEqual(historiekPrivacyBevindingen({ id: "work:990903", title: t }).map((v) => v.code), ["verhuis"], JSON.stringify(t));
+    assert.deepEqual(straatItemPrivacy({ werken: [{ id: "work:990903", title: t }] }).map((v) => v.code), ["verhuis"], JSON.stringify(t));
+    assert.deepEqual(werkFouten("990903", feiten(t)), ["werken.990903: verhuis in een tekst"], JSON.stringify(t));
+    assert.ok(validateKaartUitleg({ schemaVersion: 1, generatedAt: "2099-03-10T05:00:00.000Z", vanaf: "2099-03-10", tot: "2099-05-09", werken: { 990903: feiten(t) }, evenementen: {} }).some((f) => /verhuis in een tekst/.test(f)), JSON.stringify(t));
+    nergensVerhuis(werkZonderVerhuis({ id: "work:990903", title: t, owner: t, occupancyTypes: [`(${t})lift/levering`], hindrance: { phases: [{ description: t }] } }), JSON.stringify(t));
+    nergensVerhuis(historiekVoorPubliek({ layers: { works: { items: [{ id: "work:990903", title: t, hindrance: { phases: [{ description: t }] } }] } } }), JSON.stringify(t));
+    nergensVerhuis(KU.feitenZonderVerhuis({ ...feiten(t), soort: t, soortBron: "omschrijving van de beheerder", fasen: [{ naam: t, start: "", eind: "", gevolgen: [] }], opdrachtgever: t }), JSON.stringify(t));
+  }
 });

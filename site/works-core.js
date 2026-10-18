@@ -26,7 +26,13 @@ export const gipodTekst=(value="")=>zonderToevoegingInTekst(normalizeText(value)
 // - de vaste soort inname van GIPOD voor een lift of levering ("(Verhuis)lift/levering") heet "Lift/levering", en een werk
 //   met die soort INNAME_LIFT, zoals elk werk met die soort inname;
 // - een opdrachtgever met "verhuis" in zijn naam valt weg (zijn groep wordt "Andere").
-export const VERHUIS=/verhui[sz]/i;
+// Het woord telt ook met een verborgen teken of een accent erin: de vergelijking gebeurt op de NFKD-vorm zonder opmaaktekens
+// (\p{Cf}: een zachte afbreking U+00AD, een zero-width teken U+200B of U+2060 ...) en zonder combinerende accenten (\p{M}),
+// zodat "Ver\u00ADhuis", "Ver\u200Bhuislift", "Verhúis" en "ｖｅｒｈｕｉｓ" niet langs de regel glippen (nakijkronde van head
+// 1ed84e65). Dezelfde vergelijking staat in VERHUIS_IN_WERK (lib/kaart-uitleg-validatie.mjs, zonder imports uit site/).
+export const verhuisVorm=(value="")=>String(value??"").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu,"");
+const VERHUIS_WOORD=/verhui[sz]/i;
+export const VERHUIS=Object.freeze({test:(value)=>VERHUIS_WOORD.test(verhuisVorm(value))});
 export const GEEN_OMSCHRIJVING="Werk in openbaar domein";
 export const INNAME_LIFT="Inname voor een lift of levering";
 export const zonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?"":value);
@@ -34,7 +40,7 @@ export const zonderVerhuis=(value="")=>(VERHUIS.test(String(value??""))?"":value
 // met "verhuis" wordt "Andere" (zoals GIPOD een soort zonder naam noemt).
 export const innameZonderVerhuis=(value="")=>String(value??"").split(";").map(t=>{
   if(!VERHUIS.test(t))return t;
-  const zonder=t.replace(/\(\s*verhui[sz]\p{L}*\s*\)\s*/giu,"").trim();
+  const zonder=verhuisVorm(t).replace(/\(\s*verhui[sz]\p{L}*\s*\)\s*/giu,"").trim();
   return !zonder||VERHUIS.test(zonder)?"Andere":zonder.charAt(0).toUpperCase()+zonder.slice(1);
 }).join(";");
 // Een soort (kaart-uitleg.json, een oudere verversing): "Verhuislift of levering" (de vaste soort inname) is INNAME_LIFT;

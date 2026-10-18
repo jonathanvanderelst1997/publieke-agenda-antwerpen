@@ -28,6 +28,8 @@ import { refreshLiveHistory } from "../scripts/refresh-live-history.mjs";
 
 const VANDAAG = "2099-03-10";
 const VERHUIS = /verhui[sz]/i;
+// Ook met een verborgen teken of een accent (tests/werken-verhuis-spoor.test.mjs).
+const plat = (t) => String(t).normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu, "");
 const PUNT = [4.4, 51.22];
 // Een GIPOD-werk zoals INNAME_PUNT het geeft (verzonnen).
 const gipod = (id, properties) => ({ type: "Feature", geometry: { type: "Point", coordinates: PUNT }, properties: { GipodId: id, Status: "In uitvoering", Start: "2099-03-01T06:00:00Z", End: "2099-03-30T16:00:00Z", LastModifiedOn: "2099-02-01T00:00:00Z", ...properties } });
@@ -46,7 +48,7 @@ const teksten = (waarde, uit = []) => {
   else if (waarde && typeof waarde === "object") for (const v of Object.values(waarde)) teksten(v, uit);
   return uit;
 };
-const nergensVerhuis = (waarde, wat) => { for (const t of teksten(waarde)) assert.doesNotMatch(t, VERHUIS, `${wat}: ${JSON.stringify(t)}`); };
+const nergensVerhuis = (waarde, wat) => { for (const t of teksten(waarde)) assert.doesNotMatch(plat(t), VERHUIS, `${wat}: ${JSON.stringify(t)}`); };
 const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG });
 const regels = (k) => Object.fromEntries(k.regels);
 const getoond = (k) => [k.titel, k.samenvatting, k.plek, k.bronTekst, ...k.regels.flat(), ...k.ontbreekt].join(" ¶ ");
