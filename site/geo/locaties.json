@@ -15,16 +15,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "anselmostraat en lange lozanastraat": {
-   "point": [
-    4.40384,
-    51.20687
-   ],
-   "precision": "straat",
-   "street": "Anselmostraat",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
-  },
   "argentinielaan belfaststraat bostonstraat en 24 andere straten": {
    "point": [
     4.42611,
@@ -82,16 +72,6 @@
    ],
    "precision": "straat",
    "street": "Brugstraat",
-   "postcode": "2060",
-   "checkedOn": "2026-10-12"
-  },
-  "carnotstraat kerkstraat koningin astridplein en 1 andere straten": {
-   "point": [
-    4.42546,
-    51.21819
-   ],
-   "precision": "straat",
-   "street": "Carnotstraat",
    "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
@@ -285,16 +265,6 @@
    "postcode": "2660",
    "checkedOn": "2026-10-05"
   },
-  "kloosterstraat arenbergstraat armeduivelstraat en 31 andere straten": {
-   "point": [
-    4.3942,
-    51.21465
-   ],
-   "precision": "straat",
-   "street": "Kloosterstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "koningin astridplein": {
    "point": [
     4.42075,
@@ -314,16 +284,6 @@
    "street": "Kristus-Koningplein",
    "postcode": "2180",
    "checkedOn": "2026-10-05"
-  },
-  "kronenburgstraat brouwersvliet ernest van dijckkaai en 26 andere straten": {
-   "point": [
-    4.39902,
-    51.21183
-   ],
-   "precision": "straat",
-   "street": "Kronenburgstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "laar borgerhout 2140 borgerhout": {
    "point": [
@@ -345,16 +305,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "meir": {
-   "point": [
-    4.40764,
-    51.21814
-   ],
-   "precision": "straat",
-   "street": "Meir",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "michel willemsplein antwerpen": {
    "point": [
     4.37472,
@@ -364,16 +314,6 @@
    "street": "Michel Willemsplein",
    "postcode": "2610",
    "checkedOn": "2026-10-05"
-  },
-  "miraeusstraat en solvynsstraat": {
-   "point": [
-    4.39913,
-    51.2064
-   ],
-   "precision": "straat",
-   "street": "Miraeusstraat",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
   },
   "ossenmarkt appelmansstraat augustijnenstraat en 38 andere straten": {
    "point": [
@@ -545,16 +485,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "teniersplaats": {
-   "point": [
-    4.41508,
-    51.21806
-   ],
-   "precision": "straat",
-   "street": "Teniersplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "theaterplein": {
    "point": [
     4.41058,
@@ -701,21 +631,21 @@
   "demerstraat 2060 antwerpen": "2026-10-10",
   "district antwerpen locatie via de officiele bron": "2026-10-06",
   "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district borsbeek locatie via de officiele bron": "2026-10-18",
   "district deurne locatie via de officiele bron": "2026-10-13",
   "district ekeren locatie via de officiele bron": "2026-10-05",
-  "district hoboken locatie via de officiele bron": "2026-10-05",
   "district merksem locatie via de officiele bron": "2026-10-05",
   "district wilrijk locatie via de officiele bron": "2026-10-05",
   "districtshuis antwerpen zaal benoit": "2026-10-05",
   "duinstraat 2060 antwerpen": "2026-10-10",
   "durletstraat 2018 antwerpen": "2026-10-10",
+  "fort 8 district hoboken plaats volgens het bericht": "2026-10-18",
   "geelhandplaats 2060 antwerpen": "2026-10-10",
   "grotebeerstraat 2018 antwerpen": "2026-10-10",
   "halenstraat kant stuivenbergplein 2060 antwerpen": "2026-10-10",
   "harmoniepark 1": "2026-10-05",
   "hertoginstraat 2018 antwerpen": "2026-10-10",
   "jacob jordaensstraat 2018 antwerpen": "2026-10-10",
-  "keistraat 2000 antwerpen": "2026-10-10",
   "kleine kauwenberg grote kauwenberg lange winkelstraat en 2 andere straten": "2026-10-17",
   "korte scholierstraat antwerpen": "2026-10-10",
   "kruispunt lange elzenstraat desguinlei 2018 antwerpen": "2026-10-10",
@@ -729,6 +659,7 @@
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-10-10",
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-10",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-10",
+  "park gravenhof district hoboken plaats volgens het bericht": "2026-10-18",
   "provinciehuis antwerpen": "2026-10-05",
   "scheldestraat 2000 antwerpen": "2026-10-10",
   "schijnpoortweg 2060 antwerpen": "2026-10-10",
@@ -736,6 +667,7 @@
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-10-10",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-10",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-10",
+  "sporthal de rode loop district merksem plaats volgens het bericht": "2026-10-18",
   "ten eeckhovelei 2100 deurne": "2026-10-05",
   "toeristisch centrum antwerpen": "2026-10-05",
   "van de wervestraat 2060 antwerpen": "2026-10-10",
