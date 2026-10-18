@@ -438,10 +438,11 @@ export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
   const aard = t.match(/aard van de werken:\s*(.+)$/i);
   if (aard) t = aard[1];
   const kaartStraat = straten.map((s) => clean(s, 120)).filter(Boolean)
-    .map((s) => new RegExp(`^${escRe(zonderAccenten(s))}(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR}(?![\\p{L}\\d]))?\\.?\\s*`, "iu"));
+    .map((s) => new RegExp(`^${escRe(zonderAccenten(s))}(?:\\s*\\[[^\\]]*\\])?(?:\\s+${HUISNR}(?![\\p{L}\\d_]))?\\.?\\s*`, "iu"));
   // Ook per zin ("Xstraat 13 tem 15. Ystraat 2."), en tussen twee adressen die een reeks vormen
-  // ("Xplein 70 tem Ystraat 2"): elk stuk dat alleen een adres is, valt dan weg.
-  const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|_|\.\s+(?=\p{Lu})|\s+(?:tem|t\.\s?e\.\s?m\.?|tot en met|t\/m)\s+(?=\p{Lu}))/u);
+  // ("Xplein 70 tem Ystraat 2"): elk stuk dat alleen een adres is, valt dan weg. Een underscore scheidt de stukken van een
+  // dossiercode ("PG0971_N1_..."), maar niet een huisnummer met een code ("PROEFSTRAAT 3B_BIS": één nummer, site/huisnummers.js).
+  const delen = t.split(/(\s+[-–|:]\s+|\s*[|;]\s*|,\s*|(?<!(?<![\p{L}\d])\d{1,3}\p{L}{0,11})_|\.\s+(?=\p{Lu})|\s+(?:tem|t\.\s?e\.\s?m\.?|tot en met|t\/m)\s+(?=\p{Lu}))/u);
   const blijft = [];
   for (let i = 0; i < delen.length; i += 2) {
     // Vooraan: "2018 Antwerpen" of een volgnummer van de beheerder ("5204: Voorbeeldstraat 2A").

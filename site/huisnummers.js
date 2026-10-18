@@ -22,10 +22,12 @@ const echtNummer = (v) => { const n = Number(String(v).match(/^\d+/)?.[0]); retu
 // Een huisnummer met een code eraan, zoals GIPOD een aansluiting schrijft ("PROEFSTRAAT 1DN02", "8werf", "12RO", "3B_BIS"):
 // hoogstens drie cijfers en meteen daarna een letter. Of het een huisnummer met een code is of een code die met cijfers
 // begint, is niet te zien: het blijft heel staan, zoals de bron het geeft (besluit van de eigenaar van 18 oktober 2026,
-// site/works-core.js). Nooit een maat ("30m", "10kV"), een uur ("8u") of een rangtelwoord ("2de fase"), ook niet als
-// gewoon huisnummer.
+// site/works-core.js). Nooit een maat ("30m", "10kV"), een duur of een uur ("8u", "3dagen") of een rangtelwoord ("2de
+// fase"), ook niet als gewoon huisnummer.
 const NUMMER_MET_CODE = String.raw`\d{1,3}[\p{L}_][\p{L}\d_]{0,11}(?![\p{L}\d_])`;
-const GEEN_HUISNUMMER = /^\d+(?:m|m2|m²|km|cm|mm|kv|u|uur|h|meter|de|ste)$/iu;
+// Een maat of een duur na een getal, met of zonder spatie ("30 m", "160 meter", "3 dagen", "8 u", "10 kV").
+const EENHEID = String.raw`(?:m|m2|m²|km|cm|mm|kv|meters?|u|uur|uren|h|min|minuten|dagen|dag|weken|week|maanden|maand|jaar|jaren|nachten|nacht|ton|kg)`;
+const GEEN_HUISNUMMER = new RegExp(String.raw`^\d+(?:${EENHEID}|de|ste)$`, "iu");
 export function geldigeHuisnummers(tekst) {
   const t = clean(tekst, 40);
   const m = t.match(/^nr\. (\d+[a-z]?)(?:–(\d+[a-z]?))?$/i);
@@ -47,7 +49,8 @@ export function geldigeHuisnummers(tekst) {
 // "nr." ervoor. Na een scheiding telt het getal alleen als er niets meer op volgt dan een scheiding of "bus": "Proefstraat,
 // 3 dagen", "Proefstraat - 30 m" en "Proefstraat: 2 rijstroken" zijn geen huisnummer. Hoofdletters en accenten tellen
 // niet: "DESIRE PROEFSTRAAT 12" hoort bij de "Désiré Proefstraat".
-const NUMMER = String.raw`\d{1,3}[a-z]?(?![\d\p{L}])`;
+// Geen letter, cijfer of underscore erna: "3B_BIS" is een nummer met een code (NUMMER_MET_CODE), niet "3B".
+const NUMMER = String.raw`\d{1,3}[a-z]?(?![\d\p{L}_])`;
 const REEKS = String.raw`\s*(?:-|–|—|→|tot en met|t\.\s?e\.\s?m\.?|tem|t\/m|tot)\s*`;
 const OPSOMMING = String.raw`\s*(?:,|en)\s*`;
 const NA_OPSOMMING = String.raw`(?=\s*(?:$|[.;:,)/|]|[-–→]|(?:en|tem|tot|t\/m)(?!\p{L})))`;
@@ -66,6 +69,12 @@ const CODE_NA_STRAAT = [
   new RegExp(String.raw`\s+${VOOR_NUMMER}(${NUMMER_MET_CODE})`, "iuy"),
   new RegExp(`${SCHEIDING}${VOOR_NUMMER}(${NUMMER_MET_CODE})${NA_SCHEIDING}`, "iuy"),
 ];
+// Wat na de nummers staat en zegt dat het een maat, een duur of een rangtelwoord is: een eenheid na een spatie ("Proefstraat
+// 30 m kabel", "Proefstraat 3 dagen", ook na een reeks: "Proefstraat 8 tot 17 u", "Proefstraat 12 - 30 m"), of een woord na
+// een getal op -e ("Proefstraat 2e fase", "3E DEEL"; "Proefstraat 12e" aan het einde blijft een huisnummer). Liever geen
+// nummer dan een fout.
+const EENHEID_ERNA = new RegExp(String.raw`^\s*(?:${REEKS}\d{1,3}\s*)?${EENHEID}(?![\p{L}\d])`, "iu");
+const RANGTELWOORD = /\d{1,3}e$/i;
 // De eerste plek in de tekst waar de straat staat met erna wat `re` zoekt (in hoofd- of kleine letters).
 function naDeStraat(t, laag, s, re) {
   for (let i = laag.indexOf(s); i >= 0; i = laag.indexOf(s, i + 1)) {
@@ -83,9 +92,14 @@ export function huisnummersUitTekst(tekst, straat) {
   if (laag.length !== t.length) return "";
   const zoek = (lijst) => { for (const re of lijst) { const m = naDeStraat(t, laag, s, re); if (m) return m; } return null; };
   const m = zoek(NA_STRAAT);
-  // Een maat of een uur ("8u tot 17u", "30m") is geen huisnummer, ook niet in een reeks.
+  // Een maat of een uur ("8u tot 17u", "30m", "30 m", "3 dagen") is geen huisnummer, ook niet in een reeks; een getal op -e
+  // met een woord erna is een rangtelwoord ("2e fase").
   const delen = m ? m[1].match(/\d{1,3}[a-z]?/gi) : [];
-  if (m) return delen.some((d) => GEEN_HUISNUMMER.test(d)) ? "" : geldigeHuisnummers(huisnummerBereik(delen));
+  if (m) {
+    const erna = t.slice(m.index + m[0].length);
+    if (delen.some((d) => GEEN_HUISNUMMER.test(d)) || EENHEID_ERNA.test(erna) || (RANGTELWOORD.test(m[1]) && /^\s+\p{L}/u.test(erna))) return "";
+    return geldigeHuisnummers(huisnummerBereik(delen));
+  }
   const code = zoek(CODE_NA_STRAAT);
   return code ? geldigeHuisnummers(`nr. ${code[1]}`) : "";
 }
