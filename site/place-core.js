@@ -10,7 +10,9 @@ import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
 import { locationKey } from "./neighborhood-core.js";
 import { aanvraagStand, aanvraagTitel, aanvraagZegtNiet, dossierJaar, omgevingsStatus, waarTekst } from "./permit-clarity.js";
+import { GIPOD_METADATA_URL } from "./gipod-bron.js";
 import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
+import { zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const DISTRICT_POSTCODES = Object.freeze({
   2000: "Antwerpen (centrum)",
@@ -100,24 +102,18 @@ export function editDistance(a, b, max = 2) {
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
-// De straatas zet een homoniemtoevoeging achter een straatnaam die ook in een ander district bestaat
-// ("Maria-Theresialei_AN" in 2018, naast de Maria-Theresialei in Ekeren). Zo heet geen straat: de bewoner ziet en
-// zoekt "Maria-Theresialei" (zoals scripts/build-straten-stad.mjs voor de andere districten).
-export const zonderHomoniem = (naam) => String(naam ?? "").replace(/_[A-Z]{2}$/, "");
-
 // Index van alle plekken. streets: rijen uit straten.json ([id, naam, postcode, wijken, kader]);
 // wijken: [{ code, naam, box }]; counts: optioneel aantal items per straat-/wijksleutel (voor de rangorde).
-// Een straat houdt in `name` en `key` de naam uit de straatas: daarmee koppelt de site haar aan de live lagen en de
-// ochtendstand. `label`, `compact` en `words` (wat de bewoner ziet en intypt) zijn zonder homoniemtoevoeging; de
-// naam met toevoeging blijft een alias, zodat een oude link (?plek=Maria-Theresialei_AN) blijft werken.
+// Een straat houdt in `name` en `key` de naam uit de straatas, zonder homoniemtoevoeging (straatasNaam in
+// site/street-core.js; scripts/build-straten.mjs schrijft straten.json zo): daarmee koppelt de site haar aan de live lagen
+// en de ochtendstand. Twee straten met dezelfde naam verschillen door hun id.
 export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
   const wijkByCode = new Map(wijken.map((w) => [w.code, w]));
   const nameCount = new Map();
-  for (const row of streets) nameCount.set(zonderHomoniem(row[1]), (nameCount.get(zonderHomoniem(row[1])) || 0) + 1);
+  for (const row of streets) nameCount.set(row[1], (nameCount.get(row[1]) || 0) + 1);
   const places = [];
   for (const [id, name, postcode, codes = [], box = null] of streets) {
     const wijk = wijkByCode.get(codes[0]);
-    const label = zonderHomoniem(name);
     places.push({
       type: "straat",
       key: `straat:${id}|${name}|${postcode}`,
@@ -126,12 +122,11 @@ export function buildPlaceIndex({ streets = [], wijken = [] } = {}) {
       postcode: String(postcode || ""),
       wijken: codes,
       box,
-      label,
+      label: name,
       sub: [postcode, wijk ? `wijk ${wijk.naam}` : ""].filter(Boolean).join(" · "),
-      ambiguous: nameCount.get(label) > 1,
-      compact: compactOf(label),
-      words: foldText(label).split(" "),
-      ...(label !== name ? { aliases: [compactOf(name)] } : {}),
+      ambiguous: nameCount.get(name) > 1,
+      compact: compactOf(name),
+      words: foldText(name).split(" "),
     });
   }
   for (const w of wijken) {
@@ -292,8 +287,10 @@ export function placeParam(place, index) {
   return `${prefix}${place.type === "straat" ? place.label : place.name}`;
 }
 
+// Een oude link of een bewaarde sleutel met de homoniemtoevoeging van de straatas (?plek=Proefstraat_AN,
+// "straat:1|Proefstraat_AN|2018") vindt de straat nog: de toevoeging gaat er bij het lezen af, zoals bij de straatas zelf.
 export function resolvePlaceParam(index, value) {
-  const raw = String(value ?? "").trim();
+  const raw = zonderToevoegingInTekst(String(value ?? "").trim());
   if (!raw || !index) return null;
   const typed = raw.match(/^(straat|wijk|postcode):(.*)$/i);
   const type = typed ? typed[1].toLowerCase() : "";
@@ -303,9 +300,8 @@ export function resolvePlaceParam(index, value) {
   const candidates = index.places.filter((p) => (!type || p.type === type));
   if (!q.compact && q.postcode) return candidates.find((p) => p.type === "postcode" && p.code === q.postcode) || null;
   // Eerst de naam zoals in de link, met haar cijfers ("De 7 schakenpad", "4 septemberpad"): parseQuery laat die als
-  // huisnummer weg. Dan de ontlede vraag (straat zonder huisnummer). Een straat ook bij haar naam met
-  // homoniemtoevoeging.
-  const heet = (p, vorm) => p.compact === vorm || (p.type === "straat" && (p.aliases || []).includes(vorm));
+  // huisnummer weg. Dan de ontlede vraag (straat zonder huisnummer).
+  const heet = (p, vorm) => p.compact === vorm;
   for (const vorm of [q.ruw, q.compact]) {
     if (!vorm) continue;
     const exact = candidates.filter((p) => p.type !== "postcode" && heet(p, vorm) && (!q.postcode || p.type !== "straat" || p.postcode === q.postcode));
@@ -606,10 +602,15 @@ function samenWerk(live, bewaard) {
 export function werkStraten(puntStraten = [], bewaard = null) {
   return [...new Set([...(puntStraten || []), ...(Array.isArray(bewaard?.vlakStraten) ? bewaard.vlakStraten : [])].map(cleanText).filter(Boolean))];
 }
-export const gipodBronUrl = (gipodId) => (Number.isFinite(Number(gipodId)) && Number(gipodId) > 0
-  ? `https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items?f=html&filter-lang=cql2-text&filter=GipodId%3D${Number(gipodId)}` : "");
+// De link "Technische gegevens van de stad" bij een evenement: de rijen van het dossier in A-Sign (laag 22), alleen met de
+// velden van een gesloten lijst (het nummer, de stand, de fase, de datums, het soort inname, de hinder en het type). De
+// link opent de rijen als html: elk gevraagd veld staat ongefilterd op het scherm. Dus nooit een vrij in te vullen veld:
+// niet innameBeschrijving (vrije tekst van de aanvrager) en niet faseNaam (String(50), alleen via veiligeFase op de site);
+// de fase staat er als faseId, de vaste code van A-Sign ("EVENT", "CONSTRUCTION", ...). Nooit de beheerder van het dossier
+// of outFields=* (docs/PUBLIC_SPACE_SOURCE_POLICY.md).
+export const IOD_BRON_VELDEN = Object.freeze(["dossierNummer", "dossierStatus", "faseId", "faseStartDatum", "faseEindDatum", "innameTypeNaam", "innameHinder", "type_dossier"]);
 export const iodBronUrl = (dossier) => (/^[A-Z0-9-]{4,40}$/.test(String(dossier || ""))
-  ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=dossierNummer,faseNaam,faseStartDatum,faseEindDatum,innameTypeNaam,innameBeschrijving,innameHinder,type_dossier&returnGeometry=false&f=html` : "");
+  ? `https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22/query?where=dossierNummer%3D%27${dossier}%27&outFields=${IOD_BRON_VELDEN.join(",")}&returnGeometry=false&f=html` : "");
 
 // De identiteit van evenementendossiers: de met de hand nagekeken fiches (evenement-identiteit.json)
 // winnen altijd van de automatische herkenning (evenement-identiteit-auto.json, zie
@@ -624,7 +625,7 @@ export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const base = workEntryBasis(work);
   if (!vandaag) return base;
   const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
-  return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k, sourceUrl: gipodBronUrl(work?.gipodId) || base.sourceUrl };
+  return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k };
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
 // werfzones van Ringpark Zuid) wordt één kaart, met alle GIPOD-nummers erbij. Huisnummers in de
@@ -862,8 +863,8 @@ export function stratenVanAgendapunt(item = {}) {
 //   in de plaats; een oudere lijst kan straten van een ander dossier bevatten, en die tonen we niet.
 export function agendaStraten(item = {}, straat = "") {
   const lijst = stratenVanAgendapunt(item);
-  const n = foldText(zonderHomoniem(cleanText(straat)));
-  const eigen = n ? lijst.find((x) => foldText(zonderHomoniem(x)) === n) || "" : "";
+  const n = foldText(cleanText(straat));
+  const eigen = n ? lijst.find((x) => foldText(x) === n) || "" : "";
   const inPlaats = Boolean(eigen) && ` ${foldText(item?.location)} `.includes(` ${foldText(eigen)} `);
   const volledig = item?.stratenVolledig === true && lijst.length > 3;
   return {
@@ -2072,10 +2073,9 @@ const STATUS_NL = Object.freeze({ "in effect": "Van kracht", goedgekeurd: "Goedg
 export const statusNl = (status) => STATUS_NL[cleanText(status).toLowerCase()] || cleanText(status);
 // "Waar" bij veel straten: de gekozen straat eerst, de rest als telling ("Lange Leemstraat + 12 andere straten").
 export function waarKort(straten = [], gekozen = "") {
-  // Zonder de toevoeging van de straatas bij een naamgenoot ("Maria-Theresialei_AN"): die is geen deel van de naam.
-  const namen = [...new Set(straten.map((n) => zonderHomoniem(cleanText(n))).filter(Boolean))];
+  const namen = [...new Set(straten.map((n) => cleanText(n)).filter(Boolean))];
   if (namen.length <= 2) return namen.join(" en ");
-  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(zonderHomoniem(gekozen))) : "";
+  const eigen = foldText(gekozen) ? namen.find((n) => foldText(n) === foldText(gekozen)) : "";
   return `${eigen || namen[0]} + ${namen.length - 1} andere straten`;
 }
 const stratenVan = (rows) => [...new Set(rows.flatMap((r) => (r?.streets || []).map((s) => s?.name)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl"));
@@ -2203,7 +2203,9 @@ function workEntryBasis(work) {
     title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
     time: uren?.time || "", timeText: uren?.timeText || "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
-    reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: safeUrl(work?.sourceUrls?.[0]), item: work,
+    // Geen link naar het ruwe GIPOD-record (site/gipod-bron.js): de bron is de datasetfiche. Per werk linkt
+    // bezoekersLinks (site/bezoekers-bronnen.js) naar de algemene kaart van Hinder in Kaart, zonder gipodid.
+    reference: work?.gipodId ? `GIPOD ${work.gipodId}` : "", url: "", sourceUrl: GIPOD_METADATA_URL, item: work,
   };
 }
 export function publicSpaceEntry(row) {

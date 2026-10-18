@@ -6,6 +6,7 @@
 // Deze module en de lijst laden pas als iemand begint te typen (site/place-view.js): de eerste weergave wacht er niet op.
 import { editDistance, foldText, parseQuery, searchPlaces } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
+import { GIPOD_METADATA_URL, gipodLink } from "./gipod-bron.js";
 
 const compactOf = (value) => foldText(value).replace(/ /g, "");
 
@@ -130,8 +131,9 @@ export function naamgenoten(index, place) {
 // ---- wat de site wel kent in een ander district ----
 // Alleen wat al in de agenda staat (window.PUBLIC_AGENDA_PUBLIC_ITEMS): de markten van de stad (stad-markten, uit
 // GIPOD) en het nieuws van het district (stad-districten, van antwerpen.be). Niets erbij verzonnen: titel, dag, uur
-// en plaats zoals de bron ze geeft, met de link naar de bron.
-const veiligeLink = (url) => (/^https:\/\//i.test(String(url || "")) ? String(url) : "");
+// en plaats zoals de bron ze geeft, met de link naar de bron. Een GIPOD-link (een ruw record of de datasetfiche)
+// wordt de datasetfiche: nooit een link naar het record van een marktdag, dat contactgegevens draagt (site/gipod-bron.js).
+const veiligeLink = (url) => (gipodLink(url) ? GIPOD_METADATA_URL : /^https:\/\//i.test(String(url || "")) ? String(url) : "");
 const isoDag = (v) => (/^\d{4}-\d{2}-\d{2}/.test(String(v || "")) ? String(v).slice(0, 10) : "");
 const uurVan = (item) => {
   const tekst = String(item?.timeText || "").trim();
@@ -174,7 +176,7 @@ export function watDeSiteKent(district, items = [], today = "", { index = null, 
     if (districtVanMarkt(item, index)?.key !== district.key) continue;
     const sleutel = `${item.title}|${item.location}`;
     const g = groepen.get(sleutel) || { title: String(item.title || ""), location: String(item.location || ""), dagen: [], inStraat: zelfdeStraat(compactOf(marktPlaats(item.location).straat), straatCompact) };
-    // De bron is die van de eerstvolgende marktdag (elke marktdag heeft in GIPOD een eigen record).
+    // De bron is die van de eerstvolgende marktdag; bij GIPOD de datasetfiche, nooit het record van die dag.
     g.dagen.push({ date: isoDag(item.date), uur: uurVan(item), bron: veiligeLink(item.link || item.sourceUrl) });
     groepen.set(sleutel, g);
   }

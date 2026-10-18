@@ -10,13 +10,13 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
-| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. |
+| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. De bronlink van een item en van de bron is de GIPOD-datasetfiche, nooit de `INNAME_PUNT`-rij (zie "Geen links naar ruwe GIPOD-records" in `docs/WORKS_LIVE_SOURCE_POLICY.md`). |
 | `district-asign-evenementen` | district | de evenementendossiers van de stad op straat (parcours, verkeersvrije zones, innames): één punt per evenementdag, met naam, soort, of wat en waar met "naam onbekend" | **afgeleid**, geen eigen verzoeken: de dossiers die de parcoursherkenning al uit A-Sign (laag 22 en 23) haalt, in de stap `refresh:herkenning` (zie onder) |
 | `district-foren` | district | foren en kermissen, één punt per periode | A-Sign `MapServer/0` (foor) van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
-| `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
+| `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel. De bronlink is de GIPOD-datasetfiche, geen link per rij |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
 | `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is**: wacht op de beslissing van de eigenaar (sleutel kost geld; zie onder) |
 | `mail-district`, `mail-stad` | district / stad | publieke activiteiten uit nieuwsbrieven | mail-signalen van de Brain Gateway; titel en datum worden op de officiële pagina gecontroleerd, uur en plaats alleen overgenomen als ze daar ook staan (zie onder) |
@@ -250,7 +250,15 @@ verversing nooit vallen; lukt het niet, dan blijft het vorige `manual-check.json
   `inDistrict` komt uit de coördinaten en de officiële districtsgrens (`pointInDistrict`).
 - Per markt alleen de **eerstvolgende** marktdag die nog niet voorbij is, zodat de markten de stadsgroep
   niet overspoelen. Gemeten op 28-09-2026: 23 markten, waarvan 8 in district Antwerpen.
-- De bronlink van een markt is haar GIPOD-rij (`…/items/INNAME_PUNT.<id>`).
+- De bronvermelding van een markt is de GIPOD-datasetfiche, geen link per rij: "Bron: GIPOD (Digitaal
+  Vlaanderen)" met https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52. Een
+  `INNAME_PUNT`-rij toont `ContactOrganisations` (naam, e-mail, telefoon van een contactpersoon) met één
+  klik; op 17-10-2026 was dat veld bij 0 van de 26 marktrijen gevuld, maar dat hangt af van wat de beheerder
+  invult. De rij-id blijft alleen in de code (de controle op `feature.id`); het GIPOD-id staat in
+  `externalId`. Voor bezoekers linkt een markt naar de marktpagina van de stad (`infoUrl`), ook in de .ics.
+  `allowedHosts` van de bron is `www.antwerpen.be` en `metadata.vlaanderen.be`: een ruwe rij komt niet meer
+  door de validatie. Een bronbestand van vóór deze regel zet `build:sources` om (`zonderRuweGipodBron` in
+  `lib/source-feed.mjs`); de verversing schrijft het opnieuw.
 - Licentie: Modellicentie Gratis Hergebruik v1.0, met bronvermelding.
 
 ## Koopzondagen (`stad-koopzondagen`)
@@ -448,7 +456,10 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   mee; de tekst zegt dat dan, met de dag van de laatste wijziging in A-Sign ("laatst gewijzigd op …:
   aanvraag nog niet goedgekeurd"). Niet de dag van de verversing: dan zou elk item elke ochtend veranderen.
 - **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
-  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
+  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). De naam van een fase komt uit faseNaam
+  van A-Sign, een vrij in te vullen veld: alleen een vaste vorm ("Evenement", "Opbouw", "Afbraak",
+  "Opname periode 2"), "Opname", een district of een straat van het item (`veiligeFase` in
+  `site/witte-lijst.js`; de controle van het bronbestand weigert elke andere naam). Een dossier met meer dan 7 evenementdagen
   (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
   voor op die uit A-Sign. Een dossier zonder fase "Evenement" (alleen opbouw, of filmopnames met
   "Opname periode …") of met een evenementfase van meer dan 62 dagen (een constructie of plaatshouder
@@ -558,7 +569,9 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - Koopzondagen: "Bron: stad Antwerpen, koopzondagen (Vlaamse gratis open data licentie)", met een link
   naar https://www.antwerpen.be/info/koopzondagen.
 - Markten: "Bron: GIPOD, Digitaal Vlaanderen, en marktlijst stad Antwerpen (Modellicentie Gratis
-  Hergebruik v1.0)", met een link naar de OGC API van GIPOD.
+  Hergebruik v1.0)", met een link naar de officiële datasetfiche van GIPOD op metadata.vlaanderen.be (niet
+  meer naar de OGC API). De bronlink van een marktdag op de eventpagina en in de agenda is dezelfde fiche,
+  met de tekst "Bron: GIPOD (Digitaal Vlaanderen)".
 - Op de site staat bij elke gratis stadsbron haar eigen bronvermelding; op een eventpagina die van de bron
   met voorrang.
 - AWV-werfdata (aanvulling op een werk): "Bron: Agentschap Wegen en Verkeer (AWV), open data Werf, bijgewerkt op …"

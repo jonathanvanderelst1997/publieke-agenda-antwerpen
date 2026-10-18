@@ -12,9 +12,12 @@ test("vergunningen: geen startpagina van het Inzageloket, wel een rechtstreekse 
  assert.equal(bezoekersLinks(e)[0].url,INZAGE+"2026080750");
  assert.equal(bezoekersLinks(e).at(-1).type,"source");
 });
-test("werken: officieel GIPOD-ID opent de publiekskaart",()=>{
- assert.equal(hinderkaart(1143473),"https://www.geopunt.be/?app=hinder-in-kaart&gipodid=1143473");
- assert.equal(hinderkaart("onbekend"),"https://www.geopunt.be/?app=hinder-in-kaart");
+test("werken: altijd de algemene publiekskaart, nooit met gipodid (dat opent het record met contactgegevens)",()=>{
+ assert.equal(hinderkaart(),"https://www.geopunt.be/?app=hinder-in-kaart");
+ assert.equal(hinderkaart(1143473),"https://www.geopunt.be/?app=hinder-in-kaart");
+ const e={source:"works",item:{gipodId:1143473}};
+ assert.deepEqual(bezoekersLinks(e).map(x=>x.url).filter(u=>/geopunt/.test(u)),["https://www.geopunt.be/?app=hinder-in-kaart"]);
+ assert.equal(bezoekersHint(e),"Zoek op straatnaam in Hinder in Kaart.");
 });
 test("inschrijven: alleen expliciet bevestigde HTTPS-aanmeldpagina",()=>{
  const e={source:"agenda",url:"https://www.antwerpen.be/",item:{registrationUrl:"https://voorbeeld.be/inschrijven"}};

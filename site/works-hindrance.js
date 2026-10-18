@@ -1,4 +1,5 @@
-import {pointInGeometry} from "./works-core.js";
+import {gipodTekst,pointInGeometry} from "./works-core.js";
+import {GIPOD_BRON,GIPOD_METADATA_URL} from "./gipod-bron.js";
 import {onbekendZin} from "./onbekend-zinnen.js";
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const earlier=(a,b)=>!a?(b||""):!b?a:(String(a).localeCompare(String(b))<=0?a:b);
@@ -11,6 +12,8 @@ export function causingGipodIds(value=""){
   }
   return[...ids].filter(Number.isFinite);
 }
+// Per werk de gevalideerde hinder. Nooit HindranceURI of een andere link naar het ruwe HINDER_PUNT-record
+// (site/gipod-bron.js): dat record draagt HindranceContactOrganisations.
 export function collectHindrance(features=[]){
   const byWork=new Map();
   for(const feature of features){
@@ -20,21 +23,20 @@ export function collectHindrance(features=[]){
     if(!ids.length)continue;
     const consequences=String(p.Consequences||"").split(";").map(clean).filter(Boolean);
     for(const gipodId of ids){
-      const current=byWork.get(gipodId)||{gipodId,severe:false,consequences:new Set(),start:"",end:"",hindranceIds:new Set(),sourceUrls:new Set(),phases:new Map()};
+      const current=byWork.get(gipodId)||{gipodId,severe:false,consequences:new Set(),start:"",end:"",hindranceIds:new Set(),phases:new Map()};
       current.severe=current.severe||p.SevereHindrance===true;
       for(const consequence of consequences)current.consequences.add(consequence);
       current.start=earlier(current.start,p.HindranceStart||"");
       current.end=later(current.end,p.HindranceEnd||"");
       const hindranceId=Number(p.HindranceGipodId);
       if(Number.isFinite(hindranceId))current.hindranceIds.add(hindranceId);
-      if(typeof p.HindranceURI==="string"&&/^https:\/\/gipod\.api\.vlaanderen\.be\//i.test(p.HindranceURI))current.sourceUrls.add(p.HindranceURI);
       // De omschrijving van een hinderfase ("Fase 2: instandhouding stelling") zegt vaak wát er gebeurt.
-      const description=clean(p.HindranceDescription).slice(0,160);
+      const description=gipodTekst(p.HindranceDescription).slice(0,160);
       if(description){const key=`${description}|${p.HindranceStart||""}|${p.HindranceEnd||""}`;const phase=current.phases.get(key)||{description,start:p.HindranceStart||"",end:p.HindranceEnd||"",consequences:new Set()};for(const consequence of consequences)phase.consequences.add(consequence);current.phases.set(key,phase)}
       byWork.set(gipodId,current);
     }
   }
-  return new Map([...byWork].map(([id,item])=>[id,{...item,consequences:[...item.consequences].sort((a,b)=>a.localeCompare(b,"nl")),hindranceIds:[...item.hindranceIds],sourceUrls:[...item.sourceUrls],phases:[...item.phases.values()].map(phase=>({...phase,consequences:[...phase.consequences].sort((a,b)=>a.localeCompare(b,"nl"))})).sort((a,b)=>String(a.start).localeCompare(String(b.start))||a.description.localeCompare(b.description,"nl"))}]));
+  return new Map([...byWork].map(([id,item])=>[id,{...item,consequences:[...item.consequences].sort((a,b)=>a.localeCompare(b,"nl")),hindranceIds:[...item.hindranceIds],phases:[...item.phases.values()].map(phase=>({...phase,consequences:[...phase.consequences].sort((a,b)=>a.localeCompare(b,"nl"))})).sort((a,b)=>String(a.start).localeCompare(String(b.start))||a.description.localeCompare(b.description,"nl"))}]));
 }
 export function attachHindrance(items=[],features=[],sourceLoaded=true){
   const byWork=collectHindrance(features);
@@ -55,9 +57,9 @@ export const LOSSE_HINDER_TITEL="Hinder zonder gepubliceerd werk (GIPOD)";
 export const LOSSE_HINDER_ZIN=onbekendZin("losse-hinder");
 // Geen bronlink per hinder: een vraag naar HINDER_PUNT (ook gefilterd op HindranceGipodId) geeft het ruwe record,
 // met HindranceContactOrganisations (contactnaam, e-mail en telefoon). Eén bronvermelding voor het blok, met een
-// link naar de officiële datasetfiche van GIPOD (innames en mobiliteitshinder, uitgever Athumi).
-export const GIPOD_METADATA_URL="https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52";
-export const GIPOD_BRON="Bron: GIPOD (Digitaal Vlaanderen)";
+// link naar de officiële datasetfiche van GIPOD (innames en mobiliteitshinder, uitgever Athumi). De constante
+// staat in site/gipod-bron.js, samen met de regel voor alle GIPOD-links van de site.
+export {GIPOD_BRON,GIPOD_METADATA_URL};
 
 // De oorzaken van een hinder met hun soort: [{ soort: "works" | "groundworks" | "events" | …, id }].
 export function oorzakenVan(value=""){

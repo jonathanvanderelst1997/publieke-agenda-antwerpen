@@ -1,4 +1,6 @@
-// Zonder imports: ook lib/live-history.mjs (de verversing) gebruikt dit.
+// Alleen de pure regel van de straatnaam als import (site/witte-lijst.js, zelf zonder imports): ook lib/live-history.mjs
+// (de verversing) gebruikt dit.
+import{zonderToevoegingInTekst}from"./witte-lijst.js";
 // Een parkeerverbod is vaak een verhuis of een container voor één woning: het huisnummer is dan
 // een privéadres. We houden de straat en de postcode, nooit het huisnummer. A-Sign schrijft
 // "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
@@ -35,7 +37,7 @@ function zonderNummerwoord(straat){
 // bewaarde straatbestand. Dit adres wordt alleen live getoond; de historiek en snapshots
 // blijven verplicht geschoond. Geen naam, bus, hoekwaarde of onzekere bron erbij verzinnen.
 export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = null) {
-  const raw = String(bronAdres ?? "").replace(/\s+/g, " ").trim().slice(0, 220);
+  const raw = zonderToevoegingInTekst(String(bronAdres ?? "").replace(/\s+/g, " ").trim().slice(0, 220));
   const m = /^(.*?)\s+([1-9]\d{0,3}[a-z]{0,2})\s*[-–]\s*([1-9]\d{0,3}[a-z]{0,2})\s+(\d{4})\s+Antwerpen$/i.exec(raw);
   if (!m || adresZonderHuisnummer(raw, straatnamen) !== geschoondAdres) return "";
   const begin = Number(m[2].match(/^\d+/)[0]), eind = Number(m[3].match(/^\d+/)[0]);
@@ -47,8 +49,10 @@ export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = nul
   return leesbaar;
 }
 
+// Dit is de ingang van het adres van A-Sign: ook de homoniemtoevoeging van de straatas gaat hier weg ("Proefstraat_AN 12
+// 2018 Antwerpen" wordt "Proefstraat, 2018 Antwerpen"; site/witte-lijst.js).
 export function adresZonderHuisnummer(adres,straatnamen=null){
-  const tekst=String(adres??"").replace(/\s+/g," ").trim().slice(0,220);if(!tekst)return"";
+  const tekst=zonderToevoegingInTekst(String(adres??"").replace(/\s+/g," ").trim().slice(0,220));if(!tekst)return"";
   const bekendeStraat=(straat)=>{const v=vouw(straat);return cijferStraten(straatnamen).find(([sleutel])=>v===sleutel||v.startsWith(`${sleutel} `))?.[1]||""};
   // Al eerder opgekuist ("Straat, 2000 Antwerpen"; A-Sign zelf schrijft nooit een komma): alleen nog
   // een huisnummer op het einde weg, zodat "De 7 schakenpad, 2000 Antwerpen" blijft staan.
