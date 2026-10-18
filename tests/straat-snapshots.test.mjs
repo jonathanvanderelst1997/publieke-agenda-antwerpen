@@ -8,8 +8,7 @@ import path from "node:path";
 import test from "node:test";
 
 import {
-  MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, STRAAT_INDEX, agendapuntVoorStraat, bouwRadar, itemVoorStraat, radarBinnenBudget, straatBestandenProblemen,
-  verzamelStraatBronnen,
+  MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, STRAAT_INDEX, bouwRadar, itemVoorStraat, radarBinnenBudget, straatBestandenProblemen, verzamelStraatBronnen,
 } from "../scripts/build-straat-snapshots.mjs";
 import { kaderRond, laadStraat, lagenUitStand, aanvullenMetOchtend, metStratenVanDeOchtend, standZin, straatItems, tijdstipTekst, verschil } from "../site/straat-snapshot.js";
 import { buildStreetGroups, historiekUitRadar } from "../site/street-overview.js";
@@ -59,19 +58,17 @@ test("de bouwer schrijft per straat met items één klein bestand en een index m
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 
-test("privacy: geen huisnummer (behalve bij een werk), geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
+test("privacy: geen huisnummer, geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
   const root = werkmap(t);
   await bouw(root);
   const tekst = alleTekst(root);
-  for (const verboden of ["12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
+  for (const verboden of ["Proefstraat 12", "12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
     assert.equal(tekst.includes(verboden), false, `"${verboden}" staat in een straatbestand`);
   }
-  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat, buiten de werken: een werk houdt zijn huisnummer (de
-  // plaats mag exact, besluit van de eigenaar van 18 oktober 2026); het parkeerverbod op hetzelfde adres niet.
-  const zonderWerken = fs.readdirSync(path.join(root, "site", "straat")).map((naam) => JSON.stringify({ ...lees(root, `site/straat/${naam}`), werken: [] })).join("\n");
-  assert.doesNotMatch(zonderWerken, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
+  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat.
+  assert.doesNotMatch(tekst, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
   const kam = lees(root, `site/straat/${KAM.id}.json`);
-  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`);
+  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat - ${WERK_TITEL}`);
   assert.equal(kam.publiekeRuimte.find((i) => i.kind === "parking").location, "Proefstraat, 2000 Antwerpen");
   assert.equal(kam.publiekeRuimte.some((i) => /voorbeeld/i.test(JSON.stringify(i))), false, "het item met een e-mailadres valt weg");
   // Elk item afzonderlijk: een item met iets privé erin wordt null, niet half opgekuist.
@@ -383,23 +380,18 @@ test("privacy: ook 'thv', 'ter hoogte van', 'tegenover', 'naast', 'voor de deur 
   assert.deepEqual(straatItemPrivacy({ werken: [{ title: "omleiding bus 30 en 34" }] }), []);
 });
 
-// Besluit van de eigenaar van 18 oktober 2026: bij een werk mag de plaats exact zijn, ook in de omschrijving van een
-// hinderfase ("stelling aan gevel nummer 12"); daar blijft het nummer. Buiten een werk (een agendapunt, een item zonder id
-// "work:…") valt het weg en ziet de scan het.
-test("privacy: een nummer na 'gevel', 'pand' of 'nummer' blijft bij een werk (GIPOD-hinderfase) en valt elders weg", async (t) => {
+test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-hinderfase) valt weg", async (t) => {
   // Verzonnen omschrijvingen van een hinderfase.
   const fasen = [
     { description: "Fase 2: stelling aan gevel nummer 12", start: "2099-03-19T06:00:00Z", end: "2099-03-20T16:00:00Z", consequences: ["Voetpad versmald"] },
     { description: "Herstel pand nr. 5 en 7", start: "2099-03-21T06:00:00Z", end: "2099-03-22T16:00:00Z", consequences: [] },
   ];
   const schoon = itemVoorStraat(werk(990001, { hindrance: { severe: false, consequences: ["Voetpad versmald"], phases: fasen } }), { laag: "werken" });
-  assert.ok(schoon, "het werk blijft, het valt niet weg");
-  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel nummer 12", "Herstel pand nr. 5 en 7"]);
+  assert.ok(schoon, "het werk blijft (opgekuist), het valt niet weg");
+  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel", "Herstel pand"]);
   assert.equal(schoon.hindrance.phases[0].start, fasen[0].start, "datums blijven");
-  // De scan (validate-data): bij een werk geen vondst; zonder id van een werk wel, maar niet in een officiële straatnaam met een cijfer.
-  assert.deepEqual(straatItemPrivacy({ werken: [{ id: "work:990001", hindrance: { phases: [{ description: "stelling aan gevel nummer 12" }] } }] }), []);
+  // De scan ziet het ook (validate-data), maar niet in een officiële straatnaam met een cijfer.
   assert.deepEqual(straatItemPrivacy({ werken: [{ hindrance: { phases: [{ description: "stelling aan gevel nummer 12" }] } }] }).map((v) => v.code), ["huisnummer"]);
-  assert.equal(agendapuntVoorStraat({ id: "proef-1", title: "Proeffeest aan pand nr. 5", date: "2099-03-20" }).title, "Proeffeest aan pand");
   assert.deepEqual(straatItemPrivacy({ straten: [["1", "Buurtweg nr 11", "2000"]], werken: [{ title: "Buurtweg nr 11: herstel" }] }), []);
   assert.equal(zonderPandnummers("huisnummer 12 en woning 7b afgesloten"), "en woning afgesloten");
   assert.deepEqual(pandnummerStukken("Fase 1: lijn 4 omgeleid"), []);
@@ -407,8 +399,7 @@ test("privacy: een nummer na 'gevel', 'pand' of 'nummer' blijft bij een werk (GI
   const root = werkmap(t);
   await bouw(root, { bronnenDoc: await schoneBronnen({ werken: [werk(990001, { hindrance: { severe: false, consequences: [], phases: fasen } })] }) });
   const tekst = alleTekst(root);
-  assert.match(tekst, /gevel nummer 12/);
-  assert.match(tekst, /pand nr\. 5 en 7/);
+  assert.doesNotMatch(tekst, /nummer 12|nr\. 5/);
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 

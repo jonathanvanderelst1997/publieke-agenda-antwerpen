@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, feitenZonderVerhuis, geldigeHuisnummers, isEvenementDossier, koppelEvenement, lijstTitel, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -578,11 +578,9 @@ export function agendaEntry(item, theme = item?.category || "other") {
 }
 // Feiten uit de verversing (site/sources/kaart-uitleg.json) aanvullen met de live laag: live is
 // verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
-// Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet), en een oudere
-// verversing zegt nooit "verhuis" (feitenZonderVerhuis in site/kaart-uitleg.js: besluit van 18 oktober 2026).
-function samenWerk(live, oud) {
-  if (!oud) return live;
-  const bewaard = feitenZonderVerhuis(oud);
+// Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet).
+function samenWerk(live, bewaard) {
+  if (!bewaard) return live;
   const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
   return {
     ...live,
@@ -595,9 +593,6 @@ function samenWerk(live, oud) {
     })(),
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
-    // Een werk van vóór de overgang zonder bewaard huisnummer (lib/kaart-uitleg-refresh.mjs): de kaart zegt dat het nummer
-    // weggelaten is, tenzij GIPOD het nu zelf geeft (de live laag toont wat GIPOD publiceert).
-    ...(bewaard.huisnummerWeggelaten === true && !live.huisnummers && !bewaardeNummers ? { huisnummerWeggelaten: true } : {}),
     // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
     straten: werkStraten(live.straten, bewaard),
   };
@@ -625,18 +620,16 @@ export function identiteitSamen(hand = null, auto = null) {
   return { ...(hand || {}), dossiers: { ...auto.dossiers, ...(hand?.dossiers || {}) } };
 }
 
-// Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js). `isStraat`: de straatas, voor
-// het adres van de beheerder bij één huis (werkKaartje).
-export function workEntry(work, { vandaag = "", uitleg = null, isStraat = null } = {}) {
+// Met `vandaag` krijgt het kaartje een titel en uitleg in gewone taal (site/kaart-uitleg.js).
+export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const base = workEntryBasis(work);
   if (!vandaag) return base;
-  const k = werkKaartje(work, { vandaag, isStraat, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
+  const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k };
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
 // werfzones van Ringpark Zuid) wordt één kaart, met alle GIPOD-nummers erbij. Huisnummers in de
-// omschrijving tellen niet, die in de titel wel (de plaats mag exact, besluit van 18 oktober 2026): twee
-// aansluitingen met elk een eigen huisnummer zijn twee kaarten, elk met zijn adres; zonder huisnummer één kaart.
+// omschrijving tellen niet: twee aansluitingen naast elkaar zijn één kaart.
 export function werkEntries(works = [], opties = {}) {
   const groepen = new Map();
   for (const work of works) {
@@ -996,7 +989,7 @@ function parkeerRegel(lijst, vandaag) {
 const WERF_DOEL = new WeakMap();
 export function werfDoel(feiten) {
   if (feiten && typeof feiten === "object" && WERF_DOEL.has(feiten)) return WERF_DOEL.get(feiten);
-  const f = herzieneSoort(feitenZonderVerhuis(feiten));
+  const f = herzieneSoort(feiten);
   const soort = echteSoort(f);
   const fasen = soort ? [] : faseDoelen((f?.fasen || []).map((x) => x?.naam));
   const uit = soort ? { kort: soort.charAt(0).toLowerCase() + soort.slice(1), lijst: [soort], bron: cleanText(f.soortBron) || "de tekst in GIPOD" }
@@ -1026,8 +1019,7 @@ function gipodPerDossier(uitleg) {
   let gipod = GIPOD_PER_DOSSIER.get(uitleg);
   if (!gipod) {
     gipod = new Map();
-    // De feiten van een oudere verversing zonder "verhuis" (feitenZonderVerhuis): het doel en de beheerder van de werf.
-    for (const [id, w] of Object.entries(uitleg.werken || {})) { const d = werfDossier(w?.dossier); if (d && !gipod.has(d)) gipod.set(d, { gipodId: Number(id), feiten: feitenZonderVerhuis(w) }); }
+    for (const [id, w] of Object.entries(uitleg.werken || {})) { const d = werfDossier(w?.dossier); if (d && !gipod.has(d)) gipod.set(d, { gipodId: Number(id), feiten: w }); }
     GIPOD_PER_DOSSIER.set(uitleg, gipod);
   }
   return gipod;
@@ -1163,7 +1155,7 @@ function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag
   const work = e.item || {};
   const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]));
   // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
-  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname voor een lift of levering"), zoals op de losse
+  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Verhuislift of levering"), zoals op de losse
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
   // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
   const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";
@@ -2208,8 +2200,7 @@ function workEntryBasis(work) {
   const uren = urenVanWerk(work?.start, work?.end);
   return {
     uid: `works:${work?.gipodId}`, id: `gipod-${work?.gipodId}`, source: "works", theme: "works", group: "werken",
-    // Zonder vandaag (geen kaartje): de titel zoals een lijst hem toont, bij één huis zonder vrije tekst (lijstTitel).
-    title: lijstTitel(work) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
+    title: cleanText(work?.title) || "Werk in openbaar domein", start: dayOf(work?.start), end: dayOf(work?.end), openEnd: false,
     time: uren?.time || "", timeText: uren?.timeText || "", location: streetNames(work), status: cleanText(work?.status),
     info: [work?.ownerGroup || work?.owner ? `Beheerder: ${cleanText(work.owner || work.ownerGroup)}` : "", consequences.length ? `Hinder: ${consequences.join(", ")}` : "", work?.hindrance?.severe ? "Ernstige hinder" : ""].filter(Boolean).join(" · "),
     // Geen link naar het ruwe GIPOD-record (site/gipod-bron.js): de bron is de datasetfiche. Per werk linkt

@@ -5098,7 +5098,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -6634,7 +6634,7 @@
       "after": {
         "id": "work:20845782",
         "gipodId": 20845782,
-        "title": "Werk in openbaar domein",
+        "title": "3 te plaatsen walstroomkasten door Equans. Leidingen zijn reeds ter plaatse onder de grond gelegd. Enkel de kasten dienen geplaatst en aangesloten te worden",
         "status": "Concreet gepland",
         "start": "2026-11-08T23:00:00Z",
         "end": "2026-11-12T23:00:00Z",

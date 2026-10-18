@@ -23331,7 +23331,7 @@
       "after": {
         "id": "work:20365584",
         "gipodId": 20365584,
-        "title": "2050 Antwerpen - Lode Zielenslaan",
+        "title": "2050 Antwerpen - Lode Zielenslaan - Plaatsen leidingen - 0m",
         "status": "In uitvoering",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-05T21:59:00Z",
@@ -24293,7 +24293,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -24382,7 +24382,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -24424,7 +24424,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -24844,7 +24844,7 @@
       "after": {
         "id": "work:20715673",
         "gipodId": 20715673,
-        "title": "2060 Antwerpen - Duinstraat",
+        "title": "2060 Antwerpen - Duinstraat - Plaatsen leidingen - puntopening",
         "status": "In uitvoering",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-05T21:59:00Z",
@@ -24887,7 +24887,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {

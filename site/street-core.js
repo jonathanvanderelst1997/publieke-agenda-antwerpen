@@ -1,4 +1,3 @@
-import {huisnummersUitTekst} from "./huisnummers.js";
 import {zonderToevoeging} from "./witte-lijst.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
@@ -8,9 +7,6 @@ const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 // naam blijven verschillend door hun id (refKey), nooit door een toevoeging in de naam.
 export const straatasNaam=value=>zonderToevoeging(clean(value));
 const nameKey=value=>clean(value).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
-// Staat deze hele naam in de straatas (index.byName)? Zonder straatas: null. Voor het adres van een werk (adresDeel in
-// site/huisnummers.js: alleen een straat die we kennen is een straat).
-export const straatasPredicaat=index=>index?.byName instanceof Map?(naam=>index.byName.has(nameKey(naam))):null;
 const uniqRefs=refs=>[...new Map((refs||[]).filter(r=>r?.name).map(r=>[`${r.id||""}|${r.name}|${r.postcode||""}`,{id:clean(r.id),name:clean(r.name),postcode:clean(r.postcode)}])).values()].sort((a,b)=>a.name.localeCompare(b.name,"nl")||a.postcode.localeCompare(b.postcode));
 const refKey=ref=>`${ref.id}|${ref.name}|${ref.postcode}`;
 const CELL=0.002;
@@ -43,46 +39,14 @@ export function combineStreetResolutions(values=[]){const refs=[];let distance=n
 export function nearbyStreets(point,index,{maxDistanceMeters=150,count=2}={}){if(!Array.isArray(point)||point.length<2||!point.slice(0,2).every(Number.isFinite))return[];const best=new Map(),pad=maxDistanceMeters/70000,box=[point[0],point[1],point[0],point[1]];for(const s of candidates(index,box,pad)){const d=pointSeg(point,s.a,s.b);if(d>maxDistanceMeters)continue;for(const ref of s.refs){if(!ref?.name)continue;if(!best.has(ref.name)||d<best.get(ref.name))best.set(ref.name,d)}}return[...best].sort((a,b)=>a[1]-b[1]||a[0].localeCompare(b[0],"nl")).slice(0,count).map(([name,d])=>({name,distanceMeters:Math.round(d)}))}
 // Raken twee straten elkaar in de buurt van een punt (op hoogstens 3 m)? Alleen dan is het een kruispunt.
 export function streetsMeet(point,index,nameA,nameB,{radiusMeters=80,toleranceMeters=3}={}){if(!Array.isArray(point)||point.length<2||!point.slice(0,2).every(Number.isFinite)||!nameA||!nameB)return false;const pad=radiusMeters/70000,box=[point[0],point[1],point[0],point[1]],a=[],b=[];for(const s of candidates(index,box,pad)){if(pointSeg(point,s.a,s.b)>radiusMeters)continue;const names=s.refs.map(r=>r.name);if(names.includes(nameA))a.push(s);if(names.includes(nameB))b.push(s)}return a.some(x=>b.some(y=>segDistance(x.a,x.b,y.a,y.b)<=toleranceMeters))}
-// Het adres van de beheerder: de plaats mag exact (besluit van de eigenaar van 18 oktober 2026, site/works-core.js). Noemt
-// de omschrijving een officiële straat met een huisnummer ("2018 ANTWERPEN, PROEFSTRAAT 1DN02", "PROEFSTRAAT | 12";
-// site/huisnummers.js) die binnen ADRES_STRAAT_METER van het punt ligt, en niet de straat van het punt zelf, dan is dat
-// adres de plaats: het punt van GIPOD ligt soms in een zijstraat (een kast of een put om de hoek). Bij meer zulke straten
-// de dichtste. Geeft {straat, afstand} of null. `puntStraten`: de straten van het punt (resolvePointStreet). Ook voor de
-// historiek (lib/street-resolver.mjs), met haar eigen straatas.
-export const ADRES_STRAAT_METER=150;
-// Per straatas één keer: de namen per eerste woord. Zo loopt een omschrijving alleen langs de namen waarvan het eerste
-// woord erin staat, niet langs elke straat (de lijst van het hele district koppelt elk werk).
-const namenPerWoord=new WeakMap();
-function kandidaatNamen(sleutel,index){
-  if(!(index?.byName instanceof Map))return new Map();
-  let per=namenPerWoord.get(index.byName);
-  if(!per){per=new Map();for(const[k,refs]of index.byName){const w=k.split(" ")[0];if(!per.has(w))per.set(w,[]);per.get(w).push([k,refs])}namenPerWoord.set(index.byName,per)}
-  const uit=new Map();
-  for(const w of new Set(sleutel.split(" ")))for(const[k,refs]of per.get(w)||[])uit.set(k,refs);
-  return uit;
-}
-export function adresVanBeheerder(item,index,{puntStraten=[],maxDistanceMeters=ADRES_STRAAT_METER}={}){
-  const title=String(item?.title??"");
-  if(!/\d/.test(title)||!Array.isArray(item?.point))return null;
-  const sleutel=nameKey(title),metSpaties=` ${sleutel} `;
-  // De straat van het punt staat zelf in de tekst: die blijft.
-  if(puntStraten.some(p=>{const k=nameKey(p?.name);return k&&metSpaties.includes(` ${k} `)}))return null;
-  const genoemd=resolveAddressStreets(title,{byName:kandidaatNamen(sleutel,index)}).streets;
-  const metNummer=genoemd.filter(g=>huisnummersUitTekst(title,g.name));
-  if(!metNummer.length)return null;
-  const ver=nearbyStreets(item.point,index,{maxDistanceMeters,count:Infinity});
-  return metNummer.map(straat=>({straat,n:ver.find(x=>x.name===straat.name)})).filter(x=>x.n).sort((x,y)=>x.n.distanceMeters-y.n.distanceMeters).map(x=>({straat:x.straat,afstand:x.n.distanceMeters}))[0]||null;
-}
 // Eén werk aan een straat koppelen. Een straatas zonder naam (zoals de Ring) telt niet als straat. Zonder
 // eenduidige straat met naam wint de straat die de beheerder zelf in de omschrijving noemt, als die
 // binnen 300 m van het punt ligt (een plein of een lange werf ligt soms ver van het punt). Anders de twee
 // dichtste straten binnen 150 m (streetNearby, ook leeg: dan is er gezocht en lag er geen straat met naam
 // binnen 150 m) en of ze elkaar raken (streetsMeet). Twee straten alleen als ze even ver liggen (8 m
 // verschil, zoals resolvePointStreet); twijfel met een as zonder naam maakt geen tweede straat.
-// Het adres van de beheerder gaat voor op het punt (adresVanBeheerder).
-export function applyWorkStreetResolution(items=[],index){return items.map(item=>{const r=resolvePointStreet(item.point,index);const named=r.streets.filter(s=>s.name);const adres=adresVanBeheerder(item,index,{puntStraten:named});if(adres)return{...item,streets:[adres.straat],streetResolution:"official_address_match",streetDistanceMeters:adres.afstand};if(named.length)return{...item,streets:named,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters};const ver=nearbyStreets(item.point,index,{maxDistanceMeters:300,count:Infinity}),near=ver.filter(x=>x.distanceMeters<=150);const genoemd=resolveAddressStreets(item.title||"",index).streets.map(s=>({s,n:ver.find(x=>x.name===s.name)})).filter(x=>x.n).sort((x,y)=>x.n.distanceMeters-y.n.distanceMeters)[0];if(genoemd)return{...item,streets:[genoemd.s],streetResolution:"official_address_match",streetDistanceMeters:genoemd.n.distanceMeters};const twee=near.length>=2&&near[1].distanceMeters<=near[0].distanceMeters+8?near.slice(0,2):near.slice(0,1),punt=Array.isArray(item.point)&&item.point.length>=2&&item.point.slice(0,2).every(Number.isFinite);return{...item,streets:[],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters,...(punt?{streetNearby:twee}:{}),...(twee.length===2?{streetsMeet:streetsMeet(item.point,index,twee[0].name,twee[1].name)}:{})}})}
+export function applyWorkStreetResolution(items=[],index){return items.map(item=>{const r=resolvePointStreet(item.point,index);const named=r.streets.filter(s=>s.name);if(named.length)return{...item,streets:named,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters};const ver=nearbyStreets(item.point,index,{maxDistanceMeters:300,count:Infinity}),near=ver.filter(x=>x.distanceMeters<=150);const genoemd=resolveAddressStreets(item.title||"",index).streets.map(s=>({s,n:ver.find(x=>x.name===s.name)})).filter(x=>x.n).sort((x,y)=>x.n.distanceMeters-y.n.distanceMeters)[0];if(genoemd)return{...item,streets:[genoemd.s],streetResolution:"official_address_match",streetDistanceMeters:genoemd.n.distanceMeters};const twee=near.length>=2&&near[1].distanceMeters<=near[0].distanceMeters+8?near.slice(0,2):near.slice(0,1),punt=Array.isArray(item.point)&&item.point.length>=2&&item.point.slice(0,2).every(Number.isFinite);return{...item,streets:[],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters,...(punt?{streetNearby:twee}:{}),...(twee.length===2?{streetsMeet:streetsMeet(item.point,index,twee[0].name,twee[1].name)}:{})}})}
 // Zoals resolveAddressStreet, maar houdt alle genoemde straten ("Gaston Burssenslaan en
 // Hanegraefstraat"); alleen een straatnaam die binnen een langere gevonden naam valt, telt niet mee.
-// Voor agendalocaties in de straatfilter, en bij een werk voor de straat die de beheerder noemt (applyWorkStreetResolution,
-// adresVanBeheerder).
+// Alleen voor agendalocaties in de straatfilter; de live lagen en de historiek blijven ongewijzigd.
 export function resolveAddressStreets(address,index){const normalized=nameKey(address);if(!normalized||!index?.byName)return{streets:[],confidence:"unresolved",distanceMeters:null};const postcode=(String(address).match(/\b(\d{4})\b/)||[])[1]||"",padded=` ${normalized} `,found=[];for(const[k,refs]of index.byName){if(!padded.includes(` ${k} `))continue;const ok=refs.filter(ref=>!postcode||!ref.postcode||ref.postcode===postcode);if(ok.length)found.push({k,refs:ok})}const kept=found.filter(a=>!found.some(b=>b.k!==a.k&&` ${b.k} `.includes(` ${a.k} `)));if(!kept.length)return{streets:[],confidence:"unresolved",distanceMeters:null};return{streets:uniqRefs(kept.flatMap(x=>x.refs)),confidence:"official_address_match",distanceMeters:0}}

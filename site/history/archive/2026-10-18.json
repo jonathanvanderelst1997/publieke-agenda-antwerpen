@@ -4843,7 +4843,7 @@
       "before": {
         "id": "work:20541947",
         "gipodId": 20541947,
-        "title": "2000 Antwerpen - Catharina Pepijnstraat",
+        "title": "2000 Antwerpen - Catharina Pepijnstraat - Kruising Catharina Pepijnstraat door middel van een doorsteek in open sleuf.",
         "status": "Concreet gepland",
         "start": "2026-10-11T22:00:00Z",
         "end": "2026-10-16T22:00:00Z",
@@ -4905,7 +4905,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -6195,7 +6195,7 @@
       "before": {
         "id": "work:20827907",
         "gipodId": 20827907,
-        "title": "2000 Antwerpen - Amerikalei",
+        "title": "2000 Antwerpen - Amerikalei - Plaatsen leidingen - 3m",
         "status": "In uitvoering",
         "start": "2026-10-16T00:00:00Z",
         "end": "2026-10-16T21:59:00Z",

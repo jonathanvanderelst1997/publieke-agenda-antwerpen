@@ -8,9 +8,8 @@
 // niet gemeten is) en verzonnen bronrijen met een huisnummer door het hele pad: de straatindex en straten.json, de werken,
 // de parkeerverboden, de historiek, de straatbestanden, kaart-uitleg.json, de agenda (feed, eventpagina, .ics), de
 // plekpagina (place-core, de kaartzin van neighborhood-map, street-overview), de herkenning van een parcours en de
-// privacyfilter. Nergens mag een toevoeging overblijven, en buiten een werk ook geen huisnummer na de straatnaam. Een werk
-// van GIPOD houdt zijn huisnummer, zonder toevoeging (besluit van de eigenaar van 18 oktober 2026, site/works-core.js: de
-// plaats van een werk mag exact). Alleen verzonnen straten, namen en nummers; geen netwerk.
+// privacyfilter. Nergens mag een toevoeging of een huisnummer na de straatnaam overblijven. Alleen verzonnen straten,
+// namen en nummers; geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -68,10 +67,6 @@ const nergens = (waarde, wat) => {
     assert.doesNotMatch(t, TOEVOEGING, `${wat}: toevoeging in ${JSON.stringify(t)}`);
     assert.doesNotMatch(t, NUMMER_NA_STRAAT, `${wat}: huisnummer in ${JSON.stringify(t)}`);
   }
-};
-// Bij een werk: geen toevoeging, wel het huisnummer (de plaats mag exact).
-const geenToevoeging = (waarde, wat) => {
-  for (const t of teksten(waarde)) assert.doesNotMatch(t, TOEVOEGING, `${wat}: toevoeging in ${JSON.stringify(t)}`);
 };
 
 // ---------- de verzonnen straatas ----------
@@ -168,8 +163,8 @@ test("homoniem: de huisnummers van een werk vinden de straat ook als de adrespos
 
 // ---------- de historiek ----------
 
-test("homoniem: de historiek houdt geen toevoeging, en buiten een werk geen huisnummer na zo'n straat, ook niet uit een oud bestand (vangnet)", () => {
-  // De huisnummerregel (buiten een werk): een straatnaam met toevoeging is een straatnaam.
+test("homoniem: de historiek houdt geen toevoeging en geen huisnummer na zo'n straat, ook niet uit een oud bestand (vangnet)", () => {
+  // De huisnummerregel: een straatnaam met toevoeging is een straatnaam.
   for (const t of ["2018 ANTWERPEN, PROEFSTRAAT_AN 12", "Proefstraat_AN 12 bus 3", "Proeflei_DE 7", "2000 ANTWERPEN, PROEFSTRAAT_XY 12 DN40"]) {
     assert.doesNotMatch(tekstZonderHuisnummers(t), /\b(?:12|7)\b/, t);
   }
@@ -182,18 +177,11 @@ test("homoniem: de historiek houdt geen toevoeging, en buiten een werk geen huis
   const codes = new Set(historiekPrivacyBevindingen(doc).map((f) => f.code));
   assert.ok(codes.has("huisnummer") && codes.has("toevoeging"), [...codes].join(", "));
   const schoon = historiekVoorPubliek(doc);
-  geenToevoeging(schoon, "historiek");
-  nergens(schoon.layers.publicSpace, "historiek: parkeerverbod");
+  nergens(schoon, "historiek");
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
-  // Een werk houdt zijn huisnummer, zonder toevoeging; een wijziging van dat huisnummer is een andere plaats en blijft. Een werk
-  // voor één huis houdt alleen zijn adres, geen vrije tekst (tests/werken-nakijk3.test.mjs 3): "Nieuwe aansluiting
-  // Proefstraat 12" wordt "Proefstraat 12".
-  assert.deepEqual(schoon.layers.works.items.map((w) => w.title).sort(), ["2000 ANTWERPEN, PROEFSTRAAT 12 DN40", "2018 ANTWERPEN, PROEFSTRAAT 12", "Nieuwe aansluiting", "Proefstraat 12"]);
-  assert.equal(schoon.changes.length, 2);
-  assert.deepEqual(schoon.changes[1].after, { title: "2018 ANTWERPEN, PROEFSTRAAT 14" });
-  const resultaat = resultaatVoorHistoriek({ ok: true, items: werken });
-  geenToevoeging(resultaat, "resultaat van de verversing");
-  assert.ok(resultaat.items.some((w) => w.title === "2018 ANTWERPEN, PROEFSTRAAT 12"), "het werk houdt zijn huisnummer");
+  // Een wijziging die alleen het huisnummer was, valt weg.
+  assert.equal(schoon.changes.length, 1);
+  nergens(resultaatVoorHistoriek({ ok: true, items: werken }), "resultaat van de verversing");
 });
 
 // ---------- de straatbestanden ----------
@@ -201,14 +189,13 @@ test("homoniem: de historiek houdt geen toevoeging, en buiten een werk geen huis
 test("homoniem: de straatbestanden: een nieuw item en een vorige stand zonder toevoeging; herschrijven maakt een oud bestand schoon", (t) => {
   const nieuw = werken.map((w) => itemVoorStraat(w, { laag: "werken" })).filter(Boolean);
   assert.equal(nieuw.length, werken.length);
-  geenToevoeging(nieuw, "itemVoorStraat");
-  assert.ok(nieuw.some((w) => w.title === "2000 ANTWERPEN, PROEFSTRAAT 12 DN40"), "een werk houdt zijn huisnummer");
+  nergens(nieuw, "itemVoorStraat");
   // Een vorige stand (een laag die vandaag niet laadde) met de oude naam in de tabel en de titel.
   const vorig = { id: "work:990199", gipodId: 990199, title: "2018 ANTWERPEN, PROEFSTRAAT_AN", status: "In uitvoering", start: "2026-10-01", end: "2026-10-30", streets: [{ id: "990001", name: "Proefstraat_AN", postcode: "2018" }] };
   const doc = straatDocument("990001", { werken: new Map([...nieuw, vorig].map((w) => [w.id, w])) }, { namen: [{ id: "990001", name: "Proefstraat_AN", postcode: "2018" }], ververst: "2026-10-17T03:00:00.000Z" });
-  geenToevoeging(doc, "straatDocument");
+  nergens(doc, "straatDocument");
   assert.deepEqual(doc.straten.filter((s) => s[0] === "990001"), [["990001", "Proefstraat", "2018"]], "één rij per straat");
-  geenToevoeging(straatItems(doc, "werken"), "straatItems");
+  nergens(straatItems(doc, "werken"), "straatItems");
 
   // Het hele schrijven, in een tijdelijke map: een oud bestand (met toevoeging) herschreven met de regels van nu.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "homoniem-straat-"));
@@ -222,10 +209,10 @@ test("homoniem: de straatbestanden: een nieuw item en een vorige stand zonder to
   fs.writeFileSync(path.join(root, "site", "straat-index.json"), JSON.stringify({ schemaVersion: STRAAT_SCHEMA, ververst: "2026-10-16T03:00:00.000Z", lagen: { werken: stand, publiekeRuimte: stand, vergunningen: stand, terrassen: stand, evenementen: stand }, straten: { 990001: "oud" } }));
   schrijfStraatSnapshots({ rootDir: root, herschrijf: true, agendaItems: [], history: null, clock: () => new Date("2026-10-17T10:00:00Z") });
   const herschreven = JSON.parse(fs.readFileSync(path.join(root, "site", "straat", "990001.json"), "utf8"));
-  geenToevoeging(herschreven, "herschreven straatbestand");
-  // Een oud bestand met "PROEFSTRAAT_AN 12": de toevoeging valt weg zoals bij een nieuw item (itemVoorStraat); 12 is het
-  // huisnummer van een werk en blijft (de plaats mag exact), en het item blijft.
-  assert.deepEqual(herschreven.werken.map((w) => w.title), ["2018 ANTWERPEN, PROEFSTRAAT", "2018 ANTWERPEN, PROEFSTRAAT 12"]);
+  nergens(herschreven, "herschreven straatbestand");
+  // Een oud bestand van vóór de regel: "PROEFSTRAAT_AN 12" telde toen niet als straat met huisnummer. Zonder de
+  // toevoeging is 12 een huisnummer; het valt weg zoals bij een nieuw item (itemVoorStraat), en het item blijft.
+  assert.deepEqual(herschreven.werken.map((w) => w.title), ["2018 ANTWERPEN, PROEFSTRAAT", "2018 ANTWERPEN, PROEFSTRAAT"]);
   assert.deepEqual(straatBestandenProblemen(root), []);
   const idx = JSON.parse(fs.readFileSync(path.join(root, "site", "straat-index.json"), "utf8"));
   assert.equal(idx.ververst, "2026-10-16T03:00:00.000Z", "herschrijven is geen verversing");
@@ -313,9 +300,8 @@ test("homoniem: de plekpagina (zoekbalk, link, kaartzin, kaartjes, alles per str
   assert.deepEqual(leesBewaardeStraten(opslag), [an.key]);
   // De kaartzin onder de kaart (neighborhood-map.js: de naam van de gekozen straat, place-view.js streetRef).
   nergens(kaartStatusZin({ where: `${an.name} + 150 m`, mapped: 2, opKaart: 2 }), "kaartzin");
-  // De kaartjes van een werk (zonder toevoeging, met zijn huisnummer), een parkeerverbod en een evenement.
-  for (const w of werken) geenToevoeging((({ title, summary, location, uitleg }) => ({ title, summary, location, uitleg }))(workEntry(w, { vandaag: "2026-10-17" })), `werk ${w.gipodId}`);
-  assert.match(workEntry(werken.find((w) => w.gipodId === 990101), { vandaag: "2026-10-17" }).title, /Proefstraat nr\. 12\b/);
+  // De kaartjes van een werk, een parkeerverbod en een evenement.
+  for (const w of werken) nergens((({ title, summary, location, uitleg }) => ({ title, summary, location, uitleg }))(workEntry(w, { vandaag: "2026-10-17" })), `werk ${w.gipodId}`);
   const pv = publicSpaceEntry({ ...parkeer, id: "parking:PV2099|1", kind: "parking", title: "Parkeerverbod", location: parkeer.address, streets: resolvePointStreet(PUNT_AN, index).streets, start: "2026-10-18", end: "2026-10-18" });
   nergens((({ title, location, info }) => ({ title, location, info }))(pv), "parkeerverbod");
   const rij = { id: "iod:ET2099000401|Evenement|1", kind: "iod", title: "Parcours", innameType: "Parcours", reference: "ET2099000401", dossierType: "ETL", phase: "Evenement", hindrance: "True", start: "2026-10-20", end: "2026-10-20", status: "aanvraag_goedgekeurd", streets: resolvePointStreet(PUNT_AN, index).streets, description: normalizeIod({ innameBeschrijving: "Start Proefstraat_AN 12 bij Testpersoon" }, { isStraat }).description };
@@ -362,16 +348,10 @@ test("homoniem: de privacyfilter laat de toevoeging nooit door en herkent de str
 
 // ---------- vangnetten en de bewaarde bestanden ----------
 
-test("homoniem: vangnet: de toevoeging valt weg in de tekst van een werk, het huisnummer blijft; buiten een werk valt het weg", () => {
-  // Een werk: de plaats mag exact (besluit van 18 oktober 2026), zonder toevoeging.
-  assert.equal(W.zonderToevoegingInTekst("2018 ANTWERPEN, PROEFSTRAAT_AN 12"), "2018 ANTWERPEN, PROEFSTRAAT 12");
-  const werk = { gipodId: 990105, title: "2018 ANTWERPEN, PROEFSTRAAT_AN 12", streets: [{ name: "Proefstraat" }], start: "2026-10-15", end: "2026-10-30" };
-  const kaart = KU.werkKaartje({ ...werk, title: gipodTekst(werk.title) }, { vandaag: "2026-10-17" });
-  assert.match(Object.fromEntries(kaart.regels).Waar, /^Proefstraat, nr\. 12 /);
-  geenToevoeging(kaart, "kaartje van een werk");
-  // Buiten een werk (de historiek van een parkeerverbod): het huisnummer na een straat met toevoeging valt weg.
-  assert.doesNotMatch(tekstZonderHuisnummers("Proefstraat_XY 7 werken"), /7/);
-  assert.doesNotMatch(tekstZonderHuisnummers("PROEFSTRAAT_AN 12"), /12/);
+test("homoniem: vangnet: een huisnummer na een straatnaam met toevoeging valt ook weg in de tekst van een kaartje", () => {
+  assert.doesNotMatch(KU.zonderLosseHuisnummers("2018 ANTWERPEN, PROEFSTRAAT_AN 12", ["Proefstraat"]), /12/);
+  assert.doesNotMatch(KU.zonderLosseHuisnummers("Proefstraat_XY 7 werken", []), /7/);
+  assert.doesNotMatch(KU.zonderHuisnummers("PROEFSTRAAT_AN 12"), /12/);
   assert.equal(W.zonderToevoegingInData({ a: ["Proefstraat_AN"], url: "https://voorbeeld.test/x_AN" }).url, "https://voorbeeld.test/x_AN", "een link blijft ongewijzigd");
 });
 

@@ -13598,7 +13598,7 @@
       "before": {
         "id": "work:20365584",
         "gipodId": 20365584,
-        "title": "2050 Antwerpen - Lode Zielenslaan",
+        "title": "2050 Antwerpen - Lode Zielenslaan - Plaatsen leidingen - 0m",
         "status": "In uitvoering",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-05T21:59:00Z",
@@ -14056,7 +14056,7 @@
       "after": {
         "id": "work:20553715",
         "gipodId": 20553715,
-        "title": "2018 Antwerpen - Korte Lozanastraat",
+        "title": "2018 Antwerpen - Korte Lozanastraat - Plaatsen leidingen - 0m",
         "status": "Concreet gepland",
         "start": "2026-11-04T00:00:00Z",
         "end": "2026-11-04T21:59:00Z",
@@ -14362,7 +14362,7 @@
       "after": {
         "id": "work:20645200",
         "gipodId": 20645200,
-        "title": "2000 Antwerpen - Plantinkaai",
+        "title": "2000 Antwerpen - Plantinkaai - Plaatsen leidingen - 3m",
         "status": "In uitvoering",
         "start": "2026-10-06T00:00:00Z",
         "end": "2026-10-06T21:59:00Z",
@@ -15047,7 +15047,7 @@
       "before": {
         "id": "work:20715673",
         "gipodId": 20715673,
-        "title": "2060 Antwerpen - Duinstraat",
+        "title": "2060 Antwerpen - Duinstraat - Plaatsen leidingen - puntopening",
         "status": "In uitvoering",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-05T21:59:00Z",
@@ -16489,7 +16489,7 @@
       "after": {
         "id": "work:20769434",
         "gipodId": 20769434,
-        "title": "2018 Antwerpen - Balansstraat",
+        "title": "2018 Antwerpen - Balansstraat - Plaatsen leidingen - 240m",
         "status": "In uitvoering",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-06T00:00:00Z",
@@ -17151,7 +17151,7 @@
       "after": {
         "id": "work:20793514",
         "gipodId": 20793514,
-        "title": "Werk in openbaar domein",
+        "title": "Werken in opdracht van Proximus: Huisaansluiting",
         "status": "Concreet gepland",
         "start": "2026-11-02T23:00:00Z",
         "end": "2026-11-03T23:00:00Z",

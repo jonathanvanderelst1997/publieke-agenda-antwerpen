@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-18",
- "invoer": "a616b29c58ac38d1",
- "code": "5a091acbd31c30f9",
+ "invoer": "20c4e9ca604e659a",
+ "code": "2193b726513979f7",
  "agenda": {
   "items": 781,
   "vaag": 56,
@@ -340,10 +340,10 @@
   "detail": {
    "metOntbreekt": 299,
    "meerDanEen": 287,
-   "zinnen": 752,
+   "zinnen": 753,
    "perPatroon": {
     "niet-in-de-bron": 89,
-    "huisnummers-niet-gepubliceerd": 37,
+    "huisnummers-niet-gepubliceerd": 38,
     "organisator-niet-gepubliceerd": 21,
     "uren-niet-gepubliceerd": 20,
     "beheerder-geen-omschrijving": 9
@@ -678,8 +678,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "270bf826f35d06be",
-   "code": "08ed5e75f435b054"
+   "invoer": "638448b950af6a9b",
+   "code": "7bda4387c81f6ee5"
   },
   "agenda": {
    "ok": true,

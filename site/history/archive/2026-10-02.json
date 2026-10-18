@@ -13005,7 +13005,7 @@
       "after": {
         "id": "work:19646944",
         "gipodId": 19646944,
-        "title": "2018 Antwerpen - Mechelsesteenweg",
+        "title": "2018 Antwerpen - Mechelsesteenweg - Plaatsen leidingen - 0m",
         "status": "Concreet gepland",
         "start": "2026-10-05T00:00:00Z",
         "end": "2026-10-06T00:00:00Z",
@@ -14619,7 +14619,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -14879,7 +14879,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "(Verhuis)lift/levering"
         ],
         "streets": [
           {
@@ -17013,7 +17013,7 @@
       "after": {
         "id": "work:20775095",
         "gipodId": 20775095,
-        "title": "2050 | Antwerpen",
+        "title": "2050 | Antwerpen | Leo J. Krynlaan",
         "status": "Concreet gepland",
         "start": "2026-10-06T22:00:00Z",
         "end": "2026-10-13T22:00:00Z",
