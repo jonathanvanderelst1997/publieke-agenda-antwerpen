@@ -4905,7 +4905,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Lift/levering"
         ],
         "streets": [
           {
