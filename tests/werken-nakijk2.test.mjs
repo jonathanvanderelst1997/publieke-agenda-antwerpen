@@ -58,7 +58,7 @@ test("1. hinder vóór of bij de start van een gepland werk krijgt altijd haar b
 });
 
 test("2. bij één adres staat het huisnummer ook niet in de naam van een fase", () => {
-  // Zoals 19929983: "Fase 1 Simonsstraat 8" naast "huisnummer weggelaten: het gaat om één adres".
+  // Zoals een aansluiting in GIPOD (verzonnen: "Fase 1 Voorbeeldlaan 8") naast "huisnummer weggelaten: het gaat om één adres".
   const w = werk({
     ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"], start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z",
     hindrance: hinder([fase("Fase 1 Voorbeeldlaan 8", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]),

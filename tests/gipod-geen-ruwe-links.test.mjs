@@ -447,6 +447,8 @@ test("validate-data: oud GIPOD-bronbestand omgezet met een signaal; ruwe link in
   assert.ok(validateSourceDocument(oud, { expectedSourceId: "stad-markten" }).length, "zonder omzetting is het oude bestand ongeldig");
   schrijf("site/sources/stad-markten.json", JSON.stringify(oud));
   schrijf("site/straat/9001.json", JSON.stringify({ werken: [{ id: "work:990001", sourceUrls: [RUW.grondwerk], hindrance: { sourceUrls: [RUW.hinderUri] } }] }));
+  // Het werk van dat straatbestand staat in de vaste vorm per werk (site/werk-vorm.js), zoals elk gepubliceerd werk.
+  schrijf("site/sources/werk-vorm.json", JSON.stringify({ schema: 1, adreskaart: [], gewoon: [990001] }));
   const pagina = (url) => `<!doctype html><a href="${url}" target="_blank" rel="noreferrer">${GIPOD_BRON}</a>`;
   const feed = (url) => `window.PUBLIC_AGENDA_FEED = ${JSON.stringify({ items: [{ id: "markt-ma99-2099-01-02", link: url, sources: [{ sourceId: "stad-markten", url }] }] })};\n`;
   const run = () => {
