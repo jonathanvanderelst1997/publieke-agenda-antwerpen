@@ -5,16 +5,6 @@
   "url": "https://geo.api.vlaanderen.be/geolocation/v4/Location"
  },
  "entries": {
-  "amsterdamstraat bonapartedok braziliestraat en 17 andere straten": {
-   "point": [
-    4.40461,
-    51.23129
-   ],
-   "precision": "straat",
-   "street": "Amsterdamstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "argentinielaan belfaststraat bostonstraat en 24 andere straten": {
    "point": [
     4.42611,
@@ -84,16 +74,6 @@
    "street": "Schijfstraat",
    "postcode": "2020",
    "checkedOn": "2026-10-14"
-  },
-  "dageraadplaats": {
-   "point": [
-    4.42971,
-    51.20709
-   ],
-   "precision": "straat",
-   "street": "Dageraadplaats",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
   },
   "dageraadplaats 2018 antwerpen": {
    "point": [
@@ -224,6 +204,16 @@
    "street": "Hanzestedenplaats",
    "postcode": "2000",
    "checkedOn": "2026-10-12"
+  },
+  "hanzestedenplaats bataviastraat bonapartedok en 27 andere straten": {
+   "point": [
+    4.405,
+    51.2287
+   ],
+   "precision": "straat",
+   "street": "Hanzestedenplaats",
+   "postcode": "2000",
+   "checkedOn": "2026-10-19"
   },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
@@ -365,16 +355,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-12"
   },
-  "rijnkaai kattendijkbrug adriaan brouwerstraat en 144 andere straten": {
-   "point": [
-    4.40208,
-    51.22992
-   ],
-   "precision": "straat",
-   "street": "Rijnkaai",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -505,6 +485,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
+  "theaterplein braderijstraat driehespenstraat en 37 andere straten": {
+   "point": [
+    4.41058,
+    51.21419
+   ],
+   "precision": "straat",
+   "street": "Theaterplein",
+   "postcode": "2000",
+   "checkedOn": "2026-10-19"
+  },
   "theaterplein en oudevaartplaats": {
    "point": [
     4.41058,
@@ -618,32 +608,31 @@
  },
  "misses": {
   "2000 en 2018 antwerpen": "2026-10-10",
-  "2060 antwerpen": "2026-10-05",
+  "2060 antwerpen": "2026-10-19",
   "a bib merksem parkweg 1": "2026-10-07",
-  "arenaplein 2100 deurne": "2026-10-05",
+  "arenaplein 2100 deurne": "2026-10-19",
   "august leyweg 2020 antwerpen": "2026-10-10",
   "begijnenstraat 2000 antwerpen": "2026-10-10",
   "begijnenvest 2000 antwerpen": "2026-10-10",
   "bervoetstraat 2000 antwerpen": "2026-10-10",
-  "bib permeke": "2026-10-05",
-  "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-05",
+  "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-19",
   "constitutiestraat 2060 antwerpen": "2026-10-10",
   "demerstraat 2060 antwerpen": "2026-10-10",
   "district antwerpen locatie via de officiele bron": "2026-10-06",
-  "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district borgerhout locatie via de officiele bron": "2026-10-19",
   "district borsbeek locatie via de officiele bron": "2026-10-18",
   "district deurne locatie via de officiele bron": "2026-10-13",
-  "district ekeren locatie via de officiele bron": "2026-10-05",
-  "district merksem locatie via de officiele bron": "2026-10-05",
-  "district wilrijk locatie via de officiele bron": "2026-10-05",
-  "districtshuis antwerpen zaal benoit": "2026-10-05",
+  "district ekeren locatie via de officiele bron": "2026-10-19",
+  "district merksem locatie via de officiele bron": "2026-10-19",
+  "district wilrijk locatie via de officiele bron": "2026-10-19",
+  "districtshuis antwerpen zaal benoit": "2026-10-19",
   "duinstraat 2060 antwerpen": "2026-10-10",
   "durletstraat 2018 antwerpen": "2026-10-10",
   "fort 8 district hoboken plaats volgens het bericht": "2026-10-18",
   "geelhandplaats 2060 antwerpen": "2026-10-10",
   "grotebeerstraat 2018 antwerpen": "2026-10-10",
   "halenstraat kant stuivenbergplein 2060 antwerpen": "2026-10-10",
-  "harmoniepark 1": "2026-10-05",
+  "harmoniepark 1": "2026-10-19",
   "hertoginstraat 2018 antwerpen": "2026-10-10",
   "jacob jordaensstraat 2018 antwerpen": "2026-10-10",
   "kleine kauwenberg grote kauwenberg lange winkelstraat en 2 andere straten": "2026-10-17",
@@ -660,7 +649,7 @@
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-10",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-10",
   "park gravenhof district hoboken plaats volgens het bericht": "2026-10-18",
-  "provinciehuis antwerpen": "2026-10-05",
+  "provinciehuis antwerpen": "2026-10-19",
   "scheldestraat 2000 antwerpen": "2026-10-10",
   "schijnpoortweg 2060 antwerpen": "2026-10-10",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-10",
@@ -668,8 +657,8 @@
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-10",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-10",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-10-18",
-  "ten eeckhovelei 2100 deurne": "2026-10-05",
-  "toeristisch centrum antwerpen": "2026-10-05",
+  "ten eeckhovelei 2100 deurne": "2026-10-19",
+  "toeristisch centrum antwerpen": "2026-10-19",
   "van de wervestraat 2060 antwerpen": "2026-10-10",
   "van immerseelstraat 2018 antwerpen": "2026-10-10",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-10"
