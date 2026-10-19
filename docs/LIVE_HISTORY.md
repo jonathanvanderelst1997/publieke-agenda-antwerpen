@@ -23,7 +23,7 @@ Bij een fout blijft de vorige succesvolle snapshot staan met status `stale` en e
 
 ## Privacy
 
-De historiek bevat alleen velden die al publiek in de live kaarten mogen staan. Geen aanvrager, contactorganisatie, adminlink, ruwe geometrie of andere bronpayload wordt opgeslagen. De bestaande privacy-scan controleert zowel `live-layers.json` als baseline en alle dagshards in `validate:data`; de index bevat alleen datum, pad, aantal en digest.
+De historiek bevat alleen velden die al publiek in de live kaarten mogen staan. Geen aanvrager, contactorganisatie, adminlink, ruwe geometrie of andere bronpayload wordt opgeslagen. Een werk staat erin in zijn vaste vorm (`site/werk-vorm.js`, `site/sources/werk-vorm.json`, docs/PUBLIC_SPACE_SOURCE_POLICY.md "Werken: adreskaart of gewone kaart"): een adreskaart als "<soort> – <straat>", zonder huisnummer en zonder vrije tekst; de verversing schrijft de vaste vorm vóór de historiek. De bestaande privacy-scan controleert zowel `live-layers.json` als baseline en alle dagshards in `validate:data`; de index bevat alleen datum, pad, aantal en digest.
 
 ## Datalaan
 
