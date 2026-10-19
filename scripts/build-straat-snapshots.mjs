@@ -50,6 +50,7 @@ import { innameSoort, isEvenementDossier } from "../site/kaart-uitleg.js";
 import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/straat-snapshot.js";
 import { heeftToevoeging, zonderToevoegingInData } from "../site/witte-lijst.js";
 import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
+import { werkenVoorDeSite } from "../site/werk-vorm.js";
 
 export {
   BRONNEN_BESTAND, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA,
@@ -225,13 +226,15 @@ export async function haalTerrassen({ fetch: fetchImpl, sleep, districtGeometry,
 // straten zoals de browser ze vindt (site/street-core.js), privacyveilig in .cache/straat-bronnen.json.
 // Faalt hier iets, dan gaat de verversing gewoon door: de straatbestanden houden dan hun vorige stand.
 // `fetch` null: geen vergunningen en terrassen ophalen (die lagen houden dan hun vorige stand).
-export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {} }) {
+// `werkVorm`: de vaste vorm per werk na deze verversing (site/sources/werk-vorm.json): de werken krijgen hier opnieuw hun
+// straat zoals de browser ze vindt, en daarna meteen de poort (werkenVoorDeSite, site/werk-vorm.js).
+export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {}, werkVorm = null }) {
   const bestand = path.join(rootDir, BRONNEN_BESTAND);
   const laag = (result, items) => (result?.ok ? { ok: true, items } : { ok: false, items: [], errorCode: result?.errorCode || "niet_geladen" });
   try {
     const index = Array.isArray(streetFeatures) && streetFeatures.length ? buildStreetIndex(streetFeatures) : null;
     const district = publicSpaceResult?.district || null;
-    const works = worksResult?.ok && index ? applyWorkStreetResolution(worksResult.items, index) : [];
+    const works = worksResult?.ok && index ? werkenVoorDeSite(applyWorkStreetResolution(worksResult.items, index), werkVorm) : [];
     const raw = publicSpaceResult?.ok ? publicSpaceResult.features : null;
     const publicSpace = raw && index && district
       ? collectPublicSpace({ parkingFeatures: raw.parking || [], iodFeatures: raw.iod || [], sgwFeatures: raw.sgw || [], districtGeometry: district, streetIndex: index, postcodes: DISTRICT_POSTCODES })

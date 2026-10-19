@@ -4,6 +4,7 @@ import {aanvraagStand,aanvraagTitel} from "./permit-clarity.js";
 import {onderzoekZin} from "./inzage-status.js";
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
+import {lijstTitel} from "./werk-vorm.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
@@ -26,7 +27,7 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
     if(group&&!group[bucket].some(existing=>existing.id===item.id))group[bucket].push(item);
   };
   for(const item of works){
-    const normalized={id:`work:${item.gipodId}`,title:clean(item.title)||"Werk",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:hinderkaart(),sourceLabel:"Hinder in Kaart",severeHindrance:item.hindrance?.severe===true};
+    const normalized={id:`work:${item.gipodId}`,title:lijstTitel(item),status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.ownerGroup||item.owner),sourceUrl:hinderkaart(),sourceLabel:"Hinder in Kaart",severeHindrance:item.hindrance?.severe===true};
     for(const street of item.streets||[])add(street,"works",normalized);
   }
   for(const item of publicSpace){

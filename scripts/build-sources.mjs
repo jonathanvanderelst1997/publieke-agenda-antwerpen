@@ -14,6 +14,7 @@ import { SOURCE_DEFINITIONS, validateRefreshStatus, validateSourceDocument, zond
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
+import { WERK_VORM_FILE } from "../site/werk-vorm.js";
 import { VAAGHEID_FILE } from "../lib/vaagheid.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE } from "../lib/evenement-herkenning-validatie.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
@@ -29,8 +30,9 @@ export function readSources(rootDir) {
   // evenement-patronen.json) zijn geen agendabronnen maar uitleg bij de live lagen (lib/kaart-uitleg-refresh.mjs,
   // de met de hand nagekeken identiteit van evenementendossiers en lib/parcours-herkenning-refresh.mjs);
   // inzage-status.json is de nagekeken stand in het Inzageloket (site/inzage-status.js).
-  // vaagheid.json is de vaagheidsmeting van de verversing (scripts/meet-vaagheid.mjs), geen bron.
-  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE];
+  // vaagheid.json is de vaagheidsmeting van de verversing (scripts/meet-vaagheid.mjs), geen bron; werk-vorm.json is de vaste
+  // vorm per werk (site/werk-vorm.js).
+  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE, WERK_VORM_FILE];
   const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && !geenBron.includes(name)).sort();
   let status = null;
   let manualCheck = null;

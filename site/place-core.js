@@ -4,7 +4,7 @@
 // - een plek in de URL (?plek=Kammenstraat, ?plek=Zurenborg, ?plek=2060);
 // - kalenderhulp: periodes, weken, maandrooster en balken voor meerdaagse items.
 
-import { bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
+import { alsAdreskaart, bewaardeKenmerken, bundelInnames, evenementFeiten, evenementKaartje, faseDoelen, geldigeHuisnummers, isEvenementDossier, koppelEvenement, opStraat, soortEvenementMet, soortVanWerk, statusTekst, veiligeOmschrijving, volKenmerkVan, werkFeiten, werkKaartje } from "./kaart-uitleg.js";
 import { werfDossier } from "./works-core.js";
 import { isTunnel, stratenVanParcours } from "./parcours-straten.js";
 import { DINGEN, LANG_DAGEN, duurDagen, patroonTekst, patroonVan } from "./evenement-wat.js";
@@ -579,8 +579,16 @@ export function agendaEntry(item, theme = item?.category || "other") {
 // Feiten uit de verversing (site/sources/kaart-uitleg.json) aanvullen met de live laag: live is
 // verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
 // Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet).
+// Een adreskaart (site/werk-vorm.js) in live of in de verversing: het resultaat is een adreskaart (alsAdreskaart), en nooit
+// komen fasen of een omschrijving uit een bewaard werk zonder adreskaart.
 function samenWerk(live, bewaard) {
   if (!bewaard) return live;
+  const adresKaart = live?.adresKaart === true || bewaard.adresKaart === true;
+  const samen = gewoonSamen(live, bewaard);
+  if (!adresKaart) return samen;
+  return alsAdreskaart({ ...samen, omschrijving: "", fasen: live.fasen.length ? live.fasen : bewaard.adresKaart === true ? bewaard.fasen || [] : [] });
+}
+function gewoonSamen(live, bewaard) {
   const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
   return {
     ...live,
@@ -1155,7 +1163,7 @@ function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag
   const work = e.item || {};
   const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]));
   // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
-  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Verhuislift of levering"), zoals op de losse
+  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname voor een lift of levering"), zoals op de losse
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
   // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
   const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";

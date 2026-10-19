@@ -30,6 +30,8 @@ import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
+import { vormNaVerversing, werkenVoorDeSite } from "../site/werk-vorm.js";
+import { gepubliceerdeWerkIds, leesWerkVorm, schrijfWerkVorm } from "../lib/werk-vorm-bestand.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -171,7 +173,10 @@ export async function asignLayer(layer, { where, outFields, geometry = false, sp
   return features;
 }
 
-export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets } = {}) {
+// `werkVorm`: { vorm, bekend } (site/sources/werk-vorm.json en de werk-ids die al gepubliceerd waren): de poort
+// (werkenVoorDeSite, site/werk-vorm.js) komt direct na de straatkoppeling, en de verversing mag de vorm van een nieuw werk
+// beslissen en zijn nummer lezen.
+export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets, werkVorm = null } = {}) {
   try {
     const [features, district, hindrance] = await Promise.all([
       gipodCollection(
@@ -199,7 +204,7 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets);
+    const items = werkenVoorDeSite(applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets), werkVorm?.vorm || null, { magBeslissen: true, bekend: werkVorm?.bekend || null });
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };
@@ -288,6 +293,10 @@ export async function refreshLiveHistory({
 } = {}) {
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
+  // De vaste vorm per werk (site/sources/werk-vorm.json), vóór er iets geschreven wordt: is het bestand onleesbaar of
+  // ongeldig, dan stopt de verversing hier met een fout. De werken die al gepubliceerd waren (vorige historiek, archief,
+  // kaart-uitleg.json) blijven een gewone kaart (regel 13).
+  const werkVorm = { vorm: leesWerkVorm(rootDir), bekend: gepubliceerdeWerkIds(rootDir) };
   // Eerst de bestaande historiek opkuisen (geen huisnummers, alleen het district), ook oudere dagen
   // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
   // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
@@ -309,7 +318,11 @@ export async function refreshLiveHistory({
     const previousErrors = validateLiveHistory(previous);
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
-  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
+  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets,werkVorm}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
+  // De vaste vorm van elk nieuw werk, vóór de historiek, kaart-uitleg.json en de straatbestanden. Faalt de werkenlaag, dan
+  // blijft het bestand ongewijzigd.
+  const nieuweVorm = worksResult.ok ? vormNaVerversing(werkVorm.vorm, worksResult.items) : werkVorm.vorm;
+  if (worksResult.ok) schrijfWerkVorm(rootDir, nieuweVorm);
   // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
   // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
   const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
@@ -375,7 +388,7 @@ export async function refreshLiveHistory({
   // De items per straat zoals de browser ze maakt, plus vergunningen en terrassen, voor de straatbestanden
   // (scripts/build-straat-snapshots.mjs verdeelt ze op het einde van npm run refresh). Faalt dit, dan
   // houden de straatbestanden hun vorige stand.
-  await verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures: streets?.features, fetch: straatFetch, log });
+  await verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures: streets?.features, fetch: straatFetch, log, werkVorm: nieuweVorm });
 
   // Bewust geen stap voor het Inzageloket (omgevingsloketinzage.omgeving.vlaanderen.be): robots.txt verbiedt
   // elke bot ("Disallow: /") en een Anubis-botcontrole staat voor elke pagina en voor de API. Die controle
