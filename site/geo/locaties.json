@@ -175,6 +175,16 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
+  "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
+   "point": [
+    4.40467,
+    51.22187
+   ],
+   "precision": "straat",
+   "street": "Grote Goddaard",
+   "postcode": "2000",
+   "checkedOn": "2026-10-21"
+  },
   "grote markt": {
    "point": [
     4.39989,
@@ -264,6 +274,16 @@
    "street": "Koningin Astridplein",
    "postcode": "2018",
    "checkedOn": "2026-10-12"
+  },
+  "koningin astridplein ankerrui bataviastraat en 22 andere straten": {
+   "point": [
+    4.42075,
+    51.219
+   ],
+   "precision": "straat",
+   "street": "Koningin Astridplein",
+   "postcode": "2018",
+   "checkedOn": "2026-10-21"
   },
   "kristus koningplein 2180 ekeren": {
    "point": [
@@ -425,26 +445,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "sint nicolaasplaats kattendijkbrug koepoortbrug en 14 andere straten": {
-   "point": [
-    4.40592,
-    51.22037
-   ],
-   "precision": "straat",
-   "street": "Sint-Nicolaasplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "stadswaag": {
-   "point": [
-    4.40696,
-    51.22411
-   ],
-   "precision": "straat",
-   "street": "Stadswaag",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
    "point": [
     4.39671,
@@ -589,7 +589,7 @@
  "misses": {
   "2000 en 2018 antwerpen": "2026-10-10",
   "2060 antwerpen": "2026-10-19",
-  "a bib merksem parkweg 1": "2026-10-07",
+  "a bib merksem parkweg 1": "2026-10-21",
   "arenaplein 2100 deurne": "2026-10-19",
   "august leyweg 2020 antwerpen": "2026-10-10",
   "begijnenstraat 2000 antwerpen": "2026-10-10",
@@ -615,7 +615,6 @@
   "harmoniepark 1": "2026-10-19",
   "hertoginstraat 2018 antwerpen": "2026-10-10",
   "jacob jordaensstraat 2018 antwerpen": "2026-10-10",
-  "kleine kauwenberg grote kauwenberg lange winkelstraat en 2 andere straten": "2026-10-17",
   "korte scholierstraat antwerpen": "2026-10-10",
   "kruispunt lange elzenstraat desguinlei 2018 antwerpen": "2026-10-10",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-10-10",
