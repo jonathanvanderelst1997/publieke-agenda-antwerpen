@@ -135,7 +135,7 @@
    "postcode": "2018",
    "checkedOn": "2026-10-05"
   },
-  "ernest van dijckkaai gildekamersstraat hofstraat en 10 andere straten": {
+  "ernest van dijckkaai jordaenskaai orteliuskaai en 5 andere straten": {
    "point": [
     4.39785,
     51.22233
@@ -143,7 +143,7 @@
    "precision": "straat",
    "street": "Ernest Van Dijckkaai",
    "postcode": "2000",
-   "checkedOn": "2026-10-20"
+   "checkedOn": "2026-10-22"
   },
   "falconplein 2000 antwerpen": {
    "point": [
@@ -184,6 +184,16 @@
    "street": "Grote Goddaard",
    "postcode": "2000",
    "checkedOn": "2026-10-21"
+  },
+  "grote kauwenberg kleine kauwenberg lange winkelstraat en 2 andere straten": {
+   "point": [
+    4.41142,
+    51.22306
+   ],
+   "precision": "straat",
+   "street": "Grote Kauwenberg",
+   "postcode": "2000",
+   "checkedOn": "2026-10-22"
   },
   "grote markt": {
    "point": [
@@ -244,6 +254,16 @@
    "street": "Keistraat",
    "postcode": "2000",
    "checkedOn": "2026-10-05"
+  },
+  "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
+   "point": [
+    4.40116,
+    51.22253
+   ],
+   "precision": "straat",
+   "street": "Hofstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-22"
   },
   "jan vanhoenackerstraat 2000 antwerpen": {
    "point": [
@@ -555,16 +575,6 @@
    "postcode": "2100",
    "checkedOn": "2026-10-05"
   },
-  "wzc hollebeek turnersstraat 38 2020 antwerpen": {
-   "point": [
-    4.38165,
-    51.18616
-   ],
-   "precision": "adres",
-   "street": "Turnersstraat",
-   "postcode": "2020",
-   "checkedOn": "2026-10-14"
-  },
   "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
    "point": [
     4.40031,
@@ -599,6 +609,7 @@
   "constitutiestraat 2060 antwerpen": "2026-10-10",
   "demerstraat 2060 antwerpen": "2026-10-10",
   "district antwerpen locatie via de officiele bron": "2026-10-20",
+  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-22",
   "district borgerhout locatie via de officiele bron": "2026-10-19",
   "district borsbeek locatie via de officiele bron": "2026-10-18",
   "district deurne locatie via de officiele bron": "2026-10-13",

@@ -14,10 +14,10 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-10-20T03:20:45.008Z",
-  "fetchStatus": "error",
+  "retrievedAt": "2026-10-22T03:20:30.070Z",
+  "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "2026-10-19",
+  "contentVersion": "2026-10-21",
   "items": [
     {
       "gipodId": 12329796,
@@ -1442,7 +1442,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -1468,7 +1468,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -1499,7 +1499,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-08-17",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3349,7 +3349,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3377,7 +3377,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3472,7 +3472,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-16",
       "innames": 1
     },
     {
@@ -3499,7 +3499,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3527,7 +3527,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3554,7 +3554,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3582,7 +3582,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3609,7 +3609,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -3636,7 +3636,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-13",
+      "gewijzigd": "2026-10-21",
       "innames": 1
     },
     {
@@ -4051,7 +4051,8 @@
       "date": "2026-10-29",
       "endDate": "2026-10-30",
       "innametypes": [
-        "Mobiele werf"
+        "Mobiele werf",
+        "Pechstrook"
       ],
       "doorgang": [
         "1 rijstrook"
@@ -4062,7 +4063,61 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
+      "gewijzigd": "2026-10-21",
+      "innames": 1
+    },
+    {
+      "gipodId": 20876154,
+      "werfId": 51363,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Herstelling",
+        "Kunstwerken"
+      ],
+      "fasen": [],
+      "date": "2026-11-06",
+      "endDate": "2026-11-07",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-21",
+      "innames": 1
+    },
+    {
+      "gipodId": 20884287,
+      "werfId": 47486,
+      "afdeling": "Lantis",
+      "soort": [
+        "(Her)aanleg",
+        "Signalisatie"
+      ],
+      "fasen": [],
+      "date": "2026-11-30",
+      "endDate": "2026-12-01",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "voertuigen tot 3,5 ton",
+        "voertuigen boven 3,5 ton",
+        "voertuigen boven 7,5 ton"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-21",
       "innames": 1
     }
   ]

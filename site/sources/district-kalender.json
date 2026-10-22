@@ -13,10 +13,10 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
-  "retrievedAt": "2026-10-21T03:19:17.468Z",
+  "retrievedAt": "2026-10-22T03:19:18.427Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "parser-2|6ad0972b340ee70a657ff094|2026-10-15T09:04:53+00:00",
+  "contentVersion": "parser-2|6ad864c5340ee7642551ee16|2026-10-21T07:08:29+00:00",
   "items": [
     {
       "id": "district-kal-6a746a7ff4182b8edf63a766-2026-09-09",
@@ -36,52 +36,7 @@
       "infoUrl": "https://nova.antwerpen.be/humans-of-antwerp",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
-      "reviewRequired": false
-    },
-    {
-      "id": "district-kal-6a746a7ff4182b8edf63a779-2026-10-18",
-      "externalId": "6a746a7ff4182b8edf63a779",
-      "title": "Familiedag in Permeke",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-18",
-      "endDate": null,
-      "timeSlot": "11:00",
-      "timeText": "11 tot 16 uur",
-      "location": "Bib Permeke",
-      "postcodes": [
-        "2060"
-      ],
-      "info": "Samen genieten van een voorstelling, samenspeel- en leestijd en iets lekkers. Kom om 11 of om 14 uur naar KINTSUGI (8+), over verlies, rouw en troost. Prijs: GRATIS",
-      "infoUrl": "https://antwerpen.bibliotheek.be/permeke",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
-      "reviewRequired": false
-    },
-    {
-      "id": "district-kal-6a746a7ff4182b8edf63a774-2026-10-23",
-      "externalId": "6a746a7ff4182b8edf63a774",
-      "title": "Tabletcafé",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-23",
-      "endDate": null,
-      "timeSlot": "10:00",
-      "timeText": "10 tot 12 uur",
-      "location": "WZC Hollebeek, Turnersstraat 38, 2020 Antwerpen",
-      "postcodes": [
-        "2020"
-      ],
-      "info": "Kom mee swipen in het tabletcafé.Stel er al jouw vragen en krijg tips en tricks over tablets, computers en smartphones. Prijs: GRATIS Vooraf inschrijven is verplicht.",
-      "infoUrl": "https://www.antwerpen.be/info/5837e2cf2d2a3cd17b1bff6d/tabletcafe-voor-senioren",
-      "actionAttempted": true,
-      "actionChecked": true,
-      "actionKind": "email_district",
-      "kind": "activity",
-      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -106,7 +61,7 @@
       "actionCode": "CID-STA-20261023",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -127,7 +82,7 @@
       "infoUrl": "https://nova.antwerpen.be/halloweenfeest",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -149,7 +104,7 @@
       "actionAttempted": true,
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -169,7 +124,7 @@
       "info": "Een voorstelling over verlangen naar verbinding en erbij horen. Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over wat het betekent om ergens bij te horen, over het gevoel van verbinding en het ontbreken daarvan. Prijs: GRATIS",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -194,7 +149,7 @@
       "actionCode": "CID-STA-20261120",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -215,7 +170,7 @@
       "infoUrl": "https://www.facebook.com/ParadeNoorderlicht",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     },
     {
@@ -239,7 +194,7 @@
       "actionKind": "email_district",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
-      "retrievedAt": "2026-10-21T03:19:17.468Z",
+      "retrievedAt": "2026-10-22T03:19:18.427Z",
       "reviewRequired": false
     }
   ]
