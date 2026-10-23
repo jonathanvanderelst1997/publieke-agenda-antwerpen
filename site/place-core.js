@@ -580,13 +580,23 @@ export function agendaEntry(item, theme = item?.category || "other") {
 // verser voor gevolgen en data, de verversing kent de huisnummers en het gekoppelde evenement.
 // Huisnummers uit een oudere verversing gaan opnieuw door de controle ("nr. 0", "nr. 2001" niet).
 // Een adreskaart (site/werk-vorm.js) in live of in de verversing: het resultaat is een adreskaart (alsAdreskaart), en nooit
-// komen fasen of een omschrijving uit een bewaard werk zonder adreskaart.
+// komen fasen of een omschrijving uit een bewaard werk zonder adreskaart. Het nummer hoort bij de eerste straat waarbij het
+// gelezen werd: een nummer van live bij de eerste straat van live, een bewaard nummer alleen bij precies dezelfde eerste
+// straat als de bewaarde; anders geen nummer (nakijkronde van head a4d9ba99: een bewaard nummer stond bij een andere straat).
 function samenWerk(live, bewaard) {
   if (!bewaard) return live;
   const adresKaart = live?.adresKaart === true || bewaard.adresKaart === true;
   const samen = gewoonSamen(live, bewaard);
   if (!adresKaart) return samen;
-  return alsAdreskaart({ ...samen, omschrijving: "", fasen: live.fasen.length ? live.fasen : bewaard.adresKaart === true ? bewaard.fasen || [] : [] });
+  const eerste = cleanText(samen.straten?.[0]);
+  const liveNr = geldigeHuisnummers(live?.huisnummers) && eerste && cleanText(live?.straten?.[0]) === eerste;
+  const bewaardNr = !liveNr && geldigeHuisnummers(bewaard.huisnummers) && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
+  // Geen nummer, maar live of de verversing had er een (bij een andere straat): "huisnummer weggelaten", nooit "niet
+  // gepubliceerd" (huisnummerWeg in site/kaart-uitleg.js).
+  const weg = geldigeHuisnummers(live?.huisnummers) || geldigeHuisnummers(bewaard.huisnummers) ? "weggelaten" : live?.huisnummerWeg || bewaard.huisnummerWeg || "";
+  const nummer = liveNr ? { huisnummers: live.huisnummers, huisnummerBron: live.huisnummerBron || "" }
+    : bewaardNr ? { huisnummers: geldigeHuisnummers(bewaard.huisnummers), huisnummerBron: bewaard.huisnummerBron || "" } : { huisnummers: "", huisnummerBron: "", huisnummerWeg: weg };
+  return alsAdreskaart({ ...samen, ...nummer, omschrijving: "", fasen: live.fasen.length ? live.fasen : bewaard.adresKaart === true ? bewaard.fasen || [] : [] });
 }
 function gewoonSamen(live, bewaard) {
   const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
@@ -1032,6 +1042,7 @@ function gipodPerDossier(uitleg) {
   }
   return gipod;
 }
+const isAdreskaartKaart = (e) => e?.source === "works" && (e.rijen?.length ? e.rijen : [e.item]).some((w) => w?.adresKaart === true);
 export function samenWerven(entries = [], { uitleg = null, straat = "", vandaag = "", alle = [] } = {}) {
   const werken = uitleg?.werken || {};
   const dossierVan = (w) => werfDossier(w?.dossier) || werfDossier(werken[w?.gipodId]?.dossier);
@@ -1061,6 +1072,10 @@ export function samenWerven(entries = [], { uitleg = null, straat = "", vandaag 
     if (kandidaten.length !== 1) continue;
     const kaart = werkKaart.get(kandidaten[0]) || sgwKaart.get(kandidaten[0]);
     if (!kaart) continue;
+    // Een adreskaart (site/werk-vorm.js) krijgt geen parkeerverbod in haar kaart: de reden van een parkeerverbod staat nooit
+    // naast een exact adres, ook niet op de kaart van een parkeerverbod dat later begint (vervolgParkeerverbod). Het
+    // parkeerverbod blijft een eigen kaart; de werfzone gaat wel in de kaart (haar regels zijn vaste gegevens van A-Sign).
+    if (isAdreskaartKaart(kaart)) continue;
     voeg(kaart.uid).parkeer.push(e);
     weg.add(e.uid);
   }

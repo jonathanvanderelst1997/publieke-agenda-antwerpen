@@ -17,7 +17,9 @@ import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
 
 const VANDAAG = "2099-03-10";
 const PROEF = { id: "9101", name: "Proefstraat", postcode: "2000" };
-const STRAATVORMEN = ["Proefstraat {n}", "PROEFSTRAAT {n}", "Proefstr. {n}", "2000 Antwerpen, Proefstraat {n}", "Proefstraat | {n}", "Proefstraat: {n}", "Proefstraat, {n}", "Testlaan 5 - Proefstraat {n}"];
+const STRAATVORMEN = ["Proefstraat {n}", "PROEFSTRAAT {n}", "Proefstr. {n}", "2000 Antwerpen, Proefstraat {n}", "Proefstraat | {n}", "Proefstraat: {n}", "Proefstraat, {n}", "Testlaan 5 - Proefstraat {n}", "Korte Proefstraat {n}", "Anna-Proefstraat {n}"];
+// Een andere straat met de naam van het punt erin: nooit een nummer (liever geen nummer dan een fout huis).
+const ANDERE_STRAAT = /Korte Proefstraat|Anna-Proefstraat/;
 const NUMMERVORMEN = ["12", "12A", "31/2", "12-12", "12 tem 14", "12 en 14", "1DN02", "nr 12", "thv 12"];
 // Een staart en de woorden die er nergens van mogen terugkomen op een adreskaart (verzonnen).
 const STAARTEN = [
@@ -92,6 +94,7 @@ test("fuzz: een adreskaart heeft nergens de staart, een gewone kaart nergens Ã©Ã
         if (item.adresKaart) for (const woord of woorden) assert.equal(alles.toLowerCase().includes(woord.toLowerCase()), false, `${naam}: "${woord}" op ${uitgang} van een adreskaart bij ${wat}`);
         else assert.equal(losNummer(alles), false, `${naam}: los huisnummer op ${uitgang} van een gewone kaart bij ${wat}: ${alles.slice(0, 300)}`);
       }
+      if (item.adresKaart && ANDERE_STRAAT.test(wat)) assert.equal(item.huisnummers, "", `${naam}: een nummer bij een andere straat: ${wat}`);
       if (item.adresKaart) { a += 1; if (item.huisnummers) metNummer += 1; } else b += 1;
     });
   }

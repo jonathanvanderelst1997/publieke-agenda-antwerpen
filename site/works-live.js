@@ -70,8 +70,9 @@ export async function werkenInKader(kader,{district=null,streetIndex=null}={}){
 }
 
 const aSignText=i=>{const s=i.aSignSupplement;if(!s)return"";const parts=[];if(s.companies.length)parts.push(`Bedrijf volgens A-Sign: ${s.companies.join(" · ")}`);if(s.workTypes.length)parts.push(`Werftype: ${s.workTypes.join(" · ")}`);if(s.phaseStatuses.length)parts.push(`Fasestatus: ${s.phaseStatuses.join(" · ")}`);if(s.trafficImpacts.length)parts.push(`Verkeersimpact: ${s.trafficImpacts.join(" · ")}`);if(s.dossierHindrances.length)parts.push(`Dossierhinder: ${s.dossierHindrances.join(" · ")}`);return parts.join(" · ")};
-// Waarop de lijst zoekt: de titel alleen zoals de lijst hem toont (lijstTitel), nooit de ruwe titel van GIPOD.
-export const werkZoektekst=i=>[i.gipodId,lijstTitel(i),i.owner,i.ownerGroup,i.status,...(i.workTypes||[]),...(i.occupancyTypes||[]),...(i.hindrance?.consequences||[]),...(i.streets||[]).map(s=>s.name),aSignText(i)].join(" ").toLowerCase();
+// Waarop de lijst zoekt: de titel alleen zoals de lijst hem toont (lijstTitel), nooit de ruwe titel van GIPOD; ook het
+// dossiernummer van de werfzone en de postcode van de straten (die stonden vaak in de ruwe titel, en zijn geen persoonsgegeven).
+export const werkZoektekst=i=>[i.gipodId,lijstTitel(i),i.dossier,i.owner,i.ownerGroup,i.status,...(i.workTypes||[]),...(i.occupancyTypes||[]),...(i.hindrance?.consequences||[]),...(i.streets||[]).flatMap(s=>[s.name,s.postcode]),aSignText(i)].filter(v=>v!==undefined&&v!==null&&v!=="").join(" ").toLowerCase();
 
 const root=typeof document!=="undefined"?document.getElementById("works-live"):null;
 if(root){
