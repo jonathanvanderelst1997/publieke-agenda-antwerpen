@@ -3,7 +3,7 @@ import {duidelijkeKaart} from "./permit-clarity.js";
 import {bezoekersHint,bezoekersLinks} from "./bezoekers-bronnen.js";
 import {brusselsVandaag,metInzage} from "./inzage-status.js";
 import {loadStreetIndex} from "./street-source.js";
-import {laadAlsInBeeld} from "./live-lagen.js";
+import {laadAlsInBeeld,meldLiveLaag} from "./live-lagen.js";
 const root=document.getElementById("permits-live");
 if(root){
   const count=root.querySelector("[data-permits-count]"),note=root.querySelector("[data-permits-note]"),list=root.querySelector("[data-permits-list]"),search=root.querySelector("[data-permits-search]"),more=root.querySelector("[data-permits-more]");
@@ -33,6 +33,6 @@ if(root){
   // Nagekeken stand in het Inzageloket (site/sources/inzage-status.json). Ontbreekt dat bestand, dan zegt de
   // kaart gewoon niets over een openbaar onderzoek.
   const inzageStatus=()=>fetch("/sources/inzage-status.json",{headers:{Accept:"application/json"}}).then(r=>r.ok?r.json():null).catch(()=>null);
-  const start=()=>Promise.all([permits(),district(),loadStreetIndex(),inzageStatus()]).then(([features,districtGeometry,streetIndex,inzage])=>{state.items=metInzage(collectPermits({features,districtGeometry,streetIndex}),inzage,brusselsVandaag());state.ready=true;window.PUBLIC_AGENDA_LIVE_STREETS=window.PUBLIC_AGENDA_LIVE_STREETS||{};window.PUBLIC_AGENDA_LIVE_STREETS.permits=state.items;window.PUBLIC_AGENDA_LIVE_STREETS.heelDistrict={...(window.PUBLIC_AGENDA_LIVE_STREETS.heelDistrict||{}),permits:true};window.dispatchEvent(new CustomEvent("public-agenda:street-layer",{detail:{name:"permits",items:state.items}}));note.textContent="De openbare bron levert aard en onderwerp van een aanvraag. De agenda toont uitsluitend vaste, privacyveilige categorieën, zonder vrije tekst of namen. Aanvraag is niet hetzelfde als verleende vergunning.";render()}).catch(error=>{note.textContent=`Omgevingsdossiers tijdelijk niet geladen: ${error?.message||"bronfout"}`;count.textContent="Bron tijdelijk niet beschikbaar"});
+  const start=()=>Promise.all([permits(),district(),loadStreetIndex(),inzageStatus()]).then(([features,districtGeometry,streetIndex,inzage])=>{state.items=metInzage(collectPermits({features,districtGeometry,streetIndex}),inzage,brusselsVandaag());state.ready=true;meldLiveLaag("permits",state.items,[]);note.textContent="De openbare bron levert aard en onderwerp van een aanvraag. De agenda toont uitsluitend vaste, privacyveilige categorieën, zonder vrije tekst of namen. Aanvraag is niet hetzelfde als verleende vergunning.";render()}).catch(()=>{note.textContent="";count.textContent="";meldLiveLaag("permits",null,["vergunningen"])});
   laadAlsInBeeld(root,laad,{marge:"600px"});
 }

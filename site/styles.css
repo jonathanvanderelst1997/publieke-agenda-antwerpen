@@ -250,11 +250,6 @@ a {
   font-weight: 750;
 }
 
-.source-stale {
-  color: #a4262c;
-  font-weight: 850;
-}
-
 /* Bron antwoordt, maar levert al dagen niets komends: oranje, geen fout. */
 .source-empty {
   color: var(--pa-warn, #7a4a05);

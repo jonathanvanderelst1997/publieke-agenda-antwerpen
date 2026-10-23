@@ -242,8 +242,9 @@ test("de komende 7 dagen: één zin met een verkeerslicht, uit dezelfde kaartjes
   assert.match(dezeWeek(reeks, vandaag).zin, /1 evenement \(morgen\)/);
   // Parkeerverbod vandaag, en een andere plek in de zin.
   assert.match(dezeWeek([parkeer(3, "2026-10-12", "2026-10-12")], vandaag, { waar: "in Zurenborg" }).zin, /^De komende 7 dagen in Zurenborg: 1 parkeerverbod \(vanaf vandaag\)\.$/);
-  // Iets gevonden maar niet alles geladen: dat staat erbij.
-  assert.match(dezeWeek([werk(6, "2026-10-12", "2026-10-13")], vandaag, { onvolledig: true }).zin, /Niet alles laadde\.$/);
+  // Iets gevonden maar niet alles geladen: alleen wat gevonden is, zonder te zeggen dat iets niet laadde (besluit van
+  // 18-10-2026).
+  assert.equal(dezeWeek([werk(6, "2026-10-12", "2026-10-13")], vandaag, { onvolledig: true }).zin, "De komende 7 dagen in jouw straat: 1 werk (vanaf vandaag).");
   for (const licht of ["rustig", "let-op", "hinder", "onbekend"]) assert.ok(WEEK_LICHT[licht]);
 });
 
@@ -388,9 +389,11 @@ test("de komende 7 dagen: staat een laag uit of is ze niet geladen, dan nooit 'r
   assert.equal(leeg.licht, "onbekend");
   assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken staan uit. Of het rustig is, weten we dus niet.");
   assert.doesNotMatch(leeg.zin, /rustig\.|Geen werken/);
+  // Niet geladen zonder dat de bezoeker ze uit zette: nooit "rustig", maar ook geen reden (besluit van 18-10-2026). Niets
+  // gevonden zonder betrouwbare stand: geen weekzin (nakijkronde 3: "Onbekend … niets gevonden." verraadde de fout).
   const nietGeladen = dezeWeek([], vandaag, { onbekend: [{ wat: "parkeerverboden", uit: false, geladen: false }, { wat: "evenementen op straat", uit: false, geladen: false }] });
-  assert.equal(nietGeladen.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar parkeerverboden en evenementen op straat zijn niet geladen. Of het rustig is, weten we dus niet.");
-  // Iets gevonden: dat staat er, met wat niet geladen is.
+  assert.deepEqual(nietGeladen, { licht: "onbekend", zin: "" });
+  // Iets gevonden: dat staat er, met wat uit staat en daarom niet geladen is.
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
   assert.equal(dezeWeek([feest], vandaag, { onbekend: uit }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet geladen.");
   // Uit maar wel geladen: wat er is, telt gewoon mee (geen "niet geladen").
@@ -408,13 +411,14 @@ test("de komende 7 dagen: een laag die uit staat maar geladen is, maakt een lege
   assert.equal(dezeWeek([], vandaag, { onbekend: [{ wat: "werken", uit: true, geladen: false }] }).licht, "onbekend");
 });
 
-// Nakijkbevinding (weekzin): een werkenlaag die deels mislukte terwijl werken uit staan, telde als geladen.
-test("de komende 7 dagen: een laag die maar deels laadde, zegt dat erbij en is nooit 'rustig'", () => {
+// Nakijkbevinding (weekzin): een werkenlaag die deels mislukte terwijl werken uit staan, telde als geladen. Sinds het
+// besluit van 18-10-2026 zegt de zin niet meer dat ze maar deels laadde; "rustig" wordt ze nog altijd nooit.
+test("de komende 7 dagen: een laag die maar deels laadde, is nooit 'rustig', zonder te zeggen waarom", () => {
   const vandaag = "2026-10-12";
   const deels = [{ wat: "werken", uit: true, geladen: false, deels: true }];
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
-  assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet volledig geladen.");
+  assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
   const leeg = dezeWeek([], vandaag, { onbekend: deels });
-  assert.equal(leeg.licht, "onbekend");
-  assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken zijn niet volledig geladen. Of het rustig is, weten we dus niet.");
+  assert.notEqual(leeg.licht, "rustig");
+  assert.equal(leeg.zin, "", "niets gevonden zonder betrouwbare stand: geen weekzin");
 });

@@ -52,11 +52,14 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
 - De gewone weekmarkten staan als één gebundelde kaart (markt, dagen, uren), niet als losse marktdagen.
 - Bovenaan: de zoekbalk op plek (zie hieronder). Zonder plek toont het overzicht uitgaan & evenementen; wie een
   straat, wijk of postcode kiest zonder zelf soorten te kiezen, ziet alles op die plek (ook werken en hinder).
-- Versheid: de kop toont "bijgewerkt op …". Is de laatste verversing ouder dan 48 uur (een achterstand), dan
-  verschijnt een vriendelijke banner en blijven **bronitems** (uit de automatische bronnen) die alleen door de
-  ouderdom van hun bron vielen nog 14 dagen zichtbaar met "Laatst bevestigd …". Zonder achterstand is er geen
-  "Laatst bevestigd", en handmatige items krijgen die gratie nooit (zie hieronder). Verlopen datums en
-  bronconflicten blijven verborgen. Het manifest en de eventpagina's veranderen hierdoor niet.
+- Versheid: de kop toont "Bijgewerkt …" met het tijdstip van de momentopname. Is de laatste verversing ouder dan
+  48 uur (een achterstand), dan blijven **bronitems** (uit de automatische bronnen) die alleen door de ouderdom van
+  hun bron vielen nog 14 dagen zichtbaar, zoals de andere items. Een bezoeker ziet daar niets van: geen melding,
+  geen oranje pil, geen "Laatst bevestigd" (besluit van de eigenaar van 18-10-2026, "niemand moet weten als er iets
+  faalt, de momentopname blijft wel goed"; vroeger een banner "De agenda wordt even niet ververst"). De eigenaar
+  krijgt dan een alarm-issue (de job `freshness` in `.github/workflows/refresh.yml`). Zonder achterstand is er
+  geen gratie, en handmatige items krijgen die nooit (zie hieronder). Verlopen datums en bronconflicten blijven
+  verborgen. Het manifest en de eventpagina's veranderen hierdoor niet.
 
 ## Handmatige items: zichtbaar tot en met de einddatum
 

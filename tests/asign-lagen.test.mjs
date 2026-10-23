@@ -1,4 +1,5 @@
-// A-Sign-lagen echt laden en eerlijk melden wat ontbreekt (herstelplan O1, O10). Alle data is verzonnen.
+// A-Sign-lagen echt laden en intern bijhouden wat ontbreekt (herstelplan O1, O10). Sinds het besluit van 18-10-2026
+// ("niemand moet weten als er iets faalt") zegt de site dat niet meer aan bezoekers. Alle data is verzonnen.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -6,7 +7,8 @@ import fs from "node:fs";
 import {
   ASIGN_BLOK, ASIGN_GELIJKTIJDIG, ASIGN_MAX_URL, asignDetailUrls, asignIdsUrl, asignLayer, maakBegrenzer,
 } from "../site/asign-query.js";
-import { mislukteOnderdelenPublicSpace, ontbrekendeOnderdelen, onvolledigMelding } from "../site/live-lagen.js";
+import * as liveLagen from "../site/live-lagen.js";
+import { mislukteOnderdelenPublicSpace, ontbrekendeOnderdelen } from "../site/live-lagen.js";
 import { adresZonderHuisnummer } from "../site/adres-privacy.js";
 
 const IOD_VELDEN = "dossierNummer,faseId,innameId,dossierStatus,faseNaam,type_dossier,innameTypeNaam,innameBeschrijving,innameHinder,faseStartDatum,faseEindDatum";
@@ -83,13 +85,13 @@ test("public-space-live, terraces-live en works-live halen A-Sign alleen via de 
   }
 });
 
-test("melding: in gewone woorden welke lagen ontbreken, en dat het overzicht onvolledig is", () => {
-  assert.equal(
-    onvolledigMelding(ontbrekendeOnderdelen({ publicSpace: mislukteOnderdelenPublicSpace(["parking", "sgw47"]), terraces: ["terrassen"], works: [] })),
-    "Parkeerverboden, omleidingen en terrassen konden nu niet geladen worden. Dit overzicht is onvolledig."
+test("intern: welke onderdelen ontbreken, zonder melding voor bezoekers", () => {
+  assert.deepEqual(
+    ontbrekendeOnderdelen({ publicSpace: mislukteOnderdelenPublicSpace(["parking", "sgw47"]), terraces: ["terrassen"], works: [] }),
+    ["parkeerverboden", "omleidingen", "terrassen"]
   );
-  assert.equal(onvolledigMelding(["terrassen"]), "Terrassen konden nu niet geladen worden. Dit overzicht is onvolledig.");
-  assert.equal(onvolledigMelding([]), "");
+  // De melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." bestaat niet meer.
+  assert.equal(liveLagen.onvolledigMelding, undefined);
   // Zonder districtsgrens vallen innames, omleidingen en werfzones weg; zonder stratenlijst alles.
   assert.deepEqual(mislukteOnderdelenPublicSpace(["district"]), ["innames en parcours", "omleidingen", "werfzones"]);
   assert.deepEqual(mislukteOnderdelenPublicSpace(["streets", "iod23"]), ["parkeerverboden", "innames en parcours", "omleidingen", "werfzones"]);

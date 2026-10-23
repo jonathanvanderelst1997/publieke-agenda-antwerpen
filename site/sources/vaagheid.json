@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-23",
  "invoer": "7b8954c708c3865c",
- "code": "a3cb1b841d7f040d",
+ "code": "eadb09ac9c6502cb",
  "agenda": {
   "items": 771,
   "vaag": 50,
@@ -674,43 +674,27 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "ddf015151f6498bf",
+   "invoer": "7b8954c708c3865c",
    "code": "a3cb1b841d7f040d"
   },
   "agenda": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": 0,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -0.6,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
-   "ok": false,
-   "stijging": -0.3,
-   "gestegen": [
-    {
-     "id": "wat-zegt-stad-niet",
-     "van": 41,
-     "naar": 46
-    },
-    {
-     "id": "detail:huisnummers-niet-gepubliceerd",
-     "van": 37,
-     "naar": 41
-    },
-    {
-     "id": "detail:meer-dan-een-ontbreekt",
-     "van": 273,
-     "naar": 278
-    }
-   ]
+   "ok": true,
+   "stijging": 0,
+   "gestegen": []
   },
   "buiten": {
    "ok": true,
-   "stijging": -1.5,
+   "stijging": 0,
    "gestegen": []
   }
  }

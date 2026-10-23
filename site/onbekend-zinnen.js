@@ -78,16 +78,14 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "werk-alleen-adres": { zin: "Niet bekend: de beheerder gaf alleen een adres op.", meter: "werk-zonder-wat", kern: true, waar: "detail" },
   "niet-gepubliceerd": { zin: "niet gepubliceerd", meter: "niet-in-de-bron", kern: false, waar: "detail" },
   "beheerder-geen-omschrijving": { zin: "De beheerder publiceerde zelf geen omschrijving.", meter: "beheerder-geen-omschrijving", kern: false, waar: "detail" },
-  // De districtslijst van de werken (works-live.js): hinder uit GIPOD, of waarom die er niet is.
+  // De districtslijst van de werken (works-live.js): hinder uit GIPOD, of dat ze er niet is. Laadde de hinderbron
+  // niet, dan zegt de lijst dat niet (besluit van 18-10-2026): dan valt de regel weg.
   "hinder-onbekend": { zin: "Onbekend in open data", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
   "hinder-koppeling": { zin: "Gevalideerde GIPOD-hinder is gekoppeld; ontbrekende koppeling wordt bewust als onbekend getoond.", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
-  "hinder-niet-geladen": { zin: "De GIPOD-hinderbron kon nu niet worden geladen; hinder blijft daarom onbekend.", meter: "gevolgen-niet-gepubliceerd", kern: false, waar: "lijst" },
   "losse-hinder": { zin: "GIPOD publiceert deze gevalideerde hinder, maar het werk zelf staat niet bij de getoonde werken. Daarom staat ze los van de werken hierboven.", meter: "werk-niet-getoond", kern: false, waar: "sectie" },
   "uur-label": { zin: "Uur onbekend", meter: "uur-onbekend", kern: true, waar: "kaart" },
-  // De kop van de regel die zegt wat een kaart niet heeft ("Niet in de bron: ..."), en het getal werken dat niet
-  // helemaal laadde (place-view.js).
+  // De kop van de regel die zegt wat een kaart niet heeft ("Niet in de bron: ...").
   "niet-in-de-bron-kop": { zin: "Niet in de bron", meter: "niet-in-de-bron", kern: false, waar: "detail" },
-  "werken-onvolledig": { zin: "onbekend: niet alles laadde", meter: "niet-in-de-bron", kern: false, waar: "kaart" },
   // De districtslijst van de parkeerverboden (public-space-live.js) zonder reden.
   "reden-niet-gepubliceerd": { zin: "Niet gepubliceerd", meter: "parkeerverbod-welk", kern: true, waar: "lijst" },
 
@@ -108,8 +106,6 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "nieuws-uur": { zin: "Het uur staat niet in het bericht.", meter: "uur-niet-in-bron", kern: true, waar: "lijst" },
   "bijwerkmoment": { zin: "Bijwerkmoment onbekend", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
   "bijwerkmoment-kort": { zin: "op een onbekend moment", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
-  // De banner bovenaan de agenda (agenda.js, renderBronWaarschuwing) als de bronstatus ontbreekt.
-  "bronversheid-onbekend": { zin: "De versheid van de officiële bronnen is nog niet bekend.", meter: "bijwerkmoment-onbekend", kern: false, waar: "agenda" },
 });
 
 // De zin met een id, met {naam} ingevuld. Een onbekend id is een fout in de code: dan gooit de functie, zodat een

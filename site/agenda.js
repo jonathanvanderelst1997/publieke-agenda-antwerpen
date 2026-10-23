@@ -1529,10 +1529,12 @@ const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
 const uitgaan = window.PublicAgendaUitgaan || null;
 // Versheid: alleen als de laatste geslaagde verversing ouder is dan 48 uur (een achterstand),
-// blijven BRONITEMS (uit de automatische feed) die alleen daardoor als "verouderde bron" vielen nog
-// STALE_GRACE_DAYS zichtbaar, gemarkeerd met "Laatst bevestigd". Handmatige items hebben die
-// gratie niet nodig: ze blijven zichtbaar tot en met hun laatste dag (zie agenda-refresh.js).
-// Verlopen datums, bronconflicten en onbevestigde bronnen blijven altijd verborgen.
+// blijven BRONITEMS (uit de automatische feed) die alleen daardoor wegvielen (reviewReason "stale_source") nog
+// STALE_GRACE_DAYS zichtbaar (graceStale, intern). Een bezoeker ziet ze als gewone items, zonder badge met de
+// datum van de laatste bevestiging en zonder melding (besluit van de eigenaar van 18-10-2026: "niemand moet weten
+// als er iets faalt, de momentopname blijft wel goed"). Handmatige items hebben die gratie niet nodig: ze blijven
+// zichtbaar tot en met hun laatste dag (zie agenda-refresh.js). Verlopen datums, bronconflicten en onbevestigde
+// bronnen blijven altijd verborgen.
 const FRESH_LIMIT_HOURS = 48;
 const STALE_GRACE_DAYS = 14;
 const agendaFreshness = uitgaan
@@ -1723,9 +1725,9 @@ function dateRange(startIso, endIso, limit = 120) {
 }
 
 // Wanneer de agenda ververst is, altijd met het uur: "vandaag om 05.22", "gisteren om 05.21" of
-// "op 8 oktober 2026 om 05.21". Zo ziet een bezoeker meteen of de stand van vanochtend is, ook als
-// zijn browser het uur niet zelf in de datum zet. Leeg als het moment onbekend is.
-function freshnessWhen(iso, nowMs) {
+// "op 8 oktober 2026 om 05.21" (kort, voor de pil bovenaan: "op 8 okt om 05.21"). Zo ziet een bezoeker meteen of de
+// stand van vanochtend is, ook als zijn browser het uur niet zelf in de datum zet. Leeg als het moment onbekend is.
+function freshnessWhen(iso, nowMs, { kort = false } = {}) {
   const value = Date.parse(String(iso || ""));
   if (!Number.isFinite(value)) return "";
   const zone = { timeZone: "Europe/Brussels" };
@@ -1742,7 +1744,10 @@ function freshnessWhen(iso, nowMs) {
     yesterday.setUTCDate(yesterday.getUTCDate() - 1);
     if (day === yesterday.toISOString().slice(0, 10)) return `gisteren om ${time}`;
   }
-  const date = new Intl.DateTimeFormat("nl-BE", { ...zone, day: "numeric", month: "long", year: "numeric" }).format(new Date(value));
+  // `kort` (de pil bovenaan): "op 18 okt. om 05.18", het jaar alleen als dat niet het huidige is. Zo blijft de pil ook
+  // voor een momentopname van een paar dagen oud op één regel op een gsm van 360 px (P8).
+  const anderJaar = !Number.isFinite(nowMs) || day.slice(0, 4) !== dayOf(nowMs).slice(0, 4);
+  const date = new Intl.DateTimeFormat("nl-BE", { ...zone, day: "numeric", month: kort ? "short" : "long", ...(!kort || anderJaar ? { year: "numeric" } : {}) }).format(new Date(value));
   return `op ${date} om ${time}`;
 }
 
@@ -2101,7 +2106,7 @@ function eventTemplate(item) {
         <div class="meta">
           ${item.location ? `<span>${esc(item.location)}</span>` : ""}
           ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
-          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : `<span>${item.classification === "current" ? "Lopend" : "Toekomstig"}</span>`}
+          <span>${item.classification === "current" || (item.graceStale && item.date <= todayIso()) ? "Lopend" : "Toekomstig"}</span>
           ${item.nietGoedgekeurd ? `<span class="aanvraag-badge">${esc(NIET_GOEDGEKEURD_LABEL)}</span>` : ""}
           <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
@@ -2171,13 +2176,6 @@ function formatShortDate(iso) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(iso || ""))) return "";
   const [year, month, day] = iso.split("-").map(Number);
   return new Intl.DateTimeFormat("nl-BE", { weekday: "short", day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
-}
-
-function formatConfirmedDate(instant) {
-  const iso = String(instant || "").slice(0, 10);
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return "";
-  const [year, month, day] = iso.split("-").map(Number);
-  return new Intl.DateTimeFormat("nl-BE", { day: "numeric", month: "short" }).format(new Date(year, month - 1, day));
 }
 
 function emptyStateTemplate() {
@@ -2306,7 +2304,6 @@ function highlightCardTemplate(item, range) {
           <strong class="hl-title">${esc(item.title)}</strong>
           <span class="hl-when">${esc(highlightWhen(item, range))}</span>
           ${place ? `<span class="hl-where">${esc(place)}</span>` : ""}
-          ${item.graceStale ? `<span class="grace-badge">Laatst bevestigd ${esc(formatConfirmedDate(item.sourceRetrievedAt))}</span>` : ""}
         </span>
       </button>
     </li>
@@ -2476,73 +2473,15 @@ function onHighlightTabKey(event) {
   document.getElementById(`hl-tab-${highlightTab}`)?.focus();
 }
 
-// Bovenaan: toon afzonderlijk een bronalarm, ook als de dataverversing net slaagde.
-function renderBronWaarschuwing() {
-  const banner = document.getElementById("agenda-source-warning");
-  if (!banner) return;
-  const summary = window.PUBLIC_AGENDA_SOURCE_WARNING?.samenvatting(agendaReconciliation.sourceFreshness);
-  if (!summary || summary.kind === "ok") {
-    banner.hidden = true;
-    banner.textContent = "";
-    return;
-  }
-  // De agenda kan net zijn ververst terwijl afzonderlijke officiële bronnen oud zijn.
-  // Alleen bewezen versheidsgegevens, geen gok dat een evenement is afgelast.
-  const title = summary.kind === "expired"
-    ? "Niet alle officiële bronnen zijn actueel."
-    : summary.kind === "temporary"
-      ? "Sommige officiële bronnen zijn tijdelijk onbereikbaar."
-      : "De versheid van de officiële bronnen is nog niet bekend.";
-  const detail = summary.kind === "expired"
-    ? `${summary.expired} bron${summary.expired === 1 ? "" : "nen"} zijn niet binnen de toegestane versheidsgrens bevestigd. Onbevestigde agenda-items worden niet als actueel getoond; dat betekent niet dat ze zijn afgelast.`
-    : summary.kind === "temporary"
-      ? `Bij ${summary.temporary} bron${summary.temporary === 1 ? "" : "nen"} mislukte de laatste ophaalpoging, maar de vorige gegevens vallen nog binnen de versheidsgrens. Controleer de officiële bron voor actuele details.`
-      : "De bronstatus ontbreekt. Controleer belangrijke informatie bij de officiële organisator.";
-  banner.hidden = false;
-  banner.innerHTML = `<span class="stale-emoji" aria-hidden="true">!</span><div>
-    <strong>${title}</strong>
-    <p>${detail}</p>
-    <button class="source-warning-action" type="button">Bekijk de versheid per bron</button>
-  </div>`;
-  banner.querySelector(".source-warning-action")?.addEventListener("click", () => {
-    const details = document.querySelector(".agenda-technical-details");
-    if (!details) return;
-    details.open = true;
-    details.scrollIntoView({ block: "start" });
-    details.querySelector("summary")?.focus();
-  });
-}
-
-// Bovenaan: wanneer de agenda het laatst ververst is, en een vriendelijke melding als dat
-// langer dan 48 uur geleden is.
+// Bovenaan: wanneer de agenda het laatst ververst is (het tijdstip van de momentopname). Ook als dat langer dan
+// 48 uur geleden is, zonder melding en zonder andere kleur (besluit van 18-10-2026; vroeger een banner bovenaan en
+// een oranje pil): het alarm gaat naar de eigenaar (de job freshness in refresh.yml).
 function renderFreshness() {
   const pill = document.getElementById("agenda-freshness");
-  const banner = document.getElementById("agenda-stale-banner");
-  const when = agendaFreshness.generatedAt ? formatInstant(agendaFreshness.generatedAt) : "";
-  if (pill) {
-    pill.className = `freshness-pill ${agendaFreshness.stale ? "is-stale" : "is-fresh"}`;
-    const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime()) : "";
-    pill.textContent = moment ? `${agendaFreshness.stale ? "Laatst bijgewerkt" : "Bijgewerkt"} ${moment}` : "Bijwerkmoment onbekend";
-  }
-  renderBronWaarschuwing();
-  if (!banner) return;
-  if (!agendaFreshness.stale || !agendaFreshness.known) {
-    banner.hidden = true;
-    banner.textContent = "";
-    return;
-  }
-  const days = agendaFreshness.ageDays;
-  const ago = days >= 2 ? `${days} dagen geleden` : "meer dan 48 uur geleden";
-  banner.hidden = false;
-  banner.innerHTML = `
-    <span class="stale-emoji" aria-hidden="true">⏳</span>
-    <div>
-      <strong>De agenda wordt even niet ververst.</strong>
-      <p>De laatste update was op ${esc(when)} (${esc(ago)}). We tonen wat toen bevestigd was${
-        graceAgendaItems.length ? `; items met “Laatst bevestigd” check je best even bij de officiële bron` : ""
-      }. We werken eraan.</p>
-    </div>
-  `;
+  if (!pill) return;
+  pill.className = "freshness-pill is-fresh";
+  const moment = agendaFreshness.generatedAt ? freshnessWhen(agendaFreshness.generatedAt, agendaNow().getTime(), { kort: true }) : "";
+  pill.textContent = moment ? `Bijgewerkt ${moment}` : "Bijwerkmoment onbekend";
 }
 
 function renderCounts(items, categoryCounts) {
@@ -2555,18 +2494,38 @@ function renderCounts(items, categoryCounts) {
     .reduce((sum, [, count]) => sum + count, 0);
   document.getElementById("agenda-count-detail").textContent =
     `${uitgaanCount} om uit te gaan. District ${district}, stad ${stad}.${extra ? ` ${extra} andere punten met één klik.` : ""}`;
-  const { expired, review_required: reviewRequired } = agendaReconciliation.counts;
-  document.getElementById("agenda-refresh-note").textContent =
-    `Officiële broncontrole ${freshnessWhen(refreshEngine.config.retrievedAt, agendaNow().getTime()) || "op een onbekend moment"}: ` +
-    `${expired} verlopen punten en ${reviewRequired} punten met bronconflict of verouderde bron worden niet als actueel getoond` +
-    (graceAgendaItems.length ? `; ${graceAgendaItems.length} daarvan blijven zichtbaar met “Laatst bevestigd” omdat de verversing achterloopt.` : ".");
+  document.getElementById("agenda-refresh-note").textContent = refreshNoteText(
+    refreshEngine.config.retrievedAt,
+    agendaNow().getTime(),
+    agendaReconciliation
+  );
   renderSourceStatus();
+}
+
+// De zin "Officiële broncontrole …" (#agenda-refresh-note, op de plekpagina in het ingeklapte blok "Bronnen en
+// volledige vooruitblik"). Besluit van de eigenaar (18-10-2026): een bezoeker ziet niet dat een bron faalt. Een punt
+// dat alleen verborgen is omdat zijn bron niet tijdig ververst werd (reviewReason "stale_source"), telt hier daarom
+// niet mee: vroeger telde de zin ze apart (als verouderd), en met eBesluit falend waren dat precies de punten van
+// eBesluit. De zin is dus dezelfde of een bron nu faalt of niet, en ook bij een achterstand van de hele agenda (meer
+// dan 48 uur; vroeger telde de zin dan ook de punten die met een badge zichtbaar bleven). Wel: verlopen punten en
+// echte bronconflicten (een punt dat de bron niet bevestigt).
+function refreshNoteText(retrievedAt, nowMs, reconciliation) {
+  const items = Array.isArray(reconciliation?.auditItems) ? reconciliation.auditItems : [];
+  const expired = reconciliation?.counts?.expired ?? 0;
+  const conflicts = items.filter((item) => item.classification === "review_required" && item.reviewReason !== "stale_source").length;
+  return (
+    `Officiële broncontrole ${freshnessWhen(retrievedAt, nowMs) || "op een onbekend moment"}: ` +
+    `${expired} verlopen punten${conflicts ? ` en ${conflicts} punten met een bronconflict` : ""} worden niet als actueel getoond.`
+  );
 }
 
 const UIT_CITY_AGENDA_URL = "https://www.uitinvlaanderen.be/agenda/alle/antwerpen";
 
-// Per bron: "ververst op …", in het oranje "leeg sinds …" (al 3 kalenderdagen op rij niets komends),
-// in het rood "verouderd sinds …", of "nog niet actief".
+// Per bron: "ververst op …" (het laatste geslaagde ophalen), in het oranje "leeg sinds …" (al 3 kalenderdagen
+// op rij niets komends), of "nog niet actief". Besluit van de eigenaar (18-10-2026): een bezoeker ziet niet dat
+// een bron faalt; de site toont gewoon de laatste goede stand. Geen bronwaarschuwing bovenaan meer (#191), en
+// ook hier geen "mislukt", "onbereikbaar" of "verouderd". De bronstatus zelf (fetchStatus, errorCode, state)
+// blijft in de feed en in sourceFreshness; de job source-health en de alarmen naar de eigenaar lezen haar daar.
 function renderSourceStatus() {
   const root = document.getElementById("agenda-source-status");
   if (!root) return;
@@ -2580,17 +2539,11 @@ function renderSourceStatus() {
           : `<span>Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)</span>`;
       const lines = entries.map((entry) => {
         let status;
-        if (entry.state === "inactive") status = `<span class="source-inactive">nog niet actief</span>`;
-        else if (entry.state === "stale") status = `<span class="source-stale">verouderd sinds ${esc(formatInstant(entry.staleSince))}</span>`;
+        if (entry.state === "inactive" || !formatInstant(entry.retrievedAt)) status = `<span class="source-inactive">nog niet actief</span>`;
         else if (entry.state === "empty")
           status = `<span class="source-empty">leeg sinds ${esc(formatSimpleDate(entry.emptySince))}</span>: geen komende items (nagekeken op ${esc(formatInstant(entry.retrievedAt))})`;
+        // Ook een bron waarvan de laatste ophaalpoging faalde: het moment van haar laatste goede stand.
         else status = `<span class="source-fresh">ververst op ${esc(formatInstant(entry.retrievedAt))}</span>`;
-        // Een tijdelijke fout (5xx, time-out) met vorige gegevens heet "stale": de bron is even
-        // onbereikbaar en haar vorige items blijven staan tot ze 48 uur oud zijn.
-        const transient = /^(?:channel_)?(?:http_(?:5\d\d|429)|timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$/.test(String(entry.errorCode ?? ""));
-        const failed = entry.fetchStatus === "error" && entry.state !== "inactive"
-          ? ` <span class="source-stale">(${transient && entry.state !== "stale" ? "bron tijdelijk onbereikbaar; vorige gegevens blijven staan" : "laatste ophaalpoging mislukt"})</span>`
-          : "";
         // Een bron die afkapt (UiT), zegt tot wanneer ze volledig is en hoeveel er in totaal was.
         const coverage = entry.coverage?.capped
           ? `<br><span class="source-capped">${
@@ -2607,7 +2560,7 @@ function renderSourceStatus() {
                   : esc(sourceAttribution.text)
               }</span>`
             : "";
-        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${failed}${coverage}${ownAttribution}</li>`;
+        return `<li><strong>${esc(entry.label || entry.publisher)}</strong>: ${status}${coverage}${ownAttribution}</li>`;
       });
       const canonicalNote =
         scope === "stad" && !onCanonicalHost
@@ -2675,10 +2628,8 @@ window.addEventListener("public-agenda:reset-filters", () => {
   ditWeekendOpen = false;
   render();
 });
-if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {
-  const note = document.getElementById("agenda-refresh-note");
-  if (note) note.textContent += " De gezamenlijke straatfilter is tijdelijk niet beschikbaar; de gewone agenda blijft bruikbaar.";
-});
+// Laadt de gezamenlijke straatfilter niet, dan blijft de gewone agenda, zonder melding (besluit van 18-10-2026).
+if (document.querySelector?.(".agenda-controls")) import("./agenda-view.js").then(({ mountAgendaView }) => mountAgendaView()).catch(() => {});
 
 if (openId) {
   window.setTimeout(() => document.getElementById(openId)?.scrollIntoView({ block: "center" }), 80);

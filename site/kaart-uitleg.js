@@ -780,7 +780,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   if (!f.omschrijving) ontbreekt.push(NIET_GEPUBLICEERD);
   if (!nummers && !eenAdres && !losNummerWeg) ontbreekt.push(onbekendZin("werk-huisnummers"));
   if (f.hinderBekend === false || (f.hinderBekend && !f.gevolgen.length)) ontbreekt.push(onbekendZin("werk-gevolgen"));
-  if (f.hinderBekend === null) ontbreekt.push("gevolgen voor het verkeer nu niet opgehaald");
+  // Laadde de hinderbron niet (hinderBekend null), dan zegt de kaart daar niets over (besluit van 18-10-2026).
   if (!eind) ontbreekt.push(onbekendZin("werk-einde"));
 
   // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt), zonder
@@ -820,7 +820,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
     : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
-    : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
+    : "Alleen als punt op de kaart van GIPOD"]);
   // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, geen los huisnummer
   // (bij één adres geen enkel), en niets als er contactgegevens in staan.
   const ovOmschrijving = zonderNamen(f.omschrijving);
@@ -829,7 +829,6 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const deelsBuiten = f.titelGevolgen ? " · deels in een fase buiten district Antwerpen (zie Fasen)" : "";
   if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}${deelsBuiten}`]);
   // Geen gevolgen in GIPOD: dat staat één keer in "Niet in de bron" (ontbreekt), niet nog eens als eigen regel.
-  else if (f.hinderBekend === null) regels.push(["Gevolgen", "nu niet opgehaald"]);
   if (ov.length) regels.push(["Bus en tram", ov.join(" · ")]);
   // GIPOD meldt hinder na de einddatum van het werk: zeg het, want de titel noemt dan geen "werken tot".
   const hinderNa = eind && f.hinderEind && f.hinderEind > eind ? ` · GIPOD meldt nog hinder tot ${dt(f.hinderEind)}` : "";
