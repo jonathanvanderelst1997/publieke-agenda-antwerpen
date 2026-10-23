@@ -69,17 +69,25 @@ export function straatItems(doc, laag) {
 
 // ---------- laden ----------
 
-let indexBelofte = null;
-// site/straat-index.json: elke keer nagevraagd (cache "no-cache": een 304 als het niet veranderde).
+let indexBelofte = null, indexPogingen = 0;
+// Zo vaak vraagt één pagina de index hoogstens, als ze niet laadt (een afgebroken verzoek, een 404 of een kapot bestand).
+export const MAX_INDEX_POGINGEN = 3;
+// site/straat-index.json: elke keer nagevraagd (cache "no-cache": een 304 als het niet veranderde). Een gelukte index blijft
+// onthouden tot de pagina opnieuw laadt. Een mislukte niet (nakijkronde 6 van 18-10-2026: één keer geen index zette de
+// momentopname uit voor elke straat tot herladen): de volgende vraag (een andere straat, een wijk) probeert opnieuw, tot
+// MAX_INDEX_POGINGEN keer per pagina. Een vraag terwijl de vorige nog loopt, wacht op die.
 export function laadStraatIndex({ fetch: fetchImpl = (...a) => globalThis.fetch(...a) } = {}) {
-  if (!indexBelofte) {
-    indexBelofte = fetchImpl("/straat-index.json", { cache: "no-cache", headers: { Accept: "application/json" } })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((doc) => (doc && doc.schemaVersion === 1 && doc.straten && typeof doc.straten === "object" ? doc : null))
-      .catch(() => null);
-    // Ook "geen index" blijft onthouden tot de volgende keer dat de pagina laadt: geen tweede vraag.
-  }
-  return indexBelofte;
+  if (indexBelofte) return indexBelofte;
+  if (indexPogingen >= MAX_INDEX_POGINGEN) return Promise.resolve(null);
+  indexPogingen += 1;
+  const belofte = Promise.resolve()
+    .then(() => fetchImpl("/straat-index.json", { cache: "no-cache", headers: { Accept: "application/json" } }))
+    .then((r) => (r.ok ? r.json() : null))
+    .then((doc) => (doc && doc.schemaVersion === 1 && doc.straten && typeof doc.straten === "object" ? doc : null))
+    .catch(() => null)
+    .then((doc) => { if (!doc && indexBelofte === belofte) indexBelofte = null; return doc; });
+  indexBelofte = belofte;
+  return belofte;
 }
 
 // De stand van één straat bij de ochtendverversing. `{ index, doc }`, met doc null als de straat toen
@@ -268,8 +276,8 @@ export function tijdstipTekst(iso, nu = new Date()) {
 // anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan); `mislukteDelen`: de
 // lagen die live niet lukten (de rest wel).
 // Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er bij wat rond
-// de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog) of "mislukt" (de
-// straatassen laadden niet: dan blijft het bij de straat zelf).
+// de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog), "kader" (ze laadden niet: de
+// straal volgt het kader van de straat, site/neighborhood-map.js) of "mislukt" (geen kader: dan blijft het bij de straat zelf).
 // Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel goed". Lukt
 // live nakijken (deels) niet, dan zegt de zin dat niet: ze noemt de stand van de verversing, of wat live wel lukte.
 // `mislukt`, `mislukteDelen` en `straalStand` blijven intern (place-view.js zet ermee de lagen).

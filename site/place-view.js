@@ -12,11 +12,11 @@ import {
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
   eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
-  chipGetal, laagMislukt,
+  chipGetal, laagMislukt, groupOfTheme,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
-import { alleOnderdelen, meldGebied, meldLiveLaag, mislukteOnderdelenPublicSpace, ontbrekendeOnderdelen, wisLiveLaag } from "./live-lagen.js";
+import { alleOnderdelen, kiesLaag, meldGebied, meldLiveLaag, mislukteOnderdelenPublicSpace, ontbrekendeOnderdelen, wisLiveLaag } from "./live-lagen.js";
 import { kaartSvg } from "./kaart-uitleg.js";
 import { allesFilterActie } from "./filter-action-ux.js";
 import { duidelijkeKaart } from "./permit-clarity.js";
@@ -47,6 +47,9 @@ const MODES = [["lijst", "Lijst"], ["tijdlijn", "14 dagen"], ["maand", "Maand"]]
 // van het hele district heeft er 2.435: alles in één keer tekenen kost 505 ms en 88.000 elementen per
 // tekenbeurt (op een gsm een veelvoud). Met 150 per stap staat een straat er dus altijd meteen volledig.
 const LIJST_STAP = 150;
+// Met een straal: de soorten die een rij van een live laag telt "in en rond jouw straat" (een evenement op straat komt uit de
+// publieke ruimte). Voor onzekereSoorten in mountPlaceView.
+const STRAAL_LAAG_SOORTEN = Object.freeze({ works: ["werken"], publicSpace: ["werken", "evenementen"], permits: ["vergunningen"] });
 // Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
 // Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
 // evenement op straat altijd "niet openbaar"; dat zegt de zin "Niet in de bron" al), het nummer en de codes.
@@ -433,7 +436,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // Vroeger stond hier "parkeerverboden en innames": dat staat niet in ONDERDELEN, viel weg, en dan gold de laag als
   // volledig (een valse "Rustig").
   const SNEL_ONDERDEEL = { works: ["werken"], publicSpace: mislukteOnderdelenPublicSpace(["streets"]), permits: ["vergunningen"], terraces: ["terrassen"] };
-  let snelMogelijk = true, snelBeurt = 0, districtBelofte = null, inzageBelofte = null;
+  // Met een straal: de live lagen achter het getal van een soort "in en rond jouw straat" (de tegels en de chips). Een
+  // evenement op straat komt uit de publieke ruimte. De terrassen niet: die tellen altijd alleen in de straat zelf (zonder
+  // punt of vorm, nearStreet in neighborhood-map.js), en de momentopname dekt de straat.
+  const STRAAL_LAGEN = Object.freeze({ evenementen: ["publicSpace"], werken: ["works", "publicSpace"], vergunningen: ["permits"] });
+  let snelBeurt = 0, districtBelofte = null, inzageBelofte = null;
   // De nagekeken stand van het Inzageloket (zoals permits-live.js): zonder die stand geen "bezwaar
   // indienen kan nu" bovenaan. Ontbreekt het bestand, dan zegt de kaart niets over een openbaar onderzoek.
   const inzageStatus = () => (inzageBelofte ||= fetch("/sources/inzage-status.json", { headers: { Accept: "application/json" } }).then((r) => (r.ok ? r.json() : null)).catch(() => null));
@@ -473,7 +480,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const beurt = ++snelBeurt;
     // Weg van een wijk of postcode: de momentopname van dat gebied gaat meteen weg.
     if (state.gebied && state.gebied.plek !== place?.key) { zetStraatStand(); state.gebied = null; }
-    if (place?.type !== "straat" || !snelMogelijk) {
+    if (place?.type !== "straat") {
       // Weg van de straat: haar stand mag geen deel van een wijk of het district lijken.
       if (state.snel) { zetStraatStand(); state.snel = null; }
       if ((place?.type === "wijk" || place?.type === "postcode") && !state.gebied) gebiedVoorPlek(place);
@@ -484,9 +491,11 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       const [stand, inzage] = await Promise.all([laadStraat(place.id).catch(() => null), inzageStatus()]);
       if (beurt !== snelBeurt) return;
       if (!stand) {
-        // Geen stand van de ochtend: zoals vroeger, alles live voor het hele district (zonder de laag van een vorige straat).
+        // Geen stand van de ochtend voor deze straat: zoals vroeger, alles live voor het hele district (zonder de laag van een
+        // vorige straat). Alleen voor deze straat: de volgende straat vraagt haar stand opnieuw (nakijkronde 6 van 18-10-2026:
+        // één afgebroken /straat/<id>.json, één straat in "alleenLive" of één keer geen index zette de momentopname uit voor
+        // elke straat daarna, tot de pagina herlaadde). Een mislukte index wordt dan opnieuw gevraagd (laadStraatIndex).
         zetStraatStand();
-        snelMogelijk = false;
         view.straatSnel = false;
         state.snel = null;
         window.dispatchEvent(new CustomEvent("public-agenda:view-change"));
@@ -617,7 +626,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     zetBuiten(null);
     state.place = place || null;
     view.setPlace(place ? { key: place.key, type: place.type, label: place.label, box: place.box } : null);
-    if (place?.type === "straat") { view.setStreet(place.name, streetRef(place)); view.setArea({ wijk: "", postcode: "", radius: state.radius }); }
+    // Met het kader van de straat (site/geo/straten.json): daarop valt de straal terug als de straatassen niet laden.
+    if (place?.type === "straat") { view.setStreet(place.name, { ...streetRef(place), box: place.box }); view.setArea({ wijk: "", postcode: "", radius: state.radius }); }
     else if (place?.type === "wijk") { view.setStreet(""); view.setArea({ wijk: place.code, postcode: "", radius: 0 }); }
     else if (place?.type === "postcode") { view.setStreet(""); view.setArea({ wijk: "", postcode: place.code, radius: 0 }); }
     else { view.setStreet(""); view.setArea({ wijk: "", postcode: "", radius: 0 }); }
@@ -632,8 +642,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     document.body.classList.toggle("has-place", Boolean(place));
     help.textContent = place ? "" : help.textContent;
     // Eén straat: de volledige lijsten van het district laden niet (works-live.js en co. kijken naar
-    // view.straatSnel); de stand van de ochtend en het kader van de straat komen uit snelVoorStraat().
-    view.straatSnel = place?.type === "straat" && snelMogelijk;
+    // view.straatSnel); de stand van de ochtend en het kader van de straat komen uit snelVoorStraat(). Heeft die straat
+    // geen stand, dan zet snelVoorStraat() dit weer uit, alleen voor die straat.
+    view.straatSnel = place?.type === "straat";
     announce();
     snelVoorStraat(place);
     if (focusResults) {
@@ -888,9 +899,10 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
 
   // ---- de plekkop ----
   // Het getal op een tegel: geen verzonnen 0. Laadt een laag van de soort nog, dan "…"; laadde ze (deels) niet of dekt ze
-  // het gekozen gebied niet, dan "–". Ligt met een straal niets rond de straat vast (de straatassen), dan geldt dat voor
-  // elke tegel (nakijkronde 5 van 18-10-2026). Een echte 0 blijft.
-  const tegelGetal = (n, group) => (!n && state.straalOnbepaald ? (state.straalOnbepaald === "laadt" ? "…" : "–")
+  // het gekozen gebied niet, dan "–". Een echte 0 blijft. Met een straal: dekt wat de soort telt de straal niet (zeker),
+  // dan ook bij een getal dat geen 0 is een streepje, of "…" zolang het laadt (state.straalOnvolledig en state.straalLaadt
+  // in collect(): nakijkronde 5 en 6 van 18-10-2026). Nooit een te laag getal onder "in en rond jouw straat".
+  const tegelGetal = (n, group) => (state.straalLaadt?.has(group) ? "…" : state.straalOnvolledig?.has(group) ? "–"
     : group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "–"
       : group === "vergunningen" && !n && state.vergunningenBezig ? "…" : group === "vergunningen" && !n && state.vergunningenOnvolledig ? "–" : n);
   function renderPlace(summary, loading, week = null) {
@@ -1085,9 +1097,27 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     if (Array.isArray(live.works) || Array.isArray(live.publicSpace)) vraagKaartUitleg();
     const vandaag = brusselsToday();
     const agendaRuw = (Array.isArray(window.PUBLIC_AGENDA_VISIBLE_ITEMS) ? window.PUBLIC_AGENDA_VISIBLE_ITEMS : []).map((item) => agendaEntry(item, item.category || "other"));
-    const inPlace = (rows) => (Array.isArray(rows) ? rows.filter((row) => view.matchesStreet(row)) : []);
+    // Een wijk met de momentopname van haar straten (een lijst van het district faalde, gebiedVoorPlek): een werk daaruit
+    // heeft geen punt meer (lib/straat-bestanden.mjs, NOOIT). Live hangt een werk via zijn GIPOD-punt aan precies één wijk;
+    // via de wijken van zijn straten hing het aan elke wijk waar de straat doorloopt (nakijkronde 6 van 18-10-2026: een
+    // valse "Let op"). Een werk uit de momentopname hoort dus alleen bij de wijk als dat ondubbelzinnig is: een straat ervan
+    // ligt helemaal in de wijk (`strikt`, inWijk in neighborhood-map.js). Valt er zo een werk met twijfel weg (een straat die
+    // ook door een andere wijk loopt), dan is de laag voor de wijk niet volledig (`twijfel`): nooit "Rustig", nooit een valse
+    // 0. De andere lagen (parkeerverboden, innames, vergunningen, terrassen) hebben ook live geen punt: die hangen live via
+    // hun straten aan de wijk, en uit de momentopname dus ook (dezelfde regel, dezelfde kaarten als de gezonde pagina).
+    const uitWijkStand = (naam) => naam === "works" && state.place?.type === "wijk" && Array.isArray(live[naam]) && live[naam] === live.bronnen?.straat?.[naam]?.items;
+    const twijfel = new Set();
+    const inPlace = (rows, naam = "") => {
+      if (!Array.isArray(rows)) return [];
+      if (!uitWijkStand(naam)) return rows.filter((row) => view.matchesStreet(row));
+      return rows.filter((row) => {
+        if (view.matchesStreet(row, { strikt: true })) return true;
+        if (view.wijkTwijfel?.(row)) twijfel.add(naam);
+        return false;
+      });
+    };
     const liveRuw = [
-      ...werkEntries(inPlace(live.works), { vandaag, uitleg: kaartUitleg }),
+      ...werkEntries(inPlace(live.works, "works"), { vandaag, uitleg: kaartUitleg }),
       ...publicSpaceEntries(inPlace(live.publicSpace), { vandaag, alle: live.publicSpace || [], uitleg: kaartUitleg, wijkVan, identiteit: identiteitSamen(evenementIdentiteit, evenementAuto), agendaItems: window.PUBLIC_AGENDA_PUBLIC_ITEMS || [], straat: state.place?.type === "straat" ? state.place.name : "", straal: state.place?.type === "straat" ? state.radius : 0, index: liveIndex, lijstVan, isStraat: straatas }),
       ...inPlace(live.permits).map((row) => permitEntry(row)),
       ...terrasEntries(inPlace(live.terraces)),
@@ -1112,14 +1142,18 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const loadedLayer = (rows) => Array.isArray(rows);
     // Met een straal: zonder de straatassen voor de straal (view.straalStand) ligt niets rond de straat vast. "laadt": elke
     // laag laadt nog; "mislukt": niets rond de straat is na te kijken, ook de agenda niet (nakijkronde 5 van 18-10-2026:
-    // "Rustig" en tegels op 0 voor "in en rond jouw straat").
+    // "Rustig" en tegels op 0 voor "in en rond jouw straat"). "kader": de straatassen laadden niet, maar de straal volgt het
+    // kader van de straat uit site/geo/straten.json (nakijkronde 6; straalOnzeker hieronder).
     const straal = state.place?.type === "straat" ? state.radius || 0 : 0;
-    state.straalOnbepaald = straal && view.straalStand !== "klaar" ? (view.straalStand === "mislukt" ? "mislukt" : "laadt") : "";
+    const straalStand = straal ? view.straalStand : "klaar";
+    state.straalOnbepaald = straal && !["klaar", "kader"].includes(straalStand) ? (straalStand === "mislukt" ? "mislukt" : "laadt") : "";
     // Elke live module zet per laag de onderdelen die niet laadden in live.failed (site/live-lagen.js); ook een laag die het
-    // gekozen gebied niet dekt (live.ongedekt). Zonder straatassen voor de straal: elke laag van de plek.
+    // gekozen gebied niet dekt (live.ongedekt). Zonder straatassen voor de straal: elke laag van de plek. Een laag van een
+    // wijk waaruit een item met twijfel wegviel (hierboven): alle onderdelen van die laag.
     const mislukt = state.straalOnbepaald === "mislukt"
       ? { ...(live.failed || {}), ...Object.fromEntries(SNEL_LAGEN.map(([naam]) => [naam, alleOnderdelen(naam)])) }
-      : live.failed || {};
+      : { ...(live.failed || {}) };
+    for (const naam of twijfel) mislukt[naam] = [...new Set([...(mislukt[naam] || []), ...alleOnderdelen(naam)])];
     // Wat de plekpagina voor het gekozen gebied nog ophaalt: het live kader met de straal (state.snel.bezig), de
     // momentopname van een wijk of postcode (state.gebied.bezig) of de straatassen voor de straal. Een laag die het gebied
     // dan nog niet dekt, of die faalde terwijl de momentopname nog komt, laadt nog: geen "Rustig", geen 0 en geen streepje.
@@ -1127,6 +1161,21 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       || (state.place?.type === "straat" && Boolean(state.snel?.bezig) && Boolean(live.ongedekt?.[naam]))
       || (Boolean(state.gebied?.bezig) && laagMislukt(live.failed, naam));
     state.vergunningenBezig = laadtNog("permits");
+    // Met een straal (nakijkronde 6 van 18-10-2026): een getal "in en rond jouw straat" alleen als alles wat het telt de straal
+    // dekt, anders geen getal (zoals bij een 0) in plaats van een te laag getal. Per soort: laadt een live laag die ze telt
+    // nog (STRAAL_LAGEN; dan "…"), of dekt die de straal niet (deels geladen, of alleen de momentopname van de straat zelf),
+    // of ligt er zonder straatassen iets van die soort volgens het kader van de straat niet zeker binnen of buiten de straal
+    // (onzekereSoorten), dan geen getal.
+    state.straalLaadt = new Set();
+    state.straalOnvolledig = new Set();
+    if (straal) {
+      const onzeker = straalStand === "kader" ? onzekereSoorten(live) : new Set();
+      for (const g of KIND_GROUPS) {
+        const lagen = STRAAL_LAGEN[g.key] || [];
+        if (state.straalOnbepaald === "laadt" || lagen.some(laadtNog)) state.straalLaadt.add(g.key);
+        else if (state.straalOnbepaald === "mislukt" || onzeker.has(g.key) || lagen.some((naam) => laagMislukt(mislukt, naam))) state.straalOnvolledig.add(g.key);
+      }
+    }
     state.counts = {};
     for (const g of KIND_GROUPS) {
       let n = sumThemes(g.themes.filter((t) => t !== "publicSpace" && t !== "permits"));
@@ -1134,8 +1183,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
       if (g.key === "vergunningen" && !loadedLayer(live.permits) && !loadedLayer(live.terraces)) { state.counts[g.key] = undefined; continue; }
       // Laadde een live laag van de soort (deels) niet, dan geen verzonnen 0 op de chip (chipGetal in place-core.js).
       state.counts[g.key] = chipGetal(g.key, n + kaarten(g.key), mislukt);
-      // Ligt niets rond de straat vast (de straatassen voor de straal), dan geen 0 op een chip, van welke soort ook.
-      if (state.straalOnbepaald && !state.counts[g.key]) state.counts[g.key] = undefined;
+      // Met een straal die de soort niet (zeker) dekt, of nog laadt: geen getal op de chip (zoals de tegels).
+      if (state.straalLaadt.has(g.key) || state.straalOnvolledig.has(g.key)) state.counts[g.key] = undefined;
     }
     // Live lagen: nog onderweg, of niet of maar half geladen. Elke live module zet per laag een mislukt-vlag in
     // live.failed; ook een laag die deels laadde, telt als onvolledig. Dat blijft intern (nooit "rustig", nooit een
@@ -1164,11 +1213,34 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // hier, los van de keuze. Geladen is ze dan alleen als niets ervan mislukte.
     const psAan = view.enabled("publicSpace") || evenementenOpStraat;
     const weekLaag = (rows, fout, uit) => ({ uit, geladen: loadedLayer(rows) && !fout?.length, deels: loadedLayer(rows) && Boolean(fout?.length) });
-    const weekOnbekend = [
-      ...(!view.enabled("works") || (!loadedLayer(live.works) && !mislukt.works?.length) ? [{ wat: "werken", ...weekLaag(live.works, mislukt.works, !view.enabled("works")) }] : []),
-      ...(!psAan || (!loadedLayer(live.publicSpace) && !mislukt.publicSpace?.length) ? ["parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, ...weekLaag(live.publicSpace, mislukt.publicSpace, !psAan) })) : []),
+    const weekOnbekendVan = (m) => [
+      ...(!view.enabled("works") || (!loadedLayer(live.works) && !m.works?.length) ? [{ wat: "werken", ...weekLaag(live.works, m.works, !view.enabled("works")) }] : []),
+      ...(!psAan || (!loadedLayer(live.publicSpace) && !m.publicSpace?.length) ? ["parkeerverboden", "evenementen op straat"].map((wat) => ({ wat, ...weekLaag(live.publicSpace, m.publicSpace, !psAan) })) : []),
     ];
-    return { entries, loading, failed, mislukt, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend };
+    const weekOnbekend = weekOnbekendVan(mislukt);
+    // Met een straal die de werken of de evenementen niet (zeker) dekt (state.straalOnvolledig): de weekzin noemt alleen wat
+    // in de straat zelf ligt ("in jouw straat"; de lagen van de straat zelf: kiesLaag met straal 0, de momentopname dekt de
+    // straat). Anders noemde ze onder "in en rond jouw straat" alleen wat er in de straat en zeker rond de straat lag: een
+    // te laag getal (nakijkronde 6 van 18-10-2026). Nooit "Rustig": rond de straat is niet (zeker) nagekeken; vindt ze in de
+    // straat niets, dan valt de zin weg.
+    let weekStraat = null;
+    if (straal && ["werken", "evenementen"].some((g) => state.straalOnvolledig.has(g))) {
+      const gekozen = streetRef(state.place);
+      const inStraat = (item) => (view.refsOf(item) || []).some((ref) => sameStreet(ref, gekozen));
+      const voorStraat = Object.fromEntries(SNEL_LAGEN.map(([naam]) => [naam, kiesLaag({ district: live.bronnen?.district?.[naam], straat: live.bronnen?.straat?.[naam], gebied: { plek: state.place.key, straal: 0 }, naam })?.mislukt || []]));
+      weekStraat = { opPlek: [...agendaWeek, ...liveEntries].filter((e) => inStraat(e.item)), onbekend: weekOnbekendVan(voorStraat), onvolledig: true };
+    }
+    return { entries, loading, failed, mislukt, opPlek: [...agendaWeek, ...liveEntries], weekOnbekend, weekStraat };
+  }
+  // De soorten waarvan zonder straatassen iets niet zeker binnen of buiten de straal ligt, volgens het kader van de straat
+  // (view.straalOnzeker): de agendapunten (per soort van hun categorie) en de rijen van de live lagen (STRAAL_LAAG_SOORTEN).
+  function onzekereSoorten(live) {
+    const uit = new Set();
+    for (const item of Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : []) if (view.straalOnzeker?.(item)) uit.add(groupOfTheme(item.category || "other"));
+    for (const [naam, soorten] of Object.entries(STRAAL_LAAG_SOORTEN)) {
+      if ((Array.isArray(live[naam]) ? live[naam] : []).some((row) => view.straalOnzeker?.(row))) for (const soort of soorten) uit.add(soort);
+    }
+    return uit;
   }
 
   // ---- weergave ----
@@ -1731,17 +1803,18 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // "De komende 7 dagen in jouw straat": zolang werken, verkeersmaatregelen of evenementen op straat nog
   // laden, zeggen we dat eerlijk.
   const WEEK_LAGEN = ["werken", "verkeersmaatregelen", "evenementen op straat"];
-  function weekVoorPlek(entries, today, { bezig = [], onbekend = [] } = {}) {
+  // `alleenStraat`: met een straal die de week niet (zeker) dekt, de zin over de straat zelf (weekStraat in collect()).
+  function weekVoorPlek(entries, today, { bezig = [], onbekend = [], alleenStraat = false, onvolledig = Boolean(state.werkenOnvolledig) } = {}) {
     const place = state.place;
-    const waar = place.type === "straat" ? (state.radius ? "in en rond jouw straat" : "in jouw straat") : plekWaar(place);
+    const waar = place.type === "straat" ? (state.radius && !alleenStraat ? "in en rond jouw straat" : "in jouw straat") : plekWaar(place);
     if (bezig.length) return { licht: "onbekend", zin: `De komende 7 dagen ${waar}: ${bezig.length > 1 ? `${bezig.slice(0, -1).join(", ")} en ${bezig.at(-1)}` : bezig[0]} worden nog geladen…` };
-    return dezeWeek(entries, today, { waar, onvolledig: Boolean(state.werkenOnvolledig), onbekend });
+    return dezeWeek(entries, today, { waar, onvolledig, onbekend });
   }
 
   function render() {
     const today = brusselsToday();
     if (!state.cursor || state.cursor !== startOfMonth(state.cursor)) state.cursor = startOfMonth(state.cursor || today);
-    const { entries, loading, failed, mislukt, opPlek, weekOnbekend } = collect();
+    const { entries, loading, failed, mislukt, opPlek, weekOnbekend, weekStraat } = collect();
     const summary = summarize(entries, today);
     const weekBezig = loading.filter((laag) => WEEK_LAGEN.includes(laag));
     state.layersPending = weekBezig.length > 0;
@@ -1754,7 +1827,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // de site zegt niet dat iets faalt (besluit van 18-10-2026).
     state.onvolledig = failed.length > 0;
     const opsomming = loading.length > 1 ? `${loading.slice(0, -1).join(", ")} en ${loading.at(-1)}` : loading.join("");
-    state.week = state.place ? weekVoorPlek(opPlek, today, { bezig: weekBezig, onbekend: weekOnbekend }) : null;
+    state.week = !state.place ? null
+      : weekStraat && !weekBezig.length ? weekVoorPlek(weekStraat.opPlek, today, { onbekend: weekStraat.onbekend, onvolledig: weekStraat.onvolledig, alleenStraat: true })
+        : weekVoorPlek(opPlek, today, { bezig: weekBezig, onbekend: weekOnbekend });
     // De lagen heten allemaal in het meervoud ("werken", "terrassen"): altijd "worden".
     renderPlace(summary, loading.length ? `${opsomming} worden live opgehaald…` : "", state.week);
     renderToolbar();

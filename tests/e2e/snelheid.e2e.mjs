@@ -225,7 +225,7 @@ async function kaartPogingVoorbij(page, extern, timeout = 15000) {
     .catch(async () => assert.fail(await page.evaluate(() => JSON.stringify({ knop: document.querySelector(".buurt-map-load")?.textContent, kaart: document.querySelector(".buurt-map")?.dataset.kaart }))));
 }
 
-async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false, verbinding = null, colorScheme = "light" } = {}) {
+async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", width = 390, height = 844, query = "?plek=Kammenstraat", inzage = null, uitleg = null, evenement = EVENEMENTEN["opbouw en afbraak elders"], buren = false, feed = null, kaart = "geblokkeerd", maplibreDir = "", openfreemap = null, zuinig = false, verbinding = null, colorScheme = "light", straatFaalt = null, locaties = null } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels", colorScheme });
   const page = await context.newPage();
   // `zuinig`: de browser meldt databesparing (navigator.connection.saveData); `verbinding`: wat de browser over de
@@ -237,14 +237,22 @@ async function openStraat(baseUrl, { stand = null, bronnen = "geblokkeerd", widt
   page.on("pageerror", (error) => errors.push(error.message));
   if (inzage) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/inzage-status.json", (route) => route.fulfill(json(inzage)));
   if (uitleg) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/kaart-uitleg.json", (route) => route.fulfill(json(uitleg)));
+  // Desgewenst verzonnen geocodering (site/geo/locaties.json) voor de verzonnen agendapunten.
+  if (locaties) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/geo/locaties.json", (route) => route.fulfill(json(locaties)));
   // Desgewenst een verzonnen agendafeed (tests/helpers/proef-feed.mjs), los van wat er in de echte feed staat.
   if (feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => route.fulfill({ status: 200, contentType: "text/javascript; charset=utf-8", body: feedScript(feed) }));
-  // De straatbestanden: uit de fixture, nooit uit wat er toevallig in site/ staat.
+  // De straatbestanden: uit de fixture, nooit uit wat er toevallig in site/ staat. `straatFaalt`: { index: N } breekt de
+  // eerste N verzoeken naar de index af, { ids: [...] } elk verzoek naar het bestand van die straten (route.abort).
+  let indexFouten = Number(straatFaalt?.index) || 0;
   await page.route((url) => url.hostname === "127.0.0.1" && (url.pathname === "/straat-index.json" || url.pathname.startsWith("/straat/")), (route) => {
     const pad = new URL(route.request().url()).pathname;
     if (!stand) return route.fulfill({ status: 404, contentType: "text/plain", body: "" });
-    if (pad === "/straat-index.json") return route.fulfill(json(stand.index));
+    if (pad === "/straat-index.json") {
+      if (indexFouten > 0) { indexFouten -= 1; return route.abort(); }
+      return route.fulfill(json(stand.index));
+    }
     const id = (pad.match(/^\/straat\/(\d+)\.json$/) || [])[1];
+    if ((straatFaalt?.ids || []).includes(id)) return route.abort();
     return stand.bestanden[id] ? route.fulfill(json(stand.bestanden[id])) : route.fulfill({ status: 404, body: "" });
   });
   await page.route((url) => url.hostname !== "127.0.0.1", (route) => {
@@ -692,6 +700,45 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // ---- nakijkronde 6 (18-10-2026): een straat zonder stand schakelt de andere niet uit ----
+  // Bevinding MIDDEL: één straat zonder momentopname zette de momentopname uit voor elke straat die de bezoeker daarna
+  // opende, tot de pagina herlaadde (place-view.js: `snelMogelijk = false`; straat-snapshot.js onthield een mislukte
+  // index). Drie wegen: één afgebroken /straat/<id>.json, één straat in "alleenLive", of een index die één keer niet laadde.
+  // Falen de live lagen ook, dan verdween zo de hele momentopname van een straat met een goed bestand, zonder enig teken.
+  // Nu is het per straat, en wordt een mislukte index later opnieuw gevraagd. Na de straat zonder stand moet de
+  // Kammenstraat er precies zo uitzien als wanneer je haar meteen opent. Alles naar buiten afgebroken (route.abort).
+  const PET_ID = "2289"; // Peterseliestraat: in de verzonnen ochtend een eigen bestand (de rij van het evenement)
+  for (const [wat, opties, query, width, height] of [
+    ["een afgebroken straatbestand", { straatFaalt: { ids: [PET_ID] } }, "?plek=Kammenstraat", 390, 844],
+    ["een straat die alleen live mag", { index: (index) => { index.alleenLive = [PET_ID]; } }, "?plek=Kammenstraat", 1280, 900],
+    ["een index die één keer niet laadde", { straatFaalt: { index: 1 } }, "?plek=Peterseliestraat", 390, 844],
+  ]) await t.test(`na ${wat}: de Kammenstraat houdt haar momentopname (${width}×${height})`, async (st) => {
+    const stand = await standVanDeOchtend(st, opties.index ? { index: opties.index } : {});
+    const feed = proefFeed("2099-03-10", []);
+    const ref = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed, width, height });
+    await standKlaar(ref.page);
+    const verwacht = await plekStand(ref.page);
+    await ref.context.close();
+    assert.ok(verwacht.rijen.some(([uid]) => uid === "works:990001"), JSON.stringify(verwacht.rijen));
+    assert.equal(verwacht.stand, "Stand van de verversing van 05:22.");
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", feed, width, height, query, straatFaalt: opties.straatFaalt || null });
+    st.after(() => context.close().catch(() => {}));
+    if (query === "?plek=Kammenstraat") {
+      await standKlaar(page);
+      assert.deepEqual(await plekStand(page), verwacht, "eerst de Kammenstraat met haar stand");
+      await kies(page, "Peterseliestraat");
+    }
+    // De Peterseliestraat zonder stand: zoals vroeger laden de lijsten van het district (en falen). Met een index die één
+    // keer niet laadde, kan de Peterseliestraat haar stand ook al hebben (de index wordt opnieuw gevraagd).
+    await Promise.race([districtGemeld(page), standKlaar(page)]).catch(() => {});
+    await page.waitForTimeout(500);
+    await kies(page, "Kammenstraat");
+    await standKlaar(page).catch(() => {});
+    assert.deepEqual(await plekStand(page), verwacht);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // ---- nakijkronde 5 (18-10-2026): een plek groter dan één straat ----
   // De tegels per soort (de getallen zoals de bezoeker ze ziet).
   const tegels = (page) => page.evaluate(() => {
@@ -706,16 +753,17 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
   // De momentopname is per straat (site/straat/<id>.json): ze zegt niets over wat rond de straat ligt, en toch gold ze
   // als volledig voor het hele gebied. Nu dekt een laag alleen het gebied dat ze nakeek (dekking in site/live-lagen.js):
   // rond de straat is dan niets nagekeken, dus nooit "Rustig" en geen valse 0 (een streepje), zonder te zeggen dat iets
-  // faalt; de straat zelf houdt haar momentopname. Zonder straatassen kan de straal zelf niet bepaald worden: dan geldt
-  // dat voor elke tegel, ook evenementen en inspraak. De Bontwerkersplaats heeft in de verzonnen ochtend geen eigen
-  // straatbestand (niets in de straat), zoals in de bevinding. Alles naar buiten is nagebootst of afgebroken. Met de
-  // straatassen telt de agenda rond de straat wel (evenementen en inspraak: de agenda zelf laadde, nakijkronde 3).
-  for (const [wat, bronnen, width, height, agenda] of [
-    ["alles afgebroken", "geblokkeerd", 390, 844, "–"],
-    ["alles afgebroken", "geblokkeerd", 1280, 900, "–"],
-    ["A-Sign en GIPOD plat", deelsLive(["inname", "hinder"]), 390, 844, "0"],
-    ["alleen de districtsgrens plat", deelsLive(["grens"]), 1280, 900, "0"],
-    ["alleen de straatassen plat", deelsLive(["assen"]), 390, 844, "–"],
+  // faalt; de straat zelf houdt haar momentopname. De Bontwerkersplaats heeft in de verzonnen ochtend geen eigen
+  // straatbestand (niets in de straat), zoals in de bevinding. Alles naar buiten is nagebootst of afgebroken. De agenda
+  // laadde wel (nakijkronde 3): rond de straat telt ze met de straatassen, en zonder straatassen met het kader van de straat
+  // uit site/geo/straten.json (nakijkronde 6). De verzonnen agenda is leeg: inspraak & info is een echte 0. Een evenement op
+  // straat komt uit de publieke ruimte (A-Sign), die rond de straat niet nagekeken is: geen getal (nakijkronde 6).
+  for (const [wat, bronnen, width, height] of [
+    ["alles afgebroken", "geblokkeerd", 390, 844],
+    ["alles afgebroken", "geblokkeerd", 1280, 900],
+    ["A-Sign en GIPOD plat", deelsLive(["inname", "hinder"]), 390, 844],
+    ["alleen de districtsgrens plat", deelsLive(["grens"]), 1280, 900],
+    ["alleen de straatassen plat", deelsLive(["assen"]), 390, 844],
   ]) await t.test(`met een straal van 250 m en ${wat}: geen 'Rustig' en geen 0 voor in en rond de straat (${width}×${height})`, async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen, width, height, query: `${BONT}&straal=250`, feed: LEEG });
@@ -723,7 +771,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await standKlaar(page);
     const s = await plekStand(page);
     assert.doesNotMatch(s.week.join(" "), /rustig/i, s.week.join(" "));
-    assert.deepEqual(await tegels(page), { evenementen: agenda, werkenNu: "–", werkenGepland: "–", inspraak: agenda, vergunningen: "–" });
+    assert.deepEqual(await tegels(page), { evenementen: "–", werkenNu: "–", werkenGepland: "–", inspraak: "0", vergunningen: "–" });
     assert.equal(s.stand, "Stand van de verversing van 05:22.");
     assert.doesNotMatch(await page.locator(".pv-place").innerText(), STIL);
     assert.deepEqual(errors, []);
@@ -742,7 +790,7 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await page.locator('.pv-place [data-radius="250"]').click();
     await standKlaar(page);
     assert.doesNotMatch((await plekStand(page)).week.join(" "), /rustig/i);
-    assert.deepEqual(await tegels(page), { evenementen: "–", werkenNu: "–", werkenGepland: "–", inspraak: "–", vergunningen: "–" });
+    assert.deepEqual(await tegels(page), { evenementen: "–", werkenNu: "–", werkenGepland: "–", inspraak: "0", vergunningen: "–" });
     await page.locator('.pv-place [data-radius="0"]').click();
     await standKlaar(page);
     assert.deepEqual(await plekStand(page), rustig);
@@ -765,16 +813,70 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
+  // Nakijkronde 6 (18-10-2026), bevinding MIDDEL: met een straal hing alles rond de straat af van de live straatassen
+  // (MapServer/905). Faalden die, dan vielen de agendapunten rond de straat stil weg (nearStreet zonder straatassen), terwijl
+  // ze in de feed van de ochtend staan, met hun geocodering; tegel, chip en weekzin noemden dan alleen wat in de straat zelf
+  // lag, onder "in en rond jouw straat". Nu valt de straal terug op het kader van de straat uit site/geo/straten.json: wat
+  // daarmee zeker binnen de straal ligt, staat er, met dezelfde agendapunten als met de straatassen. Wat er niet zeker binnen
+  // of buiten ligt, of een laag die de straal niet nakeek (zonder straatassen faalt ook het live kader): voor die soort geen
+  // getal (een streepje, zoals bij een 0) in plaats van een te laag getal, en de weekzin noemt alleen de straat zelf ("in
+  // jouw straat", nooit "Rustig"). Verzonnen agendapunten op verzonnen plekken (een eigen site/geo/locaties.json): 30 m ten
+  // oosten van de Kammenstraat (zeker binnen 250 m), 200 m ten oosten (niet zeker: het kader zegt tussen 200 en 263 m) en
+  // 2 km ver. Alles naar buiten is nagebootst of afgebroken (route.abort).
+  const breedte = Math.cos((((y1 + y2) / 2) * Math.PI) / 180);
+  const oostVan = (meter) => [Math.round((x2 + meter / (111320 * breedte)) * 1e6) / 1e6, Math.round(((y1 + y2) / 2) * 1e6) / 1e6];
+  const LOCATIES = { schemaVersion: 1, entries: { "proeflocatie dichtbij e2e": { point: oostVan(30), precision: "punt" }, "proeflocatie twijfel e2e": { point: oostVan(200), precision: "punt" }, "proeflocatie ver weg e2e": { point: oostVan(2000), precision: "punt" } } };
+  const rondom = ({ twijfel = false } = {}) => proefFeed("2099-03-10", (stempel) => [
+    kalenderItem(stempel, { id: "e2e-rond-feest", externalId: "e2e-rond-feest", title: "Proefbuurtfeest om de hoek (e2e)", date: "2099-03-12", timeSlot: "14:00", timeText: "14.00 uur", location: "Proeflocatie dichtbij (e2e)" }),
+    kalenderItem(stempel, { id: "e2e-rond-mening", externalId: "e2e-rond-mening", theme: "Oproep/deadline", title: "Geef je mening over het proefplein (e2e)", date: "2099-03-13", location: "Proeflocatie dichtbij (e2e)" }),
+    kalenderItem(stempel, { id: "e2e-ver-feest", externalId: "e2e-ver-feest", title: "Proefbuurtfeest ver weg (e2e)", date: "2099-03-12", timeSlot: "15:00", timeText: "15.00 uur", location: "Proeflocatie ver weg (e2e)" }),
+    ...(twijfel ? [kalenderItem(stempel, { id: "e2e-twijfel-mening", externalId: "e2e-twijfel-mening", theme: "Oproep/deadline", title: "Geef je mening over de proefvest (e2e)", date: "2099-03-13", location: "Proeflocatie twijfel (e2e)" })] : []),
+  ]);
+  const agendaRijen = (s) => s.rijen.filter(([uid]) => uid.startsWith("agenda:")).map(([uid]) => uid).sort();
+  const RONDOM = "?plek=Kammenstraat&straal=250";
+  for (const [width, height, twijfel] of [[390, 844, false], [1280, 900, false], [390, 844, true]]) await t.test(`met +250 m en zonder straatassen: de agendapunten rond de straat blijven, en geen te laag getal voor de straal (${width}×${height}${twijfel ? ", met een agendapunt op twijfelafstand" : ""})`, async (st) => {
+    const stand = await standVanDeOchtend(st);
+    const feed = rondom({ twijfel });
+    // Gezond: GIPOD, de districtsgrens en de straatassen antwoorden (A-Sign niet).
+    const ref = await openStraat(baseUrl, { stand, bronnen: deelsLive([]), width, height, query: RONDOM, feed, locaties: LOCATIES });
+    await standKlaar(ref.page);
+    const gezond = await plekStand(ref.page);
+    await ref.context.close();
+    assert.deepEqual(agendaRijen(gezond).filter((uid) => uid !== "agenda:e2e-twijfel-mening"), ["agenda:e2e-rond-feest", "agenda:e2e-rond-mening"], JSON.stringify(gezond.rijen));
+    // Hetzelfde zonder de straatassen.
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: deelsLive(["assen"]), width, height, query: RONDOM, feed, locaties: LOCATIES });
+    st.after(() => context.close().catch(() => {}));
+    await standKlaar(page);
+    const s = await plekStand(page);
+    // Wat zeker binnen 250 m ligt, staat er; wat niet zeker is, niet (en het verre agendapunt nooit).
+    assert.deepEqual(agendaRijen(s), ["agenda:e2e-rond-feest", "agenda:e2e-rond-mening"], JSON.stringify(s.rijen));
+    // De straat zelf houdt haar momentopname.
+    assert.ok(s.rijen.some(([uid]) => uid === "works:990001"), JSON.stringify(s.rijen));
+    // Zonder straatassen faalt ook het live kader: werken, evenementen op straat en vergunningen zijn rond de straat niet
+    // nagekeken. Inspraak & info komt alleen uit de agenda: met het kader van de straat zeker 1, tenzij er een agendapunt op
+    // twijfelafstand ligt; dan geen getal.
+    assert.deepEqual(await tegels(page), { evenementen: "–", werkenNu: "–", werkenGepland: "–", inspraak: twijfel ? "–" : "1", vergunningen: "–" });
+    // De weekzin: alleen de straat zelf (het parkeerverbod, de inname en het evenement van de Kammenstraat), niet het
+    // buurtfeest om de hoek.
+    assert.match(s.week[1], /^Let op De komende 7 dagen in jouw straat: /, s.week[1]);
+    assert.match(s.week[1], /\b1 evenement \(/, s.week[1]);
+    assert.doesNotMatch(s.week[1], /rond jouw straat|2 evenementen|rustig/i, s.week[1]);
+    assert.equal(s.stand, "Stand van de verversing van 05:22.");
+    assert.doesNotMatch(await page.locator(".pv-place").innerText(), STIL);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
   // Bevinding MIDDEL: op een wijk- of postcodepagina werd de momentopname nooit gebruikt. Faalden de live lagen, dan
   // verdwenen alle werken, parkeerverboden en vergunningen ("– werken nu", "– vergunningen") en zakte de weekzin, terwijl
   // een straat haar stand hield en de straatbestanden van de ochtend wel bestonden. Nu krijgt een wijk of postcode de
   // momentopname van al haar straten (laadGebied in site/straat-snapshot.js), zoals een straat de hare. Een item zonder
-  // eigen punt hangt aan de wijk via zijn straten; zonder straatassen (alles afgebroken) via de wijken per straat in
-  // site/geo/straten.json. Sint-Andries en 2000 bevatten de verzonnen Kammenstraat. Alles naar buiten afgebroken.
+  // eigen punt hangt aan een postcode via zijn straten (een straat heeft één postcode); aan een wijk alleen als dat
+  // ondubbelzinnig is (nakijkronde 6, hieronder). 2000 bevat de verzonnen Kammenstraat. Alles naar buiten afgebroken.
   // Postcode 2000 telt een officiële straat zonder numerieke id (Kempischplein, -9 in site/geo/straten.json): die krijgt
   // nooit een straatbestand, dus is de momentopname van 2000 deels geladen (intern; wat er is, staat er wel).
   const ALLES_MIST = { works: ["werken"], publicSpace: ["parkeerverboden", "innames en parcours", "omleidingen", "werfzones"], permits: ["vergunningen"], terraces: ["terrassen"] };
-  for (const [query, width, height, mist] of [["?plek=Sint-Andries", 390, 844, null], ["?plek=Sint-Andries", 1280, 900, null], ["?plek=2000", 390, 844, ALLES_MIST], ["?plek=2000", 1280, 900, ALLES_MIST]]) await t.test(`${query}: falen de live lagen, dan de momentopname van de straten, zonder melding (${width}×${height})`, async (st) => {
+  for (const [query, width, height, mist] of [["?plek=2000", 390, 844, ALLES_MIST], ["?plek=2000", 1280, 900, ALLES_MIST]]) await t.test(`${query}: falen de live lagen, dan de momentopname van de straten, zonder melding (${width}×${height})`, async (st) => {
     const stand = await standVanDeOchtend(st);
     const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width, height, query, feed: LEEG });
     st.after(() => context.close().catch(() => {}));
@@ -791,6 +893,55 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     assert.equal(tg.vergunningen, "1", JSON.stringify(tg));
     assert.match(s.week[0], /pv-dezeweek-let-op/, s.week.join(" "));
     assert.match(s.week[1], /1 parkeerverbod/, s.week[1]);
+    assert.doesNotMatch(await page.locator(".pv-place").innerText(), STIL);
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkronde 6 (18-10-2026), bevinding MIDDEL: bij een falende lijst van het district toonde een wijk de werken uit de
+  // momentopname van haar straten die de gezonde pagina niet aan die wijk toekent: een valse "Let op" met getallen in elke
+  // wijk waar de straat van het werk doorloopt. Een straatbestand heeft geen punt (lib/straat-bestanden.mjs, NOOIT), dus hing
+  // een werk via de wijken van zijn straat (site/geo/straten.json) aan elk van die wijken, terwijl het live via zijn
+  // GIPOD-punt in precies één wijk ligt. Nu hoort een werk uit de momentopname alleen bij een wijk als dat ondubbelzinnig is:
+  // een straat ervan ligt helemaal in de wijk. De andere lagen (parkeerverbod, inname, evenement, vergunning, terrassen)
+  // hebben ook live geen punt: die hangen, zoals op de gezonde pagina, via hun straten aan de wijk. De Kammenstraat loopt
+  // door Sint-Andries (ANT18), Historisch centrum (ANT09) en Theaterbuurt & Meir (ANT22); het werk 990001 ligt live in ANT22.
+  // Een tweede verzonnen werk (990002) ligt aan de Peterseliestraat, helemaal in Historisch centrum: dat hoort zeker bij
+  // ANT09, en nergens anders. Wat met twijfel wegvalt, maakt de werken van de wijk deels geladen (intern): geen valse 0.
+  // Alles naar buiten afgebroken.
+  const PET_RIJ = straten.find((r) => r[1] === "Peterseliestraat" && String(r[2]) === "2000");
+  const WERKEN_TWEE = fixture ? [fixture.werk(), fixture.werk(990002, { streets: [fixture.PET], point: [(PET_RIJ[4][0] + PET_RIJ[4][2]) / 2, (PET_RIJ[4][1] + PET_RIJ[4][3]) / 2] })] : null;
+  for (const [query, width, height, wijk] of [["?plek=Sint-Andries", 390, 844, "Sint-Andries"], ["?plek=Sint-Andries", 1280, 900, "Sint-Andries"], ["?plek=wijk:ANT22", 390, 844, "Theaterbuurt & Meir"], ["?plek=wijk:ANT09", 390, 844, "Historisch centrum"], ["?plek=wijk:ANT09", 1280, 900, "Historisch centrum"]]) await t.test(`${query}: de momentopname van de straten, een werk alleen als het ondubbelzinnig in de wijk ligt (${width}×${height})`, async (st) => {
+    const stand = await standVanDeOchtend(st, { werken: WERKEN_TWEE });
+    const { page, context, errors } = await openStraat(baseUrl, { stand, bronnen: "geblokkeerd", width, height, query, feed: LEEG });
+    st.after(() => context.close().catch(() => {}));
+    await districtGemeld(page);
+    await gebiedGemeld(page);
+    await page.locator('.pv-results .pv-row[data-uid^="publicSpace:parking:PROEF-1"]').waitFor({ timeout: 15000 }).catch(() => {});
+    await page.waitForTimeout(800);
+    const s = await plekStand(page);
+    const tg = await tegels(page);
+    const uids = s.rijen.map(([uid]) => uid);
+    // Het werk aan de Kammenstraat: in geen enkele wijk uit de momentopname (live ligt het alleen in ANT22, en welk stuk van
+    // de straat het is, zegt het straatbestand niet).
+    assert.ok(!uids.includes("works:990001"), JSON.stringify(uids));
+    // Het werk aan de Peterseliestraat: alleen in Historisch centrum.
+    assert.equal(uids.includes("works:990002"), wijk === "Historisch centrum", JSON.stringify(uids));
+    // De rest van de Kammenstraat, zoals op de gezonde pagina: via de straat.
+    for (const uid of ["publicSpace:dossier:ET2099000001", "publicSpace:iod:PROEF-IOD|CONSTRUCTION|i1"]) assert.ok(uids.includes(uid), `${uid}: ${JSON.stringify(uids)}`);
+    assert.ok(uids.some((uid) => uid.startsWith("publicSpace:parking:PROEF-1")), JSON.stringify(uids));
+    assert.ok(uids.some((uid) => uid.startsWith("permits:")), JSON.stringify(uids));
+    // De momentopname van de wijk zelf is volledig (elke straat had haar stand). Dat een werk met twijfel wegviel, blijft
+    // intern bij het tellen (collect() in place-view.js): de werken van de wijk zijn dan deels geladen, dus geen valse 0
+    // voor de werken die nu lopen. Gepland: het parkeerverbod en de inname (en in Historisch centrum het werk).
+    assert.deepEqual(s.mislukt, { works: [], publicSpace: [], permits: [], terraces: [] });
+    assert.equal(tg.werkenNu, "–", JSON.stringify(tg));
+    assert.equal(tg.werkenGepland, wijk === "Historisch centrum" ? "3" : "2", JSON.stringify(tg));
+    assert.equal(tg.vergunningen, "1", JSON.stringify(tg));
+    assert.equal(tg.evenementen, "1", JSON.stringify(tg));
+    assert.match(s.week[0], /pv-dezeweek-let-op/, s.week.join(" "));
+    // De inname (een container in de fase "Werken") telt in de week als werk; het GIPOD-werk begint pas na de 7 dagen.
+    assert.equal(s.week[1], `Let op De komende 7 dagen in de wijk ${wijk}: 1 werk (vanaf morgen), 1 parkeerverbod (vanaf do 12 mrt) en 1 evenement (za 14 mrt).`);
     assert.doesNotMatch(await page.locator(".pv-place").innerText(), STIL);
     assert.deepEqual(errors, []);
     await context.close();

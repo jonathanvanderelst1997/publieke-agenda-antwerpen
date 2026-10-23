@@ -442,7 +442,8 @@ test("de zin onder de plek met een straal: laden live of de straatassen voor de 
   // De kaart zegt of de straatassen voor de straal er zijn.
   const wijken = [];
   assert.equal(createAreaMatcher({ wijken, geo: { entries: {} } }).straal, "laadt");
-  assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, straatasMislukt: true }).straal, "mislukt");
+  // Laadden ze niet, dan volgt de straal het kader van de straat uit site/geo/straten.json (nakijkronde 6 van 18-10-2026).
+  assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, straatasMislukt: true }).straal, "kader");
   assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, streetIndex: { byName: new Map(), streets: [] } }).straal, "klaar");
 });
 

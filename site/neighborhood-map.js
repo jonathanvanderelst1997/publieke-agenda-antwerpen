@@ -22,12 +22,14 @@
 import {
   RADIUS_OPTIONS,
   bboxOf,
+  isKader,
   itemPoint,
   nearSegments,
+  straalVolgensKader,
+  straatWijkKeuze,
   streetSegments,
   streetWijkMap,
   vormBinnenStraal,
-  streetsInWijk,
   wijkFeatures,
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
@@ -90,42 +92,69 @@ function loadLeaflet() {
 }
 
 // De matcher die agenda-view.js gebruikt voor "in deze wijk" en "binnen de straal van je straat".
-// `straal`: of de straatassen voor de straal er zijn ("klaar"), nog komen ("laadt") of niet laadden
-// ("mislukt"); de plekpagina zegt het dan (site/straat-snapshot.js, standZin).
+// `straal`: of de straatassen voor de straal er zijn ("klaar"), nog komen ("laadt"), of niet laadden: dan "kader" (de
+// straal volgt het kader van de straat uit site/geo/straten.json, straalVolgensKader in site/neighborhood-core.js) of,
+// zonder dat kader, "mislukt" (agenda-view.js beslist dat per gekozen straat).
 export function createAreaMatcher({ wijken, geo, streetIndex = null, straatasMislukt = false }) {
   const byCode = new Map(wijken.map((f) => [f.properties.code, f]));
   const streetMap = streetIndex ? streetWijkMap(streetIndex, wijken) : null;
   const segmentCache = new Map();
   const straalCache = new WeakMap(); // item → Map("straat|straal" → ja/nee)
+  const kaderCache = new WeakMap(); // item → Map("straat|straal" → ja/nee/onzeker), zonder straatassen
+  // Met een punt: het punt. Zonder punt: de straten (straatWijkKeuze; "twijfel" als een straat ook door een andere wijk loopt).
+  const wijkKeuze = (item, code, refs = [], reserve = null) => {
+    const feature = byCode.get(code);
+    if (!feature) return "ja";
+    const point = itemPoint(item, geo);
+    if (point) return pointInGeometry(point, feature.geometry) ? "ja" : "nee";
+    return straatWijkKeuze(refs, code, streetMap || reserve);
+  };
+  function nearStreet(item, street, radius) {
+    if (!streetIndex) return straalKeuze(item, street, radius) === "ja";
+    if (!item || typeof item !== "object") return false;
+    const key = `${street.id}|${street.name}|${street.postcode}`;
+    if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
+    const point = itemPoint(item, geo);
+    if (point) return nearSegments(point, segmentCache.get(key), radius);
+    if (!item.vorm) return false;
+    let perItem = straalCache.get(item);
+    if (!perItem) { perItem = new Map(); straalCache.set(item, perItem); }
+    const straalKey = `${key}|${radius}`;
+    if (!perItem.has(straalKey)) perItem.set(straalKey, vormBinnenStraal(item.vorm, segmentCache.get(key), radius));
+    return perItem.get(straalKey);
+  }
+  function straalKeuze(item, street, radius) {
+    if (!item || typeof item !== "object" || !street) return "nee";
+    if (streetIndex) return nearStreet(item, street, radius) ? "ja" : "nee";
+    if (!straatasMislukt || !isKader(street.box)) return "onzeker";
+    let perItem = kaderCache.get(item);
+    if (!perItem) { perItem = new Map(); kaderCache.set(item, perItem); }
+    const sleutel = `${street.id}|${street.name}|${street.postcode}|${street.box.join(",")}|${radius}`;
+    if (!perItem.has(sleutel)) perItem.set(sleutel, straalVolgensKader(item, street.box, radius, geo));
+    return perItem.get(sleutel);
+  }
   return {
-    straal: streetIndex ? "klaar" : straatasMislukt ? "mislukt" : "laadt",
+    straal: streetIndex ? "klaar" : straatasMislukt ? "kader" : "laadt",
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
     // `reserve`: de wijken per straat uit site/geo/straten.json (place-view.js, via agenda-view.js), dezelfde regel als
     // streetWijkMap. Zolang de straatassen er niet zijn of als ze niet laadden, hangt een item zonder eigen punt (een
     // parkeerverbod, een werk uit de momentopname) zo toch aan de wijk van zijn straten (nakijkronde 5 van 18-10-2026).
-    inWijk(item, code, refs = [], reserve = null) {
-      const feature = byCode.get(code);
-      if (!feature) return true;
-      const point = itemPoint(item, geo);
-      if (point) return pointInGeometry(point, feature.geometry);
-      return streetsInWijk(refs, code, streetMap || reserve);
+    // `strikt` (een werk uit de momentopname, zonder zijn GIPOD-punt; nakijkronde 6): alleen als dat ondubbelzinnig is
+    // (wijkKeuze "ja"); een werk waarvan een straat ook door een andere wijk loopt, hoort er dan niet bij.
+    inWijk(item, code, refs = [], reserve = null, { strikt = false } = {}) {
+      const uit = wijkKeuze(item, code, refs, reserve);
+      return uit === "ja" || (!strikt && uit === "twijfel");
     },
+    // "ja", "nee" of "twijfel" (een item zonder punt, met een straat die ook door een andere wijk loopt).
+    wijkKeuze,
     // Met een punt (GIPOD, geocodering): ligt het punt binnen de straal. Zonder punt: ligt de eigen vorm
     // van het item (perceel, parkeerverbod, inname, parcours, werfzone) binnen de straal. Zonder punt en
-    // zonder vorm (een terras, een item uit de historiek): alleen in de straat zelf.
-    nearStreet(item, street, radius) {
-      if (!streetIndex || !item || typeof item !== "object") return false;
-      const key = `${street.id}|${street.name}|${street.postcode}`;
-      if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
-      const point = itemPoint(item, geo);
-      if (point) return nearSegments(point, segmentCache.get(key), radius);
-      if (!item.vorm) return false;
-      let perItem = straalCache.get(item);
-      if (!perItem) { perItem = new Map(); straalCache.set(item, perItem); }
-      const straalKey = `${key}|${radius}`;
-      if (!perItem.has(straalKey)) perItem.set(straalKey, vormBinnenStraal(item.vorm, segmentCache.get(key), radius));
-      return perItem.get(straalKey);
-    },
+    // zonder vorm (een terras, een item uit de historiek): alleen in de straat zelf. Zonder straatassen: alleen wat
+    // volgens het kader van de straat (`street.box`) zeker binnen de straal ligt (straalKeuze).
+    nearStreet,
+    // "ja", "nee" of "onzeker": met de straatassen zoals nearStreet; zonder (ze laadden niet) volgens het kader van de straat
+    // (straalVolgensKader); zolang ze laden, of zonder kader: "onzeker".
+    straalKeuze,
     segmentsFor(street) {
       if (!streetIndex || !street) return [];
       const key = `${street.id}|${street.name}|${street.postcode}`;

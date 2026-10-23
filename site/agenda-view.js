@@ -57,8 +57,13 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
     get themes() { return new Set(themes); },
     get area() { return { ...area }; },
     get areaReady() { return Boolean(areaMatcher); },
-    // De straal rond een straat heeft de straatassen nodig (neighborhood-map.js): "laadt", "klaar" of "mislukt".
-    get straalStand() { return areaMatcher?.straal || (straalMislukt ? "mislukt" : "laadt"); },
+    // De straal rond een straat heeft de straatassen nodig (neighborhood-map.js): "laadt", "klaar" of, als ze niet laadden,
+    // "kader" (de straal volgt het kader van de gekozen straat uit site/geo/straten.json, straalOnzeker hieronder) of
+    // "mislukt" (geen kaart, of de gekozen straat heeft geen kader).
+    get straalStand() {
+      const stand = areaMatcher?.straal || (straalMislukt ? "mislukt" : "laadt");
+      return stand === "kader" && !(selected && typeof areaMatcher?.straalKeuze === "function" && Array.isArray(selected.box)) ? "mislukt" : stand;
+    },
     // De kaart of de wijken laadden niet: er komt geen matcher, dus ook geen straal.
     straalNietBeschikbaar() { straalMislukt = true; },
     get areaLabel() { return area.wijk ? (areaMatcher?.labelFor?.(area.wijk) || area.wijk) : ""; },
@@ -82,8 +87,10 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
     setAreaMatcher(matcher) { areaMatcher = matcher && typeof matcher.inWijk === "function" ? matcher : null; },
     setStraatWijken(map) { straatWijken = map instanceof Map ? map : null; refsMemo = new WeakMap(); },
     enabled(key) { return themes.has(key === "terraces" ? "permits" : key); },
-    matchesStreet(item) {
-      if (area.wijk && areaMatcher && !areaMatcher.inWijk(item, area.wijk, refsOf(item), straatWijken)) return false;
+    // `strikt`: een werk uit de momentopname van een wijk (place-view.js): zonder zijn GIPOD-punt hoort het alleen bij de
+    // wijk als dat ondubbelzinnig is (inWijk in neighborhood-map.js, nakijkronde 6 van 18-10-2026).
+    matchesStreet(item, { strikt = false } = {}) {
+      if (area.wijk && areaMatcher && !areaMatcher.inWijk(item, area.wijk, refsOf(item), straatWijken, { strikt })) return false;
       if (area.postcode) {
         // Postcode: een officiële straat met die postcode, of een bron die de postcode zelf meegeeft.
         const codes = new Set([...(refsOf(item) || []).map(ref => String(ref?.postcode || "")), ...(Array.isArray(item?.postcodes) ? item.postcodes.map(String) : []), String(item?.postcode || "")]);
@@ -96,6 +103,18 @@ export function createAgendaView({ resolveAddress = () => [], defaultThemes = VI
       // Straat + straal: ook wat binnen de straal van die straat ligt: met een punt (GIPOD, geocodering)
       // telt het punt, zonder punt (parcours, vergunning, parkeerverbod) zijn eigen vorm.
       return Boolean(area.radius > 0 && areaMatcher?.nearStreet?.(item, selected, area.radius));
+    },
+    // Een item zonder eigen punt op een wijkpagina, waarvan een straat ook door een andere wijk loopt ("twijfel"): met
+    // `strikt` (een werk uit de momentopname) valt het weg, en dan is die laag van de wijk niet volledig (place-view.js).
+    wijkTwijfel(item) {
+      return Boolean(area.wijk && areaMatcher?.wijkKeuze && areaMatcher.wijkKeuze(item, area.wijk, refsOf(item), straatWijken) === "twijfel");
+    },
+    // Ligt een item niet zeker binnen of buiten de straal (zonder straatassen, volgens het kader van de straat)? Een item in
+    // de straat zelf is zeker. Dan zegt de plekpagina voor de straal geen getal (place-view.js, nakijkronde 6).
+    straalOnzeker(item) {
+      if (!(area.radius > 0) || !selected || typeof areaMatcher?.straalKeuze !== "function") return false;
+      if ((refsOf(item) || []).some(ref => sameStreet(ref, selected))) return false;
+      return areaMatcher.straalKeuze(item, selected, area.radius) === "onzeker";
     },
     matches(item, theme) { return this.enabled(theme) && this.matchesStreet(item); },
     matchesAgenda(item) { return this.matches(item, agendaTheme(item)); }
