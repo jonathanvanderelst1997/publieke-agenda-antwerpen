@@ -5,16 +5,6 @@
   "url": "https://geo.api.vlaanderen.be/geolocation/v4/Location"
  },
  "entries": {
-  "amsterdamstraat bonapartedok braziliestraat en 17 andere straten": {
-   "point": [
-    4.40461,
-    51.23129
-   ],
-   "precision": "straat",
-   "street": "Amsterdamstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "argentinielaan belfaststraat bostonstraat en 24 andere straten": {
    "point": [
     4.42611,
@@ -85,16 +75,6 @@
    "postcode": "2020",
    "checkedOn": "2026-10-14"
   },
-  "dageraadplaats": {
-   "point": [
-    4.42971,
-    51.20709
-   ],
-   "precision": "straat",
-   "street": "Dageraadplaats",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
-  },
   "dageraadplaats 2018 antwerpen": {
    "point": [
     4.42971,
@@ -155,7 +135,7 @@
    "postcode": "2018",
    "checkedOn": "2026-10-05"
   },
-  "ernest van dijckkaai gildekamersstraat hofstraat en 9 andere straten": {
+  "ernest van dijckkaai jordaenskaai orteliuskaai en 5 andere straten": {
    "point": [
     4.39785,
     51.22233
@@ -163,7 +143,7 @@
    "precision": "straat",
    "street": "Ernest Van Dijckkaai",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
+   "checkedOn": "2026-10-22"
   },
   "falconplein 2000 antwerpen": {
    "point": [
@@ -195,6 +175,26 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
+  "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
+   "point": [
+    4.40467,
+    51.22187
+   ],
+   "precision": "straat",
+   "street": "Grote Goddaard",
+   "postcode": "2000",
+   "checkedOn": "2026-10-21"
+  },
+  "grote kauwenberg kleine kauwenberg lange winkelstraat en 2 andere straten": {
+   "point": [
+    4.41142,
+    51.22306
+   ],
+   "precision": "straat",
+   "street": "Grote Kauwenberg",
+   "postcode": "2000",
+   "checkedOn": "2026-10-22"
+  },
   "grote markt": {
    "point": [
     4.39989,
@@ -205,16 +205,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "grote markt ambtmanstraat hendrik conscienceplein en 9 andere straten": {
-   "point": [
-    4.39989,
-    51.22107
-   ],
-   "precision": "straat",
-   "street": "Grote Markt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "hanzestedenplaats amsterdamstraat bataviastraat en 31 andere straten": {
    "point": [
     4.405,
@@ -224,6 +214,16 @@
    "street": "Hanzestedenplaats",
    "postcode": "2000",
    "checkedOn": "2026-10-12"
+  },
+  "hanzestedenplaats bataviastraat bonapartedok en 27 andere straten": {
+   "point": [
+    4.405,
+    51.2287
+   ],
+   "precision": "straat",
+   "street": "Hanzestedenplaats",
+   "postcode": "2000",
+   "checkedOn": "2026-10-19"
   },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
@@ -244,6 +244,16 @@
    "street": "Keistraat",
    "postcode": "2000",
    "checkedOn": "2026-10-05"
+  },
+  "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
+   "point": [
+    4.40116,
+    51.22253
+   ],
+   "precision": "straat",
+   "street": "Hofstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-10-22"
   },
   "jan vanhoenackerstraat 2000 antwerpen": {
    "point": [
@@ -274,6 +284,16 @@
    "street": "Koningin Astridplein",
    "postcode": "2018",
    "checkedOn": "2026-10-12"
+  },
+  "koningin astridplein ankerrui bataviastraat en 22 andere straten": {
+   "point": [
+    4.42075,
+    51.219
+   ],
+   "precision": "straat",
+   "street": "Koningin Astridplein",
+   "postcode": "2018",
+   "checkedOn": "2026-10-21"
   },
   "kristus koningplein 2180 ekeren": {
    "point": [
@@ -355,26 +375,6 @@
    "postcode": "2020",
    "checkedOn": "2026-10-12"
   },
-  "quellinstraat blindestraat de keyserlei en 16 andere straten": {
-   "point": [
-    4.41639,
-    51.21681
-   ],
-   "precision": "straat",
-   "street": "Quellinstraat",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
-  },
-  "rijnkaai kattendijkbrug adriaan brouwerstraat en 144 andere straten": {
-   "point": [
-    4.40208,
-    51.22992
-   ],
-   "precision": "straat",
-   "street": "Rijnkaai",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -403,16 +403,6 @@
    "precision": "straat",
    "street": "Sint-Jacobstraat",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "sint jansplein": {
-   "point": [
-    4.41789,
-    51.22622
-   ],
-   "precision": "straat",
-   "street": "Sint-Jansplein",
-   "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
   "sint jansplein 2060 antwerpen": {
@@ -444,36 +434,6 @@
    "street": "Sint-Jansvliet",
    "postcode": "2000",
    "checkedOn": "2026-10-05"
-  },
-  "sint michielskaai": {
-   "point": [
-    4.39265,
-    51.21504
-   ],
-   "precision": "straat",
-   "street": "Sint-Michielskaai",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "sint nicolaasplaats kattendijkbrug koepoortbrug en 14 andere straten": {
-   "point": [
-    4.40592,
-    51.22037
-   ],
-   "precision": "straat",
-   "street": "Sint-Nicolaasplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "stadswaag": {
-   "point": [
-    4.40696,
-    51.22411
-   ],
-   "precision": "straat",
-   "street": "Stadswaag",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
    "point": [
@@ -585,16 +545,6 @@
    "postcode": "2100",
    "checkedOn": "2026-10-05"
   },
-  "wzc hollebeek turnersstraat 38 2020 antwerpen": {
-   "point": [
-    4.38165,
-    51.18616
-   ],
-   "precision": "adres",
-   "street": "Turnersstraat",
-   "postcode": "2020",
-   "checkedOn": "2026-10-14"
-  },
   "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
    "point": [
     4.40031,
@@ -618,35 +568,34 @@
  },
  "misses": {
   "2000 en 2018 antwerpen": "2026-10-10",
-  "2060 antwerpen": "2026-10-05",
-  "a bib merksem parkweg 1": "2026-10-07",
-  "arenaplein 2100 deurne": "2026-10-05",
+  "2060 antwerpen": "2026-10-19",
+  "a bib merksem parkweg 1": "2026-10-21",
+  "arenaplein 2100 deurne": "2026-10-19",
   "august leyweg 2020 antwerpen": "2026-10-10",
   "begijnenstraat 2000 antwerpen": "2026-10-10",
   "begijnenvest 2000 antwerpen": "2026-10-10",
   "bervoetstraat 2000 antwerpen": "2026-10-10",
-  "bib permeke": "2026-10-05",
-  "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-05",
+  "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-19",
   "constitutiestraat 2060 antwerpen": "2026-10-10",
   "demerstraat 2060 antwerpen": "2026-10-10",
-  "district antwerpen locatie via de officiele bron": "2026-10-06",
-  "district borgerhout locatie via de officiele bron": "2026-10-05",
+  "district antwerpen locatie via de officiele bron": "2026-10-20",
+  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-22",
+  "district borgerhout locatie via de officiele bron": "2026-10-19",
   "district borsbeek locatie via de officiele bron": "2026-10-18",
   "district deurne locatie via de officiele bron": "2026-10-13",
-  "district ekeren locatie via de officiele bron": "2026-10-05",
-  "district merksem locatie via de officiele bron": "2026-10-05",
-  "district wilrijk locatie via de officiele bron": "2026-10-05",
-  "districtshuis antwerpen zaal benoit": "2026-10-05",
+  "district ekeren locatie via de officiele bron": "2026-10-19",
+  "district merksem locatie via de officiele bron": "2026-10-19",
+  "district wilrijk locatie via de officiele bron": "2026-10-19",
+  "districtshuis antwerpen zaal benoit": "2026-10-19",
   "duinstraat 2060 antwerpen": "2026-10-10",
   "durletstraat 2018 antwerpen": "2026-10-10",
   "fort 8 district hoboken plaats volgens het bericht": "2026-10-18",
   "geelhandplaats 2060 antwerpen": "2026-10-10",
   "grotebeerstraat 2018 antwerpen": "2026-10-10",
   "halenstraat kant stuivenbergplein 2060 antwerpen": "2026-10-10",
-  "harmoniepark 1": "2026-10-05",
+  "harmoniepark 1": "2026-10-19",
   "hertoginstraat 2018 antwerpen": "2026-10-10",
   "jacob jordaensstraat 2018 antwerpen": "2026-10-10",
-  "kleine kauwenberg grote kauwenberg lange winkelstraat en 2 andere straten": "2026-10-17",
   "korte scholierstraat antwerpen": "2026-10-10",
   "kruispunt lange elzenstraat desguinlei 2018 antwerpen": "2026-10-10",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-10-10",
@@ -660,7 +609,7 @@
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-10",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-10",
   "park gravenhof district hoboken plaats volgens het bericht": "2026-10-18",
-  "provinciehuis antwerpen": "2026-10-05",
+  "provinciehuis antwerpen": "2026-10-19",
   "scheldestraat 2000 antwerpen": "2026-10-10",
   "schijnpoortweg 2060 antwerpen": "2026-10-10",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-10",
@@ -668,8 +617,8 @@
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-10",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-10",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-10-18",
-  "ten eeckhovelei 2100 deurne": "2026-10-05",
-  "toeristisch centrum antwerpen": "2026-10-05",
+  "ten eeckhovelei 2100 deurne": "2026-10-19",
+  "toeristisch centrum antwerpen": "2026-10-19",
   "van de wervestraat 2060 antwerpen": "2026-10-10",
   "van immerseelstraat 2018 antwerpen": "2026-10-10",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-10"
