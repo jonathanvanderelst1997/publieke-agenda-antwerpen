@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-23",
- "invoer": "7b8954c708c3865c",
- "code": "a3cb1b841d7f040d",
+ "invoer": "21d25101d72bac71",
+ "code": "e553622ae0505690",
  "agenda": {
   "items": 771,
   "vaag": 50,
@@ -197,36 +197,37 @@
  },
  "straten": {
   "items": 449,
-  "vaag": 258,
-  "aandeel": 57.5,
+  "vaag": 279,
+  "aandeel": 62.1,
   "perPatroon": {
    "periode-onbekend": 157,
    "start-werken-onbekend": 55,
-   "wat-zegt-stad-niet": 46,
+   "wat-zegt-stad-niet": 45,
    "uur-onbekend": 39,
-   "generieke-titel": 27,
+   "huisnummer-alleen-live": 31,
+   "generieke-titel": 26,
    "stand-onduidelijk": 25,
-   "vermoedelijk": 13,
    "doel-onbekend": 12,
+   "vermoedelijk": 12,
    "wat-zegt-dossier-niet": 11,
    "naam-stad-niet": 8,
    "uren-parkeerverbod-onbekend": 7,
    "elke-dag-onbekend": 5,
-   "parkeerverbod-welk": 5,
    "plek-verspreid": 5,
    "werf-zonder-doel": 5
   },
   "perGroep": {
    "publicSpace:sgw": {
     "items": 51,
-    "vaag": 34,
+    "vaag": 35,
     "patronen": {
      "wat-zegt-stad-niet": 34,
+     "huisnummer-alleen-live": 5,
      "uur-onbekend": 1
     },
-    "meerDanEen": 34,
+    "meerDanEen": 5,
     "losse": 35,
-    "losseVaag": 18
+    "losseVaag": 19
    },
    "agenda:district-asign-evenementen": {
     "items": 28,
@@ -242,16 +243,12 @@
    },
    "publicSpace:parking": {
     "items": 26,
-    "vaag": 6,
+    "vaag": 26,
     "patronen": {
-     "parkeerverbod-welk": 5,
-     "generieke-titel": 1,
-     "vermoedelijk": 1,
-     "wat-zegt-stad-niet": 1
+     "huisnummer-alleen-live": 26
     },
-    "meerDanEen": 1,
     "losse": 26,
-    "losseVaag": 6
+    "losseVaag": 26
    },
    "permits": {
     "items": 55,
@@ -288,7 +285,6 @@
     "patronen": {
      "periode-onbekend": 157
     },
-    "meerDanEen": 157,
     "losse": 2,
     "losseVaag": 2
    },
@@ -334,9 +330,9 @@
    }
   },
   "detail": {
-   "metOntbreekt": 291,
-   "meerDanEen": 278,
-   "zinnen": 687,
+   "metOntbreekt": 317,
+   "meerDanEen": 91,
+   "zinnen": 508,
    "perPatroon": {
     "niet-in-de-bron": 75,
     "huisnummers-niet-gepubliceerd": 41,
@@ -348,11 +344,11 @@
   "verboden": {},
   "uniek": {
    "kaarten": 412,
-   "vaag": 235
+   "vaag": 256
   },
   "losse": {
    "kaarten": 264,
-   "vaag": 77
+   "vaag": 98
   },
   "ingeklapt": {
    "regels": 27,
@@ -390,16 +386,16 @@
    },
    "Riemstraat": {
     "kaarten": 11,
-    "vaag": 7,
+    "vaag": 9,
     "losseKaarten": 8,
-    "losseVaag": 4,
+    "losseVaag": 6,
     "ingeklapt": 2
    },
    "Vrijdagmarkt": {
     "kaarten": 19,
-    "vaag": 13,
+    "vaag": 15,
     "losseKaarten": 10,
-    "losseVaag": 4,
+    "losseVaag": 6,
     "ingeklapt": 1
    },
    "Meir": {
@@ -425,16 +421,16 @@
    },
    "Kloosterstraat": {
     "kaarten": 35,
-    "vaag": 21,
+    "vaag": 26,
     "losseKaarten": 20,
-    "losseVaag": 6,
+    "losseVaag": 11,
     "ingeklapt": 2
    },
    "Paardenmarkt": {
     "kaarten": 28,
-    "vaag": 15,
+    "vaag": 17,
     "losseKaarten": 20,
-    "losseVaag": 9,
+    "losseVaag": 11,
     "ingeklapt": 3
    },
    "Sint-Jansvliet": {
@@ -446,23 +442,23 @@
    },
    "Kammenstraat": {
     "kaarten": 21,
-    "vaag": 11,
+    "vaag": 14,
     "losseKaarten": 11,
-    "losseVaag": 1,
+    "losseVaag": 4,
     "ingeklapt": 2
    },
    "Isabella Brantstraat": {
     "kaarten": 6,
-    "vaag": 2,
+    "vaag": 5,
     "losseKaarten": 6,
-    "losseVaag": 2,
+    "losseVaag": 5,
     "ingeklapt": 0
    },
    "Maria-Henriëttalei": {
     "kaarten": 16,
-    "vaag": 4,
+    "vaag": 8,
     "losseKaarten": 13,
-    "losseVaag": 1,
+    "losseVaag": 5,
     "ingeklapt": 1
    },
    "Van Ertbornstraat": {
@@ -674,44 +670,81 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "ddf015151f6498bf",
+   "invoer": "7b8954c708c3865c",
    "code": "a3cb1b841d7f040d"
   },
   "agenda": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": 0,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -0.6,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
    "ok": false,
-   "stijging": -0.3,
+   "stijging": 4.6,
    "gestegen": [
     {
-     "id": "wat-zegt-stad-niet",
-     "van": 41,
-     "naar": 46
+     "id": "huisnummer-alleen-live",
+     "van": 0,
+     "naar": 31
     },
     {
-     "id": "detail:huisnummers-niet-gepubliceerd",
-     "van": 37,
-     "naar": 41
+     "id": "losse-vaag",
+     "van": 77,
+     "naar": 98
     },
     {
-     "id": "detail:meer-dan-een-ontbreekt",
-     "van": 273,
-     "naar": 278
+     "id": "losse-vaag:publicSpace:parking",
+     "van": 6,
+     "naar": 26
     }
    ]
   },
   "buiten": {
    "ok": true,
-   "stijging": -1.5,
+   "stijging": 0,
    "gestegen": []
   }
- }
+ },
+ "aanvaard": [
+  {
+   "waar": "straten",
+   "id": "huisnummer-alleen-live",
+   "van": 0,
+   "naar": 31,
+   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. 26 parkeerverbodkaarten en 5 werfkaarten met een parkeerverbod uit de ochtendstand. Tegen main (scripts/vaagheid-tegen-basis.mjs) ook 0 -> 31: de code van main toont dezelfde straat zonder huisnummer, maar zegt het niet, dus de meter ziet het daar niet. Zo blijft het (besluit van de eigenaar van 18 oktober 2026: in de ochtendstand bewust geen huisnummer, live exact)."
+  },
+  {
+   "waar": "straten",
+   "id": "losse-vaag",
+   "van": 77,
+   "naar": 98,
+   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. De 26 parkeerverbodkaarten en 1 werfkaart tellen daardoor als vaag. Van die 26 waren er op main (de opgeslagen meting, met de data van main) al 6 vaag om een ander patroon (5 parkeerverbod-welk, 1 generieke-titel): 20 parkeerverbodkaarten en 1 werfkaart erbij."
+  },
+  {
+   "waar": "straten",
+   "id": "losse-vaag:publicSpace:parking",
+   "van": 6,
+   "naar": 26,
+   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. Op main (de opgeslagen meting, met de data van main) waren 6 van dezelfde 26 kaarten al vaag om een ander patroon (5 parkeerverbod-welk, 1 generieke-titel); nu telt elk van de 26 alleen om het huisnummer dat alleen live staat."
+  },
+  {
+   "waar": "straten",
+   "id": "losse-vaag:publicSpace:sgw",
+   "van": 13,
+   "naar": 19,
+   "reden": "Bewezen vergelijkingsartefact van scripts/vaagheid-tegen-basis.mjs, geen terugval: zonder reden in de straatbestanden kan de code van main geen parkeerverbod aan een werfzone hangen, de tak wel (werfzoneDossier). Zes kaarten erbij (13 -> 19), elk nagemeten met de kaarten van beide codes op dezelfde data. Vier werfzones die al vaag zijn op main (wat-zegt-stad-niet: Paardenmarkt GW2026-004159, Maria-Henriëttalei GW2026-005425, Thonetlaan GW2025-106508, Van Kerckhovenstraat GW2026-005611) krijgen zo hun parkeerverbod terug en staan los in plaats van in de bundel werfzones zonder doel, zoals main ze met de data van main toont (main meet daar 18). De vijfde (Thonetlaan GW2026-002160) krijgt geen parkeerverbod: ze staat los omdat haar bundel op main uit twee werfzones bestond (met GW2025-106508) en met één lid geen bundel meer is; ze blijft vaag om dezelfde reden als op main (wat-zegt-stad-niet). De zesde (Vrijdagmarkt GW2025-106999) was niet vaag en telt nu omdat haar regel Parkeerverbod uit de ochtendstand zegt dat het huisnummer alleen live in A-Sign staat: de ochtendstand bewaart bewust geen huisnummer (besluit van de eigenaar van 18 oktober 2026)."
+  },
+  {
+   "waar": "straten",
+   "id": "detail:meer-dan-een-ontbreekt",
+   "van": 87,
+   "naar": 91,
+   "reden": "Tegen de basis, geen terugval: 4 werfkaarten uit de ochtendstand zeggen twee verschillende dingen die ontbreken, waarvoor de werfzone dient (A-Sign) en, in hun regel Parkeerverbod, dat het huisnummer alleen live in A-Sign staat. Die tweede zin telde de meter vroeger niet (derde nakijkronde van 18 oktober 2026). Op de opgeslagen meting daalt het aantal kaarten met meer dan één ontbreekt-zin (278 -> 91): de meter telt een samenvatting die de kaart één keer toont, niet meer twee keer."
+  }
+ ]
 }

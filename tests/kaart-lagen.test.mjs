@@ -93,7 +93,7 @@ test("kaartSoort per bouwer: agenda, werk, parkeerverbod, werfzone, losse inname
   assert.equal(kaartSoort(agendapunt("a2", "2026-10-20", { category: "permits" })), "agenda", "een agendapunt blijft een agendapunt, ook bij de vergunningen");
   assert.equal(kaartSoort(werk), "werken");
   assert.equal(kaartSoort(parking), "verkeer");
-  assert.equal(parking.title, "Parkeerverbod voor een verhuis");
+  assert.equal(parking.title, "Parkeerverbod");
   assert.equal(kaartSoort(werf), "verkeer");
   assert.equal(werf.title, "Werfzone met omleiding");
   assert.equal(kaartSoort(los), "verkeer");

@@ -11,7 +11,7 @@ import {
   opDag, langEvenement, legeDagLabel, legeTijdlijnTekst, dagInhoud, doorlopendTekst, doorlopendNoot,
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
-  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten,
+  eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten, allePlaatsenVan,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
@@ -1107,6 +1107,9 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const duidelijk = duidelijkeKaart(entry, item, { straat: state.place?.type === "straat" ? state.place.name : "", vandaag: today });
     const bronNoot = kaartBronNoot(entry, { zichtbaar: [duidelijk.melding, duidelijk.samenvatting] });
     const waarKort = duidelijk.waar ? duidelijk.waar.kort : entry.location;
+    // Een parkeerverbod op meer plaatsen dan "Waar" noemt: elke plaats exact, één per regel (allePlaatsenVan in
+    // place-core.js), nooit alleen de straatnamen (tweede nakijkronde van 18 oktober 2026).
+    const allePlaatsen = allePlaatsenVan(entry);
     // Bij een evenementkaart staan de gewone links bovenaan (uitlegTemplate), de andere onderaan. Een
     // technisch ArcGIS-blad is geen infopagina: ingeklapt, met een zin die zegt wat het is.
     const kern = Boolean(entry.uitleg?.kern);
@@ -1160,7 +1163,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
           ${entry.uitleg ? uitlegTemplate(entry, bovenaan) : duidelijk.eigenDetail ? "" : `${entry.info ? `<p>${esc(entry.info)}</p>` : ""}
           <dl>
             ${range ? `<div><dt>Wanneer</dt><dd>${esc(entry.source === "agenda" && entry.dateLabel ? entry.dateLabel : range)}${marktUur ? ` · ${esc(marktUur.tekst)} (normale bezoekersuren stad)` : entry.timeText ? ` · ${esc(entry.timeText)}` : ""}</dd></div>` : ""}
-            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${jouwAgenda ? `<br>${esc(jouwAgenda)}` : ""}${(entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.join(", "))}</p></details>` : agendaWaar?.straten.length ? `<details class="pv-streets"><summary>Toon alle ${agendaWaar.straten.length} straten</summary><p>${esc(agendaWaar.straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
+            ${entry.location ? `<div><dt>Waar</dt><dd>${esc(entry.location)}${jouwAgenda ? `<br>${esc(jouwAgenda)}` : ""}${allePlaatsen.length ? `<details class="pv-streets"><summary>Toon alle ${allePlaatsen.length} plaatsen</summary><p>${allePlaatsen.map(esc).join("<br>")}</p></details>` : entry.item?.kind !== "parking" && (entry.straten || []).length > 2 ? `<details class="pv-streets"><summary>Toon alle ${entry.straten.length} straten</summary><p>${esc(entry.straten.join(", "))}</p></details>` : agendaWaar?.straten.length ? `<details class="pv-streets"><summary>Toon alle ${agendaWaar.straten.length} straten</summary><p>${esc(agendaWaar.straten.join(", "))}</p></details>` : ""}</dd></div>` : ""}
             ${entry.status ? `<div><dt>Status</dt><dd>${esc(entry.status)}</dd></div>` : ""}
             ${entry.reference ? `<div><dt>Referentie</dt><dd>${esc(entry.reference)}</dd></div>` : ""}
             ${item.sourcePublisher ? `<div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>` : ""}
