@@ -38,8 +38,8 @@ test("Jan Vanhoenackerstraat: één tijd, die van het besluit, met het besluit a
   assert.ok(item, "de straatfiche blijft");
   assert.equal(item.timeText, "op schooldagen: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-12.45");
   assert.doesNotMatch(item.timeText, /15\.45/, "de tijd van de kaartlaag staat niet meer als venstertijd");
-  assert.match(item.info, /Venstertijden volgens besluit 2026_DCAN_00022 van het districtscollege \(12 januari 2026\): ma, di, do, vr 8\.20-8\.45 en 15\.10-15\.35; wo 8\.20-8\.45 en 12\.20-12\.45\./);
-  assert.match(item.info, /De kaartlaag van de stad vermeldt op woensdag 8\.20-8\.45 en 12\.20-15\.45; het besluit gaat voor\./);
+  assert.match(item.info, /Venstertijden volgens het onderbord in besluit \(advies\) 2026_DCAN_00022 van het districtscollege \(12 januari 2026\): ma, di, do, vr 8\.20-8\.45 en 15\.10-15\.35; wo 8\.20-8\.45 en 12\.20-12\.45\./);
+  assert.match(item.info, /De kaartlaag van de stad vermeldt op woensdag 8\.20-8\.45 en 12\.20-15\.45; hier staan de uren van het onderbord\./);
   assert.equal(item.infoUrl, BESLUIT_URL);
   assert.ok(item.info.length <= 600);
   assert.deepEqual(counts.issues, { venstertijden_volgens_besluit: 1 });
