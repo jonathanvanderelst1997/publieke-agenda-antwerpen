@@ -13,32 +13,11 @@
   ],
   "officialPublic": true,
   "method": "A-Sign MapServer/0 (foor): periodetekst per foor in district Antwerpen, één item per periode",
-  "retrievedAt": "2026-10-18T03:17:42.335Z",
+  "retrievedAt": "2026-10-23T03:19:42.608Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
-    {
-      "id": "foor-fo45-2026-10-03",
-      "externalId": "FO45",
-      "title": "Najaarsfoor Dageraadplaats",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-03",
-      "endDate": "2026-10-18",
-      "timeSlot": "Info",
-      "timeText": "",
-      "location": "Dageraadplaats, 2018 Antwerpen",
-      "postcodes": [
-        "2018"
-      ],
-      "info": "Lokale foor op Dageraadplaats, van 3 oktober 2026 tot en met 18 oktober 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
-      "kind": "activity",
-      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-18T03:17:42.335Z",
-      "reviewRequired": false,
-      "inDistrict": true
-    },
     {
       "id": "foor-fo43-2026-11-21",
       "externalId": "FO43",
@@ -56,7 +35,7 @@
       "info": "Lokale foor op Sint-Jansplein, van 21 november 2026 tot en met 13 december 2026. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-18T03:17:42.335Z",
+      "retrievedAt": "2026-10-23T03:19:42.608Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -77,7 +56,7 @@
       "info": "Grote foor (bovenlokaal) op Koningin Astridplein, van 4 december 2026 tot en met 3 januari 2027. Periode volgens de foorlijst van stad Antwerpen (A-Sign).",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/0",
-      "retrievedAt": "2026-10-18T03:17:42.335Z",
+      "retrievedAt": "2026-10-23T03:19:42.608Z",
       "reviewRequired": false,
       "inDistrict": true
     }
