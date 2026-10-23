@@ -70,28 +70,50 @@ test("fetcher: een weigering laat de vorige stand staan, met de eigen foutcode i
   assert.deepEqual(JSON.parse(fs.readFileSync(path.join(root, "site", "sources", `${SOURCE_ID}.json`), "utf8")).items, voor.items);
 });
 
-test("sources:health: geweigerd is een melding met uitleg, geen fout, ook als de vorige stand al te oud is", (t) => {
+test("sources:health: geweigerd is een melding met uitleg zolang de vorige stand binnen maxAgeHours valt", (t) => {
   const root = makeRoot(t);
   const regel = (sourceId, errorCode) => ({ sourceId, file: `sources/${sourceId}.json`, scope: "stad", fetchStatus: "error", retrievedAt: "2026-10-22T03:20:28.162Z", maxAgeHours: 48, itemCount: 5, errorCode });
   const schrijf = (sources) => fs.writeFileSync(path.join(root, "site", "sources", "refresh-status.json"), JSON.stringify({ schemaVersion: 1, generatedAt: "2026-10-23T03:21:01.051Z", classificationAsOf: "2026-10-23", sources }));
-  const laat = Date.parse("2026-10-30T06:00:00Z");
-  assert.equal(sourceHealthOf(regel("stad-koopzondagen", BRON_WEIGERT_CODE), laat), "geweigerd");
-  assert.equal(sourceHealthOf(regel("stad-districten", `channel_${BRON_WEIGERT_CODE}`), laat), "geweigerd");
-  assert.equal(sourceHealthOf(regel("stad-koopzondagen", "http_403"), laat), "error", "een andere 403 blijft een fout");
+  const vroeg = Date.parse("2026-10-23T06:00:00Z");
+  assert.equal(sourceHealthOf(regel("stad-koopzondagen", BRON_WEIGERT_CODE), vroeg), "geweigerd");
+  assert.equal(sourceHealthOf(regel("stad-districten", `channel_${BRON_WEIGERT_CODE}`), vroeg), "geweigerd");
+  assert.equal(sourceHealthOf(regel("stad-koopzondagen", "http_403"), vroeg), "error", "een andere 403 blijft een fout");
 
   schrijf([regel("stad-districten", `channel_${BRON_WEIGERT_CODE}`), regel("stad-koopzondagen", BRON_WEIGERT_CODE)]);
-  const geweigerd = checkHealth({ rootDir: root, at: laat, env: {} });
+  const geweigerd = checkHealth({ rootDir: root, at: vroeg, env: {} });
   assert.equal(geweigerd.exitCode, 0);
   assert.equal(geweigerd.unhealthy, 0);
   assert.match(geweigerd.lines.join("\n"), /^stad-koopzondagen\tgeweigerd\terror\t/m);
   assert.equal(geweigerd.meldingen.filter((m) => m.titel === "Bron weigert automatische toegang").length, 2);
-  assert.match(geweigerd.warnings.join("\n"), /stad-koopzondagen: de website weigert automatische toegang \("Access Denied" aan de rand, geen storing bij ons\); laatste geslaagde ophaling 2026-10-22T03:20:28\.162Z/);
+  assert.match(geweigerd.warnings.join("\n"), /stad-koopzondagen: de website weigert automatische toegang \("Access Denied" aan de rand, geen storing bij ons\); laatste geslaagde ophaling 2026-10-22T03:20:28\.162Z \(26 uur oud\)\. Die stand blijft staan tot ze 48 uur oud is\./);
 
   schrijf([regel("stad-koopzondagen", "http_403")]);
-  assert.equal(checkHealth({ rootDir: root, at: laat, env: {} }).exitCode, 1, "zonder de weigeringspagina blijft het alarm");
+  assert.equal(checkHealth({ rootDir: root, at: vroeg, env: {} }).exitCode, 1, "zonder de weigeringspagina blijft het alarm");
+});
+
+test("sources:health: is de vorige stand te oud, dan wordt een weigering een fout, met de ouderdom erbij", (t) => {
+  const root = makeRoot(t);
+  const regel = { sourceId: "stad-koopzondagen", file: "sources/stad-koopzondagen.json", scope: "stad", fetchStatus: "error", retrievedAt: "2026-10-22T03:20:28.162Z", maxAgeHours: 48, itemCount: 5, errorCode: BRON_WEIGERT_CODE };
+  fs.writeFileSync(path.join(root, "site", "sources", "refresh-status.json"), JSON.stringify({ schemaVersion: 1, generatedAt: "2026-10-23T03:21:01.051Z", classificationAsOf: "2026-10-23", sources: [regel] }));
+  // 22 dagen na de laatste geslaagde ophaling: de site verbergt de items al lang.
+  const laat = Date.parse("2026-11-13T06:00:00Z");
+  assert.equal(sourceHealthOf(regel, laat), "error");
+  assert.equal(sourceHealthOf(regel, Date.parse("2026-10-24T03:20:28.162Z")), "geweigerd", "precies 48 uur: nog een melding");
+  assert.equal(sourceHealthOf(regel, Date.parse("2026-10-24T03:20:29.162Z")), "error", "een seconde later: een fout");
+  const te = checkHealth({ rootDir: root, at: laat, env: {} });
+  assert.equal(te.exitCode, 1);
+  assert.equal(te.unhealthy, 1);
+  assert.match(te.lines.join("\n"), /^stad-koopzondagen\terror\terror\t/m);
+  const melding = te.meldingen.find((m) => m.titel === "Bron weigert automatische toegang, stand te oud");
+  assert.ok(melding, "een eigen melding met de ouderdom");
+  assert.match(melding.tekst, /\(530 uur oud\)\. Dat is ouder dan 48 uur: de site toont de items van deze bron niet meer\./);
 });
 
 test("de bronstatus in de workflow kent dezelfde code als waarschuwing", () => {
   assert.ok(workflow.includes(`[ "$code" = "${BRON_WEIGERT_CODE}" ]`));
   assert.match(workflow, /title=Bron weigert automatische toegang::/);
+  // Binnen maxAgeHours een waarschuwing, daarna een fout (bad=1), zoals sourceHealthOf.
+  const tak = workflow.slice(workflow.indexOf(`[ "$code" = "${BRON_WEIGERT_CODE}" ]`), workflow.indexOf("elif [[ $code =~ ^http_"));
+  assert.match(tak, /-le \$\(\(maxage \* 3600\)\)/);
+  assert.match(tak, /else\n\s+echo "BRON \$\{id\}: de website weigert automatische toegang en de vorige stand .*"; bad=1\n/);
 });

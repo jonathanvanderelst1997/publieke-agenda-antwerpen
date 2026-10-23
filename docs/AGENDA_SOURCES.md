@@ -107,9 +107,13 @@ storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, g
 - `fetchWithTimeout` herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"` (ook als
   `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`.
 - De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
-- `sourceHealthOf` noemt de bron **`geweigerd`**: een melding met uitleg, geen fout, ook als de vorige
-  data te oud is. Zo geeft niet elke verversing opnieuw alarm over iets wat geen verversing oplost; de
-  job `source-health` zet een waarschuwing "Bron weigert automatische toegang".
+- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur)
+  valt: een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm
+  over iets wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert
+  automatische toegang".
+- Is de vorige data ouder dan `maxAgeHours`, dan is het wél een fout (`error`, de verversing wordt rood):
+  de site verbergt dan de items van de bron, en dat moet iemand zien. De uitleg zegt hoe oud de stand is
+  ("Bron weigert automatische toegang, stand te oud").
 - Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
   toelaten, of dezelfde gegevens als open data.
 
