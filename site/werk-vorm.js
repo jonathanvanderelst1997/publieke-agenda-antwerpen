@@ -49,17 +49,30 @@ export const innameZonderVerhuis = (value = "") => String(value ?? "").split(";"
 const zonderSpoorWaarden = (w) => (typeof w === "string" ? (VERHUIS_SPOOR.test(w) ? "" : w)
   : Array.isArray(w) ? w.filter((x) => !(typeof x === "string" && VERHUIS_SPOOR.test(x))).map(zonderSpoorWaarden)
   : isObject(w) ? Object.fromEntries(Object.entries(w).map(([k, x]) => [k, zonderSpoorWaarden(x)])) : w);
+// Een soort inname met het spoor die niet "Lift/levering" wordt (die soort is zelf al één adres: isEenAdres in
+// site/kaart-uitleg.js).
+const andereSoortMetSpoor = (lijst) => (Array.isArray(lijst) ? lijst : []).some((t) => String(t ?? "").split(";").some((x) => VERHUIS_SPOOR.test(x) && innameZonderVerhuis(x) !== "Lift/levering"));
 // Regel 9: per veld, voor elk werk (ook een gewone kaart). De soort inname wordt "Lift/levering"; een titel met het spoor
 // wordt "Werk in openbaar domein"; een opdrachtgever met het spoor valt weg (groep "Andere"); een fase houdt haar data en
 // gevolgen, zonder naam; in de aanvullingen van A-Sign en AWV valt elke waarde met het spoor weg.
+// Een werk met het spoor in de titel, een fase, de opdrachtgever of een andere soort inname dan "Lift/levering" blijft één
+// adres, zoals main een verhuis toonde (#141): `eenAdres` (isEenAdresWerk in site/kaart-uitleg.js). Dan geen huisnummer,
+// geen opzoeking in het adressenregister en nooit een adreskaart (nakijkronde van head 0dfb9cd8: zonder de soort "Verhuis"
+// werd zo'n werk een gewone kaart met een reeks uit het register naast de opdrachtgever). De vlag zegt alleen "één adres",
+// zoals bij een aansluiting, een container of een lift. Niet voor een aanvulling van A-Sign of AWV: een verhuisfirma
+// tussen de bedrijven van een grote werf maakt die werf geen adres.
 export function zonderVerhuisSpoor(item) {
   if (!isObject(item)) return item;
   const uit = { ...item };
+  const phases = Array.isArray(item.hindrance?.phases) ? item.hindrance.phases : [];
+  const spoor = VERHUIS_SPOOR.test(item.title) || VERHUIS_SPOOR.test(item.owner) || phases.some((p) => VERHUIS_SPOOR.test(p?.description))
+    || andereSoortMetSpoor(item.occupancyTypes) || andereSoortMetSpoor(item.workTypes);
   for (const veld of ["occupancyTypes", "workTypes"]) if (Array.isArray(item[veld])) uit[veld] = [...new Set(item[veld].map(innameZonderVerhuis))];
   if (VERHUIS_SPOOR.test(item.title)) uit.title = GEEN_TITEL;
   if (VERHUIS_SPOOR.test(item.owner)) { uit.owner = ""; uit.ownerGroup = "Andere"; }
   if (Array.isArray(item.hindrance?.phases)) uit.hindrance = { ...item.hindrance, phases: item.hindrance.phases.map((p) => (VERHUIS_SPOOR.test(p?.description) ? { ...p, description: "" } : p)) };
   for (const veld of ["aSignSupplement", "awvSupplement"]) if (isObject(item[veld])) uit[veld] = zonderSpoorWaarden(item[veld]);
+  if (spoor) uit.eenAdres = true;
   return uit;
 }
 
@@ -67,11 +80,12 @@ export function zonderVerhuisSpoor(item) {
 
 const FASE_VAST = /^(?:fase|deel)\s*-?\s*\d{1,3}[a-z]?$/i;
 const isLift = (item) => (item?.occupancyTypes || []).some((t) => String(t).split(";").some((x) => clean(x).toLowerCase() === "lift/levering"));
-// Regel 14, een pure functie op het item na regel 9. Een adreskaart als het geen lift of levering is, en (a) de soort van main
+// Regel 14, een pure functie op het item na regel 9. Een adreskaart als het geen lift of levering is en geen werk met het
+// spoor van een verhuizing (`eenAdres`, regel 9), en (a) de soort van main
 // een aansluiting of een container is (besluit van de eigenaar), of (b) main toch geen tekst van de beheerder toont: een
 // opdrachtgever met een groep, geen omschrijving die iets zegt, en alleen fasen zonder naam ("Fase 2", "werken").
 export function isAdreskaart(item = {}) {
-  if (!isObject(item) || isLift(item)) return false;
+  if (!isObject(item) || isLift(item) || item.eenAdres === true) return false;
   const f = werkFeiten(item);
   if (/^(?:Nieuwe aansluiting|Container)/.test(f.soort)) return true;
   if (!GROEPEN.includes(item.ownerGroup)) return false;
@@ -226,9 +240,13 @@ function projectie(bron, { soort, soortBron, innameSoort, huisnummers, weg = "",
   if (Array.isArray(bron.streetNearby)) uit.streetNearby = bron.streetNearby.filter((s) => s?.name).map((s) => ({ name: clean(s.name), distanceMeters: s.distanceMeters }));
   const hinder = hinderVan(bron.hindrance, fase);
   if (hinder !== undefined) uit.hindrance = hinder;
+  // Eén adres (een werk met het spoor van een verhuizing, regel 9): ook als adreskaart nooit een nummer of een reeks.
+  if (bron.eenAdres === true) uit.eenAdres = true;
+  // Een opdrachtgever buiten de groepen valt weg, met de groep "Andere": zo zegt de kaart "weggelaten" en niet "niet
+  // gepubliceerd" (opdrachtgeverWeggelaten in site/kaart-uitleg.js). Zonder opdrachtgever in GIPOD blijft het "Onbekend".
   const groep = GROEPEN.includes(bron.ownerGroup) ? bron.ownerGroup : "";
   const label = isSoortLabel(soort) ? clean(soort) : "";
-  Object.assign(uit, { soort: label, soortBron: label ? clean(soortBron) : "", ...(innameSoort && isSoortLabel(innameSoort) ? { innameSoort: clean(innameSoort) } : {}), owner: groep, ownerGroup: groep || "Andere" });
+  Object.assign(uit, { soort: label, soortBron: label ? clean(soortBron) : "", ...(innameSoort && isSoortLabel(innameSoort) ? { innameSoort: clean(innameSoort) } : {}), owner: groep, ownerGroup: groep || (clean(bron.owner) || bron.ownerGroup === "Andere" ? "Andere" : "Onbekend") });
   const nr = geldigeHuisnummers(huisnummers);
   const zonder = nr ? "" : nummerWegCode(weg);
   return { ...uit, huisnummers: nr, ...(zonder ? { huisnummerWeg: zonder } : {}), adresKaart: true, title: titelAdreskaart(label, uit.streets?.[0]?.name, nr) };
@@ -279,13 +297,18 @@ export const werkVormDocument = ({ adreskaart = [], gewoon = [] } = {}) => ({
   schema: WERK_VORM_SCHEMA, adreskaart: [...ids(adreskaart)].sort((a, b) => a - b), gewoon: [...ids(gewoon)].sort((a, b) => a - b),
 });
 // Na een verversing: elk werk van `items` (na werkenVoorDeSite) in zijn lijst. Een id dat er al stond, blijft waar het stond.
-export function vormNaVerversing(vorm, items = []) {
+// `bekend`: de werk-ids die al gepubliceerd waren (gepubliceerdeWerkIds in lib/werk-vorm-bestand.mjs); elk daarvan dat nog in
+// geen enkele lijst staat, wordt gewoon, zoals de poort het toont (regel 13). Zo kent de vaste vorm na elke verversing elk
+// gepubliceerd werk (regel 35), ook een werk dat main publiceerde na de laatste overgang en dat nu al afgelopen is: de
+// dagelijkse verversing herstelt dat zelf, zonder volledige kloon (nakijkronde van head 0dfb9cd8).
+export function vormNaVerversing(vorm, items = [], { bekend = null } = {}) {
   const { adreskaart, gewoon } = vormSets(vorm);
   for (const item of items) {
     const id = Number(item?.gipodId);
     if (!Number.isInteger(id) || id <= 0 || adreskaart.has(id) || gewoon.has(id)) continue;
     (item.adresKaart === true ? adreskaart : gewoon).add(id);
   }
+  for (const id of ids(bekend)) if (!adreskaart.has(id)) gewoon.add(id);
   return werkVormDocument({ adreskaart, gewoon });
 }
 
@@ -302,8 +325,9 @@ export function werkenVoorDeSite(items = [], vorm = null, { magBeslissen = false
     if (item.adresKaart === true) return opnieuwAdreskaart(item);
     const schoon = zonderVerhuisSpoor(item);
     const id = Number(item.gipodId);
-    // Een lift of levering krijgt nooit een nummer, ook niet als haar id (later) in "adreskaart" staat.
-    if (adreskaart.has(id)) return adreskaartItem(schoon, { nummer: !isLift(schoon) });
+    // Een lift of levering, of een werk met het spoor van een verhuizing (eenAdres), krijgt nooit een nummer, ook niet als
+    // zijn id (later) in "adreskaart" staat.
+    if (adreskaart.has(id)) return adreskaartItem(schoon, { nummer: !isLift(schoon) && schoon.eenAdres !== true });
     if (gewoon.has(id) || bekend?.has?.(id)) return schoon;
     return isAdreskaart(schoon) ? adreskaartItem(schoon, { nummer: magBeslissen }) : schoon;
   });

@@ -600,7 +600,9 @@ function samenWerk(live, bewaard, { bijgewerkt = "" } = {}) {
   const liveAdres = live?.adresKaart === true;
   const bewaardGeldt = bewaardGeldig && (uitRegister || (zelfdeVersie && (!liveAdres || live.huisnummerWeg === "weggelaten")));
   const liveNr = liveGeldig && eerste && cleanText(live?.straten?.[0]) === eerste;
-  const bewaardNr = !liveNr && bewaardGeldt && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
+  // Eén adres (het spoor van een verhuizing, live of bewaard: isEenAdresWerk in site/kaart-uitleg.js): nooit een bewaard
+  // nummer (live heeft er dan geen: werkFeiten).
+  const bewaardNr = !samen.eenAdres && !liveNr && bewaardGeldt && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
   // Geen nummer: waarom, zoals live het zegt ("twijfel", "weggelaten" of niets: dan gaf GIPOD nu geen getal); zonder live
   // adreskaart "huisnummer weggelaten" als de verversing er een had, nooit "niet gepubliceerd" (huisnummerWeg in
   // site/kaart-uitleg.js).
@@ -622,6 +624,9 @@ function gewoonSamen(live, bewaard) {
     })(),
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
+    // Eén adres (het spoor van een verhuizing) in live of in de verversing: blijft één adres, zoals main de soort "Verhuis"
+    // van de verversing overnam als live er geen had.
+    ...(live?.eenAdres === true || bewaard.eenAdres === true ? { eenAdres: true } : {}),
     // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
     straten: werkStraten(live.straten, bewaard),
   };

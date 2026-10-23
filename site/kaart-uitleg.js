@@ -414,6 +414,16 @@ export function opStraat(naam) {
 // het adres, en een lift of levering is nooit een adreskaart.
 const EEN_ADRES = /^(?:Nieuwe aansluiting|Container|Inname voor een lift)/;
 export const isEenAdres = (soort) => EEN_ADRES.test(clean(soort, 120));
+// Eén adres op een werk of zijn feiten: de soort (isEenAdres), of de vlag `eenAdres` die de poort zet bij een werk met het
+// spoor van een verhuizing (zonderVerhuisSpoor in site/werk-vorm.js): zoals main een verhuis toonde (#141), zonder de soort
+// "Verhuis". Dan geen huisnummer en geen opzoeking in het adressenregister (lib/kaart-uitleg-refresh.mjs).
+export const isEenAdresWerk = (f) => f?.eenAdres === true || isEenAdres(f?.soort);
+// Voor een kaart die geen opdrachtgever toont: noemt GIPOD er een? Een adreskaart toont alleen een groep (GROEPEN), en een
+// opdrachtgever met het spoor van een verhuizing valt weg (site/werk-vorm.js). collectWorks geeft de groep "Andere" alleen
+// bij een opdrachtgever (ownerGroup in site/works-core.js), en de poort laat "Andere" staan als ze de naam weglaat. Dan zegt
+// de kaart "weggelaten", niet "niet gepubliceerd" (nakijkronde van head 0dfb9cd8), zoals bij een huisnummer (NUMMER_WEG).
+export const OPDRACHTGEVER_WEG = "weggelaten (GIPOD noemt er een)";
+export const opdrachtgeverWeggelaten = (werk = {}) => Boolean(clean(werk?.owner, 160)) || werk?.ownerGroup === "Andere";
 // "Wat" op een adreskaart (site/werk-vorm.js): dezelfde zin na de soort. "Exact adres" alleen als de kaart het adres van
 // GIPOD zelf toont (ADRES_GIPOD); met een reeks uit het adressenregister of zonder nummer de tweede zin (nakijkronde van
 // head a4d9ba99).
@@ -613,13 +623,14 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
       omschrijving: ruweOmschrijving, fasen: ruweFasen.map((f) => f.naam),
       occupancyTypes: werk.occupancyTypes || [], workTypes: werk.workTypes || [], eigenaar: clean(werk.owner || werk.ownerGroup, 160),
     });
-  const eenAdres = isEenAdres(soort.soort);
+  const eenAdres = isEenAdres(soort.soort) || werk.eenAdres === true;
   const omschrijving = eenAdres ? zonderHuisnummers(ruweOmschrijving) : ruweOmschrijving;
   const fasen = eenAdres && !adresKaart ? ruweFasen.map((f) => ({ ...f, naam: zonderHuisnummers(f.naam, 160) })).filter((f) => f.naam) : ruweFasen;
   const straten = uniek((werk.streets || []).map((s) => s?.name));
   // Alleen een reeks blijft (huisnummerReeks): één los huisnummer kan een woning zijn, ook bij een werk. Een adreskaart
   // heeft het nummer dat de poort las (site/werk-vorm.js), anders alleen de reeks van het register (niet bij één adres).
-  const eigenNummers = adresKaart ? geldigeHuisnummers(werk.huisnummers)
+  // Een adreskaart met de vlag `eenAdres` (het spoor van een verhuizing) heeft nooit een nummer.
+  const eigenNummers = adresKaart ? (werk.eenAdres === true ? "" : geldigeHuisnummers(werk.huisnummers))
     : straten.length && !eenAdres ? huisnummerReeks(huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0])) : "";
   const registerNummers = adresKaart && eenAdres ? "" : huisnummerReeks(huisnummers);
   const gevolgen = uniek(werk.hindrance?.consequences || []);
@@ -648,6 +659,8 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     soort: soort.soort,
     soortBron: soort.bron,
     ...(soort.innameSoort ? { innameSoort: soort.innameSoort } : {}),
+    // Eén adres zonder een soort die dat zegt (het spoor van een verhuizing: isEenAdresWerk).
+    ...(werk.eenAdres === true ? { eenAdres: true } : {}),
     omschrijving,
     fasen: uniekeFasen(fasen),
     // Alleen bewaren wat iets zegt: het bestand van de verversing laadt in elke browser.
@@ -822,7 +835,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const start = dagVan(werk.start), eind = dagVan(werk.end), v = dagVan(vandaag);
   const dt = (d) => datumBijVandaag(d, v);
   const straat = f.straten[0] || "";
-  const eenAdres = !adresKaart && EEN_ADRES.test(f.soort || "");
+  const eenAdres = !adresKaart && isEenAdresWerk(f);
   // Alleen een reeks huisnummers; één los nummer (uit de tekst van de beheerder, het adressenregister of
   // een oudere verversing) laten we weg, en dat zeggen we bij "Waar". Een adreskaart toont haar nummer.
   const nummers = adresKaart ? geldigeHuisnummers(f.huisnummers) : eenAdres ? "" : huisnummerReeks(f.huisnummers);
@@ -895,7 +908,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   // anders geen los huisnummer (een reeks blijft).
   const fasen = f.fasen.map((x) => ({ ...x, naam: eenAdres ? zonderHuisnummers(x.naam, 160) : zonderLosseHuisnummers(x.naam, f.straten) })).filter((x) => x.naam);
   if (fasen.length) regels.push(["Fasen", fasen.map((x) => `${x.naam}${x.buiten || faseBuitenDistrict(x.naam) ? " (buiten district Antwerpen)" : ""}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
-  regels.push([beheerderLabel, f.opdrachtgever || onbekendZin("niet-gepubliceerd")]);
+  regels.push([beheerderLabel, f.opdrachtgever || (opdrachtgeverWeggelaten(werk) ? OPDRACHTGEVER_WEG : onbekendZin("niet-gepubliceerd"))]);
   // Een straat uit de omschrijving van de beheerder: zeg dat, en hoe ver het punt in GIPOD ervan ligt.
   const uitTekst = straat && f.straatBron ? [
     nummers && f.huisnummerBron === f.straatBron ? `straat en ${/–/.test(nummers) ? "huisnummers" : "huisnummer"} uit de ${f.straatBron}` : `straat uit de ${f.straatBron}`,
@@ -905,11 +918,13 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   // Een adreskaart: met de bron van het nummer en van de straat, zoals main ("afgeleid uit de werfzone en het
   // adressenregister"), en de andere straten erna.
+  // Eén adres alleen door de vlag van de poort (het spoor van een verhuizing) bij een soort die geen adres is: alleen
+  // "huisnummer weggelaten", want "het gaat om één adres" is dan niet zeker.
   regels.push(["Waar", straat && adresKaart
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}${f.straten.length > 1 ? `; ook ${f.straten.slice(1).join(", ")}` : ""}` : `${f.straten.join(", ")}${haakjes([...(nummerWeg ? [NUMMER_WEG[nummerWeg]] : []), ...uitTekst])}`
     : straat
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
+      : `${f.straten.join(", ")}${haakjes([eenAdres ? (f.soort && !isEenAdres(f.soort) ? "huisnummer weggelaten" : "huisnummer weggelaten: het gaat om één adres") : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
     : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
     : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
