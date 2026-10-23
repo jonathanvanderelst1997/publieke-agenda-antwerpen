@@ -586,6 +586,7 @@ export function projectTekst(tekst, { straten = [], max = 140 } = {}) {
 // De postcodes van district Antwerpen. Een fase die met een andere postcode begint ("2070 Beveren-…"),
 // ligt buiten het district: haar gevolgen horen niet in de titel.
 const DISTRICT_POSTCODES = new Set(["2000", "2018", "2020", "2030", "2050", "2060"]);
+export const isDistrictPostcode = (p) => DISTRICT_POSTCODES.has(String(p ?? ""));
 export function faseBuitenDistrict(naam) {
   const m = clean(naam, 160).match(/^(\d{4})\s+\p{L}/u);
   return Boolean(m && !DISTRICT_POSTCODES.has(m[1]));
@@ -881,7 +882,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const project = projectRuw && heeftInhoud(projectRuw, f.straten) && !sleutel(f.soort).includes(sleutel(projectRuw)) ? projectRuw : "";
   const inname = (f.inname || []).length > 1 ? ` Volgens GIPOD: ${f.inname.join(" · ")}.` : "";
   const regels = [];
-  regels.push(["Wat", adresKaart ? `${soort} (volgens GIPOD). ${nummers && f.huisnummerBron === ADRES_GIPOD ? ADRESKAART_WAT : ADRESKAART_WAT_STRAAT}`
+  // Een adreskaart van een werf zonder soort: "Werf" is ons label, niet dat van GIPOD; zoals main het dossiernummer van de
+  // werfzone, ook als er geen werfzonekaart op de plek staat (nakijkronde van head fd8946ae).
+  const adresWat = !f.soort && werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.` : `${soort} (volgens GIPOD).`;
+  regels.push(["Wat", adresKaart ? `${adresWat} ${nummers && f.huisnummerBron === ADRES_GIPOD ? ADRESKAART_WAT : ADRESKAART_WAT_STRAAT}`
     : f.soort
     ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.innameSoort && !inname ? ` De soort inname in GIPOD: ${f.innameSoort.charAt(0).toLowerCase()}${f.innameSoort.slice(1)}.` : ""}${f.omschrijving ? "" : ` ${onbekendZin("beheerder-geen-omschrijving")}`}`
     : werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.${doelen.length ? ` De fasen in GIPOD zeggen wat er gebeurt: ${doelen.map((x) => `“${x}”`).join(", ")}.` : ""}${bronTekst ? ` De beheerder schrijft: “${bronTekst}”` : ""}`

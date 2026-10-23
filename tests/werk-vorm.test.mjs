@@ -141,7 +141,7 @@ test("regels 20 tot 22: geen nummer uit een maat, een uur, een andere straat, ee
   assert.equal(nr("Proefstraat 12 tem 14"), "nr. 12–14");
   assert.equal(nr("Proefstraat 12, 14 en 16"), "nr. 12–16", "een lijst op dezelfde straat blijft een reeks");
   assert.equal(nr("Proefstraat 31/2"), "", "een schuine streep kan een datum zijn (15/10): twijfel, geen nummer");
-  assert.equal(nr("Proefstraat 12-12"), "nr. 12");
+  assert.equal(nr("Proefstraat 12-12"), "", "een reeks die niet oploopt kan een datum zijn (12-12): twijfel, geen nummer");
   for (const t of ["Proefstraat 2 rijstroken", "Proefstraat 7:30", "Proefstraat 12 m", "Proefstraat 3 dagen", "Proefstraat 1DN02", "Proefstraat nr 12", "Proefstraat thv 12", "Proefstr. 12"]) assert.equal(nr(t), "", t);
   assert.equal(nr("Testlaan 5"), "", "een nummer op een andere straat");
   assert.equal(nr("Proefstraat 12 - Testlaan 5"), "", "een lijst van adressen");
@@ -178,11 +178,16 @@ test("lijstTitel van een gewone kaart verbergt een los huisnummer, en zoeken op 
 // ---------- de kaart en de andere uitgangen ----------
 
 test("een adreskaart: alleen de vaste gegevens van GIPOD, op elke uitgang", async () => {
-  const w = aansluiting({ title: "2000 Antwerpen, Proefstraat 12 - klantaansluiting bij Proefmans", owner: "Fluvius - Proefmans", hindrance: hinder([fase("Fase 1 bij fam. Proefmans"), fase("2070 Proefdorp", "14")]), dossier: "GW2099-000001", aSignSupplement: { companies: ["Proefmans"] } }); // verzonnen
+  const w = aansluiting({ title: "2000 Antwerpen, Proefstraat 12 - klantaansluiting bij Proefmans", owner: "Fluvius - Proefmans", hindrance: hinder([fase("Fase 1 bij fam. Proefmans"), fase("Proefdorp kraan", "14")]), dossier: "GW2099-000001", aSignSupplement: { companies: ["Proefmans"] } }); // verzonnen
   const a = poort(w, A([990001]));
   assert.deepEqual(Object.keys(a).sort(), ["adresKaart", "boundaryConfidence", "dossier", "end", "gipodId", "hindrance", "hindranceSourceLoaded", "huisnummers", "lastModified", "occupancyTypes", "owner", "ownerGroup", "point", "recordCount", "soort", "soortBron", "start", "status", "streetDistanceMeters", "streetResolution", "streets", "title", "workTypes"]);
   assert.equal(a.dossier, "GW2099-000001", "het dossiernummer van de werfzone is geen persoonsgegeven (koppeling met A-Sign)");
-  assert.deepEqual(a.hindrance.phases.map((p) => [p.description, p.buiten === true]), [["Fase 1", false], ["Fase 2", true]]);
+  assert.deepEqual(a.hindrance.phases.map((p) => [p.description, p.buiten === true]), [["Fase 1", false], ["Fase 2", false]]);
+  // Een fase buiten het district houdt haar vlag, zonder haar naam; het nummer is dan twijfel (nakijkronde van head fd8946ae).
+  const buiten = poort({ ...w, hindrance: hinder([fase("Fase 1 bij fam. Proefmans"), fase("2070 Proefdorp", "14")]) }, A([990001])); // verzonnen
+  assert.deepEqual(buiten.hindrance.phases.map((p) => [p.description, p.buiten === true]), [["Fase 1", false], ["Fase 2", true]]);
+  assert.deepEqual([buiten.huisnummers, buiten.huisnummerWeg], ["", "twijfel"]);
+  assert.doesNotMatch(teksten(buiten).join(" · "), /Proefmans|Proefdorp/);
   const k = kaart(a);
   assert.equal(Object.fromEntries(k.regels).Wat, `Nieuwe aansluiting op het elektriciteitsnet (volgens GIPOD). ${KU.ADRESKAART_WAT}`);
   assert.equal(Object.fromEntries(k.regels).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);

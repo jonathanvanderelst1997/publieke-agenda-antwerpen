@@ -583,17 +583,28 @@ export function agendaEntry(item, theme = item?.category || "other") {
 // komen fasen of een omschrijving uit een bewaard werk zonder adreskaart. Het nummer hoort bij de eerste straat waarbij het
 // gelezen werd: een nummer van live bij de eerste straat van live, een bewaard nummer alleen bij precies dezelfde eerste
 // straat als de bewaarde; anders geen nummer (nakijkronde van head a4d9ba99: een bewaard nummer stond bij een andere straat).
-function samenWerk(live, bewaard) {
+// Een bewaard nummer dat de verversing uit de tekst van GIPOD las, hoort bovendien bij die versie van het werk: niet als
+// GIPOD het werk sindsdien wijzigde (`bijgewerkt`: lastModified van live, tegen bijgewerkt van de verversing), en op een
+// live adreskaart alleen als de lezer daar hetzelfde nummer vond maar niet toont (huisnummerWeg "weggelaten"): twijfelt
+// hij nu, of staat er nu geen getal, dan kan het een ander huis zijn (nakijkronde van head fd8946ae). Een reeks uit het
+// adressenregister blijft zoals op main.
+function samenWerk(live, bewaard, { bijgewerkt = "" } = {}) {
   if (!bewaard) return live;
   const adresKaart = live?.adresKaart === true || bewaard.adresKaart === true;
   const samen = gewoonSamen(live, bewaard);
   if (!adresKaart) return samen;
   const eerste = cleanText(samen.straten?.[0]);
-  const liveNr = geldigeHuisnummers(live?.huisnummers) && eerste && cleanText(live?.straten?.[0]) === eerste;
-  const bewaardNr = !liveNr && geldigeHuisnummers(bewaard.huisnummers) && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
-  // Geen nummer, maar live of de verversing had er een (bij een andere straat): "huisnummer weggelaten", nooit "niet
-  // gepubliceerd" (huisnummerWeg in site/kaart-uitleg.js).
-  const weg = geldigeHuisnummers(live?.huisnummers) || geldigeHuisnummers(bewaard.huisnummers) ? "weggelaten" : live?.huisnummerWeg || bewaard.huisnummerWeg || "";
+  const liveGeldig = geldigeHuisnummers(live?.huisnummers), bewaardGeldig = geldigeHuisnummers(bewaard.huisnummers);
+  const uitRegister = /adressenregister/.test(String(bewaard.huisnummerBron || ""));
+  const zelfdeVersie = Boolean(cleanText(bijgewerkt)) && cleanText(bewaard.bijgewerkt) === cleanText(bijgewerkt);
+  const liveAdres = live?.adresKaart === true;
+  const bewaardGeldt = bewaardGeldig && (uitRegister || (zelfdeVersie && (!liveAdres || live.huisnummerWeg === "weggelaten")));
+  const liveNr = liveGeldig && eerste && cleanText(live?.straten?.[0]) === eerste;
+  const bewaardNr = !liveNr && bewaardGeldt && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
+  // Geen nummer: waarom, zoals live het zegt ("twijfel", "weggelaten" of niets: dan gaf GIPOD nu geen getal); zonder live
+  // adreskaart "huisnummer weggelaten" als de verversing er een had, nooit "niet gepubliceerd" (huisnummerWeg in
+  // site/kaart-uitleg.js).
+  const weg = liveGeldig ? "weggelaten" : liveAdres ? live.huisnummerWeg || "" : bewaardGeldig ? "weggelaten" : bewaard.huisnummerWeg || "";
   const nummer = liveNr ? { huisnummers: live.huisnummers, huisnummerBron: live.huisnummerBron || "" }
     : bewaardNr ? { huisnummers: geldigeHuisnummers(bewaard.huisnummers), huisnummerBron: bewaard.huisnummerBron || "" } : { huisnummers: "", huisnummerBron: "", huisnummerWeg: weg };
   return alsAdreskaart({ ...samen, ...nummer, omschrijving: "", fasen: live.fasen.length ? live.fasen : bewaard.adresKaart === true ? bewaard.fasen || [] : [] });
@@ -642,7 +653,7 @@ export function identiteitSamen(hand = null, auto = null) {
 export function workEntry(work, { vandaag = "", uitleg = null } = {}) {
   const base = workEntryBasis(work);
   if (!vandaag) return base;
-  const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]) });
+  const k = werkKaartje(work, { vandaag, feiten: samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId], { bijgewerkt: work?.lastModified }) });
   return { ...base, title: k.titel, summary: k.samenvatting, location: k.plek || base.location, uitleg: k };
 }
 // Eén werf in stukken (zelfde titel, periode, status, opdrachtgever en omschrijving, zoals de
@@ -1017,9 +1028,11 @@ export function werfDoel(feiten) {
 }
 // Een soort die de verversing uit de namen van de fasen afleidde (soortBron), opnieuw met de code van nu: een betere
 // herkenning geldt meteen, ook voor de bewaarde stand ("Afbraak werf" is geen sloop; nakijkronde 12 oktober 2026).
+// Niet op een adreskaart (site/werk-vorm.js): haar fasen hebben een vaste naam ("Fase 1"), de soort las de poort uit de
+// echte namen; opnieuw uit "Fase 1" werd een Container "Werf" (nakijkronde van head fd8946ae).
 const FASEN_BRON = "fasen van de hinder in GIPOD";
 function herzieneSoort(f) {
-  if (!f || f.soortBron !== FASEN_BRON) return f;
+  if (!f || f.adresKaart === true || f.soortBron !== FASEN_BRON) return f;
   const nu = soortVanWerk({ omschrijving: f.omschrijving || "", fasen: (f.fasen || []).map((x) => x?.naam || ""), eigenaar: f.opdrachtgever || "" });
   return { ...f, soort: nu.soort || "", soortBron: nu.soort ? nu.bron : "" };
 }
@@ -1176,7 +1189,7 @@ function werfKaartBewaard(e, opties) {
 }
 function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag = "" }) {
   const work = e.item || {};
-  const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId]));
+  const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId], { bijgewerkt: work?.lastModified }));
   // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
   // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname voor een lift of levering"), zoals op de losse
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).

@@ -63,11 +63,13 @@ test("HOOG 2: een telling, een eenheid, een datum, een code of een woord na het 
     "Proefstraat 7u30", "Proefstraat 12 - 14 dagen", "Proefstraat 12-14 dagen", "Proefstraat 12 A", "Proefstraat 9B_BIS", "Proefstraat 12 DN32",
     "Proefstraat 012", "Proefstraat 1200", "Proefstraat 12 (Proefmans)", "Proefstraat (12)", "Proefstraat - 12", "Proefstraat 12 → Testlaan",
     "Proefstraat 12 -> Testlaan", "Proefstraat 12 tot Testlaan", "Proefstraat 12 richting Testlaan", "Proefstraat 2 x 3 m",
+    // Nog een getal of een maat naast het nummer: twijfel (nakijkronde van head fd8946ae, tests/werk-vorm-nakijk2.test.mjs).
+    "Proefstraat 12, 3 dagen",
   ]) assert.equal(nr(t), "", t);
   for (const [t, n] of [
     ["Proefstraat 12", "nr. 12"], ["Proefstraat 12A", "nr. 12A"], ["Proefstraat 12 bus 3", "nr. 12"], ["Proefstraat 12, 2000 Antwerpen", "nr. 12"],
     ["Proefstraat 12 - klantaansluiting", "nr. 12"], ["Proefstraat 12. Fase 1", "nr. 12"], ["Proefstraat 12; fase 1", "nr. 12"],
-    ["(Proefstraat 12)", "nr. 12"], ["Proefstraat 12, 3 dagen", "nr. 12"], ["Proefstraat 12 tem 14", "nr. 12–14"], ["Proefstraat 12, 14 en 16", "nr. 12–16"],
+    ["(Proefstraat 12)", "nr. 12"], ["Proefstraat 12 tem 14", "nr. 12–14"], ["Proefstraat 12, 14 en 16", "nr. 12–16"],
   ]) assert.equal(nr(t), n, t);
 });
 
@@ -97,7 +99,8 @@ test("HOOG 3: een bewaard nummer hoort bij zijn eigen eerste straat, nooit bij e
   const live = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" }), B([])); // de browser kent het id nog niet: geen nummer
   assert.equal(live.adresKaart, true);
   assert.equal(live.huisnummers, "");
-  const bewaard = (extra) => ({ adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: "", ...extra });
+  // Dezelfde versie van het werk als live (lastModified): anders geldt een bewaard nummer niet (tests/werk-vorm-nakijk2.test.mjs).
+  const bewaard = (extra) => ({ adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: live.lastModified, ...extra });
   const kaart = (item, b) => workEntry(item, { vandaag: VANDAAG, uitleg: { werken: { 990001: b } } });
   // Een andere eerste straat in de verversing: het nummer hoorde bij die straat.
   const ander = kaart(live, bewaard({ straten: ["Testlaan"] }));
