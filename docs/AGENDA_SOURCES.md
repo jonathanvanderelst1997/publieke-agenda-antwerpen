@@ -414,8 +414,15 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
-- **Fout bij het zoeken:** beide bestanden blijven zoals ze waren, `fetchStatus: "error"`. Een kapotte
-  detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt.
+- **Zoekfunctie stuk (5xx op `/zoeken`):** dan zoekt de bron via de kalender (`lib/ebesluit-kalender.mjs`):
+  de maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's van het college, het
+  districtscollege en de districtsraad van district Antwerpen, tot 14 dagen na vandaag, met de zoekterm in
+  de titel. Dat geldt ook voor `district-ebesluit`. Aanleiding: `/zoeken` gaf vanaf 13-10-2026 bij elke
+  vraag HTTP 500, ook zonder parameters en in een gewone browser, terwijl de lijst en de zittingen werkten.
+  Elke pagina één keer per verversing, 500 ms ertussen; `coverage.route` is dan `"kalender"`.
+- **Fout bij het zoeken:** faalt ook de kalender, dan blijven beide bestanden zoals ze waren,
+  `fetchStatus: "error"` met de fout van `/zoeken`. Een kapotte detailpagina houdt de rest niet tegen en
+  komt de volgende keer opnieuw aan de beurt.
 - Gemeten op 10-10-2026: 60 besluiten, 36 gelezen in 42 tot 45 s, 8 komende agendapunten (onder meer de
   Antwerp Marathon op 18 oktober, met opbouw vanaf 12 en afbouw tot 21 oktober).
 - **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van

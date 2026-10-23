@@ -13,9 +13,9 @@ const itemId=row=>`ebesluit-${slug(row.decisionCode)}-${row.start}-${crypto.crea
 const item=(row,retrievedAt)=>({id:itemId(row),externalId:row.decisionCode,title:row.category==="fair"?row.title:`Openbare markt ${row.location}`,theme:"Activiteit",className:"activity",date:row.start,endDate:row.end&&row.end!==row.start?row.end:null,timeSlot:"Info",timeText:"",location:row.location,postcodes:[],info:row.category==="fair"?"Goedgekeurde foorperiode volgens eBesluit.":"Goedgekeurde feestdagregeling voor deze openbare markt.",kind:"activity",sourceUrl:row.sourceUrl,retrievedAt,reviewRequired:false,inDistrict:true});
 const dedupe=(rows,key)=>[...new Map(rows.map(row=>[key(row),row])).values()];
 
-async function discoverKnownYears(fetchImpl,years){
+async function discoverKnownYears(fetchImpl,years,vandaag){
   const results=[];
-  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year}));
+  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year,vandaag}));
   return{
     years,
     complete:results.every(result=>result.complete),
@@ -31,7 +31,7 @@ export async function run({fetch:fetchImpl=globalThis.fetch,clock=()=>new Date()
   const now=clock(),retrievedAt=now.toISOString(),year=Number(brusselsDate(now).slice(0,4)),years=[year,year+1];
   let discovery;
   try{
-    discovery=await discoverKnownYears(fetchImpl,years);
+    discovery=await discoverKnownYears(fetchImpl,years,brusselsDate(now));
     if(!discovery.complete)throw new FetchError("search_incomplete");
     if(!discovery.decisions.length)throw new FetchError("no_decisions");
   }catch(error){
