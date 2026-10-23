@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
   "retrievedAt": "2026-10-22T03:19:18.427Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "parser-2|6ad864c5340ee7642551ee16|2026-10-21T07:08:29+00:00",
   "items": [

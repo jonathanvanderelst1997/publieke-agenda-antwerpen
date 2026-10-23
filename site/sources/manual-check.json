@@ -1,17 +1,17 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-10-22T03:21:50.955Z",
+  "checkedAt": "2026-10-23T03:22:07.285Z",
   "sources": [
     {
       "sourceId": "publiekeruimte-schoolstraat-vanhoenacker",
       "url": "https://www.antwerpen.be/publiekeruimte",
-      "status": "niet_controleerbaar",
-      "httpStatus": 200,
+      "status": "onbereikbaar",
+      "httpStatus": 403,
       "missing": [],
       "items": [
         "bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01"
       ],
-      "since": "2026-10-05T22:00:38.121Z"
+      "since": "2026-10-23T03:22:07.285Z"
     }
   ]
 }

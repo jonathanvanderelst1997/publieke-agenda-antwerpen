@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "antwerpen.be projectpagina's van district Antwerpen (portaal-API, contentType 9): inspraakmomenten, bevragingen en fasen",
   "retrievedAt": "2026-10-22T03:19:47.336Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
