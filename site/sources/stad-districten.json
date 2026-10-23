@@ -14,7 +14,7 @@
   "officialPublic": true,
   "method": "antwerpen.be nieuwskanalen van 9 districten (tabel, Wanneer:, Datum:, Praktisch, activiteitentabel, één blok)",
   "retrievedAt": "2026-10-22T03:19:55.478Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [

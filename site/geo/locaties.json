@@ -205,16 +205,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "grote markt ambtmanstraat hendrik conscienceplein en 9 andere straten": {
-   "point": [
-    4.39989,
-    51.22107
-   ],
-   "precision": "straat",
-   "street": "Grote Markt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "hanzestedenplaats amsterdamstraat bataviastraat en 31 andere straten": {
    "point": [
     4.405,
@@ -385,16 +375,6 @@
    "postcode": "2020",
    "checkedOn": "2026-10-12"
   },
-  "quellinstraat blindestraat de keyserlei en 16 andere straten": {
-   "point": [
-    4.41639,
-    51.21681
-   ],
-   "precision": "straat",
-   "street": "Quellinstraat",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -423,16 +403,6 @@
    "precision": "straat",
    "street": "Sint-Jacobstraat",
    "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "sint jansplein": {
-   "point": [
-    4.41789,
-    51.22622
-   ],
-   "precision": "straat",
-   "street": "Sint-Jansplein",
-   "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
   "sint jansplein 2060 antwerpen": {
