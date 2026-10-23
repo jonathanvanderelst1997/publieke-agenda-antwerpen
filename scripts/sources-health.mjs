@@ -3,6 +3,8 @@
 // vóór het moment van controle), of als een bronbestand veel minder komende items heeft dan de
 // vastgelegde versie. Een TIJDELIJKE fout (5xx, 429, time-out) met vorige data binnen maxAgeHours is
 // "stale": een waarschuwing, geen fout (sourceHealthOf in lib/fetch-util.mjs).
+// Een bron waarvan de site automatische toegang weigert (errorCode bron_weigert_automatisch) is "geweigerd":
+// een waarschuwing met uitleg, geen fout (sourceHealthOf in lib/fetch-util.mjs).
 // Een bron die antwoordt maar al 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), is
 // "leeg": ook een waarschuwing (oranje), geen fout (contentStatusOf in scripts/stale-policy.mjs). Op een
 // GitHub-runner komt er per lege bron een ::warning bij.
@@ -69,6 +71,11 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     if (health === "leeg") {
       const what = entry.itemCount ? `${entry.itemCount} items, allemaal voorbij` : "0 items";
       meld("Bron leeg", `${entry.sourceId}: sinds ${entry.emptySince} niets komends (${what})`);
+    }
+    // De site weigert automatische toegang (lib/fetch-util.mjs, BRON_WEIGERT_CODE): een melding met de
+    // uitleg, geen fout. Niets aan onze kant lost dit op, dus ook geen alarm bij elke run.
+    if (health === "geweigerd") {
+      meld("Bron weigert automatische toegang", `${entry.sourceId}: de website weigert automatische toegang ("Access Denied" aan de rand, geen storing bij ons); laatste geslaagde ophaling ${entry.retrievedAt ?? "-"}, die stand blijft staan zolang ze niet te oud is. Toegang terug vraagt iets van de stad.`);
     }
     const coverage = entry.capped ? `capped=t/m ${entry.coverageUntil ?? "-"}` : "";
     const content = Number.isInteger(entry.upcomingCount) ? [`upcoming=${entry.upcomingCount}`, entry.emptySince ? `emptySince=${entry.emptySince}` : ""] : [];

@@ -96,6 +96,23 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
 
+## De site weigert automatische toegang: "geweigerd", een melding
+
+Sinds de nacht van 22 op 23-10-2026 weigert de rand van www.antwerpen.be (Akamai) elke klant die geen
+browser is: een 403 met de pagina "Access Denied" en een referentie op errors.edgesuite.net, ook voor
+`robots.txt`. Een gewone browser komt er wel door. Dat raakt `district-kalender`, `district-nieuws`,
+`district-projecten`, `stad-districten` en `stad-koopzondagen`. Het is een keuze van de site, geen
+storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, geen omweg, geen herhaling).
+
+- `fetchWithTimeout` herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"` (ook als
+  `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`.
+- De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
+- `sourceHealthOf` noemt de bron **`geweigerd`**: een melding met uitleg, geen fout, ook als de vorige
+  data te oud is. Zo geeft niet elke verversing opnieuw alarm over iets wat geen verversing oplost; de
+  job `source-health` zet een waarschuwing "Bron weigert automatische toegang".
+- Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
+  toelaten, of dezelfde gegevens als open data.
+
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
 en 5 seconden).
