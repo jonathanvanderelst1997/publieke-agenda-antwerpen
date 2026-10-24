@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule } from "../lib/fetch-util.mjs";
+import { BRON_WEIGERT_CODE, USER_AGENT, errorCodeOf, fetchWithTimeout, isMainModule } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { MANUAL_CHECK_FILE, judgePage, manualCheckTargets, nextEntry, validateManualCheck } from "../lib/manual-check.mjs";
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
@@ -29,7 +29,9 @@ async function getPage(fetchImpl, url) {
         redirect: "manual",
       });
     } catch (error) {
-      return { httpStatus: null, html: "", error: errorCodeOf(error) };
+      // Een weigering aan de rand van de site (lib/fetch-util.mjs) was wel een antwoord: een 403.
+      const code = errorCodeOf(error);
+      return { httpStatus: code === BRON_WEIGERT_CODE ? 403 : null, html: "", error: code };
     }
     if ([301, 302, 303, 307, 308].includes(response.status)) {
       const location = response.headers?.get?.("location");

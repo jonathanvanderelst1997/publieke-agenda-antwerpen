@@ -17,8 +17,10 @@ test("eBesluit probeert een tijdelijke 503 precies één keer opnieuw",async()=>
 test("eBesluit blijft fail-closed na twee 503-antwoorden",async()=>{
   let calls=0;
   const always503=async()=>{calls++;return resp("",503)};
-  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_503");
-  assert.equal(calls,2);
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{},vandaag:"2026-10-10"}),error=>error?.code==="http_503");
+  // Twee keer /zoeken (met herkansing), dan de kalenderterugval (lib/ebesluit-kalender.mjs): twee keer de
+  // eerste maandlijst. Faalt ook die, dan stopt de bron met de oorspronkelijke fout; geen eindeloze reeks.
+  assert.equal(calls,4);
 });
 test("eBesluit herhaalt een niet-tijdelijke 404 niet",async()=>{
   let calls=0;
