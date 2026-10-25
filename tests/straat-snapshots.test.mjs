@@ -521,14 +521,17 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   assert.deepEqual(bundel.map((i) => i.id).sort(), ["parking:PROEF-PV|L2|bundel", "sgw:PROEF-GW|2"]);
   assert.deepEqual(bundel.find((i) => i.kind === "parking").streets.map((s) => s.name).sort(), [HUIK.name, PET.name]);
   // Zoals de plekpagina ze toont: de werfzone met de fase waarin de Kammenstraat op de omleiding ligt (fase 2 is alleen
-  // de werfzone in de Peterseliestraat) en de hele werfzone in één regel; het parkeerverbod met de andere straten.
+  // de werfzone in de Peterseliestraat) en de hele werfzone in één regel; het parkeerverbod met zijn andere plaatsen (de
+  // ochtendstand: de straat en de postcode, zonder huisnummer; tweede nakijkronde van 18 oktober 2026, waar exact).
   const inStraat = kam.filter((i) => (i.streets || []).some((s) => s.id === KAM.id));
   const kaarten = publicSpaceEntries(inStraat, { vandaag: "2099-03-10", alle: kam, straat: KAM.name });
   const werfzone = kaarten.find((k) => k.item?.kind === "sgw");
   assert.equal(werfzone.title, "Werfzone met omleiding");
   assert.equal(werfzone.end, "2099-03-20");
   assert.match(werfzone.regels.find(([dt]) => dt === "Hele werfzone")?.[1] || "", /^8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart; andere fasen: 1–10 apr\)$/);
-  assert.match(kaarten.find((k) => k.item?.reference === "PROEF-PV").location, /^Kammenstraat \+ 2 andere straten/);
+  const pv = kaarten.find((k) => k.item?.reference === "PROEF-PV");
+  assert.equal(pv.location, "Kammenstraat, 2000 Antwerpen + 2 andere plaatsen");
+  assert.deepEqual(pv.plaatsen, ["Kammenstraat, 2000 Antwerpen", "Huikstraat, 2000 Antwerpen", "Peterseliestraat, 2000 Antwerpen"]);
   // Live raakt het kader van de straat de werfzone van fase 1 niet: live alleen "Omleiding". De ochtend vult aan.
   const live = [{ ...kam.find((i) => i.id === "sgw:PROEF-GW|1"), kindLabel: "Omleiding", title: "Omleiding", streets: [KAM], werfzoneStreets: [] }];
   const samen = aanvullenMetOchtend(live, kam);

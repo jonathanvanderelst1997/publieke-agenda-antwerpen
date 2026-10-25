@@ -159,7 +159,7 @@ test("entries: agenda, GIPOD-werk en A-Sign in één vorm, zonder onveilige link
   // Een oudere bronlink naar het ruwe record (sourceUrls) telt niet: de bron van een werk is de datasetfiche.
   assert.equal(work.sourceUrl, "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
   const sign = publicSpaceEntry({ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09T22:00:00Z", end: "2026-10-10T21:59:00Z", streets: [{ name: "Kammenstraat" }] });
-  assert.equal(sign.title, "Parkeerverbod voor een verhuis");
+  assert.equal(sign.title, "Parkeerverbod");
   const sum = summarize([agenda, { ...agenda, uid: "y" }, work, sign, manual], "2026-10-06");
   assert.equal(sum.evenementen, 1); // een reeks telt één keer
   assert.equal(sum.werkenGepland, 2);

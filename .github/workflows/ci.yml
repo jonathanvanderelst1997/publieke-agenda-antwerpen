@@ -70,6 +70,37 @@ jobs:
           git fetch --no-tags --depth=1 origin "refs/heads/${BASE_REF}"
           node scripts/vaagheid-tegen-basis.mjs --basis FETCH_HEAD
 
+      # Geen echt adres in de commits van deze PR: een echte straat (site/geo/straten.json) met een bestaand huisnummer,
+      # in een commitboodschap of in de toegevoegde regels van code, toetsen en documentatie (lib/echte-adressen.mjs,
+      # scripts/adressen-in-commits.mjs). De repo is publiek: de eigenaar wil nergens een privéadres, zeker niet naast
+      # een (verzonnen) reden van een parkeerverbod (besluit van 18 oktober 2026). --zonder-data: de gegenereerde data
+      # uit publieke bronnen (de padlijst van de databaan, lib/data-lane-paths.json) telt niet; die heeft haar eigen
+      # privacyregels, en een zaal of winkel met haar adres hoort erin. Een commit die al gepusht is en zonder force
+      # niet meer weg kan, staat op precies zijn plaats met een reden in lib/adressen-uitzonderingen.json; die lijst
+      # komt uit de BASIScommit zodra die ze heeft (een PR verruimt dan nooit haar eigen uitzonderingen).
+      # Een uitzondering geldt alleen voor die commit: het script kijkt ook naar de netto diff basis...kop, zonder
+      # uitzonderingen. Staat een uitgezonderd adres er aan het eind nog (ook verschoven), dan blijft de PR rood.
+      - name: Geen echt adres in de commits
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+          if ! [[ $BASE_SHA =~ ^[0-9a-f]{40}$ && $HEAD_SHA =~ ^[0-9a-f]{40}$ ]]; then
+            echo "::error title=Echt adres in een commit::Onverwachte SHA."; exit 1
+          fi
+          # De checkout is ondiep (één commit): haal de volledige geschiedenis van de basis en de kop op.
+          diep=()
+          if [ "$(git rev-parse --is-shallow-repository)" = "true" ]; then diep=(--unshallow); fi
+          git fetch --no-tags --quiet ${diep[@]+"${diep[@]}"} origin "$BASE_SHA" "$HEAD_SHA"
+          git merge-base "$BASE_SHA" "$HEAD_SHA" > /dev/null
+          uitz="$RUNNER_TEMP/adressen-uitzonderingen.json"
+          if ! git show "${BASE_SHA}:lib/adressen-uitzonderingen.json" > "$uitz" 2> /dev/null; then
+            cp lib/adressen-uitzonderingen.json "$uitz"
+          fi
+          node scripts/adressen-in-commits.mjs --basis "$BASE_SHA" --tot "$HEAD_SHA" --zonder-data --uitzonderingen "$uitz"
+
   # data-only: een toekomstige verplichte controle (ruleset op main). De job
   # draait altijd en wordt nooit overgeslagen via een if: op de job; de keuze
   # valt binnen de stappen.

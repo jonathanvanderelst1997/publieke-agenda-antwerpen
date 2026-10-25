@@ -1,6 +1,7 @@
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
 import {laagStand} from "./live-lagen.js";
+import {parkeerverbodInLijst} from "./place-core.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 // Nooit een link naar een ruw GIPOD-record (site/gipod-bron.js): per werk de algemene kaart van Hinder in Kaart
@@ -34,7 +35,10 @@ export function buildWeekPulse({agendaItems=[],works=[],publicSpace=[],fromDay,t
   const upcoming=[
     ...agenda.map(item=>({kind:"agenda",id:item.id,title:clean(item.title),date:isoDay(item.date),type:typeOf(item),location:clean(item.location),url:bron(item.sourceUrl||item.link)})),
     ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:hinderkaart(),urlLabel:"Hinder in Kaart"})),
-    ...measureStarts.map(item=>({kind:"measure",id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel start",date:String(item.start||"").slice(0,10),type:item.kind||"measure",location:(item.streets||[]).map(s=>s.name).join(" · ")||clean(item.location),url:bron(item.sourceUrl)})),
+    // Een parkeerverbod: waar exact (de plaats van de live laag, met het huisnummer of bereik; site/adres-privacy.js), niet
+    // alleen de straatnaam, en wanneer: de dagen en de uren, zoals de kaart (parkeerverbodInLijst in site/place-core.js; derde
+    // nakijkronde van 18 oktober 2026: hier stond alleen de begindag). Een werfzone of inname: haar straten.
+    ...measureStarts.map(item=>{const p=item.kind==="parking"?parkeerverbodInLijst(item,{vandaag:from}):null;return{kind:"measure",id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel start",date:String(item.start||"").slice(0,10),type:item.kind||"measure",location:p?.waar||(item.streets||[]).map(s=>s.name).join(" · ")||clean(item.location),...(p?{wanneer:[p.periode,p.wanneer].filter(Boolean).join(" · ")}:{}),url:bron(item.sourceUrl)}}),
   ].filter(item=>item.date).sort((a,b)=>a.date.localeCompare(b.date)||a.title.localeCompare(b.title,"nl")).slice(0,14);
   return{from,to,agendaCount:agenda.length,agendaByType,neighborhoodCount:agendaByType.neighborhood||0,playStreetCount:agendaByType.playstreet||0,publicMeetingCount:agendaByType.public_meeting||0,marketFairCount:agendaByType.market_fair||0,workStarts:workStarts.length,workEnds:workEnds.length,measureStarts:measureStarts.length,severeHindranceWorks:severe.length,upcoming};
 }
@@ -71,7 +75,7 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
         <a href="#works-live"><strong>${tel.ernstig}</strong><span>werken met ernstige hinder</span></a>
       </div>
       <div class="week-pulse-types">${types.map(([type,count])=>`<span><strong>${count}</strong> ${esc(labelFor(type))}</span>`).join("")}</div>
-      ${pulse.upcoming.length?`<div class="week-pulse-list"><strong>Eerstvolgende 14 items</strong><ol>${pulse.upcoming.map(item=>`<li><time>${esc(fmt(item.date))}</time><span><b>${esc(item.title)}</b>${item.location?`<small>${esc(item.location)}</small>`:""}</span>${item.url?`<a href="${esc(item.url)}" target="_blank" rel="noreferrer">${esc(item.urlLabel||"bron")}</a>`:""}</li>`).join("")}</ol></div>`:""}`;
+      ${pulse.upcoming.length?`<div class="week-pulse-list"><strong>Eerstvolgende 14 items</strong><ol>${pulse.upcoming.map(item=>`<li><time>${esc(fmt(item.date))}</time><span><b>${esc(item.title)}</b>${item.location?`<small>${esc(item.location)}</small>`:""}${item.wanneer?`<small>${esc(item.wanneer)}</small>`:""}</span>${item.url?`<a href="${esc(item.url)}" target="_blank" rel="noreferrer">${esc(item.urlLabel||"bron")}</a>`:""}</li>`).join("")}</ol></div>`:""}`;
     }
     window.addEventListener("public-agenda:street-layer",event=>{if(event.detail?.name==="works")state.works=event.detail.items||[];if(event.detail?.name==="publicSpace")state.publicSpace=event.detail.items||[];if(Object.hasOwn(state.lagen,event.detail?.name))state.lagen[event.detail.name]=laagStand(event.detail);render()});
     render();
