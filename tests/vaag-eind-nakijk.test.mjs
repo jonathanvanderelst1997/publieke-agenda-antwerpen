@@ -73,7 +73,8 @@ test("een parkeerverbod dat later begint: een eigen kaart op zijn eerste dag, me
   const later = kaarten.filter((e) => e.uid === "publicSpace:parking:2099-000902|1");
   assert.equal(later.length, 1);
   const [k] = later;
-  assert.equal(k.title, "Parkeerverbod voor de werfzone in de Proefstraat");
+  // De titel blijft "Parkeerverbod" (nooit waarvoor, besluit van 18 oktober 2026); de werf staat in de zin en de regel.
+  assert.equal(k.title, "Parkeerverbod");
   assert.equal(k.summary, "Niet parkeren van 7.00 tot 17.00 uur. Zelfde straat en dagen als een fase van “Werfzone” (dossier GW2099-000901).");
   assert.deepEqual(k.regels.at(-1), ["Werf", "Werfzone (A-Sign, dossier GW2099-000901): zelfde straat en dezelfde dagen als een fase van de werfzone. A-Sign zet bij een parkeerverbod geen dossiernummer."]);
   assert.equal(k.bijWerf, "publicSpace:sgw:GW2099-000901|1");
@@ -217,11 +218,11 @@ test("het getal boven de lijst telt de items van een bundel mee; de legenda telt
   assert.equal(plekSubTekst({ totaal: tel.items, straat: true }), "8 items uit officiële bronnen.");
 });
 
-test("parkeerverbod bij het enige evenement: de titel zegt 'vermoedelijk', want A-Sign legt dat verband niet", () => {
+test("parkeerverbod bij het enige evenement: de titel blijft 'Parkeerverbod', de regel zegt welk evenement en waarop dat steunt", () => {
   const p = publicSpaceEntry({ id: "parking:2099-000981|1", kind: "parking", kindLabel: "Parkeerverbod", title: "Aanvraag voor evenementen gesteund door de stad", reason: "Aanvraag voor evenementen gesteund door de stad", location: "Proefplein, 2000 Antwerpen", start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "Goedgekeurd", reference: "2099-000981", startTime: "00:00", endTime: "23:59", streets: [straat("Proefplein")] });
   const loop = { id: "asign-ev-et2099000981-2099-03-14", externalId: "ET2099000981", sourceId: "district-asign-evenementen", title: "Proefloop", date: "2099-03-14", location: "Proefplein", straten: ["Proefplein"], stratenVolledig: true, info: "Naam met de hand nagekeken bij een publieke bron. Evenementendossier ET2099000981 van de stad (A-Sign).", category: "sport" };
   const [pn] = verrijkMetContext([p], { straat: "Proefplein", vandaag: VANDAAG, agendaItems: [loop] });
-  assert.equal(pn.title, "Parkeerverbod, vermoedelijk voor Proefloop");
+  assert.equal(pn.title, "Parkeerverbod");
   assert.match(pn.regels.find(([k]) => k === "Evenement")[1], /het enige evenement in deze straat op die dag/);
 });
 

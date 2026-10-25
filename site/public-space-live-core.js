@@ -1,5 +1,5 @@
 import {PUBLIC_PARKING_STATUSES,dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
-import { publiekParkeerAdres } from "./adres-privacy.js";
+import { PARKEERVERBOD_TITEL, publiekParkeerAdres } from "./adres-privacy.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -104,11 +104,13 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
     if(binnen&&n.postcode&&!binnen.has(n.postcode))continue;
     const r=straatVan(n.address);
     out.push({
-      id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:n.reason||"Tijdelijk parkeerverbod",
+      // De titel is altijd "Parkeerverbod": waar en wanneer, nooit waarom (site/adres-privacy.js).
+      id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:PARKEERVERBOD_TITEL,
       location:(alleenLive?liveAdres.get(n.key):null)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
       detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
-      // Voor de kaart in gewone taal (place-core.js): de reden zoals de stad ze schrijft, de uren en een
-      // GIPOD-id als de stad er een geeft. De historiek (lib/live-history.mjs) bewaart deze velden niet.
+      // Voor de kaart in gewone taal (place-core.js): de uren en een GIPOD-id als de stad er een geeft. De reden van
+      // de stad (`reason`) alleen voor de interne logica (een parkeerverbod bij zijn werfzone of evenement), nooit als
+      // tekst. De historiek (lib/live-history.mjs) en de straatbestanden bewaren `reason` niet.
       reason:n.reason,postcode:n.postcode,startTime:n.startTime,endTime:n.endTime,weekdaysOnly:n.weekdaysOnly,...(n.gipodId?{gipodId:n.gipodId}:{}),
       sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",streets:[...r.streets],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters,
       // De lijn van het parkeerverbod (laag 20), voor de straal; de historiek bewaart dit veld niet.
