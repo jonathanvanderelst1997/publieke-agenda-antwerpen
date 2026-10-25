@@ -191,5 +191,11 @@ test("aanvaard: de reden van de werfkaarten noemt elke kaart die erbij komt, met
   const dossiers = new Set(a.reden.match(/\bGW\d{4}-\d{6}\b/g) || []);
   assert.equal(dossiers.size, a.naar - a.van, `${a.naar - a.van} kaarten erbij, ${dossiers.size} dossiers in de reden`);
   assert.doesNotMatch(a.reden, /\b(?:Vijf|vijf) werfzones\b[^.]*parkeerverbod terug/);
-  assert.match(a.reden, /\bVier werfzones\b[^.]*parkeerverbod terug/);
+  // Hoeveel werfzones hun parkeerverbod terugkrijgen, hangt af van de data (23 oktober: vier; na de verversing van
+  // 25 oktober: drie). Het telwoord in die zin moet kloppen met de dossiers die ze noemt.
+  const telwoord = { een: 1, twee: 2, drie: 3, vier: 4, zes: 6, zeven: 7, acht: 8 };
+  const zin = a.reden.match(/\b(Een|Twee|Drie|Vier|Zes|Zeven|Acht) werfzones?\b([^.]*)parkeerverbod terug/);
+  assert.ok(zin, "de reden zegt hoeveel werfzones hun parkeerverbod terugkrijgen");
+  const genoemd = new Set(zin[2].match(/\bGW\d{4}-\d{6}\b/g) || []);
+  assert.equal(genoemd.size, telwoord[zin[1].toLowerCase()], `${zin[1]} werfzones, ${genoemd.size} dossiers in die zin`);
 });
