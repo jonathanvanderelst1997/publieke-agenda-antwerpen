@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-24T03:21:25.801Z",
-  "classificationAsOf": "2026-10-24",
-  "sourceCount": 897,
-  "count": 710,
-  "eventPageCount": 710,
+  "candidateGeneratedAt": "2026-10-25T04:20:26.372Z",
+  "classificationAsOf": "2026-10-25",
+  "sourceCount": 898,
+  "count": 711,
+  "eventPageCount": 711,
   "classifications": {
-    "expired": 130,
+    "expired": 131,
     "current": 22,
-    "future": 688,
-    "review_required": 57
+    "future": 689,
+    "review_required": 56
   },
   "scopeCounts": {
     "district": 89,
-    "stad": 621
+    "stad": 622
   },
-  "feedGeneratedAt": "2026-10-24T03:21:25.801Z",
+  "feedGeneratedAt": "2026-10-25T04:20:26.372Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:22:57.767Z",
+      "retrievedAt": "2026-10-25T04:23:37.913Z",
       "state": "fresh"
     },
     {
@@ -43,14 +43,14 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:20:33.891Z",
+      "retrievedAt": "2026-10-25T04:19:34.037Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:20:22.402Z",
+      "retrievedAt": "2026-10-25T04:19:23.364Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:20:34.842Z",
+      "retrievedAt": "2026-10-25T04:19:34.704Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:20:11.423Z",
+      "retrievedAt": "2026-10-25T04:19:13.404Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:21:09.067Z",
+      "retrievedAt": "2026-10-25T04:20:08.527Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:21:09.067Z",
+      "retrievedAt": "2026-10-25T04:20:08.527Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-24T03:21:04.041Z",
+      "retrievedAt": "2026-10-25T04:20:03.435Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "6906dcb87f6f96a6b52943e068185442ab20f02487032efe20579e817c3bd06a",
+  "digest": "5472797549d1edf47fd41c62bd1c08a33b3defa19edfe782b638066084e679fb",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,10 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Gemengde markt Wim Saerensplein",
-    "Gemengde markt en exotische markt Oudevaartplaats",
-    "Markt voor voeding, bloemen en planten Kioskplaats",
-    "Gemengde markt De Villegasstraat",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -834,6 +830,11 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "Biomarkt Falconplein",
+    "Markt voor klein antiek Sint-Jansvliet",
+    "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
+    "Gemengde markt Kioskplaats",
+    "Gemengde markt Arenaplein",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",

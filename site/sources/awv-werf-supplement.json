@@ -14,7 +14,7 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-10-24T03:21:09.708Z",
+  "retrievedAt": "2026-10-25T04:20:08.721Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": "2026-10-23",
@@ -3301,41 +3301,6 @@
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
       "gewijzigd": "2026-10-09",
-      "innames": 1
-    },
-    {
-      "gipodId": 20834959,
-      "werfId": 55845,
-      "afdeling": "Lantis",
-      "soort": [
-        "Reiniging",
-        "Rijbaan incl. riolering",
-        "Straatkolken",
-        "Mobiel"
-      ],
-      "fasen": [
-        "Fase 3"
-      ],
-      "date": "2026-10-20",
-      "endDate": "2026-10-24",
-      "innametypes": [
-        "Rijstrook 1",
-        "Mobiele werf",
-        "Pechstrook",
-        "Middenberm",
-        "Tussenberm",
-        "Zijberm"
-      ],
-      "doorgang": [
-        "2 rijstroken"
-      ],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-16",
       "innames": 1
     },
     {

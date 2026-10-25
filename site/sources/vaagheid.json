@@ -1,7 +1,7 @@
 {
  "schema": "vaagheid/1",
- "vandaag": "2026-10-24",
- "invoer": "dea2c9c576d5abe0",
+ "vandaag": "2026-10-25",
+ "invoer": "8eee0fb10c5952b8",
  "code": "a3cb1b841d7f040d",
  "agenda": {
   "items": 766,
@@ -14,7 +14,7 @@
    "datum-bij-benadering": 15,
    "generieke-titel": 15,
    "vermoedelijk": 13,
-   "uren-periode-onbekend": 9,
+   "uren-periode-onbekend": 8,
    "info-leeg": 2,
    "plek-alleen-postcode": 2
   },
@@ -40,17 +40,8 @@
      "uren-periode-onbekend": 1
     }
    },
-   "district-ebesluit-evenementen": {
-    "items": 4,
-    "vaag": 3,
-    "patronen": {
-     "uren-periode-onbekend": 2,
-     "uur-onbekend": 2,
-     "plek-alleen-postcode": 1
-    }
-   },
    "stad-markten": {
-    "items": 624,
+    "items": 625,
     "vaag": 0,
     "patronen": {}
    },
@@ -89,6 +80,15 @@
     "vaag": 0,
     "patronen": {}
    },
+   "district-ebesluit-evenementen": {
+    "items": 3,
+    "vaag": 3,
+    "patronen": {
+     "uur-onbekend": 2,
+     "plek-alleen-postcode": 1,
+     "uren-periode-onbekend": 1
+    }
+   },
    "district-vergaderingen": {
     "items": 36,
     "vaag": 0,
@@ -103,16 +103,16 @@
   },
   "verboden": {},
   "zonderMarkten": {
-   "items": 142,
+   "items": 141,
    "vaag": 50
   },
   "district": {
-   "items": 117,
+   "items": 116,
    "vaag": 33
   }
  },
  "eventpaginas": {
-  "items": 709,
+  "items": 710,
   "vaag": 31,
   "aandeel": 4.4,
   "perPatroon": {
@@ -129,7 +129,7 @@
     "patronen": {}
    },
    "stad-markten": {
-    "items": 624,
+    "items": 625,
     "vaag": 0,
     "patronen": {}
    },
@@ -159,19 +159,19 @@
   "verboden": {}
  },
  "straten": {
-  "items": 443,
-  "vaag": 249,
-  "aandeel": 56.2,
+  "items": 441,
+  "vaag": 247,
+  "aandeel": 56,
   "perPatroon": {
    "periode-onbekend": 157,
    "start-werken-onbekend": 55,
-   "wat-zegt-stad-niet": 41,
-   "uur-onbekend": 38,
-   "generieke-titel": 26,
+   "wat-zegt-stad-niet": 39,
+   "uur-onbekend": 37,
+   "generieke-titel": 25,
    "stand-onduidelijk": 25,
    "vermoedelijk": 13,
-   "wat-zegt-dossier-niet": 11,
    "doel-onbekend": 10,
+   "wat-zegt-dossier-niet": 10,
    "naam-stad-niet": 8,
    "uren-parkeerverbod-onbekend": 7,
    "elke-dag-onbekend": 5,
@@ -181,13 +181,13 @@
   },
   "perGroep": {
    "publicSpace:sgw": {
-    "items": 44,
-    "vaag": 29,
+    "items": 43,
+    "vaag": 28,
     "patronen": {
-     "wat-zegt-stad-niet": 29,
+     "wat-zegt-stad-niet": 28,
      "uur-onbekend": 1
     },
-    "meerDanEen": 29,
+    "meerDanEen": 28,
     "losse": 31,
     "losseVaag": 16
    },
@@ -204,7 +204,7 @@
     "losseVaag": 22
    },
    "publicSpace:parking": {
-    "items": 30,
+    "items": 29,
     "vaag": 5,
     "patronen": {
      "parkeerverbod-welk": 4,
@@ -213,7 +213,7 @@
      "wat-zegt-stad-niet": 1
     },
     "meerDanEen": 1,
-    "losse": 30,
+    "losse": 29,
     "losseVaag": 5
    },
    "permits": {
@@ -228,22 +228,22 @@
     "losseVaag": 4
    },
    "publicSpace:event": {
-    "items": 21,
-    "vaag": 20,
+    "items": 20,
+    "vaag": 19,
     "patronen": {
-     "uur-onbekend": 20,
-     "wat-zegt-dossier-niet": 11,
-     "wat-zegt-stad-niet": 11,
-     "generieke-titel": 9,
+     "uur-onbekend": 19,
+     "wat-zegt-dossier-niet": 10,
+     "wat-zegt-stad-niet": 10,
+     "generieke-titel": 8,
      "naam-stad-niet": 8,
      "uren-parkeerverbod-onbekend": 7,
      "vermoedelijk": 6,
      "elke-dag-onbekend": 5,
      "plek-verspreid": 5
     },
-    "meerDanEen": 21,
-    "losse": 19,
-    "losseVaag": 18
+    "meerDanEen": 20,
+    "losse": 20,
+    "losseVaag": 19
    },
    "terraces": {
     "items": 157,
@@ -280,10 +280,10 @@
     "losseVaag": 0
    },
    "agenda:stad-markten": {
-    "items": 52,
+    "items": 53,
     "vaag": 0,
     "patronen": {},
-    "losse": 52,
+    "losse": 53,
     "losseVaag": 0
    },
    "agenda:district-ebesluit-evenementen": {
@@ -297,11 +297,11 @@
    }
   },
   "detail": {
-   "metOntbreekt": 283,
-   "meerDanEen": 270,
-   "zinnen": 671,
+   "metOntbreekt": 281,
+   "meerDanEen": 268,
+   "zinnen": 664,
    "perPatroon": {
-    "niet-in-de-bron": 73,
+    "niet-in-de-bron": 72,
     "huisnummers-niet-gepubliceerd": 41,
     "organisator-niet-gepubliceerd": 10,
     "beheerder-geen-omschrijving": 9,
@@ -310,24 +310,20 @@
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 408,
-   "vaag": 228
+   "kaarten": 406,
+   "vaag": 226
   },
   "losse": {
-   "kaarten": 263,
-   "vaag": 73
+   "kaarten": 264,
+   "vaag": 74
   },
   "ingeklapt": {
-   "regels": 26,
-   "kaarten": 186,
+   "regels": 25,
+   "kaarten": 183,
    "perSoort": {
     "aanvragen": {
      "regels": 2,
      "kaarten": 10
-    },
-    "innames": {
-     "regels": 1,
-     "kaarten": 2
     },
     "studenten": {
      "regels": 6,
@@ -339,7 +335,7 @@
     },
     "werfzones": {
      "regels": 5,
-     "kaarten": 13
+     "kaarten": 12
     }
    }
   },
@@ -352,9 +348,9 @@
     "ingeklapt": 0
    },
    "Riemstraat": {
-    "kaarten": 14,
+    "kaarten": 13,
     "vaag": 7,
-    "losseKaarten": 11,
+    "losseKaarten": 10,
     "losseVaag": 4,
     "ingeklapt": 2
    },
@@ -366,11 +362,11 @@
     "ingeklapt": 1
    },
    "Meir": {
-    "kaarten": 37,
-    "vaag": 19,
-    "losseKaarten": 22,
-    "losseVaag": 6,
-    "ingeklapt": 3
+    "kaarten": 36,
+    "vaag": 18,
+    "losseKaarten": 23,
+    "losseVaag": 7,
+    "ingeklapt": 2
    },
    "Groenplaats": {
     "kaarten": 39,
@@ -401,9 +397,9 @@
     "ingeklapt": 3
    },
    "Sint-Jansvliet": {
-    "kaarten": 42,
+    "kaarten": 43,
     "vaag": 10,
-    "losseKaarten": 34,
+    "losseKaarten": 35,
     "losseVaag": 2,
     "ingeklapt": 1
    },
@@ -422,8 +418,8 @@
     "ingeklapt": 0
    },
    "Maria-Henriëttalei": {
-    "kaarten": 14,
-    "vaag": 3,
+    "kaarten": 13,
+    "vaag": 2,
     "losseKaarten": 11,
     "losseVaag": 0,
     "ingeklapt": 1
@@ -637,7 +633,7 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "7b8954c708c3865c",
+   "invoer": "dea2c9c576d5abe0",
    "code": "a3cb1b841d7f040d"
   },
   "agenda": {
@@ -647,17 +643,17 @@
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -2.6,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
    "ok": true,
-   "stijging": -1.3,
+   "stijging": -0.2,
    "gestegen": []
   },
   "buiten": {
    "ok": true,
-   "stijging": -0.1,
+   "stijging": 0,
    "gestegen": []
   }
  }
