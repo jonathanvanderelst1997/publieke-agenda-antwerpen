@@ -19,14 +19,17 @@ export const STRAATVELDEN = Object.freeze(["streets", "werfzoneStreets", "omleid
 const ASIGN = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer";
 // Velden die voor elk item van een soort gelijk zijn (of uit het item volgen): de bouwer laat ze weg en
 // vulAan() zet ze terug, zodat een item er hetzelfde uitziet als wanneer de browser het live maakt.
+// Een parkeerverbod uit een straatbestand draagt ook `plaatsVanDeOchtend`: zijn plaats is de straat en de postcode, nooit
+// het huisnummer (dat bewaart de repo niet, site/adres-privacy.js). De kaart zegt dan dat het huisnummer alleen live in
+// A-Sign staat (site/place-core.js, HUISNUMMER_LIVE); een live rij (publiekParkeerAdres) heeft die markering niet.
 const VAST = Object.freeze({
-  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20` },
+  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20`, plaatsVanDeOchtend: true },
   iod: { sourceLabel: "A-Sign IOD", sourceUrl: `${ASIGN}/22` },
   sgw: { sourceLabel: "A-Sign SGW", sourceUrl: `${ASIGN}/48` },
 });
 export const WEGGELATEN = Object.freeze({
   werken: Object.freeze([]),
-  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
+  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters", "plaatsVanDeOchtend"]),
   vergunningen: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });
@@ -128,7 +131,7 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
 // - een werfzone of omleiding die het kader maar half raakt: live dan alleen "Omleiding", terwijl het een
 //   werfzone met omleiding is. Dan de soorten, straten en periode van de ochtend erbij.
 // Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg. Een
-// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dag, uren en reden): een
+// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dagen en uren; maatregelSleutel): een
 // parkeerverbod dat live naar een andere dag schoof, houdt anders de oude dag van de ochtend.
 const refSleutel = (ref) => [ref?.id || "", ref?.name || "", ref?.postcode || ""].join("|");
 const samenRefs = (a = [], b = []) => [...new Map([...a, ...b].filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
