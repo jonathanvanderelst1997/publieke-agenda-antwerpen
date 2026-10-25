@@ -52,7 +52,7 @@ test("werfkaart: de soort inname van GIPOD blijft (Wegenwerken), en een soort ui
   assert.deepEqual(validateKaartUitleg(doc({ ...leegWerk("GW2099-000001", []), innameSoort: 12 })), ["werken.1.innameSoort ongeldig"]);
 });
 
-test("werfkaart: wat de losse werfzone en parkeerverboden zeiden, blijft (status, reden, straten)", () => {
+test("werfkaart: wat de losse werfzone en parkeerverboden zeiden, blijft (status, straten), nooit de reden", () => {
   const uitleg = { werken: { 811: leegWerk("GW2099-000811", [{ naam: "Onderbouw", start: "2099-02-01", eind: "2099-06-30" }], { soort: "", soortBron: "" }) } };
   const rows = [
     fase("GW2099-000811", 1, "2099-02-01T06:00:00Z", "2099-06-30T16:00:00Z", { omleiding: [ANDER, straat("Derdestraat"), straat("Vierdestraat")], kind: "Omleiding + Werfzone" }),
@@ -61,7 +61,10 @@ test("werfkaart: wat de losse werfzone en parkeerverboden zeiden, blijft (status
   const [k] = bouw({ works: [werk(811, "GW2099-000811", { occupancyTypes: ["Andere"] })], rows, uitleg }).filter((e) => e.source === "works");
   const regels = Object.fromEntries(k.uitleg.regels);
   assert.match(regels.Werfzone, /^De werfzone ligt in je straat; het verkeer wordt omgeleid · .* · status in A-Sign: vergund door de stad · A-Sign, dossier GW2099-000811$/);
-  assert.match(regels.Parkeerverbod, /\(2099-000811, van kracht\)\. Reden volgens de stad: melding in het kader van werfsignalisaties\./);
+  assert.match(regels.Parkeerverbod, /\(2099-000811, van kracht\)\. Zelfde straat en dezelfde dagen als een fase van de werfzone/);
+  // Nooit de reden (besluit van 18 oktober 2026): de reden telt alleen intern, om het parkeerverbod bij de werf te hangen.
+  // (De ruwe rijen in `item` en `werfParkeer` zijn intern; wat de kaart toont, staat in titel, samenvatting en uitleg.)
+  assert.doesNotMatch(JSON.stringify([k.title, k.summary, k.info, k.uitleg, k.regels]), /[Rr]eden|werfsignalisatie|in het kader van/);
   // Alle straten van de losse kaarten (werk, werfzone, omleiding), ingeklapt zoals bij de losse werfzone.
   assert.deepEqual(k.straten, ["Anderestraat", "Derdestraat", "Proefstraat", "Vierdestraat"]);
   assert.match(k.uitleg.stratenNoot, /werfzone en de omleiding/);
