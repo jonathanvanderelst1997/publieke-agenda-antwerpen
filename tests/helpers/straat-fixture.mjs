@@ -71,8 +71,9 @@ const terras = (n, adres) => ({
   id: `terrace:PROEF-T${n}`, recordId: `PROEF-T${n}`, terraceType: "Terraszone binnen kern", status: "actief", address: adres, postcode: "2000",
   sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/49", streets: [KAM], streetResolution: "official_address_match", streetDistanceMeters: 0,
 });
-// Een item met een e-mailadres in de titel: dat mag nooit in een straatbestand.
-const metMail = { ...parkeerverbod(9), id: "parking:PROEF-9|L9", reference: "PROEF-9", title: "Info: proef@voorbeeld.be", reason: "Info: proef@voorbeeld.be" };
+// Een item met een e-mailadres in vrije tekst: dat mag nooit in een straatbestand. (Niet meer in de titel of de reden
+// van een parkeerverbod: die komen nooit in een straatbestand, de titel is altijd "Parkeerverbod"; site/adres-privacy.js.)
+const metMail = { ...parkeerverbod(9), id: "parking:PROEF-9|L9", reference: "PROEF-9", detail: "Info: proef@voorbeeld.be" };
 
 export function bronnen({ werken = [werk()], extraRuimte = [] } = {}) {
   return {

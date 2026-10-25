@@ -211,27 +211,27 @@ test("parkeerverbod: weekdagen alleen bij \"1\", de uren uit de bron, en een GIP
   assert.match(bron("site/public-space-live.js"), /Starttijd,Eindtijd/);
 });
 
-test("parkeerverbod in gewone taal: waarvoor, de uren, en een eerlijke zin zonder reden", () => {
-  assert.equal(pc.parkeerTitel("Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen"), "Parkeerverbod voor een verhuis");
-  assert.equal(pc.parkeerTitel("Melding ikv werfsignalisaties"), "Parkeerverbod voor een werf");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het inrichten van een laad-en loszone"), "Parkeerverbod voor een laad- en loszone");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het plaatsen van een beweegbaar toestel (voorbeeld: ladderlift, schaarlift, hoogtewerker)"), "Parkeerverbod voor een lift of hoogtewerker");
-  assert.equal(pc.parkeerTitel(""), "Tijdelijk parkeerverbod");
-  assert.equal(pc.parkeerTitel("Iets nieuws"), "Tijdelijk parkeerverbod");
+// Besluit van de eigenaar (18 oktober 2026): dat er een parkeerverbod is, waar en wanneer, nooit waarom. Met of zonder
+// reden in de bron: dezelfde titel en dezelfde zin (de strenge toets: tests/parkeerverbod-zonder-reden.test.mjs).
+test("parkeerverbod in gewone taal: de titel \"Parkeerverbod\", de uren, en nooit de reden", () => {
+  assert.equal(pc.PARKEERVERBOD_TITEL, "Parkeerverbod");
+  assert.equal(pc.parkeerTitel, undefined, "geen titel uit de reden meer");
   assert.equal(pc.parkeerUren({ startTime: "00:00", endTime: "23:59" }), "hele dag");
   assert.equal(pc.parkeerUren({ startTime: "07:00", endTime: "17:00" }), "van 7.00 tot 17.00 uur");
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Status: "In effect" })] });
+  assert.equal(item.title, "Parkeerverbod");
   const e = pc.publicSpaceEntry(item);
-  assert.equal(e.title, "Parkeerverbod voor een verhuis");
+  assert.equal(e.title, "Parkeerverbod");
   assert.equal(e.summary, "Niet parkeren van 7.00 tot 17.00 uur.");
   assert.equal(e.status, "Van kracht");
   assert.equal(e.time, "07:00");
-  assert.equal(e.info, "Reden volgens de stad: aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen");
-  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "Reden volgens de stad: melding in het kader van werfsignalisaties");
+  assert.equal(e.info, "");
+  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "");
   const [zonder] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Reden: null, Starttijd: uur(0), Eindtijd: uur(23, 59), EnkelWeekdagen: "1", Einddatum: dag2 })] });
   const z = pc.publicSpaceEntry(zonder);
-  assert.equal(z.title, "Tijdelijk parkeerverbod");
-  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen. De stad publiceert niet waarvoor.");
+  assert.equal(z.title, "Parkeerverbod");
+  // Geen "De stad publiceert niet waarvoor": de stad publiceert het wel, de site toont het bewust niet.
+  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen.");
   assert.doesNotMatch(z.title, /Parkeerverbod: /);
   assert.equal(pc.statusNl("vergund"), "Vergund door de stad");
 });
@@ -301,7 +301,8 @@ test("terrassen: geen \"niet actief\", de straat van het adres, en een titel in 
   assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(inPlace\(live\.terraces\)\)/);
   // Ook de volledige lijsten onderaan gebruiken de titels in gewone taal, zonder fasenummer.
   assert.match(bron("site/terraces-live.js"), /<h3>\$\{esc\(terrasTitel\(item\.terraceType\)\)\}<\/h3>/);
-  assert.match(bron("site/public-space-live.js"), /parkeerTitel\(i\.reason\?\?i\.title\)/);
+  assert.match(bron("site/public-space-live.js"), /const titel=i=>i\.kind==="parking"\?PARKEERVERBOD_TITEL:/);
+  assert.doesNotMatch(bron("site/public-space-live.js"), /i\.reason|Reden volgens de stad/);
   assert.doesNotMatch(bron("site/public-space-live.js"), /<h3>\$\{esc\(i\.title\)\}/);
 });
 

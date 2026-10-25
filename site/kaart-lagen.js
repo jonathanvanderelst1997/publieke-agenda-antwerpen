@@ -252,9 +252,13 @@ export function popupHtml(entries = [], today = "") {
     if (!eerder || String(e.start || "9999") < String(eerder.start || "9999")) perSleutel.set(k, e);
   }
   const uniek = [...perSleutel.values()].sort((a, b) => String(a.start || "9999").localeCompare(String(b.start || "9999")) || String(a.title).localeCompare(String(b.title), "nl"));
+  // Wanneer: de dagen, en de uren zoals de kaart ze zegt (timeText: "van 8.00 tot 18.00 uur, alleen op weekdagen"); alleen
+  // zonder die tekst het beginuur. Nakijkronde van 18 oktober 2026: een parkeerverbod zei hier "12 mrt · 08.00" (zonder
+  // einduur) of bij meer dagen geen uren, terwijl de kaart "van 8.00 tot 18.00 uur" zegt.
   const wanneer = (e) => {
     const datum = e.end && e.end > e.start ? kortBereik(e.start, e.end, today) : e.start ? kortDatum(e.start, today) : "";
-    return [datum, e.time ? e.time.replace(":", ".") : ""].filter(Boolean).join(" · ");
+    const uren = e.item?.kind === "parking" && e.timeText ? e.timeText : e.time ? e.time.replace(":", ".") : "";
+    return [datum, uren].filter(Boolean).join(" · ");
   };
   // Bij benadering: een parkeerverbod, een losse inname of een vergunning; van een evenement de innames naast het
   // parcours, de omleidingen en de verkeersvrije zones (kijk naar de delen van de vorm, niet alleen naar de soort).

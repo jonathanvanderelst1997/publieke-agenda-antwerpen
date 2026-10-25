@@ -5,6 +5,7 @@ import {onderzoekZin} from "./inzage-status.js";
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
 import {lijstTitel} from "./werk-vorm.js";
+import {parkeerverbodInLijst} from "./place-core.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
 const streetKey=street=>[street?.id||"",street?.name||"",street?.postcode||""].join("|");
@@ -33,7 +34,11 @@ export function buildStreetGroups({works=[],publicSpace=[],permits=[],agendaItem
   for(const item of publicSpace){
     const bucket=item.kind==="parking"?"parking":item.kind==="iod"?"iod":"sgw";
     const normalized={id:item.id,title:clean(item.title||item.kindLabel)||"Maatregel",status:clean(item.status),start:item.start||"",end:item.end||"",detail:clean(item.detail||item.location),sourceUrl:bron(item.sourceUrl)};
-    for(const street of item.streets||[])add(street,bucket,normalized);
+    // Een parkeerverbod: waar exact en wanneer, zoals de kaart (parkeerverbodInLijst in site/place-core.js), nooit waarom.
+    // Vroeger was het detail `detail || location`: bij "alleen op weekdagen" viel de plaats weg, en de uren stonden er nooit
+    // (derde nakijkronde van 18 oktober 2026). Per straat: een bundelrij uit een straatbestand heeft geen eigen plaats.
+    const parkeer=street=>{const p=parkeerverbodInLijst(item,{straat:street});return{...normalized,detail:[p.waar,p.wanneer].filter(Boolean).join(" · ")}};
+    for(const street of item.streets||[])add(street,bucket,bucket==="parking"?parkeer(street):normalized);
   }
   // Een nagekeken openbaar onderzoek (site/inzage-status.js) staat ook hier, vóór de stand van de aanvraag.
   for(const item of permits){const normalized={id:item.id,title:aanvraagTitel(item),status:[onderzoekZin(item.inzage,asOf),aanvraagStand(item)].filter(Boolean).join(" "),start:"",end:"",detail:item.dossier?`Dossier ${item.dossier}`:"",sourceUrl:bron(item.sourceUrl)};for(const street of item.streets||[])add(street,"permits",normalized)}

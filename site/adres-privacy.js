@@ -1,10 +1,44 @@
 // Alleen de pure regel van de straatnaam als import (site/witte-lijst.js, zelf zonder imports): ook lib/live-history.mjs
 // (de verversing) gebruikt dit.
 import{zonderToevoegingInTekst}from"./witte-lijst.js";
-// Een parkeerverbod is vaak een verhuis of een container voor één woning: het huisnummer is dan
-// een privéadres. We houden de straat en de postcode, nooit het huisnummer. A-Sign schrijft
-// "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
+// Een parkeerverbod (A-Sign laag 20/21), besluit van de eigenaar van 18 oktober 2026: de site zegt DAT er een
+// parkeerverbod is, WAAR exact en WANNEER (data en uren), en NOOIT waarom. Of iemand verhuist, een container of een
+// lift zet, trouwt, filmt, een evenement of een werf heeft: dat staat nergens, niet in de titel, niet in een zin, niet
+// in de technische details, de historiek, de straatbestanden, de feed, de eventpagina's of een .ics.
+// - De plaats exact: live (de browser vraagt A-Sign zelf) de straat met het huisnummer of het bereik zoals
+//   publiekParkeerAdres hieronder het schrijft ("Xstraat 12–14, 2000 Antwerpen"), anders de straat met de postcode
+//   (adresZonderHuisnummer). Op meer plaatsen elke plaats zo (parkeerWaar in site/place-core.js). Wat de verversing
+//   bewaart (historiek, straatbestanden), houdt de straat en de postcode; een kaart uit de ochtendstand zegt dan dat het
+//   huisnummer alleen live in A-Sign staat (plaatsVanDeOchtend in site/straat-snapshot.js).
+// - De reden nooit: de titel is altijd PARKEERVERBOD_TITEL, en een bewaard of getoond parkeerverbod draagt geen veld
+//   `reason` (parkeerverbodZonderReden). De reden van A-Sign mag intern nog meetellen voor de logica (een parkeerverbod
+//   bij zijn werfzone of evenement hangen, site/place-core.js), zolang ze nergens getoond of bewaard wordt: de verversing
+//   bewaart alleen het verband (werfzoneDossier, evenementSleutel hieronder).
+// A-Sign schrijft "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
 // "Ystraat hoek-64 2060 Antwerpen" (verzonnen straten).
+export const PARKEERVERBOD_TITEL="Parkeerverbod";
+// Bij welk evenement een parkeerverbod hoort (dat mag, besluit van 18 oktober 2026), zoals een straatbestand het bewaart
+// (`evenementSleutel`, parkeerverbodenAanEvenement in site/place-core.js): een evenementendossier ("ET2099000001") of een
+// agendapunt ("agenda:<id>"). Nooit vrije tekst, en dus nooit een reden. Het agendapunt alleen in de vorm van een echte
+// agenda-id: kleine letters en cijfers met enkele streepjes, hoogstens 120 tekens (zoals lib/source-feed.mjs de id van een
+// item in de feed eist), en op het einde de dag van dat punt, eventueel met een tweede dag en een korte hash of een uur:
+// "asign-ev-et2026001217-2026-10-18", "district-kal-6a746a7ff4182b8edf63a779-2026-10-18", "markt-ma24-2026-10-18",
+// "lambermontmartre-2026-06-28", "sportinitiaties-met-jespo-2026-07-01-2026-07-01-54018f" (site/agenda.js). Een slug
+// zonder dag ("agenda:verhuis-proefstraat"), met hoofdletters, spaties, punten of liggende streepjes valt weg; een
+// vergadering of een schoolstraat (geen dag in de id) is nooit het evenement van een parkeerverbod. Zonder /i: "ET"
+// in hoofdletters, zoals A-Sign en kaart-uitleg.json het dossier schrijven (nakijkronde van 18 oktober 2026: na
+// "agenda:" mocht elke slug, ook een met de reden).
+const AGENDA_DAG="\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12]\\d|3[01])";
+export const EVENEMENT_SLEUTEL=new RegExp(`^(?:ET\\d{10}|agenda:(?=[a-z0-9-]{1,120}$)[a-z0-9]+(?:-[a-z0-9]+)*?-${AGENDA_DAG}(?:-${AGENDA_DAG})?(?:-[0-9a-f]{1,8})?)$`);
+// Een parkeerverbod (een item, of de velden van een wijziging) zoals het getoond of bewaard mag worden: de titel
+// "Parkeerverbod" (als er een titel is) en geen `reason`. De rest blijft zoals het was; geen kopie als er niets wijzigt.
+export function parkeerverbodZonderReden(waarde){
+  if(!waarde||typeof waarde!=="object"||Array.isArray(waarde))return waarde;
+  const metTitel="title"in waarde&&waarde.title!==PARKEERVERBOD_TITEL;
+  if(!metTitel&&!("reason"in waarde))return waarde;
+  const{reason,...rest}=waarde;
+  return metTitel?{...rest,title:PARKEERVERBOD_TITEL}:rest;
+}
 const HUISNUMMER=/^(?:\d+\s*[a-z]{0,3}|hoek|onbekend|hnr nvt|nvt)(?:\s*bus\s*\w+)?$/i;
 const vouw=(t)=>String(t??"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/\s+/g," ").trim().toLowerCase();
 // Officiële straatnamen met een cijfer ("4 septemberpad", "De 7 schakenpad", "Kanaaldok B1-Oostkaai"):
@@ -18,7 +52,9 @@ function cijferStraten(straatnamen){
   voorbereid.set(straatnamen,lijst);
   return lijst;
 }
-const nummer=(stuk)=>stuk.split(/\s*-\s*/).every((d)=>HUISNUMMER.test(d.trim()));
+// Een nummerslot: één nummer, of nummers met een streepje, een schuine streep of "en" ertussen. Ook zoals
+// publiekParkeerAdres het schrijft ("12–14", "12 en 14", "hoek–64"): zo houdt elke opslag ook een live plaats op de straat.
+const nummer=(stuk)=>stuk.split(/\s*(?:[-–/]|\ben\b)\s*/i).every((d)=>HUISNUMMER.test(d.trim()));
 // Het langste slot "van-tot" (of één nummer) op het einde weg waarvan elk deel op een huisnummer lijkt.
 function zonderNummerslot(straat){
   for(let i=1;i<straat.length;i++){if(straat[i]===" "&&nummer(straat.slice(i+1)))return straat.slice(0,i)}
@@ -26,27 +62,59 @@ function zonderNummerslot(straat){
 }
 // Een laatste woord dat alleen een nummer is ("12/14", "12b", "3.5"), ook als het niet als huisnummer
 // herkend werd. Een straatnaam met een cijfer ("De 7 schakenpad", "Kanaaldok B1") eindigt nooit zo.
-const NUMMERWOORD=/\s+\d[\d/.,-]*[a-z]{0,2}$/i;
+const NUMMERWOORD=/\s+\d[\d/.,–-]*[a-z]{0,2}$/i;
 function zonderNummerwoord(straat){
   let uit=straat.trim();
   while(NUMMERWOORD.test(uit))uit=uit.replace(NUMMERWOORD,"").trim();
   return uit;
 }
 // `straatnamen`: optioneel, de officiële straatnamen (bv. uit de stratenlijst van het district).
-// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod kan preciezer zijn dan het
-// bewaarde straatbestand. Dit adres wordt alleen live getoond; de historiek en snapshots
-// blijven verplicht geschoond. Geen naam, bus, hoekwaarde of onzekere bron erbij verzinnen.
+// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod: waar exact, met het huisnummer of het
+// bereik van de bron. Dit adres wordt alleen live getoond; de historiek en de straatbestanden houden de
+// straat en de postcode (adresZonderHuisnummer maakt van elke vorm hieronder weer de straat). Geen naam, bus of
+// onzekere bron erbij verzinnen.
+// Vierde nakijkronde van 18 oktober 2026: alleen "Xstraat 12-14" (oplopend, hoogstens 300 uit elkaar) gaf een plaats; bij
+// elke andere vorm viel het nummer van de bron weg. Nu zo exact als A-Sign het geeft (verzonnen straten):
+//   "Xstraat 12" en "Xstraat 12-12"  -> "Xstraat 12, 2000 Antwerpen"
+//   "Xstraat 12-14" en "Xstraat 14-12" -> "Xstraat 12–14, 2000 Antwerpen" (oplopend)
+//   "Xstraat 12/14"                -> "Xstraat 12 en 14, 2000 Antwerpen" (elk nummer; drie: "12, 14 en 16")
+//   "Xstraat hoek-64", "34-hoek"   -> "Xstraat hoek–64", "Xstraat 34–hoek" (de hoek met het nummer)
+//   "Xstraat 12 bus 3"             -> "Xstraat 12" (nooit een bus: die is een woning, geen plaats op straat)
+//   "Xstraat 1-400"                -> "Xstraat 1–400": een bereik over (bijna) de hele straat is wat de bron zegt.
+// Geen nummer ("Onbekend-Onbekend", "nvt-nvt", "hoek-hoek") of iets anders dan nummers: "" (de kaart toont de straat).
+const NR=/^([1-9]\d{0,3})([a-z]{0,2})$/i;
+const nrVolgorde=(a,b)=>Number(NR.exec(a)[1])-Number(NR.exec(b)[1])||NR.exec(a)[2].toLowerCase().localeCompare(NR.exec(b)[2].toLowerCase());
+function nummerVanBron(deel){
+  const t=deel.replace(/\s*\(\d{4}\)\s*/g," ").replace(/\s+bus\s*[\w-]+$/i,"").replace(/\s+/g," ").trim();
+  if(!t)return"";
+  if(t.includes("/")){
+    const lijst=[...new Map(t.split(/\s*\/\s*/).map((n)=>[n.toLowerCase(),n])).values()];
+    if(!lijst.every((n)=>NR.test(n)))return"";
+    lijst.sort(nrVolgorde);
+    return lijst.length===1?lijst[0]:`${lijst.slice(0,-1).join(", ")} en ${lijst.at(-1)}`;
+  }
+  const d=t.split(/\s*[-–]\s*/);
+  if(d.length===1)return NR.test(d[0])?d[0]:"";
+  if(d.length!==2)return"";
+  const[a,b]=d,hoekA=/^hoek$/i.test(a),hoekB=/^hoek$/i.test(b);
+  if(hoekA&&NR.test(b))return`hoek–${b}`;
+  if(hoekB&&NR.test(a))return`${a}–hoek`;
+  if(!NR.test(a)||!NR.test(b))return"";
+  if(a.toLowerCase()===b.toLowerCase())return a;
+  const[van,tot]=[a,b].sort(nrVolgorde);
+  return`${van}–${tot}`;
+}
 export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = null) {
   const raw = zonderToevoegingInTekst(String(bronAdres ?? "").replace(/\s+/g, " ").trim().slice(0, 220));
-  const m = /^(.*?)\s+([1-9]\d{0,3}[a-z]{0,2})\s*[-–]\s*([1-9]\d{0,3}[a-z]{0,2})\s+(\d{4})\s+Antwerpen$/i.exec(raw);
-  if (!m || adresZonderHuisnummer(raw, straatnamen) !== geschoondAdres) return "";
-  const begin = Number(m[2].match(/^\d+/)[0]), eind = Number(m[3].match(/^\d+/)[0]);
-  if (eind < begin || eind - begin > 300) return "";
-  const bereik = m[2].toLowerCase() === m[3].toLowerCase() ? m[2] : `${m[2]}–${m[3]}`;
-  const leesbaar = `${m[1]} ${bereik}, ${m[4]} Antwerpen`;
-  // Het bronadres is hierboven al exact geschoond en geverifieerd. Een leesbare en-dash
-  // (11–13) hoeft niet opnieuw door de ASCII-bronparser te gaan.
-  return leesbaar;
+  const m = /^(.*?)\s+(\d{4})\s+Antwerpen$/i.exec(raw);
+  if (!m || !geschoondAdres || adresZonderHuisnummer(raw, straatnamen) !== geschoondAdres) return "";
+  // De straat zoals de geschoonde vorm ze schrijft; wat in de bron tussen de straat en de postcode staat, is het nummer.
+  const g = /^(.+), (\d{4}) Antwerpen$/.exec(geschoondAdres);
+  if (!g || g[2] !== m[2] || !m[1].toLowerCase().startsWith(g[1].toLowerCase())) return "";
+  const rest = m[1].slice(g[1].length);
+  if (!/^[\s(]/.test(rest)) return "";
+  const nr = nummerVanBron(rest);
+  return nr ? `${g[1]} ${nr}, ${m[2]} Antwerpen` : "";
 }
 
 // Dit is de ingang van het adres van A-Sign: ook de homoniemtoevoeging van de straatas gaat hier weg ("Proefstraat_AN 12

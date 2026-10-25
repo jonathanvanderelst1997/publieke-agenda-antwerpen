@@ -13,8 +13,8 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be infopagina koopzondagen (HTML, lijst 'Koopzondagen in <jaar>'), alleen komende koopzondagen",
-  "retrievedAt": "2026-10-18T03:18:22.452Z",
-  "fetchStatus": "ok",
+  "retrievedAt": "2026-10-22T03:20:28.162Z",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
@@ -36,7 +36,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. De stad noemt geen uren; zie de officiële pagina.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-18T03:18:22.452Z",
+      "retrievedAt": "2026-10-22T03:20:28.162Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -58,7 +58,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. De stad noemt geen uren; zie de officiële pagina.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-18T03:18:22.452Z",
+      "retrievedAt": "2026-10-22T03:20:28.162Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -80,7 +80,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. De stad noemt geen uren; zie de officiële pagina.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-18T03:18:22.452Z",
+      "retrievedAt": "2026-10-22T03:20:28.162Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -102,7 +102,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. De stad noemt geen uren; zie de officiële pagina.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-18T03:18:22.452Z",
+      "retrievedAt": "2026-10-22T03:20:28.162Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -124,7 +124,7 @@
       "info": "Koopzondag in het toeristische stadscentrum volgens de lijst van stad Antwerpen. De stad noemt geen uren; zie de officiële pagina.",
       "kind": "activity",
       "sourceUrl": "https://www.antwerpen.be/info/koopzondagen",
-      "retrievedAt": "2026-10-18T03:18:22.452Z",
+      "retrievedAt": "2026-10-22T03:20:28.162Z",
       "reviewRequired": false,
       "inDistrict": true
     }
