@@ -1,6 +1,7 @@
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
 import {lijstTitel} from "./werk-vorm.js";
+import {laagStand} from "./live-lagen.js";
 import {parkeerverbodInLijst} from "./place-core.js";
 
 const clean=value=>String(value??"").replace(/\s+/g," ").trim();
@@ -43,10 +44,20 @@ export function buildWeekPulse({agendaItems=[],works=[],publicSpace=[],fromDay,t
   return{from,to,agendaCount:agenda.length,agendaByType,neighborhoodCount:agendaByType.neighborhood||0,playStreetCount:agendaByType.playstreet||0,publicMeetingCount:agendaByType.public_meeting||0,marketFairCount:agendaByType.market_fair||0,workStarts:workStarts.length,workEnds:workEnds.length,measureStarts:measureStarts.length,severeHindranceWorks:severe.length,upcoming};
 }
 
+// Wat de vooruitblik per teller toont. `lagen`: per live laag (works, publicSpace) "ok", "mislukt" of "" (nog niet
+// binnen), zoals "Alles per straat" (laagStand in site/live-lagen.js). Laadde de laag niet (of maar deels) en telt ze
+// niets, dan geen verzonnen 0 maar een streepje, zonder melding dat iets faalt (besluit van 18-10-2026); wat wel
+// geteld is, blijft staan, een echte 0 ook.
+export function vooruitblikTellers(pulse,lagen={}){
+  const tel=(laag,n)=>lagen[laag]==="mislukt"&&!n?"–":String(n);
+  return{agenda:String(pulse.agendaCount),werkenStarten:tel("works",pulse.workStarts),werkenEindigen:tel("works",pulse.workEnds),maatregelen:tel("publicSpace",pulse.measureStarts),ernstig:tel("works",pulse.severeHindranceWorks)};
+}
+
 if(typeof window!=="undefined"&&typeof document!=="undefined"){
   const root=document.getElementById("week-pulse");
   if(root){
-    const state={works:window.PUBLIC_AGENDA_LIVE_STREETS?.works||[],publicSpace:window.PUBLIC_AGENDA_LIVE_STREETS?.publicSpace||[]};
+    const live=window.PUBLIC_AGENDA_LIVE_STREETS||{};
+    const state={works:live.works||[],publicSpace:live.publicSpace||[],lagen:{works:laagStand({items:live.works,failed:live.failed?.works}),publicSpace:laagStand({items:live.publicSpace,failed:live.failed?.publicSpace})}};
     const esc=(value="")=>String(value).replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[char]));
     const brusselsToday=()=>{const parts=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());const v=Object.fromEntries(parts.map(p=>[p.type,p.value]));return`${v.year}-${v.month}-${v.day}`};
     const dateFmt=new Intl.DateTimeFormat("nl-BE",{weekday:"short",day:"numeric",month:"short"});
@@ -54,19 +65,20 @@ if(typeof window!=="undefined"&&typeof document!=="undefined"){
     function render(){
       const from=brusselsToday(),agendaItems=Array.isArray(window.PUBLIC_AGENDA_FEED?.items)?window.PUBLIC_AGENDA_FEED.items:[],horizon=knownHorizon({agendaItems,works:state.works,publicSpace:state.publicSpace,fromDay:from}),to=horizon.to;
       const pulse=buildWeekPulse({agendaItems,works:state.works,publicSpace:state.publicSpace,fromDay:from,toDay:to});
+      const tel=vooruitblikTellers(pulse,state.lagen);
       const types=Object.entries(pulse.agendaByType).filter(([,count])=>count>0).sort((a,b)=>b[1]-a[1]||labelFor(a[0]).localeCompare(labelFor(b[0]),"nl")).slice(0,8);
       const horizonBits=[horizon.agendaUntil&&`agenda t/m ${fmt(horizon.agendaUntil)}`,horizon.worksUntil&&`werken t/m ${fmt(horizon.worksUntil)}`,horizon.measuresUntil&&`maatregelen t/m ${fmt(horizon.measuresUntil)}`].filter(Boolean).join(" · ");
       root.innerHTML=`<div class="week-pulse-head"><div><span>Volledige vooruitblik</span><h2>${esc(fmt(from))} – ${esc(fmt(to))}</h2><p>Alles wat de gekoppelde officiële bronnen nu al als lopend of toekomstig kennen.</p></div><small>Geen vaste 7-dagenlimiet. ${esc(horizonBits||"Nog geen toekomstige brondata.")}</small></div>
       <div class="week-pulse-stats">
-        <a href="#agenda-list"><strong>${pulse.agendaCount}</strong><span>activiteiten / publieke momenten</span></a>
-        <a href="#works-live"><strong>${pulse.workStarts}</strong><span>werken starten</span><small>${pulse.workEnds} eindigen</small></a>
-        <a href="#public-space-live"><strong>${pulse.measureStarts}</strong><span>maatregelen starten</span></a>
-        <a href="#works-live"><strong>${pulse.severeHindranceWorks}</strong><span>werken met ernstige hinder</span></a>
+        <a href="#agenda-list"><strong>${tel.agenda}</strong><span>activiteiten / publieke momenten</span></a>
+        <a href="#works-live"><strong>${tel.werkenStarten}</strong><span>werken starten</span><small>${tel.werkenEindigen} eindigen</small></a>
+        <a href="#public-space-live"><strong>${tel.maatregelen}</strong><span>maatregelen starten</span></a>
+        <a href="#works-live"><strong>${tel.ernstig}</strong><span>werken met ernstige hinder</span></a>
       </div>
       <div class="week-pulse-types">${types.map(([type,count])=>`<span><strong>${count}</strong> ${esc(labelFor(type))}</span>`).join("")}</div>
       ${pulse.upcoming.length?`<div class="week-pulse-list"><strong>Eerstvolgende 14 items</strong><ol>${pulse.upcoming.map(item=>`<li><time>${esc(fmt(item.date))}</time><span><b>${esc(item.title)}</b>${item.location?`<small>${esc(item.location)}</small>`:""}${item.wanneer?`<small>${esc(item.wanneer)}</small>`:""}</span>${item.url?`<a href="${esc(item.url)}" target="_blank" rel="noreferrer">${esc(item.urlLabel||"bron")}</a>`:""}</li>`).join("")}</ol></div>`:""}`;
     }
-    window.addEventListener("public-agenda:street-layer",event=>{if(event.detail?.name==="works")state.works=event.detail.items||[];if(event.detail?.name==="publicSpace")state.publicSpace=event.detail.items||[];render()});
+    window.addEventListener("public-agenda:street-layer",event=>{if(event.detail?.name==="works")state.works=event.detail.items||[];if(event.detail?.name==="publicSpace")state.publicSpace=event.detail.items||[];if(Object.hasOwn(state.lagen,event.detail?.name))state.lagen[event.detail.name]=laagStand(event.detail);render()});
     render();
   }
 }

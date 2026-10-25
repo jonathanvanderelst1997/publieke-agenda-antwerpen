@@ -65,10 +65,11 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(niets.streetNearby, []);
   const leeg = kaart(werk({ ...niets }));
   assert.equal(regels(leeg).Waar, "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt");
-  // Niet gezocht (geen punt, of de straatassen laadden niet): dan ook niet beweren dat er niets is.
+  // Niet gezocht (geen punt, of de straatassen laadden niet): dan ook niet beweren dat er niets is, en ook niet zeggen
+  // dat iets niet lukte (besluit van 18-10-2026).
   assert.equal(geenPunt.streetNearby, undefined);
   const onbekend = kaart(werk({ streets: [], streetResolution: "unresolved" }));
-  assert.equal(regels(onbekend).Waar, "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden");
+  assert.equal(regels(onbekend).Waar, "Alleen als punt op de kaart van GIPOD");
   for (const x of [leeg, onbekend]) assert.doesNotMatch(alleTekst(x), /geen straat in de buurt gevonden/);
 });
 

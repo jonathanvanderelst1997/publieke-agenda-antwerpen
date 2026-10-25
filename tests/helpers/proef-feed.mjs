@@ -32,10 +32,10 @@ export function marktItem(stempel, eigen = {}) {
   };
 }
 
-// Alle bronnen van `feed` opgehaald op `stempel`, en met succes: een bron die in de echte feed faalde (fetchStatus
-// "error", zoals eBesluit sinds 13 oktober 2026) zou anders de bronwaarschuwing bovenaan zetten (#191), en dan hing
-// een toets van de opmaak af van de gezondheid van de bronnen op de dag van de data. Een bron zonder sleutel of
-// uitgezet blijft zoals ze is. De items houden hun eigen stempel.
+// Alle bronnen van `feed` opgehaald op `stempel`, en met succes: zo hangt een toets niet af van de gezondheid van de
+// bronnen op de dag van de data (in de echte feed faalt eBesluit sinds 13 oktober 2026, fetchStatus "error"; tot het
+// besluit van 18-10-2026 zette dat de bronwaarschuwing van #191 bovenaan, nu toont de site er niets van). Een bron
+// zonder sleutel of uitgezet blijft zoals ze is. De items houden hun eigen stempel.
 export function gezondeBronnen(feed, stempel = feed.generatedAt) {
   for (const bron of feed.sources) {
     bron.retrievedAt = stempel;
@@ -45,8 +45,8 @@ export function gezondeBronnen(feed, stempel = feed.generatedAt) {
 }
 
 // Het omgekeerde, zoals de echte feed sinds 13 oktober 2026: de bronnen `ids` faalden bij de laatste verversingen
-// (fetchStatus "error") en zijn laatst opgehaald `dagen` dagen voor de feed. Dan staat de bronwaarschuwing bovenaan (#191).
-// Voor de toets die meet wat die waarschuwing op een gsm doet (tests/e2e/plek.e2e.mjs).
+// (fetchStatus "error") en zijn laatst opgehaald `dagen` dagen voor de feed. Voor de toetsen die nagaan dat een bezoeker
+// daar niets van ziet, ook niet op een gsm (tests/e2e/plek.e2e.mjs; besluit van de eigenaar van 18-10-2026).
 export function falendeBronnen(feed, ids, dagen = 5) {
   const toen = new Date(Date.parse(feed.generatedAt) - dagen * 86400000).toISOString();
   const bronnen = feed.sources.filter((bron) => ids.includes(bron.sourceId));

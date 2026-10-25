@@ -171,6 +171,10 @@ export function buildFeed({ status, documents: bronnen, manualCheck = null, teks
       const entry = statusBySource.get(document.sourceId);
       const { items: sourceItems, ...meta } = document;
       delete meta.suppressions;
+      // De reden van een fout (lastError, lastSuccessAt; lib/fetch-util.mjs) blijft in het bronbestand: intern, de
+      // site toont nergens dat een bron faalt (besluit van 18-10-2026). De feed draagt fetchStatus en errorCode.
+      delete meta.lastError;
+      delete meta.lastSuccessAt;
       return {
         ...meta,
         label: SOURCE_DEFINITIONS[document.sourceId].label,

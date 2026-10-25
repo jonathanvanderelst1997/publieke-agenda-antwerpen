@@ -261,8 +261,14 @@ test("'Bijgewerkt' toont altijd het uur, met vandaag of gisteren erbij", () => {
   assert.equal(runtime.freshnessWhen("2026-10-25T04:21:00Z", at("2026-10-26T22:30:00Z")), "gisteren om 05.21");
   assert.equal(runtime.freshnessWhen("2026-10-25T04:21:00Z", at("2026-10-26T23:30:00Z")), "op 25 oktober 2026 om 05.21");
   assert.equal(runtime.freshnessWhen("geen datum", at("2026-10-10T12:00:00Z")), "");
+  // De pil bovenaan (kort): ook een momentopname van een paar dagen oud past op één regel op 360 px (P8); het jaar
+  // alleen als het niet het huidige is. De zin over de broncontrole houdt de lange vorm.
+  assert.equal(runtime.freshnessWhen(refreshed, at("2026-10-13T08:00:00Z"), { kort: true }), "op 10 okt om 05.22");
+  assert.equal(runtime.freshnessWhen(refreshed, at("2026-10-10T12:00:00Z"), { kort: true }), "vandaag om 05.22");
+  assert.equal(runtime.freshnessWhen("2025-12-30T03:22:00Z", at("2026-01-02T08:00:00Z"), { kort: true }), "op 30 dec 2025 om 04.22");
   const agendaSource = fs.readFileSync(path.join(rootDir, "site", "agenda.js"), "utf8");
-  assert.match(agendaSource, /"Bijgewerkt"\} \$\{moment\}/);
+  assert.match(agendaSource, /freshnessWhen\(agendaFreshness\.generatedAt, agendaNow\(\)\.getTime\(\), \{ kort: true \}\)/);
+  assert.match(agendaSource, /`Bijgewerkt \$\{moment\}`/);
   assert.match(agendaSource, /Officiële broncontrole \$\{freshnessWhen\(/);
 });
 

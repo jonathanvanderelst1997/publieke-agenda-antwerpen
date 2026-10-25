@@ -14,16 +14,19 @@ test("eBesluit probeert een tijdelijke 503 precies één keer opnieuw",async()=>
   assert.equal(result.complete,true);
   assert.ok(calls>1);
 });
-test("eBesluit blijft fail-closed na twee 503-antwoorden",async()=>{
+// Een aanhoudende 503 blijft fail-closed. Sinds de terugval naar kleinere zoekpagina's (lib/ebesluit-discovery.mjs,
+// tests/ebesluit-terugval.test.mjs) zijn dat geen 2 verzoeken meer maar begrensd 10: het jaarvenster met 500, 100 en 50
+// rijen (elk met de herkansing), het eerste kwartaal en de eerste maand met 50; dan stopt de zoekronde.
+test("eBesluit blijft fail-closed bij een aanhoudende 503, ook met kleinere pagina's, en begrensd",async()=>{
   let calls=0;
   const always503=async()=>{calls++;return resp("",503)};
-  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_503");
-  assert.equal(calls,2);
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always503,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="search_http_503");
+  assert.equal(calls,10);
 });
 test("eBesluit herhaalt een niet-tijdelijke 404 niet",async()=>{
   let calls=0;
   const always404=async()=>{calls++;return resp("",404)};
-  await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="http_404");
+  await assert.rejects(()=>discoverCivicDecisions({fetch:always404,year:2026,retryDelayMs:0,sleepImpl:async()=>{}}),error=>error?.code==="search_http_404");
   assert.equal(calls,1);
 });
 

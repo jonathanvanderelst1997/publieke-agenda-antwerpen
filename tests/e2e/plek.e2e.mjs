@@ -122,7 +122,10 @@ function asignServer({ fail = [], fixtures = {} } = {}) {
   return { stats, handle };
 }
 
-async function routeSources(page, street, { asign = null, work: withWork = true, werkStukken = 1, assen = [], vergunningen = [], evenement = null, aanvraag = true } = {}) {
+// `plat`: bronnen die niet antwoorden (zoals bij een storing): "alles" (alles buiten de lokale site), "gipod" (werken en
+// hinder), "hinder" (alleen HINDER_PUNT), "asign" (alle A-Sign-lagen) en "awv" (het AWV-bestand van de verversing).
+async function routeSources(page, street, { asign = null, work: withWork = true, werkStukken = 1, assen = [], vergunningen = [], evenement = null, aanvraag = true, plat = [] } = {}) {
+  if (plat.includes("awv")) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/sources/awv-werf-supplement.json", (route) => route.abort());
   // Zonder straatbestanden (P5): deze toetsen gaan over de volledige live lagen, niet over de stand van
   // de ochtend (die toetst tests/e2e/snelheid.e2e.mjs), en hangen zo niet af van wat er in site/straat staat.
   await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/straat-index.json", (route) => route.fulfill({ status: 404, contentType: "text/plain", body: "" }));
@@ -153,6 +156,7 @@ async function routeSources(page, street, { asign = null, work: withWork = true,
   const afbraak = evenement?.afbraakTot && { attributes: { ...parcours.attributes, faseId: "F2", innameId: "I2", faseNaam: "Afbraak", innameTypeNaam: "Parkeerverbod in Straat", faseStartDatum: fase, faseEindDatum: Date.parse(`${evenement.afbraakTot}T08:00:00Z`) }, geometry: { paths: [[[x1, y1], [x2, y2]]] } };
   await page.route((url) => !/^http:\/\/127\.0\.0\.1/.test(url.href), (route) => {
     const url = route.request().url();
+    if (plat.includes("alles") || (plat.includes("gipod") && url.includes("/GIPOD/")) || (plat.includes("hinder") && url.includes("/collections/HINDER_PUNT/")) || (plat.includes("asign") && url.includes("/P_ASign/"))) return route.abort();
     if (url.includes("/collections/INNAME_PUNT/")) return route.fulfill(json(withWork ? work : { type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/collections/HINDER_PUNT/")) return route.fulfill(json({ type: "FeatureCollection", features: [], links: [] }));
     if (url.includes("/MapServer/109/")) return route.fulfill(json(district));
@@ -210,13 +214,13 @@ function weekendFeed(dag, { uitstappen = 0, markten = [], langePlaats = false } 
   ]);
 }
 
-async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null } = {}) {
+async function openPage(baseUrl, { width = 390, height = 844, query = "", street = null, asign = null, work = true, werkStukken = 1, assen = [], vergunningen = [], kaartUitleg = null, evenement = null, aanvraag = true, inzage = null, agendaErbij = [], kaartLaat = false, dag = today, feed = null, plat = [] } = {}) {
   const context = await browser.newContext({ viewport: { width, height }, isMobile: width < 500, hasTouch: width < 500, locale: "nl-BE", timezoneId: "Europe/Brussels" });
   const page = await context.newPage();
   if (kaartUitleg) await page.route("**/sources/kaart-uitleg.json", (route) => route.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify(kaartUitleg) }));
   // De echte feed met verzonnen agendapunten erbij (`agendaErbij`, met een vaste letterlijke basis), of een volledig
   // nagebootste feed (`feed`: weekendFeed, proefFeed) met de klok op de dag van die feed. De echte items, maar de bronnen
-  // gezond (gezondeBronnen): een bron die die dag faalde, zet anders de bronwaarschuwing boven de plek.
+  // gezond (gezondeBronnen), zodat de opmaak niet afhangt van de bronstatus op de dag van de data.
   if (agendaErbij.length && !feed) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/agenda-feed.js", (route) => {
     const echt = gezondeBronnen(echteFeed());
     echt.items.push(...agendaErbij.map((item) => kalenderItem(echt.generatedAt, item)));
@@ -228,7 +232,7 @@ async function openPage(baseUrl, { width = 390, height = 844, query = "", street
   page.on("pageerror", (error) => errors.push(error.message));
   const geodataFouten = [];
   page.on("requestfailed", (request) => { if (/geodata\.antwerpen\.be/.test(request.url())) geodataFouten.push(request.url()); });
-  await routeSources(page, street || pickStreet.fallback, { asign, work, werkStukken, assen, vergunningen, evenement, aanvraag });
+  await routeSources(page, street || pickStreet.fallback, { asign, work, werkStukken, assen, vergunningen, evenement, aanvraag, plat });
   // Een trage kaart (`kaartLaat`): de module van de buurtkaart komt pas als het plekoverzicht zijn lijst al
   // toonde (en de kaart dus al gemeld had hoeveel erin staat).
   if (kaartLaat) await page.route((url) => url.hostname === "127.0.0.1" && url.pathname === "/neighborhood-map.js", async (route) => {
@@ -1025,13 +1029,13 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  // De bronwaarschuwing (#191) op een gsm. De toetsen hierboven nemen gezonde bronnen (gezondeBronnen), zodat hun opmaak
-  // niet afhangt van de bronstatus op de dag van de data. Maar in de echte feed falen de twee eBesluit-bronnen sinds
-  // 13 oktober 2026, en dan staat de waarschuwing bij elke bezoeker bovenaan, boven de plek en "Dit weekend". Deze twee
-  // toetsen nemen dat na (falendeBronnen): eerst dat de waarschuwing er dan staat (en met gezonde bronnen niet), dan waar
-  // de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) dan eindigen. Dat laatste is een open vraag aan de
-  // eigenaar (todo): de waarschuwing zo bovenaan houden, of op een gsm compacter of lager zetten. De todo meet alleen
-  // waar die blokken eindigen; zet de site de waarschuwing lager, dan slaagt ze ("ok … # TODO") en mag "todo" weg.
+  // Geen bronwaarschuwing meer (#191 is weg): besluit van de eigenaar (18-10-2026), "niemand moet weten als er iets
+  // faalt, de momentopname blijft wel goed". In de echte feed falen de twee eBesluit-bronnen sinds 13 oktober 2026;
+  // ook dan ziet een bezoeker daar niets van, niet bovenaan (op de voorpagina en bij een straat) en niet in de
+  // bronnenlijst ("Bronnen en volledige vooruitblik"): die zegt wanneer de bron het laatst goed ververst is. De
+  // bronstatus blijft wel in de feed (intern: de job source-health en de alarmen naar de eigenaar). De toetsen hierboven
+  // nemen gezonde bronnen (gezondeBronnen); deze twee nemen de falende bronnen na (falendeBronnen): eerst dat er niets
+  // over staat, dan dat de straat, de weekzin, de tegels (P6) en "Dit weekend" (P8) ook dan boven 600 px eindigen.
   const EBESLUIT = ["district-ebesluit", "district-ebesluit-evenementen"];
   const plekFeedMet = (bronnen) => {
     const feed = bronnen(gezondeBronnen(echteFeed()));
@@ -1040,25 +1044,44 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   };
   const metFalendeBron = (feed) => falendeBronnen(feed, EBESLUIT);
   const bronnenNagekeken = (page) => page.waitForFunction(() => !/controleren/i.test(document.querySelector("#agenda-freshness")?.textContent || ""), null, { timeout: 10000 });
-  await t.test("bronwaarschuwing (#191): met een falende bron staat ze bovenaan, op de voorpagina en bij een straat; met gezonde bronnen niet", async () => {
+  // Wat een bezoeker vroeger las als een bron faalde (bovenaan, in de bronnenlijst en in de zin "Officiële broncontrole
+  // …", die de punten van een falende bron telde als "verouderde bron").
+  // ("versheid per bron" zelf staat wel nog in de uitleg van "Alle lijsten, bronnen en instellingen": dat is geen melding.)
+  const BRONFOUT = /tijdelijk onbereikbaar|ophaalpoging mislukt|verouderd sinds|verouderde bron|officiële bronnen zijn|Bekijk de versheid/i;
+  // Alle tekst die een bezoeker kan lezen, ook in een ingeklapt blok (body.innerText laat de inhoud van een dicht
+  // <details> weg; nakijkbevinding: zo bleef "verouderde bron" in "Bronnen en volledige vooruitblik" onopgemerkt).
+  const leesbareTekst = (page) => page.evaluate(() => [document.body.innerText, ...[...document.querySelectorAll("details")].map((el) => el.textContent)].join("\n"));
+  await t.test("geen bronwaarschuwing (besluit 18-10-2026): met de eBesluit-bronnen falend staat er niets over, op de voorpagina en bij een straat", async () => {
     const dag = volgendeWeekdag(today, 3);
-    for (const [naam, opties, waarschuwing] of [
-      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }, true],
-      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }, true],
-      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }, false],
-      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }, false],
+    const ebesluitLabels = echteFeed().sources.filter((bron) => EBESLUIT.includes(bron.sourceId)).map((bron) => bron.label);
+    assert.equal(ebesluitLabels.length, 2);
+    for (const [naam, opties] of [
+      ["voorpagina, eBesluit faalt", { dag, feed: metFalendeBron(weekendFeed(dag, { uitstappen: 9 })) }],
+      ["straat, eBesluit faalt", { street, query: plekQuery, feed: plekFeedMet(metFalendeBron) }],
+      ["voorpagina, gezonde bronnen", { dag, feed: weekendFeed(dag, { uitstappen: 9 }) }],
+      ["straat, gezonde bronnen", { street, query: plekQuery, feed: plekFeedMet((feed) => feed) }],
     ]) {
       const { page, context, errors } = await openPage(baseUrl, opties);
       await bronnenNagekeken(page);
-      const banner = page.locator("#agenda-source-warning");
-      assert.equal(await banner.isVisible(), waarschuwing, naam);
-      if (waarschuwing) assert.match(await banner.innerText(), /Niet alle officiële bronnen zijn actueel\.\s+2 bronnen zijn niet binnen de toegestane versheidsgrens bevestigd\./, naam);
+      assert.equal(await page.locator("#agenda-source-warning").count(), 0, naam);
+      // Ook niet in de ingeklapte bronnenlijst: daar staat bij eBesluit het moment van de laatste goede stand.
+      await page.waitForFunction(() => document.querySelector("#agenda-source-status li"), null, { timeout: 10000 });
+      const lijst = await page.locator("#agenda-source-status").evaluate((el) => [...el.querySelectorAll("li")].map((li) => li.textContent.replace(/\s+/g, " ").trim()));
+      for (const label of ebesluitLabels) assert.ok(lijst.some((regel) => regel.startsWith(`${label}: ververst op `)), `${naam}: ${label} in ${JSON.stringify(lijst)}`);
+      assert.doesNotMatch(await leesbareTekst(page), BRONFOUT, naam);
+      // De zin over de broncontrole staat in dat ingeklapte blok en telt de punten van de falende bron niet mee.
+      const notitie = await page.locator("#agenda-refresh-note").textContent();
+      assert.match(notitie, /^Officiële broncontrole /, naam);
+      assert.ok(await page.locator(".agenda-technical-details #agenda-refresh-note").count(), `${naam}: de zin staat in "Bronnen en volledige vooruitblik"`);
+      assert.doesNotMatch(notitie, BRONFOUT, naam);
       assert.deepEqual(errors, [], naam);
       await context.close();
     }
   });
 
-  await t.test("gsm met de bronwaarschuwing: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", { todo: "vraag 2 aan de eigenaar: de bronwaarschuwing staat op een gsm boven de plek en 'Dit weekend' (17-10-2026, eBesluit faalt: plek 543/679/833 px, 'Dit weekend' 819 px op 390 en 850 px op 360)" }, async () => {
+  // Vroeger een todo (vraag 2 aan de eigenaar): met de bronwaarschuwing eindigden de plek en "Dit weekend" op een gsm
+  // onder 600 px (17-10-2026, eBesluit faalt: plek 543/679/833 px, "Dit weekend" 819 px op 390 en 850 px op 360).
+  await t.test("gsm met falende eBesluit-bronnen: straat, weekzin en tegels (390×844) en 'Dit weekend' (390×844 en 360×780) eindigen boven 600 px", async () => {
     const dag = volgendeWeekdag(today, 3);
     const onder = {};
     for (const [width, height] of [[390, 844], [360, 780]]) {
@@ -1077,7 +1100,58 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
     }))));
     await context.close();
-    t.diagnostic(`met de bronwaarschuwing, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    t.diagnostic(`met falende eBesluit-bronnen, onderkant op de pagina: ${JSON.stringify(onder)}`);
+    for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
+  });
+
+  // Nakijkronde 2 (18-10-2026): de melding dat de hele agenda meer dan 48 uur niet ververst is ("⏳ De agenda wordt even
+  // niet ververst. … We werken eraan."), de oranje pil "Laatst bijgewerkt", de badge "Laatst bevestigd …" en "… omdat de
+  // verversing achterloopt" in de bronnenlijst bleven staan: zo wist een bezoeker toch dat er iets faalt, tegen het
+  // besluit in ("niemand moet weten als er iets faalt, de momentopname blijft wel goed"). Op een gsm eindigden "Dit
+  // weekend" (791 px) en de plek (573/691/845 px) zo ook weer onder 600 px (P6, P8). Nu: de momentopname met haar
+  // tijdstip, zonder melding. Intern blijft het alarm (de job freshness in refresh.yml).
+  const DRIE_DAGEN = 3 * 86400000;
+  const oudeFeed = (feed) => {
+    const toen = new Date(Date.parse(feed.generatedAt) - DRIE_DAGEN).toISOString();
+    const oud = JSON.parse(JSON.stringify(feed).replaceAll(feed.generatedAt, toen));
+    return Object.assign(oud, { generatedAt: toen, classificationAsOf: toen.slice(0, 10) });
+  };
+  const ACHTERSTAND = /wordt even niet ververst|We werken eraan|Laatst bevestigd|achterloopt|check je best even|Laatst bijgewerkt/i;
+  await t.test("de hele agenda is 3 dagen oud en de bronnen falen: geen melding, de momentopname blijft, en op de gsm alles boven 600 px", async () => {
+    const dag = volgendeWeekdag(today, 3);
+    const onder = {};
+    for (const [width, height] of [[390, 844], [360, 780]]) {
+      const { page, context, errors } = await openPage(baseUrl, { dag, width, height, feed: metFalendeBron(oudeFeed(weekendFeed(dag, { uitstappen: 9, langePlaats: true }))) });
+      await bronnenNagekeken(page);
+      await page.locator("#dit-weekend .dw-titel").waitFor();
+      // De momentopname blijft: de kaarten van het weekend staan er (intern met graceStale), zonder badge.
+      assert.equal(await page.locator("#dit-weekend .hl-card").count(), 6, `${width} px: de kaarten van het weekend staan er`);
+      assert.ok(await page.evaluate(() => (window.PUBLIC_AGENDA_VISIBLE_ITEMS || []).some((i) => i.graceStale)), "intern: de punten blijven, met graceStale");
+      assert.equal(await page.locator("#agenda-stale-banner, .stale-banner, .grace-badge").count(), 0, `${width} px`);
+      assert.doesNotMatch(await page.locator("#agenda-freshness").getAttribute("class"), /is-stale/);
+      assert.match(await page.locator("#agenda-freshness").textContent(), /^Bijgewerkt /, "het tijdstip van de momentopname");
+      assert.doesNotMatch(await leesbareTekst(page), ACHTERSTAND, `${width} px`);
+      assert.doesNotMatch(await page.locator("#agenda-refresh-note").textContent(), ACHTERSTAND);
+      onder[`Dit weekend ${width} px`] = await page.evaluate(() => Math.round(document.querySelector("#dit-weekend").getBoundingClientRect().bottom + window.scrollY));
+      assert.deepEqual(errors, [], `${width} px`);
+      await context.close();
+    }
+    const plekDag = addDays(today, 3);
+    const feed = gezondeBronnen(echteFeed());
+    feed.items.push(kalenderItem(feed.generatedAt, proefAgendapunt(addDays(today, 4), street)));
+    const { page, context, errors } = await openPage(baseUrl, { dag: plekDag, street, query: plekQuery, feed: metFalendeBron(feed) });
+    await page.locator(`.pv-results ${WORK_ROW}`).first().waitFor({ timeout: 15000 });
+    await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
+    await bronnenNagekeken(page);
+    assert.equal(await page.locator("#agenda-stale-banner, .stale-banner, .grace-badge").count(), 0, "plek");
+    assert.doesNotMatch(await leesbareTekst(page), ACHTERSTAND, "plek");
+    Object.assign(onder, await page.evaluate(() => Object.fromEntries([".pv-place-name", ".pv-dezeweek", ".pv-stats"].map((sel) => {
+      const r = document.querySelector(sel)?.getBoundingClientRect();
+      return [sel, r ? Math.round(r.bottom + window.scrollY) : -1];
+    }))));
+    assert.deepEqual(errors, [], "plek");
+    await context.close();
+    t.diagnostic(`agenda 3 dagen oud, onderkant op de pagina: ${JSON.stringify(onder)}`);
     for (const [wat, y] of Object.entries(onder)) assert.ok(y > 0 && y <= 600, `${wat} eindigt op ${y}px, niet boven 600px`);
   });
 
@@ -1465,8 +1539,9 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   });
 
   // Nakijkbevinding 9 (rest): zolang de evenementen op straat laden, zegt de zin dat (nooit "rustig"); en een
-  // werkenlaag die deels mislukte terwijl werken uit staan, telde als volledig geladen.
-  await t.test("de komende 7 dagen: met alleen evenementen en een trage A-Sign 'nog geladen', en werken die deels mislukten staan in de zin", async () => {
+  // werkenlaag die deels mislukte terwijl werken uit staan, telde als volledig geladen. Sinds het besluit van 18-10-2026
+  // ("niemand moet weten als er iets faalt") zegt de zin niet meer dat de werken maar deels laadden.
+  await t.test("de komende 7 dagen: met alleen evenementen en een trage A-Sign 'nog geladen', en werken die deels mislukten verraden niets", async () => {
     let open;
     const poort = new Promise((klaar) => { open = klaar; });
     // A-Sign antwoordt pas als de toets de poort opent.
@@ -1484,18 +1559,18 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await page.waitForFunction(() => !/nog geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 15000 });
     assert.match(await week.innerText(), /\. Werken zijn niet geladen\.$/);
     // De werkenlaag laadt deels (zoals de lijst van het hele district die in beeld kwam en voor een deel mislukte),
-    // terwijl werken uit staan: de zin zegt dat de werken niet volledig geladen zijn.
+    // terwijl werken uit staan: de zin noemt alleen wat gevonden is, zonder te zeggen dat iets niet laadde.
     await page.evaluate(() => {
       const live = window.PUBLIC_AGENDA_LIVE_STREETS;
       live.works = [];
       live.failed = { ...(live.failed || {}), works: ["werken"] };
       window.dispatchEvent(new CustomEvent("public-agenda:street-layer", { detail: { name: "works", items: [], failed: ["werken"] } }));
     });
-    await page.waitForFunction(() => /niet volledig geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 5000 })
+    await page.waitForFunction(() => !/niet geladen/.test(document.querySelector(".pv-dezeweek")?.textContent || ""), null, { timeout: 5000 })
       .catch(async () => assert.fail(`na de deels mislukte werken zegt de zin "${await week.innerText()}"`));
     const tekst = await week.innerText();
     assert.match(tekst, WEEK_MET_FEEST);
-    assert.match(tekst, /\. Werken zijn niet volledig geladen\.$/);
+    assert.doesNotMatch(tekst, /geladen|laadde|mislukt|lukte|onvolledig|rustig/i);
     assert.deepEqual(errors, []);
     await context.close();
   });
@@ -1687,32 +1762,166 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     await context.close();
   });
 
-  await t.test("een A-Sign-laag laadt niet: melding bovenaan en in de lege staat", async () => {
+  // Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel goed".
+  // Vroeger stond er bovenaan en in de lege staat "… konden nu niet geladen worden. Dit overzicht is onvolledig."
+  await t.test("een A-Sign-laag laadt niet: geen melding bovenaan of in de lege staat, en geen 'niets op de agenda'", async () => {
     const peterselie = { id: "2289", name: "Peterseliestraat", postcode: "2000" };
     const asign = asignServer({ fail: [20, 47, 49] });
     // Een verzonnen feed zonder agendapunten: de toets verwacht een lege straat, los van de echte feed.
     const { page, context, errors } = await openPage(baseUrl, { street: peterselie, feed: proefFeed(today, []), asign, work: false, aanvraag: false, query: "?plek=Peterseliestraat" });
-    const melding = "Parkeerverboden, omleidingen en terrassen konden nu niet geladen worden. Dit overzicht is onvolledig.";
-    // De plek tekent opnieuw bij het volgende beeld; wacht tot de laatste laag erin zit.
-    await page.waitForFunction((m) => document.querySelector(".pv-place .pv-place-failed")?.innerText.trim() === m, melding, { timeout: 20000 }).catch(() => {});
-    assert.equal(await page.locator(".pv-place .pv-place-failed").count(), 1, "melding bovenaan de plek ontbreekt");
-    assert.equal((await page.locator(".pv-place .pv-place-failed").innerText()).trim(), melding);
+    // De plek tekent opnieuw bij het volgende beeld; wacht tot alle lagen er zijn (intern: welke onderdelen faalden).
+    await page.waitForFunction(() => {
+      const f = (window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed || {};
+      return (f.publicSpace || []).includes("parkeerverboden") && (f.publicSpace || []).includes("omleidingen") && (f.terraces || []).includes("terrassen");
+    }, null, { timeout: 20000 });
     const leeg = page.locator(".pv-results .pv-empty");
     await leeg.waitFor();
+    await page.waitForFunction(() => /Voor deze straat is niets gevonden\./.test(document.querySelector(".pv-results .pv-empty")?.innerText || ""), null, { timeout: 10000 })
+      .catch(async () => assert.fail(`de lege staat zegt "${await leeg.innerText()}"`));
     const tekst = await leeg.innerText();
     assert.match(tekst, /Niets gevonden in Peterseliestraat/);
-    assert.ok(tekst.includes(melding), tekst);
-    // Een laag laadde niet: alleen iets zeggen over wat wel geladen is.
-    assert.match(tekst, /In wat wel geladen is, staat niets voor deze straat\./);
+    // Een laag laadde niet: niet beweren dat er niets op de agenda staat, en ook niet zeggen dat iets niet laadde.
     assert.doesNotMatch(tekst, /Er staat niets op de agenda/);
-    // Op een gsm valt de melding binnen het eerste scherm: boven de tegels.
-    const melder = await page.locator(".pv-place .pv-place-failed").boundingBox();
-    const tegels = await page.locator(".pv-place .pv-stats").boundingBox();
-    assert.ok(melder && tegels && melder.y < tegels.y, "melding staat boven de tegels");
+    assert.doesNotMatch(tekst, /geladen|laadde|onvolledig|mislukt|lukte|⚠️/);
     assert.doesNotMatch(tekst, /gekozen soorten/);
+    assert.equal(await page.locator(".pv-place-failed, .pv-empty-warn").count(), 0, "geen melding bovenaan of in de lege staat");
+    const plek = await page.locator(".pv-place").innerText();
+    assert.doesNotMatch(plek, /konden nu niet|onvolledig|niet geladen|lukte nu niet|kon nu niet/, plek);
+    // De weekzin: nooit "rustig" als een laag niet laadde, en geen reden. Er is geen stand van de ochtend (geen
+    // straatbestanden) en live faalde: geen betrouwbare stand, dus geen weekzin, ook geen "Onbekend … niets gevonden."
+    // (nakijkronde 3, bevinding MIDDEL: dat label verraadde dat een laag faalde).
+    assert.equal(await page.locator(".pv-dezeweek").count(), 0, await page.locator(".pv-place").innerText());
+    assert.doesNotMatch(plek, /Onbekend|niets gevonden|rustig/i, plek);
     assert.deepEqual(errors, []);
     await context.close();
   });
+  // Nakijkronde 2 (18-10-2026), Chromium op 1280 en 390 px: faalde een bron, dan toonden de lijsten van het district een
+  // verzonnen 0 ("0 maatregelen", "0 parkeerverboden · 0 innames · 0 werfzones/omleidingen", "0 met gekoppelde hinder ·
+  // 0 met A-Sign supplement · 0 met AWV-werfdata") en zei de A-Sign-lijst "A-Sign, geladen …". En een laag die niet laadde,
+  // "laadde" eeuwig: "werken en hinder worden geladen…" onder de kaart, "Live werken en maatregelen worden nog
+  // opgehaald." en "0 straten met actuele of geplande informatie" bij "Alles per straat".
+  const lijstTekst = (page) => page.evaluate(() => {
+    const t = (sel) => (document.querySelector(sel)?.textContent || "").trim();
+    return {
+      space: [t("#public-space-live [data-space-count]"), t("#public-space-live [data-space-meta]"), t("#public-space-live [data-space-note]")],
+      works: [t("#works-live [data-works-count]"), t("#works-live [data-works-meta]"), t("#works-live [data-works-note]")],
+      straat: [t("#street-overview [data-street-summary]"), t("#street-overview [data-street-note]")],
+      radar: t("#street-overview .district-radar-stats"),
+      straatVerborgen: Boolean(document.querySelector("#street-overview")?.hidden),
+    };
+  });
+  const lijstenInBeeld = async (page) => {
+    await page.click(".pv-more > summary");
+    for (const sel of ["#street-overview", "#works-live", "#public-space-live"]) await page.locator(sel).scrollIntoViewIfNeeded().catch(() => {});
+  };
+  const wachtOpMislukt = (page, lagen) => page.waitForFunction((l) => l.every((naam) => ((window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed?.[naam] || []).length), lagen, { timeout: 20000 });
+  await t.test("een bron faalt: de lijsten van het district tonen geen verzonnen 0 en geen 'geladen', en niets 'laadt' eeuwig (1280 en 390 px)", async () => {
+    const LAADT = /worden geladen…|worden nog opgehaald|wordt geladen/;
+    for (const [width, height] of [[1280, 900], [390, 844]]) {
+      for (const [naam, plat] of [["alles plat", ["alles"]], ["GIPOD en A-Sign plat, straatas en grens werken", ["gipod", "asign"]]]) {
+        const wat = `${naam}, ${width} px`;
+        const { page, context, errors } = await openPage(baseUrl, { width, height, plat, aanvraag: false, feed: proefFeed(today, []) });
+        await lijstenInBeeld(page);
+        await wachtOpMislukt(page, ["works", "publicSpace"]);
+        if (!plat.includes("alles")) await page.waitForFunction(() => /^Gebundeld|^Straatas geladen/.test(document.querySelector("#street-overview [data-street-note]")?.textContent || ""), null, { timeout: 15000 });
+        await page.waitForTimeout(300);
+        const tekst = await lijstTekst(page);
+        t.diagnostic(`${wat}: ${JSON.stringify(tekst)}`);
+        // Geen enkele A-Sign-laag laadde en GIPOD niet: de lijsten zijn leeg, zonder 0, zonder "geladen" en zonder notitie.
+        assert.deepEqual(tekst.space, ["", "", ""], `${wat}: publieke ruimte`);
+        assert.deepEqual(tekst.works, ["", "", ""], `${wat}: werken`);
+        if (plat.includes("alles")) assert.equal(tekst.straatVerborgen, true, `${wat}: zonder straatas valt "Alles per straat" weg`);
+        else {
+          // De straatas laadde: geen "worden nog opgehaald", geen "0 straten" en geen "0 straten met ernstige hinder".
+          assert.equal(tekst.straat[0], "", `${wat}: ${tekst.straat[0]}`);
+          assert.doesNotMatch(tekst.straat[1], LAADT, wat);
+          assert.match(tekst.radar, /—straten met ernstige hinder/, wat);
+        }
+        assert.deepEqual(errors, [], wat);
+        await context.close();
+      }
+      // Een postcode met alle soorten aan (ook werken): de zin onder de kaart blijft niet op "worden geladen…" staan.
+      const { page, context, errors } = await openPage(baseUrl, { width, height, plat: ["alles"], query: "?plek=2000" });
+      await page.locator(".buurt-status").waitFor({ timeout: 15000 });
+      await wachtOpMislukt(page, ["works", "publicSpace"]);
+      await page.waitForFunction(() => !/worden geladen/.test(document.querySelector(".buurt-status")?.textContent || ""), null, { timeout: 5000 })
+        .catch(async () => assert.fail(`${width} px: de kaart zegt "${await page.locator(".buurt-status").textContent()}"`));
+      const zin = await page.locator(".buurt-status").textContent();
+      assert.match(zin, /in de lijst/, zin);
+      assert.doesNotMatch(zin, /\b0 werken|geladen|laadt|faalt|mislukt/, zin);
+      assert.deepEqual(errors, [], `?plek=2000, ${width} px`);
+      await context.close();
+    }
+    // De werkenlijst met HINDER_PUNT, A-Sign en de AWV-werfdata plat (GIPOD zelf werkt): de aanvullingen tellen niet als 0.
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, plat: ["hinder", "asign", "awv"], aanvraag: false, feed: proefFeed(today, []), query: "?soort=werken" });
+    await lijstenInBeeld(page);
+    await page.waitForFunction(() => /^Live GIPOD/.test(document.querySelector("#works-live [data-works-note]")?.textContent || ""), null, { timeout: 20000 });
+    const { works } = await lijstTekst(page);
+    t.diagnostic(`werkenlijst, aanvullingen plat: ${JSON.stringify(works)}`);
+    assert.equal(works[0], "1 werken");
+    assert.match(works[1], /^0 in uitvoering · 1 gepland · /);
+    assert.doesNotMatch(works[1], /met gekoppelde hinder|met A-Sign supplement|met AWV-werfdata/, works[1]);
+    assert.doesNotMatch(works.join(" "), /geladen|faalt|mislukt|niet beschikbaar/, works.join(" "));
+    assert.deepEqual(errors, []);
+    await context.close();
+  });
+
+  // Nakijkronde 3 (18-10-2026), Chromium 390×844 op /?plek=Kammenstraat met alles buiten de site plat: de chip
+  // "Werken & verkeer 0", de tegel "0 vergunningen" en in de ingeklapte "Volledige vooruitblik" "0 werken starten · 0
+  // eindigen · 0 maatregelen starten · 0 werken met ernstige hinder". Met alle lagen gezond maar leeg stonden er precies
+  // dezelfde getallen; de melding die vroeger ernaast stond, is weg (besluit van 18-10-2026). Nu: geen getal op de chip en
+  // een streepje op de tegel en in de vooruitblik. Een echte 0 blijft.
+  const tellers = (page) => page.evaluate(() => {
+    const t = (el) => (el?.textContent || "").replace(/\s+/g, " ").trim();
+    const chip = (g) => t(document.querySelector(`.pv-chip[data-group="${g}"] .pv-chip-n`));
+    const tegels = (g) => [...document.querySelectorAll(`.pv-stat button[data-only="${g}"] strong`)].map(t);
+    return {
+      chips: { werken: chip("werken"), vergunningen: chip("vergunningen") },
+      tegels: { werken: tegels("werken"), vergunningen: tegels("vergunningen") },
+      vooruitblik: [...document.querySelectorAll("#week-pulse .week-pulse-stats a")].map((a) => [t(a.querySelector("strong")), t(a.querySelector("small"))]),
+    };
+  });
+  await t.test("een bron faalt op de plekpagina: geen verzonnen 0 op de chip 'Werken & verkeer', de tegel vergunningen en in de vooruitblik; een echte 0 blijft (390 en 1280 px)", async () => {
+    const LAGEN = ["works", "publicSpace", "permits", "terraces"];
+    for (const [width, height] of [[390, 844], [1280, 900]]) {
+      for (const [naam, plat] of [["alles plat", ["alles"]], ["alles gezond en leeg", []]]) {
+        const wat = `${naam}, ${width} px`;
+        const { page, context, errors } = await openPage(baseUrl, { width, height, plat, work: false, aanvraag: false, feed: proefFeed(today, []), query: "?plek=Kammenstraat" });
+        if (plat.length) {
+          await wachtOpMislukt(page, ["works", "publicSpace", "terraces"]);
+          await page.waitForFunction(() => ((window.PUBLIC_AGENDA_LIVE_STREETS || {}).failed?.permits || []).length, null, { timeout: 15000 }).catch(() => {});
+        } else {
+          await page.waitForFunction((l) => l.every((n) => Array.isArray((window.PUBLIC_AGENDA_LIVE_STREETS || {})[n])), LAGEN, { timeout: 20000 });
+        }
+        await page.waitForTimeout(300);
+        const uit = await tellers(page);
+        t.diagnostic(`${wat}: ${JSON.stringify(uit)}`);
+        if (plat.length) {
+          assert.deepEqual(uit.chips, { werken: "", vergunningen: "" }, `${wat}: chips`);
+          assert.deepEqual(uit.tegels, { werken: ["–", "–"], vergunningen: ["–"] }, `${wat}: tegels`);
+          assert.deepEqual(uit.vooruitblik, [["0", ""], ["–", "– eindigen"], ["–", ""], ["–", ""]], `${wat}: vooruitblik`);
+        } else {
+          assert.deepEqual(uit.chips, { werken: "0", vergunningen: "0" }, `${wat}: chips`);
+          assert.deepEqual(uit.tegels, { werken: ["0", "0"], vergunningen: ["0"] }, `${wat}: tegels`);
+          assert.deepEqual(uit.vooruitblik, [["0", ""], ["0", "0 eindigen"], ["0", ""], ["0", ""]], `${wat}: vooruitblik`);
+        }
+        assert.doesNotMatch(await leesbareTekst(page), /konden nu niet geladen|tijdelijk niet geladen|Bron tijdelijk niet beschikbaar|onvolledig/, wat);
+        assert.deepEqual(errors, [], wat);
+        await context.close();
+      }
+    }
+    // De voorpagina (zonder plek): de vooruitblik zodra de lijsten van het district laden en niet lukken.
+    const { page, context, errors } = await openPage(baseUrl, { width: 1280, height: 900, plat: ["alles"], aanvraag: false, feed: proefFeed(today, []) });
+    await lijstenInBeeld(page);
+    await wachtOpMislukt(page, ["works", "publicSpace"]);
+    await page.waitForTimeout(300);
+    const { vooruitblik } = await tellers(page);
+    t.diagnostic(`voorpagina, alles plat: ${JSON.stringify(vooruitblik)}`);
+    assert.deepEqual(vooruitblik, [["0", ""], ["–", "– eindigen"], ["–", ""], ["–", ""]], "voorpagina: vooruitblik");
+    assert.deepEqual(errors, [], "voorpagina");
+    await context.close();
+  });
+
   // Herstelplan O2: de knoppen +250 m tot +1 km toonden nooit een parcours of een vergunning (die hebben
   // geen eigen punt). Nu telt een item mee als zijn eigen vorm binnen de straal ligt. Nakijkbevinding 3:
   // niet zijn straat; een vergunning 900 m verder op een lange straat die tot 200 m komt, blijft weg.
