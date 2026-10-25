@@ -71,7 +71,8 @@ test("legeDagLabel: nooit 'niets gepland' zolang een laag laadt of als ze niet l
   assert.equal(legeDagLabel({ bezig: ["werken"] }), "nog niets gevonden, werken worden nog geladen");
   assert.equal(legeDagLabel({ bezig: ["evenementen op straat"] }), "nog niets gevonden, evenementen op straat worden nog geladen");
   assert.equal(legeDagLabel({ bezig: ["werken", "verkeersmaatregelen"] }), "nog niets gevonden, werken en verkeersmaatregelen worden nog geladen");
-  assert.equal(legeDagLabel({ onvolledig: true }), "niets gevonden in wat geladen is, niet alles laadde");
+  // Laadde een laag niet: "niets gevonden", zonder te zeggen dat iets niet laadde (besluit van 18-10-2026).
+  assert.equal(legeDagLabel({ onvolledig: true }), "niets gevonden");
   assert.equal(legeDagLabel(), "niets gepland binnen je keuze");
 });
 
@@ -81,7 +82,8 @@ test("legeTijdlijnTekst: over die dag of de 14 dagen, niet over de hele straat",
   assert.equal(legeTijdlijnTekst({ dag: true }), "Binnen je keuze staat op die dag niets gepland.");
   assert.equal(legeTijdlijnTekst({}), "Binnen je keuze staat de komende 14 dagen niets gepland.");
   assert.equal(legeTijdlijnTekst({ dag: true, bezig: ["werken"] }), "In wat al geladen is, staat op die dag niets; werken worden nog geladen.");
-  assert.equal(legeTijdlijnTekst({ onvolledig: true }), "In wat wel geladen is, staat de komende 14 dagen niets.");
+  assert.equal(legeTijdlijnTekst({ onvolledig: true }), "De komende 14 dagen is hier niets gevonden.");
+  assert.equal(legeTijdlijnTekst({ dag: true, onvolledig: true }), "Op die dag is hier niets gevonden.");
   assert.equal(legeTijdlijnTekst({ dag: true, doorlopend: 1 }), "Binnen je keuze staat op die dag niets gepland behalve wat hieronder doorloopt.");
   assert.equal(legeTijdlijnTekst({ aantalSoorten: 0 }), "Je hebt alle soorten uitgezet.");
   for (const opties of [{}, { dag: true }, { bezig: ["werken"] }, { onvolledig: true }]) assert.doesNotMatch(legeTijdlijnTekst(opties), /deze straat|op de agenda/);
@@ -132,7 +134,7 @@ test("legeDagLabel: loopt er die dag iets door, dan nooit 'niets gepland'", () =
   assert.equal(legeDagLabel({ doorlopend: 1 }), "niets apart gepland binnen je keuze; 1 toelating van twee weken of langer loopt door");
   assert.equal(legeDagLabel({ doorlopend: 2 }), "niets apart gepland binnen je keuze; 2 toelatingen van twee weken of langer lopen door");
   assert.equal(legeDagLabel({ doorlopend: 1, bezig: ["werken"] }), "nog niets apart gevonden, werken worden nog geladen; 1 toelating van twee weken of langer loopt door");
-  assert.equal(legeDagLabel({ doorlopend: 1, onvolledig: true }), "niets apart gevonden in wat geladen is, niet alles laadde; 1 toelating van twee weken of langer loopt door");
+  assert.equal(legeDagLabel({ doorlopend: 1, onvolledig: true }), "niets apart gevonden; 1 toelating van twee weken of langer loopt door");
   for (const opties of [{ doorlopend: 1 }, { doorlopend: 3, bezig: ["werken"] }]) assert.doesNotMatch(legeDagLabel(opties), /^niets gepland/);
 });
 

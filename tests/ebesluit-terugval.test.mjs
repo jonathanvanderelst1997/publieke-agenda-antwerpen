@@ -1,0 +1,384 @@
+// eBesluit faalt sinds 12/13 oktober 2026 elke nacht met HTTP 500 (#180, #186). Twee dingen, getoetst zonder netwerk
+// (alleen een fetch-nep met verzonnen besluiten, geen persoonsgegevens):
+//   1. de reden van een fout staat in het bronbestand: lastError { code, at } en lastSuccessAt
+//      (keepPreviousOnError in lib/fetch-util.mjs), de vorige, geverifieerde items blijven; intern, niet in de feed;
+//   2. een zoekpagina van 500 rijen die na de herkansing een 5xx blijft geven, wordt opnieuw geprobeerd met 100 en
+//      dan 50 rijen (lib/ebesluit-discovery.mjs). Pas als ook dat faalt, is het venster onvolledig; een
+//      onvolledige zoekronde wordt nooit als volledig aanvaard (fail-closed, #186).
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+import { EBESLUIT_FALLBACK_PAGE_SIZES, EBESLUIT_FASEN, EBESLUIT_KEYWORDS, EBESLUIT_PAGE_SIZE, metFase, pageSizeChoice, searchKeyword } from "../lib/ebesluit-discovery.mjs";
+import { FetchError, isTransientErrorCode, keepPreviousOnError, readSourceDocument, sourceHealthOf, statusEntry } from "../lib/fetch-util.mjs";
+import { ERROR_CODE_PATTERN, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
+import { buildFeed } from "../scripts/build-sources.mjs";
+import { SOURCE_ID, run } from "../scripts/fetch-sources-ebesluit.mjs";
+
+const NOW = new Date("2026-09-28T06:00:00Z");
+const noSleep = async () => {};
+const resp = (text, status = 200) => new Response(text, { status, headers: { "content-type": "text/html; charset=utf-8" } });
+
+// Verzonnen besluiten in de opmaak van eBesluit (zoals tests/ebesluit-suppression.test.mjs): een foor en een
+// feestdagregeling voor markten.
+const zoekRij = (id, vergadering) => `<a class="result-row" data-id="${id}" data-meeting-id="${vergadering}" data-content-published="true"></a>`;
+const ZOEKPAGINA = [zoekRij("foor", "m1"), zoekRij("markt", "m2")].join("");
+const DETAILS = {
+  foor: "Besluit 2026_DCAN_00001 - District Antwerpen - Kermissen 2026 - Goedkeuring districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 Dageraadplaats - Najaarsfoor: 3 oktober 2026 tot en met 18 oktober 2026; Artikel 2 Einde.",
+  markt: "Besluit 2026_DCAN_00002 - District Antwerpen - Openbare markten feestdagen 2026 - Goedkeuring districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 zondag 5 april 2026, Pasen: Falconplein; Artikel 2 donderdag 14 mei 2026, Hemelvaartsdag: Dageraadplaats; Artikel 3 Einde.",
+};
+
+// fetch-nep: `weigert(pageSize)` zegt welke zoekpagina's HTTP 500 geven; `zoek` maakt de zoekpagina.
+function nepEbesluit({ weigert = () => false, zoek = () => ZOEKPAGINA, calls = [] } = {}) {
+  return async (url) => {
+    const u = new URL(String(url));
+    assert.equal(u.origin, "https://ebesluit.antwerpen.be");
+    calls.push(u);
+    if (u.pathname === "/zoeken") return weigert(Number(u.searchParams.get("pageSize"))) ? resp("Internal Server Error", 500) : resp(zoek(u));
+    const id = u.pathname.split("/").pop();
+    return DETAILS[id] ? resp(DETAILS[id]) : resp("", 404);
+  };
+}
+const ALTIJD = () => true;
+const zoekGroottes = (calls) => calls.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
+
+function makeRoot(t) {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "ebesluit-terugval-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  return root;
+}
+const leesBron = (root) => JSON.parse(fs.readFileSync(path.join(root, "site", "sources", `${SOURCE_ID}.json`), "utf8"));
+const draai = (root, fetchImpl, clock = NOW) => run({ rootDir: root, clock: () => clock, fetch: fetchImpl, log: () => {}, sleep: noSleep });
+
+// ---------- 2. kleinere zoekpagina's ----------
+
+test("de terugval: na 500 rijen eerst 100, dan 50", () => {
+  assert.equal(EBESLUIT_PAGE_SIZE, 500);
+  assert.deepEqual([...EBESLUIT_FALLBACK_PAGE_SIZES], [100, 50]);
+});
+
+test("pagina's van 500 rijen geven HTTP 500, met 100 antwoordt eBesluit: de zoekronde is volledig en het bronbestand ok", async (t) => {
+  const root = makeRoot(t);
+  const calls = [];
+  const [status] = await draai(root, nepEbesluit({ weigert: (n) => n === 500, calls }));
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["ok", null, 2]);
+  const doc = leesBron(root);
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+  assert.equal(doc.fetchStatus, "ok");
+  assert.ok(!("lastError" in doc) && !("lastSuccessAt" in doc), "een geslaagde verversing heeft geen lastError");
+  assert.deepEqual(doc.items.map((item) => item.externalId).sort(), ["2026_DCAN_00001", "2026_DCAN_00002"]);
+  // De hele run (alle zoektermen, beide jaren) vraagt de pagina van 500 maar één keer, met de bestaande herkansing (2
+  // verzoeken); daarna begint elk venster meteen bij 100 (pageSizeChoice). Vroeger 8 keer: per zoekterm en per jaar.
+  const zoekrondes = EBESLUIT_KEYWORDS.length * 2;
+  assert.equal(zoekGroottes(calls).filter((n) => n === 500).length, 2);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, ...Array.from({ length: zoekrondes }, () => 100)]);
+  // Elke zoekterm, elk jaar: nog altijd gezocht.
+  const rondes = calls.filter((u) => u.pathname === "/zoeken").map((u) => `${u.searchParams.get("query")}|${u.searchParams.get("meetingDateStart").slice(0, 4)}`);
+  assert.equal(new Set(rondes).size, zoekrondes);
+});
+
+// Nakijkbevinding: de terugval begon per zoekterm en per jaar opnieuw bij 500 rijen, zodat elke verversing de geweigerde
+// pagina van 500 opnieuw vroeg (8 keer bij district-ebesluit) en het tijdsbudget opging. Nu deelt de hele run van één
+// bron de gekozen paginagrootte; de volgende run begint weer bij 500 (geen bestand).
+test("eén paginagrootte per run: de pagina van 500 één keer per run, niet per zoekterm of jaar, en niet over runs heen", async (t) => {
+  const root = makeRoot(t);
+  for (const nacht of [NOW, new Date("2026-09-29T06:00:00Z")]) {
+    const calls = [];
+    const [status] = await draai(root, nepEbesluit({ weigert: (n) => n === 500, calls }), nacht);
+    assert.equal(status.fetchStatus, "ok");
+    const groottes = zoekGroottes(calls);
+    assert.deepEqual(groottes.slice(0, 3), [500, 500, 100], "elke run begint weer bij 500");
+    assert.equal(groottes.filter((n) => n === 500).length, 2, `500 in deze run: ${groottes.join(",")}`);
+  }
+  // Ook in de functies zelf: wie dezelfde keuze doorgeeft, deelt ze; zonder keuze begint elke zoekterm bij 500.
+  const opties = { retryDelayMs: 0, sleepImpl: noSleep };
+  const gedeeld = [], keuze = pageSizeChoice();
+  for (const term of ["markt", "foor"]) await searchKeyword(nepEbesluit({ weigert: (n) => n === 500, calls: gedeeld }), term, 2026, opties, keuze);
+  assert.deepEqual(zoekGroottes(gedeeld), [500, 500, 100, 100]);
+  const los = [];
+  for (const term of ["markt", "foor"]) await searchKeyword(nepEbesluit({ weigert: (n) => n === 500, calls: los }), term, 2026, opties);
+  assert.deepEqual(zoekGroottes(los), [500, 500, 100, 500, 500, 100]);
+  // De keuze gaat alleen naar kleinere pagina's en blijft binnen [500, 100, 50]; een ongeldige keuze begint bij 500.
+  assert.deepEqual(keuze, { from: 1 });
+  const vreemd = [];
+  await searchKeyword(nepEbesluit({ calls: vreemd }), "markt", 2026, opties, { from: 7 });
+  assert.deepEqual(zoekGroottes(vreemd), [500]);
+});
+
+test("eén paginagrootte per run, ook als 100 later faalt: dan 50 voor de rest van de run, en een onvolledige ronde blijft onvolledig", async (t) => {
+  // 500 faalt altijd; 100 alleen voor de tweede zoekterm. Dan schuift de keuze naar 50 en blijft daar; de run is
+  // volledig (50 werkt), met alleen verzoeken van 100 en 50 na de eerste geweigerde 500.
+  const root = makeRoot(t);
+  const calls = [];
+  const tweede = EBESLUIT_KEYWORDS[1];
+  const fetchImpl = nepEbesluit({ calls });
+  const metFouten = async (url) => {
+    const u = new URL(String(url));
+    const n = Number(u.searchParams.get("pageSize"));
+    if (u.pathname === "/zoeken" && (n === 500 || (n === 100 && u.searchParams.get("query") === tweede))) { calls.push(u); return resp("", 500); }
+    return fetchImpl(url);
+  };
+  const [status] = await draai(root, metFouten);
+  assert.equal(status.fetchStatus, "ok");
+  const groottes = zoekGroottes(calls);
+  assert.equal(groottes.filter((n) => n === 500).length, 2);
+  assert.equal(groottes.filter((n) => n === 100).length, 1 + 2, "100 lukt voor de eerste term en faalt (met herkansing) voor de tweede");
+  assert.ok(groottes.slice(groottes.lastIndexOf(100) + 1).every((n) => n === 50), groottes.join(","));
+  // Fail-closed blijft: 50 faalt ook, dan is de zoekronde nooit volledig.
+  const [fout] = await draai(root, nepEbesluit({ weigert: ALTIJD }), new Date("2026-09-30T06:00:00Z"));
+  assert.equal(fout.fetchStatus, "error");
+});
+
+test("binnen de paginagrenzen: met 100 rijen per pagina wordt een venster helemaal doorlopen, en het volgende venster begint meteen bij 100", async () => {
+  // Een venster van twee maanden met 300 treffers. 20 pagina's van 100 is 2.000: het hele venster lukt in 3 pagina's
+  // van 100, na de geweigerde pagina van 500 (met haar herkansing).
+  const rij = (n) => zoekRij(`r-${n}`, "m-test");
+  const pagina = (totaal, ids) => `<span class="result-count">${totaal} resultaten gevonden</span>${ids.map(rij).join("")}`;
+  const calls = [];
+  const fetchImpl = nepEbesluit({
+    calls,
+    weigert: (n) => n === 500,
+    zoek: (u) => {
+      const p = Number(u.searchParams.get("page")), grootte = Number(u.searchParams.get("pageSize"));
+      return pagina(300, Array.from({ length: Math.max(0, Math.min(grootte, 300 - p * grootte)) }, (_, i) => p * grootte + i + 1));
+    },
+  });
+  const volledig = await searchKeyword(fetchImpl, "markt", { start: "2026-10-01", end: "2026-11-30" }, { retryDelayMs: 0, sleepImpl: noSleep });
+  assert.equal(volledig.coverage.complete, true);
+  assert.equal(volledig.rows.length, 300);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 100]);
+
+  // Meer treffers dan 20 pagina's van 100 (2.500 in het venster): onvolledig, dan per maand (2.100 elk, ook te veel)
+  // en dus fail-closed onvolledig. De maanden beginnen meteen bij 100: geen geweigerde 500 meer.
+  const calls2 = [];
+  const teVeel = nepEbesluit({ calls: calls2, weigert: (n) => n === 500, zoek: (u) => pagina(u.searchParams.get("meetingDateStart") === "2026-10-01" && u.searchParams.get("meetingDateEnd") === "2026-11-30" ? 2500 : 2100, [1]) });
+  const onvolledig = await searchKeyword(teVeel, "markt", { start: "2026-10-01", end: "2026-11-30" }, { retryDelayMs: 0, sleepImpl: noSleep });
+  assert.equal(onvolledig.coverage.complete, false);
+  assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 100]);
+});
+
+// Nakijkbevinding (mutatieproef): zonder resultatenteller is een venster pas volledig als een pagina minder rijen geeft
+// dan de paginagrootte van DIE poging (100 of 50), niet minder dan 500. Anders gaat een volle pagina van 100 of 50 rijen
+// door als "alles" en wordt een onvolledige zoekronde als volledig aanvaard (#186).
+test("zonder resultatenteller: een volle pagina van 100 of 50 rijen is niet het einde, de volgende pagina wordt gelezen", async () => {
+  // Een zoekpagina zonder "x resultaten gevonden", met `treffers` verzonnen rijen in het venster.
+  const zonderTeller = (treffers, weigert, calls) => nepEbesluit({
+    calls,
+    weigert,
+    zoek: (u) => {
+      const p = Number(u.searchParams.get("page")), grootte = Number(u.searchParams.get("pageSize"));
+      return Array.from({ length: Math.max(0, Math.min(grootte, treffers - p * grootte)) }, (_, i) => zoekRij(`r-${p * grootte + i + 1}`, "m-test")).join("");
+    },
+  });
+  const opties = { retryDelayMs: 0, sleepImpl: noSleep };
+  const oktober = { start: "2026-10-01", end: "2026-10-31" };
+
+  // 500 rijen geeft HTTP 500, 100 werkt: 250 treffers in drie pagina's van 100 (100, 100, 50).
+  const calls = [];
+  const honderd = await searchKeyword(zonderTeller(250, (n) => n === 500, calls), "markt", oktober, opties);
+  assert.deepEqual([honderd.coverage.complete, honderd.rows.length], [true, 250]);
+  assert.equal(new Set(honderd.rows.map((row) => row.id)).size, 250);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 100]);
+  assert.deepEqual(calls.filter((u) => u.searchParams.get("pageSize") === "100").map((u) => u.searchParams.get("page")), ["0", "1", "2"]);
+
+  // 500 en 100 geven HTTP 500, 50 werkt: 120 treffers in drie pagina's van 50 (50, 50, 20).
+  const calls2 = [];
+  const vijftig = await searchKeyword(zonderTeller(120, (n) => n !== 50, calls2), "markt", oktober, opties);
+  assert.deepEqual([vijftig.coverage.complete, vijftig.rows.length], [true, 120]);
+  assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 50, 50, 50]);
+
+  // Precies een veelvoud van de paginagrootte (200 treffers, pagina's van 100): de lege derde pagina sluit het af.
+  const calls3 = [];
+  const precies = await searchKeyword(zonderTeller(200, (n) => n === 500, calls3), "markt", oktober, opties);
+  assert.deepEqual([precies.coverage.complete, precies.rows.length], [true, 200]);
+  assert.deepEqual(zoekGroottes(calls3), [500, 500, 100, 100, 100]);
+});
+
+test("ook een kleinere pagina die halverwege faalt, telt niet: de rijen van die poging vallen weg en 50 begint opnieuw", async () => {
+  // 120 treffers; 500 geeft altijd 503, 100 alleen op pagina 1, 50 werkt.
+  const calls = [];
+  const fetchImpl = nepEbesluit({
+    calls,
+    weigert: () => false,
+    zoek: (u) => {
+      const p = Number(u.searchParams.get("page")), grootte = Number(u.searchParams.get("pageSize"));
+      const ids = Array.from({ length: Math.max(0, Math.min(grootte, 120 - p * grootte)) }, (_, i) => p * grootte + i + 1);
+      return `<span class="result-count">120 resultaten gevonden</span>${ids.map((n) => zoekRij(`r-${n}`, "m-test")).join("")}`;
+    },
+  });
+  const metFouten = async (url) => {
+    const u = new URL(String(url));
+    const grootte = Number(u.searchParams.get("pageSize")), p = Number(u.searchParams.get("page"));
+    if (grootte === 500 || (grootte === 100 && p === 1)) { calls.push(u); return resp("", 503); }
+    return fetchImpl(url);
+  };
+  const r = await searchKeyword(metFouten, "markt", { start: "2026-10-01", end: "2026-10-31" }, { retryDelayMs: 0, sleepImpl: noSleep });
+  assert.equal(r.coverage.complete, true);
+  assert.equal(r.rows.length, 120);
+  assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 100, 50, 50, 50]);
+});
+
+// ---------- 1. de reden in het bronbestand ----------
+
+test("altijd HTTP 500: fout search_http_500 met lastError in het bronbestand, de vorige items blijven, begrensd aantal verzoeken", async (t) => {
+  const root = makeRoot(t);
+  await draai(root, nepEbesluit());
+  const vorige = leesBron(root);
+  assert.equal(vorige.fetchStatus, "ok");
+
+  const toen = new Date("2026-09-29T06:00:00Z");
+  const calls = [];
+  const [status] = await draai(root, nepEbesluit({ weigert: ALTIJD, calls }), toen);
+  // De fase staat in de foutcode (metFase): het zoeken faalde, niet een detailpagina.
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount, status.retrievedAt], ["error", "search_http_500", 2, NOW.toISOString()]);
+  const doc = leesBron(root);
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+  assert.equal(doc.fetchStatus, "error");
+  assert.deepEqual(doc.lastError, { code: "search_http_500", at: toen.toISOString() });
+  assert.equal(doc.lastSuccessAt, NOW.toISOString());
+  assert.equal(doc.retrievedAt, NOW.toISOString());
+  assert.deepEqual(doc.items, vorige.items, "de vorige, geverifieerde items blijven");
+  assert.deepEqual(doc.suppressions, vorige.suppressions);
+  // Geen URL, zoekterm of andere vrije tekst in de reden.
+  assert.deepEqual(Object.keys(doc.lastError), ["code", "at"]);
+  assert.doesNotMatch(JSON.stringify(doc.lastError), /:\/\/|zoeken|query|speelstraat|kermis|foor|markt/);
+  // Begrensd: het jaarvenster met 500, 100 en 50 (elk met de herkansing), het eerste kwartaal en de eerste maand
+  // alleen nog met 50; dan stopt de zoekronde (ze kan niet meer volledig worden), zonder detailpagina's.
+  assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 50, 50, 50, 50, 50, 50]);
+  assert.equal(calls.length, 10);
+  assert.deepEqual([...new Set(calls.map((u) => u.searchParams.get("query")))], [EBESLUIT_KEYWORDS[0]]);
+
+  // De volgende nacht weer HTTP 500: het bestand is leesbaar (readSourceDocument), de items blijven, lastError schuift op.
+  assert.ok(readSourceDocument(root, SOURCE_ID), "een bronbestand met lastError is geldig");
+  const nog = new Date("2026-09-30T06:00:00Z");
+  await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
+  const tweede = leesBron(root);
+  assert.deepEqual([tweede.lastError, tweede.lastSuccessAt], [{ code: "search_http_500", at: nog.toISOString() }, NOW.toISOString()]);
+  assert.deepEqual(tweede.items, vorige.items);
+
+  // Lukt het weer, dan valt de reden weg.
+  const weer = new Date("2026-10-01T06:00:00Z");
+  const [ok] = await draai(root, nepEbesluit(), weer);
+  assert.equal(ok.fetchStatus, "ok");
+  const hersteld = leesBron(root);
+  assert.equal(hersteld.retrievedAt, weer.toISOString());
+  assert.ok(!("lastError" in hersteld) && !("lastSuccessAt" in hersteld));
+});
+
+// Nakijkbevinding: lastError http_500 kon bij district-ebesluit ook van een detailpagina komen (getHtml in
+// discoverCivicDecisions stond buiten elke try), en dan zei het bronbestand niet waar eBesluit faalt. Nu draagt de
+// foutcode een vaste fase: search_ (een zoekpagina) of detail_ (een detailpagina), zonder URL of zoekterm.
+test("de fase in de foutcode: een detailpagina die faalt is detail_http_500, het zoeken search_http_500", async (t) => {
+  const root = makeRoot(t);
+  await draai(root, nepEbesluit());
+  const vorige = leesBron(root);
+  // Het zoeken lukt (500 rijen per pagina), de detailpagina van de foor geeft altijd HTTP 500.
+  const toen = new Date("2026-09-29T06:00:00Z");
+  const calls = [];
+  const zoekenOk = nepEbesluit({ calls });
+  const detailFaalt = async (url) => (new URL(String(url)).pathname.endsWith("/foor") ? (calls.push(new URL(String(url))), resp("Internal Server Error", 500)) : zoekenOk(url));
+  const [status] = await draai(root, detailFaalt, toen);
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "detail_http_500", 2]);
+  const doc = leesBron(root);
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+  assert.deepEqual(doc.lastError, { code: "detail_http_500", at: toen.toISOString() });
+  assert.deepEqual(doc.items, vorige.items, "de vorige, geverifieerde items blijven");
+  assert.doesNotMatch(JSON.stringify(doc.lastError), /:\/\/|zoeken|zittingen|query|speelstraat|kermis|foor|markt/);
+  // De detailpagina met de bestaande herkansing: 2 verzoeken, en alle zoekpagina's met 500 rijen (geen terugval).
+  assert.equal(calls.filter((u) => u.pathname.endsWith("/foor")).length, 2);
+  assert.ok(zoekGroottes(calls).every((n) => n === 500));
+
+  // Het zoeken faalt: search_http_500. Twee nachten na elkaar zeggen zo ondubbelzinnig waar eBesluit faalt.
+  const nog = new Date("2026-09-30T06:00:00Z");
+  const [zoeken] = await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
+  assert.equal(zoeken.errorCode, "search_http_500");
+  assert.deepEqual(leesBron(root).lastError, { code: "search_http_500", at: nog.toISOString() });
+  // Een niet-tijdelijke fout op een detailpagina: detail_http_404, één verzoek.
+  const [weg] = await draai(root, async (url) => (new URL(String(url)).pathname.endsWith("/markt") ? resp("", 404) : nepEbesluit()(url)), new Date("2026-10-01T06:00:00Z"));
+  assert.equal(weg.errorCode, "detail_http_404");
+});
+
+test("de fasecode past in ERROR_CODE_PATTERN, blijft tijdelijk voor isTransientErrorCode en sourceHealthOf, en komt er maar één keer bij", () => {
+  assert.deepEqual([...EBESLUIT_FASEN], ["search", "detail"]);
+  for (const code of ["search_http_500", "detail_http_500", "detail_http_503", "search_http_429", "search_timeout", "detail_network_error", "detail_body_read_failed"]) {
+    assert.match(code, ERROR_CODE_PATTERN, code);
+    assert.equal(isTransientErrorCode(code), true, code);
+  }
+  for (const code of ["detail_http_404", "search_http_404", "search_incomplete", "no_decisions"]) assert.equal(isTransientErrorCode(code), false, code);
+  // De bronstatus: binnen 48 uur een waarschuwing (stale), daarna een fout; zoals http_500 zonder fase.
+  const at = Date.parse("2026-10-18T03:18:00.000Z");
+  const entry = (errorCode, retrievedAt) => statusEntry(SOURCE_ID, { fetchStatus: "error", retrievedAt, itemCount: 2, errorCode });
+  assert.equal(sourceHealthOf(entry("detail_http_500", "2026-10-17T03:21:00.000Z"), at), "stale");
+  assert.equal(sourceHealthOf(entry("search_http_500", "2026-10-12T03:21:00.000Z"), at), "error");
+  assert.equal(sourceHealthOf(entry("detail_http_404", "2026-10-17T03:21:00.000Z"), at), "error");
+  // metFase: één fase, niet twee; de codes van het tijdsbudget en een fout die geen FetchError is, blijven zoals ze zijn.
+  assert.equal(metFase("detail", new FetchError("http_500")).code, "detail_http_500");
+  assert.equal(metFase("detail", metFase("search", new FetchError("http_500"))).code, "search_http_500");
+  assert.equal(metFase("search", new FetchError("search_incomplete")).code, "search_incomplete");
+  for (const code of ["source_timeout", "refresh_budget_exhausted"]) assert.equal(metFase("search", new FetchError(code)).code, code);
+  const vreemd = new TypeError("kapot");
+  assert.equal(metFase("detail", vreemd), vreemd);
+  assert.equal(metFase("onbekend", new FetchError("http_500")).code, "http_500");
+  // validate:data aanvaardt een bronbestand met een fasecode in lastError.
+  const doc = sourceDocument(SOURCE_ID, { retrievedAt: NOW.toISOString(), fetchStatus: "error", lastError: { code: "detail_http_500", at: "2026-10-19T03:21:00.000Z" }, lastSuccessAt: NOW.toISOString() });
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+});
+
+test("ook een andere fout staat er: no_decisions en search_incomplete", async (t) => {
+  const root = makeRoot(t);
+  await draai(root, nepEbesluit());
+  await draai(root, nepEbesluit({ zoek: () => '<span class="result-count">0 resultaten gevonden</span>' }), new Date("2026-09-29T06:00:00Z"));
+  assert.deepEqual(leesBron(root).lastError, { code: "no_decisions", at: "2026-09-29T06:00:00.000Z" });
+  // Een zoekpagina die meer treffers meldt dan ze toont: onvolledig, nooit als volledig aanvaard (#186).
+  await draai(root, nepEbesluit({ zoek: () => `<span class="result-count">3 resultaten gevonden</span>${ZOEKPAGINA}` }), new Date("2026-09-30T06:00:00Z"));
+  const doc = leesBron(root);
+  assert.deepEqual([doc.fetchStatus, doc.lastError, doc.lastSuccessAt, doc.items.length], ["error", { code: "search_incomplete", at: "2026-09-30T06:00:00.000Z" }, NOW.toISOString(), 2]);
+});
+
+test("keepPreviousOnError zonder vorig bestand: lastSuccessAt null, en de reden staat er toch", (t) => {
+  const root = makeRoot(t);
+  const status = keepPreviousOnError(root, SOURCE_ID, null, "http_503", { at: "2026-10-13T03:20:00.000Z" });
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "http_503", 0]);
+  const doc = leesBron(root);
+  assert.deepEqual([doc.retrievedAt, doc.lastSuccessAt, doc.lastError], [null, null, { code: "http_503", at: "2026-10-13T03:20:00.000Z" }]);
+  assert.deepEqual(validateSourceDocument(doc, { expectedSourceId: SOURCE_ID }), []);
+  // Een ongeldig moment of een foutcode met vrije tekst breekt het bewaren niet.
+  keepPreviousOnError(root, SOURCE_ID, null, "https://ebesluit.antwerpen.be/zoeken?query=markt", { at: "gisteren" });
+  const tweede = leesBron(root);
+  assert.equal(tweede.lastError.code, "unexpected_error");
+  assert.ok(Number.isFinite(Date.parse(tweede.lastError.at)));
+});
+
+test("schema: lastError alleen als vaste foutcode met moment, samen met lastSuccessAt en alleen bij een fout", () => {
+  const ok = sourceDocument(SOURCE_ID, { retrievedAt: NOW.toISOString(), fetchStatus: "error", lastError: { code: "http_500", at: "2026-10-13T03:20:00.000Z" }, lastSuccessAt: NOW.toISOString() });
+  assert.deepEqual(validateSourceDocument(ok), []);
+  // Een bestand van vóór deze velden blijft geldig.
+  assert.deepEqual(validateSourceDocument(sourceDocument(SOURCE_ID, { retrievedAt: NOW.toISOString(), fetchStatus: "error" })), []);
+  const fout = (wijziging) => validateSourceDocument({ ...ok, ...wijziging });
+  assert.ok(fout({ lastError: { code: "https://ebesluit.antwerpen.be/zoeken?query=markt", at: ok.lastError.at } }).includes("ongeldige lastError.code"));
+  assert.ok(fout({ lastError: { code: "HTTP 500 bij markt", at: ok.lastError.at } }).includes("ongeldige lastError.code"));
+  assert.ok(fout({ lastError: { ...ok.lastError, url: "https://ebesluit.antwerpen.be/" } }).includes("ongeldige lastError"));
+  assert.ok(fout({ lastError: { code: "http_500", at: "gisteren" } }).includes("ongeldige lastError.at"));
+  assert.ok(fout({ lastError: "http_500" }).includes("ongeldige lastError"));
+  assert.ok(fout({ lastSuccessAt: "vorige week" }).includes("ongeldige lastSuccessAt"));
+  assert.ok(fout({ fetchStatus: "ok" }).includes("lastError alleen bij fetchStatus error"));
+  const { lastSuccessAt: _weg, ...zonder } = ok;
+  assert.ok(validateSourceDocument(zonder).includes("lastError en lastSuccessAt horen samen"));
+});
+
+test("intern: de feed draagt lastError en lastSuccessAt niet, wel fetchStatus en errorCode", () => {
+  const retrievedAt = "2026-10-12T03:21:00.000Z";
+  const document = sourceDocument(SOURCE_ID, { retrievedAt, fetchStatus: "error", lastError: { code: "http_500", at: "2026-10-18T03:18:00.000Z" }, lastSuccessAt: retrievedAt });
+  const status = {
+    schemaVersion: 1,
+    generatedAt: "2026-10-18T03:18:00.000Z",
+    classificationAsOf: "2026-10-18",
+    sources: [statusEntry(SOURCE_ID, { fetchStatus: "error", retrievedAt, itemCount: 0, errorCode: "http_500" })],
+  };
+  const { feed } = buildFeed({ status, documents: [document] }, []);
+  const bron = feed.sources.find((s) => s.sourceId === SOURCE_ID);
+  assert.ok(!("lastError" in bron) && !("lastSuccessAt" in bron));
+  assert.deepEqual([bron.fetchStatus, bron.errorCode], ["error", "http_500"]);
+});

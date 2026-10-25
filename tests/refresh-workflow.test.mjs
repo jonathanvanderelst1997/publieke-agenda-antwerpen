@@ -2,9 +2,15 @@
 // de late cron ververst niet opnieuw als de live agenda al vers is, en één bron met een
 // tijdelijke fout (503) maakt de bronstatus niet rood zolang haar vorige data binnen maxAgeHours valt.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import test from "node:test";
 import { isTransientErrorCode } from "../lib/fetch-util.mjs";
+import { LIVE_HISTORY_LAYERS } from "../lib/live-history.mjs";
+import { STRAAT_LAGEN } from "../lib/straat-bestanden.mjs";
+import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 
 const workflow = fs.readFileSync(new URL("../.github/workflows/refresh.yml", import.meta.url), "utf8");
 
@@ -61,4 +67,220 @@ test("elke job achter al-vers heeft een statusfunctie, zodat een dispatch een da
   }
   assert.match(ifOf(jobBlock("publish-branch")), /needs\.refresh\.result == 'success'/);
   assert.match(ifOf(jobBlock("publish-branch")), /needs\.refresh\.outputs\.changed == 'true'/);
+});
+
+// Besluit van de eigenaar (18-10-2026): de site zegt bezoekers niet meer dat een bron faalt. Dan is een rode
+// source-health het enige signaal voor de eigenaar, en die alleen opende of vulde geen alarm-issue. Nu loopt de job
+// alarm ook als alleen source-health faalt, op dezelfde manier: één bestaand alarm-issue aanvullen, geen nieuw per nacht.
+// De voorwaarde van de job, uitgerekend voor verzonnen uitkomsten van de jobs ervoor.
+// `ref`: de tak waarvan de run start (github.ref); een geplande run start altijd van de standaardtak.
+function alarmLoopt(uitkomst, event = "schedule", reason = "", ref = "refs/heads/main") {
+  const expressie = ifOf(jobBlock("alarm"))
+    .replace(/always\(\)/g, "true")
+    .replace(/github\.event_name/g, JSON.stringify(event))
+    .replace(/github\.ref/g, JSON.stringify(ref))
+    .replace(/inputs\.reason/g, JSON.stringify(event === "workflow_dispatch" ? reason : ""))
+    .replace(/needs\.([a-z-]+)\.result/g, (_, job) => JSON.stringify(uitkomst[job] ?? "success"))
+    .replace(/([!=])=/g, "$1==")
+    .replace(/'/g, '"');
+  // Alleen nog letterlijke waarden en operatoren: niets anders wordt uitgevoerd.
+  assert.match(expressie, /^[\s"a-z0-9_()=!&|/-]+$/, expressie);
+  return Function(`"use strict"; return (${expressie});`)();
+}
+
+test("alarm: loopt ook als alleen source-health faalt, bij een geplande run", () => {
+  assert.deepEqual(needsOf(jobBlock("alarm")).sort(), ["freshness", "publish-branch", "refresh", "source-health"]);
+  assert.equal(alarmLoopt({}), false, "alles groen: geen alarm");
+  assert.equal(alarmLoopt({ "source-health": "failure" }), true, "alleen source-health rood: wel alarm");
+  for (const job of ["refresh", "publish-branch", "freshness"]) assert.equal(alarmLoopt({ [job]: "failure" }), true, job);
+  // Overgeslagen of geannuleerd is geen rode bronstatus.
+  assert.equal(alarmLoopt({ "source-health": "skipped" }), false);
+  assert.equal(alarmLoopt({ "source-health": "cancelled" }), false);
+});
+
+// Nakijkbevinding (18-10-2026): de echte verversing start de Gateway elke ochtend om 05:17 met workflow_dispatch; de
+// cron komt 5 tot 8 uur later, ziet een live agenda jonger dan 20 uur (al-vers) en slaat refresh en dus ook
+// source-health over. Liep alarm alleen bij een geplande run, dan kwam er bij een rode bronstatus nooit een issue: zo
+// bleef het 15 tot 18 oktober (eBesluit rood), met deze uitkomsten van de echte runs.
+test("alarm: een rode bronstatus in de ochtendverversing van de Gateway (workflow_dispatch) geeft een alarm-issue", () => {
+  const dispatch = { refresh: "success", "publish-branch": "success", "source-health": "failure", freshness: "success" }; // run 39093073261
+  const lateCron = { refresh: "skipped", "publish-branch": "skipped", "source-health": "skipped", freshness: "success" }; // run 39109714672
+  assert.equal(alarmLoopt(lateCron, "schedule"), false, "de late cron ziet de bronstatus niet");
+  for (const reason of ["handmatig", "brain"]) assert.equal(alarmLoopt(dispatch, "workflow_dispatch", reason), true, reason);
+  // Dezelfde voorwaarden als bij de cron: elke rode schakel, nooit groen, overgeslagen of geannuleerd.
+  for (const job of ["refresh", "publish-branch", "freshness"]) assert.equal(alarmLoopt({ [job]: "failure" }, "workflow_dispatch", "handmatig"), true, job);
+  assert.equal(alarmLoopt({}, "workflow_dispatch", "handmatig"), false, "alles groen: geen alarm");
+  assert.equal(alarmLoopt({ "source-health": "skipped" }, "workflow_dispatch", "handmatig"), false);
+  // Een proefrun (aanleiding "test") opent geen alarm.
+  assert.equal(alarmLoopt(dispatch, "workflow_dispatch", "test"), false);
+  assert.equal(alarmLoopt(dispatch, "push"), false, "alleen de cron en een dispatch");
+  // Het issue zegt welke run het was, niet altijd "Geplande run"; de aanleiding komt via env.
+  const blok = jobBlock("alarm"), run = blok.slice(blok.indexOf("run: |"));
+  assert.match(blok, /EVENT: \$\{\{ github\.event_name \}\}/);
+  assert.match(blok, /REASON: \$\{\{ inputs\.reason \}\}/);
+  assert.doesNotMatch(run, /Geplande run van/);
+  assert.match(run, /\$\{EVENT\}/);
+});
+
+// Nakijkronde 3 (18-10-2026), bevinding LAAG: sinds het alarm ook bij een dispatch loopt, keek het niet naar de tak. Een
+// handmatige run vanaf een andere tak (aanleiding handmatig of brain) laat refresh bewust falen (stap "Alleen vanaf main"),
+// en opende of vulde zo toch het alarm-issue. Het alarm loopt alleen vanaf de standaardtak (refs/heads/main).
+test("alarm: alleen vanaf de standaardtak (refs/heads/main), ook bij een dispatch", () => {
+  assert.match(ifOf(jobBlock("alarm")), /github\.ref == 'refs\/heads\/main'/);
+  const rood = { refresh: "failure", "publish-branch": "skipped", "source-health": "skipped", freshness: "success" };
+  for (const ref of ["refs/heads/claude/proef", "refs/heads/data/refresh-20990310-1", "refs/tags/v1", "refs/pull/1/merge"]) {
+    for (const reason of ["handmatig", "brain"]) assert.equal(alarmLoopt(rood, "workflow_dispatch", reason, ref), false, `${reason} vanaf ${ref}`);
+    assert.equal(alarmLoopt({ "source-health": "failure" }, "workflow_dispatch", "handmatig", ref), false, ref);
+  }
+  // Vanaf main blijft alles zoals het was.
+  assert.equal(alarmLoopt(rood, "workflow_dispatch", "handmatig", "refs/heads/main"), true);
+  assert.equal(alarmLoopt({ "source-health": "failure" }, "schedule", "", "refs/heads/main"), true);
+  // De stap "Alleen vanaf main" in refresh kijkt naar dezelfde tak.
+  assert.match(jobBlock("refresh"), /if \[ "\$GITHUB_REF" != "refs\/heads\/main" \]; then/);
+});
+
+test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; alleen een nieuw issue als er geen open is", () => {
+  const blok = jobBlock("alarm");
+  assert.match(blok, /\n    runs-on: ubuntu-latest\n/, "nooit op een self-hosted runner");
+  assert.doesNotMatch(workflow, /self-hosted/);
+  assert.match(blok, /\n    permissions:\n      issues: write\n    steps:/, "alleen issues");
+  assert.doesNotMatch(blok, /actions\/checkout|node scripts|npm /, "geen code van de repo met een schrijftoken");
+  const run = blok.slice(blok.indexOf("run: |"));
+  assert.doesNotMatch(run, /\$\{\{/, "uitkomsten via env, niet in het script geplakt");
+  // Dezelfde titel als voorheen: een open alarm-issue van vroeger wordt aangevuld, er komt er geen tweede bij.
+  assert.match(run, /title="Alarm: agendaverversing of live versheid faalt"/);
+  assert.match(run, /gh issue list --state open --search "\\"\$\{title\}\\" in:title"/);
+  assert.match(run, /select\(\.title == \\"\$\{title\}\\"\)/);
+  const comment = run.indexOf('gh issue comment "$num"'), create = run.indexOf('gh issue create --title "$title"'), anders = run.indexOf("else");
+  assert.ok(comment > 0 && create > anders && anders > comment, "eerst aanvullen; alleen anders een nieuw issue");
+  // De uitkomst van source-health staat in het issue.
+  assert.match(blok, /R_HEALTH: \$\{\{ needs\.source-health\.result \}\}/);
+  assert.match(run, /"- bronstatus: \$\{R_HEALTH\}"/);
+  // Het issue zegt niet meer dat bezoekers een melding zien (besluit van 18-10-2026).
+  assert.doesNotMatch(run, /vriendelijke melding/);
+});
+
+// Een fout van eBesluit draagt haar fase in de foutcode (search_<code> of detail_<code>, metFase in
+// lib/ebesluit-discovery.mjs). De stap "Elke bron gezond" van source-health draait hier echt (bash en jq, met een
+// verzonnen refresh-status.json): een tijdelijke fout met fase blijft een waarschuwing binnen maxAgeHours, zoals
+// isTransientErrorCode zegt, en de melding noemt de hele code, zodat de run zegt waar eBesluit faalt.
+test("source-health: de fase van een eBesluit-fout telt niet voor de vergelijking, en staat wel in de melding", { skip: spawnSync("bash", ["-c", "command -v jq"]).status === 0 ? false : "bash of jq ontbreekt" }, () => {
+  const stap = leesWerkstroom(workflow).get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  assert.ok(stap?.run, "stap Elke bron gezond");
+  const draai = (bronnen) => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "source-health-"));
+    try {
+      fs.mkdirSync(path.join(temp, "in"));
+      fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      // De stand van de live lagen (tests/live-lagen-alarm.test.mjs): hier elke laag gezond, zodat alleen de bronnen
+      // tellen (een ontbrekende laag is rood).
+      const sinds = new Date().toISOString();
+      const lagen = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
+        .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds, errorCode: null }));
+      fs.writeFileSync(path.join(temp, "in", "live-lagen.json"), JSON.stringify({ lagen }));
+      const uit = spawnSync("bash", ["-c", stap.run], { env: { ...process.env, RUNNER_TEMP: temp }, encoding: "utf8" });
+      return { code: uit.status, tekst: uit.stdout };
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  };
+  const recent = new Date(Date.now() - 2 * 3_600_000).toISOString();
+  const oud = new Date(Date.now() - 60 * 3_600_000).toISOString();
+  const fout = (sourceId, errorCode, retrievedAt = recent) => ({ sourceId, fetchStatus: "error", retrievedAt, errorCode, maxAgeHours: 48 });
+  for (const errorCode of ["search_http_500", "detail_http_500", "http_500", "channel_http_503"]) {
+    const { code, tekst } = draai([fout("district-ebesluit", errorCode)]);
+    assert.equal(code, 0, `${errorCode}: ${tekst}`);
+    assert.equal(isTransientErrorCode(errorCode), true, errorCode);
+    assert.match(tekst, new RegExp(`stale \\(${errorCode}\\)`), tekst);
+  }
+  // Blijvend, of te oud: rood, met de hele code in de regel.
+  for (const [errorCode, retrievedAt] of [["detail_http_404", recent], ["search_incomplete", recent], ["search_http_500", oud]]) {
+    const { code, tekst } = draai([fout("district-ebesluit", errorCode, retrievedAt)]);
+    assert.equal(code, 1, `${errorCode}: ${tekst}`);
+    assert.match(tekst, new RegExp(`BRON district-ebesluit: fetchStatus error \\(${errorCode}\\)`), tekst);
+  }
+});
+
+// Nakijkronde 5 (18-10-2026), bevinding MIDDEL: een reactie op het alarm-issue zei niet welke bron of laag faalde, en ook
+// niet waarom. Elke rode source-health gaf dezelfde reactie; een nieuwe falende bron of laag viel zo niet op naast de
+// eBesluit-fout die toen elke ochtend rood stond (issue #190 vraagt een signaal "met run-ID, bron-ID en foutreden"). Nu
+// geeft source-health haar BRON-regels door als job-output (en in de samenvatting van de run), en zet de job alarm ze via
+// env in de reactie: alleen vaste codes, bron-ID's en tijdstippen, in een codeblok en tot veilige tekens beperkt (geen
+// @-vermelding, link of opmaak). De stappen draaien hier echt (bash en jq), met een nagebootste gh; alleen verzonnen data.
+test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zodat een nieuwe fout opvalt", { skip: spawnSync("bash", ["-c", "command -v jq"]).status === 0 ? false : "bash of jq ontbreekt" }, () => {
+  const jobs = leesWerkstroom(workflow);
+  const gezond = jobs.get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  const alarm = jobs.get("alarm").steps.find((s) => s.name === "Alarm-issue openen of aanvullen");
+  assert.ok(gezond?.run && alarm?.run);
+  // De BRON-regels gaan als job-output van source-health naar de job alarm, via env (nooit in het script zelf).
+  assert.equal(gezond.id, "gezond");
+  assert.match(jobBlock("source-health"), /\n    outputs:\n      bron: \$\{\{ steps\.gezond\.outputs\.bron \}\}\n/);
+  assert.equal(alarm.env?.BRON, "${{ needs.source-health.outputs.bron }}");
+  assert.doesNotMatch(alarm.run, /\$\{\{/, "geen expressie in het script van de job alarm");
+
+  const temp = fs.mkdtempSync(path.join(os.tmpdir(), "alarm-bron-"));
+  try {
+    const nu = Date.now();
+    const geleden = (uur) => new Date(nu - uur * 3_600_000).toISOString();
+    const GEZOND = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
+      .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds: geleden(1), errorCode: null }));
+    // De stap "Elke bron gezond", met een eigen GITHUB_OUTPUT: geeft de exitcode en de job-output "bron".
+    const health = (dag, bronnen, lagen = GEZOND) => {
+      const map = path.join(temp, dag);
+      fs.mkdirSync(path.join(map, "in"), { recursive: true });
+      fs.writeFileSync(path.join(map, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      fs.writeFileSync(path.join(map, "in", "live-lagen.json"), JSON.stringify({ lagen }));
+      const output = path.join(map, "output"), samenvatting = path.join(map, "samenvatting");
+      const uit = spawnSync("bash", ["-c", gezond.run], { env: { ...process.env, RUNNER_TEMP: map, GITHUB_OUTPUT: output, GITHUB_STEP_SUMMARY: samenvatting }, encoding: "utf8" });
+      // Het formaat van GITHUB_OUTPUT voor meer regels: naam<<SCHEIDING, de regels, SCHEIDING.
+      const tekst = fs.existsSync(output) ? fs.readFileSync(output, "utf8") : "";
+      const m = tekst.match(/^bron<<(\S+)\n([\s\S]*?)\n?\1\n/m);
+      return { code: uit.status, stdout: uit.stdout, bron: m ? m[2] : null, samenvatting: fs.existsSync(samenvatting) ? fs.readFileSync(samenvatting, "utf8") : "" };
+    };
+    // De stap van de job alarm, met een nagebootste gh: "issue list" geeft het open issue 42, "issue comment" schrijft de
+    // reactie weg.
+    const bin = path.join(temp, "bin");
+    fs.mkdirSync(bin);
+    fs.writeFileSync(path.join(bin, "gh"), '#!/usr/bin/env bash\ncase "$1 $2" in\n  "issue list") echo 42 ;;\n  "issue comment") printf "%s" "$5" > "$GH_UIT" ;;\n  *) exit 3 ;;\nesac\n', { mode: 0o755 });
+    const reactie = (dag, bron) => {
+      const uitBestand = path.join(temp, `${dag}-reactie.txt`);
+      const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, GH_UIT: uitBestand, GH_TOKEN: "proef", GH_REPO: "proef/agenda", RUN_URL: "https://github.com/proef/agenda/actions/runs/123", EVENT: "workflow_dispatch", REASON: "brain", R_REFRESH: "success", R_PUBLISH: "success", R_HEALTH: "failure", R_FRESH: "success", BRON: bron ?? "" };
+      const uit = spawnSync("bash", ["-c", alarm.run], { env, encoding: "utf8" });
+      assert.equal(uit.status, 0, uit.stderr);
+      return fs.readFileSync(uitBestand, "utf8");
+    };
+    const fout = (sourceId, errorCode, uur) => ({ sourceId, fetchStatus: "error", retrievedAt: geleden(uur), errorCode, maxAgeHours: 48 });
+    // Dag 1: alleen eBesluit (al 60 uur een 500). Dag 2: daarbovenop de kalender van het district en de werken van de historiek.
+    const dag1 = health("dag1", [fout("district-ebesluit", "http_500", 60)]);
+    const lagen2 = GEZOND.map((l) => (l.bron === "live-historiek" && l.laag === "works" ? { ...l, status: "error", sinds: null, errorCode: "street_axis_missing" } : l));
+    const dag2 = health("dag2", [fout("district-ebesluit", "http_500", 84), fout("district-kalender", "no_list", 2)], lagen2);
+    assert.equal(dag1.code, 1, dag1.stdout);
+    assert.equal(dag2.code, 1, dag2.stdout);
+    assert.equal(dag1.bron, "BRON district-ebesluit: fetchStatus error (http_500)", dag1.stdout);
+    assert.deepEqual(dag2.bron.split("\n"), ["BRON district-ebesluit: fetchStatus error (http_500)", "BRON district-kalender: fetchStatus error (no_list)", "BRON live-historiek works: error (street_axis_missing), geen goede stand"]);
+    // Ook in de samenvatting van de run.
+    assert.match(dag2.samenvatting, /BRON district-kalender: fetchStatus error \(no_list\)/);
+    const b1 = reactie("dag1", dag1.bron), b2 = reactie("dag2", dag2.bron);
+    assert.notEqual(b1, b2, "een nieuwe falende bron of laag geeft een andere reactie");
+    for (const regel of dag2.bron.split("\n")) assert.ok(b2.includes(regel), `${regel}\n${b2}`);
+    assert.ok(b2.includes("https://github.com/proef/agenda/actions/runs/123"), "met de run");
+    assert.match(b2, /```text\nBRON district-ebesluit/, "in een codeblok");
+    // Een gezonde bron levert geen regel; een rode verversing zonder bronstatus: geen blok.
+    assert.doesNotMatch(b2, /^Bron /m);
+    assert.doesNotMatch(reactie("geen", ""), /```/);
+    // Wat er ook in een bron-ID of foutcode staat: geen @-vermelding, link, opmaak of extra regel in de reactie.
+    const raar = health("raar", [fout("proef-@iemand`[x](https://voorbeeld.be)`", "http_404\n@iemand", 1)]);
+    assert.equal(raar.code, 1);
+    const b3 = reactie("raar", raar.bron);
+    const blok = b3.slice(b3.indexOf("```text"), b3.lastIndexOf("```"));
+    assert.doesNotMatch(blok.slice("```text".length), /[@`[\]<>]/, blok);
+    assert.doesNotMatch(b3, /@iemand/, b3);
+    // Ook als de job-output toch iets anders bevat: alleen regels die met BRON beginnen, met veilige tekens, hoogstens 30.
+    const veel = Array.from({ length: 40 }, (_, i) => `BRON proef-${i}: fetchStatus error (http_500)`).join("\n");
+    const b4 = reactie("veel", `${veel}\nIets anders @iemand\n<b>vet</b>`);
+    assert.equal((b4.match(/^BRON /gm) || []).length, 30);
+    assert.doesNotMatch(b4, /@iemand|<b>|Iets anders/);
+  } finally {
+    fs.rmSync(temp, { recursive: true, force: true });
+  }
 });

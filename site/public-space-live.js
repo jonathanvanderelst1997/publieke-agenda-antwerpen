@@ -5,7 +5,7 @@ import {loadStreetIndex} from "./street-source.js";
 import {settleSources} from "./agenda-view.js";
 import {ASIGN_MAX_URL,asignIdsUrl,asignLayer} from "./asign-query.js";
 import {isEvenementDossier} from "./kaart-uitleg.js";
-import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace,onvolledigMelding} from "./live-lagen.js";
+import {laadAlsInBeeld,meldLiveLaag,mislukteOnderdelenPublicSpace} from "./live-lagen.js";
 
 // De A-Sign-lagen van de publieke ruimte, voor het hele district of (met `kader`) rond één straat.
 // Alleen de postcodes van het district: "District='ANTWERPEN'" alleen is de hele stad (5.781 in plaats
@@ -108,6 +108,23 @@ export async function publiekeRuimteInKader(kader,{district=null,streetIndex=nul
   }
 }
 
+// Wat boven de lijst van het hele district staat (de regel met de aantallen en de notitie), uit wat er echt laadde.
+// `fail`: de jobs die faalden; `district`: of de officiële grens er is; `mislukt`: de verwerking liep mis. Besluit van
+// 18-10-2026: geen melding dat iets faalt, en ook geen verzonnen 0 en geen "geladen" voor wat niet laadde. Een soort
+// telt alleen als al haar lagen laadden (innames en werfzones ook met de grens: zonder grens zijn ze verborgen). Telt
+// geen enkele soort, dan is de lijst leeg (`leeg`): geen teller, geen regel, geen notitie.
+const KOP_SOORTEN=[["parking","parkeerverboden",["parking"],false],["iod","innames",["iod22","iod23"],true],["sgw","werfzones/omleidingen",["sgw47","sgw48"],true]];
+export function publiekeRuimteKop(items=[],{fail=[],district=false,moment="",mislukt=false}={}){
+  const s=publicSpaceStats(items),f=new Set(fail);
+  const soorten=mislukt?[]:KOP_SOORTEN.filter(([,,lagen,metGrens])=>lagen.every(l=>!f.has(l))&&(!metGrens||district));
+  if(!soorten.length)return{leeg:true,meta:"",note:""};
+  return{
+    leeg:false,
+    meta:soorten.map(([k,label])=>`${s[k]} ${label}`).join(" · "),
+    note:`A-Sign, geladen ${moment}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(soorten.some(([,,,metGrens])=>metGrens)?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":""),
+  };
+}
+
 const root=typeof document!=="undefined"?document.getElementById("public-space-live"):null;
 if(root){
   const state={items:[],shown:60,loaded:false},el=s=>root.querySelector(s);
@@ -125,24 +142,26 @@ if(root){
   const titel=i=>i.kind==="parking"?PARKEERVERBOD_TITEL:i.kind==="sgw"?(/Werfzone/.test(i.kindLabel)&&/Omleiding/.test(i.kindLabel)?"Werfzone met omleiding":/Omleiding/.test(i.kindLabel)?"Omleiding":"Werfzone"):i.title;
   const details=i=>i.kind==="parking"?[["Uren",[parkeerUren(i),i.weekdaysOnly?"alleen op weekdagen":""].filter(Boolean).join(", ")]]:i.kind==="sgw"?[]:[["Detail",i.detail]];
   function card(i){return`<article class="public-space-card"><header><div><span class="public-space-kind ${esc(i.kind)}">${esc(i.kindLabel)}</span><h3>${esc(titel(i))}</h3></div><span class="public-space-status">${esc(statusNl(i.status))}</span></header><p class="public-space-timing">${esc(range(i))}</p><dl>${i.location?`<div><dt>Locatie</dt><dd>${esc(i.location)}</dd></div>`:""}${i.streets?.length?`<div><dt>Straat</dt><dd>${esc(i.streets.map(s=>s.name).join(" · "))}</dd></div>`:""}${details(i).filter(([,v])=>v).map(([k,v])=>`<div><dt>${esc(k)}</dt><dd>${esc(v)}</dd></div>`).join("")}<div><dt>Referentie</dt><dd>${esc(i.reference||"Niet ingevuld")}</dd></div><div><dt>Bron</dt><dd>${esc(i.sourceLabel)}</dd></div></dl><footer><span>Alleen publiek bevestigde status</span><a href="${esc(i.sourceUrl)}" target="_blank" rel="noreferrer">Technische stadsbron (A-Sign)</a></footer></article>`}
-  function render(){const items=filtered(),shown=items.slice(0,state.shown);list.innerHTML=shown.map(card).join("");count.textContent=`${items.length} maatregelen`;more.hidden=shown.length>=items.length;more.textContent=`Toon meer (${items.length-shown.length} resterend)`}
+  function render(){const items=filtered(),shown=items.slice(0,state.shown);list.innerHTML=shown.map(card).join("");count.textContent=state.leeg?"":`${items.length} maatregelen`;more.hidden=shown.length>=items.length;more.textContent=`Toon meer (${items.length-shown.length} resterend)`}
   async function load(){
     if(state.loaded)return;state.loaded=true;root.classList.add("loading");note.textContent="Bevestigde parkeerverboden, innames en verkeersmaatregelen worden opgehaald…";
     const dateSql=`DATE '${brusselsDag()}'`;
     const jobs=[...asignJobs(dateSql),["district",district()],["streets",loadStreetIndex()]];
     const settled=await settleSources(jobs);
     const v=Object.fromEntries(settled),fail=settled.filter(([,x])=>x instanceof Error).map(([n])=>n);
-    // Per bron eerlijk melden wat ontbreekt; een halve laag mag niet als volledig doorgaan.
-    let mislukt=mislukteOnderdelenPublicSpace(fail);
+    // Per bron bijhouden wat ontbreekt (intern, live.failed): een halve laag mag niet als volledig doorgaan, en vervangt
+    // of leegt de momentopname van een straat nooit (kiesLaag in site/live-lagen.js). De notitie zegt niet dat iets faalt
+    // (besluit van 18-10-2026), en de regel telt alleen wat laadde (publiekeRuimteKop).
+    let mislukt=mislukteOnderdelenPublicSpace(fail),verwerkingMislukt=false;
     const districtGeometry=v.district instanceof Error?null:v.district;
     const parking=v.parking instanceof Error?[]:v.parking,iod=[...(v.iod22 instanceof Error?[]:v.iod22),...(v.iod23 instanceof Error?[]:v.iod23)];
     const sgw=[...(v.sgw47 instanceof Error?[]:v.sgw47).map(feature=>({feature,kind:"Omleiding"})),...(v.sgw48 instanceof Error?[]:v.sgw48).map(feature=>({feature,kind:"Werfzone"}))];
     const streetIndex=v.streets instanceof Error?null:v.streets;
     // In stappen: duizenden features verwerken mag de pagina op een gsm niet stilleggen.
-    try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES,alleenLive:true})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"])}
+    try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES,alleenLive:true})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"]);verwerkingMislukt=true}
     state.ready=true;meldLiveLaag("publicSpace",state.items,mislukt);
-    const s=publicSpaceStats(state.items);meta.textContent=`${s.parking} parkeerverboden · ${s.iod} innames · ${s.sgw} werfzones/omleidingen`;
-    note.textContent=`A-Sign, geladen ${new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date())}. Alleen goedgekeurde/bevestigde dossiers worden getoond.`+(districtGeometry?" IOD en SGW zijn exact tegen de officiële districtsgrens gecontroleerd.":" IOD en SGW zijn verborgen omdat de officiële districtsgrens niet kon worden geladen.")+(mislukt.length?` ${onvolledigMelding(mislukt)}`:"");
+    const kop=publiekeRuimteKop(state.items,{fail,district:Boolean(districtGeometry),moment:new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date()),mislukt:verwerkingMislukt});
+    state.leeg=kop.leeg;meta.textContent=kop.meta;note.textContent=kop.note;
     render();root.classList.remove("loading");
   }
   // Ook laden als alleen "Evenementen" aan staat: A-Sign kent de evenementen op straat (place-view.js).

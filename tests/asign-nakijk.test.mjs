@@ -322,12 +322,15 @@ test("een ruwe databron staat apart, in een ingeklapt blok \"Technische details\
 });
 
 // ---- 4. De melding viel op een gsm buiten het eerste scherm ----
-test("de melding over een laag die niet laadde, staat boven de tegels; tegels tonen geen valse 0", () => {
+// Sinds het besluit van 18-10-2026 ("niemand moet weten als er iets faalt") is er geen melding meer, ook niet boven de
+// tegels; een tegel toont nog altijd geen valse 0 (een streepje, geen "?").
+test("een laag die niet laadde: geen melding boven de tegels, en de tegels tonen geen valse 0", () => {
   const view = bron("site/place-view.js");
   const start = view.indexOf("placeBox.innerHTML = `");
   const sjabloon = view.slice(start, view.indexOf("`;", start));
-  assert.ok(sjabloon.indexOf("pv-place-failed") > 0 && sjabloon.indexOf("pv-place-failed") < sjabloon.indexOf('class="pv-stats"'), "melding vóór de tegels");
-  assert.match(view, /state\.werkenOnvolledig \? "\?"/);
+  assert.ok(sjabloon.indexOf('class="pv-stats"') > 0);
+  assert.equal(sjabloon.indexOf("pv-place-failed"), -1, "geen melding vóór de tegels");
+  assert.match(view, /state\.werkenOnvolledig \? "–"/);
   assert.match(view, /loading\.push\("terrassen"\)/, "ook terrassen melden dat ze nog laden");
 });
 
@@ -397,9 +400,9 @@ test("straatnamen met een cijfer blijven heel, en een tweede opkuis verandert ni
   }
 });
 
-test("lege staat met een laag die niet laadde: alleen iets zeggen over wat wel geladen is", () => {
+test("lege staat met een laag die niet laadde: niet 'niets op de agenda', en ook niet dat iets niet laadde", () => {
   const straat = { type: "straat", label: "Proefstraat" };
-  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "In wat wel geladen is, staat niets voor deze straat.");
+  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "Voor deze straat is niets gevonden.");
   assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: false }), "Er staat niets op de agenda voor deze straat.");
   assert.match(bron("site/place-view.js"), /onvolledig: Boolean\(state\.onvolledig\)/);
 });

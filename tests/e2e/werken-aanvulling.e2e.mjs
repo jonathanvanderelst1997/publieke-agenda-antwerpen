@@ -154,10 +154,14 @@ test("werkenlijst: AWV-werfdata op hetzelfde GIPOD-id, en losse hinder in een ei
     await context.close();
   });
 
-  await t.test("een AWV-bestand van 4 dagen oud: niets van AWV, wel een notitie", async () => {
+  // Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt". Vroeger zei de notitie "De
+  // AWV-werfdata is ouder dan 3 dagen en wordt daarom niet getoond."
+  await t.test("een AWV-bestand van 4 dagen oud: niets van AWV, en geen notitie dat het oud is", async () => {
     const { page, context, errors } = await openWerken(baseUrl, awvDoc(new Date(NU.getTime() - 4 * 24 * 3_600_000).toISOString()));
     assert.equal(await page.locator("#works-live .works-live-awv").count(), 0);
-    assert.match(await page.locator("#works-live [data-works-note]").innerText(), /De AWV-werfdata is ouder dan 3 dagen en wordt daarom niet getoond\./);
+    const notitie = page.locator("#works-live [data-works-note]");
+    await page.waitForFunction(() => /^Live GIPOD/.test(document.querySelector("#works-live [data-works-note]")?.textContent || ""), null, { timeout: 15000 });
+    assert.doesNotMatch(await notitie.innerText(), /AWV|ouder dan|kon nu niet|niet geladen/);
     assert.deepEqual(errors, []);
     await context.close();
   });

@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-25",
  "invoer": "2c71fb2adea3ca86",
- "code": "e553622ae0505690",
+ "code": "a720a64e98bbadfa",
  "agenda": {
   "items": 766,
   "vaag": 50,
@@ -629,8 +629,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "8eee0fb10c5952b8",
-   "code": "a3cb1b841d7f040d"
+   "invoer": "2c71fb2adea3ca86",
+   "code": "e553622ae0505690"
   },
   "agenda": {
    "ok": true,
@@ -643,67 +643,14 @@
    "gestegen": []
   },
   "straten": {
-   "ok": false,
-   "stijging": 5.7,
-   "gestegen": [
-    {
-     "id": "huisnummer-alleen-live",
-     "van": 0,
-     "naar": 33
-    },
-    {
-     "id": "losse-vaag",
-     "van": 74,
-     "naar": 99
-    },
-    {
-     "id": "losse-vaag:publicSpace:parking",
-     "van": 5,
-     "naar": 29
-    }
-   ]
+   "ok": true,
+   "stijging": 0,
+   "gestegen": []
   },
   "buiten": {
    "ok": true,
    "stijging": 0,
    "gestegen": []
   }
- },
- "aanvaard": [
-  {
-   "waar": "straten",
-   "id": "huisnummer-alleen-live",
-   "van": 0,
-   "naar": 33,
-   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. 29 parkeerverbodkaarten en 4 werfkaarten met een parkeerverbod uit de ochtendstand. Tegen main (scripts/vaagheid-tegen-basis.mjs) ook 0 -> 33: de code van main toont dezelfde straat zonder huisnummer, maar zegt het niet, dus de meter ziet het daar niet. Zo blijft het (besluit van de eigenaar van 18 oktober 2026: in de ochtendstand bewust geen huisnummer, live exact)."
-  },
-  {
-   "waar": "straten",
-   "id": "losse-vaag",
-   "van": 74,
-   "naar": 99,
-   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. De 29 parkeerverbodkaarten en 1 werfkaart tellen daardoor als vaag. Van die 29 waren er op main (de opgeslagen meting, met de data van main) al 5 vaag om een ander patroon (4 parkeerverbod-welk, 1 generieke-titel): 24 parkeerverbodkaarten en 1 werfkaart erbij."
-  },
-  {
-   "waar": "straten",
-   "id": "losse-vaag:publicSpace:parking",
-   "van": 5,
-   "naar": 29,
-   "reden": "Eerlijker, geen terugval: een parkeerverbod uit de ochtendstand (een straatbestand) noemt de straat en de postcode, nooit het huisnummer (de repo bewaart het niet), en de kaart zegt dat het huisnummer alleen live in A-Sign staat. Die zin staat sinds de derde nakijkronde van 18 oktober 2026 in site/onbekend-zinnen.js (parkeerverbod-huisnummer-live) en de meter telt ze als een plaats die niet exact is (kernveld waar: de eigenaar eist waar exact); vroeger zag de meter ze niet en telde zo'n kaart als niet vaag. Live, met het huisnummer of bereik, is de kaart niet vaag. Op main (de opgeslagen meting, met de data van main) waren 5 van dezelfde 29 kaarten al vaag om een ander patroon (4 parkeerverbod-welk, 1 generieke-titel); nu telt elk van de 29 alleen om het huisnummer dat alleen live staat."
-  },
-  {
-   "waar": "straten",
-   "id": "losse-vaag:publicSpace:sgw",
-   "van": 12,
-   "naar": 17,
-   "reden": "Bewezen vergelijkingsartefact van scripts/vaagheid-tegen-basis.mjs, geen terugval: zonder reden in de straatbestanden kan de code van main geen parkeerverbod aan een werfzone hangen, de tak wel (werfzoneDossier). Vijf kaarten erbij (12 -> 17), elk nagemeten met de kaarten van beide codes op dezelfde data. Drie werfzones die al vaag zijn op main (wat-zegt-stad-niet: Paardenmarkt GW2026-004159, Thonetlaan GW2025-106508, Van Kerckhovenstraat GW2026-005611) krijgen zo hun parkeerverbod terug en staan los in plaats van in de bundel werfzones zonder doel, zoals main ze met de data van main toont (main meet daar 16). De vierde (Thonetlaan GW2026-002160) krijgt geen parkeerverbod: ze staat los omdat haar bundel op main uit twee werfzones bestond (met GW2025-106508) en met één lid geen bundel meer is; ze blijft vaag om dezelfde reden als op main (wat-zegt-stad-niet). De vijfde (Vrijdagmarkt GW2025-106999) was niet vaag en telt nu omdat haar regel Parkeerverbod uit de ochtendstand zegt dat het huisnummer alleen live in A-Sign staat: de ochtendstand bewaart bewust geen huisnummer (besluit van de eigenaar van 18 oktober 2026)."
-  },
-  {
-   "waar": "straten",
-   "id": "detail:meer-dan-een-ontbreekt",
-   "van": 83,
-   "naar": 86,
-   "reden": "Tegen de basis, geen terugval: 3 werfkaarten uit de ochtendstand zeggen twee verschillende dingen die ontbreken, waarvoor de werfzone dient (A-Sign) en, in hun regel Parkeerverbod, dat het huisnummer alleen live in A-Sign staat. Die tweede zin telde de meter vroeger niet (derde nakijkronde van 18 oktober 2026). Op de opgeslagen meting daalt het aantal kaarten met meer dan één ontbreekt-zin (268 -> 86): de meter telt een samenvatting die de kaart één keer toont, niet meer twee keer."
-  }
- ]
+ }
 }

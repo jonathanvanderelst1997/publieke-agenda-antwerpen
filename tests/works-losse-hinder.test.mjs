@@ -155,9 +155,9 @@ test("de werkenlaag toont het blok apart, met de vaste zin, en meldt het als eig
   assert.doesNotMatch(bron, /staat niet in de open GIPOD-laag/);
   assert.match(bron, /meldLiveLaag\("losseHinder",/);
   assert.match(bron, /inRespons:new Set\(features\.map/);
-  // Faalt gesloten: zonder hinderbron geen blok, wel een notitie.
+  // Faalt gesloten: zonder hinderbron geen blok, en (besluit van 18-10-2026) ook geen notitie dat iets faalt.
   assert.match(bron, /hinderResult\.ok\?losseHinder\(/);
-  assert.match(bron, /Hinder zonder gepubliceerd werk kon nu niet bepaald worden/);
+  assert.doesNotMatch(bron, /Hinder zonder gepubliceerd werk kon nu niet bepaald worden/);
   const html = fs.readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
   assert.match(html, /data-works-loose hidden/);
 });
