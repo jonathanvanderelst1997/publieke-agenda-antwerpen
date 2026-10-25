@@ -96,6 +96,27 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
 
+## De site weigert automatische toegang: "geweigerd", een melding
+
+Sinds de nacht van 22 op 23-10-2026 weigert de rand van www.antwerpen.be (Akamai) elke klant die geen
+browser is: een 403 met de pagina "Access Denied" en een referentie op errors.edgesuite.net, ook voor
+`robots.txt`. Een gewone browser komt er wel door. Dat raakt `district-kalender`, `district-nieuws`,
+`district-projecten`, `stad-districten` en `stad-koopzondagen`. Het is een keuze van de site, geen
+storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, geen omweg, geen herhaling).
+
+- `fetchWithTimeout` herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"` (ook als
+  `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`.
+- De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
+- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur)
+  valt: een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm
+  over iets wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert
+  automatische toegang".
+- Is de vorige data ouder dan `maxAgeHours`, dan is het wél een fout (`error`, de verversing wordt rood):
+  de site verbergt dan de items van de bron, en dat moet iemand zien. De uitleg zegt hoe oud de stand is
+  ("Bron weigert automatische toegang, stand te oud").
+- Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
+  toelaten, of dezelfde gegevens als open data.
+
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
 en 5 seconden).
@@ -414,8 +435,15 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
-- **Fout bij het zoeken:** beide bestanden blijven zoals ze waren, `fetchStatus: "error"`. Een kapotte
-  detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt.
+- **Zoekfunctie stuk (5xx op `/zoeken`):** dan zoekt de bron via de kalender (`lib/ebesluit-kalender.mjs`):
+  de maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's van het college, het
+  districtscollege en de districtsraad van district Antwerpen, tot 14 dagen na vandaag, met de zoekterm in
+  de titel. Dat geldt ook voor `district-ebesluit`. Aanleiding: `/zoeken` gaf vanaf 13-10-2026 bij elke
+  vraag HTTP 500, ook zonder parameters en in een gewone browser, terwijl de lijst en de zittingen werkten.
+  Elke pagina één keer per verversing, 500 ms ertussen; `coverage.route` is dan `"kalender"`.
+- **Fout bij het zoeken:** faalt ook de kalender, dan blijven beide bestanden zoals ze waren,
+  `fetchStatus: "error"` met de fout van `/zoeken`. Een kapotte detailpagina houdt de rest niet tegen en
+  komt de volgende keer opnieuw aan de beurt.
 - Gemeten op 10-10-2026: 60 besluiten, 36 gelezen in 42 tot 45 s, 8 komende agendapunten (onder meer de
   Antwerp Marathon op 18 oktober, met opbouw vanaf 12 en afbouw tot 21 oktober).
 - **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van
