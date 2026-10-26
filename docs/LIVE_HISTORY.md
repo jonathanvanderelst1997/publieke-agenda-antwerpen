@@ -47,6 +47,8 @@ Privacy: dezelfde opkuis als de historiek (geen huisnummers, ook niet in titels;
 
 Een laag die bij de verversing niet laadt of verdacht krimpt (meer dan de helft minder bij minstens 20 items), houdt per straat haar vorige stand, met status `stale` in de index.
 
+Adres van een terras en van een vergunning (regel van de eigenaar van 26 oktober 2026: ook in de ochtendstand het exacte adres, met huisnummer; dat die adressen blijvend in de git-geschiedenis staan, is aanvaard): een terras bewaart zijn adres uit A-Sign, een vergunning het adres van haar perceel (de adresposities van de stad op dat perceel, `adressenVoorVergunningen` in `site/permits-live-core.js`), allebei alleen als officiële straat met huisnummer (`straatAdres` in `lib/straat-bestanden.mjs`): nooit een naam, een busnummer of een toevoeging. `validate:data` laat een adres alleen in die vorm en alleen bij een terras of een vergunning toe.
+
 Na de nakijkronde:
 
 - **Openbaar onderzoek:** de plekpagina zet de nagekeken stand van het Inzageloket (`site/sources/inzage-status.json`) ook op de vergunningen uit het straatbestand en op de live vergunningen van het kader.

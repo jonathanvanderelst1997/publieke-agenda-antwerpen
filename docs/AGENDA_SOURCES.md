@@ -537,11 +537,12 @@ nooit opgehaald is, meldt `npm run sources:health` als "nog niet opgehaald".
   - Privacy: de kanaalrespons bevat personeelsvelden (`creator`, `assignee`, `lockOwner`) en namen en
     nummers van aannemers. `projectPage()` houdt alleen titel, tags, `publishUntil` en de tekst van tekst-
     en tabelblokken over; blokken "Meer info", "Contact" en "Samenstelling" worden overgeslagen, en de
-    pagina's over de districtsraad, subsidies en reglementen zijn geen projecten. Plaatsen verliezen hun
-    huisnummers, telefoonnummers en e-mailadressen (`zonderHuisnummers`): ook "Meir 24 2000 Antwerpen"
-    (een nummer vlak voor een postcode), reeksen ("135-137"), busnummers ("34 bus 2") en straten op -baan,
-    -dorp, -aan, -gang, -steeg, -poort … Er komt geen vrije tekst van de pagina in een item, buiten datum,
-    uur, plaats, fase en zone.
+    pagina's over de districtsraad, subsidies en reglementen zijn geen projecten. Plaatsen en zones houden
+    hun huisnummer (regel van de eigenaar van 26 oktober 2026: altijd het exacte adres, ook "Proefmeir 24 2000
+    Antwerpen" en reeksen als "135-137"), maar verliezen telefoonnummers, e-mailadressen, een zin om te bellen of
+    te mailen en een busnummer ("34 bus 2": één appartement) (`zonderContact`). De id van een fase komt nog uit de
+    zone zonder huisnummer (`zonderHuisnummers`), zodat de historiek geen nieuwe fase ziet. Er komt geen vrije
+    tekst van de pagina in een item, buiten datum, uur, plaats, fase en zone.
 
 ## Speelstraten via GIPOD
 
@@ -616,12 +617,14 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
   privépersoon hoort niet in de agenda.
 - **Privacy:** het blok "Samenstelling" wordt weggeknipt vóór er iets gelezen wordt; een organisator of
   aanvrager alleen met rechtsvorm (vzw, bv, nv, …) of als publieke instelling; nooit een
-  ondernemingsnummer, IBAN of het adres van de aanvrager. Geen huisnummer in plaats of naam: een
-  muziektitel zonder postcode ("Feest, Proefstraat 12. District Antwerpen") geeft naam "Feest" en plaats
-  "Proefstraat, District Antwerpen". Een straat van het district met een cijfer in de naam ("4
-  septemberpad") telt niet als huisnummer. Uit de tabel van het Districtsfonds komen alleen straten,
-  postcodes en gebieden (die cel noemt soms ontwerpers met hun adres). `validate:data` controleert het
-  bestand.
+  ondernemingsnummer, IBAN of het adres van de aanvrager (zijn zetel, zijn woonplaats in de betaaltabel).
+  De plaats van het evenement staat er met haar huisnummer (regel van de eigenaar van 26 oktober 2026, leesversie
+  3), nooit met een busnummer; de naam nooit met een adres: een muziektitel zonder postcode ("Feest, Proefstraat
+  12. District Antwerpen") geeft naam "Feest" en plaats "Proefstraat 12, District Antwerpen". Uit de tabel van
+  het Districtsfonds komen alleen straten met het huisnummer erachter, postcodes en gebieden, nooit een ander
+  woord (die cel noemt soms ontwerpers of bewoners bij naam). Een besluit dat met leesversie 2 gelezen was (de
+  plaats zonder nummer), wordt opnieuw gelezen; tot dat lukt, blijft het oude besluit met zijn agendapunt staan,
+  en het bestand houdt leesversie 2 tot alles opnieuw gelezen is. `validate:data` controleert het bestand.
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
@@ -746,10 +749,11 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   Marathon) of, via dezelfde pagina, het nieuws van een ander district (de EkeRun). De lijst gaat van 755 naar 822
   items. De stap duurt een paar seconden bovenop de herkenning.
 - **Privacy:** de omschrijving van een inname gaat nooit letterlijk mee (alleen het trefwoord
-  "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; alleen straatnamen van de
-  straatas, nooit een huisnummer (`validate:data` scant titel, plaats, info, uur en straten van deze bron
-  op een huisnummer na een straatnaam); een organisator alleen met een rechtsvorm of als publieke
-  instelling; alleen postcodes van het district.
+  "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; de plaats zijn straatnamen van de
+  straatas (A-Sign geeft een evenementendossier geen adres; `validate:data` weigert een nummer in die straten). Een
+  huisnummer in de naam, de soort, de uren of de reden van een fiche blijft staan (regel van de eigenaar van 26
+  oktober 2026: bij een evenement altijd het exacte adres); een organisator alleen met een rechtsvorm of als
+  publieke instelling, en nooit met een adres; alleen postcodes van het district.
 
 ## Buurtkaart: wijken en coördinaten (geen agendabron)
 
