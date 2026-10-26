@@ -66,11 +66,48 @@ test("adressenVoorVergunningen: één vraag per groepje; een geweigerde vorm spl
   };
   const uit = await adressenVoorVergunningen(items, { fetch: nep, per: 4, tegelijk: 1 });
   assert.deepEqual(uit.map((i) => i.address ?? ""), ["Proefstraat 12–14", "Voorbeeldlaan 3", "", "Proefstraat 7"]);
-  assert.deepEqual(vragen, ["esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryEnvelope", "esriGeometryPolygon"]);
+  // Eerst de groepjes (vier, dan twee keer twee, dan 3 en 4 alleen), daarna het kader van elk dossier zonder adres (3).
+  assert.deepEqual(vragen, ["esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryPolygon", "esriGeometryEnvelope"]);
   // Een vraag die faalt, gooit nooit een fout: de dossiers blijven zonder adres.
   const kapot = await adressenVoorVergunningen(items, { fetch: async () => { throw new Error("weg"); } });
   assert.ok(kapot.every((i) => !i.address));
   assert.deepEqual(kapot.map((i) => i.id), items.map((i) => i.id));
+});
+
+test("adressenVoorVergunningen (nakijkronde van head 533ac5f4): geen rand aan de stad, het kader voor wie nog geen adres heeft, en een storing stopt meteen", async () => {
+  const items = [vergunning(1, 4.4, 51.2), vergunning(2, 4.41, 51.2), vergunning(3, 4.42, 51.2)];
+  // Een adres 0,7 m naast perceel 2: de veelhoek zonder rand vindt het niet, het kader met 1 m wel.
+  const punten = [crab(4.40005, 51.20005, "Proefstraat", "12"), crab(4.41011, 51.20005, "Proefstraat", "20")];
+  const vragen = [];
+  const nep = async (url, { body }) => {
+    const p = new URLSearchParams(String(body));
+    vragen.push(p);
+    const kader = p.get("geometryType") === "esriGeometryEnvelope" ? p.get("geometry").split(",").map(Number) : null;
+    const op = (x) => (kader ? x.geometry.x >= kader[0] && x.geometry.x <= kader[2] && x.geometry.y >= kader[1] && x.geometry.y <= kader[3] : items.some((i) => i.vorm.vlakken[0][0][0][0] <= x.geometry.x && x.geometry.x <= i.vorm.vlakken[0][0][0][0] + 0.0001));
+    return { ok: true, json: async () => ({ features: punten.filter(op) }) };
+  };
+  const uit = await adressenVoorVergunningen(items, { fetch: nep, per: 3, tegelijk: 1 });
+  assert.deepEqual(uit.map((i) => i.address ?? ""), ["Proefstraat 12", "Proefstraat 20", ""]);
+  assert.ok(vragen.every((p) => !p.has("distance")), "geen rand: die liet de stad weigeren of te weinig geven");
+  assert.deepEqual(vragen.map((p) => p.get("geometryType")), ["esriGeometryPolygon", "esriGeometryEnvelope", "esriGeometryEnvelope"]);
+  // Een HTTP 500, 429, een fout 500 in het antwoord of een netwerkfout: geen splitsing, meteen stoppen.
+  const veel = Array.from({ length: 200 }, (_, i) => vergunning(100 + i, 4.3 + i * 0.001, 51.2));
+  for (const [naam, antwoord] of [["HTTP 500", async () => ({ ok: false, status: 500, json: async () => ({}) })], ["HTTP 429", async () => ({ ok: false, status: 429, json: async () => ({}) })], ["fout 500", async () => ({ ok: true, status: 200, json: async () => ({ error: { code: 500 } }) })], ["netwerk", async () => { throw new Error("weg"); }]]) {
+    let n = 0;
+    const lijst = await adressenVoorVergunningen(veel, { fetch: async (...a) => { n += 1; return antwoord(...a); }, tegelijk: 3 });
+    assert.ok(n <= 3, `${naam}: ${n} vragen`);
+    assert.ok(lijst.every((i) => !i.address));
+  }
+  // Weigert de stad elke vorm (fout 400), dan hoogstens het maximum aan vragen.
+  let n400 = 0;
+  await adressenVoorVergunningen(veel, { fetch: async () => { n400 += 1; return { ok: true, status: 200, json: async () => ({ error: { code: 400 } }) }; }, maxVragen: 50 });
+  assert.equal(n400, 50);
+  // Een time-out (AbortSignal): stoppen met wat er al is.
+  const stop = new AbortController();
+  stop.abort();
+  let nAf = 0;
+  await adressenVoorVergunningen(items, { fetch: async () => { nAf += 1; return { ok: true, json: async () => ({ features: [] }) }; }, signal: stop.signal });
+  assert.equal(nAf, 0);
 });
 
 test("Waar bij een vergunning: het adres vooraan, de straten van dat adres niet nog eens bij 'ook dicht bij'", () => {
@@ -101,7 +138,13 @@ test("straatAdres: alleen een officiële straat met haar huisnummer, nooit een n
     ["Proef en Voorbeeldlei 11", "Proef en Voorbeeldlei 11"],
     ["Café Jan, Proefstraat 12", ""],
     ["Jan Voorbeeld Proefstraat 12", ""],
-    ["Proefstraat 12 bus 3", ""],
+    // Nakijkronde van head 533ac5f4: een busnummer valt weg (het adres blijft), een losse letter hoort bij het nummer en
+    // leestekens op het einde vallen weg.
+    ["Proefstraat 12 bus 3", "Proefstraat 12"],
+    ["Proefstraat 46 bus A", "Proefstraat 46"],
+    ["Proefstraat 95 A", "Proefstraat 95A"],
+    ["Proefstraat 12,", "Proefstraat 12"],
+    ["Proefstraat 12 bus", ""],
     ["Proefstraat", ""],
     ["Proefstraat 0", ""],
     ["Onbekendestraat 12", ""],
@@ -109,6 +152,12 @@ test("straatAdres: alleen een officiële straat met haar huisnummer, nooit een n
   // Standaard de stratenlijst van het district.
   assert.equal(straatAdres(`${KAM.name} 999`), `${KAM.name} 999`);
   assert.equal(straatAdres("Proefstraat 12"), "", "een verzonnen straat staat niet in de stratenlijst");
+  // Met de stratenlijst: dezelfde straat zonder spaties of streepjes, of één letter verschil in een lange naam, wordt de
+  // officiële schrijfwijze; een tweede keer verandert niets.
+  const naam = KAM.name;
+  for (const variant of [naam.replace(/\s+/g, ""), naam.toUpperCase(), naam.replace(/-/g, " ")]) assert.equal(straatAdres(`${variant} 999`), `${naam} 999`, variant);
+  if (naam.length >= 10) assert.equal(straatAdres(`${naam.slice(0, 4)}${naam.slice(5)} 999`), `${naam} 999`, "één letter minder");
+  assert.equal(straatAdres(straatAdres(`${naam.toUpperCase()} 999 bus 2`)), `${naam} 999`);
 });
 
 test("ochtendstand: een terras en een vergunning met hun adres; een ander item, of een adres met een naam, zonder", () => {

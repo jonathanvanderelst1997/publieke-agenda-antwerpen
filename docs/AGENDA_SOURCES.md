@@ -622,9 +622,11 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
   3), nooit met een busnummer; de naam nooit met een adres: een muziektitel zonder postcode ("Feest, Proefstraat
   12. District Antwerpen") geeft naam "Feest" en plaats "Proefstraat 12, District Antwerpen". Uit de tabel van
   het Districtsfonds komen alleen straten met het huisnummer erachter, postcodes en gebieden, nooit een ander
-  woord (die cel noemt soms ontwerpers of bewoners bij naam). Een besluit dat met leesversie 2 gelezen was (de
-  plaats zonder nummer), wordt opnieuw gelezen; tot dat lukt, blijft het oude besluit met zijn agendapunt staan,
-  en het bestand houdt leesversie 2 tot alles opnieuw gelezen is. `validate:data` controleert het bestand.
+  woord (die cel noemt soms ontwerpers of bewoners bij naam), in de volgorde van de cel (de hoofdplaatsen eerst).
+  Een besluit dat met leesversie 2 gelezen was (de plaats zonder nummer), wordt opnieuw gelezen; tot dat lukt,
+  blijft het oude besluit met zijn agendapunt staan, en het bestand houdt leesversie 2 tot alles opnieuw gelezen
+  is. Elk gelezen besluit draagt zijn eigen `leesversie`: een besluit dat al opnieuw gelezen is, wordt niet nog
+  eens gelezen, ook als één pagina blijvend faalt (dan alleen die ene). `validate:data` controleert het bestand.
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".

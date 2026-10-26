@@ -261,7 +261,8 @@ test("privacy: een lijst locaties met ontwerpers en hun adres geeft alleen strat
   assert.equal(detail.organisator, "Atelier Créatif Proef vzw", "HTML-entiteiten worden gewone letters");
   assert.equal(detail.naam, "Proefweek Juwelen 2026");
   assert.deepEqual(detail.dagen, ["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04"]);
-  assert.equal(detail.plaats, "Meir 999, Proefstraat 87, Rijnkaai 999, Voorbeeldplein 51, 2000 en 2018 Antwerpen");
+  // In de volgorde van de cel (nakijkronde van head 533ac5f4), niet op alfabet.
+  assert.equal(detail.plaats, "Meir 999, Rijnkaai 999, Voorbeeldplein 51, Proefstraat 87, 2000 en 2018 Antwerpen");
   assert.deepEqual(detail.straten, ["Meir", "Proefstraat", "Rijnkaai", "Voorbeeldplein"]);
   const tekst = JSON.stringify(detail);
   for (const verboden of ["Gerda", "Verzonnen", "Lotte", "Fictief", "Proefhuis", "Proefgalerie", "Testschool", "GEHUURDE", ")"]) {
@@ -368,7 +369,8 @@ function alsLeesversie2(root) {
   const bestand = path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE);
   const doc = JSON.parse(fs.readFileSync(bestand, "utf8"));
   doc.leesversie = 2;
-  for (const b of doc.besluiten) if (b.plaats) b.plaats = b.plaats.replace(/ \d+(?=,|$)/g, "");
+  // Een bestand van leesversie 2 kende nog geen leesversie per besluit.
+  for (const b of doc.besluiten) { delete b.leesversie; if (b.plaats) b.plaats = b.plaats.replace(/ \d+(?=,|$)/g, ""); }
   fs.writeFileSync(bestand, JSON.stringify(doc));
   return doc;
 }
@@ -411,9 +413,30 @@ test("leesversie 3: lukt het opnieuw lezen niet, dan blijft het oude besluit en 
   assert.equal(klaar.besluiten.find((b) => b.id === fonds.id).plaats, "Proefstraat 7, 2018 Antwerpen");
 });
 
+test("leesversie per besluit: een blijvend kapotte pagina laat de andere besluiten niet elke verversing opnieuw lezen", async (t) => {
+  // Nakijkronde van head 533ac5f4: het bestand bleef op leesversie 2 en elke verversing las alle besluiten opnieuw.
+  const root = makeRoot(t);
+  await runOnce(root, nepEbesluit());
+  const oud = alsLeesversie2(root);
+  const fonds = oud.besluiten.find((b) => b.soort === "districtsfonds" && b.gelezen);
+  const kapot = new Set([fonds.id]);
+  await runOnce(root, nepEbesluit({ kapot }));
+  for (let i = 0; i < 3; i += 1) {
+    const calls = [];
+    await runOnce(root, nepEbesluit({ kapot, calls }));
+    assert.deepEqual(calls.filter((u) => u.pathname !== "/zoeken").map((u) => u.pathname.split("/").pop()), [fonds.id], `verversing ${i + 2}: alleen de kapotte`);
+  }
+  const nu = readJson(root, EVENEMENT_BESLUITEN_FILE);
+  assert.equal(nu.leesversie, 2);
+  assert.ok(nu.besluiten.filter((b) => b.gelezen && b.id !== fonds.id).every((b) => b.leesversie === 3));
+  assert.equal(nu.besluiten.find((b) => b.id === fonds.id).leesversie, undefined);
+  await runOnce(root, nepEbesluit());
+  assert.equal(readJson(root, EVENEMENT_BESLUITEN_FILE).leesversie, 3);
+});
+
 test("leesversie 3: ontdekEvenementBesluiten leest eerst de nieuwe besluiten, dan de oude, binnen maxDetails", async () => {
   const eerste = await ontdekEvenementBesluiten({ fetch: nepEbesluit(), today: TODAY, straten: STRATEN, sleep: noSleep });
-  const cache = eerste.besluiten.map((b) => (b.plaats ? { ...b, plaats: b.plaats.replace(/ \d+(?=,|$)/g, "") } : b));
+  const cache = eerste.besluiten.map(({ leesversie: _versie, ...b }) => (b.plaats ? { ...b, plaats: b.plaats.replace(/ \d+(?=,|$)/g, "") } : b));
   const calls = [];
   const deels = await ontdekEvenementBesluiten({ fetch: nepEbesluit({ calls }), today: TODAY, straten: STRATEN, sleep: noSleep, cache, cacheLeesversie: 2, maxDetails: 1 });
   assert.equal(calls.filter((u) => u.pathname !== "/zoeken").length, 1);
@@ -569,7 +592,7 @@ test("B2: één besluit met een @ legt de bron niet stil", async (t) => {
 test("B2: een straat van het district met een cijfer is geen huisnummer", () => {
   const index = straatIndex([...STRATEN, ["7", "De 7 Proefpad", "2050", [], [4.37, 51.22, 4.38, 51.23]], ["8", "4 Proefmaandpad", "2020", [], [4.39, 51.18, 4.4, 51.19]]]);
   const plaats = ev.plaatsUitStraten("De 7 Proefpad 3 en 4 Proefmaandpad, bij Piet Proefpersoon", index);
-  assert.equal(plaats, "4 Proefmaandpad, De 7 Proefpad 3", "het huisnummer na de straat blijft, de naam van de bewoner nooit");
+  assert.equal(plaats, "De 7 Proefpad 3, 4 Proefmaandpad", "het huisnummer na de straat blijft, de naam van de bewoner nooit; in de volgorde van de tekst");
   const doc = (b) => ({ schemaVersion: 1, bron: "https://ebesluit.antwerpen.be/", methode: "x", leesversie: 2, generatedAt: NOW.toISOString(), venster: { van: "2026-08-11", tot: "2027-02-07" }, zoektermen: [], samenvatting: {}, besluiten: [b] });
   assert.deepEqual(validateEvenementBesluiten(doc(besluit({ soort: "districtsfonds", plaats, straten: ["4 Proefmaandpad", "De 7 Proefpad"] }))), []);
   assert.deepEqual(validateEvenementBesluiten(doc(besluit({ soort: "districtsfonds", plaats: "De 7 Proefpad 3", straten: ["De 7 Proefpad"] }))), [], "een echt huisnummer mag (regel van 26 oktober 2026)");

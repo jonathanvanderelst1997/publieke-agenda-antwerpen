@@ -88,6 +88,8 @@ export const VRAGEN_TEGELIJK=3;
 // Een adrespositie op de rand van het perceel telt mee (hoogstens zoveel meter erbuiten).
 const RAND_METER=1;
 const MAX_PAGINAS=10;
+// Zo lang wacht de plekpagina hoogstens op de adressen van de vergunningen (vergunningenInKader).
+export const ADRES_TIJDSLIMIET_MS=8000;
 // Een huisnummer: cijfers met hoogstens twee letters ("12", "44A", "3bis" niet). Nooit 0.
 const HUISNR=/^([1-9]\d{0,3})([A-Za-z]{0,2})$/;
 const nrVan=value=>{const m=String(value??"").trim().match(HUISNR);return m?{n:Number(m[1]),tekst:`${m[1]}${m[2].toUpperCase()}`}:null};
@@ -125,43 +127,66 @@ export function perceelGroepen(items=[],per=PERCELEN_PER_VRAAG){
   }
   return groepen.map(g=>g.items);
 }
+// Een vorm die de stad weigert (HTTP 400, of een antwoord met fout 400): dan het groepje kleiner vragen. Elke andere fout
+// (een andere HTTP-status zoals 429 of 500, een netwerkfout, een time-out) stopt het opzoeken (nakijkronde van head 533ac5f4:
+// bij een storing stuurde elke bezoeker 1513 vragen in plaats van 69).
+class Geweigerd extends Error {}
+class Gestopt extends Error {}
 // De adresposities op de percelen van een groepje (één veelhoek met al hun ringen), of in het kader van één perceel
-// (`kader`: voor een perceel waarvan de stad de vorm weigert; opPerceel kiest daarna de adressen op het perceel zelf).
-async function adresPosities(items,fetchImpl,{kader=null}={}){
+// (`kader`; opPerceel kiest daarna de adressen op het perceel zelf, ook hoogstens RAND_METER erbuiten). De veelhoek zonder
+// rand eromheen: met een rand ("distance") weigerde de stad 30 van de 69 vragen en gaf ze soms stil te weinig adressen
+// (nakijkronde van head 533ac5f4). `tel`: telt elke vraag (en stopt boven het maximum).
+async function adresPosities(items,fetchImpl,{kader=null,signal=null,tel=()=>{}}={}){
   const rings=items.flatMap(item=>(item.vorm?.vlakken||[]).flat());
-  const geometrie=kader?{geometry:kader.join(","),geometryType:"esriGeometryEnvelope"}:{geometry:JSON.stringify({rings,spatialReference:{wkid:4326}}),geometryType:"esriGeometryPolygon",distance:String(RAND_METER),units:"esriSRUnit_Meter"};
+  const geometrie=kader?{geometry:kader.join(","),geometryType:"esriGeometryEnvelope"}:{geometry:JSON.stringify({rings,spatialReference:{wkid:4326}}),geometryType:"esriGeometryPolygon"};
   const punten=[];
   for(let pagina=0;pagina<MAX_PAGINAS;pagina++){
+    tel();
     const body=new URLSearchParams({...geometrie,inSR:"4326",spatialRel:"esriSpatialRelIntersects",outFields:"STRAATNAAM,STRAATNM,HUISNR",returnGeometry:"true",outSR:"4326",orderByFields:"OBJECTID ASC",resultOffset:String(pagina*1000),resultRecordCount:"1000",f:"json"});
-    const r=await fetchImpl(CRAB_ADRESSEN,{method:"POST",body,headers:{Accept:"application/json","Content-Type":"application/x-www-form-urlencoded"}});
+    const r=await fetchImpl(CRAB_ADRESSEN,{method:"POST",body,headers:{Accept:"application/json","Content-Type":"application/x-www-form-urlencoded"},...(signal?{signal}:{})});
+    if(r.status===400)throw new Geweigerd("HTTP 400");
     if(!r.ok)throw Error(`HTTP ${r.status}`);
     const j=await r.json();
-    if(j?.error||!Array.isArray(j?.features))throw Error("adresposities ontbreken");
+    if(j?.error)throw Number(j.error.code)===400?new Geweigerd("fout 400"):Error(`bronfout ${j.error.code??""}`);
+    if(!Array.isArray(j?.features))throw Error("adresposities ontbreken");
     for(const f of j.features){const a=f?.attributes||{},g=f?.geometry;if(Number.isFinite(g?.x)&&Number.isFinite(g?.y))punten.push({p:[g.x,g.y],straat:straatasNaam(a.STRAATNAAM||a.STRAATNM),huisnummer:a.HUISNR})}
     if(!j.exceededTransferLimit&&j.features.length<1000)return punten;
   }
   return punten;
 }
-// Zet `address` op elk dossier met een perceel waarop de stad een adres kent. Een vraag die faalt, laat die dossiers zonder
-// adres (de kaart toont dan de straten, zoals vroeger); dit gooit nooit een fout. Geeft een nieuwe lijst.
-export async function adressenVoorVergunningen(items=[],{fetch:fetchImpl=(...a)=>globalThis.fetch(...a),per=PERCELEN_PER_VRAAG,tegelijk=VRAGEN_TEGELIJK}={}){
+// Zet `address` op elk dossier met een perceel waarop de stad een adres kent; dit gooit nooit een fout. Geeft een nieuwe lijst.
+// 1. De percelen in groepjes (één veelhoek per vraag). Weigert de stad de vorm van een groepje, dan in tweeën, tot één perceel.
+// 2. Elk dossier dat daarna nog geen adres heeft (een adres net naast het perceel, of een vorm die de stad weigerde): het
+//    kader van zijn perceel met RAND_METER erbij (een rechthoek aanvaardt de stad altijd). Zo kregen 462 in plaats van 446
+//    van de 509 dossiers van het district hun adres (live gemeten, 26 oktober 2026).
+// Elke andere fout stopt het opzoeken: de dossiers zonder adres tonen dan hun straten, zoals vroeger. Hoogstens `maxVragen`
+// vragen (standaard: het aantal dossiers plus twee per groepje). `signal`: een AbortSignal (de plekpagina wacht niet langer
+// dan ADRES_TIJDSLIMIET_MS).
+export async function adressenVoorVergunningen(items=[],{fetch:fetchImpl=(...a)=>globalThis.fetch(...a),per=PERCELEN_PER_VRAAG,tegelijk=VRAGEN_TEGELIJK,signal=null,maxVragen=null}={}){
   const adres=new Map();
-  const groepen=perceelGroepen(items.filter(item=>item?.vorm?.vlakken?.length),per);
-  // Eén perceel met een vorm die de stad niet aanvaardt (de vraag geeft dan een fout voor het hele groepje), houdt de rest
-  // niet tegen: het groepje wordt in tweeën gevraagd, tot dat ene perceel overblijft (dat blijft zonder adres).
-  // Lukt ook dat niet, dan het kader van dat perceel (een rechthoek aanvaardt de stad altijd).
+  const metVorm=items.filter(item=>item?.vorm?.vlakken?.length);
+  const groepen=perceelGroepen(metVorm,per);
+  const maximum=Number.isFinite(maxVragen)?maxVragen:metVorm.length+2*groepen.length;
+  let vragen=0,gestopt=false;
+  const tel=()=>{if(gestopt||signal?.aborted)throw new Gestopt("gestopt");if(++vragen>maximum){gestopt=true;throw new Gestopt("maximum")}};
   const neem=(groep,punten)=>{for(const item of groep){const tekst=vergunningAdres(punten.filter(x=>opPerceel(x.p,item.vorm)),(item.streets||[]).map(s=>s?.name));if(tekst)adres.set(item.id,tekst)}};
+  const vraag=async(groep,opties={})=>{try{return await adresPosities(groep,fetchImpl,{...opties,signal,tel})}catch(e){if(!(e instanceof Geweigerd))gestopt=true;throw e}};
   async function zoek(groep){
-    try{neem(groep,await adresPosities(groep,fetchImpl))}
-    catch{
-      if(groep.length>=2){const helft=Math.ceil(groep.length/2);await zoek(groep.slice(0,helft));await zoek(groep.slice(helft));return}
-      const kader=kaderVan(groep[0].vorm),m=RAND_METER/70000;
-      try{neem(groep,await adresPosities(groep,fetchImpl,{kader:[kader[0]-m,kader[1]-m,kader[2]+m,kader[3]+m]}))}catch{/* dit dossier blijft zonder adres */}
+    if(gestopt)return;
+    try{neem(groep,await vraag(groep))}
+    catch(e){
+      if(!(e instanceof Geweigerd)||gestopt||groep.length<2)return;
+      const helft=Math.ceil(groep.length/2);await zoek(groep.slice(0,helft));await zoek(groep.slice(helft));
     }
   }
-  let i=0;
-  async function werker(){while(i<groepen.length)await zoek(groepen[i++])}
-  await Promise.all(Array.from({length:Math.max(1,tegelijk)},werker));
+  async function kaderVraag(item){
+    if(gestopt)return;
+    const kader=kaderVan(item.vorm),m=RAND_METER/70000;
+    try{neem([item],await vraag([item],{kader:[kader[0]-m,kader[1]-m,kader[2]+m,kader[3]+m]}))}catch{/* dit dossier blijft zonder adres */}
+  }
+  const allemaal=async(lijst,taak)=>{let i=0;const werker=async()=>{while(i<lijst.length&&!gestopt)await taak(lijst[i++])};await Promise.all(Array.from({length:Math.max(1,tegelijk)},werker))};
+  await allemaal(groepen,zoek);
+  await allemaal(metVorm.filter(item=>!adres.has(item.id)),kaderVraag);
   return items.map(item=>adres.has(item?.id)?{...item,address:adres.get(item.id)}:item);
 }
 
@@ -205,5 +230,12 @@ export async function vergunningenInKader(kader, { district = null, streetIndex 
     typeof volledigeIndex === "function" ? Promise.resolve().then(volledigeIndex).catch(() => null) : null,
   ]);
   const items = collectPermits({ features, districtGeometry: district, streetIndex: heel || streetIndex });
-  return adressenVoorVergunningen(items, fetchImpl ? { fetch: fetchImpl } : {});
+  // Niet langer dan ADRES_TIJDSLIMIET_MS op de adressen wachten: dan de dossiers met wat er al gevonden is.
+  const stop = typeof AbortController === "function" ? new AbortController() : null;
+  const klok = stop ? setTimeout(() => stop.abort(), ADRES_TIJDSLIMIET_MS) : null;
+  try {
+    return await adressenVoorVergunningen(items, { ...(fetchImpl ? { fetch: fetchImpl } : {}), ...(stop ? { signal: stop.signal } : {}) });
+  } finally {
+    if (klok) clearTimeout(klok);
+  }
 }
