@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-25T04:20:26.372Z",
-  "classificationAsOf": "2026-10-25",
-  "sourceCount": 898,
-  "count": 711,
-  "eventPageCount": 711,
+  "candidateGeneratedAt": "2026-10-26T04:23:16.139Z",
+  "classificationAsOf": "2026-10-26",
+  "sourceCount": 897,
+  "count": 710,
+  "eventPageCount": 710,
   "classifications": {
-    "expired": 131,
-    "current": 22,
-    "future": 689,
-    "review_required": 56
+    "expired": 132,
+    "current": 20,
+    "future": 690,
+    "review_required": 55
   },
   "scopeCounts": {
-    "district": 89,
+    "district": 88,
     "stad": 622
   },
-  "feedGeneratedAt": "2026-10-25T04:20:26.372Z",
+  "feedGeneratedAt": "2026-10-26T04:23:16.139Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:23:37.913Z",
+      "retrievedAt": "2026-10-26T04:24:31.168Z",
       "state": "fresh"
     },
     {
@@ -43,14 +43,14 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:19:34.037Z",
+      "retrievedAt": "2026-10-26T04:22:15.348Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:19:23.364Z",
+      "retrievedAt": "2026-10-26T04:21:52.012Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:19:34.704Z",
+      "retrievedAt": "2026-10-26T04:22:16.248Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:19:13.404Z",
+      "retrievedAt": "2026-10-26T04:21:41.900Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:20:08.527Z",
+      "retrievedAt": "2026-10-26T04:22:50.240Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:20:08.527Z",
+      "retrievedAt": "2026-10-26T04:22:50.240Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-25T04:20:03.435Z",
+      "retrievedAt": "2026-10-26T04:22:45.025Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "5472797549d1edf47fd41c62bd1c08a33b3defa19edfe782b638066084e679fb",
+  "digest": "8630a0b52cc086c770ab62707aa4d745112eb31417109dbf97535d8011860c75",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,10 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Biomarkt Falconplein",
-    "Markt voor klein antiek Sint-Jansvliet",
-    "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
-    "Evenement in de Van Campstraat: verkeersvrije zone in 2 straten",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
     "Gemengde markt Sint-Franciscusplein",
@@ -835,6 +831,9 @@
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
+    "Gemengde markt Sint-Franciscusplein",
+    "Gemengde markt Rooiplein",
+    "Gemengde markt Bist",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",

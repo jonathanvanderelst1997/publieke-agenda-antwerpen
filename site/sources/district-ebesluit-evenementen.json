@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-evenementen-v2|2026-08-13|36|7",
+  "lastSuccessAt": "2026-10-12T03:23:31.289Z",
+  "lastError": {
+    "code": "search_http_500",
+    "at": "2026-10-26T04:23:03.394Z"
+  },
   "items": [
     {
       "id": "ebesluit-ev-2026-dcan-00561-2026-10-17",

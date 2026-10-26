@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-v2|2026-2027|3|6",
+  "lastSuccessAt": "2026-10-12T03:21:58.546Z",
+  "lastError": {
+    "code": "search_http_500",
+    "at": "2026-10-26T04:21:59.402Z"
+  },
   "items": [
     {
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7",
