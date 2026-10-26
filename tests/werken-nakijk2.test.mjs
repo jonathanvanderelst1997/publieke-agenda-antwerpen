@@ -57,10 +57,11 @@ test("1. hinder vóór of bij de start van een gepland werk krijgt altijd haar b
   assert.match(regels(loopt).Duur, / · GIPOD meldt de hinder vóór de werkperiode \(van 5 tot 30 oktober\)$/);
 });
 
-test("2. bij één adres staat het huisnummer ook niet in de naam van een fase", () => {
-  // Zoals een aansluiting in GIPOD (verzonnen: "Fase 1 Voorbeeldlaan 8") naast "huisnummer weggelaten: het gaat om één adres".
+test("2. bij één adres staat het huisnummer ook niet in de naam van een fase; bij een aansluiting wel", () => {
+  // Zoals een inname voor een lift of levering in GIPOD (verzonnen: "Fase 1 Voorbeeldlaan 8") naast "huisnummer weggelaten:
+  // het gaat om één adres" (regel van de eigenaar van 26 oktober 2026: alleen bij een verhuizing de straat).
   const w = werk({
-    ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"], start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z",
+    ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Lift/levering"], workTypes: [], start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z",
     hindrance: hinder([fase("Fase 1 Voorbeeldlaan 8", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]),
   });
   const k = kaart(w);
@@ -69,10 +70,14 @@ test("2. bij één adres staat het huisnummer ook niet in de naam van een fase",
   const alles = [k.titel, k.samenvatting, k.bronTekst, ...k.regels.flat()].join(" ");
   assert.doesNotMatch(cijfersZonderDatums(alles), /\d/, alles);
   // Ook als de fasen uit een oudere verversing komen (kaart-uitleg.json) en de live laag er geen heeft.
-  const bewaard = { werken: { 90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], huisnummers: "nr. 8", huisnummerBron: "x" } } };
+  const bewaard = { werken: { 90000601: { soort: "Inname voor een lift of levering", fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], huisnummers: "nr. 8", huisnummerBron: "x" } } };
   const e = pc.workEntry({ ...w, hindrance: null }, { vandaag: VANDAAG, uitleg: bewaard });
   assert.equal(Object.fromEntries(e.uitleg.regels).Fasen, "Fase 1 Voorbeeldlaan (15 oktober – 16 oktober)");
   assert.doesNotMatch(e.title, /nr\. 8/);
+  // Een aansluiting is een werk op straat: het nummer staat bij "Waar" en in de fase.
+  const a = kaart({ ...w, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] });
+  assert.equal(regels(a).Waar, "Voorbeeldlaan, nr. 8 (omschrijving van de beheerder)");
+  assert.equal(regels(a).Fasen, "Fase 1 Voorbeeldlaan 8 (15 oktober – 16 oktober): voetgangers beperkt");
   // Een volgnummer van een fase is geen huisnummer.
   assert.equal(ku.zonderHuisnummers("Fase 2 Voorbeeldlaan 14 - deel 3"), "Fase 2 Voorbeeldlaan - deel 3");
 });
@@ -125,7 +130,8 @@ test("4. wat de beheerder over het project zegt, staat zichtbaar, zonder adres, 
 });
 
 test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet op; geen naam na een dossiercode", async (t) => {
-  const aansluiting = werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"], lastModified: "2026-10-01T00:00:00Z",
+  // Eén adres: een inname voor een lift of levering (regel van de eigenaar van 26 oktober 2026: een aansluiting niet meer).
+  const aansluiting = werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDLAAN 8", occupancyTypes: ["Lift/levering"], workTypes: [], lastModified: "2026-10-01T00:00:00Z",
     start: "2026-10-14T00:00:00Z", end: "2026-10-21T16:00:00Z", hindrance: hinder([fase("Fase 1 Voorbeeldlaan 8", "2026-10-15T06:00:00Z", "2026-10-16T16:00:00Z", ["Beperkte doorgang voor voetgangers"])]) });
   const f = ku.werkFeiten(aansluiting, { huisnummers: "nr. 8", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" });
   assert.equal(f.huisnummers, "");
@@ -135,7 +141,7 @@ test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet
   // De verversing zoekt het adres niet op en neemt een oud adres niet over.
   const calls = [];
   const fakeFetch = async (url) => { calls.push(String(url)); return { ok: true, json: async () => ({ features: [] }) }; };
-  const vorige = { werken: { 90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", bijgewerkt: "2026-10-01T00:00:00Z", adres: "nr. 8", huisnummers: "nr. 8", fasen: [], straten: [], gevolgen: [] } } };
+  const vorige = { werken: { 90000601: { soort: "Inname voor een lift of levering", bijgewerkt: "2026-10-01T00:00:00Z", adres: "nr. 8", huisnummers: "nr. 8", fasen: [], straten: [], gevolgen: [] } } };
   const { document } = await ref.bouwKaartUitleg({ works: [aansluiting], fetch: fakeFetch, clock: () => new Date("2026-10-10T05:00:00Z"), vorige });
   assert.deepEqual(calls, []);
   const bewaard = document.werken["90000601"];
@@ -150,7 +156,7 @@ test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet
   t.after(() => fs.rmSync(rootDir, { recursive: true, force: true }));
   fs.mkdirSync(path.join(rootDir, "site", "sources"), { recursive: true });
   const oudBestand = { schemaVersion: 1, generatedAt: "2026-10-09T05:00:00Z", vanaf: "2026-10-09", tot: "2026-12-08", evenementen: {}, werken: {
-    90000601: { soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "x", omschrijving: "2018 ANTWERPEN, VOORBEELDLAAN 8", opdrachtgever: "", straten: ["Voorbeeldlaan"], huisnummers: "nr. 8", huisnummerBron: "x", adres: "nr. 8", gevolgen: [], fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], bijgewerkt: "x" },
+    90000601: { soort: "Inname voor een lift of levering", soortBron: "x", omschrijving: "2018 ANTWERPEN, VOORBEELDLAAN 8", opdrachtgever: "", straten: ["Voorbeeldlaan"], huisnummers: "nr. 8", huisnummerBron: "x", adres: "nr. 8", gevolgen: [], fasen: [{ naam: "Fase 1 Voorbeeldlaan 8", start: "2026-10-15", eind: "2026-10-16" }], bijgewerkt: "x" },
     90000602: { soort: "Werken aan het elektriciteitsnet", soortBron: "x", omschrijving: "Voorbeeldlaan 28 DNW12345678_Jan Voorbeeldman LS_kast", opdrachtgever: "", straten: [], huisnummers: "nr. 28–30", huisnummerBron: "x", gevolgen: [], fasen: [], bijgewerkt: "x" },
     90000603: { soort: "Werken aan het elektriciteitsnet", soortBron: "x", omschrijving: "Voorbeeldlaan 28", opdrachtgever: "", straten: [], huisnummers: "nr. 28", huisnummerBron: "x", adres: "nr. 28", gevolgen: [], fasen: [], bijgewerkt: "x" },
   } };
@@ -158,9 +164,9 @@ test("5. de verversing bewaart bij één adres geen huisnummer en zoekt het niet
   const gehouden = await ref.schrijfKaartUitleg({ rootDir, works: { ok: false, items: [] }, publicSpace: { ok: false }, fetch: fakeFetch, clock: () => new Date("2026-10-10T05:00:00Z"), log: () => {} });
   assert.doesNotMatch(JSON.stringify(gehouden.werken["90000601"]), /VOORBEELDLAAN 8|Voorbeeldlaan 8|nr\. 8|"adres"/);
   assert.equal(gehouden.werken["90000602"].huisnummers, "nr. 28–30"); // geen aansluiting: het bereik blijft
-  // Eén los huisnummer bewaren we niet meer, ook niet uit een oudere verversing (hertest, restpunt 3).
-  assert.equal(gehouden.werken["90000603"].huisnummers, "");
-  assert.equal(gehouden.werken["90000603"].adres, "");
+  // Eén los huisnummer blijft (regel van de eigenaar van 26 oktober 2026), ook uit een oudere verversing.
+  assert.equal(gehouden.werken["90000603"].huisnummers, "nr. 28");
+  assert.equal(gehouden.werken["90000603"].adres, "nr. 28");
   assert.doesNotMatch(gehouden.werken["90000602"].omschrijving, /Jan|Voorbeeldman/);
   // Een naam na een dossiercode is een persoon: niet bewaren, niet tonen. De code zelf blijft.
   const naam = ku.werkFeiten(werk({ ...fluvius, title: "2020_ANTWERPEN-Voorbeeldwijk_Voorbeeldlaan 28 DNW12345678_Jan Voorbeeldman LS_voetpadkast vervangen", occupancyTypes: ["Elektriciteit"] }));

@@ -96,11 +96,13 @@ test("HOOG 1 en 2, alle combinaties: een twijfel ervoor of erna geeft nooit een 
 // ---------- HOOG 3: een bewaard nummer alleen bij precies dezelfde eerste straat ----------
 
 test("HOOG 3: een bewaard nummer hoort bij zijn eigen eerste straat, nooit bij een andere", () => {
-  const live = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" }), B([])); // de browser kent het id nog niet: geen nummer
+  // Live geeft GIPOD geen nummer (de browser leest het nummer zelf, regel van de eigenaar van 26 oktober 2026): dan kan alleen
+  // het bewaarde nummer uit het adressenregister er staan, en alleen bij zijn eigen eerste straat.
+  const live = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat" }), B([]));
   assert.equal(live.adresKaart, true);
   assert.equal(live.huisnummers, "");
-  // Dezelfde versie van het werk als live (lastModified): anders geldt een bewaard nummer niet (tests/werk-vorm-nakijk2.test.mjs).
-  const bewaard = (extra) => ({ adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: live.lastModified, ...extra });
+  const REGISTER = "afgeleid uit de werfzone en het adressenregister";
+  const bewaard = (extra) => ({ adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: REGISTER, gevolgen: [], fasen: [], bijgewerkt: live.lastModified, ...extra });
   const kaart = (item, b) => workEntry(item, { vandaag: VANDAAG, uitleg: { werken: { 990001: b } } });
   // Een andere eerste straat in de verversing: het nummer hoorde bij die straat.
   const ander = kaart(live, bewaard({ straten: ["Testlaan"] }));
@@ -111,7 +113,7 @@ test("HOOG 3: een bewaard nummer hoort bij zijn eigen eerste straat, nooit bij e
   assert.doesNotMatch(`${zonderStraat.title} ${regels(zonderStraat.uitleg).Waar}`, /\b12\b/);
   // Dezelfde eerste straat: het bewaarde nummer blijft.
   const zelfde = kaart(live, bewaard({}));
-  assert.equal(regels(zelfde.uitleg).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
+  assert.equal(regels(zelfde.uitleg).Waar, `Proefstraat, nr. 12 (${REGISTER})`);
 });
 
 // ---------- MIDDEL: wat main toonde, zonder privacyverlies ----------
@@ -199,16 +201,20 @@ test("een adreskaart zonder nummer zegt waarom, en nooit 'niet gepubliceerd' als
     assert.equal(uit.niet, false, t);
     assert.equal(uit.waar, `Proefstraat (${KU.NUMMER_WEG.twijfel})`, t);
   }
-  // Gelezen maar hier niet getoond: de browser kent het werk nog niet, of een straatbestand (zonder nummer).
+  // De browser leest het nummer ook als de vaste vorm het werk nog niet kent (regel van de eigenaar van 26 oktober 2026).
   const browser = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" }), B([]));
-  assert.deepEqual(zegt(browser), { waar: `Proefstraat (${KU.NUMMER_WEG.weggelaten})`, niet: false });
+  assert.deepEqual(zegt(browser), { waar: `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, niet: false });
+  // Gelezen maar hier niet getoond: een straatbestand (zonder nummer).
   const straatItem = itemVoorStraat(poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" })), { laag: "werken" });
   assert.equal("huisnummers" in straatItem, false);
   assert.deepEqual(zegt(V.werkenVoorDeSite([straatItem], A())[0]), { waar: `Proefstraat (${KU.NUMMER_WEG.weggelaten})`, niet: false });
-  // Een bewaard nummer bij een andere straat: weggelaten.
-  const bewaard = { adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Testlaan"], huisnummers: "nr. 12", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: "" };
+  // Een bewaard nummer bij een andere straat: het nummer van live blijft.
+  const bewaard = { adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Testlaan"], huisnummers: "nr. 14", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: "" };
   const e = workEntry(browser, { vandaag: VANDAAG, uitleg: { werken: { 990001: bewaard } } });
-  assert.equal(regels(e.uitleg).Waar, `Proefstraat (${KU.NUMMER_WEG.weggelaten})`);
+  assert.equal(regels(e.uitleg).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
+  // Een lift of levering: gelezen maar nooit getoond.
+  const lift = poort(werk({ title: "2000 Antwerpen, Proefstraat 12", occupancyTypes: ["(Verhuis)lift/levering"] }), B([]));
+  assert.equal(regels(KU.werkKaartje(lift, { vandaag: VANDAAG })).Waar, "Proefstraat (huisnummer weggelaten: het gaat om één adres)");
   // Geen enkel getal in de titel of de fasen ("Fase 2" telt niet): dan wel "niet gepubliceerd", want dat is zo.
   const leeg = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat", hindrance: hinder([fase("Fase 2")]) }));
   assert.equal(leeg.huisnummerWeg, undefined);

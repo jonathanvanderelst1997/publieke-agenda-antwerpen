@@ -10,6 +10,7 @@ import assert from "node:assert/strict";
 
 import * as ku from "../site/kaart-uitleg.js";
 import * as sc from "../site/street-core.js";
+import { onbekendZin } from "../site/onbekend-zinnen.js";
 
 const VANDAAG = "2026-10-09";
 const werk = (extra = {}) => ({
@@ -57,9 +58,12 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(genoemd.streets.map((s) => s.name), ["Voorbeeldplein"]);
   assert.equal(genoemd.streetResolution, "official_address_match");
   const k = kaart(werk({ ...genoemd, occupancyTypes: ["Water"] }));
-  // Eén los huisnummer kan een woning zijn: alleen de straat, met de reden (hertest, restpunt 3).
+  // Een getal na de straat dat de lezer niet zeker als huisnummer leest (er volgt een woord): geen nummer, met de reden; de
+  // tekst van de beheerder toont het getal zoals hij het schreef (regel van de eigenaar van 26 oktober 2026).
   assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein tot /);
-  assert.match(regels(k).Waar, /^Voorbeeldplein \(huisnummer weggelaten: één adres kan een woning zijn; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  assert.match(regels(k).Waar, /^Voorbeeldplein \(geen zeker huisnummer in GIPOD; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  assert.equal(k.ontbreekt.includes(onbekendZin("werk-huisnummers")), false);
+  assert.match(k.bronTekst, /Voorbeeldplein 26/);
   // Gezocht, en geen straat met naam binnen 150 m: zeg dat, niet "geen straat in de buurt".
   assert.deepEqual(niets.streets, []);
   assert.deepEqual(niets.streetNearby, []);
@@ -73,13 +77,13 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   for (const x of [leeg, onbekend]) assert.doesNotMatch(alleTekst(x), /geen straat in de buurt gevonden/);
 });
 
-test("3. bij één adres staat nergens een huisnummer, ook niet in de tekst van de beheerder", () => {
+test("3. bij één adres (een lift of levering) staat nergens een huisnummer, ook niet in de tekst van de beheerder", () => {
   const vormen = ["LANGE VOORBEELDSTRAAT 79WERF", "VOORBEELDSTRAAT 6werf", "VOORBEELDBROEK 4B_BIS", "SINT-VOORBEELDVLIET 9", "VOORBEELDUIT 29", "Voorbeeldsteeg | 13"];
   for (const vorm of vormen) {
     const t = ku.beheerderTekst(`2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, { zonderNummers: true, straten: [] });
     assert.match(t, /achterbouw/, vorm);
     assert.doesNotMatch(t.replace(/\b\d{4}\b/g, ""), /\d/, `${vorm} → ${t}`);
-    const k = kaart(werk({ ...fluvius, title: `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] }));
+    const k = kaart(werk({ ...fluvius, title: `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, occupancyTypes: ["Lift/levering"], workTypes: [] }));
     assert.match(regels(k).Waar, /huisnummer weggelaten: het gaat om één adres/);
     assert.doesNotMatch(alleTekst(k).replace(/\b\d{4}\b/g, "").replace(/\b\d+ (?:dagen|dag|maanden|jaar|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\b/g, ""), /\d/, `${vorm} → ${alleTekst(k)}`);
   }

@@ -62,10 +62,10 @@ const teksten = (waarde, uit = []) => {
   else if (waarde && typeof waarde === "object") for (const v of Object.values(waarde)) teksten(v, uit);
   return uit;
 };
-const nergens = (waarde, wat) => {
+const nergens = (waarde, wat, { nummer = false } = {}) => {
   for (const t of teksten(waarde)) {
     assert.doesNotMatch(t, TOEVOEGING, `${wat}: toevoeging in ${JSON.stringify(t)}`);
-    assert.doesNotMatch(t, NUMMER_NA_STRAAT, `${wat}: huisnummer in ${JSON.stringify(t)}`);
+    if (!nummer) assert.doesNotMatch(t, NUMMER_NA_STRAAT, `${wat}: huisnummer in ${JSON.stringify(t)}`);
   }
 };
 
@@ -300,8 +300,10 @@ test("homoniem: de plekpagina (zoekbalk, link, kaartzin, kaartjes, alles per str
   assert.deepEqual(leesBewaardeStraten(opslag), [an.key]);
   // De kaartzin onder de kaart (neighborhood-map.js: de naam van de gekozen straat, place-view.js streetRef).
   nergens(kaartStatusZin({ where: `${an.name} + 150 m`, mapped: 2, opKaart: 2 }), "kaartzin");
-  // De kaartjes van een werk, een parkeerverbod en een evenement.
-  for (const w of werken) nergens((({ title, summary, location, uitleg }) => ({ title, summary, location, uitleg }))(workEntry(w, { vandaag: "2026-10-17" })), `werk ${w.gipodId}`);
+  // De kaartjes van een werk, een parkeerverbod en een evenement. Een werk toont zijn huisnummer (regel van de eigenaar van
+  // 26 oktober 2026: het huisnummer staat er altijd, behalve bij een verhuizing), maar nooit de toevoeging.
+  for (const w of werken) nergens((({ title, summary, location, uitleg }) => ({ title, summary, location, uitleg }))(workEntry(w, { vandaag: "2026-10-17" })), `werk ${w.gipodId}`, { nummer: true });
+  assert.match(JSON.stringify(workEntry(werken.find((w) => w.gipodId === 990104), { vandaag: "2026-10-17" }).uitleg), /Proefstraat 12/);
   const pv = publicSpaceEntry({ ...parkeer, id: "parking:PV2099|1", kind: "parking", title: "Parkeerverbod", location: parkeer.address, streets: resolvePointStreet(PUNT_AN, index).streets, start: "2026-10-18", end: "2026-10-18" });
   nergens((({ title, location, info }) => ({ title, location, info }))(pv), "parkeerverbod");
   const rij = { id: "iod:ET2099000401|Evenement|1", kind: "iod", title: "Parcours", innameType: "Parcours", reference: "ET2099000401", dossierType: "ETL", phase: "Evenement", hindrance: "True", start: "2026-10-20", end: "2026-10-20", status: "aanvraag_goedgekeurd", streets: resolvePointStreet(PUNT_AN, index).streets, description: normalizeIod({ innameBeschrijving: "Start Proefstraat_AN 12 bij Testpersoon" }, { isStraat }).description };

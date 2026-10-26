@@ -247,7 +247,7 @@ if (straatProblemen.length > 50) problems.push(`site/straat: nog ${straatProblem
 
 // Werken: adreskaart of gewone kaart (site/werk-vorm.js, lib/werk-vorm-validatie.mjs). De vaste vorm per werk kent elk
 // gepubliceerd werk; een adreskaart heeft nergens vrije tekst en staat in de historiek zonder nummer; een gewone kaart heeft
-// in kaart-uitleg.json geen los huisnummer; nergens in de werkenlaag een spoor van een verhuizing.
+// in kaart-uitleg.json een geldig huisnummer of een reeks, en bij één adres geen; nergens in de werkenlaag een spoor van een verhuizing.
 const vormProblemen = werkVormProblemen(rootDir);
 problems.push(...vormProblemen.slice(0, 50));
 if (vormProblemen.length > 50) problems.push(`werken: nog ${vormProblemen.length - 50} problemen met de vaste vorm`);

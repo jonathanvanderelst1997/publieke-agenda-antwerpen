@@ -139,12 +139,9 @@ test("HOOG 2: een bewaard nummer geldt niet meer als GIPOD het werk wijzigde of 
   const NU = "2099-03-05T00:00:00Z";
   // GIPOD wijzigde het adres sinds de verversing (een nieuwe lastModified): live twijfelt of geeft geen getal. "Waar" zegt
   // waarom zoals live het ziet.
-  const WEG = `Proefstraat (${KU.NUMMER_WEG.weggelaten})`;
   for (const [titel, vorm, versie, waar] of [
     ["2000 Antwerpen, Proefstraat | 21 A", A(), NU, TWIJFEL], ["2000 Antwerpen, Korte Proefstraat 21", A(), NU, TWIJFEL],
     ["2000 Antwerpen, Testlaan | 5", A(), NU, TWIJFEL], ["2000 Antwerpen, Proefstraat", A(), NU, "Proefstraat"],
-    // De browser kent het werk niet in de vaste vorm (geen nummer, "weggelaten"), maar het is een andere versie.
-    ["2000 Antwerpen, Proefstraat 14", B([]), NU, WEG],
     // Dezelfde versie, maar de lezer twijfelt nu: ook geen bewaard nummer.
     ["2000 Antwerpen, Proefstraat | 21 A", A(), gisteren.lastModified, TWIJFEL],
   ]) {
@@ -156,9 +153,14 @@ test("HOOG 2: een bewaard nummer geldt niet meer als GIPOD het werk wijzigde of 
       assert.equal(tekst.split(" | ")[1], waar, titel);
     }
   }
-  // Dezelfde versie, en live las hetzelfde nummer maar toont het niet (de browser kent het id niet): het bewaarde nummer blijft.
+  // De browser kent het werk niet in de vaste vorm, en het is een andere versie: hij toont het nummer dat hij nu leest, nooit
+  // het bewaarde (regel van de eigenaar van 26 oktober 2026: ook de browser leest het nummer).
+  const nieuw = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 14", dossier: "GW2099-000901", lastModified: NU }), B([]));
+  assert.equal(nieuw.huisnummers, "nr. 14");
+  for (const tekst of toont(nieuw)) { assert.doesNotMatch(tekst, /\b12\b/); assert.match(tekst, new RegExp(`Proefstraat, nr\\. 14 \\(${KU.ADRES_GIPOD}\\)`)); }
+  // Dezelfde versie, en live leest hetzelfde nummer: dat nummer.
   const zelfde = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12", dossier: "GW2099-000901" }), B([]));
-  assert.equal(zelfde.huisnummerWeg, "weggelaten");
+  assert.equal(zelfde.huisnummers, "nr. 12");
   for (const tekst of toont(zelfde)) assert.match(tekst, new RegExp(`Proefstraat, nr\\. 12 \\(${KU.ADRES_GIPOD}\\)`));
   // Een reeks uit het adressenregister hangt niet aan de tekst: die blijft zoals op main.
   const register = { ...uitleg.werken["990001"], huisnummers: "nr. 10–20", huisnummerBron: "afgeleid uit de werfzone en het adressenregister", bijgewerkt: "" };

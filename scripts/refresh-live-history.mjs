@@ -174,8 +174,8 @@ export async function asignLayer(layer, { where, outFields, geometry = false, sp
 }
 
 // `werkVorm`: { vorm, bekend } (site/sources/werk-vorm.json en de werk-ids die al gepubliceerd waren): de poort
-// (werkenVoorDeSite, site/werk-vorm.js) komt direct na de straatkoppeling, en de verversing mag de vorm van een nieuw werk
-// beslissen en zijn nummer lezen.
+// (werkenVoorDeSite, site/werk-vorm.js) komt direct na de straatkoppeling; de verversing legt daarna de vorm van een nieuw
+// werk vast (vormNaVerversing).
 export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets, werkVorm = null } = {}) {
   try {
     const [features, district, hindrance] = await Promise.all([
@@ -204,7 +204,7 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = werkenVoorDeSite(applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets), werkVorm?.vorm || null, { magBeslissen: true, bekend: werkVorm?.bekend || null });
+    const items = werkenVoorDeSite(applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets), werkVorm?.vorm || null, { bekend: werkVorm?.bekend || null });
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };

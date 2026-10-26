@@ -10,10 +10,9 @@
 // - een opdrachtgever met het spoor valt weg (groep "Andere"), en elke andere tekst met het spoor wordt leeg (in een lijst:
 //   valt weg);
 // - een wijziging die daarna niets meer wijzigt, valt weg (ze zou alleen zeggen dat er zo'n tekst stond).
-// Verder verandert het niets, op één ding na: kaart-uitleg.json wordt geschreven zoals elke schrijver het schrijft
-// (kaartUitlegVoorPubliek in lib/kaart-uitleg-refresh.mjs), en dat bewaart de tekst van een gewone kaart zonder los
-// huisnummer (regel 31; tot nu toe stond zo'n nummer in de omschrijving van 24 gewone kaarten van main). Een tweede run
-// verandert niets. Geen netwerk. De uitvoer noemt alleen bestanden en aantallen.
+// Verder verandert het niets: kaart-uitleg.json wordt geschreven zoals elke schrijver het schrijft (kaartUitlegVoorPubliek in
+// lib/kaart-uitleg-refresh.mjs: met het huisnummer, behalve bij één adres, regel van de eigenaar van 26 oktober 2026). Een
+// tweede run verandert niets. Geen netwerk. De uitvoer noemt alleen bestanden en aantallen.
 //
 //   node scripts/opkuis-verhuis.mjs          toont alleen wat er zou veranderen
 //   node scripts/opkuis-verhuis.mjs --write  schrijft de bestanden

@@ -87,20 +87,23 @@ test("de vaste vorm: een adreskaart blijft een adreskaart met nieuwe tekst, een 
   assert.doesNotMatch(JSON.stringify(metTekst), /Proefmans|herstelling/);
   const zonder = poort(werk({ title: "2000 Antwerpen, Proefstraat 12" }), B([990001]));
   assert.equal(zonder.adresKaart, undefined);
-  assert.equal(V.lijstTitel(zonder), "2000 Antwerpen, Proefstraat");
+  assert.equal(V.lijstTitel(zonder), "2000 Antwerpen, Proefstraat 12");
   // Een id uit de vorige historiek (regel 13): gewoon, ook als regel 14 een adreskaart zou geven.
   assert.equal(poort(aansluiting({ title: "Proefstraat 12" }), null, { magBeslissen: true, bekend: new Set([990001]) }).adresKaart, undefined);
 });
 
-test("een onbekend werk dat een adreskaart wordt, toont in de browser geen nummer tot de verversing het vastlegt", () => {
+// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, behalve bij een verhuizing. Ook de browser leest
+// het nummer van een werk dat de vaste vorm nog niet kent; een lift of levering nooit.
+test("een onbekend werk dat een adreskaart wordt, toont in de browser meteen zijn nummer; een lift of levering nooit", () => {
   const w = aansluiting({ title: "2000 Antwerpen, Proefstraat 12" });
   const browser = poort(w, B([]));
   assert.equal(browser.adresKaart, true);
-  assert.equal(browser.huisnummers, "");
-  assert.equal(browser.title, "Nieuwe aansluiting op het elektriciteitsnet – Proefstraat");
-  assert.doesNotMatch(kaartTekst(kaart(browser)), /\b12\b/);
-  assert.equal(poort(w, B([]), { magBeslissen: true }).huisnummers, "nr. 12");
+  assert.equal(browser.huisnummers, "nr. 12");
+  assert.equal(browser.title, "Nieuwe aansluiting op het elektriciteitsnet – Proefstraat 12");
+  assert.match(kaartTekst(kaart(browser)), /Proefstraat, nr\. 12/);
   assert.equal(poort(w, A([990001])).huisnummers, "nr. 12");
+  const lift = werk({ title: "2000 Antwerpen, Proefstraat 12", occupancyTypes: ["(Verhuis)lift/levering"] });
+  for (const vorm of [B([]), A([990001])]) assert.doesNotMatch(kaartTekst(kaart(poort(lift, vorm))), /\b12\b/);
 });
 
 test("de browser laadt de vaste vorm samen met GIPOD; lukt dat niet, dan faalt de werkenlaag", async (t) => {
@@ -166,13 +169,21 @@ test("een lift of levering krijgt nooit een nummer", () => {
   assert.equal(kaart(poort(lift, null, { magBeslissen: true })).titel.startsWith("Inname voor een lift of levering in de Proefstraat"), true);
 });
 
-test("lijstTitel van een gewone kaart verbergt een los huisnummer, en zoeken op dat nummer vindt het werk niet", () => {
+test("lijstTitel van een gewone kaart toont het huisnummer, behalve bij een lift of een verhuizing; zoeken op het nummer vindt het werk", () => {
   const b = poort(werk({ title: "2000 Antwerpen, Proefstraat 12 - herstelling voetpad" }), B([990001]));
-  assert.equal(V.lijstTitel(b), "2000 Antwerpen, Proefstraat - herstelling voetpad");
-  assert.equal(werkZoektekst(b).includes("12"), false);
+  assert.equal(V.lijstTitel(b), "2000 Antwerpen, Proefstraat 12 - herstelling voetpad");
+  assert.equal(werkZoektekst(b).includes("proefstraat 12"), true);
   assert.equal(werkZoektekst(b).includes("herstelling"), true);
   assert.equal(V.lijstTitel(werk({ title: "Info: proef@voorbeeld.test" })), V.GEEN_TITEL); // verzonnen
-  assert.equal(V.lijstTitel(werk({ title: "Proefstraat 31/2 - stelling" })), "Proefstraat - stelling");
+  assert.equal(V.lijstTitel(werk({ title: "Proefstraat 31/2 - stelling" })), "Proefstraat 31/2 - stelling");
+  // Een lift of levering en het spoor van een verhuizing: zonder huisnummer (een titel met het spoor wordt GEEN_TITEL).
+  const lift = poort(werk({ title: "2000 Antwerpen, Proefstraat 12 - levering", occupancyTypes: ["(Verhuis)lift/levering"] }), B([990001]));
+  assert.doesNotMatch(V.lijstTitel(lift), /\b12\b/);
+  assert.match(V.lijstTitel(lift), /Proefstraat/);
+  const verhuis = poort(werk({ title: "2000 Antwerpen, Proefstraat 12", hindrance: hinder([fase("Verhuis")]) }), B([990001]));
+  assert.equal(verhuis.eenAdres, true);
+  assert.doesNotMatch(V.lijstTitel(verhuis), /\b12\b/);
+  assert.doesNotMatch(werkZoektekst(verhuis), /\b12\b/);
 });
 
 // ---------- de kaart en de andere uitgangen ----------
@@ -222,7 +233,10 @@ test("alsAdreskaart, werkenVoorDeSite en schoonWerk veranderen niets bij een twe
   const bewaard = { soort: "", soortBron: "", omschrijving: "Proefstraat 12 - herstelling", opdrachtgever: "", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: "", gevolgen: [], fasen: [{ naam: "Fase 1 Proefstraat 31/2", start: "", eind: "" }] };
   assert.deepEqual(schoonWerk(schoonWerk(bewaard)), schoonWerk(bewaard));
   assert.deepEqual(kaartUitlegWerkFouten(schoonWerk(bewaard), false), []);
-  assert.deepEqual(kaartUitlegWerkFouten(bewaard, false), ["los huisnummer", "los huisnummer in tekst"]);
+  // Een gewone kaart bewaart één los nummer (regel van de eigenaar van 26 oktober 2026), maar nooit bij één adres.
+  assert.deepEqual(kaartUitlegWerkFouten(bewaard, false), []);
+  assert.deepEqual(kaartUitlegWerkFouten({ ...bewaard, eenAdres: true }, false), ["huisnummer bij één adres"]);
+  assert.equal(schoonWerk({ ...bewaard, eenAdres: true }).huisnummers, "");
 });
 
 // ---------- verhuis ----------
@@ -269,7 +283,7 @@ test("opkuis-verhuis: de bewaarde bestanden zonder spoor, en een tweede run vera
   assert.equal(na["990001"].omschrijving, "");
   assert.deepEqual(na["990001"].inname, ["lift of levering", "container"]);
   assert.deepEqual(na["990001"].fasen.map((f) => f.naam), ["Fase 2"]);
-  assert.equal(na["990002"].omschrijving, "Gevelwerken Proefstraat", "kaart-uitleg.json: een gewone kaart zonder los huisnummer (regel 31)");
+  assert.equal(na["990002"].omschrijving, "Gevelwerken Proefstraat 12", "kaart-uitleg.json: een gewone kaart met haar huisnummer (regel van 26 oktober 2026)");
   assert.deepEqual(opnieuw().gewijzigd, []);
   assert.deepEqual(werkZonderVerhuis(werkZonderVerhuis({ title: "Verhuis", owner: "Ladderlift", ownerGroup: "Andere" })), { title: V.GEEN_TITEL, owner: "", ownerGroup: "Andere" });
 });
