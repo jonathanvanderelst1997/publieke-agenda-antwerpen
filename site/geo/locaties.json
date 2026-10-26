@@ -315,6 +315,26 @@
    "postcode": "2140",
    "checkedOn": "2026-10-05"
   },
+  "lamorinierestraat artsen zonder grenzenstraat jules bordetstraat en 4 andere straten": {
+   "point": [
+    4.4219,
+    51.20261
+   ],
+   "precision": "straat",
+   "street": "Lamorinièrestraat",
+   "postcode": "2018",
+   "checkedOn": "2026-10-26"
+  },
+  "lange beeldekensstraat boerhaavestraat constitutiestraat en 15 andere straten": {
+   "point": [
+    4.43018,
+    51.22125
+   ],
+   "precision": "straat",
+   "street": "Lange Beeldekensstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-10-26"
+  },
   "lange sint annastraat bataviastraat bonapartedok en 28 andere straten": {
    "point": [
     4.41412,
@@ -495,16 +515,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-16"
   },
-  "van campstraat en korte van sterbeeckstraat": {
-   "point": [
-    4.42601,
-    51.22376
-   ],
-   "precision": "straat",
-   "street": "Van Campstraat",
-   "postcode": "2060",
-   "checkedOn": "2026-10-12"
-  },
   "viaduct dam en damplein": {
    "point": [
     4.42502,
@@ -568,7 +578,6 @@
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-10-19",
   "constitutiestraat 2060 antwerpen": "2026-10-24",
   "demerstraat 2060 antwerpen": "2026-10-24",
-  "district antwerpen locatie via de officiele bron": "2026-10-20",
   "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-22",
   "district borgerhout locatie via de officiele bron": "2026-10-19",
   "district borsbeek locatie via de officiele bron": "2026-10-18",
@@ -593,7 +602,7 @@
   "lange riddersstraat 2000 antwerpen": "2026-10-24",
   "lange van ruusbroecstraat 2018 antwerpen": "2026-10-24",
   "louiza marialei 2018 antwerpen": "2026-10-24",
-  "nieuw zuid district antwerpen": "2026-10-12",
+  "nieuw zuid district antwerpen": "2026-10-26",
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-10-24",
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-24",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-24",
