@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-26",
  "invoer": "81a4d2bf173997b5",
- "code": "80730970ac110c38",
+ "code": "c50a3649ceceea18",
  "agenda": {
   "items": 764,
   "vaag": 48,
@@ -627,8 +627,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "b0d7fcfc66e4998d",
-   "code": "a720a64e98bbadfa"
+   "invoer": "81a4d2bf173997b5",
+   "code": "80730970ac110c38"
   },
   "agenda": {
    "ok": true,
