@@ -534,6 +534,8 @@ test("CI: een uitzondering geldt per commit, niet aan de kop; een adres dat er a
 const AL_GEPUSHT_IN_ANDERE_PRS = [
   { pr: 203, commit: "697e0ec40d840ba56d956c5ae2d1fdefd06dc2c6", waar: "site/kaart-uitleg.js" },
   { pr: 203, commit: "697e0ec40d840ba56d956c5ae2d1fdefd06dc2c6", waar: "tests/werken-nakijk2.test.mjs" },
+  { pr: 203, commit: "b5731b0354947780819d948a558b0feee4b03e19", waar: "site/kaart-uitleg.js" },
+  { pr: 203, commit: "b5731b0354947780819d948a558b0feee4b03e19", waar: "tests/werken-nakijk2.test.mjs" },
   { pr: 192, commit: "42ef9f097f6477e9212480660cfb1990b9bb4653", waar: "audit/STRAAT_BRONNEN_QA_20261015.md" },
 ];
 const commitHier = (sha) => spawnSync("git", ["cat-file", "-e", `${sha}^{commit}`], { cwd: repoRoot }).status === 0 && spawnSync("git", ["cat-file", "-e", `${sha}^^{commit}`], { cwd: repoRoot }).status === 0;
