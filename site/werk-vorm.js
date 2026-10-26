@@ -41,48 +41,66 @@ const LIJKT_OP = Object.freeze({ а: "a", е: "e", һ: "h", і: "i", ј: "j", о
 const LIJKT = new RegExp(`[${Object.keys(LIJKT_OP).join("")}]`, "gu");
 // De vorm waarop het spoor gezocht wordt: ook "ver huis", "ver-huis" en "ver.huis" (zonder spaties en leestekens ertussen).
 export const spoorVorm = (value = "") => verhuisVorm(value).toLowerCase().replace(LIJKT, (c) => LIJKT_OP[c]).replace(/[\s._·'’/-]/gu, "");
-const SPOOR = /verhui[sz]|(?:in|uit)huiz|ladderlift|meubellift/;
+// Ook "meubeltransport" en "meubelen" (nakijkronde van head 29588b0c).
+const SPOOR = /verhui[sz]|(?:in|uit)huiz|ladderlift|meubellift|meubeltransport|meubelen/;
 // Gecontroleerd: geen enkele officiële straat van het district past hierop (tests/werk-vorm.test.mjs).
 export const VERHUIS_SPOOR = Object.freeze({ test: (value) => SPOOR.test(spoorVorm(value)) });
-// "(Verhuis)lift/levering", in elke schrijfwijze, wordt "Lift/levering", ook in een lijst ("Container;(Verhuis)lift/levering").
-// Een andere soort met het spoor wordt "Andere" (zoals GIPOD een soort zonder naam noemt).
+const INNAME = "Inname";
+// De soort inname van GIPOD "(Verhuis)lift/levering", in elke schrijfwijze, ook zonder "(Verhuis)": de reden van de inname
+// en een spoor van een verhuis (nakijkronde van head 29588b0c: de werkenlijst toonde "Type: Lift/levering").
+const LIFT_LEVERING = /^(?:\(?verhui[sz]\p{L}*\)?)?liftlevering$/u;
+export const isLiftLevering = (value = "") => LIFT_LEVERING.test(spoorVorm(value));
+// Die soort wordt "Inname", ook in een lijst ("Container;(Verhuis)lift/levering" wordt "Container;Inname"). Een andere soort
+// met het spoor wordt "Andere" (zoals GIPOD een soort zonder naam noemt).
 export const innameZonderVerhuis = (value = "") => String(value ?? "").split(";").map((t) => {
-  if (!VERHUIS_SPOOR.test(t)) return t;
-  return /^\(?verhui[sz]\p{L}*\)?liftlevering$/u.test(spoorVorm(t)) ? "Lift/levering" : "Andere";
+  if (isLiftLevering(t)) return INNAME;
+  return VERHUIS_SPOOR.test(t) ? "Andere" : t;
 }).join(";");
+// Heeft het item de soort inname "(Verhuis)lift/levering" (in elke schrijfwijze)?
+export const metLiftLevering = (item) => ["occupancyTypes", "workTypes"].some((k) => (Array.isArray(item?.[k]) ? item[k] : []).some((t) => String(t ?? "").split(";").some(isLiftLevering)));
 // Elke waarde met het spoor valt weg (een lijst) of wordt leeg (een veld), ook dieper.
 const zonderSpoorWaarden = (w) => (typeof w === "string" ? (VERHUIS_SPOOR.test(w) ? "" : w)
   : Array.isArray(w) ? w.filter((x) => !(typeof x === "string" && VERHUIS_SPOOR.test(x))).map(zonderSpoorWaarden)
   : isObject(w) ? Object.fromEntries(Object.entries(w).map(([k, x]) => [k, zonderSpoorWaarden(x)])) : w);
-// Een soort inname met het spoor die niet "Lift/levering" wordt.
-const andereSoortMetSpoor = (lijst) => (Array.isArray(lijst) ? lijst : []).some((t) => String(t ?? "").split(";").some((x) => VERHUIS_SPOOR.test(x) && innameZonderVerhuis(x) !== "Lift/levering"));
+// Een soort inname met het spoor die niet "Inname" wordt.
+const andereSoortMetSpoor = (lijst) => (Array.isArray(lijst) ? lijst : []).some((t) => String(t ?? "").split(";").some((x) => VERHUIS_SPOOR.test(x) && !isLiftLevering(x)));
 // Draagt een item van GIPOD het spoor van een verhuizing in zijn titel, een fase, de opdrachtgever of een andere soort inname
-// dan "Lift/levering"? Niet in een aanvulling van A-Sign of AWV: een verhuisfirma tussen de bedrijven van een grote werf
+// dan "(Verhuis)lift/levering"? Niet in een aanvulling van A-Sign of AWV: een verhuisfirma tussen de bedrijven van een grote werf
 // maakt die werf geen verhuis.
 export const heeftVerhuisSpoor = (item) => isObject(item) && (VERHUIS_SPOOR.test(item.title) || VERHUIS_SPOOR.test(item.owner)
   || (Array.isArray(item.hindrance?.phases) ? item.hindrance.phases : []).some((p) => VERHUIS_SPOOR.test(p?.description))
   || andereSoortMetSpoor(item.occupancyTypes) || andereSoortMetSpoor(item.workTypes));
 // "Inname – Proefstraat 12": wat in de plaats komt van een tekst met het spoor. Het huisnummer dat de beheerder in die tekst
 // schreef, blijft (huisnummerUitGipod op die tekst alleen); het woord en de rest van de tekst niet.
-const INNAME = "Inname";
-const innameTekst = (tekst, streets) => {
+export const innameTekst = (tekst, streets) => {
   const straat = clean(streets?.[0]?.name);
   const zonderWoord = String(tekst ?? "").split(/(\s+)/u).filter((w) => !VERHUIS_SPOOR.test(w)).join("");
   return titelAdreskaart(INNAME, straat, huisnummerUitGipod({ title: zonderWoord, streets }));
 };
-// Regel 9: per veld, voor elk werk (ook een gewone kaart). De soort inname wordt "Lift/levering" (de soort "Inname"); een
+// Regel 9: per veld, voor elk werk (ook een gewone kaart). De soort inname "(Verhuis)lift/levering" wordt "Inname"; een
 // titel of een fase met het spoor wordt "Inname – <straat> <nummer>" (met het nummer dat erin stond); een opdrachtgever met
 // het spoor valt weg (groep "Andere"); in de aanvullingen van A-Sign en AWV valt elke waarde met het spoor weg. Het werk
 // houdt zijn huisnummer (regel van de eigenaar van 26 oktober 2026): geen vlag, geen veld dat zegt dat het een verhuis was.
+// Een inname voor een lift of levering ("(Verhuis)lift/levering"), ook een werk dat al een gewone kaart was: de tekst van de
+// beheerder is daar de reden van de inname en noemt soms een firma ("Levering van ... door Proeffirma BV", nakijkronde van
+// head 29588b0c). Dus ook zonder het woord: de titel en elke fase worden "Inname – <straat> <nummer>", een opdrachtgever
+// buiten de vaste groepen valt weg, en de bedrijven van A-Sign ook. Een tweede aanroep verandert niets.
 export function zonderVerhuisSpoor(item) {
   if (!isObject(item)) return item;
   const uit = { ...item };
+  const lift = metLiftLevering(item);
+  // Een vaste fasenaam ("Fase 2") of een fase zonder naam die iets zegt ("werken") blijft.
+  const weg = (t) => (lift && clean(t) !== "" && !FASE_VAST.test(clean(t)) && !LEGE_FASE.test(clean(t))) || VERHUIS_SPOOR.test(t);
   for (const veld of ["occupancyTypes", "workTypes"]) if (Array.isArray(item[veld])) uit[veld] = [...new Set(item[veld].map(innameZonderVerhuis))];
   // De titel krijgt het nummer uit de titel of een fase ("Inname – Proefstraat 12"), zoals de lijst het toont.
-  if (VERHUIS_SPOOR.test(item.title)) uit.title = innameTekst([item.title, ...(Array.isArray(item.hindrance?.phases) ? item.hindrance.phases : []).map((p) => p?.description || "")].join(" · "), item.streets);
-  if (VERHUIS_SPOOR.test(item.owner)) { uit.owner = ""; uit.ownerGroup = "Andere"; }
-  if (Array.isArray(item.hindrance?.phases)) uit.hindrance = { ...item.hindrance, phases: item.hindrance.phases.map((p) => (VERHUIS_SPOOR.test(p?.description) ? { ...p, description: innameTekst(p.description, item.streets) } : p)) };
+  if (lift || VERHUIS_SPOOR.test(item.title)) uit.title = innameTekst([item.title, ...(Array.isArray(item.hindrance?.phases) ? item.hindrance.phases : []).map((p) => p?.description || "")].join(" · "), item.streets);
+  if (VERHUIS_SPOOR.test(item.owner) || (lift && clean(item.owner) && !GROEPEN.includes(item.ownerGroup))) { uit.owner = ""; uit.ownerGroup = "Andere"; }
+  if (Array.isArray(item.hindrance?.phases)) uit.hindrance = { ...item.hindrance, phases: item.hindrance.phases.map((p) => (weg(p?.description) ? { ...p, description: innameTekst(p.description, item.streets) } : p)) };
   for (const veld of ["aSignSupplement", "awvSupplement"]) if (isObject(item[veld])) uit[veld] = zonderSpoorWaarden(item[veld]);
+  if (lift && isObject(uit.aSignSupplement)) {
+    const a = uit.aSignSupplement;
+    uit.aSignSupplement = { ...a, ...(Array.isArray(a.companies) ? { companies: [] } : {}), ...(Array.isArray(a.phases) ? { phases: a.phases.map((p) => (isObject(p) && "company" in p ? { ...p, company: "" } : p)) } : {}) };
+  }
   delete uit.eenAdres;
   return uit;
 }
@@ -253,13 +271,63 @@ export function werkenVoorDeSite(items = [], vorm = null, { bekend = null } = {}
 // CONTACT de titel opnieuw na; al de rest blijft zoals CONTACT het ziet (een getal van negen cijfers kan een gsm-nummer zijn).
 const CODES = /(?<![\p{L}\d])(?:OMV_\d{8,12}|(?:GW|ET)\d{4}-?\d{6}|(?!TEL|GSM|FAX)[A-Z]{2,6}\d{4,}(?=_))(?!\d)/gu;
 const metContact = (t) => CONTACT.test(t.replace(CODES, " "));
-// Regel 28: de titel in de lijst van de werken, het zoeken, street-overview en week-pulse. Een adreskaart: haar titel (nooit
-// vrije tekst naast het exacte adres). Een gewone kaart: de titel van GIPOD zoals main hem toonde, heel (ook langer dan 300
-// tekens), zonder naam na een dossiercode en zonder contactgegevens, met het huisnummer (regel van de eigenaar van 26 oktober
-// 2026: zo ziet iedereen waar het werk is), ook bij een verhuis (de poort maakte van die titel "Inname – <straat> <nummer>").
+// Het huisnummer van een werk, zoals de kaart het toont (werkFeiten in site/kaart-uitleg.js): wat de beheerder in GIPOD
+// schreef (de titel en de fasen: huisnummerUitGipod; een adreskaart: haar nummer), anders het nummer dat de verversing uit
+// het adressenregister haalde (`registerNummers`, metRegisterNummers hieronder). "nr. 12" of "nr. 12–14", of "".
+export function werkHuisnummers(item = {}) {
+  if (!isObject(item)) return "";
+  const eigen = item.adresKaart === true ? geldigeHuisnummers(item.huisnummers) : huisnummerUitGipod(item);
+  return eigen || geldigeHuisnummers(item.registerNummers);
+}
+// "nr. 12–14" wordt "12–14" (zoals een adreskaart het nummer na de straat schrijft).
+export const kortNummer = (nr) => clean(nr).replace(/^nr\.\s*/i, "");
+// Het nummer uit het adressenregister zoals de verversing het in site/sources/kaart-uitleg.json bewaarde (werken[id]
+// .huisnummers), als `registerNummers` bij elk werk, alleen als dat nummer op dezelfde straat staat als de eerste straat van
+// het werk. Voor de lijst van de werken (site/works-live.js) en de historiek (scripts/refresh-live-history.mjs): zo staat
+// het nummer dat de kaart toont er ook (nakijkronde van head 29588b0c: 93 werken toonden het nummer alleen op de kaart).
+export function metRegisterNummers(items = [], uitleg = null) {
+  const werken = isObject(uitleg?.werken) ? uitleg.werken : null;
+  if (!werken || !Array.isArray(items)) return items;
+  return items.map((item) => {
+    if (!isObject(item)) return item;
+    const w = werken[String(item.gipodId)];
+    const nr = geldigeHuisnummers(w?.huisnummers);
+    const straat = clean(item.streets?.[0]?.name);
+    if (!nr || !straat || !Array.isArray(w?.straten) || clean(w.straten[0]) !== straat) return item;
+    return { ...item, registerNummers: nr };
+  });
+}
+// Zonder accenten en hoofdletters: "ITALIËLEI" eindigt op "Italiëlei".
+const vouw = (v) => clean(v).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+const eindigtOpStraat = (titel, straat) => {
+  const t = vouw(titel), s = vouw(straat);
+  return Boolean(s) && t.endsWith(s) && !/[\p{L}\d]/u.test(t.slice(-s.length - 1, -s.length));
+};
+// Het huisnummer achter een titel die het nog niet noemt (huisnummerUitGipod vindt het niet direct na de straat): "2018
+// ANTWERPEN, PROEFLEI" wordt "2018 ANTWERPEN, PROEFLEI 33", "Werk in openbaar domein" wordt "Werk in openbaar domein –
+// Proefstraat 1". Een tweede keer verandert niets: dan staat het nummer al na de straat.
+function metHuisnummer(titel, item) {
+  const straat = clean(item?.streets?.[0]?.name);
+  if (!straat || huisnummerUitGipod({ title: titel, streets: item.streets })) return titel;
+  const nr = kortNummer(werkHuisnummers(item));
+  if (!nr) return titel;
+  return eindigtOpStraat(titel, straat) ? `${titel} ${nr}` : `${titel} – ${straat} ${nr}`;
+}
+// Regel 28: de titel in de lijst van de werken, het zoeken, street-overview, week-pulse en de historiek. Een adreskaart:
+// haar titel (nooit vrije tekst naast het exacte adres), met het nummer uit het adressenregister als GIPOD er geen gaf. Een
+// gewone kaart: de titel van GIPOD zoals main hem toonde, heel (ook langer dan 300 tekens), zonder naam na een dossiercode en
+// zonder contactgegevens, ook bij een verhuis (de poort maakte van die titel "Inname – <straat> <nummer>"). Altijd met het
+// huisnummer dat de kaart toont (regel van de eigenaar van 26 oktober 2026: zo ziet iedereen waar het werk is): staat het
+// niet in de titel, maar wel in een fase of het adressenregister, dan komt het erachter (metHuisnummer; nakijkronde van head
+// 29588b0c: de lijst en de historiek toonden "Werk in openbaar domein" waar de kaart "Proefstraat nr. 1" zei).
 export function lijstTitel(item = {}) {
-  if (item?.adresKaart === true) return clean(item.title) || GEEN_TITEL;
+  if (item?.adresKaart === true) {
+    const t = clean(item.title) || GEEN_TITEL;
+    const straat = clean(item.streets?.[0]?.name);
+    const nr = geldigeHuisnummers(item.registerNummers);
+    if (geldigeHuisnummers(item.huisnummers) || !nr || !straat || t !== titelAdreskaart(item.soort, straat, "")) return t;
+    return titelAdreskaart(item.soort, straat, nr);
+  }
   const t = naamNaCodeWeg(clean(item?.title));
-  if (!t || metContact(t) || VERHUIS_SPOOR.test(t)) return GEEN_TITEL;
-  return t;
+  return metHuisnummer(!t || metContact(t) || VERHUIS_SPOOR.test(t) ? GEEN_TITEL : t, item);
 }

@@ -21518,7 +21518,7 @@
       "before": {
         "id": "work:20600318",
         "gipodId": 20600318,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Bleekhofstraat",
         "status": "Concreet gepland",
         "start": "2026-10-13T04:00:00Z",
         "end": "2026-10-13T10:00:00Z",
@@ -21527,7 +21527,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -21812,7 +21812,7 @@
       "after": {
         "id": "work:20658462",
         "gipodId": 20658462,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Graanmarkt",
         "status": "In uitvoering",
         "start": "2026-10-13T05:00:00Z",
         "end": "2026-10-13T17:00:00Z",
@@ -21821,7 +21821,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -21849,7 +21849,7 @@
       "before": {
         "id": "work:20658789",
         "gipodId": 20658789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Huidevettersstraat",
         "status": "Concreet gepland",
         "start": "2026-10-12T23:00:00Z",
         "end": "2026-10-13T03:00:00Z",
@@ -21858,7 +21858,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {

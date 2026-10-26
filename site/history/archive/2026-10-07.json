@@ -4960,7 +4960,7 @@
       "after": {
         "id": "work:20658593",
         "gipodId": 20658593,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "Concreet gepland",
         "start": "2026-10-09T07:00:00Z",
         "end": "2026-10-09T12:00:00Z",
@@ -4969,7 +4969,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",

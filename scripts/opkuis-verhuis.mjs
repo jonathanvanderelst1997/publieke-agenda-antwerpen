@@ -6,7 +6,11 @@
 // - de soort "Verhuis" wordt "Inname" als de soort inname of de inname een lift noemt, anders geen soort; "Verhuislift of
 //   levering" en "Inname voor een lift of levering" worden "Inname" (een verhuis verschijnt als een gewone inname: regel van
 //   de eigenaar van 26 oktober 2026), "verhuislift of levering" en "lift of levering" worden "inname", en een soort inname van
-//   GIPOD in elke schrijfwijze "Lift/levering" (innameZonderVerhuis);
+//   GIPOD "(Verhuis)lift/levering" in elke schrijfwijze (ook "Lift/levering") "Inname" (innameZonderVerhuis);
+// - bij een inname voor een lift of levering (die soort inname, of in kaart-uitleg.json de soort "Inname" op een gewone kaart)
+//   is de tekst van de beheerder de reden van de inname en noemt ze soms een firma: de titel, de omschrijving en elke fase
+//   worden "Inname – <straat> <nummer>" (met het nummer dat erin stond), en een opdrachtgever buiten de vaste groepen valt weg
+//   (zonderVerhuisSpoor in site/werk-vorm.js doet hetzelfde bij elke verversing; nakijkronde van head 29588b0c);
 // - de oude vlag `eenAdres` (tot 26 oktober 2026: geen huisnummer bij een verhuis) valt weg: ze zei alleen dat het een
 //   verhuis was;
 // - een bewaarde fase met het spoor valt uit de bewaarde fasenlijst;
@@ -24,7 +28,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { GEEN_TITEL, VERHUIS_SPOOR, innameZonderVerhuis } from "../site/werk-vorm.js";
+import { GEEN_TITEL, VERHUIS_SPOOR, innameTekst, innameZonderVerhuis, isLiftLevering } from "../site/werk-vorm.js";
+import { GROEPEN, ownerGroup } from "../site/works-core.js";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 import {
   LIVE_HISTORY_ARCHIVE_BASELINE_FILE, LIVE_HISTORY_ARCHIVE_DIR, LIVE_HISTORY_ARCHIVE_INDEX_FILE, isHistoryArchiveDayFileName,
@@ -39,10 +44,15 @@ const spoor = (v) => typeof v === "string" && VERHUIS_SPOOR.test(v);
 const LIFT_SOORT = "Inname";
 const isWerkId = (id) => /^work:\d+$/.test(String(id || ""));
 
+// Een vaste fasenaam ("Fase 2", "deel 3") of een fase zonder naam die iets zegt ("werken", "Inname – Proefstraat 12").
+const VASTE_FASE = /^(?:(?:fase|deel)\s*-?\s*\d{1,3}[a-z]?|fase|inname(?: – .*)?)$/iu;
+const liftType = (lijst) => Array.isArray(lijst) && lijst.some((x) => typeof x === "string" && x.split(";").some(isLiftLevering));
 // Eén werk (diep). `sorteer`: de lijsten van de soort inname gesorteerd, zoals de historiek ze bewaart (compactWorkItem).
-export function werkZonderVerhuis(w, { sorteer = false } = {}) {
+// `straatVan`: de naam van de eerste straat van een item (een straatbestand bewaart de straten als nummer in zijn tabel).
+export function werkZonderVerhuis(w, { sorteer = false, straatVan = (x) => x?.streets?.[0]?.name || "" } = {}) {
   if (!isObject(w)) return w;
   const uit = { ...w };
+  const liftItem = liftType(uit.occupancyTypes) || liftType(uit.workTypes);
   const lift = /lift/i.test(String(uit.innameSoort ?? "")) || (Array.isArray(uit.inname) && uit.inname.some((x) => /lift/i.test(String(x))));
   for (const k of ["soort", "innameSoort"]) if (/^(?:verhuislift of levering|inname voor een lift of levering)$/i.test(String(uit[k] ?? ""))) uit[k] = LIFT_SOORT;
   if (Array.isArray(uit.inname)) uit.inname = uit.inname.map((x) => (/^(?:verhuis)?lift of levering$/i.test(String(x)) ? "inname" : x));
@@ -52,8 +62,23 @@ export function werkZonderVerhuis(w, { sorteer = false } = {}) {
     if ("soortBron" in uit) uit.soortBron = lift ? "soort inname in GIPOD" : "";
     if (uit.innameSoort === uit.soort) delete uit.innameSoort;
   }
+  // Een inname voor een lift of levering: de soort inname van GIPOD (een item), of de soort "Inname" op een gewone kaart van
+  // kaart-uitleg.json (die soort komt alleen van "(Verhuis)lift/levering", INNAME_SOORT in site/kaart-uitleg.js). Een tekst
+  // met het spoor gaat hieronder weg zoals altijd; een vaste fasenaam ("Fase 2") blijft.
+  const liftUitleg = !liftItem && uit.adresKaart !== true && Array.isArray(uit.straten) && (uit.soort === LIFT_SOORT || uit.innameSoort === LIFT_SOORT);
+  if (liftItem || liftUitleg) {
+    const straat = liftItem ? String(straatVan(uit) || "") : String(uit.straten[0] || "");
+    const streets = straat ? [{ name: straat }] : [];
+    const inname = (t) => (typeof t === "string" && t.trim() && !spoor(t) && !VASTE_FASE.test(t.trim()) ? innameTekst(t, streets) : t);
+    if (liftItem && typeof uit.title === "string") uit.title = innameTekst(uit.title, streets);
+    if (liftUitleg && uit.omschrijving) uit.omschrijving = inname(uit.omschrijving);
+    if (Array.isArray(uit.fasen)) uit.fasen = uit.fasen.map((f) => (isObject(f) && f.naam ? { ...f, naam: inname(f.naam) } : f));
+    if (isObject(uit.hindrance) && Array.isArray(uit.hindrance.phases)) uit.hindrance = { ...uit.hindrance, phases: uit.hindrance.phases.map((p) => (isObject(p) && p.description ? { ...p, description: inname(p.description) } : p)) };
+    if (liftItem && uit.owner && !GROEPEN.includes(uit.ownerGroup)) { uit.owner = ""; if ("ownerGroup" in uit) uit.ownerGroup = "Andere"; }
+    if (liftUitleg && uit.opdrachtgever && !GROEPEN.includes(ownerGroup(uit.opdrachtgever))) uit.opdrachtgever = "";
+  }
   for (const k of ["occupancyTypes", "workTypes"]) {
-    if (!Array.isArray(uit[k]) || !uit[k].some(spoor)) continue;
+    if (!Array.isArray(uit[k]) || !uit[k].some((x) => spoor(x) || (typeof x === "string" && x.split(";").some(isLiftLevering)))) continue;
     const lijst = [...new Set(uit[k].map((x) => (typeof x === "string" ? innameZonderVerhuis(x) : x)))];
     uit[k] = sorteer ? lijst.sort((a, b) => String(a).localeCompare(String(b), "nl")) : lijst;
   }
@@ -162,7 +187,8 @@ export function opkuisVerhuis({ rootDir, write = false } = {}) {
     const voor = fs.readFileSync(file, "utf8");
     const doc = JSON.parse(voor);
     if (!Array.isArray(doc.werken)) continue;
-    const werken = werkItems(doc.werken, {});
+    const straatVan = (x) => (Array.isArray(doc.straten) && Number.isInteger(x?.streets?.[0]) ? doc.straten[x.streets[0]]?.[1] : "") || "";
+    const werken = werkItems(doc.werken, { straatVan });
     if (JSON.stringify(werken) === JSON.stringify(doc.werken)) continue;
     const na = { ...doc, werken };
     na.inhoud = straatHash(na);

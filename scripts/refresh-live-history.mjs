@@ -30,7 +30,8 @@ import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
-import { vormNaVerversing, werkVormDocument, werkenVoorDeSite } from "../site/werk-vorm.js";
+import { metRegisterNummers, vormNaVerversing, werkVormDocument, werkenVoorDeSite } from "../site/werk-vorm.js";
+import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { gepubliceerdeWerkIds, leesWerkVorm, schrijfWerkVorm } from "../lib/werk-vorm-bestand.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
@@ -171,6 +172,17 @@ export async function asignLayer(layer, { where, outFields, geometry = false, sp
     features.push(...data.features);
   }
   return features;
+}
+
+// Het huisnummer uit het adressenregister dat de vorige verversing in kaart-uitleg.json bewaarde, voor de titel van een werk in
+// de historiek (lijstTitel in site/werk-vorm.js: het nummer dat de kaart toont, regel van de eigenaar van 26 oktober 2026).
+// Een nieuw werk krijgt het zo een dag later; dat is geen wijziging (alleenHuisnummerErbij in lib/live-history.mjs).
+// Ontbreekt of faalt het bestand, dan alleen de nummers uit GIPOD.
+export function werkenMetRegisterNummers(rootDir, result) {
+  if (!result?.ok || !Array.isArray(result.items)) return result;
+  let uitleg = null;
+  try { uitleg = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", KAART_UITLEG_FILE), "utf8")); } catch { uitleg = null; }
+  return { ...result, items: metRegisterNummers(result.items, uitleg) };
 }
 
 // `werkVorm`: { vorm, bekend } (site/sources/werk-vorm.json en de werk-ids die al gepubliceerd waren): de poort
@@ -330,7 +342,7 @@ export async function refreshLiveHistory({
   if (worksResult.ok || JSON.stringify(nieuweVorm) !== JSON.stringify(werkVormDocument(werkVorm.vorm))) schrijfWerkVorm(rootDir, nieuweVorm);
   // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
   // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
-  const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
+  const worksVoorHistoriek = resultaatVoorHistoriek(werkenMetRegisterNummers(rootDir, worksResult));
   const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
   log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
   const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });

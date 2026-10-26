@@ -169,7 +169,9 @@ const INNAME_SOORT = [
   ["stelling", "Stelling (steiger)"],
   ["(werf)kraan", "Bouwkraan"],
   // De poort (site/werk-vorm.js) geeft deze soort inname van GIPOD ("(Verhuis)lift/levering") in één vaste vorm:
-  // "Lift/levering". Een verhuis verschijnt als een gewone inname (regel van de eigenaar van 26 oktober 2026).
+  // "Inname". Een verhuis verschijnt als een gewone inname (regel van de eigenaar van 26 oktober 2026); de oude vormen
+  // blijven herkend (een bewaard bestand van vóór de poort).
+  ["inname", "Inname"],
   ["lift/levering", "Inname"],
   ["(verhuis)lift/levering", "Inname"],
   ["container", "Container"],

@@ -3889,7 +3889,7 @@
       "before": {
         "id": "work:20679394",
         "gipodId": 20679394,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Jacobstraat",
         "status": "In uitvoering",
         "start": "2026-10-06T05:00:00Z",
         "end": "2026-10-08T16:00:00Z",
@@ -3898,7 +3898,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {

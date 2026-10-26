@@ -51,7 +51,7 @@ test("regel 14: een aansluiting, een container of een lift of levering (één hu
   assert.equal(V.isAdreskaart(aansluiting({ title: "2000 Antwerpen, Proefstraat 12 - klantaansluiting bij Proefmans" })), true); // verzonnen
   assert.equal(V.isAdreskaart(werk({ occupancyTypes: ["Container"], owner: "Proefmans", ownerGroup: "Andere" })), true); // verzonnen
   const lift = V.zonderVerhuisSpoor(werk({ occupancyTypes: ["(Verhuis)lift/levering"], title: "2000 Antwerpen, Proefstraat 12" }));
-  assert.deepEqual(lift.occupancyTypes, ["Lift/levering"]);
+  assert.deepEqual(lift.occupancyTypes, ["Inname"], "de soort inname noemt geen lift of levering (nakijkronde van head 29588b0c)");
   assert.equal(V.isAdreskaart(lift), true);
   assert.equal(V.isAdreskaart(V.zonderVerhuisSpoor(werk({ occupancyTypes: ["Container;(Ver­huis)lift/levering"] }))), true);
 });
@@ -184,8 +184,11 @@ test("lijstTitel van een gewone kaart toont het huisnummer, ook bij een lift of 
   assert.equal(V.lijstTitel(werk({ title: "Proefstraat 31/2 - stelling" })), "Proefstraat 31/2 - stelling");
   // Een lift of levering en het spoor van een verhuizing: met het huisnummer, zonder het woord (een titel met het spoor wordt
   // "Inname – <straat> <nummer>").
+  // Een inname voor een lift of levering die al een gewone kaart was: zonder de tekst van de beheerder (de reden), met het
+  // nummer (nakijkronde van head 29588b0c).
   const lift = poort(werk({ title: "2000 Antwerpen, Proefstraat 12 - levering", occupancyTypes: ["(Verhuis)lift/levering"] }), B([990001]));
-  assert.equal(V.lijstTitel(lift), "2000 Antwerpen, Proefstraat 12 - levering");
+  assert.equal(V.lijstTitel(lift), "Inname – Proefstraat 12");
+  assert.deepEqual(lift.occupancyTypes, ["Inname"]);
   const verhuis = poort(werk({ title: "2000 Antwerpen, Proefstraat 12", hindrance: hinder([fase("Verhuis")]) }), B([990001]));
   assert.equal("eenAdres" in verhuis, false, "geen vlag die zegt dat het een verhuis was");
   assert.equal(V.lijstTitel(verhuis), "2000 Antwerpen, Proefstraat 12");
@@ -255,13 +258,15 @@ test("alsAdreskaart, werkenVoorDeSite en schoonWerk veranderen niets bij een twe
 // ---------- verhuis ----------
 
 test("het spoor in elke schrijfwijze, en geen officiële straat van het district past erop", () => {
-  for (const t of ["Verhuis", "Vеrhuis", "Ver­huis", "ver huis", "VERHUIZING", "uithuizing", "inhuizing", "ladderlift", "Ver​huislift", "Verhúis", "ｖｅｒｈｕｉｓ", "VЕRHUIS", "ver-huis", "Ver.huis", "Meubellift", "meubel lift"]) assert.equal(V.VERHUIS_SPOOR.test(t), true, JSON.stringify(t));
+  for (const t of ["Verhuis", "Vеrhuis", "Ver­huis", "ver huis", "VERHUIZING", "uithuizing", "inhuizing", "ladderlift", "Ver​huislift", "Verhúis", "ｖｅｒｈｕｉｓ", "VЕRHUIS", "ver-huis", "Ver.huis", "Meubellift", "meubel lift", "Meubeltransport", "levering meubelen"]) assert.equal(V.VERHUIS_SPOOR.test(t), true, JSON.stringify(t));
   for (const t of ["Levering van een container", "Lift/levering", "Proefstraat 12", "huis", "verhuur", "Inname", "meubelwinkel"]) assert.equal(V.VERHUIS_SPOOR.test(t), false, t);
   const straten = JSON.parse(fs.readFileSync(path.join(root, "site", "geo", "straten.json"), "utf8")).streets.map((r) => r[1]);
   assert.ok(straten.length > 1000);
   assert.deepEqual(straten.filter((n) => V.VERHUIS_SPOOR.test(n)), []);
-  assert.equal(V.innameZonderVerhuis("(Ver­huis)lift/levering"), "Lift/levering");
-  assert.equal(V.innameZonderVerhuis("Container;(Vеrhuis)lift/levering"), "Container;Lift/levering");
+  assert.equal(V.innameZonderVerhuis("(Ver­huis)lift/levering"), "Inname");
+  assert.equal(V.innameZonderVerhuis("Container;(Vеrhuis)lift/levering"), "Container;Inname");
+  assert.equal(V.innameZonderVerhuis("Lift/levering"), "Inname");
+  assert.equal(KU.soortVanWerk({ occupancyTypes: ["Inname"] }).soort, "Inname");
   assert.equal(V.innameZonderVerhuis("Verhuiswagen"), "Andere");
   assert.equal(KU.soortVanWerk({ omschrijving: "Verhuis Proefstraat 12" }).soort, "");
   // Een verhuis verschijnt als een gewone inname (regel van de eigenaar van 26 oktober 2026).
@@ -277,7 +282,8 @@ test("regel 9: elk werk, ook een gewone kaart, zonder spoor maar met zijn huisnu
   assert.equal(w.ownerGroup, "Andere");
   assert.equal("eenAdres" in w, false);
   assert.deepEqual(w.hindrance.phases.map((p) => [p.description, p.start]), [["Inname – Proefstraat", "2099-03-12T06:00:00Z"], ["Fase 2", "2099-03-13T06:00:00Z"]]);
-  assert.deepEqual(w.aSignSupplement, { companies: ["Proefbouw"], workTypes: [], phases: [{ company: "" }] });
+  // Een inname voor een lift of levering: ook de bedrijven van A-Sign niet (een firma kan een persoon aanwijzen).
+  assert.deepEqual(w.aSignSupplement, { companies: [], workTypes: [], phases: [{ company: "" }] });
   assert.deepEqual(w.awvSupplement, { werfNaam: "" });
   assert.deepEqual(teksten(w).filter((t) => V.VERHUIS_SPOOR.test(t)), []);
 });

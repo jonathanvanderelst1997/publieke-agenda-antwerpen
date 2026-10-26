@@ -22958,7 +22958,7 @@
       "before": {
         "id": "work:20610480",
         "gipodId": 20610480,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "In uitvoering",
         "start": "2026-10-07T05:00:00Z",
         "end": "2026-10-07T15:00:00Z",
@@ -22967,7 +22967,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -23156,7 +23156,7 @@
       "after": {
         "id": "work:20635844",
         "gipodId": 20635844,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "Concreet gepland",
         "start": "2026-10-30T11:00:00Z",
         "end": "2026-11-06T16:00:00Z",
@@ -23165,7 +23165,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -23757,7 +23757,7 @@
       "before": {
         "id": "work:20698378",
         "gipodId": 20698378,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Lange Koepoortstraat",
         "status": "In uitvoering",
         "start": "2026-10-07T06:00:00Z",
         "end": "2026-10-07T10:00:00Z",
@@ -23766,7 +23766,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {

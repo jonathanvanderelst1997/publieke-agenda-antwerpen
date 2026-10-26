@@ -5102,7 +5102,7 @@
       "before": {
         "id": "work:20700533",
         "gipodId": 20700533,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Plantin en Moretuslei",
         "status": "In uitvoering",
         "start": "2026-10-20T07:00:00Z",
         "end": "2026-10-20T13:00:00Z",
@@ -5111,7 +5111,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -5931,7 +5931,7 @@
       "after": {
         "id": "work:20788717",
         "gipodId": 20788717,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Schoenmarkt",
         "status": "Concreet gepland",
         "start": "2026-12-16T08:00:00Z",
         "end": "2026-12-16T14:00:00Z",
@@ -5940,7 +5940,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {

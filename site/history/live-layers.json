@@ -10,7 +10,7 @@
       "lastSuccessAt": "2026-10-26T04:23:16.170Z",
       "errorCode": null,
       "count": 1276,
-      "digest": "70d58aeb0cc9fbacdac1cc184dd57a8004575986d5a137eb193cedbcad70833a",
+      "digest": "2af65ef6a64577cc39302515cc02182cd00bc5d22470edaeac1835717be7a696",
       "items": [
         {
           "id": "work:11264719",
@@ -18097,7 +18097,7 @@
         {
           "id": "work:20635844",
           "gipodId": 20635844,
-          "title": "Werk in openbaar domein",
+          "title": "Inname",
           "status": "Concreet gepland",
           "start": "2026-10-30T11:00:00Z",
           "end": "2026-11-06T16:00:00Z",
@@ -18106,7 +18106,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "Lift/levering"
+            "Inname"
           ],
           "streets": [],
           "streetResolution": "ambiguous",
@@ -21895,7 +21895,7 @@
         {
           "id": "work:20788717",
           "gipodId": 20788717,
-          "title": "Werk in openbaar domein",
+          "title": "Inname – Schoenmarkt",
           "status": "Concreet gepland",
           "start": "2026-12-16T08:00:00Z",
           "end": "2026-12-16T16:00:00Z",
@@ -21904,7 +21904,7 @@
           "boundaryConfidence": "point_inside_new",
           "workTypes": [],
           "occupancyTypes": [
-            "Lift/levering"
+            "Inname"
           ],
           "streets": [
             {
@@ -120269,7 +120269,7 @@
       "after": {
         "id": "work:20600318",
         "gipodId": 20600318,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Bleekhofstraat",
         "status": "Concreet gepland",
         "start": "2026-10-13T04:00:00Z",
         "end": "2026-10-13T10:00:00Z",
@@ -120278,7 +120278,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -120650,7 +120650,7 @@
       "after": {
         "id": "work:20610480",
         "gipodId": 20610480,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "Concreet gepland",
         "start": "2026-10-07T05:00:00Z",
         "end": "2026-10-07T15:00:00Z",
@@ -120659,7 +120659,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -121104,7 +121104,7 @@
       "after": {
         "id": "work:20619385",
         "gipodId": 20619385,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Walvisstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T06:00:00Z",
         "end": "2026-10-01T15:00:00Z",
@@ -121113,7 +121113,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -121970,7 +121970,7 @@
       "after": {
         "id": "work:20637021",
         "gipodId": 20637021,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Pelikaanstraat",
         "status": "Concreet gepland",
         "start": "2026-10-17T05:00:00Z",
         "end": "2026-10-17T15:00:00Z",
@@ -121979,7 +121979,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -122436,7 +122436,7 @@
       "after": {
         "id": "work:20644239",
         "gipodId": 20644239,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Otto Veniusstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T11:00:00Z",
         "end": "2026-10-03T14:00:00Z",
@@ -122445,7 +122445,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -123008,7 +123008,7 @@
       "after": {
         "id": "work:20655905",
         "gipodId": 20655905,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Verviersstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T07:00:00Z",
         "end": "2026-10-01T16:00:00Z",
@@ -123017,7 +123017,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -123118,7 +123118,7 @@
       "after": {
         "id": "work:20658789",
         "gipodId": 20658789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Huidevettersstraat",
         "status": "Concreet gepland",
         "start": "2026-10-12T23:00:00Z",
         "end": "2026-10-13T03:00:00Z",
@@ -123127,7 +123127,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -123587,7 +123587,7 @@
       "after": {
         "id": "work:20676164",
         "gipodId": 20676164,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Carnotstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T09:00:00Z",
         "end": "2026-10-03T15:00:00Z",
@@ -123596,7 +123596,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -124353,7 +124353,7 @@
       "after": {
         "id": "work:20698378",
         "gipodId": 20698378,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Lange Koepoortstraat",
         "status": "Concreet gepland",
         "start": "2026-10-07T06:00:00Z",
         "end": "2026-10-07T10:00:00Z",
@@ -124362,7 +124362,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -124433,7 +124433,7 @@
       "after": {
         "id": "work:20700533",
         "gipodId": 20700533,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Plantin en Moretuslei",
         "status": "Concreet gepland",
         "start": "2026-10-20T07:00:00Z",
         "end": "2026-10-20T13:00:00Z",
@@ -124442,7 +124442,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -125898,7 +125898,7 @@
       "after": {
         "id": "work:20715789",
         "gipodId": 20715789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Bernardsesteenweg",
         "status": "Concreet gepland",
         "start": "2026-10-04T05:00:00Z",
         "end": "2026-10-04T10:00:00Z",
@@ -125907,7 +125907,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -148979,7 +148979,7 @@
       "before": {
         "id": "work:20619385",
         "gipodId": 20619385,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Walvisstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T06:00:00Z",
         "end": "2026-10-01T15:00:00Z",
@@ -148988,7 +148988,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -149239,7 +149239,7 @@
       "before": {
         "id": "work:20655905",
         "gipodId": 20655905,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Verviersstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T07:00:00Z",
         "end": "2026-10-01T16:00:00Z",
@@ -149248,7 +149248,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -176717,7 +176717,7 @@
       "before": {
         "id": "work:20644239",
         "gipodId": 20644239,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Otto Veniusstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T11:00:00Z",
         "end": "2026-10-03T14:00:00Z",
@@ -176726,7 +176726,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -176806,7 +176806,7 @@
       "before": {
         "id": "work:20676164",
         "gipodId": 20676164,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Carnotstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T09:00:00Z",
         "end": "2026-10-03T15:00:00Z",
@@ -176815,7 +176815,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -176848,7 +176848,7 @@
       "after": {
         "id": "work:20679394",
         "gipodId": 20679394,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Jacobstraat",
         "status": "Concreet gepland",
         "start": "2026-10-06T05:00:00Z",
         "end": "2026-10-08T16:00:00Z",
@@ -176857,7 +176857,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -177311,7 +177311,7 @@
       "before": {
         "id": "work:20715789",
         "gipodId": 20715789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Bernardsesteenweg",
         "status": "Concreet gepland",
         "start": "2026-10-04T05:00:00Z",
         "end": "2026-10-04T10:00:00Z",
@@ -177320,7 +177320,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -204399,7 +204399,7 @@
       "after": {
         "id": "work:20658593",
         "gipodId": 20658593,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "Concreet gepland",
         "start": "2026-10-09T07:00:00Z",
         "end": "2026-10-09T12:00:00Z",
@@ -204408,7 +204408,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -229359,7 +229359,7 @@
       "before": {
         "id": "work:20610480",
         "gipodId": 20610480,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "In uitvoering",
         "start": "2026-10-07T05:00:00Z",
         "end": "2026-10-07T15:00:00Z",
@@ -229368,7 +229368,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -229557,7 +229557,7 @@
       "after": {
         "id": "work:20635844",
         "gipodId": 20635844,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "Concreet gepland",
         "start": "2026-10-30T11:00:00Z",
         "end": "2026-11-06T16:00:00Z",
@@ -229566,7 +229566,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -230158,7 +230158,7 @@
       "before": {
         "id": "work:20698378",
         "gipodId": 20698378,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Lange Koepoortstraat",
         "status": "In uitvoering",
         "start": "2026-10-07T06:00:00Z",
         "end": "2026-10-07T10:00:00Z",
@@ -230167,7 +230167,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -239464,7 +239464,7 @@
       "before": {
         "id": "work:20679394",
         "gipodId": 20679394,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Jacobstraat",
         "status": "In uitvoering",
         "start": "2026-10-06T05:00:00Z",
         "end": "2026-10-08T16:00:00Z",
@@ -239473,7 +239473,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -260434,7 +260434,7 @@
       "before": {
         "id": "work:20658593",
         "gipodId": 20658593,
-        "title": "Werk in openbaar domein",
+        "title": "Inname",
         "status": "In uitvoering",
         "start": "2026-10-09T07:00:00Z",
         "end": "2026-10-09T12:00:00Z",
@@ -260443,7 +260443,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [],
         "streetResolution": "ambiguous",
@@ -260763,7 +260763,7 @@
       "after": {
         "id": "work:20686759",
         "gipodId": 20686759,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Jan Van Rijswijcklaan",
         "status": "Concreet gepland",
         "start": "2026-10-14T07:00:00Z",
         "end": "2026-10-14T13:00:00Z",
@@ -260772,7 +260772,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -262227,7 +262227,7 @@
       "after": {
         "id": "work:20789241",
         "gipodId": 20789241,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Jodenstraat",
         "status": "Concreet gepland",
         "start": "2026-10-14T04:00:00Z",
         "end": "2026-10-14T10:00:00Z",
@@ -262236,7 +262236,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -262300,7 +262300,7 @@
       "after": {
         "id": "work:20801704",
         "gipodId": 20801704,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Zirkstraat",
         "status": "Concreet gepland",
         "start": "2026-10-15T05:00:00Z",
         "end": "2026-10-15T07:00:00Z",
@@ -262309,7 +262309,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -297418,7 +297418,7 @@
       "before": {
         "id": "work:20600318",
         "gipodId": 20600318,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Bleekhofstraat",
         "status": "Concreet gepland",
         "start": "2026-10-13T04:00:00Z",
         "end": "2026-10-13T10:00:00Z",
@@ -297427,7 +297427,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -297712,7 +297712,7 @@
       "after": {
         "id": "work:20658462",
         "gipodId": 20658462,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Graanmarkt",
         "status": "In uitvoering",
         "start": "2026-10-13T05:00:00Z",
         "end": "2026-10-13T17:00:00Z",
@@ -297721,7 +297721,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -297749,7 +297749,7 @@
       "before": {
         "id": "work:20658789",
         "gipodId": 20658789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Huidevettersstraat",
         "status": "Concreet gepland",
         "start": "2026-10-12T23:00:00Z",
         "end": "2026-10-13T03:00:00Z",
@@ -297758,7 +297758,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -307143,7 +307143,7 @@
       "before": {
         "id": "work:20658462",
         "gipodId": 20658462,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Graanmarkt",
         "status": "In uitvoering",
         "start": "2026-10-13T05:00:00Z",
         "end": "2026-10-13T17:00:00Z",
@@ -307152,7 +307152,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -307285,7 +307285,7 @@
       "after": {
         "id": "work:20703338",
         "gipodId": 20703338,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Van Ertbornstraat",
         "status": "Concreet gepland",
         "start": "2026-10-15T08:00:00Z",
         "end": "2026-10-16T10:00:00Z",
@@ -307294,7 +307294,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -319005,7 +319005,7 @@
       "before": {
         "id": "work:20789241",
         "gipodId": 20789241,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Jodenstraat",
         "status": "In uitvoering",
         "start": "2026-10-14T04:00:00Z",
         "end": "2026-10-14T10:00:00Z",
@@ -319014,7 +319014,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -325020,7 +325020,7 @@
       "before": {
         "id": "work:20686759",
         "gipodId": 20686759,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Jan Van Rijswijcklaan",
         "status": "In uitvoering",
         "start": "2026-10-14T07:00:00Z",
         "end": "2026-10-14T13:00:00Z",
@@ -325029,7 +325029,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -340562,7 +340562,7 @@
       "before": {
         "id": "work:20801704",
         "gipodId": 20801704,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Zirkstraat",
         "status": "In uitvoering",
         "start": "2026-10-15T05:00:00Z",
         "end": "2026-10-15T07:00:00Z",
@@ -340571,7 +340571,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -352578,7 +352578,7 @@
       "before": {
         "id": "work:20703338",
         "gipodId": 20703338,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Van Ertbornstraat",
         "status": "In uitvoering",
         "start": "2026-10-15T08:00:00Z",
         "end": "2026-10-16T10:00:00Z",
@@ -352587,7 +352587,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -360681,7 +360681,7 @@
       "before": {
         "id": "work:20637021",
         "gipodId": 20637021,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Pelikaanstraat",
         "status": "In uitvoering",
         "start": "2026-10-17T05:00:00Z",
         "end": "2026-10-17T15:00:00Z",
@@ -360690,7 +360690,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -395945,7 +395945,7 @@
       "before": {
         "id": "work:20700533",
         "gipodId": 20700533,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Plantin en Moretuslei",
         "status": "In uitvoering",
         "start": "2026-10-20T07:00:00Z",
         "end": "2026-10-20T13:00:00Z",
@@ -395954,7 +395954,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -396774,7 +396774,7 @@
       "after": {
         "id": "work:20788717",
         "gipodId": 20788717,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Schoenmarkt",
         "status": "Concreet gepland",
         "start": "2026-12-16T08:00:00Z",
         "end": "2026-12-16T14:00:00Z",
@@ -396783,7 +396783,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -421350,7 +421350,7 @@
       "after": {
         "id": "work:20818151",
         "gipodId": 20818151,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Oranjestraat",
         "status": "Concreet gepland",
         "start": "2026-10-24T06:00:00Z",
         "end": "2026-10-24T12:00:00Z",
@@ -421359,7 +421359,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -465103,7 +465103,7 @@
       "before": {
         "id": "work:20818151",
         "gipodId": 20818151,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Oranjestraat",
         "status": "In uitvoering",
         "start": "2026-10-24T06:00:00Z",
         "end": "2026-10-24T12:00:00Z",
@@ -465112,7 +465112,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "Lift/levering"
+          "Inname"
         ],
         "streets": [
           {

@@ -31,7 +31,7 @@ De data-lane laat uitsluitend `site/history/live-layers.json`, `site/history/arc
 
 ## Canonieke straatkoppeling
 
-De dagelijkse refresh gebruikt de officiële Antwerpse wegenregisterlaag `wegenregister_straatas_postzone` (laag 905). GIPOD-werkpunten worden alleen aan de dichtstbijzijnde straatas gekoppeld als de match voldoende nabij en niet ambigu is. Parkeerverboden worden via hun officiële adres aan dezelfde canonieke straatnamen/postcodes gekoppeld. Ambigue of te verre matches blijven onopgelost. IOD/SGW volgen later via een geometrische join. Straatmetadata veroorzaakt op zichzelf geen operationeel `changed`-event. Bij uitval van de straatbron blijft de history fail-closed.
+De dagelijkse refresh gebruikt de officiële Antwerpse wegenregisterlaag `wegenregister_straatas_postzone` (laag 905). GIPOD-werkpunten worden alleen aan de dichtstbijzijnde straatas gekoppeld als de match voldoende nabij en niet ambigu is. Parkeerverboden worden via hun officiële adres aan dezelfde canonieke straatnamen/postcodes gekoppeld. Ambigue of te verre matches blijven onopgelost. IOD/SGW volgen later via een geometrische join. Straatmetadata veroorzaakt op zichzelf geen operationeel `changed`-event. Een titel van een werk die alleen een huisnummer bijkrijgt (de overgang naar de regel van 26 oktober 2026, of een nummer dat een dag later uit het adressenregister komt) ook niet; een ander of weggevallen nummer wel. Bij uitval van de straatbron blijft de history fail-closed.
 
 ## Snelheid: straatbestanden en radar (P5, oktober 2026)
 
