@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
+  "lastSuccessAt": "2026-10-22T03:19:47.336Z",
+  "lastError": {
+    "code": "http_403",
+    "at": "2026-10-26T04:22:17.949Z"
+  },
   "items": [
     {
       "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01",
