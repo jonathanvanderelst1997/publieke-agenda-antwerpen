@@ -18,7 +18,7 @@
 // scripts/refresh-live-history.mjs; de overgang: scripts/maak-werk-vorm.mjs). Docs: docs/PUBLIC_SPACE_SOURCE_POLICY.md,
 // "Werken: adreskaart of gewone kaart".
 import {
-  CONTACT, LEGE_FASE, adreskaartFaseNamen, beheerderTekst, faseBuitenDistrict, geldigeHuisnummers, gipodTekstHeeftGetal, huisnummerUitGipod,
+  CONTACT, LEGE_FASE, adreskaartFaseNamen, beheerderTekst, faseBuitenDistrict, geldigeHuisnummers, heeftKortGetal, huisnummerUitGipod,
   isSoortLabel, isWerfDossier, naamNaCodeWeg, nummerWegCode, werkFeiten, zonderHuisnummers, zonderNamen,
 } from "./kaart-uitleg.js";
 import { GROEPEN } from "./works-core.js";
@@ -104,12 +104,17 @@ export function isAdreskaart(item = {}) {
 
 // De lezer staat in site/kaart-uitleg.js (huisnummerUitGipod): een gewone kaart leest met dezelfde lezer één los nummer.
 export const huisnummerVoorAdreskaart = huisnummerUitGipod;
+// De titel en de fasen zoals ze in het item staan, zonder dat MAAT een getal "#" maakte.
+const ruweTekst = (item) => [item?.title, ...(item?.hindrance?.phases || []).map((p) => p?.description || "")].filter(Boolean).join(" · ");
 // Waarom een adreskaart zonder nummer is (huisnummerWeg in site/kaart-uitleg.js): "weggelaten" als de lezer een nummer vond
-// dat hier niet getoond wordt, "twijfel" als de titel of een fase een getal van één tot drie cijfers heeft (geen maat, geen
-// postcode, geen "Fase 2"), anders niets: dan gaf GIPOD geen huisnummer.
-function nummerWeg(item, gelezen) {
-  if (gelezen) return "weggelaten";
-  return gipodTekstHeeftGetal(item) ? "twijfel" : "";
+// dat hier niet getoond wordt, ook in het item van GIPOD vóór regel 9 (`ruw`: regel 9 vervangt een titel met het spoor van een
+// verhuizing), "twijfel" als de titel of een fase van het item of van `ruw` een getal van één tot drie cijfers heeft (geen
+// postcode, geen "Fase 2"), ook een getal dat MAAT wegnam ("Proefstraat 12 - 3 dagen"), anders niets: dan gaf GIPOD geen
+// huisnummer. Zo zegt een adreskaart alleen "huisnummers niet gepubliceerd" als de titel en de fasen geen enkel getal hebben
+// (nakijkronde van head d7e4238a).
+function nummerWeg(item, gelezen, ruw = item) {
+  if (gelezen || (ruw !== item && huisnummerVoorAdreskaart(ruw))) return "weggelaten";
+  return [item, ruw].some((x) => heeftKortGetal(ruweTekst(x))) ? "twijfel" : "";
 }
 
 // ---------- de adreskaart ----------
@@ -155,12 +160,13 @@ function projectie(bron, { soort, soortBron, innameSoort, huisnummers, weg = "",
   const zonder = nr ? "" : nummerWegCode(weg);
   return { ...uit, huisnummers: nr, ...(zonder ? { huisnummerWeg: zonder } : {}), adresKaart: true, title: titelAdreskaart(label, uit.streets?.[0]?.name, nr) };
 }
-// Regel 18: een adreskaart uit een item (na regel 9). `nummer`: het nummer lezen (regel 20).
-export function adreskaartItem(item, { nummer = false } = {}) {
+// Regel 18: een adreskaart uit een item (na regel 9). `nummer`: het nummer lezen (regel 20). `ruw`: het item van GIPOD vóór
+// regel 9; alleen voor huisnummerWeg (een vaste code), nooit voor wat de kaart toont.
+export function adreskaartItem(item, { nummer = false, ruw = item } = {}) {
   const f = werkFeiten({ ...item, adresKaart: false });
   const gelezen = huisnummerVoorAdreskaart(item);
   const huisnummers = nummer ? gelezen : "";
-  return projectie(item, { soort: f.soort, soortBron: f.soortBron, innameSoort: f.innameSoort, huisnummers, weg: huisnummers ? "" : nummerWeg(item, gelezen), fase: (p) => faseBuitenDistrict(p?.description) });
+  return projectie(item, { soort: f.soort, soortBron: f.soortBron, innameSoort: f.innameSoort, huisnummers, weg: huisnummers ? "" : nummerWeg(item, gelezen, ruw), fase: (p) => faseBuitenDistrict(p?.description) });
 }
 // Een item dat al een adreskaart is: dezelfde witte lijst. Het nummer blijft alleen als de titel nog klopt met de straat (een
 // andere straatkoppeling, zoals in de straatbestanden: dan geen nummer, want het hoorde bij een andere straat).
@@ -233,9 +239,9 @@ export function werkenVoorDeSite(items = [], vorm = null, { bekend = null } = {}
     // Een lift of levering, of een werk met het spoor van een verhuizing (eenAdres), krijgt nooit een nummer, ook niet als
     // zijn id (later) in "adreskaart" staat.
     const nummer = !isLift(schoon) && schoon.eenAdres !== true;
-    if (adreskaart.has(id)) return adreskaartItem(schoon, { nummer });
+    if (adreskaart.has(id)) return adreskaartItem(schoon, { nummer, ruw: item });
     if (gewoon.has(id) || bekend?.has?.(id)) return schoon;
-    return isAdreskaart(schoon) ? adreskaartItem(schoon, { nummer }) : schoon;
+    return isAdreskaart(schoon) ? adreskaartItem(schoon, { nummer, ruw: item }) : schoon;
   });
 }
 

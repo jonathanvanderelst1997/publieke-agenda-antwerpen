@@ -82,7 +82,7 @@ test("MIDDEL 1: een werk met het spoor in de titel, een fase of de opdrachtgever
   }
 });
 
-test("MIDDEL 1: een werk met het spoor wordt nooit een adreskaart en krijgt nooit een nummer, ook niet uit de lijst adreskaart", () => {
+test("MIDDEL 1: een werk met het spoor wordt nooit een nieuwe adreskaart en krijgt nooit een nummer, ook niet uit de lijst adreskaart", () => {
   // Een container met het spoor in de titel en een nummer in een fase: zonder spoor een adreskaart met nummer.
   const container = werk({ title: "Verhuis Proefstraat 999", occupancyTypes: ["Container"], hindrance: hinder([fase("Proefstraat 12")]) });
   assert.equal(poort({ ...container, title: "Container" }).huisnummers, "nr. 12", "zonder spoor: een adreskaart met nummer");

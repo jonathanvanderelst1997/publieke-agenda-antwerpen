@@ -479,9 +479,9 @@ export function huisnummerUitGipod(item = {}) {
   }
   return [...nummers][0];
 }
-// Heeft de titel of een fase een getal van één tot drie cijfers (geen maat, geen postcode, geen "Fase 2")? Voor de reden
-// waarom een adreskaart geen nummer toont (nummerWeg in site/werk-vorm.js).
-export const gipodTekstHeeftGetal = (item = {}) => nogEenGetal(adresTekst(item));
+// Heeft een tekst een getal van één tot drie cijfers (geen postcode, geen "Fase 2")? Voor de reden waarom een adreskaart
+// geen nummer toont (nummerWeg in site/werk-vorm.js).
+export const heeftKortGetal = (tekst) => nogEenGetal(String(tekst ?? ""));
 // Leest de lezer van main een nummer direct na de straat, na het wegnemen van een maat, duur of uur (MAAT)? Voor de reden
 // waarom een gewone kaart geen nummer toont (werkKaartje).
 const getalNaStraat = (tekst, straat) => Boolean(huisnummersUitTekst(String(tekst ?? "").replace(MAAT, "#"), straat));
