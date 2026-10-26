@@ -1,6 +1,6 @@
 // Werkkaarten, nakijkronde: wat de kaart zegt moet kloppen. Een netproject is geen aansluiting van één
-// adres; "geen straat in de buurt" alleen als er gezocht is; geen huisnummer in de tekst van de
-// beheerder bij één adres; een hoogtewerker zegt niet wat er gebeurt; "doorloopstelling" is geen sloop;
+// adres; "geen straat in de buurt" alleen als er gezocht is; het huisnummer ook bij een lift of levering
+// (regel van de eigenaar van 26 oktober 2026); een hoogtewerker zegt niet wat er gebeurt; "doorloopstelling" is geen sloop;
 // geen "werken tot" vóór de hinder; "op 12 oktober" en geen dubbele datum; maanden in plaats van
 // "ruim een jaar"; alleen een kruispunt als de straten elkaar raken; en de straat die de beheerder noemt
 // verdwijnt niet. Alle data is verzonnen; "vandaag" ligt vast. Namespace-imports: op de oude code faalt
@@ -62,12 +62,15 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   // distributieleiding)" is de vaste vorm van een beheerder van waterleidingen: straat en nummer uit de omschrijving.
   assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein nr\. 26 tot /);
   assert.match(regels(k).Waar, /^Voorbeeldplein, nr\. 26 \(straat en huisnummer uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
-  // Een getal na de straat dat de lezer niet zeker als huisnummer leest (er volgt een ander woord): geen nummer, met de
-  // reden, en nooit "niet gepubliceerd"; de tekst van de beheerder toont het getal zoals hij het schreef.
-  const twijfel = kaart(werk({ ...genoemd, title: "2000 Antwerpen Voorbeeldplein 26 kabels vervangen", occupancyTypes: ["Water"] }));
+  // Een woord na het nummer: het nummer (regel van de eigenaar van 26 oktober 2026).
+  const woord = kaart(werk({ ...genoemd, title: "2000 Antwerpen Voorbeeldplein 26 kabels vervangen", occupancyTypes: ["Water"] }));
+  assert.match(regels(woord).Waar, /^Voorbeeldplein, nr\. 26 \(straat en huisnummer uit de omschrijving van de beheerder; /);
+  // Een getal na een langere naam met de straat erin, dat niet het huisnummer van deze straat is: geen nummer, met de reden,
+  // en nooit "niet gepubliceerd"; de tekst van de beheerder toont het getal zoals hij het schreef.
+  const twijfel = kaart(werk({ ...genoemd, title: "2000 Antwerpen Klein-Voorbeeldplein 26 kabels vervangen", occupancyTypes: ["Water"] }));
   assert.match(regels(twijfel).Waar, /^Voorbeeldplein \(geen zeker huisnummer in GIPOD; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
   assert.equal(twijfel.ontbreekt.includes(onbekendZin("werk-huisnummers")), false);
-  assert.match(alleTekst(twijfel), /Voorbeeldplein 26 kabels/);
+  assert.match(alleTekst(twijfel), /Klein-Voorbeeldplein 26 kabels/);
   // Gezocht, en geen straat met naam binnen 150 m: zeg dat, niet "geen straat in de buurt".
   assert.deepEqual(niets.streets, []);
   assert.deepEqual(niets.streetNearby, []);
@@ -81,16 +84,19 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   for (const x of [leeg, onbekend]) assert.doesNotMatch(alleTekst(x), /geen straat in de buurt gevonden/);
 });
 
-test("3. bij één adres (een lift of levering) staat nergens een huisnummer, ook niet in de tekst van de beheerder", () => {
+// Regel van de eigenaar (26 oktober 2026): ook een lift of levering staat er met het huisnummer, als een gewone inname.
+test("3. een lift of levering: het huisnummer staat er, als een gewone inname; beheerderTekst kan nog altijd zonder nummers", () => {
   const vormen = ["LANGE VOORBEELDSTRAAT 79WERF", "VOORBEELDSTRAAT 6werf", "VOORBEELDBROEK 4B_BIS", "SINT-VOORBEELDVLIET 9", "VOORBEELDUIT 29", "Voorbeeldsteeg | 13"];
   for (const vorm of vormen) {
     const t = ku.beheerderTekst(`2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, { zonderNummers: true, straten: [] });
     assert.match(t, /achterbouw/, vorm);
     assert.doesNotMatch(t.replace(/\b\d{4}\b/g, ""), /\d/, `${vorm} → ${t}`);
     const k = kaart(werk({ ...fluvius, title: `2018 ANTWERPEN, ${vorm}, kabel naar de achterbouw`, occupancyTypes: ["Lift/levering"], workTypes: [] }));
-    assert.match(regels(k).Waar, /huisnummer weggelaten: het gaat om één adres/);
-    assert.doesNotMatch(alleTekst(k).replace(/\b\d{4}\b/g, "").replace(/\b\d+ (?:dagen|dag|maanden|jaar|januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december)\b/g, ""), /\d/, `${vorm} → ${alleTekst(k)}`);
+    assert.doesNotMatch(alleTekst(k), /één adres|weggelaten/, vorm);
+    assert.match(k.titel, /^Inname /, vorm);
   }
+  const lift = kaart(werk({ ...fluvius, title: "2018 ANTWERPEN, VOORBEELDSTRAAT 6werf, kabel naar de achterbouw", occupancyTypes: ["Lift/levering"], workTypes: [] }));
+  assert.match(regels(lift).Waar, /^Voorbeeldstraat, nr\. 6 /);
   // Een maat of een postcode is geen huisnummer.
   assert.equal(ku.beheerderTekst("2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m", { zonderNummers: true }), "2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m");
 });

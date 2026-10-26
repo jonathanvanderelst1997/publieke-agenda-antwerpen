@@ -1,8 +1,9 @@
 // Een leeg adres uit een oudere verversing (lib/kaart-uitleg-refresh.mjs, ADRES_REGEL): tot de regel van de eigenaar van
-// 26 oktober 2026 (het huisnummer staat er altijd, behalve bij een verhuizing) bewaarde de verversing alleen een reeks
+// 26 oktober 2026 (het huisnummer staat er altijd) bewaarde de verversing alleen een reeks
 // huisnummers uit het adressenregister, en "" als het register één nummer gaf. Zo'n leeg adres zonder versiemerk wordt één
 // keer opnieuw gevraagd, binnen het budget en na de werken die nooit gevraagd werden; daarna draagt het het merk. Een
-// aansluiting wordt ook opgezocht; een lift of levering nooit. Een nep-fetch: geen netwerk, alles verzonnen.
+// aansluiting en een lift of levering worden ook opgezocht (regel van de eigenaar van 26 oktober 2026: altijd het nummer).
+// Een nep-fetch: geen netwerk, alles verzonnen.
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -93,17 +94,18 @@ test("klaar zonder opnieuw te vragen: een leeg adres met het merk, een bewaarde 
   assert.deepEqual(werkFouten("990904", { ...OUD, adresRegel: "2" }), ["werken.990904.adresRegel ongeldig"]);
 });
 
-test("een aansluiting wordt opgezocht en toont het ene nummer; een lift of levering wordt nooit opgezocht", async () => {
+// Regel van de eigenaar (26 oktober 2026, definitief): het huisnummer staat er altijd, ook bij een lift of levering.
+test("een aansluiting en een lift of levering worden opgezocht en tonen het ene nummer", async () => {
   const reg = nepRegister("12");
   const lift = { ...werk(990907), occupancyTypes: ["Lift/levering"], workTypes: [] };
   const { document } = await bouwKaartUitleg({ works: [werk(990906), lift], fetch: reg.fetch, clock });
-  assert.equal(reg.vragen.filter(([dienst]) => dienst === "register").length, 1);
-  assert.equal(document.werken["990906"].huisnummers, "nr. 12");
-  assert.equal(document.werken["990906"].adres, "nr. 12");
-  assert.equal(document.werken["990907"].huisnummers, "");
-  assert.equal("adres" in document.werken["990907"], false);
-  // Ook een bewaard adres van een lift valt weg.
-  const { document: daarna } = await bouwKaartUitleg({ works: [lift], vorige: { werken: { 990907: { ...OUD, soort: "Inname voor een lift of levering", adres: "nr. 12", adresRegel: ADRES_REGEL } } }, fetch: nepRegister().fetch, clock });
-  assert.equal("adres" in daarna.werken["990907"], false);
-  assert.equal(daarna.werken["990907"].huisnummers, "");
+  assert.equal(reg.vragen.filter(([dienst]) => dienst === "register").length, 2);
+  for (const id of ["990906", "990907"]) {
+    assert.equal(document.werken[id].huisnummers, "nr. 12", id);
+    assert.equal(document.werken[id].adres, "nr. 12", id);
+  }
+  // Ook een bewaard adres van een lift blijft.
+  const { document: daarna } = await bouwKaartUitleg({ works: [lift], vorige: { werken: { 990907: { ...OUD, soort: "Inname", adres: "nr. 12", adresRegel: ADRES_REGEL } } }, fetch: nepRegister().fetch, clock });
+  assert.equal(daarna.werken["990907"].adres, "nr. 12");
+  assert.equal(daarna.werken["990907"].huisnummers, "nr. 12");
 });

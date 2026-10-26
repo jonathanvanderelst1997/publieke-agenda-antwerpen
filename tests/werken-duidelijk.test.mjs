@@ -103,14 +103,15 @@ test("huisnummers: nooit nr. 0 of een postcode als huisnummer, ook niet uit een 
   assert.match(pc.workEntry(werk({ title: "Gevelwerken" }), { vandaag: VANDAAG, uitleg: { werken: { 90000101: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } }).title, /in de Voorbeeldstraat nr\. 12–40 /);
 });
 
-// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, "enkel persoonlijke zaken, gelijk een verhuis,
-// dan verberg het".
-test("huisnummers: een aansluiting toont het huisnummer; een verhuis de straat, nooit het huisnummer", () => {
+// Regel van de eigenaar (26 oktober 2026, definitief): het huisnummer staat er altijd, ook bij een verhuis; alleen het woord
+// verhuis verdwijnt.
+test("huisnummers: een aansluiting toont het huisnummer; een verhuis ook, zonder het woord", () => {
   const k = kaart(werk({ title: "2018 ANTWERPEN, VOORBEELDSTRAAT 44", owner: "Fluvius Site Antwerpen", ownerGroup: "Fluvius", occupancyTypes: ["Olie, gas, chemicaliën"], workTypes: ["klantaansluiting"] }));
   assert.match(k.titel, /^Nieuwe aansluiting op het gasnet in de Voorbeeldstraat nr\. 44 /);
   assert.equal(regels(k).Waar, "Voorbeeldstraat, nr. 44 (omschrijving van de beheerder)");
   const entry = pc.workEntry(werk({ title: "Verhuislift Voorbeeldstraat 12" }), { vandaag: VANDAAG, uitleg: { werken: { 90000101: { huisnummers: "nr. 12", huisnummerBron: "afgeleid" } } } });
-  assert.doesNotMatch(`${entry.title} ${entry.location} ${entry.uitleg.regels.flat().join(" ")}`, /\b12\b/);
+  assert.match(`${entry.title} ${entry.location} ${entry.uitleg.regels.flat().join(" ")}`, /Voorbeeldstraat, nr\. 12\b/);
+  assert.doesNotMatch(`${entry.title} ${entry.summary} ${entry.location} ${entry.uitleg.regels.flat().join(" ")} ${entry.uitleg.bronTekst || ""}`, /verhuis/i);
 });
 
 test("titel: met \"in\" en het juiste lidwoord", () => {

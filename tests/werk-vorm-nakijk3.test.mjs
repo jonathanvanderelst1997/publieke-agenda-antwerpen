@@ -1,5 +1,5 @@
-// Nakijkronde van head 0dfb9cd8 (werken: adreskaart of gewone kaart, site/werk-vorm.js). Grondregel: liever geen nummer dan
-// een fout huis; bij elke twijfel geen nummer. Elke toets hieronder faalt op 0dfb9cd8. Alle straten, namen, bedrijven en
+// Nakijkronde van head 0dfb9cd8 (werken: adreskaart of gewone kaart, site/werk-vorm.js), bijgewerkt naar de regel van de
+// eigenaar van 26 oktober 2026: het huisnummer staat er altijd, ook bij een verhuis (alleen het woord verdwijnt). Alle straten, namen, bedrijven en
 // nummers zijn verzonnen (Proefstraat, Proefmans, Proefbedrijf); geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -57,91 +57,85 @@ async function verversing(items) {
 
 // ---------- MIDDEL 1: een verhuis die alleen aan de titel, een fase of de opdrachtgever te herkennen is ----------
 
-test("MIDDEL 1: een werk met het spoor in de titel, een fase of de opdrachtgever blijft één adres: geen register, geen reeks", async () => {
+// Regel van de eigenaar (26 oktober 2026, "al vijf keer gezegd"): bij een verhuis blijft het huisnummer; alleen het woord
+// verdwijnt. Een verhuis verschijnt als een gewone inname, mét huisnummer. Geen vlag die zegt dat het een verhuis was.
+const REGISTER = "afgeleid uit de werfzone en het adressenregister";
+test("MIDDEL 1: een werk met het spoor in de titel, een fase of de opdrachtgever: het woord weg, het huisnummer blijft, ook uit het register", async () => {
   const gevallen = [
     ["titel", werk({ title: "Verhuis" })],
     ["fase", werk({ hindrance: hinder([fase("verhuis")]) })],
     ["fase met een ander woord", werk({ title: "Inname openbaar domein", hindrance: hinder([fase("Verhuizing")]) })],
     ["opdrachtgever", werk({ owner: "Verhuisfirma Proef" })],
     ["soort grondwerk", werk({ workTypes: ["Verhuis"] })],
+    ["meubellift", werk({ title: "Meubellift" })],
   ];
   for (const [wat, ruw] of gevallen) {
     const w = poort(ruw);
-    assert.equal(w.eenAdres, true, wat);
-    assert.equal(w.adresKaart, undefined, wat);
-    assert.equal(KU.isEenAdresWerk(KU.werkFeiten(w)), true, wat);
+    assert.equal("eenAdres" in w, false, wat);
     const { vragen, uitleg } = await verversing([w]);
-    assert.equal(vragen.length, 0, `${wat}: geen vraag aan het adressenregister (#141)`);
+    assert.ok(vragen.length > 0, `${wat}: het adressenregister wordt gevraagd`);
     const e = uitleg.werken["990001"];
-    assert.equal(e.huisnummers, "", wat);
-    assert.equal("adres" in e, false, wat);
+    assert.equal(e.huisnummers, "nr. 10–12", wat);
     const k = workEntry(w, { vandaag: VANDAAG, uitleg }).uitleg;
-    assert.equal(regels(k).Waar, "Proefstraat (huisnummer weggelaten: het gaat om één adres)", wat);
-    assert.doesNotMatch(kaartTekst(k), /\bnr\.|10–12|Proefstraat,? 1[02]\b/, wat);
-    assert.doesNotMatch(JSON.stringify([w, e, k]), /verhui/i, wat);
+    assert.equal(regels(k).Waar, `Proefstraat, nr. 10–12 (${REGISTER})`, wat);
+    assert.doesNotMatch(JSON.stringify([w, e, k, V.lijstTitel(w)]), /verhui|meubel|eenAdres|één adres/i, wat);
   }
 });
 
-test("MIDDEL 1: een werk met het spoor wordt nooit een nieuwe adreskaart en krijgt nooit een nummer, ook niet uit de lijst adreskaart", () => {
-  // Een container met het spoor in de titel en een nummer in een fase: zonder spoor een adreskaart met nummer.
-  const container = werk({ title: "Verhuis Proefstraat 999", occupancyTypes: ["Container"], hindrance: hinder([fase("Proefstraat 12")]) });
-  assert.equal(poort({ ...container, title: "Container" }).huisnummers, "nr. 12", "zonder spoor: een adreskaart met nummer");
-  const w = poort(container);
-  assert.equal(w.adresKaart, undefined);
-  assert.equal(V.isAdreskaart(w), false);
-  // Al in "adreskaart" (GIPOD voegde het spoor later toe): een adreskaart zonder nummer, en ook geen reeks uit het register.
-  const a = poort(container, A(), {});
-  assert.equal(a.adresKaart, true);
-  assert.equal(a.huisnummers, "");
-  assert.equal(a.eenAdres, true);
-  const f = KU.werkFeiten(a, { huisnummers: "nr. 10–12", huisnummerBron: "afgeleid uit de werfzone en het adressenregister" });
-  assert.equal(f.huisnummers, "");
-  assert.doesNotMatch(kaartTekst(KU.werkKaartje(a, { vandaag: VANDAAG })), /\bnr\.|10–12|Proefstraat,? (?:1[02]|999)\b/);
-  // Een reeks uit het register die een oudere verversing bewaarde: ook niet op de plekpagina.
-  const bewaard = { ...f, huisnummers: "nr. 10–12", huisnummerBron: "afgeleid uit de werfzone en het adressenregister", bijgewerkt: a.lastModified };
-  assert.doesNotMatch(kaartTekst(workEntry(a, { vandaag: VANDAAG, uitleg: { werken: { 990001: bewaard } } }).uitleg), /\bnr\.|10–12/);
+test("MIDDEL 1: een werk met het spoor wordt een nieuwe adreskaart met zijn nummer; als gewone kaart heet het 'Inname' met het nummer", () => {
+  const container = werk({ title: "Verhuis Proefstraat 12", occupancyTypes: ["Container"] });
+  for (const vorm of [null, A()]) {
+    const a = poort(container, vorm, vorm ? {} : { magBeslissen: true });
+    assert.equal(a.adresKaart, true);
+    assert.equal(a.title, "Container – Proefstraat 12");
+    assert.equal(a.huisnummers, "nr. 12");
+    assert.match(kaartTekst(KU.werkKaartje(a, { vandaag: VANDAAG })), /Proefstraat, nr\. 12/);
+    assert.doesNotMatch(JSON.stringify([a, kaartTekst(KU.werkKaartje(a, { vandaag: VANDAAG }))]), /verhui/i);
+  }
+  const g = poort(container, { schema: 1, adreskaart: [], gewoon: [990001] }, {});
+  assert.equal(g.adresKaart, undefined);
+  assert.equal(V.lijstTitel(g), "Inname – Proefstraat 12");
+  assert.match(kaartTekst(KU.werkKaartje(g, { vandaag: VANDAAG })), /Proefstraat, nr\. 12/);
+  assert.doesNotMatch(JSON.stringify([g, kaartTekst(KU.werkKaartje(g, { vandaag: VANDAAG }))]), /verhui/i);
 });
 
-test("MIDDEL 1: de feiten van zo'n werk hebben geen huisnummer, ook niet uit een fase of als adreskaart", () => {
+test("MIDDEL 1: de feiten van zo'n werk hebben het huisnummer, ook uit een fase; een oude vlag verandert niets", () => {
   const w = poort(werk({ title: "Verhuis", hindrance: hinder([fase("Proefstraat 10-12"), fase("Fase 2", "13")]) }));
-  const f = KU.werkFeiten(w);
-  assert.equal(f.huisnummers, "");
-  assert.deepEqual(f.fasen.map((x) => x.naam).filter((n) => /\d/.test(n.replace(/^Fase \d$/, ""))), []);
-  // Een adreskaart met de vlag en toch een nummer (een oudere of kapotte stand): geen nummer.
-  const a = { ...poort(werk({ title: "Verhuis", occupancyTypes: ["Container"] }), A(), {}), huisnummers: "nr. 12" };
-  assert.equal(a.eenAdres, true);
-  assert.equal(KU.werkFeiten(a).huisnummers, "");
-  assert.doesNotMatch(kaartTekst(KU.werkKaartje(a, { vandaag: VANDAAG })), /\bnr\.|Proefstraat,? 12\b/);
+  assert.equal(KU.werkFeiten(w).huisnummers, "nr. 10–12");
+  // Een adreskaart met de oude vlag (een oudere stand): het nummer blijft, de vlag niet.
+  const a = { ...poort(werk({ title: "Verhuis Proefstraat 12", occupancyTypes: ["Container"] }), A(), {}), eenAdres: true };
+  assert.equal(KU.werkFeiten(a).huisnummers, "nr. 12");
+  assert.equal("eenAdres" in KU.werkFeiten(a), false);
+  assert.match(kaartTekst(KU.werkKaartje(a, { vandaag: VANDAAG })), /Proefstraat, nr\. 12/);
 });
 
-test("MIDDEL 1: een reeks uit het register die een oudere verversing bij zo'n werk bewaarde, valt weg uit kaart-uitleg.json", () => {
-  const oud = { soort: "", soortBron: "", eenAdres: true, omschrijving: "", opdrachtgever: "Proefmans", straten: ["Proefstraat"], huisnummers: "nr. 10–12", huisnummerBron: "afgeleid uit de werfzone en het adressenregister", adres: "nr. 10–12", gevolgen: [], fasen: [], bijgewerkt: "" }; // verzonnen
+test("MIDDEL 1: een reeks uit het register bij zo'n werk blijft in kaart-uitleg.json; de oude vlag valt weg", () => {
+  const oud = { soort: "", soortBron: "", eenAdres: true, omschrijving: "", opdrachtgever: "Proefmans", straten: ["Proefstraat"], huisnummers: "nr. 10–12", huisnummerBron: REGISTER, adres: "nr. 10–12", gevolgen: [], fasen: [], bijgewerkt: "" }; // verzonnen
   const schoon = schoonWerk(oud);
-  assert.equal(schoon.huisnummers, "");
-  assert.equal(schoon.huisnummerBron, "");
-  assert.equal("adres" in schoon, false);
-  assert.equal(schoon.eenAdres, true);
+  assert.equal(schoon.huisnummers, "nr. 10–12");
+  assert.equal(schoon.huisnummerBron, REGISTER);
+  assert.equal(schoon.adres, "nr. 10–12");
+  assert.equal("eenAdres" in schoon, false);
 });
 
-test("MIDDEL 1: de verversing kende het spoor; live (een straatbestand, een oudere stand) niet: nog altijd één adres", () => {
-  const bewaard = { soort: "", soortBron: "", eenAdres: true, omschrijving: "", opdrachtgever: "", straten: ["Proefstraat"], huisnummers: "", huisnummerBron: "", gevolgen: [], fasen: [], bijgewerkt: "2099-02-01T00:00:00Z" };
+test("MIDDEL 1: de verversing had de oude vlag; live niet: nergens 'één adres' of 'weggelaten'", () => {
+  const bewaard = { soort: "", soortBron: "", eenAdres: true, omschrijving: "", opdrachtgever: "", straten: ["Proefstraat"], huisnummers: "nr. 12", huisnummerBron: REGISTER, gevolgen: [], fasen: [], bijgewerkt: "2099-02-01T00:00:00Z" };
   const live = werk({ title: "Werk in openbaar domein" });
   const k = workEntry(live, { vandaag: VANDAAG, uitleg: { werken: { 990001: bewaard } } }).uitleg;
-  assert.equal(regels(k).Waar, "Proefstraat (huisnummer weggelaten: het gaat om één adres)");
-  assert.equal(k.ontbreekt.includes("huisnummers niet gepubliceerd"), false);
+  assert.equal(regels(k).Waar, `Proefstraat, nr. 12 (${REGISTER})`);
+  assert.doesNotMatch(kaartTekst(k), /één adres|weggelaten/);
 });
 
-test("MIDDEL 1: een lift of levering of een aanvulling van A-Sign zet geen vlag; een andere soort zegt niet 'het gaat om één adres'", () => {
+test("MIDDEL 1: een lift of levering of een aanvulling van A-Sign zet geen vlag; het spoor in een fase wordt 'Inname'", () => {
   const lift = poort(werk({ occupancyTypes: ["(Verhuis)lift/levering"] }));
-  assert.equal(lift.eenAdres, undefined, "de soort zegt al één adres");
-  assert.equal(KU.isEenAdresWerk(KU.werkFeiten(lift)), true);
+  assert.equal("eenAdres" in lift, false);
+  assert.equal(lift.soort, "Inname");
   const asign = poort(werk({ title: "Rioleringswerken", aSignSupplement: { companies: ["Proefverhuizingen", "Proefbouw"], workTypes: [], phaseStatuses: [], trafficImpacts: [], dossierHindrances: [] } }));
-  assert.equal(asign.eenAdres, undefined);
+  assert.equal("eenAdres" in asign, false);
   assert.deepEqual(asign.aSignSupplement.companies, ["Proefbouw"]);
-  // Het spoor in een fase van een werk met een eigen soort: één adres, maar "het gaat om één adres" is dan niet zeker.
-  const riool = poort(werk({ title: "Rioleringswerken", hindrance: hinder([fase("verhuis werfkeet")]) }));
-  assert.equal(riool.eenAdres, true);
-  assert.equal(regels(KU.werkKaartje(riool, { vandaag: VANDAAG })).Waar, "Proefstraat (huisnummer weggelaten)");
+  const riool = poort(werk({ title: "Rioleringswerken Proefstraat 12", hindrance: hinder([fase("verhuis werfkeet")]) }), { schema: 1, adreskaart: [], gewoon: [990001] }, {});
+  assert.deepEqual(riool.hindrance.phases.map((p) => p.description), ["Inname – Proefstraat"]);
+  assert.equal(regels(KU.werkKaartje(riool, { vandaag: VANDAAG })).Waar, "Proefstraat, nr. 12 (omschrijving van de beheerder)");
 });
 
 // ---------- MIDDEL 2: regel 35 herstelt zichzelf ----------
@@ -236,11 +230,13 @@ test("MIDDEL 3: zonder opdrachtgever in GIPOD blijft het 'niet gepubliceerd' en 
 
 // ---------- MIDDEL 4: twee verschillende nummers op de straat ----------
 
-test("MIDDEL 4: twee verschillende nummers op de straat, gescheiden door een komma, '·' of '|': geen nummer", () => {
+// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd. Twee nummers op dezelfde straat: van het ene tot
+// het andere.
+test("MIDDEL 4: twee verschillende nummers op de straat, gescheiden door een komma, '·' of '|': de reeks van het ene tot het andere", () => {
   const aansluiting = (title) => werk({ title, owner: "Fluvius System Operator", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] });
   for (const t of ["Proefstraat 12, Proefstraat 14", "Proefstraat 12 · Proefstraat 14", "Proefstraat 12 | Proefstraat 14", "2000 Antwerpen, Proefstraat 12, Proefstraat 14"]) {
-    assert.equal(V.huisnummerVoorAdreskaart(aansluiting(t)), "", t);
-    assert.equal(poort(aansluiting(t)).huisnummers, "", t);
+    assert.equal(V.huisnummerVoorAdreskaart(aansluiting(t)), "nr. 12–14", t);
+    assert.equal(poort(aansluiting(t)).huisnummers, "nr. 12–14", t);
   }
   // Hetzelfde nummer twee keer: één huis.
   assert.equal(V.huisnummerVoorAdreskaart(aansluiting("Proefstraat 12, Proefstraat 12")), "nr. 12");

@@ -1,5 +1,6 @@
-// Nakijkronde van head a4d9ba99 (werken: adreskaart of gewone kaart, site/werk-vorm.js). Grondregel: liever geen nummer dan
-// een fout huis; bij elke twijfel geen nummer. Elke toets hieronder faalt op a4d9ba99. Alle straten, nummers, namen en
+// Nakijkronde van head a4d9ba99 (werken: adreskaart of gewone kaart, site/werk-vorm.js), bijgewerkt naar de regel van de
+// eigenaar van 26 oktober 2026: het huisnummer staat er altijd; geen nummer alleen als het getal niet bij deze straat hoort of
+// geen huisnummer is. Alle straten, nummers, namen en
 // dossiers zijn verzonnen (Proefstraat, Testlaan, Proeflei); geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -36,16 +37,20 @@ const kaartTekst = (k) => [k.titel, k.samenvatting, k.bronTekst || "", ...k.rege
 
 // ---------- HOOG 1: de volledige straatnaam, met een woordgrens, zonder ander straatwoord ervoor ----------
 
+// Regel van de eigenaar (26 oktober 2026, "al vijf keer gezegd"): het huisnummer staat er altijd. Wat deze nakijkronde nog
+// tegenhoudt, is een nummer dat niet bij deze straat hoort (een andere straat met dezelfde naam erin) en een getal dat geen
+// huisnummer is (een maat, een duur, een uur, een datum).
 test("HOOG 1: geen nummer als de straat van het punt een deel is van een andere straatnaam", () => {
   assert.equal(nr("2000 Antwerpen, Korte Proefstraat 12"), "", "een ander straatwoord ervoor");
   assert.equal(nr("2000 Antwerpen, KORTE PROEFSTRAAT 12"), "", "in hoofdletters");
   assert.equal(nr("2000 Antwerpen, Anna-Proeflei 12", { streets: [LEI] }), "", "een koppelteken ervoor");
-  assert.equal(nr("Werken in de Proefstraat 12"), "", "een woord ervoor: twijfel");
   assert.equal(nr("2000 Antwerpen, Proefstraatje 12"), "", "een langere naam");
-  assert.equal(nr("Proefstraat-Noord 12 · Proefstraat 5"), "", "een langere naam met een cijfer, en de straat zelf met een ander");
-  assert.equal(nr("Korte Proefstraat 12 · Proefstraat 5"), "", "een deel van een andere naam met een cijfer: twijfel, ook met een eigen nummer");
-  assert.equal(nr("Proefstraat 5 · Anna-Proeflei 12"), "", "een ander adres met een koppelteken");
-  // Wel: de volledige naam na het begin, een scheiding of een getal, met een woordgrens erna.
+  assert.equal(nr("Proefstraat-Noord 12 · Proefstraat 5"), "nr. 5", "een langere naam met een cijfer telt niet, de straat zelf wel");
+  assert.equal(nr("Korte Proefstraat 12 · Proefstraat 5"), "nr. 5", "het nummer van de straat zelf");
+  assert.equal(nr("Proefstraat 5 · Anna-Proeflei 12"), "nr. 5", "een ander adres met een koppelteken");
+  // Wel: de volledige naam na het begin, een scheiding, een getal of een woord dat geen deel van een naam is.
+  assert.equal(nr("Werken in de Proefstraat 12"), "nr. 12", "een voorzetsel en een lidwoord");
+  assert.equal(nr("Dakwerken Proefstraat 12"), "nr. 12", "een woord dat geen deel van een straatnaam is");
   assert.equal(nr("2000 Antwerpen, Proefstraat 12"), "nr. 12");
   assert.equal(nr("2000 | Antwerpen | Proefstraat | 12"), "nr. 12");
   assert.equal(nr("2000 Antwerpen - Proefstraat 12"), "nr. 12");
@@ -54,39 +59,38 @@ test("HOOG 1: geen nummer als de straat van het punt een deel is van een andere 
   assert.equal(nr("2000 Antwerpen, Anna-Proeflei 12", { streets: [{ ...LEI, name: "Anna-Proeflei" }] }), "nr. 12", "de volledige naam");
 });
 
-// ---------- HOOG 2: alleen een nummer direct na de straat, gevolgd door het einde, een scheiding of een bus ----------
+// ---------- HOOG 2: het nummer direct na de straat; nooit een maat, een duur, een uur of een datum ----------
 
-test("HOOG 2: een telling, een eenheid, een datum, een code of een woord na het getal: geen nummer", () => {
+test("HOOG 2: een telling, een eenheid, een uur of een datum na het getal: geen nummer; een code of een woord wel", () => {
   for (const t of [
-    "Proefstraat 12 containers", "Proefstraat 2 werkdagen", "Proefstraat 3 parkeerplaatsen", "Proefstraat 12 Proefmans", // verzonnen
+    "Proefstraat 12 containers", "Proefstraat 2 werkdagen", "Proefstraat 3 parkeerplaatsen",
     "Proefstraat 15 oktober", "Proefstraat 15/10", "Proefstraat 31/2", "Proefstraat 15-10-2099", "Proefstraat 15.10", "Proefstraat 7h",
-    "Proefstraat 7u30", "Proefstraat 12 - 14 dagen", "Proefstraat 12-14 dagen", "Proefstraat 12 A", "Proefstraat 9B_BIS", "Proefstraat 12 DN32",
-    "Proefstraat 012", "Proefstraat 1200", "Proefstraat 12 (Proefmans)", "Proefstraat (12)", "Proefstraat - 12", "Proefstraat 12 → Testlaan",
-    "Proefstraat 12 -> Testlaan", "Proefstraat 12 tot Testlaan", "Proefstraat 12 richting Testlaan", "Proefstraat 2 x 3 m",
-    // Nog een getal of een maat naast het nummer: twijfel (nakijkronde van head fd8946ae, tests/werk-vorm-nakijk2.test.mjs).
-    "Proefstraat 12, 3 dagen",
+    "Proefstraat 7u30", "Proefstraat 12 - 14 dagen", "Proefstraat 12-14 dagen", "Proefstraat 012", "Proefstraat 1200", "Proefstraat 2 x 3 m",
   ]) assert.equal(nr(t), "", t);
   for (const [t, n] of [
     ["Proefstraat 12", "nr. 12"], ["Proefstraat 12A", "nr. 12A"], ["Proefstraat 12 bus 3", "nr. 12"], ["Proefstraat 12, 2000 Antwerpen", "nr. 12"],
     ["Proefstraat 12 - klantaansluiting", "nr. 12"], ["Proefstraat 12. Fase 1", "nr. 12"], ["Proefstraat 12; fase 1", "nr. 12"],
     ["(Proefstraat 12)", "nr. 12"], ["Proefstraat 12 tem 14", "nr. 12–14"], ["Proefstraat 12, 14 en 16", "nr. 12–16"],
+    ["Proefstraat 12 Proefmans", "nr. 12"], ["Proefstraat 12 A", "nr. 12A"], ["Proefstraat 9B_BIS", "nr. 9"], ["Proefstraat 12 DN32", "nr. 12"], // verzonnen
+    ["Proefstraat 12 (Proefmans)", "nr. 12"], ["Proefstraat - 12", "nr. 12"], ["Proefstraat 12 → Testlaan", "nr. 12"], ["Proefstraat 12 -> Testlaan", "nr. 12"], // verzonnen
+    ["Proefstraat 12 tot Testlaan", "nr. 12"], ["Proefstraat 12 richting Testlaan", "nr. 12"], ["Proefstraat 12, 3 dagen", "nr. 12"], ["Proefstraat 105", "nr. 105"],
   ]) assert.equal(nr(t), n, t);
 });
 
-test("HOOG 1 en 2, alle combinaties: een twijfel ervoor of erna geeft nooit een nummer", () => {
-  const voorTwijfel = ["Korte ", "KORTE ", "Anna-", "Sint-", "in de ", "thv ", "Oude-"];
-  const voorGoed = ["", "2000 Antwerpen, ", "2000 | Antwerpen | ", "Fase 1 ", "(", "Testlaan / "];
-  const naTwijfel = [" containers", " oktober", "/10", " A", "_BIS", " Proefmans", " stuks", " u", "h", " DN32", "-10-2099", " tot Testlaan", " → Testlaan", " Proefmans 5"]; // verzonnen
-  const naGoed = ["", " · Fase 1", " - klantaansluiting", ", 2000 Antwerpen", " bus 3", ")", ". Fase 2", "; fase 1"];
+test("HOOG 1 en 2, alle combinaties: een andere straat ervoor of een maat of datum erna geeft nooit een nummer; al de rest wel", () => {
+  const voorAnder = ["Korte ", "KORTE ", "Anna-", "Sint-", "Oude-"];
+  const voorGoed = ["", "2000 Antwerpen, ", "2000 | Antwerpen | ", "Fase 1 ", "(", "Testlaan / ", "in de ", "thv ", "Dakwerken "];
+  const naGeen = [" containers", " oktober", "/10", " stuks", " u", "h", "-10-2099", " m", " dagen"];
+  const naGoed = new Map([["", ""], [" · Fase 1", ""], [" - klantaansluiting", ""], [", 2000 Antwerpen", ""], [" bus 3", ""], [")", ""], [". Fase 2", ""], ["; fase 1", ""],
+    [" A", "A"], ["_BIS", ""], [" Proefmans", ""], [" DN32", ""], [" tot Testlaan", ""], [" → Testlaan", ""], [" Proefmans 5", ""]]); // verzonnen
   let goed = 0;
-  for (const nummer of ["12", "7", "105"]) {
-    for (const voor of [...voorTwijfel, ...voorGoed]) {
-      for (const na of [...naTwijfel, ...naGoed]) {
+  for (const nummer of ["12", "7", "28"]) {
+    for (const voor of [...voorAnder, ...voorGoed]) {
+      for (const na of [...naGeen, ...naGoed.keys()]) {
         const t = `${voor}Proefstraat ${nummer}${na}`;
-        const twijfel = voorTwijfel.includes(voor) || naTwijfel.includes(na);
-        if (voor === "(" && na !== ")" && !twijfel) continue;
-        assert.equal(nr(t), twijfel ? "" : `nr. ${nummer}`, t);
-        if (!twijfel) goed += 1;
+        const geen = voorAnder.includes(voor) || naGeen.includes(na);
+        assert.equal(nr(t), geen ? "" : `nr. ${nummer}${naGoed.get(na)}`, t);
+        if (!geen) goed += 1;
       }
     }
   }
@@ -195,26 +199,28 @@ test("MIDDEL: een vaste fasenaam van de bron blijft, nooit hernummerd", () => {
 test("een adreskaart zonder nummer zegt waarom, en nooit 'niet gepubliceerd' als GIPOD een nummer gaf", () => {
   const NIET = onbekendZin("werk-huisnummers");
   const zegt = (item) => { const k = KU.werkKaartje(item, { vandaag: VANDAAG }); return { waar: regels(k).Waar, niet: k.ontbreekt.includes(NIET) }; };
-  // Twijfel: een getal in de titel, maar niet zeker het huisnummer van deze straat.
-  for (const t of ["2000 Antwerpen, Proefstraat nr 12", "2000 Antwerpen, Proefstraat 12 DN32", "2000 Antwerpen, Proefstr. 12", "2000 Antwerpen, Korte Proefstraat 12"]) {
+  // Twijfel: een getal in de titel, maar niet het huisnummer van deze straat (een afkorting, een andere straat).
+  for (const t of ["2000 Antwerpen, Proefstr. 12", "2000 Antwerpen, Korte Proefstraat 12"]) {
     const uit = zegt(poort(aansluiting({ title: t })));
     assert.equal(uit.niet, false, t);
     assert.equal(uit.waar, `Proefstraat (${KU.NUMMER_WEG.twijfel})`, t);
   }
+  // "nr 12" en een code na het nummer: het nummer (regel van de eigenaar van 26 oktober 2026).
+  for (const t of ["2000 Antwerpen, Proefstraat nr 12", "2000 Antwerpen, Proefstraat 12 DN32"]) assert.deepEqual(zegt(poort(aansluiting({ title: t }))), { waar: `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, niet: false }, t);
   // De browser leest het nummer ook als de vaste vorm het werk nog niet kent (regel van de eigenaar van 26 oktober 2026).
   const browser = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" }), B([]));
   assert.deepEqual(zegt(browser), { waar: `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, niet: false });
-  // Gelezen maar hier niet getoond: een straatbestand (zonder nummer).
+  // Een straatbestand bewaart het nummer (regel van de eigenaar van 26 oktober 2026).
   const straatItem = itemVoorStraat(poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12" })), { laag: "werken" });
-  assert.equal("huisnummers" in straatItem, false);
-  assert.deepEqual(zegt(V.werkenVoorDeSite([straatItem], A())[0]), { waar: `Proefstraat (${KU.NUMMER_WEG.weggelaten})`, niet: false });
+  assert.equal(straatItem.huisnummers, "nr. 12");
+  assert.deepEqual(zegt(V.werkenVoorDeSite([straatItem], A())[0]), { waar: `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, niet: false });
   // Een bewaard nummer bij een andere straat: het nummer van live blijft.
   const bewaard = { adresKaart: true, soort: "Nieuwe aansluiting op het elektriciteitsnet", soortBron: "soort grondwerk in GIPOD", omschrijving: "", opdrachtgever: "Fluvius", straten: ["Testlaan"], huisnummers: "nr. 14", huisnummerBron: KU.ADRES_GIPOD, gevolgen: [], fasen: [], bijgewerkt: "" };
   const e = workEntry(browser, { vandaag: VANDAAG, uitleg: { werken: { 990001: bewaard } } });
   assert.equal(regels(e.uitleg).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
-  // Een lift of levering: gelezen maar nooit getoond.
+  // Een lift of levering: ook met het nummer, als een gewone inname.
   const lift = poort(werk({ title: "2000 Antwerpen, Proefstraat 12", occupancyTypes: ["(Verhuis)lift/levering"] }), B([]));
-  assert.equal(regels(KU.werkKaartje(lift, { vandaag: VANDAAG })).Waar, "Proefstraat (huisnummer weggelaten: het gaat om één adres)");
+  assert.equal(regels(KU.werkKaartje(lift, { vandaag: VANDAAG })).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
   // Geen enkel getal in de titel of de fasen ("Fase 2" telt niet): dan wel "niet gepubliceerd", want dat is zo.
   const leeg = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat", hindrance: hinder([fase("Fase 2")]) }));
   assert.equal(leeg.huisnummerWeg, undefined);

@@ -1,5 +1,6 @@
-// Nakijkronde van head fd8946ae (werken: adreskaart of gewone kaart, site/werk-vorm.js). Grondregel: liever geen nummer dan
-// een fout huis; bij elke twijfel geen nummer. Elke toets hieronder faalt op fd8946ae. Alle straten, plaatsen, nummers en
+// Nakijkronde van head fd8946ae (werken: adreskaart of gewone kaart, site/werk-vorm.js), bijgewerkt naar de regel van de
+// eigenaar van 26 oktober 2026: het huisnummer staat er altijd; geen nummer alleen uit een maat, een telling, een duur of een
+// datum, of na een gemeente buiten de stad. Alle straten, plaatsen, nummers en
 // dossiers zijn verzonnen (Proefstraat, Testlaan, Proefdorp); geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -28,81 +29,88 @@ const regels = (k) => Object.fromEntries(k.regels);
 const TWIJFEL = `Proefstraat (${KU.NUMMER_WEG.twijfel})`;
 
 // ---------- HOOG 1: nog een getal, een maat of een andere plaats naast het nummer ----------
+// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd. Een getal na de straat is het nummer; alleen een
+// maat, een telling, een duur of een datum ervan is het niet, en een nummer na een gemeente buiten de stad hoort bij een
+// andere straat.
 
-test("HOOG 1a: een reeks of opsomming met een woord, een eenheid of een datum erna: geen nummer, ook niet het eerste getal", () => {
+test("HOOG 1a: een reeks of opsomming met een maat, een telling of een datum erna: dat deel is geen nummer, de rest wel", () => {
   for (const t of [
-    "2000 Antwerpen, Proefstraat 2 - 3 uren", "Proefstraat 1 - 31 december", "Proefstraat 12 - 14 woningen", "Proefstraat 10 - 20 lm",
-    "Proefstraat 2 - 3 kalenderdagen", "Proefstraat 12, 14, 16 en 18 oktober", "Proefstraat 3 - 4 - 5 oktober", "Proefstraat 12 - 14 bomen",
-    "Proefstraat 3 - 15 okt", "Proefstraat 2 - 3 weekends", "Proefstraat 12 - 14/10", "Proefstraat 12, 14 bomen", "Proefstraat 12 - 14 (oktober)",
-    "Proefstraat 12 - 12/03", "Proefstraat 12 - 2099-03-12", "Proefstraat 12 bus 3 - 14", "Proefstraat 2 - 3 verdiepingen",
-    // Een maat die MAAT al herkent, naast een nummer: een reeks of een duur? Twijfel.
-    "Proefstraat 12, 14 dagen", "Proefstraat 12, 14, 16 dagen", "Proefstraat 12, 20 m verder", "Proefstraat 12. 3 containers", "Proefstraat 12A - 14 dagen",
-    // Een reeks die niet oploopt, of een ketting van strepen: een bus, een datum of iets anders.
-    "Proefstraat 12-1", "Proefstraat 99 - 1", "Proefstraat 7 - 7B", "Proefstraat 3 - 4 - 5", "Proefstraat 14 → 12",
-    // Nog een getal ergens anders.
-    "Proefstraat 12 - thv 14", "Proefstraat 12 · huisnummer 14", "Proefstraat 12 - tegenover nr 14",
+    "2000 Antwerpen, Proefstraat 2 - 3 uren", "Proefstraat 1 - 31 december", "Proefstraat 10 - 20 lm", "Proefstraat 2 - 3 kalenderdagen",
+    "Proefstraat 12, 14, 16 en 18 oktober", "Proefstraat 3 - 4 - 5 oktober", "Proefstraat 12 - 14 bomen", "Proefstraat 3 - 15 okt",
+    "Proefstraat 2 - 3 weekends", "Proefstraat 2 - 3 verdiepingen", "Proefstraat 12 - 14 woningen",
   ]) {
     const a = poort(aansluiting({ title: t }));
     assert.equal(a.huisnummers, "", t);
     assert.equal(a.huisnummerWeg, "twijfel", t);
   }
-  // Wel: één nummer of een oplopende reeks, met alleen een vaste fasenaam, een district of een scheiding erbij.
   for (const [t, n] of [
     ["2000 Antwerpen, Proefstraat 12", "nr. 12"], ["2000 | Antwerpen | Proefstraat | 12", "nr. 12"], ["2018 Antwerpen, Proefstraat 12A", "nr. 12A"],
     ["Proefstraat 12 - klantaansluiting", "nr. 12"], ["Proefstraat 12 bus 3", "nr. 12"], ["Proefstraat 12 tem 14", "nr. 12–14"],
     ["Proefstraat 12, 14 en 16", "nr. 12–16"], ["Proefstraat 12 - hoek Testlaan", "nr. 12"],
+    // Een maat of een datum naast het nummer: het nummer blijft.
+    ["Proefstraat 12, 14 dagen", "nr. 12"], ["Proefstraat 12, 20 m verder", "nr. 12"], ["Proefstraat 12. 3 containers", "nr. 12"],
+    ["Proefstraat 12A - 14 dagen", "nr. 12A"], ["Proefstraat 12 - 14/10", "nr. 12"], ["Proefstraat 12 - 12/03", "nr. 12"], ["Proefstraat 12, 14 bomen", "nr. 12"],
+    // Een reeks die niet oploopt: het eerste nummer; een ketting die oploopt: de reeks.
+    ["Proefstraat 12-1", "nr. 12"], ["Proefstraat 99 - 1", "nr. 99"], ["Proefstraat 7 - 7B", "nr. 7"], ["Proefstraat 14 → 12", "nr. 14"], ["Proefstraat 3 - 4 - 5", "nr. 3–5"],
+    // Nog een getal ergens anders: het nummer na de straat blijft.
+    ["Proefstraat 12 - thv 14", "nr. 12"], ["Proefstraat 12 · huisnummer 14", "nr. 12"], ["Proefstraat 12 - tegenover nr 14", "nr. 12"], ["Proefstraat 12 bus 3 - 14", "nr. 12"],
   ]) assert.equal(nr(t), n, t);
   assert.equal(nr("2000 Antwerpen, Proefstraat | 12", { hindrance: hinder([fase("Fase 2"), fase("Proefstraat", "13")]) }), "nr. 12");
 });
 
-test("HOOG 1a, alle combinaties: een twijfelstaart na een reeks of opsomming geeft nooit een nummer", () => {
+test("HOOG 1a, alle combinaties: een maat of datum na een reeks valt weg, het nummer ervoor nooit", () => {
   const voor = ["", "2000 Antwerpen, ", "Fase 1 "];
   const scheiding = [" ", " | ", ", "];
   const nummers = ["3", "12A", "105"];
-  const reeksTwijfel = [" - 4 - 5", " - 14/10", " - 14 - 16"];
-  const reeksGoed = ["", " - 314", ", 314", " en 314", " tot 314", " tem 314", ", 314, 316", " → 314"];
-  const staartTwijfel = [" oktober", " bomen", " dagen", " uren", " lm", " woningen", " (oktober)", "/10", " 2099", " x", " kalenderdagen", " weekends", " januari 2099", " - 3 dagen", ", 20 m"];
-  const staartGoed = ["", " - klantaansluiting", " · Fase 2", ". Fase 2"];
-  let gezien = 0, reeksen = 0;
-  for (const v of voor) for (const s of scheiding) for (const n of nummers) for (const r of [...reeksTwijfel, ...reeksGoed]) for (const st of [...staartTwijfel, ...staartGoed]) {
+  const reeksen = ["", " - 314", ", 314", " en 314", " tot 314", " tem 314", ", 314, 316", " → 314"];
+  const staartMaat = [" bomen", " dagen", " uren", " lm", " woningen", " kalenderdagen", " weekends", " - 3 dagen", ", 20 m"];
+  const staartGoed = ["", " - klantaansluiting", " · Fase 2", ". Fase 2", " (Proefmans)", " DN01"]; // verzonnen
+  let gezien = 0, reeksenGelezen = 0;
+  for (const v of voor) for (const s of scheiding) for (const n of nummers) for (const r of reeksen) for (const st of [...staartMaat, ...staartGoed]) {
     const t = `${v}Proefstraat${s}${n}${r}${st}`;
-    const twijfel = reeksTwijfel.includes(r) || staartTwijfel.includes(st);
     const uit = nr(t);
-    if (twijfel) assert.equal(uit, "", t);
-    else if (!r) assert.equal(uit, `nr. ${n}`, t);
-    else {
-      // Een reeks: de hele reeks of niets, nooit alleen het eerste getal.
-      assert.ok(uit === "" || /^nr\. \d{1,3}[A-Z]?–31[46]$/.test(uit), `${t} -> ${uit}`);
-      if (uit) reeksen += 1;
+    if (staartMaat.includes(st)) {
+      // Een maat erna: het getal van de maat is nooit een nummer; wat ervoor staat, mag (of niets, als de maat de reeks is).
+      assert.ok(uit === "" || new RegExp(`^nr\\. (?:${n}|${Number.parseInt(n, 10)}–31[46])$`).test(uit), `${t} -> ${uit}`);
+      if (!r && !/^ - |^, /.test(st) && /^\d+$/.test(n)) assert.equal(uit, "", `${t}: het getal zelf is de maat`);
+    } else {
+      // Geen maat: altijd het nummer, en een reeks heel.
+      // Een reeks toont de getallen ("nr. 12–314"), zoals huisnummerBereik.
+      assert.match(uit, new RegExp(r ? `^nr\\. ${Number.parseInt(n, 10)}–31[46]$` : `^nr\\. ${n}$`), `${t} -> ${uit}`);
+      if (r) reeksenGelezen += 1;
     }
     gezien += 1;
   }
   assert.ok(gezien > 1000, `${gezien} schrijfwijzen`);
-  assert.ok(reeksen > 50, `${reeksen} reeksen gelezen`);
+  assert.ok(reeksenGelezen > 50, `${reeksenGelezen} reeksen gelezen`);
 });
 
-test("HOOG 1b: een tweede huisnummer zonder straatnaam in een fase: geen nummer", () => {
+test("HOOG 1b: een tweede huisnummer zonder straatnaam in een fase: het nummer na de straat blijft", () => {
   for (const d of ["aansluiting thv nr 14", "nr 14", "huisnummer 14", "thv 14", "t.h.v. nr. 14", "aansluiting nr 14 en 16", "Aansluiting 14"]) {
     const a = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat | 12", hindrance: hinder([fase(d)]) }));
-    assert.equal(a.huisnummers, "", d);
-    assert.equal(regels(KU.werkKaartje(a, { vandaag: VANDAAG })).Waar, TWIJFEL, d);
+    assert.equal(a.huisnummers, "nr. 12", d);
+    assert.equal(regels(KU.werkKaartje(a, { vandaag: VANDAAG })).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, d);
   }
 });
 
-test("HOOG 1c: een postcode buiten het district: geen nummer, ook niet bij de gelijknamige straat van het district", () => {
+test("HOOG 1c: een postcode buiten de stad vlak voor de straat: geen nummer (de gelijknamige straat van een andere gemeente)", () => {
   for (const [t, fasen] of [
     ["Werk in openbaar domein", [fase("2070 Proefdorp, Proefstraat 12")]],
-    ["2100 Proefdorp, Proefstraat 12", []],
-    ["2000 Antwerpen, Proefstraat 12", [fase("2070 | Proefdorp")]],
-    ["2000 Antwerpen, Proefstraat 12", [fase("2070 Proefdorp - Testlaan")]],
+    ["2640 Proefdorp, Proefstraat 12", []],
   ]) {
     const a = poort(aansluiting({ title: t, hindrance: fasen.length ? hinder(fasen) : null }));
     assert.equal(a.huisnummers, "", `${t} ${fasen.map((f) => f.description)}`);
     assert.doesNotMatch(`${a.title} ${regels(KU.werkKaartje(a, { vandaag: VANDAAG })).Waar}`, /\b12\b/);
   }
+  // Een postcode elders in de tekst, of een ander district van de stad (een straat op de grens): het nummer blijft.
+  for (const [t, fasen] of [
+    ["2000 Antwerpen, Proefstraat 12", [fase("2070 | Proefdorp")]],
+    ["2000 Antwerpen, Proefstraat 12", [fase("2070 Proefdorp - Testlaan")]],
+    ["2140 | Proefdistrict | Proefstraat | 12", []],
+  ]) assert.equal(poort(aansluiting({ title: t, hindrance: fasen.length ? hinder(fasen) : null })).huisnummers, "nr. 12", t);
 });
 
-test("HOOG 1, de hele keten: de verversing bewaart en toont bij twijfel geen nummer", async () => {
+test("HOOG 1, de hele keten: de verversing bewaart en toont het nummer, en bij een maat of een datum eerlijk geen", async () => {
   const gevallen = [
     aansluiting({ gipodId: 990011, title: "2000 Antwerpen, Proefstraat 2 - 3 uren" }),
     aansluiting({ gipodId: 990012, title: "2000 Antwerpen, Proefstraat 1 - 31 december" }),
@@ -117,6 +125,12 @@ test("HOOG 1, de hele keten: de verversing bewaart en toont bij twijfel geen num
     assert.equal(it.adresKaart, true);
     const e = workEntry(it, { vandaag: VANDAAG, uitleg });
     const alles = [V.lijstTitel(it), e.title, regels(e.uitleg).Waar, regels(e.uitleg).Wat, uitleg.werken[String(it.gipodId)].huisnummers].join(" · ");
+    if (it.gipodId === 990013) {
+      assert.equal(regels(e.uitleg).Waar, `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
+      assert.equal(V.lijstTitel(it), "Nieuwe aansluiting op het elektriciteitsnet – Proefstraat 12");
+      assert.equal(uitleg.werken["990013"].huisnummers, "nr. 12");
+      continue;
+    }
     assert.doesNotMatch(alles, /nr\.\s*\d|Proefstraat,? \d/, String(it.gipodId));
     assert.equal(regels(e.uitleg).Waar, TWIJFEL, String(it.gipodId));
   }
@@ -124,7 +138,7 @@ test("HOOG 1, de hele keten: de verversing bewaart en toont bij twijfel geen num
 
 // ---------- HOOG 2: een bewaard nummer en een gewijzigd werk ----------
 
-test("HOOG 2: een bewaard nummer geldt niet meer als GIPOD het werk wijzigde of de lezer nu twijfelt", async () => {
+test("HOOG 2: een bewaard nummer geldt niet meer als GIPOD het werk wijzigde; live toont wat het nu leest", async () => {
   // De verversing van gisteren las "Proefstraat 12" en bewaarde het nummer.
   const gisteren = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat 12", dossier: "GW2099-000901" }), A(), { magBeslissen: true });
   const { document } = await bouwKaartUitleg({ works: [gisteren], fetch: null, clock: () => new Date(`${VANDAAG}T05:00:00Z`) });
@@ -137,21 +151,24 @@ test("HOOG 2: een bewaard nummer geldt niet meer als GIPOD het werk wijzigde of 
     return [los, werf].map((e) => `${e.title} | ${regels(e.uitleg).Waar} | ${regels(e.uitleg).Wat}`);
   };
   const NU = "2099-03-05T00:00:00Z";
-  // GIPOD wijzigde het adres sinds de verversing (een nieuwe lastModified): live twijfelt of geeft geen getal. "Waar" zegt
-  // waarom zoals live het ziet.
-  for (const [titel, vorm, versie, waar] of [
-    ["2000 Antwerpen, Proefstraat | 21 A", A(), NU, TWIJFEL], ["2000 Antwerpen, Korte Proefstraat 21", A(), NU, TWIJFEL],
-    ["2000 Antwerpen, Testlaan | 5", A(), NU, TWIJFEL], ["2000 Antwerpen, Proefstraat", A(), NU, "Proefstraat"],
-    // Dezelfde versie, maar de lezer twijfelt nu: ook geen bewaard nummer.
-    ["2000 Antwerpen, Proefstraat | 21 A", A(), gisteren.lastModified, TWIJFEL],
+  // GIPOD wijzigde het adres sinds de verversing (een nieuwe lastModified): live geeft een getal van een andere straat of geen
+  // getal. "Waar" zegt waarom zoals live het ziet, nooit het bewaarde nummer.
+  for (const [titel, waar] of [
+    ["2000 Antwerpen, Korte Proefstraat 21", TWIJFEL], ["2000 Antwerpen, Testlaan | 5", TWIJFEL], ["2000 Antwerpen, Proefstraat", "Proefstraat"],
   ]) {
-    const live = poort(aansluiting({ title: titel, dossier: "GW2099-000901", lastModified: versie }), vorm);
+    const live = poort(aansluiting({ title: titel, dossier: "GW2099-000901", lastModified: NU }), A());
     assert.equal(live.huisnummers, "", titel);
     for (const tekst of toont(live)) {
       assert.doesNotMatch(tekst, /\b12\b/, `${titel}: ${tekst}`);
       assert.doesNotMatch(tekst, /exact adres/, titel);
       assert.equal(tekst.split(" | ")[1], waar, titel);
     }
+  }
+  // Live leest nu een ander nummer, in een andere of in dezelfde versie: dat nummer, nooit het bewaarde.
+  for (const versie of [NU, gisteren.lastModified]) {
+    const live = poort(aansluiting({ title: "2000 Antwerpen, Proefstraat | 21 A", dossier: "GW2099-000901", lastModified: versie }), A());
+    assert.equal(live.huisnummers, "nr. 21A");
+    for (const tekst of toont(live)) { assert.doesNotMatch(tekst, /\b12\b/); assert.match(tekst, new RegExp(`Proefstraat, nr\\. 21A \\(${KU.ADRES_GIPOD}\\)`)); }
   }
   // De browser kent het werk niet in de vaste vorm, en het is een andere versie: hij toont het nummer dat hij nu leest, nooit
   // het bewaarde (regel van de eigenaar van 26 oktober 2026: ook de browser leest het nummer).

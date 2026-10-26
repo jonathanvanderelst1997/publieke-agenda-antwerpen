@@ -163,7 +163,9 @@ test("homoniem: de huisnummers van een werk vinden de straat ook als de adrespos
 
 // ---------- de historiek ----------
 
-test("homoniem: de historiek houdt geen toevoeging en geen huisnummer na zo'n straat, ook niet uit een oud bestand (vangnet)", () => {
+// Regel van de eigenaar (26 oktober 2026): een werk houdt zijn huisnummer in de historiek en de straatbestanden; een
+// parkeerverbod niet. De toevoeging valt overal weg.
+test("homoniem: de historiek houdt geen toevoeging, en geen huisnummer na zo'n straat buiten een werk, ook niet uit een oud bestand (vangnet)", () => {
   // De huisnummerregel: een straatnaam met toevoeging is een straatnaam.
   for (const t of ["2018 ANTWERPEN, PROEFSTRAAT_AN 12", "Proefstraat_AN 12 bus 3", "Proeflei_DE 7", "2000 ANTWERPEN, PROEFSTRAAT_XY 12 DN40"]) {
     assert.doesNotMatch(tekstZonderHuisnummers(t), /\b(?:12|7)\b/, t);
@@ -177,11 +179,13 @@ test("homoniem: de historiek houdt geen toevoeging en geen huisnummer na zo'n st
   const codes = new Set(historiekPrivacyBevindingen(doc).map((f) => f.code));
   assert.ok(codes.has("huisnummer") && codes.has("toevoeging"), [...codes].join(", "));
   const schoon = historiekVoorPubliek(doc);
-  nergens(schoon, "historiek");
+  nergens(schoon, "historiek", { nummer: true });
+  nergens(schoon.layers.publicSpace, "historiek van de parkeerverboden");
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
-  // Een wijziging die alleen het huisnummer was, valt weg.
-  assert.equal(schoon.changes.length, 1);
-  nergens(resultaatVoorHistoriek({ ok: true, items: werken }), "resultaat van de verversing");
+  // Een werk houdt zijn huisnummer: de wijziging van het nummer blijft, zonder toevoeging.
+  assert.equal(schoon.changes.length, 2);
+  assert.deepEqual([schoon.changes[1].before.title, schoon.changes[1].after.title], ["2018 ANTWERPEN, PROEFSTRAAT 12", "2018 ANTWERPEN, PROEFSTRAAT 14"]);
+  nergens(resultaatVoorHistoriek({ ok: true, items: werken }), "resultaat van de verversing", { nummer: true });
 });
 
 // ---------- de straatbestanden ----------
@@ -189,13 +193,14 @@ test("homoniem: de historiek houdt geen toevoeging en geen huisnummer na zo'n st
 test("homoniem: de straatbestanden: een nieuw item en een vorige stand zonder toevoeging; herschrijven maakt een oud bestand schoon", (t) => {
   const nieuw = werken.map((w) => itemVoorStraat(w, { laag: "werken" })).filter(Boolean);
   assert.equal(nieuw.length, werken.length);
-  nergens(nieuw, "itemVoorStraat");
+  // Een werk houdt zijn huisnummer (regel van de eigenaar van 26 oktober 2026), nooit de toevoeging.
+  nergens(nieuw, "itemVoorStraat", { nummer: true });
   // Een vorige stand (een laag die vandaag niet laadde) met de oude naam in de tabel en de titel.
   const vorig = { id: "work:990199", gipodId: 990199, title: "2018 ANTWERPEN, PROEFSTRAAT_AN", status: "In uitvoering", start: "2026-10-01", end: "2026-10-30", streets: [{ id: "990001", name: "Proefstraat_AN", postcode: "2018" }] };
   const doc = straatDocument("990001", { werken: new Map([...nieuw, vorig].map((w) => [w.id, w])) }, { namen: [{ id: "990001", name: "Proefstraat_AN", postcode: "2018" }], ververst: "2026-10-17T03:00:00.000Z" });
-  nergens(doc, "straatDocument");
+  nergens(doc, "straatDocument", { nummer: true });
   assert.deepEqual(doc.straten.filter((s) => s[0] === "990001"), [["990001", "Proefstraat", "2018"]], "één rij per straat");
-  nergens(straatItems(doc, "werken"), "straatItems");
+  nergens(straatItems(doc, "werken"), "straatItems", { nummer: true });
 
   // Het hele schrijven, in een tijdelijke map: een oud bestand (met toevoeging) herschreven met de regels van nu.
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "homoniem-straat-"));
@@ -209,10 +214,10 @@ test("homoniem: de straatbestanden: een nieuw item en een vorige stand zonder to
   fs.writeFileSync(path.join(root, "site", "straat-index.json"), JSON.stringify({ schemaVersion: STRAAT_SCHEMA, ververst: "2026-10-16T03:00:00.000Z", lagen: { werken: stand, publiekeRuimte: stand, vergunningen: stand, terrassen: stand, evenementen: stand }, straten: { 990001: "oud" } }));
   schrijfStraatSnapshots({ rootDir: root, herschrijf: true, agendaItems: [], history: null, clock: () => new Date("2026-10-17T10:00:00Z") });
   const herschreven = JSON.parse(fs.readFileSync(path.join(root, "site", "straat", "990001.json"), "utf8"));
-  nergens(herschreven, "herschreven straatbestand");
-  // Een oud bestand van vóór de regel: "PROEFSTRAAT_AN 12" telde toen niet als straat met huisnummer. Zonder de
-  // toevoeging is 12 een huisnummer; het valt weg zoals bij een nieuw item (itemVoorStraat), en het item blijft.
-  assert.deepEqual(herschreven.werken.map((w) => w.title), ["2018 ANTWERPEN, PROEFSTRAAT", "2018 ANTWERPEN, PROEFSTRAAT"]);
+  nergens(herschreven, "herschreven straatbestand", { nummer: true });
+  // Een oud bestand van vóór de regel: "PROEFSTRAAT_AN 12". De toevoeging valt weg; een werk houdt zijn huisnummer (regel
+  // van de eigenaar van 26 oktober 2026), zoals een nieuw item (itemVoorStraat).
+  assert.deepEqual(herschreven.werken.map((w) => w.title), ["2018 ANTWERPEN, PROEFSTRAAT", "2018 ANTWERPEN, PROEFSTRAAT 12"]);
   assert.deepEqual(straatBestandenProblemen(root), []);
   const idx = JSON.parse(fs.readFileSync(path.join(root, "site", "straat-index.json"), "utf8"));
   assert.equal(idx.ververst, "2026-10-16T03:00:00.000Z", "herschrijven is geen verversing");

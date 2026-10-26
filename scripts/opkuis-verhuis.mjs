@@ -3,15 +3,18 @@
 // site/sources/kaart-uitleg.json, site/history/live-layers.json, site/history/archive/*.json (ook baseline en index) en
 // site/straat/*.json (met site/straat-index.json):
 // - een titel met het spoor wordt "Werk in openbaar domein";
-// - de soort "Verhuis" wordt "Inname voor een lift of levering" als de soort inname of de inname een lift noemt, anders
-//   geen soort; "Verhuislift of levering" wordt "Inname voor een lift of levering", "verhuislift of levering" wordt
-//   "lift of levering", en een soort inname van GIPOD in elke schrijfwijze "Lift/levering" (innameZonderVerhuis);
+// - de soort "Verhuis" wordt "Inname" als de soort inname of de inname een lift noemt, anders geen soort; "Verhuislift of
+//   levering" en "Inname voor een lift of levering" worden "Inname" (een verhuis verschijnt als een gewone inname: regel van
+//   de eigenaar van 26 oktober 2026), "verhuislift of levering" en "lift of levering" worden "inname", en een soort inname van
+//   GIPOD in elke schrijfwijze "Lift/levering" (innameZonderVerhuis);
+// - de oude vlag `eenAdres` (tot 26 oktober 2026: geen huisnummer bij een verhuis) valt weg: ze zei alleen dat het een
+//   verhuis was;
 // - een bewaarde fase met het spoor valt uit de bewaarde fasenlijst;
 // - een opdrachtgever met het spoor valt weg (groep "Andere"), en elke andere tekst met het spoor wordt leeg (in een lijst:
 //   valt weg);
 // - een wijziging die daarna niets meer wijzigt, valt weg (ze zou alleen zeggen dat er zo'n tekst stond).
 // Verder verandert het niets: kaart-uitleg.json wordt geschreven zoals elke schrijver het schrijft (kaartUitlegVoorPubliek in
-// lib/kaart-uitleg-refresh.mjs: met het huisnummer, behalve bij één adres, regel van de eigenaar van 26 oktober 2026). Een
+// lib/kaart-uitleg-refresh.mjs: altijd met het huisnummer, regel van de eigenaar van 26 oktober 2026). Een
 // tweede run verandert niets. Geen netwerk. De uitvoer noemt alleen bestanden en aantallen.
 //
 //   node scripts/opkuis-verhuis.mjs          toont alleen wat er zou veranderen
@@ -33,17 +36,18 @@ import { STRAAT_INDEX, STRAAT_MAP } from "../lib/straat-bestanden.mjs";
 
 const isObject = (v) => v && typeof v === "object" && !Array.isArray(v);
 const spoor = (v) => typeof v === "string" && VERHUIS_SPOOR.test(v);
-const LIFT_SOORT = "Inname voor een lift of levering";
+const LIFT_SOORT = "Inname";
 const isWerkId = (id) => /^work:\d+$/.test(String(id || ""));
 
 // Eén werk (diep). `sorteer`: de lijsten van de soort inname gesorteerd, zoals de historiek ze bewaart (compactWorkItem).
 export function werkZonderVerhuis(w, { sorteer = false } = {}) {
   if (!isObject(w)) return w;
   const uit = { ...w };
-  for (const k of ["soort", "innameSoort"]) if (/^verhuislift of levering$/i.test(String(uit[k] ?? ""))) uit[k] = LIFT_SOORT;
-  if (Array.isArray(uit.inname)) uit.inname = uit.inname.map((x) => (/^verhuislift of levering$/i.test(String(x)) ? "lift of levering" : x));
+  const lift = /lift/i.test(String(uit.innameSoort ?? "")) || (Array.isArray(uit.inname) && uit.inname.some((x) => /lift/i.test(String(x))));
+  for (const k of ["soort", "innameSoort"]) if (/^(?:verhuislift of levering|inname voor een lift of levering)$/i.test(String(uit[k] ?? ""))) uit[k] = LIFT_SOORT;
+  if (Array.isArray(uit.inname)) uit.inname = uit.inname.map((x) => (/^(?:verhuis)?lift of levering$/i.test(String(x)) ? "inname" : x));
+  delete uit.eenAdres;
   if (/^verhuis$/i.test(String(uit.soort ?? ""))) {
-    const lift = /lift/i.test(String(uit.innameSoort ?? "")) || (Array.isArray(uit.inname) && uit.inname.some((x) => /lift/i.test(String(x))));
     uit.soort = lift ? LIFT_SOORT : "";
     if ("soortBron" in uit) uit.soortBron = lift ? "soort inname in GIPOD" : "";
     if (uit.innameSoort === uit.soort) delete uit.innameSoort;

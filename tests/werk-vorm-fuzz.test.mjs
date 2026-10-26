@@ -1,9 +1,8 @@
 // Fuzz van de vaste vorm (site/werk-vorm.js, regel 39): alle combinaties van schrijfwijzen van de straat en het huisnummer,
 // met een staart (een naam, contactgegevens of een spoor van een verhuizing) in de titel, een fase of de opdrachtgever.
 // - Een adreskaart: op geen enkele uitgang een woord uit de staart, een "@" of een spoor.
-// - Een gewone kaart: op de kaart, in de lijst en in kaart-uitleg.json het huisnummer (regel van de eigenaar van 26 oktober
-//   2026), maar nergens een huisnummer bij het spoor van een verhuizing; in de historiek en de straatbestanden (die bewaren
-//   nog geen huisnummer) nergens één los huisnummer; nergens een spoor.
+// - Een gewone kaart: op de kaart, in de lijst, in kaart-uitleg.json, de historiek en de straatbestanden het huisnummer
+//   (regel van de eigenaar van 26 oktober 2026), ook bij het spoor van een verhuizing; nergens een spoor.
 // Alleen verzonnen straten (Proefstraat, Testlaan) en verzonnen namen; geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
@@ -20,7 +19,7 @@ import { itemVoorStraat } from "../scripts/build-straat-snapshots.mjs";
 const VANDAAG = "2099-03-10";
 const PROEF = { id: "9101", name: "Proefstraat", postcode: "2000" };
 const STRAATVORMEN = ["Proefstraat {n}", "PROEFSTRAAT {n}", "Proefstr. {n}", "2000 Antwerpen, Proefstraat {n}", "Proefstraat | {n}", "Proefstraat: {n}", "Proefstraat, {n}", "Testlaan 5 - Proefstraat {n}", "Korte Proefstraat {n}", "Anna-Proefstraat {n}"];
-// Een andere straat met de naam van het punt erin: nooit een nummer (liever geen nummer dan een fout huis).
+// Een andere straat met de naam van het punt erin: nooit een nummer (dat hoort bij een ander huis).
 const ANDERE_STRAAT = /Korte Proefstraat|Anna-Proefstraat/;
 const NUMMERVORMEN = ["12", "12A", "31/2", "12-12", "12 tem 14", "12 en 14", "1DN02", "nr 12", "thv 12"];
 // Een staart en de woorden die er nergens van mogen terugkomen op een adreskaart (verzonnen).
@@ -69,11 +68,12 @@ test("de controle van de fuzz ziet een los huisnummer, en geen reeks of code", (
   for (const t of ["Proefstraat 12 tem 14", "Proefstraat, nr. 12–14", "Proefstraat 12 en 14", "Proefstraat 1DN02", "Proefstraat (huisnummer weggelaten)", "Testlaan 5"]) assert.equal(losNummer(t), false, t);
 });
 
-test("fuzz: een adreskaart heeft nergens de staart, een gewone kaart toont het nummer behalve bij een verhuizing, en nergens een spoor", async () => {
+test("fuzz: een adreskaart heeft nergens de staart, elke kaart toont het nummer, ook bij een verhuizing, en nergens een spoor", async () => {
   const gevallen = werken();
   const ids = gevallen.map((g) => g.werk.gipodId);
   const vormen = { adreskaart: { vorm: { adreskaart: ids, gewoon: [] } }, gewoon: { vorm: { adreskaart: [], gewoon: ids } }, nieuw: { vorm: null } };
-  let a = 0, b = 0, metNummer = 0, gewoonMetNummer = 0, verhuisZonder = 0;
+  let a = 0, b = 0, metNummer = 0, gewoonMetNummer = 0, verhuisMet = 0;
+  const isVerhuis = (wat) => VERHUIS_SPOOR.test(wat.split(" | ")[1]);
   for (const [naam, { vorm }] of Object.entries(vormen)) {
     const items = werkenVoorDeSite(gevallen.map((g) => g.werk), vorm);
     const { document } = await bouwKaartUitleg({ works: items, fetch: null, clock: () => new Date(`${VANDAAG}T05:00:00Z`) });
@@ -94,16 +94,21 @@ test("fuzz: een adreskaart heeft nergens de staart, een gewone kaart toont het n
         const alles = lijst.join(" · ");
         assert.equal(lijst.some((t) => VERHUIS_SPOOR.test(t)), false, `${naam}: spoor op ${uitgang} bij ${wat}`);
         if (item.adresKaart) for (const woord of woorden) assert.equal(alles.toLowerCase().includes(woord.toLowerCase()), false, `${naam}: "${woord}" op ${uitgang} van een adreskaart bij ${wat}`);
-        else if (item.eenAdres === true || uitgang === "historiek" || uitgang === "straatitem") assert.equal(losNummer(alles), false, `${naam}: los huisnummer op ${uitgang} van een gewone kaart bij ${wat}: ${alles.slice(0, 300)}`);
       }
-      if (!item.adresKaart && item.eenAdres === true) verhuisZonder += 1;
-      if (!item.adresKaart && /^Proefstraat, nr\. 12\b/.test(Object.fromEntries(k.regels).Waar || "")) gewoonMetNummer += 1;
+      assert.equal("eenAdres" in item, false, `${naam}: geen vlag die zegt dat het een verhuis was: ${wat}`);
+      const waar = Object.fromEntries(k.regels).Waar || "";
+      if (!item.adresKaart && /^Proefstraat, nr\. 12\b/.test(waar)) gewoonMetNummer += 1;
+      if (isVerhuis(wat) && /^Proefstraat, nr\. 12\b/.test(waar)) verhuisMet += 1;
+      // De historiek en het straatbestand bewaren de titel zoals de lijst hem toont, met het nummer.
+      const titel = lijstTitel(item);
+      assert.equal(compactWorkItem(itemVoorHistoriek(item)).title, titel, `${naam}: historiek bij ${wat}`);
+      if (itemVoorStraat(item, { laag: "werken" })) assert.equal(itemVoorStraat(item, { laag: "werken" }).title, titel, `${naam}: straatbestand bij ${wat}`);
       if (item.adresKaart && ANDERE_STRAAT.test(wat)) assert.equal(item.huisnummers, "", `${naam}: een nummer bij een andere straat: ${wat}`);
       if (item.adresKaart) { a += 1; if (item.huisnummers) metNummer += 1; } else b += 1;
     });
   }
-  // Beide vormen komen in de fuzz voor (ook bij een werk dat de verversing of de browser zelf beslist), en een gewone kaart
-  // toont het nummer (behalve bij het spoor van een verhuizing).
+  // Beide vormen komen in de fuzz voor (ook bij een werk dat de verversing of de browser zelf beslist), en elke kaart toont het
+  // nummer, ook bij het spoor van een verhuizing.
   assert.ok(a > 1000 && b > 1000 && metNummer > 500, `${a} adreskaarten (${metNummer} met een nummer) en ${b} gewone kaarten`);
-  assert.ok(gewoonMetNummer > 300 && verhuisZonder > 300, `${gewoonMetNummer} gewone kaarten met nr. 12, ${verhuisZonder} met het spoor van een verhuizing`);
+  assert.ok(gewoonMetNummer > 300 && verhuisMet > 300, `${gewoonMetNummer} gewone kaarten met nr. 12, ${verhuisMet} met het spoor van een verhuizing en nr. 12`);
 });

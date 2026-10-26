@@ -18,7 +18,8 @@
 // dit script alles over de straten.
 //
 // Privacy, met dezelfde regels als de historiek (lib/historiek-privacy.mjs): alleen district Antwerpen,
-// geen huisnummers (ook niet in titels), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
+// geen huisnummers (ook niet in titels) behalve bij een werk (dat staat er met zijn exacte adres, regel van de eigenaar van
+// 26 oktober 2026), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
 // `reason`; site/adres-privacy.js; wel het dossier van zijn werfzone, `werfzoneDossier`, dat de werfkaart ook toont),
 // geen vrije beschrijving van een inname (innameBeschrijving),
 // geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
@@ -106,7 +107,8 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
-  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
+  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase). Een werk houdt zijn
+  // huisnummer (lib/historiek-privacy.mjs).
   // De naam van de fase van een inname (faseNaam, vrij in te vullen) alleen als vaste vorm, district of straat van de inname
   // (veiligeFase in site/witte-lijst.js), ook in `detail`; zo leest straatItems hetzelfde terug.
   const schoon = itemZonderPandnummers(itemVoorHistoriek(veiligeInname(zonder)));

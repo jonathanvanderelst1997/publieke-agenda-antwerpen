@@ -168,8 +168,10 @@ const INNAME_SOORT = [
   ["hoogtewerker", HOOGTEWERKER],
   ["stelling", "Stelling (steiger)"],
   ["(werf)kraan", "Bouwkraan"],
-  // De poort (site/werk-vorm.js) geeft deze soort inname van GIPOD in één vaste vorm: "Lift/levering".
-  ["lift/levering", "Inname voor een lift of levering"],
+  // De poort (site/werk-vorm.js) geeft deze soort inname van GIPOD ("(Verhuis)lift/levering") in één vaste vorm:
+  // "Lift/levering". Een verhuis verschijnt als een gewone inname (regel van de eigenaar van 26 oktober 2026).
+  ["lift/levering", "Inname"],
+  ["(verhuis)lift/levering", "Inname"],
   ["container", "Container"],
   ["werfkeet", "Werfkeet"],
   ["spoorwerken", "Spoorwerken"],
@@ -193,7 +195,7 @@ const joinNl = (list) => (list.length > 1 ? `${list.slice(0, -1).join(", ")} en 
 const INNAME_LEESBAAR = Object.freeze({
   thermisch: "warmtenet", "olie, gas, chemicaliën": "gas, olie of chemicaliën", "openbare verlichting": "straatverlichting",
   wegeniswerken: "wegenwerken", kunstwerk: "brug, tunnel of viaduct", nutswerken: "nutsleidingen", "(werf)kraan": "werfkraan",
-  "lift/levering": "lift of levering",
+  "lift/levering": "inname", "(verhuis)lift/levering": "inname",
 });
 export function innameLeesbaar(occupancyTypes = []) {
   return splitsTypes(occupancyTypes).filter((t) => t !== "andere").map((t) => INNAME_LEESBAAR[t] || t);
@@ -373,118 +375,117 @@ export function huisnummerReeks(tekst) {
 // Zonder in te korten (clean kort af op 300 tekens): de lezer kijkt naar de hele titel en alle fasen.
 const heel = (v) => String(v ?? "").replace(/\s+/g, " ").trim();
 
-// Grondregel: liever geen nummer dan een fout huis; bij elke twijfel geen nummer (nakijkronde van head a4d9ba99).
+// Grondregel (regel van de eigenaar van 26 oktober 2026): het huisnummer staat er altijd, "gewoon dat ze weten waar het
+// is". Een getal dat de beheerder direct na de straat schrijft, is het huisnummer, ook met een code erachter ("12 DN01",
+// "98RO", "2DN01", "3 TN01"), een losse hoofdletter ("14 A"), een tweede getal ("17 4"), tussen streepjes ("Proefstraat - 5
+// - werken aan nutsleiding") of na een scheiding ("Proefstraat | 12", "PROEFSTRAAT, 12"). Geen huisnummer is alleen: een
+// maat, duur, uur of telwoord ("12 m", "3 dagen", "7:30"), een datum ("15/10", "15 oktober"), een getal van vier cijfers
+// (een postcode of een jaartal), 0, een getal na een langere straatnaam met dezelfde naam erin ("Korte Proefstraat 12") en
+// een getal na de gelijknamige straat van een gemeente buiten het district ("2070 Proefdorp, Proefstraat 12").
 //
-// Een getal met een maat, duur, uur of telwoord erachter wordt eerst "#", ook een reeks ervan ("12 m", "2 rijstroken",
-// "7:30", "3 dagen", "12 - 14 dagen"): zo staat het nooit als nummer na de straat. Eerst dit, dan pas de scheidingstekens
-// na een straatnaam: anders werd "7:30" "7 30".
-const MAAT = /(?<![\d#])\d{1,3}(?:\s*(?:-|–|—|tot|à)\s*\d{1,3})?(?=\s*(?:[:.,]\d|(?:m|m²|m2|meter|km|cm|mm|kv|u|uur|h|min|dag|dagen|werkdag|werkdagen|nacht|nachten|week|weken|maand|maanden|jaar|rijstro\p{L}*|stuk|stuks|x|keer|plaats|plaatsen|parkeerplaats\p{L}*|container\p{L}*)(?![\p{L}\d])))/giu;
-// "Proefstraat | 12", "Proefstraat: 12", "Proefstraat, 12": na een straatnaam (een letter), niet tussen twee cijfers
-// ("12, 14 en 16" blijft een reeks).
-const SCHEIDING = /(?<=[\p{L}.)\]])\s*[|;:,]\s*(?=\d)/gu;
+// Een getal met een maat, duur, uur of telwoord erachter wordt eerst "#", ook een reeks ervan ("12 m", "12,5 m", "2
+// rijstroken", "3 dagen", "12 - 14 dagen"), net als een uur ("7:30", "7u30") en een datum ("15/10", "15 oktober", "12 - 15
+// okt."): zo staat het nooit als nummer na de straat. Eerst dit, dan pas de scheidingstekens na een straatnaam: anders werd
+// "7:30" "7 30". Een punt na het nummer is geen komma ("Proefstraat 17.2018 Antwerpen" is nr. 17).
+const EENHEID = String.raw`(?:m|m²|m2|meter|lm|km|cm|mm|kv|u|uur|uren|h|min|dag|dagen|werkdag|werkdagen|kalenderdag|kalenderdagen|nacht|nachten|week|weken|weekend|weekends|maand|maanden|jaar|rijstro\p{L}*|stuk|stuks|x|keer|plaats|plaatsen|parkeerplaats\p{L}*|container\p{L}*|woning|woningen|boom|bomen|verdieping|verdiepingen)(?![\p{L}\d])`;
+const GETAL = String.raw`\d{1,3}(?:[.,]\d{1,2})?`;
+const MAAT = new RegExp(String.raw`(?<![\d#])${GETAL}(?:\s*(?:-|–|—|tot|à)\s*${GETAL})?(?=\s*${EENHEID})`, "giu");
+const UUR = /(?<![\d#])\d{1,2}[:u]\d{2}(?!\d)/giu;
+// Een "reeks" die niet oploopt is geen reeks: "Proefstraat 12 - 3 dagen" is nr. 12 en drie dagen.
+const getalWaarde = (v) => Number(String(v).replace(",", "."));
+const zonderMaat = (t) => String(t ?? "").replace(UUR, "#").replace(MAAT, (m) => {
+  const d = m.match(/\d{1,3}(?:[.,]\d{1,2})?/g);
+  return d.length === 2 && getalWaarde(d[0]) >= getalWaarde(d[1]) ? m.replace(/\d{1,3}(?:[.,]\d{1,2})?$/, "#") : "#";
+});
+const MAAND = String.raw`(?:januari|februari|maart|april|mei|juni|juli|augustus|september|oktober|november|december|jan|feb|mrt|apr|jun|jul|aug|sept?|okt|nov|dec)\.?(?![\p{L}])`;
+const DATUM = new RegExp(String.raw`(?<![\d#])\d{1,2}(?:\s*(?:,|-|–|—|tot|en|t\/m)\s*\d{1,2})*\s*${MAAND}|(?<![\d#\/])\d{1,2}\/\d{1,2}(?:\/\d{2,4})?(?![\d\/])|(?<![\d#])\d{1,2}[-.]\d{1,2}[-.]\d{2,4}(?!\d)|(?<![\d#.])\d{1,2}\.\d{2}(?![\d.])`, "giu");
+// "Proefstraat | 12", "Proefstraat: 12", "Proefstraat, 12", "Proefstraat - 12": na een straatnaam (een letter), niet tussen
+// twee cijfers of na een nummer met een letter ("12, 14 en 16" en "12A - 14" blijven een reeks).
+const SCHEIDING = /(?<=[\p{L}.)\]])(?<!\d[\p{L}_]{0,6})(?:\s*[|;:,]\s*|\s+[-–—]\s+)(?=\d)/gu;
 const esc = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-// Eén huisnummer: 1 tot 999, zonder 0 vooraan, met hoogstens één letter eraan ("12A"), maar geen letter die een eenheid
-// kan zijn ("7h", "7u", "12m", "2x"). Een reeks of een opsomming op dezelfde straat zoals de lezer van main
-// (huisnummersUitTekst): "12-14", "12 tem 14", "12, 14 en 16".
-const NR = String.raw`[1-9]\d{0,2}[a-gi-ln-tv-wyz]?(?![\d\p{L}_])`;
-// Het nummer staat direct na de straat (na een spatie) en wordt gevolgd door het einde, een scheiding ("," ";" "|" "·"
-// ")" "]", een streep met spaties, een punt met een spatie), een busaanduiding ("bus 3") of het woord "werken" ("2018
-// Antwerpen Proefstraat 12 werken distributieleiding)", de vaste vorm van een beheerder van waterleidingen: op 26 oktober
-// 2026 bij 25 werken het enige getal in de titel). Al de rest is twijfel: een
-// woord ("12 containers", "15 oktober", "12 A", "12 Proefmans"), een schuine streep ("15/10", "31/2"), een traject ("12
-// tot Testlaan", "12 → Testlaan"), een code ("1DN02", "9B_BIS").
-const NA_STRAAT = new RegExp(String.raw`^\s+(${NR}(?:${REEKS}${NR}|${OPSOMMING}${NR}${NA_OPSOMMING})*)(?:\s*bus\s*[a-z0-9]{1,4}(?![\p{L}\d]))?(?=\s*$|\s*[,;|·)\]]|\s+[-–—](?:\s|$)|\.(?:\s|$)|\s+werken(?![\p{L}\d]))`, "iu");
-// Een cijfer kort na de naam (hoogstens drie tekens zonder letter ertussen): "Proefstraat 12", "Proefstraat (12)",
-// "Proefstraat - 12".
-const CIJFER_NA = /^[^\p{L}\d]{0,3}\d/u;
-// Voor de straatnaam staat het begin van de tekst, een scheiding ("|", ",", ";", ":", "·", "(", "[", "/", een losse streep),
-// een getal ("Fase 1 Proefstraat 8", "2000 Proefstraat 8") of een postcode van het district met "Antwerpen" ("2018 Antwerpen
-// Proefstraat 8"). Een woord ervoor ("Korte Proefstraat", "in de Proefstraat")
-// of een teken eraan vast ("Anna-Proeflei", "O.L.V.-Proefstraat") kan een andere straat zijn.
+// Eén huisnummer: 1 tot 999, zonder 0 vooraan, met hoogstens één letter eraan ("12A") of een code die geen deel van het
+// nummer is ("98RO", "2DN01", "4B_BIS"), of een losse letter na een spatie ("14 A"; niet "12 t/m 14").
+const NR_VORM = String.raw`([1-9]\d{0,2})(?!\d)(?:([a-z])(?![\p{L}\d_])|[a-z_]{2,6}\d{0,3}(?![\p{L}\d_]))?(?:\s([a-z])(?![\p{L}\d.\/]))?`;
+const NR = NR_VORM.replace(/\((?!\?)/g, "(?:");
+const NR_DELEN = new RegExp(NR_VORM, "giu");
+// Direct na de straat (na een spatie, eventueel "thv", "nr." of "huisnummer"): het nummer, een reeks of een opsomming op dezelfde
+// straat zoals de lezer van main (huisnummersUitTekst): "12-14", "12 tem 14", "12, 14 en 16". Een getal met een maat erna is
+// al "#" (zonderMaat): zo wordt "12, 3 dagen" nr. 12.
+const NA_STRAAT = new RegExp(String.raw`^\s+(?:(?:thv|t\.\s?h\.\s?v\.?|ter\s+hoogte\s+van)\s*)?(?:(?:nrs?|no|n°|hnr|huisnummers?)\.?\s*)?(${NR}(?:${REEKS}${NR}|${OPSOMMING}${NR})*)`, "iu");
+// Een woord dat deel van een straatnaam kan zijn ("Korte Proefstraat", "Pieter van Proefstraat", "Sint-Proefplein").
+const DEEL_VAN_NAAM = /^(?:van|de|der|den|het|ter|ten|te|du|la|le|des|del|della|di|da|d'|'t|sint|st\.?|korte|lange|kleine|grote|oude|nieuwe|hoge|lage|onze|lieve|vrouw|heilige|ijzeren|groene|witte|zwarte|rode)$/iu;
+const VOORZETSEL = /^(?:in|op|aan|langs|naar|vanaf|tot|via|over|bij|uit|thv|t\.h\.v\.?)$/u;
+// Een afkorting die deel van een straatnaam is: "St.Proefstraat", "O.L.V.-Proefstraat", "Burg. Proeflaan".
+const AFKORTING = /(?:^|[^\p{L}])(?:st|sint|o\.l\.v|olv|onze|mgr|dr|burg|pr|kon|ir|prof|kard|gen|lt|kol)\.$/iu;
+// Voor de straatnaam staat het begin van de tekst, een scheiding ("|", ",", ";", ":", "·", "(", "[", "/", "_", ".", een
+// losse streep), een getal ("Fase 1 Proefstraat 8", "2000 Proefstraat 8"), een postcode van het district met "Antwerpen"
+// ("2018 Antwerpen Proefstraat 8"), of een woord dat geen deel van een straatnaam is ("Verbouwing woonhuis Proefstraat 12",
+// "Dakwerken Proefstraat 12", "in de Proefstraat 12"). Een woord dat wel deel van een naam is ("Korte Proefstraat", "Jan van
+// Proefstraat", "Sint-Proefplein") of een teken eraan vast ("Anna-Proeflei", "O.L.V.-Proefstraat") kan een andere straat
+// zijn. Een langere officiële straat met een nummer erna koppelt de straatas al aan die straat (adresStraatUitTekst in
+// site/street-core.js), zodat hier streets[0] de volledige naam is.
 function schoonVoor(voor) {
   if (!voor) return true;
-  if (!/\s$/u.test(voor)) return /[|,;:·(\[/]$/u.test(voor);
+  if (!/\s$/u.test(voor)) return /[|,;:·(\[/_.]$/u.test(voor) && !AFKORTING.test(voor);
   const t = voor.trimEnd();
   if (!t) return true;
   if (/(?:^|\s)[-–—]$/u.test(t) || /[|,;:·(\[/]$/u.test(t)) return true;
   // De gemeente na een postcode van het district ("2018 Antwerpen Proefstraat 12"): geen deel van een straatnaam.
-  if (/(?:^|[\s|,;:·(\[/-])(?:2000|2018|2020|2030|2050|2060)\s+antwerpen$/iu.test(t)) return true;
-  return !/[\p{L}'’]/u.test(t.match(/\S+$/u)[0]);
+  if (/(?:^|[\s|,;:·(\[/_-])(?:2000|2018|2020|2030|2050|2060)[\s_]+antwerpen$/iu.test(t)) return true;
+  const woorden = t.split(/\s+/u);
+  const laatste = woorden.at(-1);
+  if (!/[\p{L}'’]/u.test(laatste)) return true;
+  // "vanaf De Proefstraat 5", "in de Proefstraat 12": een lidwoord na een voorzetsel.
+  if (/^(?:de|het)$/iu.test(laatste) && VOORZETSEL.test((woorden.at(-2) || "").toLowerCase())) return true;
+  // Het einde van een zin ("Doorsteek Proefstraat. Proefstraat 3"), geen afkorting ("St. Proefstraat").
+  if (/\p{L}{2,}\.$/u.test(laatste) && !AFKORTING.test(laatste)) return true;
+  return /^[\p{L}'’.]+$/u.test(laatste) && !DEEL_VAN_NAAM.test(laatste) && !AFKORTING.test(` ${laatste}`);
 }
 // Na de straatnaam: geen letter, cijfer, koppelteken, apostrof of liggend streepje eraan vast ("Proefstraatje", "Proefstraat-Noord").
 const schoonNa = (na) => !/^[\p{L}\p{N}'’_-]/u.test(na);
-// Een ander adres in dezelfde tekst: een woord met een straatuitgang en een nummer erna ("Testlaan 5", "Anna-Proeflei 5",
-// "Testlaan nr. 5"). Het cijfer moet precies het cijfer van ons nummer zijn, anders twijfel.
-const ADRES_ELDERS = /[\p{L}][\p{L}'’-]*?(?:straat|str|laan|lei|weg|plein|plaats|dreef|kaai|kade|vest|markt|rui|vliet|dijk|dok|hof|pad|park|singel|brug|berg|baan|gang|poort|wal|steeg|boulevard|square)\.?\s*(?:(?:nrs?|no|n°|hnr|huisnummers?)\.?\s*)?(?=\d)/giu;
-const NUMMER_VOORVOEGSEL = String.raw`\.?\s*(?:(?:nrs?|no|n°|hnr|huisnummers?)\.?\s*)?(?=\d)`;
-const adresTekst = (item) => [item?.title, ...(item?.hindrance?.phases || []).map((p) => p?.description || "")].filter(Boolean).join(" · ").replace(MAAT, "#").replace(SCHEIDING, " ");
+// Zonder accenten, met dezelfde lengte (per teken): "ITALIËLEI" vindt "Italiëlei", "Proefstrasse" niet.
+const vouwGelijk = (v) => Array.from(String(v ?? ""), (c) => { const z = c.normalize("NFD").replace(/[̀-ͯ]/g, ""); return z.length === c.length ? z : c; }).join("");
+// Een toevoeging tussen rechte haken na een straat ("Proefstraat [Antwerpen] - 102") hoort niet bij het adres.
+const adresTekst = (item) => zonderMaat([item?.title, ...(item?.hindrance?.phases || []).map((p) => p?.description || "")].filter(Boolean).join(" · ")).replace(/\s*\[[^\]\d]{1,40}\]/gu, "").replace(DATUM, "#").replace(SCHEIDING, " ");
 // Een volgnummer van een fase ("Fase 2", "deel 3") is geen huisnummer; elk ander getal van één tot drie cijfers kan er een zijn.
 const VOLGNUMMER = /(?<![\p{L}])(?:fase|deel)\s*-?\s*\d{1,3}[a-z]?(?![\p{L}\d])/giu;
 const KORT_GETAL = /(?<!\d)\d{1,3}(?!\d)/u;
-// Een postcode: vier cijfers voor een plaatsnaam ("2070 Proefdorp", "2100 | Proefdorp").
-const POSTCODE = /(?<![\p{L}\d])([1-9]\d{3})(?!\d)(?=[\s|,;:·–—-]*\p{L})/gu;
-// Nog een getal naast het gelezen nummer (nogEenGetalOfMaat: elk ander getal van één tot drie cijfers buiten de volgnummers
-// van de fasen, ook een maat die MAAT al "#" maakte, "Proefstraat 12, 14 dagen": een reeks of een duur?) of een postcode
-// buiten het district (plaatsElders): dan kan het nummer van een ander huis zijn ("Proefstraat 2 - 3 uren", "Proefstraat |
-// 12" met een fase "thv nr 14", een fase "2070 Proefdorp, Proefstraat 12" bij de gelijknamige straat van een andere
-// gemeente). Twijfel, dus geen nummer (nakijkronde van head fd8946ae). In de opname van GIPOD van 18 oktober 2026 staat
-// geen enkel gelezen nummer naast een ander getal: dit kost daar geen nummer.
 const nogEenGetal = (rest) => KORT_GETAL.test(rest.replace(VOLGNUMMER, " "));
-const nogEenGetalOfMaat = (rest) => nogEenGetal(rest) || rest.includes("#");
-const plaatsElders = (t) => [...t.matchAll(POSTCODE)].some((m) => !isDistrictPostcode(m[1]));
-// Een reeks of opsomming loopt op ("12 - 14", "12, 14 en 16") en heeft hoogstens één streep of "tot": "12 - 1", "14 → 12",
-// "7 - 7B" of "3 - 4 - 5" kan een bus, een datum of iets anders zijn.
-const KETTING = new RegExp(`${REEKS}${NR}${REEKS}`, "iu");
-function heldereReeks(tekst) {
-  const getallen = (tekst.match(/\d{1,3}/g) || []).map(Number);
-  return getallen.every((x, i) => i === 0 || x > getallen[i - 1]) && !KETTING.test(tekst);
-}
-// Het exacte huisnummer dat de beheerder in GIPOD schreef, voor een adreskaart (site/werk-vorm.js, regels 20 tot 22) en voor
-// één los nummer op een gewone kaart (werkFeiten): uit de titel en de fasen, alleen op streets[0], alleen direct na de
-// volledige straatnaam.
-// Geen nummer bij twijfel: de naam als deel van een andere straat met een cijfer erna, een cijfer na de naam dat niet als
-// nummer gelezen kan worden, een reeks die niet oploopt, twee verschillende nummers op de straat, nog een getal of een maat
-// in de titel of de fasen, een postcode buiten het district, een ander adres of een andere straat van het werk met een
-// nummer. Nooit uit het adressenregister.
+// Een postcode buiten de stad vlak voor de straat ("2070 Proefdorp, Proefstraat 12"): de gelijknamige straat elders. Een
+// postcode van een ander district van de stad ("2140 | Borgerhout | Proefstraat | 13") is een straat op de districtsgrens:
+// het punt van het werk ligt in het district.
+const POSTCODE_ERVOOR = /(?<!\d)([1-9]\d{3})(?!\d)[^\d·]{0,30}$/u;
+const STAD_POSTCODES = new Set(["2000", "2018", "2020", "2030", "2040", "2050", "2060", "2100", "2140", "2170", "2180", "2600", "2610", "2660"]);
+// Een reeks of opsomming loopt op ("12 - 14", "12, 14 en 16"); anders telt alleen het eerste nummer ("12 - 1").
+const getal = (n) => Number(String(n).match(/^\d+/)[0]);
+const oplopend = (nummers) => nummers.every((x, i) => i === 0 || getal(x) > getal(nummers[i - 1]));
+const nummersIn = (stuk) => [...stuk.matchAll(NR_DELEN)].map((m) => `${m[1]}${m[2] || m[3] || ""}`);
+// Het huisnummer dat de beheerder in GIPOD schreef, voor een adreskaart (site/werk-vorm.js) en een gewone kaart (werkFeiten):
+// uit de titel en de fasen, op streets[0], direct na de volledige straatnaam (ook zonder accenten of in hoofdletters). Meer
+// nummers op die straat worden één reeks van het laagste tot het hoogste ("nr. 12–40"). Nooit uit het adressenregister.
 export function huisnummerUitGipod(item = {}) {
-  const straat = heel(item?.streets?.[0]?.name);
+  const straat = vouwGelijk(heel(item?.streets?.[0]?.name));
   if (!straat) return "";
-  const t = heel(adresTekst(item));
-  if (plaatsElders(t)) return "";
-  const nummers = new Set(), plaatsen = new Set(), stukken = [];
+  const t = vouwGelijk(heel(adresTekst(item)));
+  const alle = [];
   for (const m of t.matchAll(new RegExp(esc(straat), "giu"))) {
     const voor = t.slice(0, m.index), na = t.slice(m.index + m[0].length);
-    if (!schoonVoor(voor) || !schoonNa(na)) {
-      // Een deel van een andere naam ("Korte Proefstraat", "Proefstraatje"): met een cijfer erna is het twijfel.
-      if (CIJFER_NA.test(na.replace(/^[\p{L}'’_-]*/u, ""))) return "";
-      continue;
-    }
-    if (!CIJFER_NA.test(na)) continue;
-    const g = /^\s+\d/u.test(na) ? na.match(NA_STRAAT) : null;
-    const n = g && heldereReeks(g[1]) ? geldigeHuisnummers(huisnummerBereik(g[1].match(/\d{1,3}[a-z]?/gi))) : "";
-    if (!n) return "";
-    nummers.add(n);
-    plaatsen.add(m.index + m[0].length + na.search(/\d/u));
-    stukken.push([m.index, m.index + m[0].length + g[0].length]);
+    if (!schoonVoor(voor) || !schoonNa(na)) continue;
+    const pc = voor.match(POSTCODE_ERVOOR);
+    if (pc && !STAD_POSTCODES.has(pc[1])) continue;
+    const g = na.match(NA_STRAAT);
+    if (!g) continue;
+    const nummers = nummersIn(g[1]);
+    alle.push(...(oplopend(nummers) ? nummers : nummers.slice(0, 1)));
   }
-  if (nummers.size !== 1) return "";
-  // De tekst zonder de straat met haar nummer (of reeks, met de bus): daarin geen enkel ander getal.
-  const rest = stukken.reduceRight((tekst, [van, tot]) => `${tekst.slice(0, van)} ${tekst.slice(tot)}`, t);
-  if (nogEenGetalOfMaat(rest)) return "";
-  for (const m of t.matchAll(ADRES_ELDERS)) if (!plaatsen.has(m.index + m[0].length)) return "";
-  for (const s of (item.streets || []).slice(1)) {
-    const naam = heel(s?.name);
-    if (!naam || naam === straat) continue;
-    for (const m of t.matchAll(new RegExp(`${esc(naam)}${NUMMER_VOORVOEGSEL}`, "giu"))) if (!plaatsen.has(m.index + m[0].length)) return "";
-  }
-  return [...nummers][0];
+  return alle.length ? geldigeHuisnummers(huisnummerBereik(alle)) : "";
 }
 // Heeft een tekst een getal van één tot drie cijfers (geen postcode, geen "Fase 2")? Voor de reden waarom een adreskaart
 // geen nummer toont (nummerWeg in site/werk-vorm.js).
 export const heeftKortGetal = (tekst) => nogEenGetal(String(tekst ?? ""));
 // Leest de lezer van main een nummer direct na de straat, na het wegnemen van een maat, duur of uur (MAAT)? Voor de reden
 // waarom een gewone kaart geen nummer toont (werkKaartje).
-const getalNaStraat = (tekst, straat) => Boolean(huisnummersUitTekst(String(tekst ?? "").replace(MAAT, "#"), straat));
+const getalNaStraat = (tekst, straat) => Boolean(huisnummersUitTekst(zonderMaat(tekst), straat));
 
 // Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette. Ook een mailadres zonder
 // gewone @ (nakijkronde van head 0b264665): "naam(at)voorbeeld.test", "naam[at]...", een volle-breedte ＠ (na NFKC een
@@ -526,21 +527,14 @@ export function opStraat(naam) {
   return lidwoord ? `${OP_NAAM.test(n) ? "op" : "in"} ${lidwoord} ${n}` : `in ${n}`;
 }
 
-// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, "enkel persoonlijke zaken, gelijk een verhuis,
-// dan verberg het". Een inname voor een lift of levering (in GIPOD "(Verhuis)lift/levering") is zo'n verhuizing: dan tonen we
-// de straat, maar nooit het huisnummer, en is het nooit een adreskaart (site/werk-vorm.js). Een aansluiting of een container
-// is een werk op straat: met het huisnummer.
-const EEN_ADRES = /^(?:Inname voor een lift)/;
-export const isEenAdres = (soort) => EEN_ADRES.test(clean(soort, 120));
-// Eén adres op een werk of zijn feiten: de soort (isEenAdres), of de vlag `eenAdres` die de poort zet bij een werk met het
-// spoor van een verhuizing (zonderVerhuisSpoor in site/werk-vorm.js): zoals main een verhuis toonde (#141), zonder de soort
-// "Verhuis". Dan geen huisnummer en geen opzoeking in het adressenregister (lib/kaart-uitleg-refresh.mjs).
-export const isEenAdresWerk = (f) => f?.eenAdres === true || isEenAdres(f?.soort);
-// Vangnet in werkFeiten: een verhuizing in de titel, een fase of de soort van een werk dat niet door de poort ging (die zet zelf
-// `eenAdres` en kent ook de lookalikes: VERHUIS_SPOOR in site/werk-vorm.js). Zonder opmaaktekens en accenten.
-const VERHUIS_NET = /verhui[sz]|ladderlift|(?:in|uit)huiz/i;
-const verhuisInTekst = (werk) => [werk?.title, ...(werk?.hindrance?.phases || []).map((p) => p?.description), ...(werk?.occupancyTypes || []), ...(werk?.workTypes || [])]
-  .some((t) => VERHUIS_NET.test(String(t ?? "").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu, "")));
+// Regel van de eigenaar (26 oktober 2026, "al vijf keer gezegd"): het huisnummer staat er altijd, ook bij een verhuis, een
+// lift of levering, een aansluiting of een container bij één huis. Een verhuis verschijnt als een gewone inname, mét
+// huisnummer: alleen het woord (verhuis, verhuislift, meubellift, verhuizing) komt nooit op de site (VERHUIS_SPOOR en de poort
+// in site/werk-vorm.js).
+// Vangnet in werkFeiten voor een werk dat niet door de poort ging: een omschrijving of een fase met het woord valt weg (het
+// huisnummer blijft, want de lezer leest alleen het nummer uit de titel en de fasen van GIPOD). Zonder opmaaktekens en accenten.
+const VERHUIS_NET = /verhui[sz]|ladderlift|meubellift|(?:in|uit)huiz/i;
+const metVerhuis = (t) => VERHUIS_NET.test(String(t ?? "").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu, "").replace(/[\s._·'’/-]/gu, ""));
 // Voor een kaart die geen opdrachtgever toont: noemt GIPOD er een? Een adreskaart toont alleen een groep (GROEPEN), en een
 // opdrachtgever met het spoor van een verhuizing valt weg (site/werk-vorm.js). collectWorks geeft de groep "Andere" alleen
 // bij een opdrachtgever (ownerGroup in site/works-core.js), en de poort laat "Andere" staan als ze de naam weglaat. Dan zegt
@@ -555,8 +549,7 @@ export const ADRESKAART_WAT_STRAAT = "Bij dit werk tonen we alleen de vaste gege
 export const ADRES_GIPOD = "adres volgens GIPOD";
 // Waarom een adreskaart geen nummer toont terwijl GIPOD er misschien een geeft (huisnummerWeg, een vaste code, geen tekst):
 // "twijfel": de titel of een fase heeft een getal, maar niet zeker het huisnummer van deze straat; "weggelaten": het nummer
-// is gelezen, maar hier niet getoond (de browser kent het werk nog niet, een lift of levering, een straatbestand, een andere
-// straat). Zo zegt een adreskaart nooit "huisnummers niet gepubliceerd" als GIPOD er een gaf (nakijkronde van head a4d9ba99).
+// is gelezen, maar hier niet getoond (een andere straat). Zo zegt een adreskaart nooit "huisnummers niet gepubliceerd" als GIPOD er een gaf (nakijkronde van head a4d9ba99).
 export const NUMMER_WEG = Object.freeze({ twijfel: "geen zeker huisnummer in GIPOD", weggelaten: "huisnummer weggelaten" });
 export const nummerWegCode = (v) => (Object.hasOwn(NUMMER_WEG, String(v ?? "")) ? String(v) : "");
 // Elk huisnummer, ook met een aanhangsel of na een streep: "79WERF", "6werf", "4B_BIS", "65RP", "| 13",
@@ -721,17 +714,16 @@ export function faseBuitenDistrict(naam) {
 const buitenFase = (p) => p?.buiten === true || faseBuitenDistrict(p?.description);
 
 // Feiten over één werk, zonder klok. De verversing bewaart ze; de site vult aan met vandaag.
-// Bij één adres (een inname voor een lift of levering, of het spoor van een verhuizing: isEenAdresWerk) bewaren we op een
-// gewone kaart geen huisnummer: niet als veld, niet in de omschrijving en niet in de namen van de fasen. Anders wel, ook één
-// los nummer (regel van de eigenaar van 26 oktober 2026). Een naam na een dossiercode nooit.
+// Altijd met het huisnummer, ook één los nummer, ook bij een verhuis (regel van de eigenaar van 26 oktober 2026). Een naam na
+// een dossiercode nooit, en nooit het woord verhuis (metVerhuis: de omschrijving of de fase met het woord valt weg).
 // Een adreskaart (werk.adresKaart, site/werk-vorm.js) heeft geen vrije tekst meer: haar soort, nummer en fasen komen uit het
 // item zelf, en het resultaat gaat door alsAdreskaart.
 export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } = {}) {
   const adresKaart = werk.adresKaart === true;
-  const ruweOmschrijving = adresKaart ? "" : zonderNamen(bruikbareOmschrijving(werk.title));
+  const ruweOmschrijving = adresKaart || metVerhuis(werk.title) ? "" : zonderNamen(bruikbareOmschrijving(werk.title));
   const ruweFasen = (werk.hindrance?.phases || [])
     .map((f) => ({ naam: adresKaart ? clean(f.description, 160) : zonderDossiernummers(zonderNamen(f.description, 160)), start: dagVan(f.start), eind: dagVan(f.end), gevolgen: uniek((f.consequences || []).map(gevolgKort)), ...(buitenFase(f) ? { buiten: true } : {}) }))
-    .filter((f) => f.naam && !CONTACT.test(f.naam))
+    .filter((f) => f.naam && !CONTACT.test(f.naam) && !metVerhuis(f.naam))
     .sort((a, b) => a.start.localeCompare(b.start) || a.naam.localeCompare(b.naam, "nl"));
   const soort = adresKaart
     ? { soort: clean(werk.soort, 120), bron: clean(werk.soortBron, 160), ...(clean(werk.innameSoort, 120) ? { innameSoort: clean(werk.innameSoort, 120) } : {}) }
@@ -739,20 +731,16 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
       omschrijving: ruweOmschrijving, fasen: ruweFasen.map((f) => f.naam),
       occupancyTypes: werk.occupancyTypes || [], workTypes: werk.workTypes || [], eigenaar: clean(werk.owner || werk.ownerGroup, 160),
     });
-  // De vlag van de poort (zonderVerhuisSpoor in site/werk-vorm.js), en een vangnet voor een werk dat de poort niet zag: het
-  // woord in de titel of een fase.
-  const eenAdresVlag = werk.eenAdres === true || (!adresKaart && verhuisInTekst(werk));
-  const eenAdres = isEenAdres(soort.soort) || eenAdresVlag;
-  const omschrijving = eenAdres ? zonderHuisnummers(ruweOmschrijving) : ruweOmschrijving;
-  const fasen = eenAdres && !adresKaart ? ruweFasen.map((f) => ({ ...f, naam: zonderHuisnummers(f.naam, 160) })).filter((f) => f.naam) : ruweFasen;
+  const omschrijving = ruweOmschrijving;
+  const fasen = ruweFasen;
   const straten = uniek((werk.streets || []).map((s) => s?.name));
-  // Het nummer van de beheerder: een reeks met de lezer van main (huisnummerReeks), anders één los nummer met de lezer van
-  // een adreskaart (huisnummerUitGipod: bij twijfel geen nummer). Een adreskaart heeft het nummer dat de poort las
-  // (site/werk-vorm.js). Daarna het nummer of de reeks uit het adressenregister. Bij één adres (een lift of levering, het
-  // spoor van een verhuizing) nooit een nummer.
-  const eigenNummers = adresKaart ? (werk.eenAdres === true ? "" : geldigeHuisnummers(werk.huisnummers))
-    : straten.length && !eenAdres ? huisnummerReeks(huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0])) || huisnummerUitGipod(werk) : "";
-  const registerNummers = eenAdres ? "" : geldigeHuisnummers(huisnummers);
+  // Het nummer van de beheerder: een reeks met de lezer van main (huisnummerReeks), anders het nummer dat de beheerder direct
+  // na de straat schreef (huisnummerUitGipod, uit de titel en de fasen van GIPOD; ook bij een verhuis, waarvan de tekst zelf
+  // wegviel). Een adreskaart heeft het nummer dat de poort las (site/werk-vorm.js). Daarna het nummer of de reeks uit het
+  // adressenregister.
+  const eigenNummers = adresKaart ? geldigeHuisnummers(werk.huisnummers)
+    : straten.length ? huisnummerReeks(huisnummersUitTekst([omschrijving, ...fasen.map((f) => f.naam)].join(" · "), straten[0])) || huisnummerUitGipod(werk) : "";
+  const registerNummers = geldigeHuisnummers(huisnummers);
   const gevolgen = uniek(werk.hindrance?.consequences || []);
   // Fasen buiten het district tellen niet voor de titel: dan alleen de gevolgen van de fasen erbinnen.
   const alleFasen = werk.hindrance?.phases || [];
@@ -779,8 +767,6 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     soort: soort.soort,
     soortBron: soort.bron,
     ...(soort.innameSoort ? { innameSoort: soort.innameSoort } : {}),
-    // Eén adres zonder een soort die dat zegt (het spoor van een verhuizing: isEenAdresWerk).
-    ...(eenAdresVlag ? { eenAdres: true } : {}),
     omschrijving,
     fasen: uniekeFasen(fasen),
     // Alleen bewaren wat iets zegt: het bestand van de verversing laadt in elke browser.
@@ -791,9 +777,9 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
     ...(straatUitTekst ? { straatBron: "omschrijving van de beheerder", straatAfstand: Math.round(Number(werk.streetDistanceMeters)) || 0 } : {}),
     // Gezocht en geen straat met naam binnen 150 m, of niet kunnen zoeken (geen straatassen geladen).
     ...(!straten.length && !nabij ? { straatGezocht: Array.isArray(werk.streetNearby) } : {}),
-    huisnummers: eenAdres && !adresKaart ? "" : eigenNummers || registerNummers,
+    huisnummers: eigenNummers || registerNummers,
     ...(adresKaart && !(eigenNummers || registerNummers) && nummerWegCode(werk.huisnummerWeg) ? { huisnummerWeg: nummerWegCode(werk.huisnummerWeg) } : {}),
-    huisnummerBron: eenAdres && !adresKaart ? "" : eigenNummers ? (adresKaart ? ADRES_GIPOD : "omschrijving van de beheerder") : registerNummers ? clean(huisnummerBron, 120) : "",
+    huisnummerBron: eigenNummers ? (adresKaart ? ADRES_GIPOD : "omschrijving van de beheerder") : registerNummers ? clean(huisnummerBron, 120) : "",
     gevolgen,
     ...(titelGevolgen !== gevolgen ? { titelGevolgen } : {}),
     // Alleen als het zwaarste gevolg een kortere periode heeft dan de hele hinder.
@@ -955,19 +941,17 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const start = dagVan(werk.start), eind = dagVan(werk.end), v = dagVan(vandaag);
   const dt = (d) => datumBijVandaag(d, v);
   const straat = f.straten[0] || "";
-  const eenAdres = !adresKaart && isEenAdresWerk(f);
-  // Het huisnummer of de reeks, ook één los nummer (regel van de eigenaar van 26 oktober 2026); bij één adres (een lift of
-  // levering, het spoor van een verhuizing) alleen de straat, en dat zeggen we bij "Waar".
-  const nummers = eenAdres ? "" : geldigeHuisnummers(f.huisnummers);
+  // Het huisnummer of de reeks, ook één los nummer, altijd (regel van de eigenaar van 26 oktober 2026).
+  const nummers = geldigeHuisnummers(f.huisnummers);
   // Geen nummer, maar wel een getal direct na de straat in de titel, een fase of de tekst van de beheerder, dat de strenge
   // lezer niet zeker als huisnummer leest ("Proefstraat 26 werken"): dat zeggen we ("geen zeker huisnummer in GIPOD"), nooit
   // "niet gepubliceerd". Een maat ("Proefstraat 30 m") of een getal elders ("R1 - Ringpark") telt niet. De tekst van de
   // beheerder toont het getal zoals hij het schreef.
-  const twijfel = !adresKaart && !eenAdres && !nummers && Boolean(straat) && (getalNaStraat(adresTekst(werk), straat) || getalNaStraat([f.omschrijving, ...(f.fasen || []).map((x) => x.naam)].join(" · "), straat));
+  const twijfel = !adresKaart && !nummers && Boolean(straat) && (getalNaStraat(adresTekst(werk), straat) || getalNaStraat([f.omschrijving, ...(f.fasen || []).map((x) => x.naam)].join(" · "), straat));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
   const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
-  // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zoals de regel "Fasen" (bij één adres zonder huisnummer).
-  const doelen = werf && !f.soort && !adresKaart ? faseDoelen((f.fasen || []).map((x) => (eenAdres ? zonderHuisnummers(x.naam, 160) : x.naam))) : [];
+  // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zoals de regel "Fasen".
+  const doelen = werf && !f.soort && !adresKaart ? faseDoelen((f.fasen || []).map((x) => x.naam)) : [];
   const beheerderLabel = werf ? "Beheerder in GIPOD" : "Opdrachtgever";
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
   // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
@@ -1001,19 +985,18 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   if (!f.omschrijving && !adresKaart) ontbreekt.push(NIET_GEPUBLICEERD);
   // Een adreskaart zonder nummer zegt alleen "niet gepubliceerd" als GIPOD er geen gaf (huisnummerWeg).
   const nummerWeg = adresKaart && !nummers ? nummerWegCode(f.huisnummerWeg) : "";
-  if (!nummers && !eenAdres && !nummerWeg && !twijfel) ontbreekt.push(onbekendZin("werk-huisnummers"));
+  if (!nummers && !nummerWeg && !twijfel) ontbreekt.push(onbekendZin("werk-huisnummers"));
   if (f.hinderBekend === false || (f.hinderBekend && !f.gevolgen.length)) ontbreekt.push(onbekendZin("werk-gevolgen"));
   // Laadde de hinderbron niet (hinderBekend null), dan zegt de kaart daar niets over (besluit van 18-10-2026).
   if (!eind) ontbreekt.push(onbekendZin("werk-einde"));
 
-  // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt), met zijn huisnummers (bij
-  // één adres zonder).
-  const bronTekst = adresKaart ? "" : beheerderTekst(f.omschrijving, { zonderNummers: eenAdres, losseNummers: !eenAdres, straten: f.straten });
+  // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt), met zijn huisnummers.
+  const bronTekst = adresKaart ? "" : beheerderTekst(f.omschrijving, { losseNummers: true, straten: f.straten });
   // Het werk of project in de woorden van de beheerder ("R1 - Ringpark Zuid") staat zichtbaar bij "Wat",
   // tenzij het alleen de soort herhaalt ("Riolering" bij "Rioleringswerken"). projectTekst herkent een stuk
   // dat alleen een adres is aan zijn huisnummer ("PROEFBROEK 5"): daarom eerst de tekst met de nummers,
   // en pas daarna het losse nummer weg ("Xstraat thv 31" wordt niet "thv 31").
-  const bronMetNummers = eenAdres || adresKaart ? bronTekst : beheerderTekst(f.omschrijving, { losseNummers: true, straten: f.straten });
+  const bronMetNummers = bronTekst;
   const projectMetNummers = f.soort && bronMetNummers ? projectTekst(bronMetNummers, { straten: f.straten }) : "";
   const projectRuw = projectMetNummers ? zonderLosseHuisnummers(projectMetNummers, f.straten).replace(/^[\s,;:|–-]+|[\s,;:|–-]+$/gu, "") : "";
   const project = projectRuw && heeftInhoud(projectRuw, f.straten) && !sleutel(f.soort).includes(sleutel(projectRuw)) ? projectRuw : "";
@@ -1028,9 +1011,8 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
     : werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.${doelen.length ? ` De fasen in GIPOD zeggen wat er gebeurt: ${doelen.map((x) => `“${x}”`).join(", ")}.` : ""}${bronTekst ? ` De beheerder schrijft: “${bronTekst}”` : ""}`
     : bronTekst ? `De beheerder schrijft: “${bronTekst}”`
     : onbekendZin(f.omschrijving ? "werk-alleen-adres" : "werk-wat")]);
-  // Bij één adres ook geen huisnummer in de naam van een fase (ook niet uit een oudere verversing); anders de naam zoals
-  // GIPOD hem geeft, met het huisnummer.
-  const fasen = f.fasen.map((x) => ({ ...x, naam: eenAdres ? zonderHuisnummers(x.naam, 160) : x.naam })).filter((x) => x.naam);
+  // De naam van een fase zoals GIPOD hem geeft, met het huisnummer.
+  const fasen = f.fasen.filter((x) => x.naam);
   if (fasen.length) regels.push(["Fasen", fasen.map((x) => `${x.naam}${x.buiten || faseBuitenDistrict(x.naam) ? " (buiten district Antwerpen)" : ""}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
   regels.push([beheerderLabel, f.opdrachtgever || (opdrachtgeverWeggelaten(werk) ? OPDRACHTGEVER_WEG : onbekendZin("niet-gepubliceerd"))]);
   // Een straat uit de omschrijving van de beheerder: zeg dat, en hoe ver het punt in GIPOD ervan ligt.
@@ -1042,23 +1024,20 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   // Een adreskaart: met de bron van het nummer en van de straat, zoals main ("afgeleid uit de werfzone en het
   // adressenregister"), en de andere straten erna.
-  // Eén adres alleen door de vlag van de poort (het spoor van een verhuizing) bij een soort die geen adres is: alleen
-  // "huisnummer weggelaten", want "het gaat om één adres" is dan niet zeker.
   regels.push(["Waar", straat && adresKaart
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}${f.straten.length > 1 ? `; ook ${f.straten.slice(1).join(", ")}` : ""}` : `${f.straten.join(", ")}${haakjes([...(nummerWeg ? [NUMMER_WEG[nummerWeg]] : []), ...uitTekst])}`
     : straat
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${f.straten.join(", ")}${haakjes([eenAdres ? (f.soort && !isEenAdres(f.soort) ? "huisnummer weggelaten" : "huisnummer weggelaten: het gaat om één adres") : twijfel ? NUMMER_WEG.twijfel : "", ...uitTekst].filter(Boolean))}`
+      : `${f.straten.join(", ")}${haakjes([twijfel ? NUMMER_WEG.twijfel : "", ...uitTekst].filter(Boolean))}`
     : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
     : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
     : "Alleen als punt op de kaart van GIPOD"]);
-  // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, bij één adres geen huisnummer, en niets
-  // als er contactgegevens in staan.
+  // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, en niets als er contactgegevens in staan.
   const ovOmschrijving = zonderNamen(f.omschrijving);
   const ov = openbaarVervoer([...f.gevolgen, ...fasen.map((x) => x.naam),
-    CONTACT.test(ovOmschrijving) ? "" : eenAdres ? zonderHuisnummers(ovOmschrijving) : ovOmschrijving]);
+    CONTACT.test(ovOmschrijving) ? "" : ovOmschrijving]);
   const deelsBuiten = f.titelGevolgen ? " · deels in een fase buiten district Antwerpen (zie Fasen)" : "";
   if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}${deelsBuiten}`]);
   // Geen gevolgen in GIPOD: dat staat één keer in "Niet in de bron" (ontbreekt), niet nog eens als eigen regel.

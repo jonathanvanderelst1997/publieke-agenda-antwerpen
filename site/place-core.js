@@ -610,9 +610,7 @@ function samenWerk(live, bewaard, { bijgewerkt = "" } = {}) {
   const liveAdres = live?.adresKaart === true;
   const bewaardGeldt = bewaardGeldig && (uitRegister || (zelfdeVersie && (!liveAdres || live.huisnummerWeg === "weggelaten")));
   const liveNr = liveGeldig && eerste && cleanText(live?.straten?.[0]) === eerste;
-  // Eén adres (het spoor van een verhuizing, live of bewaard: isEenAdresWerk in site/kaart-uitleg.js): nooit een bewaard
-  // nummer (live heeft er dan geen: werkFeiten).
-  const bewaardNr = !samen.eenAdres && !liveNr && bewaardGeldt && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
+  const bewaardNr = !liveNr && bewaardGeldt && eerste && cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : "") === eerste;
   // Geen nummer: waarom, zoals live het zegt ("twijfel", "weggelaten" of niets: dan gaf GIPOD nu geen getal); zonder live
   // adreskaart "huisnummer weggelaten" als de verversing er een had, nooit "niet gepubliceerd" (huisnummerWeg in
   // site/kaart-uitleg.js).
@@ -622,7 +620,10 @@ function samenWerk(live, bewaard, { bijgewerkt = "" } = {}) {
   return alsAdreskaart({ ...samen, ...nummer, omschrijving: "", fasen: live.fasen.length ? live.fasen : bewaard.adresKaart === true ? bewaard.fasen || [] : [] });
 }
 function gewoonSamen(live, bewaard) {
-  const bewaardeNummers = geldigeHuisnummers(bewaard.huisnummers);
+  // Een bewaard nummer alleen op dezelfde straat als live (als beide een straat noemen): een nummer van een andere straat is
+  // een ander huis.
+  const bewaardeStraat = cleanText(Array.isArray(bewaard.straten) ? bewaard.straten[0] : ""), liveStraat = cleanText(live.straten?.[0]);
+  const bewaardeNummers = !bewaardeStraat || !liveStraat || bewaardeStraat === liveStraat ? geldigeHuisnummers(bewaard.huisnummers) : "";
   return {
     ...live,
     soort: live.soort || bewaard.soort || "", soortBron: live.soort ? live.soortBron : bewaard.soortBron || "",
@@ -634,9 +635,6 @@ function gewoonSamen(live, bewaard) {
     })(),
     fasen: live.fasen.length ? live.fasen : bewaard.fasen || [],
     huisnummers: live.huisnummers || bewaardeNummers, huisnummerBron: live.huisnummers ? live.huisnummerBron : bewaardeNummers ? bewaard.huisnummerBron || "" : "",
-    // Eén adres (het spoor van een verhuizing) in live of in de verversing: blijft één adres, zoals main de soort "Verhuis"
-    // van de verversing overnam als live er geen had.
-    ...(live?.eenAdres === true || bewaard.eenAdres === true ? { eenAdres: true } : {}),
     // De straat van het GIPOD-punt eerst, dan de andere straten die de werfzone raakt.
     straten: werkStraten(live.straten, bewaard),
   };
@@ -1246,7 +1244,7 @@ function werfKaart(e, { dossiers, sgw = [], parkeer = [], uitleg = null, vandaag
   const work = e.item || {};
   const f = herzieneSoort(samenWerk(werkFeiten(work), uitleg?.werken?.[work?.gipodId], { bijgewerkt: work?.lastModified }));
   // Geen soort uit de tekst: opnieuw uit de fasen (ook de bewaarde van de verversing). Vinden de fasen niets, dan blijft
-  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname voor een lift of levering"), zoals op de losse
+  // de soort inname van GIPOD ("Wegenwerken" bij "Wegeniswerken", "Inname" bij een lift of levering), zoals op de losse
   // werkkaart: dat zegt GIPOD, en zonder die soort zei de werfkaart minder dan vroeger (nakijkronde 13 oktober 2026).
   // Vinden de fasen wel een soort, dan noemt "Wat" de soort inname er nog bij.
   const innameSoort = !echteSoort(f) && f?.soort && /^soort inname\b/.test(String(f.soortBron || "")) ? f.soort : "";

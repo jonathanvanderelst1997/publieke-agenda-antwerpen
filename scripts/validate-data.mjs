@@ -216,7 +216,8 @@ if (fs.existsSync(archiveDir)) {
 }
 
 // Privacy van de historiek (lib/historiek-privacy.mjs): in elk bestand onder site/history alleen
-// district Antwerpen en geen huisnummer. De melding noemt het pad, nooit de waarde.
+// district Antwerpen en geen huisnummer, behalve bij een werk (regel van de eigenaar van 26 oktober 2026: een werk staat er
+// met zijn exacte adres). De melding noemt het pad, nooit de waarde.
 const historyDir = path.join(rootDir, "site", "history");
 const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
   const target = path.join(dir, entry.name);
@@ -246,8 +247,9 @@ problems.push(...straatProblemen.slice(0, 50));
 if (straatProblemen.length > 50) problems.push(`site/straat: nog ${straatProblemen.length - 50} problemen`);
 
 // Werken: adreskaart of gewone kaart (site/werk-vorm.js, lib/werk-vorm-validatie.mjs). De vaste vorm per werk kent elk
-// gepubliceerd werk; een adreskaart heeft nergens vrije tekst en staat in de historiek zonder nummer; een gewone kaart heeft
-// in kaart-uitleg.json een geldig huisnummer of een reeks, en bij één adres geen; nergens in de werkenlaag een spoor van een verhuizing.
+// gepubliceerd werk; een adreskaart heeft nergens vrije tekst en staat in de historiek met een geldig nummer of zonder; een
+// gewone kaart heeft in kaart-uitleg.json een geldig huisnummer of een reeks; nergens in de werkenlaag een spoor van een
+// verhuizing (het woord; het nummer blijft).
 const vormProblemen = werkVormProblemen(rootDir);
 problems.push(...vormProblemen.slice(0, 50));
 if (vormProblemen.length > 50) problems.push(`werken: nog ${vormProblemen.length - 50} problemen met de vaste vorm`);

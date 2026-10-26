@@ -27,12 +27,10 @@ const kaart = (w) => KU.werkKaartje(w, { vandaag: VANDAAG });
 const waar = (k) => Object.fromEntries(k.regels).Waar;
 const NIET_GEPUBLICEERD = onbekendZin("werk-huisnummers");
 
-test("HOOG a: een nummer dat MAAT meenam ('Proefstraat 12 - 3 dagen') geeft twijfel, niet 'niet gepubliceerd'", () => {
+test("HOOG a: een getal dat MAAT meenam ('Proefstraat 12 – 14 dagen') geeft twijfel, niet 'niet gepubliceerd'", () => {
   for (const [title, fasen] of [
-    ["Proefstraat 12 - 3 dagen", []],
     ["Proefstraat 12 – 14 dagen", []],
     ["Container", [fase("Proefstraat 2 - 3 uren")]],
-    ["Proefstraat 12 7:30 tot 16:00", []],
   ]) {
     const a = poort(werk({ title, hindrance: fasen.length ? hinder(fasen) : null }));
     assert.equal(a.adresKaart, true, title);
@@ -42,24 +40,27 @@ test("HOOG a: een nummer dat MAAT meenam ('Proefstraat 12 - 3 dagen') geeft twij
     assert.equal(waar(k), `Proefstraat (${KU.NUMMER_WEG.twijfel})`, title);
     assert.equal(k.ontbreekt.includes(NIET_GEPUBLICEERD), false, title);
   }
+  // Regel van de eigenaar (26 oktober 2026): een duur of een uur naast het nummer neemt het nummer niet mee.
+  for (const title of ["Proefstraat 12 - 3 dagen", "Proefstraat 12 7:30 tot 16:00"]) {
+    const a = poort(werk({ title }));
+    assert.equal(a.huisnummers, "nr. 12", title);
+    assert.equal(waar(kaart(a)), `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, title);
+  }
 });
 
-test("HOOG b: al een adreskaart, later het spoor van een verhuizing in de titel: nooit 'niet gepubliceerd'", () => {
-  for (const title of ["Proefstraat 12 verhuis", "Verhuis Proefstraat 12", "Proefstraat 12 (verhuislift)"]) {
+test("HOOG b: al een adreskaart, later het spoor van een verhuizing in de titel: het nummer blijft, het woord nooit", () => {
+  for (const title of ["Proefstraat 12 verhuis", "Verhuis Proefstraat 12", "Proefstraat 12 (verhuislift)", "Proefstraat 12 meubellift"]) {
     const a = poort(werk({ title }), A, {});
     assert.equal(a.adresKaart, true, title);
-    assert.equal(a.huisnummers, "", title);
-    assert.ok(["twijfel", "weggelaten"].includes(a.huisnummerWeg), `${title}: ${a.huisnummerWeg}`);
+    assert.equal(a.huisnummers, "nr. 12", title);
     const k = kaart(a);
-    assert.equal(k.ontbreekt.includes(NIET_GEPUBLICEERD), false, title);
-    // De vaste code zegt alleen dat er een nummer was; nooit het nummer of het spoor zelf.
-    assert.doesNotMatch(JSON.stringify([a, k]), /\b12\b|verhui/i, title);
+    assert.equal(waar(k), `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`, title);
+    assert.doesNotMatch(JSON.stringify([a, k]), /verhui|meubel/i, title);
   }
-  // Las de lezer het nummer in de titel van GIPOD vóór regel 9, dan "weggelaten".
+  // Een fase met het spoor en het nummer in de titel: het nummer.
   const a = poort(werk({ title: "Proefstraat 12", hindrance: hinder([fase("verhuis")]) }), A, {});
-  assert.equal(a.huisnummers, "");
-  assert.equal(a.huisnummerWeg, "weggelaten");
-  assert.equal(waar(kaart(a)), `Proefstraat (${KU.NUMMER_WEG.weggelaten})`);
+  assert.equal(a.huisnummers, "nr. 12");
+  assert.equal(waar(kaart(a)), `Proefstraat, nr. 12 (${KU.ADRES_GIPOD})`);
 });
 
 test("Ongewijzigd: zonder enig getal in de titel en de fasen zegt een adreskaart 'huisnummers niet gepubliceerd'", () => {
