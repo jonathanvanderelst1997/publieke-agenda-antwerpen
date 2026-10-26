@@ -218,10 +218,15 @@ function werfzoneSamen(live, ochtend) {
 // krijgt daarom de straten van de ochtend erbij. De ochtend eerst: die kende alle straatassen, en
 // "Waar" noemt de eerste straat als de plek van de aanvraag (waarTekst in site/permit-clarity.js). Live
 // eerst noemde de Oosterweelverbinding vanuit de Noordersingel "Noordersingel" in plaats van
-// "Amerikadok-Zuidkaai". Een straat die alleen live bestaat, komt achteraan.
+// "Amerikadok-Zuidkaai". Een straat die alleen live bestaat, komt achteraan. Vond live geen adres (de adresposities van de
+// stad laadden niet, adressenVoorVergunningen in site/permits-live-core.js), dan het adres van de ochtend.
 export function metStratenVanDeOchtend(live = [], ochtend = []) {
   const perId = new Map((ochtend || []).map((item) => [item?.id, item]));
-  return live.map((item) => (perId.has(item?.id) ? { ...item, streets: samenRefs(perId.get(item.id).streets, item.streets) } : item));
+  return live.map((item) => {
+    const vroeg = perId.get(item?.id);
+    if (!vroeg) return item;
+    return { ...item, streets: samenRefs(vroeg.streets, item.streets), ...(!item.address && vroeg.address ? { address: vroeg.address } : {}) };
+  });
 }
 export function aanvullenMetOchtend(live = [], ochtend = []) {
   const dossiers = new Set(live.map((item) => item?.reference).filter(Boolean));

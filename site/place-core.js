@@ -2392,7 +2392,7 @@ export function permitEntry(row, theme = "permits") {
     return {
       uid: `${theme}:${row?.id}`, id: String(row?.id || ""), source: "permits", theme: "permits", group: "vergunningen",
       title: cleanText(aanvraagTitel(row)), start: "", end: "", openEnd: false, time: "", timeText: "",
-      location: vergunningWaar(row?.streets), status: aanvraagStand(row), info: "",
+      location: vergunningWaar(row?.streets, row?.address), status: aanvraagStand(row), info: "",
       // Eén keer boven de sectie, niet op elke kaart: de startdatum van de werken (nooit in de bron), en bij een
       // ingediende aanvraag dat de bron niet zegt of ze volledig en ontvankelijk is.
       onbekend: [onbekendVeld("aanvragen-start"), ...(aanvraagZegtNiet(row) ? [onbekendVeld("aanvraag-ontvankelijk")] : [])],
@@ -2417,8 +2417,9 @@ export function vergunningStraten(streets = []) {
   const zonderTunnel = namen.filter((n) => !isTunnel(n));
   return zonderTunnel.length ? zonderTunnel : namen;
 }
-// De korte regel komt uit waarTekst() in permit-clarity.js (ook de vergunningkaart gebruikt die).
-export const vergunningWaar = (streets = []) => waarTekst((streets || []).map((s) => s?.name)).kort;
+// De korte regel komt uit waarTekst() in permit-clarity.js (ook de vergunningkaart gebruikt die), met het adres van het
+// perceel vooraan als de stad er een kent (regel van de eigenaar van 26 oktober 2026).
+export const vergunningWaar = (streets = [], adres = "") => waarTekst((streets || []).map((s) => s?.name), "", adres).kort;
 
 // Terrassen: twee zones van dezelfde soort op hetzelfde adres zijn voor een bewoner één terras.
 export function terrasEntries(rows = []) {

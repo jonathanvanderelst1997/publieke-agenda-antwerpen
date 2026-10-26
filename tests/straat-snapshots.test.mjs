@@ -90,7 +90,8 @@ test("de browser leest een straatbestand terug als dezelfde items als de live la
   assert.equal(lagen.works[0].id, "work:990001");
   assert.equal(lagen.works[0].streetResolution, "nearest_official_axis", "kaart-uitleg.js gebruikt dit veld voor werken");
   assert.equal(lagen.permits[0].sourceUrl, vergunningBronUrl("20990001", "OMV_2099000001"));
-  // Twee terraszones op hetzelfde adres blijven één terras, zonder dat het adres in het bestand staat.
+  // Twee terraszones op hetzelfde adres blijven één terras. Het adres zelf staat er niet: de verzonnen straat staat niet in de
+  // stratenlijst (straatAdres in lib/straat-bestanden.mjs; een officiële straat met haar huisnummer wel, sinds 26 oktober 2026).
   assert.ok(lagen.terraces.every((i) => i.address === ""));
   assert.equal(terrasEntries(lagen.terraces).length, 2);
   // Een evenementendossier dat de verversing kent: in de Huikstraat één rij, voor één kaart.

@@ -1,4 +1,4 @@
-import {collectPermits,haalVergunningenInKader} from "./permits-live-core.js";
+import {adressenVoorVergunningen,collectPermits,haalVergunningenInKader} from "./permits-live-core.js";
 import {duidelijkeKaart} from "./permit-clarity.js";
 import {bezoekersHint,bezoekersLinks} from "./bezoekers-bronnen.js";
 import {brusselsVandaag,metInzage} from "./inzage-status.js";
@@ -14,7 +14,7 @@ if(root){
   // Alle dossiers in het kader van het district (site/permits-live-core.js; de plekpagina vraagt voor één
   // straat alleen haar kader).
   const permits=()=>haalVergunningenInKader();
-  const visible=()=>{const q=String(search?.value||"").trim().toLowerCase();return state.items.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"permits")).filter(item=>!q||[item.dossier,item.project,item.dossierType,item.purpose,...(item.inhoud?.labels||[]),item.decision,item.authority,item.decisionAuthority,...(item.streets||[]).map(s=>s.name)].join(" ").toLowerCase().includes(q))};
+  const visible=()=>{const q=String(search?.value||"").trim().toLowerCase();return state.items.filter(item=>!window.PUBLIC_AGENDA_VIEW||window.PUBLIC_AGENDA_VIEW.matches(item,"permits")).filter(item=>!q||[item.dossier,item.project,item.dossierType,item.purpose,...(item.inhoud?.labels||[]),item.decision,item.authority,item.decisionAuthority,item.address,...(item.streets||[]).map(s=>s.name)].join(" ").toLowerCase().includes(q))};
   // Inzageloket: een rechtstreekse link alleen voor een nagekeken dossier, anders een eerlijke zin
   // (site/bezoekers-bronnen.js, site/inzage-status.js). Nooit de startpagina van het loket.
   const inzageTemplate=item=>{const links=bezoekersLinks({source:"permits",item}).map(l=>`<a href="${esc(l.url)}" target="_blank" rel="noreferrer">${esc(l.label)}</a>`),hint=bezoekersHint({source:"permits",item});return `${links.length?`<p class="permit-links">${links.join(" ")}</p>`:""}${hint?`<p>${esc(hint)}</p>`:""}`};
@@ -33,6 +33,9 @@ if(root){
   // Nagekeken stand in het Inzageloket (site/sources/inzage-status.json). Ontbreekt dat bestand, dan zegt de
   // kaart gewoon niets over een openbaar onderzoek.
   const inzageStatus=()=>fetch("/sources/inzage-status.json",{headers:{Accept:"application/json"}}).then(r=>r.ok?r.json():null).catch(()=>null);
-  const start=()=>Promise.all([permits(),district(),loadStreetIndex(),inzageStatus()]).then(([features,districtGeometry,streetIndex,inzage])=>{state.items=metInzage(collectPermits({features,districtGeometry,streetIndex}),inzage,brusselsVandaag());state.ready=true;meldLiveLaag("permits",state.items,[]);note.textContent="De openbare bron levert aard en onderwerp van een aanvraag. De agenda toont uitsluitend vaste, privacyveilige categorieën, zonder vrije tekst of namen. Aanvraag is niet hetzelfde als verleende vergunning.";render()}).catch(()=>{note.textContent="";count.textContent="";meldLiveLaag("permits",null,["vergunningen"])});
+  // Het adres van elk perceel (huisnummer, nooit een naam; regel van de eigenaar van 26 oktober 2026) komt daarna: de lijst
+  // staat er meteen met de straten, en tekent opnieuw zodra de adressen er zijn (adressenVoorVergunningen).
+  const metAdres=items=>adressenVoorVergunningen(items).then(lijst=>{const adres=new Map(lijst.filter(i=>i.address).map(i=>[i.id,i.address]));state.items=state.items.map(i=>adres.has(i.id)?{...i,address:adres.get(i.id)}:i);render()}).catch(()=>{});
+  const start=()=>Promise.all([permits(),district(),loadStreetIndex(),inzageStatus()]).then(([features,districtGeometry,streetIndex,inzage])=>{state.items=metInzage(collectPermits({features,districtGeometry,streetIndex}),inzage,brusselsVandaag());state.ready=true;meldLiveLaag("permits",state.items,[]);note.textContent="De openbare bron levert aard en onderwerp van een aanvraag. De agenda toont uitsluitend vaste, privacyveilige categorieën, zonder vrije tekst of namen, met het adres van het perceel. Aanvraag is niet hetzelfde als verleende vergunning.";render();metAdres(state.items)}).catch(()=>{note.textContent="";count.textContent="";meldLiveLaag("permits",null,["vergunningen"])});
   laadAlsInBeeld(root,laad,{marge:"600px"});
 }
