@@ -80,11 +80,10 @@ const today = generatedAt.slice(0, 10);
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const WORK_TITLE = "Proefwerk riolering (e2e)";
-// De verzonnen reden van een parkeerverbod in A-Sign (laag 20), en wat haar zou verraden: die mag nergens op de pagina.
-// Geen verhuizing: bij een verhuizing toont ook live alleen de straat (regel van de eigenaar van 26 oktober 2026,
-// isVerhuisReden in site/adres-privacy.js), en deze toets kijkt naar de plaats met het huisnummer.
-const REDEN_E2E = "Filmopname (e2e)";
-const VERRAAD_E2E = /filmopname/i;
+// De verzonnen reden van een parkeerverbod in A-Sign (laag 20), en wat haar zou verraden: die mag nergens op de pagina. Een
+// verhuis: dat is gewoon een "Parkeerverbod" met zijn huisnummer (regel van de eigenaar van 26 oktober 2026).
+const REDEN_E2E = "Verhuis (e2e)";
+const VERRAAD_E2E = /verhuis/i;
 // De titel van een werk komt uit de kaartuitleg; de rij vinden we daarom op haar id.
 const WORK_ROW = '.pv-row[data-uid="works:999999901"]';
 // Een verzonnen omgevingsaanvraag met een naam en een telefoonnummer in het vrije onderwerp:
@@ -1581,7 +1580,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
   // Het parkeerverbod: dat er een is, waar exact en wanneer, nooit waarom (besluit van de eigenaar van 18 oktober 2026,
   // site/adres-privacy.js; daarmee is vraag 1 beslist). Waar exact: live het huisnummer of het bereik zoals
   // publiekParkeerAdres het schrijft, nooit alleen de straat en de postcode. Wanneer: de dagen en de uren van A-Sign,
-  // letterlijk. De verzonnen reden "Filmopname (e2e)" in A-Sign komt nergens op de pagina, ook niet op de buurtkaart.
+  // letterlijk. De verzonnen reden "Verhuis (e2e)" in A-Sign komt nergens op de pagina, ook niet op de buurtkaart.
   await t.test("A-Sign met duizenden ids: korte URL's, hoogstens 4 tegelijk, parkeerverbod met het huisnummerbereik, de dagen en de uren zonder reden, en terras in de straat", async () => {
     const [x1, y1, x2, y2] = straten.streets.find((r) => String(r[0]) === street.id && r[2] === street.postcode)[4];
     const [mx, my] = [(x1 + x2) / 2, (y1 + y2) / 2], d = 0.00004;
@@ -1589,7 +1588,7 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     // A-Sign bewaart een uur (Starttijd, Eindtijd) als een tijdstip op 30 december 1899.
     const uur = (hhmm) => Date.parse(`1899-12-30T${hhmm}:00Z`);
     const [van, tot] = [addDays(today, 2), addDays(today, 3)];
-    // De straat is echt (de data kiest ze): daarom geen bestaand huisnummer naast de verzonnen reden, alleen 999 (met een
+    // De straat is echt (de data kiest ze): daarom geen bestaand huisnummer naast de verzonnen verhuis, alleen 999 (met een
     // letter), zoals een echte straat in de toetsen (tests/historiek-privacy.test.mjs; nakijkronde van 18 oktober 2026: hier
     // stonden nog 990 tot 999). Hieronder nagekeken met dezelfde regel als de commitscan (lib/echte-adressen.mjs).
     const bronAdres = `${street.name} 999A-999C ${street.postcode} Antwerpen`;

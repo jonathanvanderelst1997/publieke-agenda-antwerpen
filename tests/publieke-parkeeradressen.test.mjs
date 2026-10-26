@@ -1,4 +1,5 @@
-// Live toont een goedgekeurd parkeerverbod waar exact (publiekParkeerAdres); de opslag houdt alleen de straat. Verzonnen
+// Een goedgekeurd parkeerverbod staat er waar exact (publiekParkeerAdres), live en in de opslag (regel van de eigenaar van
+// 26 oktober 2026: ook de historiek en de straatbestanden houden het huisnummer). Verzonnen
 // straat, dossier en reden (vierde nakijkronde van 18 oktober 2026: hier stond een echte straat met bestaande huisnummers
 // naast een reden; een echte straat krijgt in de toetsen alleen huisnummer 999, tests/historiek-privacy.test.mjs).
 import test from "node:test";
@@ -30,17 +31,16 @@ const bron=(status="In effect")=>({
   Reden:"Proefreden (e2e)",
   Startdatum:Date.parse("2099-10-08T00:00:00Z"),Einddatum:Date.parse("2099-10-23T00:00:00Z"),
 });
-test("live is precies, openbare snapshot en archief zijn nog steeds volledig nummerloos", () => {
-  const [rij]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen,alleenLive:true});
-  const [zonderOptIn]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen});
-  assert.equal(zonderOptIn.location,straat,"zonder live-opt-in nooit een huisnummer in de bronverwerking");
+test("live, het straatbestand en de historiek houden dezelfde exacte plaats, zonder reden", () => {
+  const [rij]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen});
   assert.equal(rij.location,"Proefkaai 18, 2000 Antwerpen");
   const kaarten=publicSpaceEntries([rij],{vandaag:"2099-10-13"});
   assert.ok(kaarten.some(c=>c.location.includes("Proefkaai 18")));
   const voorBestand=itemVoorStraat(rij,{laag:"publiekeRuimte"});
   assert.ok(voorBestand);
-  assert.equal(voorBestand.location,straat);
-  assert.equal(compactPublicSpaceItem(rij).location,straat);
+  assert.equal(voorBestand.location,"Proefkaai 18, 2000 Antwerpen");
+  assert.equal(compactPublicSpaceItem(rij).location,"Proefkaai 18, 2000 Antwerpen");
+  for(const opgeslagen of [voorBestand,compactPublicSpaceItem(rij)])assert.doesNotMatch(JSON.stringify(opgeslagen),/Proefreden|"reason"/);
   assert.equal(adresZonderHuisnummer(rij.location,namen),straat);
 });
 test("alleen goedgekeurde publieke maatregelen van district Antwerpen tonen",()=>{

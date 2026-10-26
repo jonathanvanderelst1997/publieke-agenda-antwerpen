@@ -1,4 +1,6 @@
-// P4: de verversing van de historiek schrijft alleen district Antwerpen en geen huisnummers.
+// P4: de verversing van de historiek schrijft alleen district Antwerpen en geen huisnummers in vrije tekst. Een
+// parkeerverbod houdt zijn plaats exact, zoals publiekParkeerAdres ze schrijft (regel van de eigenaar van 26 oktober 2026),
+// zonder bus, reden of het woord verhuis.
 // Verzonnen gegevens; deze toets gebruikt alleen wat ook op main bestaat (de verversing zelf), zodat
 // hij op main faalt en met lib/historiek-privacy.mjs slaagt.
 import assert from "node:assert/strict";
@@ -32,7 +34,9 @@ const PARKEER = [
   { id: 3, adres: "Proefweg 7 2100 Antwerpen" },
   { id: 4, adres: "Proefstraat 20 2000 Antwerpen" },
 ];
-const VERBODEN = ["Proefstraat 12", "bus 3", "14-16", "Proefstraat 20", "Proefweg", "2100"];
+// Wat nooit in de historiek komt: een bus, het nummer in de vorm van de bron ("14-16"), het verbod buiten het district,
+// en de reden (de verzonnen reden "Verhuis", ook als oude titel).
+const VERBODEN = ["bus 3", "14-16", "Proefweg", "2100", "erhuis"];
 
 const parkeerFeature = ({ id, adres }) => ({
   attributes: {
@@ -124,19 +128,25 @@ test("verversing: historiek zonder huisnummers en alleen het district, ook na ee
 
   const history = await refreshLiveHistory({ rootDir: root, fetch: nepFetch, clock: () => new Date(T2), log: () => {} });
 
-  // Geen enkel bestand onder site/history bevat nog een verzonnen huisnummer of het adres buiten het district.
+  // Geen enkel bestand onder site/history bevat nog een bus, de reden of het adres buiten het district.
   for (const [file, inhoud] of historiekTekst(root)) {
     for (const verboden of VERBODEN) assert.equal(inhoud.includes(verboden), false, `${file} bevat nog "${verboden}"`);
   }
 
   const parkeer = history.layers.publicSpace.items.filter((item) => item.kind === "parking");
   assert.deepEqual(parkeer.map((item) => item.id).sort(), ["parking:PROEF-1|L1", "parking:PROEF-2|L2", "parking:PROEF-4|L4"]);
-  assert.ok(parkeer.every((item) => item.location === "Proefstraat, 2000 Antwerpen"));
+  // De plaats exact, ook bij een verhuis: "Proefstraat 12 bus 3" wordt nr. 12, "14-16" het bereik 14–16.
+  assert.deepEqual(Object.fromEntries(parkeer.map((item) => [item.id, item.location])), {
+    "parking:PROEF-1|L1": "Proefstraat 12, 2000 Antwerpen",
+    "parking:PROEF-2|L2": "Proefstraat 14–16, 2000 Antwerpen",
+    "parking:PROEF-4|L4": "Proefstraat 20, 2000 Antwerpen",
+  });
+  assert.ok(parkeer.every((item) => item.title === "Parkeerverbod" && !("reason" in item)));
   assert.ok(parkeer.every((item) => item.streets.length === 1 && item.streets[0].postcode === "2000"), "de straat blijft gekend");
   assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat");
 
-  // De overgang maakt geen massa wijzigingen: wegvallende huisnummers zijn geen "changed", het verbod
-  // buiten het district is geen "removed".
+  // De overgang maakt geen massa wijzigingen: een huisnummer dat erbij komt (de oude stand had alleen de straat) is geen
+  // "changed", het verbod buiten het district is geen "removed".
   assert.deepEqual(history.changes.filter((change) => change.observedAt === T2), []);
   assert.deepEqual(validateLiveHistory(history), []);
 

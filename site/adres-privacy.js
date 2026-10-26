@@ -5,11 +5,13 @@ import{zonderToevoegingInTekst}from"./witte-lijst.js";
 // parkeerverbod is, WAAR exact en WANNEER (data en uren), en NOOIT waarom. Of iemand verhuist, een container of een
 // lift zet, trouwt, filmt, een evenement of een werf heeft: dat staat nergens, niet in de titel, niet in een zin, niet
 // in de technische details, de historiek, de straatbestanden, de feed, de eventpagina's of een .ics.
-// - De plaats exact: live (de browser vraagt A-Sign zelf) de straat met het huisnummer of het bereik zoals
-//   publiekParkeerAdres hieronder het schrijft ("Xstraat 12–14, 2000 Antwerpen"), anders de straat met de postcode
-//   (adresZonderHuisnummer). Op meer plaatsen elke plaats zo (parkeerWaar in site/place-core.js). Wat de verversing
-//   bewaart (historiek, straatbestanden), houdt de straat en de postcode; een kaart uit de ochtendstand zegt dan dat het
-//   huisnummer alleen live in A-Sign staat (plaatsVanDeOchtend in site/straat-snapshot.js).
+// - De plaats exact, overal (regel van de eigenaar van 26 oktober 2026, "al vijf keer gezegd"): de straat met het
+//   huisnummer of het bereik zoals publiekParkeerAdres hieronder het schrijft ("Xstraat 12–14, 2000 Antwerpen"), live,
+//   in de ochtendstand, de historiek en de straatbestanden (de publieke git-geschiedenis is uitdrukkelijk aanvaard). Ook
+//   bij een verhuis: dat is gewoon een "Parkeerverbod" met zijn huisnummer, zonder het woord verhuis. Zonder nummer in
+//   de bron de straat met de postcode (adresZonderHuisnummer). Op meer plaatsen elke plaats zo (parkeerWaar in
+//   site/place-core.js). Wat bewaard wordt, houdt alleen een plaats in die vorm (parkeerAdresVoorOpslag): de straat met
+//   een nummer van A-Sign, nooit een naam of vrije tekst.
 // - De reden nooit: de titel is altijd PARKEERVERBOD_TITEL, en een bewaard of getoond parkeerverbod draagt geen veld
 //   `reason` (parkeerverbodZonderReden). De reden van A-Sign mag intern nog meetellen voor de logica (een parkeerverbod
 //   bij zijn werfzone of evenement hangen, site/place-core.js), zolang ze nergens getoond of bewaard wordt: de verversing
@@ -17,13 +19,11 @@ import{zonderToevoegingInTekst}from"./witte-lijst.js";
 // A-Sign schrijft "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
 // "Ystraat hoek-64 2060 Antwerpen" (verzonnen straten).
 export const PARKEERVERBOD_TITEL="Parkeerverbod";
-// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, "dat de mensen weten waar is een parkeerverbod",
-// behalve bij iets persoonlijks: "enkel persoonlijke zaken, gelijk een verhuis, dan verberg het". Een parkeerverbod voor een
-// verhuizing (de reden van A-Sign, die alleen intern gelezen wordt) toont daarom ook live alleen de straat en de postcode,
-// zoals de ochtendstand; de reden zelf staat nog altijd nergens. Zonder opmaaktekens, accenten, spaties en leestekens, zodat
-// ook "Ver-huis", "VERHUIZING", "verhuislift", "inhuizing" en "uithuizing" tellen. Niet "ladderlift" alleen: A-Sign noemt
-// die ook als voorbeeld bij "het plaatsen van een beweegbaar toestel (ladderlift, schaarlift, hoogtewerker)", geen verhuis.
-export const isVerhuisReden=(reden)=>/verhui[sz]|(?:in|uit)huiz/i.test(String(reden??"").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu,"").replace(/[\s._·'’/-]/gu,""));
+// Het woord dat een verhuis verraadt (verhuis, verhuizing, verhuislift, meubellift, inhuizing, uithuizing), ook met
+// opmaaktekens, accenten, spaties of leestekens ertussen ("Ver-huis", "VERHUÍZING"). Een parkeerverbod voor een verhuis is
+// gewoon een "Parkeerverbod" met zijn huisnummer (regel van de eigenaar van 26 oktober 2026): dit woord komt nergens bij
+// een parkeerverbod, ook niet in wat bewaard wordt (historiekPrivacyBevindingen in lib/historiek-privacy.mjs, code `reden`).
+export const noemtVerhuis=(tekst)=>/verhui[sz]|meubellift|(?:in|uit)huiz/i.test(String(tekst??"").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu,"").replace(/[\s._·'’/-]/gu,""));
 // Bij welk evenement een parkeerverbod hoort (dat mag, besluit van 18 oktober 2026), zoals een straatbestand het bewaart
 // (`evenementSleutel`, parkeerverbodenAanEvenement in site/place-core.js): een evenementendossier ("ET2099000001") of een
 // agendapunt ("agenda:<id>"). Nooit vrije tekst, en dus nooit een reden. Het agendapunt alleen in de vorm van een echte
@@ -76,10 +76,9 @@ function zonderNummerwoord(straat){
   return uit;
 }
 // `straatnamen`: optioneel, de officiële straatnamen (bv. uit de stratenlijst van het district).
-// Een rechtstreeks opgevraagd, publiek goedgekeurd parkeerverbod: waar exact, met het huisnummer of het
-// bereik van de bron. Dit adres wordt alleen live getoond; de historiek en de straatbestanden houden de
-// straat en de postcode (adresZonderHuisnummer maakt van elke vorm hieronder weer de straat). Geen naam, bus of
-// onzekere bron erbij verzinnen.
+// Een publiek goedgekeurd parkeerverbod: waar exact, met het huisnummer of het bereik van de bron, live en in wat de
+// verversing bewaart (regel van 26 oktober 2026; adresZonderHuisnummer maakt van elke vorm hieronder weer de straat).
+// Geen naam, bus of onzekere bron erbij verzinnen.
 // Vierde nakijkronde van 18 oktober 2026: alleen "Xstraat 12-14" (oplopend, hoogstens 300 uit elkaar) gaf een plaats; bij
 // elke andere vorm viel het nummer van de bron weg. Nu zo exact als A-Sign het geeft (verzonnen straten):
 //   "Xstraat 12" en "Xstraat 12-12"  -> "Xstraat 12, 2000 Antwerpen"
@@ -126,6 +125,28 @@ export function publiekParkeerAdres(bronAdres, geschoondAdres, straatnamen = nul
   if (!/^[\s(]/.test(rest)) return "";
   const nr = nummerVanBron(rest);
   return nr ? `${g[1]} ${nr}, ${m[2]} Antwerpen` : "";
+}
+// Het nummer zoals publiekParkeerAdres het schrijft, en niets anders: "12", "12b", "12–14", "hoek–64", "34–hoek",
+// "12 en 14", "12, 14 en 16".
+const NR_UIT = "[1-9]\\d{0,3}[a-z]{0,2}";
+const PARKEER_NUMMER = new RegExp(`^(?:${NR_UIT}(?:–(?:${NR_UIT}|hoek))?|hoek–${NR_UIT}|${NR_UIT}(?:, ${NR_UIT})* en ${NR_UIT})$`, "i");
+// Is dit een plaats zoals publiekParkeerAdres ze schrijft ("Xstraat 12–14, 2000 Antwerpen")? De straat is die van
+// adresZonderHuisnummer (dezelfde regel als de opkuis), en wat tussen de straat en de postcode staat, is alleen een nummer
+// in die vorm: nooit een naam, een bus, een reden of andere vrije tekst. Zo'n plaats mag bewaard worden (historiek,
+// straatbestanden; regel van de eigenaar van 26 oktober 2026); elke andere vorm wordt de straat met de postcode.
+export function isPubliekParkeerAdres(adres, straatnamen = null) {
+  const tekst = String(adres ?? "");
+  if (tekst.length > 220 || /\s{2}|^\s|\s$/.test(tekst)) return false;
+  const m = /^(.+), (\d{4}) Antwerpen$/.exec(tekst);
+  const s = m && /^(.+), (\d{4}) Antwerpen$/.exec(adresZonderHuisnummer(tekst, straatnamen));
+  if (!s || s[2] !== m[2] || !m[1].startsWith(`${s[1]} `) || noemtVerhuis(tekst)) return false;
+  return PARKEER_NUMMER.test(m[1].slice(s[1].length + 1));
+}
+// De plaats van een parkeerverbod zoals ze bewaard wordt (lib/parkeer-historiek.mjs, lib/historiek-privacy.mjs, de
+// straatbestanden): exact als ze de vorm van publiekParkeerAdres heeft, anders de straat met de postcode.
+export function parkeerAdresVoorOpslag(adres, straatnamen = null) {
+  const tekst = String(adres ?? "").replace(/\s+/g, " ").trim();
+  return isPubliekParkeerAdres(tekst, straatnamen) ? tekst : adresZonderHuisnummer(tekst, straatnamen);
 }
 
 // Dit is de ingang van het adres van A-Sign: ook de homoniemtoevoeging van de straatas gaat hier weg ("Proefstraat_AN 12

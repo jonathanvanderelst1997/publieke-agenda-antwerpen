@@ -27,13 +27,14 @@ test("stats",()=>{const items=collectPublicSpace({parkingFeatures:[{attributes:{
 
 test("IOD kaart toont alleen veilige structurele fasecontext",()=>{const attrs={dossierNummer:"D2",faseId:"F2",innameId:"I2",dossierStatus:"aanvraag_goedgekeurd",faseNaam:"Opbouw",type_dossier:"WERF",innameTypeNaam:"Inname",innameHinder:"ja",innameBeschrijving:"vrije tekst",dossierBeheerder:"persoon",faseStartDatum:day,faseEindDatum:end};const geometry={rings:[[[4.2,51.2],[4.3,51.2],[4.3,51.3],[4.2,51.3],[4.2,51.2]]]};const [item]=collectPublicSpace({iodFeatures:[{attributes:attrs,geometry}],districtGeometry:district});assert.match(item.detail,/Fase Opbouw/);assert.match(item.detail,/Dossiertype WERF/);assert.match(item.detail,/Hinder volgens IOD: ja/);assert.equal(item.detail.includes("vrije tekst"),false);assert.equal(item.detail.includes("persoon"),false);const [vrij]=collectPublicSpace({iodFeatures:[{attributes:{...attrs,faseNaam:"Uitvoering door Testpersoon 0470 00 00 00"},geometry}],districtGeometry:district});assert.equal(vrij.phase,"");assert.equal(vrij.detail,"Dossiertype WERF · Hinder volgens IOD: ja")});
 
-// Herstelplan O1/4: wat bewaard wordt, houdt de straat en de postcode (geen huisnummer). Besluit van 18 oktober 2026:
-// nooit de reden, de titel is altijd "Parkeerverbod" (site/adres-privacy.js).
-test("parkeerverbod: straat en postcode, geen huisnummer, en de straat wordt nog gevonden",()=>{
+// Besluit van 18 oktober 2026: nooit de reden, de titel is altijd "Parkeerverbod" (site/adres-privacy.js). Regel van de
+// eigenaar van 26 oktober 2026: de plaats exact (het bereik zoals publiekParkeerAdres het schrijft), ook bij een verhuis, en
+// ook in wat bewaard wordt.
+test("parkeerverbod: de plaats met het huisnummer, ook bij een verhuis, en de straat wordt nog gevonden",()=>{
   const index={byName:new Map([["teststraat",[{id:"1",name:"Teststraat",postcode:"2000"}]]])};
   const [item]=collectPublicSpace({parkingFeatures:[{attributes:{Dossiernummer:"P1",Locatienummer:"L1",Status:"Goedgekeurd",Adres:"Teststraat 26-28 2000 Antwerpen",Reden:"Verhuis",Startdatum:day,Einddatum:end}}],streetIndex:index});
-  assert.equal(item.location,"Teststraat, 2000 Antwerpen");
+  assert.equal(item.location,"Teststraat 26–28, 2000 Antwerpen");
   assert.equal(item.title,"Parkeerverbod");
   assert.deepEqual(item.streets.map(s=>s.name),["Teststraat"]);
-  assert.doesNotMatch(JSON.stringify(item),/26-28/);
+  assert.doesNotMatch(JSON.stringify({...item,reason:undefined}),/26-28|verhuis/i);
 });

@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-26",
  "invoer": "b0d7fcfc66e4998d",
- "code": "a720a64e98bbadfa",
+ "code": "3a3b5c2ed84743a4",
  "agenda": {
   "items": 764,
   "vaag": 48,
@@ -158,14 +158,13 @@
  },
  "straten": {
   "items": 439,
-  "vaag": 271,
-  "aandeel": 61.7,
+  "vaag": 242,
+  "aandeel": 55.1,
   "perPatroon": {
    "periode-onbekend": 157,
    "start-werken-onbekend": 55,
    "wat-zegt-stad-niet": 38,
    "uur-onbekend": 37,
-   "huisnummer-alleen-live": 32,
    "stand-onduidelijk": 25,
    "generieke-titel": 24,
    "vermoedelijk": 12,
@@ -180,15 +179,14 @@
   "perGroep": {
    "publicSpace:sgw": {
     "items": 43,
-    "vaag": 29,
+    "vaag": 28,
     "patronen": {
      "wat-zegt-stad-niet": 28,
-     "huisnummer-alleen-live": 4,
      "uur-onbekend": 1
     },
-    "meerDanEen": 4,
+    "meerDanEen": 1,
     "losse": 31,
-    "losseVaag": 17
+    "losseVaag": 16
    },
    "agenda:district-asign-evenementen": {
     "items": 27,
@@ -204,12 +202,10 @@
    },
    "publicSpace:parking": {
     "items": 28,
-    "vaag": 28,
-    "patronen": {
-     "huisnummer-alleen-live": 28
-    },
+    "vaag": 0,
+    "patronen": {},
     "losse": 28,
-    "losseVaag": 28
+    "losseVaag": 0
    },
    "permits": {
     "items": 55,
@@ -291,9 +287,9 @@
    }
   },
   "detail": {
-   "metOntbreekt": 309,
-   "meerDanEen": 86,
-   "zinnen": 493,
+   "metOntbreekt": 280,
+   "meerDanEen": 83,
+   "zinnen": 459,
    "perPatroon": {
     "niet-in-de-bron": 72,
     "huisnummers-niet-gepubliceerd": 41,
@@ -305,11 +301,11 @@
   "verboden": {},
   "uniek": {
    "kaarten": 404,
-   "vaag": 250
+   "vaag": 221
   },
   "losse": {
    "kaarten": 262,
-   "vaag": 98
+   "vaag": 69
   },
   "ingeklapt": {
    "regels": 25,
@@ -343,16 +339,16 @@
    },
    "Riemstraat": {
     "kaarten": 12,
-    "vaag": 10,
+    "vaag": 7,
     "losseKaarten": 9,
-    "losseVaag": 7,
+    "losseVaag": 4,
     "ingeklapt": 2
    },
    "Vrijdagmarkt": {
     "kaarten": 19,
-    "vaag": 15,
+    "vaag": 13,
     "losseKaarten": 10,
-    "losseVaag": 6,
+    "losseVaag": 4,
     "ingeklapt": 1
    },
    "Meir": {
@@ -378,16 +374,16 @@
    },
    "Kloosterstraat": {
     "kaarten": 36,
-    "vaag": 27,
+    "vaag": 21,
     "losseKaarten": 21,
-    "losseVaag": 12,
+    "losseVaag": 6,
     "ingeklapt": 2
    },
    "Paardenmarkt": {
     "kaarten": 29,
-    "vaag": 18,
+    "vaag": 14,
     "losseKaarten": 21,
-    "losseVaag": 12,
+    "losseVaag": 8,
     "ingeklapt": 3
    },
    "Sint-Jansvliet": {
@@ -399,23 +395,23 @@
    },
    "Kammenstraat": {
     "kaarten": 19,
-    "vaag": 12,
+    "vaag": 9,
     "losseKaarten": 11,
-    "losseVaag": 4,
+    "losseVaag": 1,
     "ingeklapt": 2
    },
    "Isabella Brantstraat": {
     "kaarten": 6,
-    "vaag": 5,
+    "vaag": 2,
     "losseKaarten": 6,
-    "losseVaag": 5,
+    "losseVaag": 2,
     "ingeklapt": 0
    },
    "Maria-Henriëttalei": {
     "kaarten": 13,
-    "vaag": 6,
+    "vaag": 2,
     "losseKaarten": 11,
-    "losseVaag": 4,
+    "losseVaag": 0,
     "ingeklapt": 1
    },
    "Van Ertbornstraat": {
@@ -497,16 +493,16 @@
    },
    "Thonetlaan": {
     "kaarten": 10,
-    "vaag": 4,
+    "vaag": 3,
     "losseKaarten": 10,
-    "losseVaag": 4,
+    "losseVaag": 3,
     "ingeklapt": 0
    },
    "Van Kerckhovenstraat": {
     "kaarten": 15,
-    "vaag": 10,
+    "vaag": 9,
     "losseKaarten": 7,
-    "losseVaag": 2,
+    "losseVaag": 1,
     "ingeklapt": 2
    },
    "Merksemsestraat": {
@@ -525,9 +521,9 @@
    },
    "De Coninckplein": {
     "kaarten": 21,
-    "vaag": 20,
+    "vaag": 18,
     "losseKaarten": 6,
-    "losseVaag": 5,
+    "losseVaag": 3,
     "ingeklapt": 2
    }
   }
@@ -627,22 +623,22 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "2c71fb2adea3ca86",
+   "invoer": "b0d7fcfc66e4998d",
    "code": "a720a64e98bbadfa"
   },
   "agenda": {
    "ok": true,
-   "stijging": -0.2,
+   "stijging": 0,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -0.2,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
    "ok": true,
-   "stijging": 0,
+   "stijging": -6.6,
    "gestegen": []
   },
   "buiten": {

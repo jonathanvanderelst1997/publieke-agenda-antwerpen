@@ -5,15 +5,15 @@
 //    2 andere straten": de plaats viel weg, ook als de eigen rij exact bekend was (dicht, Waar, werfkaart, vervolgkaart,
 //    buurtkaart). Oorzaak in het ontwerp: de plaats van een gebundeld parkeerverbod kwam uit de straatnamen (waarKort),
 //    zoals bij een werfzone. Nu zijn het de plaatsen van zijn rijen (`plaatsen`), exact.
-// 2. De ochtendstand (de straatbestanden) noemt de straat en de postcode, nooit het huisnummer (dat bewaart de repo
-//    niet: site/adres-privacy.js). De kaart zei niet dat het huisnummer alleen live komt; nu wel, ook in de werfkaart.
+// 2. De ochtendstand (de straatbestanden) noemde de straat en de postcode, en de kaart zei dan dat het huisnummer alleen
+//    live komt. Regel van de eigenaar van 26 oktober 2026: de ochtendstand bewaart de plaats met het huisnummer zelf (ook
+//    de plaatsen van een bundelrij), en die zin is weg.
 // 3. De popup van de buurtkaart zei bij een parkeerverbod alleen het beginuur ("08.00"), en bij meer dagen geen uren.
 // 4. De ochtendstand hing een parkeerverbod niet meer aan zijn evenement (de reden staat niet in een straatbestand). Nu
 //    legt de verversing het verband zelf en bewaart ze alleen de sleutel van dat evenement (`evenementSleutel`), zoals
 //    `werfzoneDossier` bij een werfzone; de browser hangt het er alleen aan als zijn eigen beslissing dezelfde is.
 // 6. Derde nakijkronde: de zin dat het huisnummer alleen live in A-Sign staat, stond niet in de vaste lijst van zinnen die
-//    zeggen wat ontbreekt (site/onbekend-zinnen.js), en de vaagheidsmeter telde ze niet: het parkeerverbod ging zo van 8
-//    naar 0 van de 29 vage kaarten, terwijl elke kaart uit de ochtendstand zegt dat de plaats niet exact is.
+//    zeggen wat ontbreekt. Sinds 26 oktober 2026 is die zin weg: een parkeerverbod uit de ochtendstand is exact, niet vaag.
 // 5. Derde nakijkronde: het lijstje "Alles wat er in een straat speelt" op de startpagina toonde een parkeerverbod zonder
 //    uren, en bij "alleen op weekdagen" ook zonder plaats (het detail was `detail || location`). Oorzaak in het ontwerp:
 //    elke lijst buiten de plekpagina schreef zelf uit de ruwe velden wat ze over een parkeerverbod zegt (zo ook de
@@ -40,8 +40,8 @@ import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 import { HUIK, KAM, PET, maakWerkmap } from "./helpers/straat-fixture.mjs";
 import { ONBEKEND_ZINNEN } from "../site/onbekend-zinnen.js";
 import { vaagheidVanKaart } from "../lib/vaagheid.mjs";
-import { adresZonderHuisnummer, publiekParkeerAdres } from "../site/adres-privacy.js";
-import { adresAlleenStraat } from "../lib/historiek-privacy.mjs";
+import { adresZonderHuisnummer, parkeerAdresVoorOpslag, publiekParkeerAdres } from "../site/adres-privacy.js";
+import { adresAlleenStraat, itemVoorHistoriek } from "../lib/historiek-privacy.mjs";
 
 const { publicSpaceEntries, publicSpaceEntry, samenWerven, verrijkMetContext, werkEntries } = PC;
 // De plaatsen voor "Toon alle N plaatsen" (site/place-view.js); null als de code die lijst niet kent.
@@ -56,10 +56,13 @@ const EVENEMENT = "Aanvraag voor evenementen gesteund door de stad";
 const VERRAAD = /werfsignal|\bikv\b|in het kader van|verhuis|evenementen gesteund|[Rr]eden|Parkeerverbod (?:voor|met)\b/;
 const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
 const uur = (h) => Date.UTC(1899, 11, 30, h); // A-Sign bewaart een uur als een tijdstip op 30 december 1899
+// De zin van vóór 26 oktober 2026 (de ochtendstand bewaarde toen geen huisnummer): die staat nergens meer.
 const ZIN_LIVE = "Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn (nog) niet geladen.";
+// Een rij uit een straatbestand van na 26 oktober 2026: een echte straat, dus alleen huisnummer 999 (lib/echte-adressen.mjs).
+const EXACT = { location: "Kammenstraat 999, 2000 Antwerpen" };
 const feat = (nr, adres, extra = {}) => ({ attributes: { Dossiernummer: "2099-000777", Locatienummer: String(nr), Status: "Goedgekeurd", Adres: adres, Postcode: "2000", Reden: "Aanvraag tot het plaatsen van een container", Startdatum: ms("2099-03-12"), Einddatum: ms("2099-03-13"), Starttijd: uur(8), Eindtijd: uur(18), EnkelWeekdagen: "0", GipodID: null, District: "ANTWERPEN", ...extra } });
-// Zoals de browser het live maakt (alleenLive: het huisnummer of bereik van publiekParkeerAdres), met de straat van elke rij.
-const live = (feats, straten) => collectPublicSpace({ parkingFeatures: feats, alleenLive: true }).map((r, i) => ({ ...r, streets: [straten[i]] }));
+// Zoals de browser en de verversing het maken (het huisnummer of bereik van publiekParkeerAdres), met de straat van elke rij.
+const live = (feats, straten) => collectPublicSpace({ parkingFeatures: feats }).map((r, i) => ({ ...r, streets: [straten[i]] }));
 // Alles wat een bewoner van de kaart kan zien (ook ingeklapt), zonder het interne item.
 const zichtbaar = (e, straat = P.name) => JSON.stringify([e.title, e.summary, e.info, e.location, e.plaatsen, e.regels, e.uitleg, duidelijkeKaart(e, e.item || {}, { straat, vandaag: VANDAAG })]);
 const tekst = (html) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
@@ -138,11 +141,15 @@ const ochtendDoc = (items, extra = {}) => ({
 });
 const ochtendVerbod = (ref, extra = {}) => ({ id: `parking:${ref}|1`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: "Kammenstraat, 2000 Antwerpen", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", status: "Goedgekeurd", reference: ref, detail: "", postcode: "2000", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, streets: [0], ...extra });
 
-test("ochtendstand: een parkeerverbod zonder huisnummer zegt dat het huisnummer alleen live in A-Sign staat; live niet", () => {
-  const [rij] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901")]) }, { vandaag: VANDAAG }).publicSpace;
-  assert.equal(rij.location, "Kammenstraat, 2000 Antwerpen");
+test("ochtendstand: een parkeerverbod uit het straatbestand heeft zijn huisnummer, zonder zin dat het alleen live komt; live ook", () => {
+  const [rij] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901", EXACT)]) }, { vandaag: VANDAAG }).publicSpace;
+  assert.equal(rij.location, "Kammenstraat 999, 2000 Antwerpen");
   const [ochtend] = publicSpaceEntries([rij], { vandaag: VANDAAG, alle: [rij], straat: KAM.name });
-  assert.equal(ochtend.summary, `Niet parkeren van 7.00 tot 17.00 uur. ${ZIN_LIVE}`);
+  assert.equal(ochtend.location, "Kammenstraat 999, 2000 Antwerpen");
+  assert.equal(ochtend.summary, "Niet parkeren van 7.00 tot 17.00 uur.");
+  // Een straatbestand van vóór 26 oktober 2026 (alleen de straat): ook geen zin meer; de volgende verversing schrijft het nummer.
+  const [oud] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901")]) }, { vandaag: VANDAAG }).publicSpace;
+  assert.equal(publicSpaceEntries([oud], { vandaag: VANDAAG, alle: [oud], straat: KAM.name })[0].summary, "Niet parkeren van 7.00 tot 17.00 uur.");
   // Live, met het bereik: geen zin over de ochtend.
   const [nu] = publicSpaceEntries(live([feat(1, "Proefstraat 12-14 2000 Antwerpen")], [P]), { vandaag: VANDAAG, straat: P.name });
   assert.equal(nu.summary, "Niet parkeren van 8.00 tot 18.00 uur.");
@@ -155,12 +162,16 @@ test("ochtendstand: een parkeerverbod zonder huisnummer zegt dat het huisnummer 
   const [zonder] = publicSpaceEntries(live([feat(1, "Proefstraat Onbekend-Onbekend 2000 Antwerpen")], [P]), { vandaag: VANDAAG, straat: P.name });
   assert.equal(zonder.location, "Proefstraat, 2000 Antwerpen");
   assert.equal(zonder.summary, "Niet parkeren van 8.00 tot 18.00 uur.");
-  // Live met een bundelrij van de ochtend (de andere straat; aanvullenMetOchtend): die plaats heeft geen huisnummer.
+  // Live met een bundelrij van de ochtend (de andere straat; aanvullenMetOchtend): die draagt haar plaats met het huisnummer.
   const [eigen] = live([feat(1, "Proefstraat 12-14 2000 Antwerpen", { Dossiernummer: "2099-000901", Startdatum: ms("2099-03-12"), Einddatum: ms("2099-03-12"), Starttijd: uur(7), Eindtijd: uur(17) })], [P]);
-  const bundel = { ...straatItems(ochtendDoc([{ id: "parking:2099-000901|2|bundel", kind: "parking", reference: "2099-000901", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, title: "Parkeerverbod", streets: [1], bundel: true }]), "publiekeRuimte")[0] };
-  const [samen] = publicSpaceEntries([eigen], { vandaag: VANDAAG, alle: [eigen, bundel], straat: P.name });
-  assert.deepEqual(samen.plaatsen, ["Proefstraat 12–14, 2000 Antwerpen", "Peterseliestraat, 2000 Antwerpen"]);
-  assert.equal(samen.summary, `Niet parkeren van 7.00 tot 17.00 uur. ${ZIN_LIVE}`);
+  const bundelRij = (extra = {}) => ({ ...straatItems(ochtendDoc([{ id: "parking:2099-000901|2|bundel", kind: "parking", reference: "2099-000901", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", startTime: "07:00", endTime: "17:00", weekdaysOnly: false, title: "Parkeerverbod", streets: [1], bundel: true, ...extra }]), "publiekeRuimte")[0] });
+  const [samen] = publicSpaceEntries([eigen], { vandaag: VANDAAG, alle: [eigen, bundelRij({ plaatsen: ["Peterseliestraat 999, 2000 Antwerpen"] })], straat: P.name });
+  assert.deepEqual(samen.plaatsen, ["Proefstraat 12–14, 2000 Antwerpen", "Peterseliestraat 999, 2000 Antwerpen"]);
+  assert.equal(samen.summary, "Niet parkeren van 7.00 tot 17.00 uur.");
+  // Een bundelrij van vóór 26 oktober 2026 (zonder plaatsen): de straat met de postcode.
+  const [ouder] = publicSpaceEntries([eigen], { vandaag: VANDAAG, alle: [eigen, bundelRij()], straat: P.name });
+  assert.deepEqual(ouder.plaatsen, ["Proefstraat 12–14, 2000 Antwerpen", "Peterseliestraat, 2000 Antwerpen"]);
+  assert.ok(!JSON.stringify([ochtend, samen, ouder]).includes(ZIN_LIVE));
 });
 
 // Vierde nakijkronde van 18 oktober 2026: publiekParkeerAdres kende alleen "Xstraat 12-14" (twee nummers met een streepje,
@@ -169,7 +180,7 @@ test("ochtendstand: een parkeerverbod zonder huisnummer zegt dat het huisnummer 
 // de plaats zo exact als A-Sign ze geeft. Een bereik over (bijna) de hele straat ("1-400") blijft dat bereik: dat zegt de
 // bron, en het is geen valse precisie (wie op nummer 402 woont, ziet dat het niet bij hem is). Een bus nooit: het
 // huisnummer is de plaats op straat, de bus is een woning. Verzonnen straten.
-test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opslag houdt alleen de straat", () => {
+test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opslag houdt dezelfde plaats", () => {
   const vormen = [
     ["Proefstraat 12-14 2000 Antwerpen", "Proefstraat 12–14, 2000 Antwerpen"],
     ["Proefstraat 12-12 2000 Antwerpen", "Proefstraat 12, 2000 Antwerpen"],
@@ -197,7 +208,10 @@ test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opsl
   for (const [bron, plaats] of vormen) {
     const straat = adresZonderHuisnummer(bron);
     assert.equal(publiekParkeerAdres(bron, straat), plaats, bron);
-    // Wat ooit bewaard wordt (historiek, straatbestanden, archief), houdt alleen de straat en de postcode.
+    // Wat bewaard wordt (historiek, straatbestanden, archief), houdt dezelfde plaats (regel van 26 oktober 2026); de straat
+    // zelf blijft eruit te halen (voor de straat op de kaart en de opzoeking).
+    assert.equal(parkeerAdresVoorOpslag(plaats), plaats, `${plaats}: parkeerAdresVoorOpslag`);
+    assert.equal(itemVoorHistoriek({ id: "parking:2099-000777|1", kind: "parking", title: "Parkeerverbod", location: plaats }).location, plaats, `${plaats}: itemVoorHistoriek`);
     assert.equal(adresZonderHuisnummer(plaats), straat, `${plaats}: adresZonderHuisnummer`);
     assert.equal(adresAlleenStraat(plaats), straat, `${plaats}: adresAlleenStraat`);
   }
@@ -212,31 +226,30 @@ test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opsl
   assert.deepEqual(rijen.map((r) => r.location).sort(), vormen.map(([, plaats]) => plaats).sort());
 });
 
-test("vaagheid: de zin over het huisnummer van de ochtend staat in de vaste lijst, en de meter telt ze als vage plaats", () => {
-  // Uit de vaste lijst (onbekendZin), zoals elke zin die zegt dat iets ontbreekt.
-  assert.ok(Object.values(ONBEKEND_ZINNEN).some((z) => z.zin === ZIN_LIVE && z.kern === true), "de zin staat in site/onbekend-zinnen.js, als kernveld (waar)");
-  const [rij] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901")]) }, { vandaag: VANDAAG }).publicSpace;
+test("vaagheid: een parkeerverbod uit de ochtendstand is niet vaag, en de zin over het huisnummer van de ochtend bestaat niet meer", () => {
+  assert.ok(!Object.values(ONBEKEND_ZINNEN).some((z) => z.zin === ZIN_LIVE), "de zin staat niet meer in site/onbekend-zinnen.js");
+  const [rij] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901", EXACT)]) }, { vandaag: VANDAAG }).publicSpace;
   const [ochtend] = publicSpaceEntries([rij], { vandaag: VANDAAG, alle: [rij], straat: KAM.name });
   // Zoals scripts/meet-vaagheid.mjs een kaart meet: de samenvatting van de kaart (duidelijkeKaart) en die van het item. Bij
   // een parkeerverbod is dat dezelfde zin, die de kaart één keer toont: één ontbreekt-zin, niet twee.
   const meet = (e) => vaagheidVanKaart({ titel: e.title, regels: [duidelijkeKaart(e, e.item || {}, { straat: KAM.name, vandaag: VANDAAG }).samenvatting, e.summary] });
   const v = meet(ochtend);
-  assert.deepEqual([v.patronen, v.kern, v.detail.ontbreekt], [["huisnummer-alleen-live"], true, 1]);
+  assert.deepEqual([v.patronen, v.kern, v.detail.ontbreekt], [[], false, 0]);
   // Live, met het huisnummer of bereik: niet vaag, en geen zin die iets mist.
   const [nu] = publicSpaceEntries(live([feat(1, "Proefstraat 12-14 2000 Antwerpen")], [P]), { vandaag: VANDAAG, straat: P.name });
   const l = meet(nu);
   assert.deepEqual([l.patronen, l.kern, l.detail.ontbreekt], [[], false, 0]);
 });
 
-test("ochtendstand in de werfkaart: de plaats zonder huisnummer, met de zin dat het huisnummer alleen live komt", () => {
+test("ochtendstand in de werfkaart: de plaats met het huisnummer, zonder zin dat het alleen live komt", () => {
   const doc = ochtendDoc([
     { id: "sgw:GW2099-000901|P1", kind: "sgw", kindLabel: "Werfzone", title: "Werfzone", location: "", start: "2099-03-12T06:00:00.000Z", end: "2099-03-12T16:00:00.000Z", status: "vergund", reference: "GW2099-000901", detail: "Fase P1", streets: [0], werfzoneStreets: [0], omleidingStreets: [] },
-    ochtendVerbod("2099-000901", { werfzoneDossier: "GW2099-000901" }),
+    ochtendVerbod("2099-000901", { werfzoneDossier: "GW2099-000901", ...EXACT }),
   ]);
   const rijen = lagenUitStand({ doc }, { vandaag: VANDAAG }).publicSpace;
   const [werfzone] = samenWerven(publicSpaceEntries(rijen, { vandaag: VANDAAG, alle: rijen, straat: KAM.name }), { straat: KAM.name, vandaag: VANDAAG, alle: rijen });
   assert.deepEqual(werfzone.werf?.parkeerverboden, ["2099-000901"]);
-  assert.match(regel(werfzone, "Parkeerverbod"), new RegExp(`^Kammenstraat, 2000 Antwerpen: 12 mrt, van 7\\.00 tot 17\\.00 uur \\(2099-000901, [^)]+\\)\\. ${ZIN_LIVE.replace(/[.()]/g, "\\$&")} Zelfde straat`));
+  assert.match(regel(werfzone, "Parkeerverbod"), /^Kammenstraat 999, 2000 Antwerpen: 12 mrt, van 7\.00 tot 17\.00 uur \(2099-000901, [^)]+\)\. Zelfde straat/);
 });
 
 test("de markering van de ochtendstand komt nooit in een straatbestand (herschrijven uit de vorige stand)", (t) => {
@@ -244,13 +257,14 @@ test("de markering van de ochtendstand komt nooit in een straatbestand (herschri
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   maakWerkmap(root, { uitleg: { schemaVersion: 1, werken: {}, evenementen: {} } });
   fs.mkdirSync(path.join(root, "site", "straat"), { recursive: true });
-  const doc = ochtendDoc([ochtendVerbod("2099-000901", { start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z" })]);
+  const doc = ochtendDoc([ochtendVerbod("2099-000901", { start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", ...EXACT })]);
   fs.writeFileSync(path.join(root, "site", "straat", `${KAM.id}.json`), JSON.stringify(doc));
   fs.writeFileSync(path.join(root, "site", "straat-index.json"), JSON.stringify({ schemaVersion: 1, ververst: doc.ververst, lagen: {}, straten: { [KAM.id]: doc.inhoud } }));
   schrijfStraatSnapshots({ rootDir: root, herschrijf: true, agendaItems: [], siteAgenda: [], history: null, clock: () => new Date("2099-03-10T09:00:00.000Z") });
   const nieuw = fs.readFileSync(path.join(root, "site", "straat", `${KAM.id}.json`), "utf8");
   assert.doesNotMatch(nieuw, /plaatsVanDeOchtend/);
   assert.equal(JSON.parse(nieuw).publiekeRuimte.length, 1);
+  assert.equal(JSON.parse(nieuw).publiekeRuimte[0].location, "Kammenstraat 999, 2000 Antwerpen", "de plaats met het huisnummer blijft");
 });
 
 // ---------- 3. de popup van de buurtkaart: wanneer volledig ----------
@@ -449,28 +463,30 @@ test("Alles per straat op de startpagina: elk parkeerverbod met zijn plaats exac
   assert.doesNotMatch(JSON.stringify(groepen), VERRAAD);
 });
 
-test("Alles per straat uit de ochtendstand: elke straat met haar plaats, en dat het huisnummer alleen live komt", () => {
-  // Het straatbestand van de Kammenstraat: de eigen rij, en een bundelrij met de andere straten van hetzelfde parkeerverbod.
+test("Alles per straat uit de ochtendstand: elke straat met haar plaats en het huisnummer, ook uit de bundelrij", () => {
+  // Het straatbestand van de Kammenstraat: de eigen rij, en een bundelrij met de andere plaatsen van hetzelfde parkeerverbod
+  // (de Peterseliestraat met haar huisnummer; de Huikstraat zonder nummer in de bron).
   const doc = ochtendDoc([
-    ochtendVerbod("2099-000901", { detail: "Alleen op weekdagen", weekdaysOnly: true }),
-    { id: "parking:2099-000901|2|bundel", kind: "parking", reference: "2099-000901", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", startTime: "07:00", endTime: "17:00", weekdaysOnly: true, title: "Parkeerverbod", streets: [1, 2], bundel: true },
+    ochtendVerbod("2099-000901", { detail: "Alleen op weekdagen", weekdaysOnly: true, ...EXACT }),
+    { id: "parking:2099-000901|2|bundel", kind: "parking", reference: "2099-000901", start: "2099-03-12T00:00:00.000Z", end: "2099-03-12T00:00:00.000Z", startTime: "07:00", endTime: "17:00", weekdaysOnly: true, title: "Parkeerverbod", streets: [1, 2], bundel: true, plaatsen: ["Huikstraat, 2000 Antwerpen", "Peterseliestraat 999, 2000 Antwerpen"] },
   ], { straten: [[KAM.id, KAM.name, KAM.postcode], [PET.id, PET.name, PET.postcode], [HUIK.id, HUIK.name, HUIK.postcode]] });
   const rijen = lagenUitStand({ doc }, { vandaag: VANDAAG }).publicSpace;
   const groepen = buildStreetGroups({ publicSpace: rijen });
-  const zin = `Niet parkeren van 7.00 tot 17.00 uur, alleen op weekdagen. ${ZIN_LIVE}`;
-  assert.deepEqual(groepVan(groepen, KAM.name).parking.map((i) => i.detail), [`Kammenstraat, 2000 Antwerpen · ${zin}`]);
-  assert.deepEqual(groepVan(groepen, PET.name).parking.map((i) => i.detail), [`Peterseliestraat, 2000 Antwerpen · ${zin}`]);
+  const zin = "Niet parkeren van 7.00 tot 17.00 uur, alleen op weekdagen.";
+  assert.deepEqual(groepVan(groepen, KAM.name).parking.map((i) => i.detail), [`Kammenstraat 999, 2000 Antwerpen · ${zin}`]);
+  assert.deepEqual(groepVan(groepen, PET.name).parking.map((i) => i.detail), [`Peterseliestraat 999, 2000 Antwerpen · ${zin}`]);
   assert.deepEqual(groepVan(groepen, HUIK.name).parking.map((i) => i.detail), [`Huikstraat, 2000 Antwerpen · ${zin}`]);
   assert.doesNotMatch(JSON.stringify(groepen), VERRAAD);
+  assert.ok(!JSON.stringify(groepen).includes(ZIN_LIVE));
 });
 
 test("de vooruitblik op de startpagina: een parkeerverbod met zijn dagen en uren, niet alleen de begindag", () => {
   const [rij] = live([feat(1, "Proefstraat 12-14 2000 Antwerpen", { EnkelWeekdagen: "1" })], [P]);
   const [item] = buildWeekPulse({ fromDay: "2099-03-10", toDay: "2099-03-16", publicSpace: [rij] }).upcoming;
   assert.deepEqual([item.title, item.location, item.wanneer], ["Parkeerverbod", "Proefstraat 12–14, 2000 Antwerpen", "12–13 mrt · Niet parkeren van 8.00 tot 18.00 uur, alleen op weekdagen."]);
-  // Uit de ochtendstand: ook dat het huisnummer alleen live komt.
-  const [ochtend] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901")]) }, { vandaag: VANDAAG }).publicSpace;
+  // Uit de ochtendstand: ook met het huisnummer.
+  const [ochtend] = lagenUitStand({ doc: ochtendDoc([ochtendVerbod("2099-000901", EXACT)]) }, { vandaag: VANDAAG }).publicSpace;
   const [o] = buildWeekPulse({ fromDay: "2099-03-10", toDay: "2099-03-16", publicSpace: [ochtend] }).upcoming;
-  assert.deepEqual([o.location, o.wanneer], ["Kammenstraat, 2000 Antwerpen", `12 mrt · Niet parkeren van 7.00 tot 17.00 uur. ${ZIN_LIVE}`]);
+  assert.deepEqual([o.location, o.wanneer], ["Kammenstraat 999, 2000 Antwerpen", "12 mrt · Niet parkeren van 7.00 tot 17.00 uur."]);
   assert.doesNotMatch(JSON.stringify([item, o]), VERRAAD);
 });
