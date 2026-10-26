@@ -17,7 +17,7 @@ Bronstand: GitHub-main 8a950dcc9d35fee82ca040e428f56170fc9aaad8, exact live beve
 ## Bronnen en integratie
 - Refreshstatus 15 oktober 2026 03:23 UTC: 16 bronnen, 13 ok, 2 http_500 (district-ebesluit, district-ebesluit-evenementen, sinds 12 oktober niet succesvol opgehaald), stad-uit skipped_no_key.
 - Agenda Data Refresh run 38675871654: refresh/publish-branch/freshness success, source-health FAILURE, alarm SKIPPED; data-PR #189 gepubliceerd. Brain datalaan.alarm=false bewijst niet dat alle officiële bronnen gezond zijn. Issue #190 volgt betrouwbare alarmering van beschermde workflow.
-- Tabletcafé WZC Hollebeek Turnersstraat 38 op 23 oktober, Halloween CO Nova Schijfstraat 105, Vrijdagen van de Poëzie zijn met officiële bezoekerslinks in de bronbestanddata aanwezig.
+- Tabletcafé WZC Hollebeek (Turnersstraat) op 23 oktober, Halloween CO Nova (Schijfstraat), Vrijdagen van de Poëzie zijn met officiële bezoekerslinks in de bronbestanddata aanwezig.
 - Open dekkingsgrenzen: mail-district en mail-stad zijn leeg, geen bewijs van complete publieke evenementen; GIPOD-evenementen 0 binnen district maar A-Sign heeft aparte evenementdossiers; UiTdatabank zonder sleutel uit; volledige speelstraatlijst met juridische bijlagen en machineleesbare Waterweg-geodata niet bewezen.
 - docs/COVERAGE_MATRIX.md bevat oude zinnen als “nog niet gemerged” voor inmiddels gepubliceerde functies; update documentatie tegen exacte live brondata, niet op gevoel.
 
