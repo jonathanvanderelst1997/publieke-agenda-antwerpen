@@ -29,6 +29,20 @@
    "regels": [20],
    "aantal": 2,
    "reden": "Al gepusht op 15 oktober 2026 in PR #192, vóór deze scan bestond. Een auditregel met twee openbare voorzieningen en hun publieke adres, geen privéadres; die PR kan zichzelf na de merge van #202 niet meer uitzonderen (CI leest dan alleen de lijst van de basiscommit). Wegnemen kan alleen met force, en dat mag niet."
+  },
+  {
+   "commit": "b5731b0354947780819d948a558b0feee4b03e19",
+   "waar": "site/kaart-uitleg.js",
+   "regels": [338],
+   "aantal": 1,
+   "reden": "Al gepusht op 18 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. De commit zette een regel commentaar terug zoals main ze toen had (terug naar main als vertrekpunt); de PR die deze uitzondering toevoegt, vervangt die regel op main door verzonnen straten, en de netto diff van #203 voegt ze niet toe."
+  },
+  {
+   "commit": "b5731b0354947780819d948a558b0feee4b03e19",
+   "waar": "tests/werken-nakijk2.test.mjs",
+   "regels": [61],
+   "aantal": 1,
+   "reden": "Al gepusht op 18 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. De commit zette een toetsregel terug zoals main ze toen had (terug naar main als vertrekpunt); aan de kop van #203 staat die regel er niet meer in, en de PR die deze uitzondering toevoegt, vervangt ze ook op main door een verzonnen straat."
   }
  ]
 }
