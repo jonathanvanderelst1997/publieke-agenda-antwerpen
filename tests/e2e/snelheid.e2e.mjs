@@ -1282,63 +1282,50 @@ test("snelheid: voorpagina en plekpagina", { skip }, async (t) => {
     await context.close();
   });
 
-  // (2) Privacy, (4) een eigen vorm per soort en (5) kaartjes op hetzelfde punt: het parkeerverbod (PROEF-PV77, L1)
-  // en de aanvraag (20990077) liggen in de nagebootste stad allebei bij het midden van de Kammenstraat. Op de
-  // Leaflet-kaart waren het twee identieke ringen op elkaar: het parkeerverbod was nooit aan te tikken. En de
-  // parkeerverboden van het evenement (opbouw en afbraak elders) stonden er exact.
-  const ongeveerPaden = (page) => page.evaluate(() => Object.fromEntries(["verkeer", "vergunning"].map((s) => {
-    const p = [...document.querySelectorAll(`#buurtkaart path.kaart-${s}.kaart-ongeveer`)].find((el) => el.getBoundingClientRect().width > 0);
-    return [s, p ? { d: p.getAttribute("d"), streep: getComputedStyle(p).strokeDasharray } : null];
-  })));
-  await t.test("P9: op de kaart heeft elke plek bij benadering de vorm van haar soort, elk kaartje op dat punt is aan te tikken, en van een evenement staan de parkeerverboden bij benadering", async () => {
+  // (2) Privacy en (4) een eigen vorm per soort. Regel van de eigenaar van 26 oktober 2026 ("exacte positie, geen afronding op
+  // 100 m"): het parkeerverbod (PROEF-PV77, L1) staat exact op de kaart, met zijn lijn, en de parkeerverboden van het
+  // evenement (opbouw en afbraak elders) ook. Alleen de aanvraag (20990077) staat er nog bij benadering, als ring.
+  await t.test("P9: op de kaart staan het parkeerverbod en de innames van een evenement exact; alleen een vergunning bij benadering, als ring", async () => {
     const { page, context, errors } = await openStraat(baseUrl, { stand: null, bronnen: "volledig", kaart: "leaflet", width: 1280, height: 900, inzage: INZAGE, uitleg: UITLEG, query: "?plek=Kammenstraat&periode=alles" });
     await wachtOpDeVier(page);
     await page.waitForFunction(() => Array.isArray(window.PUBLIC_AGENDA_LIVE_STREETS?.permits), null, { timeout: 15000 });
     await page.locator("#buurtkaart .buurt-map").scrollIntoViewIfNeeded();
     await page.locator(".buurt-map[data-kaart=leaflet] .leaflet-container").waitFor({ timeout: 10000 });
-    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-verkeer.kaart-ongeveer") && document.querySelector("#buurtkaart path.kaart-vergunning.kaart-ongeveer"), null, { timeout: 15000 });
+    await page.waitForFunction(() => document.querySelector("#buurtkaart path.kaart-verkeer") && document.querySelector("#buurtkaart path.kaart-vergunning.kaart-ongeveer"), null, { timeout: 15000 });
     await page.waitForTimeout(600); // het inzoomen op de straat
-    // Een eigen vorm (niet alleen een andere kleur), en een eigen rand.
-    const vormen = await ongeveerPaden(page);
-    assert.ok(vormen.verkeer && vormen.vergunning, JSON.stringify(vormen));
-    assert.notEqual(vormen.verkeer.d, vormen.vergunning.d, "parkeerverbod en vergunning: dezelfde vorm");
-    assert.notEqual(vormen.verkeer.streep, vormen.vergunning.streep, "parkeerverbod en vergunning: dezelfde rand");
-    // De legenda toont die vormen ook.
-    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="verkeer"] .buurt-teken-vierkant').count(), 1);
-    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="evenement"] .buurt-teken-ruit').count(), 1);
+    // Verkeer nooit bij benadering; de vergunning wel, als ring.
+    assert.equal(await page.locator("#buurtkaart path.kaart-verkeer.kaart-ongeveer").count(), 0, "een parkeerverbod bij benadering");
+    assert.ok(await page.locator("#buurtkaart path.kaart-vergunning.kaart-ring").count() >= 1);
+    // De legenda: geen vierkant of ruit meer (verkeer en evenement staan exact), wel de ring van een vergunning.
+    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="verkeer"] .buurt-teken-vierkant').count(), 0);
+    assert.equal(await page.locator('#buurtkaart [data-kaartsoort="evenement"] .buurt-teken-ruit').count(), 0);
     assert.equal(await page.locator('#buurtkaart [data-kaartsoort="vergunning"] .buurt-teken-ring').count(), 1);
-    // Elk van de twee is ergens zelf aan te tikken, en de popup noemt dan allebei de kaartjes op dat punt.
-    for (const soort of ["verkeer", "vergunning"]) {
-      const punt = await page.evaluate((s) => {
-        const paden = [...document.querySelectorAll(`#buurtkaart path.kaart-${s}.kaart-ongeveer`)];
-        for (const p of paden) {
-          const r = p.getBoundingClientRect();
-          for (let i = 1; i < 12; i += 1) for (let j = 1; j < 12; j += 1) {
-            const x = r.left + (r.width * i) / 12, y = r.top + (r.height * j) / 12;
-            if (document.elementFromPoint(x, y) === p) return [x, y];
-          }
+    // Het parkeerverbod is zelf aan te tikken, en de popup noemt het zonder "bij benadering".
+    const punt = await page.evaluate(() => {
+      for (const p of document.querySelectorAll("#buurtkaart path.kaart-verkeer")) {
+        const r = p.getBoundingClientRect();
+        for (let i = 0; i <= 12; i += 1) for (let j = 0; j <= 12; j += 1) {
+          const x = r.left + (r.width * i) / 12, y = r.top + (r.height * j) / 12;
+          if (document.elementFromPoint(x, y) === p) return [x, y];
         }
-        return null;
-      }, soort);
-      assert.ok(punt, `${soort}: nergens aan te tikken (een ander kaartje ligt erover)`);
-      await page.mouse.click(punt[0], punt[1]);
-      const popup = page.locator("#buurtkaart .leaflet-popup");
-      await popup.waitFor({ timeout: 5000 });
-      const uids = await popup.locator("[data-open-uid]").evaluateAll((knoppen) => knoppen.map((k) => k.dataset.openUid));
-      assert.ok(uids.includes("permits:permit:20990077") && uids.some((u) => u.startsWith("publicSpace:parking:PROEF-PV77")), `${soort}: de popup noemt ${uids.join(", ")}`);
-      assert.match(await popup.innerText(), /bij benadering \(privacy\)/);
-      // Sluiten met een klik op het kruisje (dispatchEvent): de klok staat vast in deze toets (setFixedTime), en
-      // Leaflet meet zijn pan-animatie met new Date(), dus autoPan schuift de popup hier nooit helemaal in beeld.
-      await popup.locator(".leaflet-popup-close-button").dispatchEvent("click");
-      await popup.waitFor({ state: "detached", timeout: 5000 });
-    }
-    // Van het evenement staat het parcours exact; de parkeerverboden van opbouw en afbraak bij benadering (een
-    // omleiding en een verkeersvrije zone van een evenement staan ook exact: tests/kaart-lagen.test.mjs).
+      }
+      return null;
+    });
+    assert.ok(punt, "het parkeerverbod is nergens aan te tikken");
+    await page.mouse.click(punt[0], punt[1]);
+    const popup = page.locator("#buurtkaart .leaflet-popup");
+    await popup.waitFor({ timeout: 5000 });
+    const uids = await popup.locator("[data-open-uid]").evaluateAll((knoppen) => knoppen.map((k) => k.dataset.openUid));
+    assert.ok(uids.some((u) => u.startsWith("publicSpace:parking:PROEF-PV77")), `de popup noemt ${uids.join(", ")}`);
+    assert.doesNotMatch(await popup.innerText(), /Plek bij benadering/);
+    await popup.locator(".leaflet-popup-close-button").dispatchEvent("click");
+    await popup.waitFor({ state: "detached", timeout: 5000 });
+    // Van het evenement staan het parcours en de innames exact: geen enkele plek bij benadering.
     const evenement = await page.evaluate(() => [...document.querySelectorAll("#buurtkaart path.kaart-evenement")].map((p) => p.getAttribute("class")));
     assert.ok(evenement.some((c) => /kaart-parcours/.test(c)), `geen parcours: ${evenement.join(" | ")}`);
-    assert.ok(evenement.some((c) => /kaart-ongeveer/.test(c)), `de innames van het evenement ontbreken: ${evenement.join(" | ")}`);
-    assert.deepEqual(evenement.filter((c) => !/kaart-parcours|kaart-ongeveer/.test(c)), [], "een inname van het evenement staat exact op de kaart");
-    assert.match(await page.locator("#buurtkaart .buurt-attrib").innerText(), /innames \(ook die van een evenement\)[^.]*bij benadering/);
+    assert.ok(evenement.some((c) => !/kaart-parcours/.test(c)), `de innames van het evenement ontbreken: ${evenement.join(" | ")}`);
+    assert.deepEqual(evenement.filter((c) => /kaart-ongeveer/.test(c)), [], "een inname van het evenement staat bij benadering op de kaart");
+    assert.match(await page.locator("#buurtkaart .buurt-attrib").innerText(), /parkeerverboden en innames \(ook die van een evenement, met het parcours\) staan er exact; vergunningen bij benadering/);
     assert.deepEqual(errors, []);
     await context.close();
   });
