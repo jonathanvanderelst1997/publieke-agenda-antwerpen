@@ -58,12 +58,16 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(genoemd.streets.map((s) => s.name), ["Voorbeeldplein"]);
   assert.equal(genoemd.streetResolution, "official_address_match");
   const k = kaart(werk({ ...genoemd, occupancyTypes: ["Water"] }));
-  // Een getal na de straat dat de lezer niet zeker als huisnummer leest (er volgt een woord): geen nummer, met de reden; de
-  // tekst van de beheerder toont het getal zoals hij het schreef (regel van de eigenaar van 26 oktober 2026).
-  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein tot /);
-  assert.match(regels(k).Waar, /^Voorbeeldplein \(geen zeker huisnummer in GIPOD; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
-  assert.equal(k.ontbreekt.includes(onbekendZin("werk-huisnummers")), false);
-  assert.match(k.bronTekst, /Voorbeeldplein 26/);
+  // Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd. "<postcode> Antwerpen <straat> <nr> werken
+  // distributieleiding)" is de vaste vorm van een beheerder van waterleidingen: straat en nummer uit de omschrijving.
+  assert.match(k.titel, /^Werken aan de waterleiding op het Voorbeeldplein nr\. 26 tot /);
+  assert.match(regels(k).Waar, /^Voorbeeldplein, nr\. 26 \(straat en huisnummer uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  // Een getal na de straat dat de lezer niet zeker als huisnummer leest (er volgt een ander woord): geen nummer, met de
+  // reden, en nooit "niet gepubliceerd"; de tekst van de beheerder toont het getal zoals hij het schreef.
+  const twijfel = kaart(werk({ ...genoemd, title: "2000 Antwerpen Voorbeeldplein 26 kabels vervangen", occupancyTypes: ["Water"] }));
+  assert.match(regels(twijfel).Waar, /^Voorbeeldplein \(geen zeker huisnummer in GIPOD; straat uit de omschrijving van de beheerder; het punt in GIPOD ligt er ongeveer 16\d m van\)$/);
+  assert.equal(twijfel.ontbreekt.includes(onbekendZin("werk-huisnummers")), false);
+  assert.match(alleTekst(twijfel), /Voorbeeldplein 26 kabels/);
   // Gezocht, en geen straat met naam binnen 150 m: zeg dat, niet "geen straat in de buurt".
   assert.deepEqual(niets.streets, []);
   assert.deepEqual(niets.streetNearby, []);

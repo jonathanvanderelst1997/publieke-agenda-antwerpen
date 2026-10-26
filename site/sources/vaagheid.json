@@ -2,7 +2,7 @@
  "schema": "vaagheid/1",
  "vandaag": "2026-10-26",
  "invoer": "81a4d2bf173997b5",
- "code": "80730970ac110c38",
+ "code": "47b48810f1b50507",
  "agenda": {
   "items": 764,
   "vaag": 48,
@@ -293,10 +293,10 @@
   "detail": {
    "metOntbreekt": 309,
    "meerDanEen": 86,
-   "zinnen": 493,
+   "zinnen": 496,
    "perPatroon": {
     "niet-in-de-bron": 72,
-    "huisnummers-niet-gepubliceerd": 41,
+    "huisnummers-niet-gepubliceerd": 44,
     "organisator-niet-gepubliceerd": 10,
     "beheerder-geen-omschrijving": 9,
     "uren-niet-gepubliceerd": 9
@@ -627,8 +627,8 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "b0d7fcfc66e4998d",
-   "code": "a720a64e98bbadfa"
+   "invoer": "81a4d2bf173997b5",
+   "code": "80730970ac110c38"
   },
   "agenda": {
    "ok": true,
@@ -650,5 +650,14 @@
    "stijging": 0,
    "gestegen": []
   }
- }
+ },
+ "aanvaard": [
+  {
+   "waar": "straten",
+   "id": "detail:huisnummers-niet-gepubliceerd",
+   "van": 41,
+   "naar": 44,
+   "reden": "Regel van de eigenaar van 26 oktober 2026: een aansluiting of container is geen 'één adres' meer en toont het huisnummer. De bewaarde stand (kaart-uitleg.json en de straatbestanden van vóór deze regel) heeft dat nummer nog niet: tot de volgende verversing het uit GIPOD en het adressenregister haalt, zegt zo'n kaart in de ochtendstand 'huisnummers niet gepubliceerd' in plaats van 'huisnummer weggelaten: het gaat om één adres'. Live (de browser leest GIPOD) staat het nummer er meteen."
+  }
+ ]
 }

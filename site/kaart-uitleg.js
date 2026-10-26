@@ -388,15 +388,18 @@ const esc = (v) => v.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 // (huisnummersUitTekst): "12-14", "12 tem 14", "12, 14 en 16".
 const NR = String.raw`[1-9]\d{0,2}[a-gi-ln-tv-wyz]?(?![\d\p{L}_])`;
 // Het nummer staat direct na de straat (na een spatie) en wordt gevolgd door het einde, een scheiding ("," ";" "|" "·"
-// ")" "]", een streep met spaties, een punt met een spatie) of een busaanduiding ("bus 3"). Al de rest is twijfel: een
+// ")" "]", een streep met spaties, een punt met een spatie), een busaanduiding ("bus 3") of het woord "werken" ("2018
+// Antwerpen Proefstraat 12 werken distributieleiding)", de vaste vorm van een beheerder van waterleidingen: op 26 oktober
+// 2026 bij 25 werken het enige getal in de titel). Al de rest is twijfel: een
 // woord ("12 containers", "15 oktober", "12 A", "12 Proefmans"), een schuine streep ("15/10", "31/2"), een traject ("12
 // tot Testlaan", "12 → Testlaan"), een code ("1DN02", "9B_BIS").
-const NA_STRAAT = new RegExp(String.raw`^\s+(${NR}(?:${REEKS}${NR}|${OPSOMMING}${NR}${NA_OPSOMMING})*)(?:\s*bus\s*[a-z0-9]{1,4}(?![\p{L}\d]))?(?=\s*$|\s*[,;|·)\]]|\s+[-–—](?:\s|$)|\.(?:\s|$))`, "iu");
+const NA_STRAAT = new RegExp(String.raw`^\s+(${NR}(?:${REEKS}${NR}|${OPSOMMING}${NR}${NA_OPSOMMING})*)(?:\s*bus\s*[a-z0-9]{1,4}(?![\p{L}\d]))?(?=\s*$|\s*[,;|·)\]]|\s+[-–—](?:\s|$)|\.(?:\s|$)|\s+werken(?![\p{L}\d]))`, "iu");
 // Een cijfer kort na de naam (hoogstens drie tekens zonder letter ertussen): "Proefstraat 12", "Proefstraat (12)",
 // "Proefstraat - 12".
 const CIJFER_NA = /^[^\p{L}\d]{0,3}\d/u;
-// Voor de straatnaam staat het begin van de tekst, een scheiding ("|", ",", ";", ":", "·", "(", "[", "/", een losse streep)
-// of een getal ("Fase 1 Proefstraat 8", "2000 Proefstraat 8"). Een woord ervoor ("Korte Proefstraat", "in de Proefstraat")
+// Voor de straatnaam staat het begin van de tekst, een scheiding ("|", ",", ";", ":", "·", "(", "[", "/", een losse streep),
+// een getal ("Fase 1 Proefstraat 8", "2000 Proefstraat 8") of een postcode van het district met "Antwerpen" ("2018 Antwerpen
+// Proefstraat 8"). Een woord ervoor ("Korte Proefstraat", "in de Proefstraat")
 // of een teken eraan vast ("Anna-Proeflei", "O.L.V.-Proefstraat") kan een andere straat zijn.
 function schoonVoor(voor) {
   if (!voor) return true;
@@ -404,6 +407,8 @@ function schoonVoor(voor) {
   const t = voor.trimEnd();
   if (!t) return true;
   if (/(?:^|\s)[-–—]$/u.test(t) || /[|,;:·(\[/]$/u.test(t)) return true;
+  // De gemeente na een postcode van het district ("2018 Antwerpen Proefstraat 12"): geen deel van een straatnaam.
+  if (/(?:^|[\s|,;:·(\[/-])(?:2000|2018|2020|2030|2050|2060)\s+antwerpen$/iu.test(t)) return true;
   return !/[\p{L}'’]/u.test(t.match(/\S+$/u)[0]);
 }
 // Na de straatnaam: geen letter, cijfer, koppelteken, apostrof of liggend streepje eraan vast ("Proefstraatje", "Proefstraat-Noord").
@@ -477,6 +482,9 @@ export function huisnummerUitGipod(item = {}) {
 // Heeft de titel of een fase een getal van één tot drie cijfers (geen maat, geen postcode, geen "Fase 2")? Voor de reden
 // waarom een adreskaart geen nummer toont (nummerWeg in site/werk-vorm.js).
 export const gipodTekstHeeftGetal = (item = {}) => nogEenGetal(adresTekst(item));
+// Leest de lezer van main een nummer direct na de straat, na het wegnemen van een maat, duur of uur (MAAT)? Voor de reden
+// waarom een gewone kaart geen nummer toont (werkKaartje).
+const getalNaStraat = (tekst, straat) => Boolean(huisnummersUitTekst(String(tekst ?? "").replace(MAAT, "#"), straat));
 
 // Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette. Ook een mailadres zonder
 // gewone @ (nakijkronde van head 0b264665): "naam(at)voorbeeld.test", "naam[at]...", een volle-breedte ＠ (na NFKC een
@@ -951,10 +959,11 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } =
   // Het huisnummer of de reeks, ook één los nummer (regel van de eigenaar van 26 oktober 2026); bij één adres (een lift of
   // levering, het spoor van een verhuizing) alleen de straat, en dat zeggen we bij "Waar".
   const nummers = eenAdres ? "" : geldigeHuisnummers(f.huisnummers);
-  // Geen nummer, maar wel een getal in de titel, een fase of de tekst van de beheerder dat de lezer niet zeker als huisnummer
-  // van deze straat leest ("Proefstraat 26 werken"): dat zeggen we ("geen zeker huisnummer in GIPOD"), nooit "niet
-  // gepubliceerd". De tekst van de beheerder toont het getal zoals hij het schreef.
-  const twijfel = !adresKaart && !eenAdres && !nummers && (gipodTekstHeeftGetal(werk) || gipodTekstHeeftGetal({ title: f.omschrijving, hindrance: { phases: (f.fasen || []).map((x) => ({ description: x.naam })) } }));
+  // Geen nummer, maar wel een getal direct na de straat in de titel, een fase of de tekst van de beheerder, dat de strenge
+  // lezer niet zeker als huisnummer leest ("Proefstraat 26 werken"): dat zeggen we ("geen zeker huisnummer in GIPOD"), nooit
+  // "niet gepubliceerd". Een maat ("Proefstraat 30 m") of een getal elders ("R1 - Ringpark") telt niet. De tekst van de
+  // beheerder toont het getal zoals hij het schreef.
+  const twijfel = !adresKaart && !eenAdres && !nummers && Boolean(straat) && (getalNaStraat(adresTekst(werk), straat) || getalNaStraat([f.omschrijving, ...(f.fasen || []).map((x) => x.naam)].join(" · "), straat));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
   const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
   // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zoals de regel "Fasen" (bij één adres zonder huisnummer).
