@@ -63,4 +63,4 @@ Zo staan een exact nummer en vrije tekst per constructie nooit samen: een leesfo
 - Een venster in de browser: wijzigt GIPOD een nieuw werk vóór de eerste verversing, dan kan het van gewoon naar adreskaart gaan. Het omgekeerde kan niets lekken: een onbekende adreskaart toont geen nummer.
 - Een parkeerverbod van A-Sign met de reden "verhuis", en "voor een verhuis" in de publieke ruimte (`site/place-core.js`), horen bij #202.
 - Een adreskaart en haar werfzone in A-Sign (zelfde dossiernummer) zijn één kaart, met het nummer; een parkeerverbod voor die werf blijft een eigen kaart, zodat de reden van een parkeerverbod nooit naast een exact adres staat (op main stond het in de werfkaart).
-- `werk-vorm.json` groeit met ongeveer 0,3 MB per jaar (nu 2.077 id's, 19 kB).
+- `werk-vorm.json` groeit met ongeveer 0,3 MB per jaar (na de overgang van 26 oktober 2026: 2.466 id's, 22 kB).
