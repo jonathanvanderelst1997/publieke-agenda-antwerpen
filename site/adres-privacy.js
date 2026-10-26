@@ -17,6 +17,13 @@ import{zonderToevoegingInTekst}from"./witte-lijst.js";
 // A-Sign schrijft "Xstraat 26-26 2000 Antwerpen", "Xlaan (2610) 34-hoek 2610 Antwerpen" of
 // "Ystraat hoek-64 2060 Antwerpen" (verzonnen straten).
 export const PARKEERVERBOD_TITEL="Parkeerverbod";
+// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, "dat de mensen weten waar is een parkeerverbod",
+// behalve bij iets persoonlijks: "enkel persoonlijke zaken, gelijk een verhuis, dan verberg het". Een parkeerverbod voor een
+// verhuizing (de reden van A-Sign, die alleen intern gelezen wordt) toont daarom ook live alleen de straat en de postcode,
+// zoals de ochtendstand; de reden zelf staat nog altijd nergens. Zonder opmaaktekens, accenten, spaties en leestekens, zodat
+// ook "Ver-huis", "VERHUIZING", "verhuislift", "inhuizing" en "uithuizing" tellen. Niet "ladderlift" alleen: A-Sign noemt
+// die ook als voorbeeld bij "het plaatsen van een beweegbaar toestel (ladderlift, schaarlift, hoogtewerker)", geen verhuis.
+export const isVerhuisReden=(reden)=>/verhui[sz]|(?:in|uit)huiz/i.test(String(reden??"").normalize("NFKD").replace(/[\p{Cf}\p{M}]/gu,"").replace(/[\s._·'’/-]/gu,""));
 // Bij welk evenement een parkeerverbod hoort (dat mag, besluit van 18 oktober 2026), zoals een straatbestand het bewaart
 // (`evenementSleutel`, parkeerverbodenAanEvenement in site/place-core.js): een evenementendossier ("ET2099000001") of een
 // agendapunt ("agenda:<id>"). Nooit vrije tekst, en dus nooit een reden. Het agendapunt alleen in de vorm van een echte
@@ -81,6 +88,7 @@ function zonderNummerwoord(straat){
 //   "Xstraat hoek-64", "34-hoek"   -> "Xstraat hoek–64", "Xstraat 34–hoek" (de hoek met het nummer)
 //   "Xstraat 12 bus 3"             -> "Xstraat 12" (nooit een bus: die is een woning, geen plaats op straat)
 //   "Xstraat 1-400"                -> "Xstraat 1–400": een bereik over (bijna) de hele straat is wat de bron zegt.
+//   "Xstraat 12-0"                 -> "Xstraat 12" (een 0 is geen nummer; "Xstraat 0-0" en "0-4" blijven zonder nummer)
 // Geen nummer ("Onbekend-Onbekend", "nvt-nvt", "hoek-hoek") of iets anders dan nummers: "" (de kaart toont de straat).
 const NR=/^([1-9]\d{0,3})([a-z]{0,2})$/i;
 const nrVolgorde=(a,b)=>Number(NR.exec(a)[1])-Number(NR.exec(b)[1])||NR.exec(a)[2].toLowerCase().localeCompare(NR.exec(b)[2].toLowerCase());
@@ -97,6 +105,9 @@ function nummerVanBron(deel){
   if(d.length===1)return NR.test(d[0])?d[0]:"";
   if(d.length!==2)return"";
   const[a,b]=d,hoekA=/^hoek$/i.test(a),hoekB=/^hoek$/i.test(b);
+  // "12-0": A-Sign vult een ontbrekend tweede nummer met 0; het eerste is de plaats. "0-0" en "0-4" blijven zonder nummer
+  // (een 0 vooraan is geen plaats).
+  if(/^0+$/.test(b)&&NR.test(a))return a;
   if(hoekA&&NR.test(b))return`hoek–${b}`;
   if(hoekB&&NR.test(a))return`${a}–hoek`;
   if(!NR.test(a)||!NR.test(b))return"";

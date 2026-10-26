@@ -17,7 +17,9 @@ test("een A-Sign omleiding vermeldt niet vanzelf de reden van de werf", () => {
 });
 test("terrasstatus krijgt privacycontext zonder verdwenen kaarten", () => {
   const item = {source:"terraces",item:{kind:"terrace"}};
-  assert.match(kaartBronNoot(item),/uitbater en huisnummer/);
+  assert.match(kaartBronNoot(item),/uitbater wordt hier niet getoond/);
+  // Live toont een terras zijn adres met huisnummer (regel van de eigenaar van 26 oktober 2026): de noot zegt niet anders.
+  assert.doesNotMatch(kaartBronNoot(item),/huisnummer/);
 });
 test("normale niet-vage kaarten krijgen geen onnodige waarschuwing", () => {
   assert.equal(kaartBronNoot({source:"agenda",title:"Concert",item:{}}),"");

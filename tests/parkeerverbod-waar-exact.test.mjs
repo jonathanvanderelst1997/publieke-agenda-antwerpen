@@ -57,7 +57,7 @@ const VERRAAD = /werfsignal|\bikv\b|in het kader van|verhuis|evenementen gesteun
 const ms = (iso) => Date.parse(`${iso}T00:00:00Z`);
 const uur = (h) => Date.UTC(1899, 11, 30, h); // A-Sign bewaart een uur als een tijdstip op 30 december 1899
 const ZIN_LIVE = "Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn (nog) niet geladen.";
-const feat = (nr, adres, extra = {}) => ({ attributes: { Dossiernummer: "2099-000777", Locatienummer: String(nr), Status: "Goedgekeurd", Adres: adres, Postcode: "2000", Reden: "Verhuis", Startdatum: ms("2099-03-12"), Einddatum: ms("2099-03-13"), Starttijd: uur(8), Eindtijd: uur(18), EnkelWeekdagen: "0", GipodID: null, District: "ANTWERPEN", ...extra } });
+const feat = (nr, adres, extra = {}) => ({ attributes: { Dossiernummer: "2099-000777", Locatienummer: String(nr), Status: "Goedgekeurd", Adres: adres, Postcode: "2000", Reden: "Aanvraag tot het plaatsen van een container", Startdatum: ms("2099-03-12"), Einddatum: ms("2099-03-13"), Starttijd: uur(8), Eindtijd: uur(18), EnkelWeekdagen: "0", GipodID: null, District: "ANTWERPEN", ...extra } });
 // Zoals de browser het live maakt (alleenLive: het huisnummer of bereik van publiekParkeerAdres), met de straat van elke rij.
 const live = (feats, straten) => collectPublicSpace({ parkingFeatures: feats, alleenLive: true }).map((r, i) => ({ ...r, streets: [straten[i]] }));
 // Alles wat een bewoner van de kaart kan zien (ook ingeklapt), zonder het interne item.

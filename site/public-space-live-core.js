@@ -1,5 +1,5 @@
 import {PUBLIC_PARKING_STATUSES,dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
-import { PARKEERVERBOD_TITEL, publiekParkeerAdres } from "./adres-privacy.js";
+import { PARKEERVERBOD_TITEL, isVerhuisReden, publiekParkeerAdres } from "./adres-privacy.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -106,7 +106,8 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
     out.push({
       // De titel is altijd "Parkeerverbod": waar en wanneer, nooit waarom (site/adres-privacy.js).
       id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:PARKEERVERBOD_TITEL,
-      location:(alleenLive?liveAdres.get(n.key):null)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
+      // Live de plaats met het huisnummer, behalve bij een verhuizing (isVerhuisReden in site/adres-privacy.js): dan de straat.
+      location:(alleenLive&&!isVerhuisReden(n.reason)?liveAdres.get(n.key):null)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
       detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
       // Voor de kaart in gewone taal (place-core.js): de uren en een GIPOD-id als de stad er een geeft. De reden van
       // de stad (`reason`) alleen voor de interne logica (een parkeerverbod bij zijn werfzone of evenement), nooit als

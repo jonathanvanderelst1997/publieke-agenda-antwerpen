@@ -11,7 +11,7 @@ import path from "node:path";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { PARKEERVERBOD_TITEL, parkeerverbodZonderReden } from "../site/adres-privacy.js";
+import { PARKEERVERBOD_TITEL, isVerhuisReden, parkeerverbodZonderReden } from "../site/adres-privacy.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
 import { agendaEntry, publicSpaceEntries, publicSpaceEntry, samenWerven, verrijkMetContext, werkEntries } from "../site/place-core.js";
 import { duidelijkeKaart } from "../site/permit-clarity.js";
@@ -76,8 +76,14 @@ test("de regel zelf: titel 'Parkeerverbod' en nooit een veld reason, ook voor de
   assert.equal(parkeerverbodZonderReden(schoon), schoon, "een schoon item blijft hetzelfde object");
 });
 
-test("live laag en kaart: welke reden ook, de kaart van een parkeerverbod is letter voor letter dezelfde (titel 'Parkeerverbod')", () => {
+// Regel van de eigenaar (26 oktober 2026): het huisnummer staat er altijd, behalve bij een verhuizing. Bij een verhuizing is
+// de kaart letter voor letter die zonder huisnummer (zoals de verversing ze bewaart), bij elke andere reden die met.
+test("live laag en kaart: welke reden ook, de kaart van een parkeerverbod is letter voor letter dezelfde (titel 'Parkeerverbod'); bij een verhuizing zonder huisnummer", () => {
   const basis = zichtbaar(publicSpaceEntries([liveItem("")], { vandaag: VANDAAG, straat: PROEF.name })[0]);
+  const zonderNummer = zichtbaar(publicSpaceEntries([liveItem("", {}, { alleenLive: false })], { vandaag: VANDAAG, straat: PROEF.name })[0]);
+  assert.notEqual(zonderNummer, basis);
+  assert.doesNotMatch(zonderNummer, /Proefstraat 1[24]/);
+  assert.match(zonderNummer, /Proefstraat, 2000 Antwerpen/);
   assert.match(basis, /"Parkeerverbod"/);
   assert.match(basis, /Niet parkeren van 7\.00 tot 17\.00 uur\./, "wanneer: de uren");
   // Waar exact: het bereik zoals publiekParkeerAdres het schrijft (alleen live).
@@ -96,7 +102,7 @@ test("live laag en kaart: welke reden ook, de kaart van een parkeerverbod is let
       zonderReden(tekst, reden, verraad);
       assert.doesNotMatch(tekst, NOOIT, reden);
     }
-    assert.equal(zichtbaar(gebundeld[0]), basis, `de reden "${reden}" verandert wat de kaart toont`);
+    assert.equal(zichtbaar(gebundeld[0]), isVerhuisReden(reden) ? zonderNummer : basis, `de reden "${reden}" verandert wat de kaart toont`);
   }
 });
 
