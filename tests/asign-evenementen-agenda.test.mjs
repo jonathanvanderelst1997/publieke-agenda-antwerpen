@@ -10,7 +10,6 @@ import {
   ASIGN_EVENEMENTEN_SOURCE_ID, DUBBEL_METER, MAX_DAGEN_APART, asignAgendapunten, asignEvenementenDocument, dossierFeiten, isDubbel,
   koppelBesluiten, perioden, schrijfAsignEvenementen, titelVan, urenVan,
 } from "../lib/asign-evenementen-agenda.mjs";
-import { naamMetHuisnummer } from "../lib/ebesluit-evenementen.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
 import { validateEventContract } from "../lib/event-contract.mjs";
@@ -215,10 +214,15 @@ test("privacyscan op de uitvoer: geen omschrijving, beheerder, aanvrager, huisnu
   const tekst = JSON.stringify(document);
   for (const verboden of ["Jan Voorbeeld", "Piet Proefpersoon", "0470", "Doop bij", "Proefstraat 12", "dossierBeheerder", "aanvrager", "Proeftunnel"]) assert.equal(tekst.includes(verboden), false, `${verboden} lekt`);
   assert.deepEqual(privacyFindings(document), []);
-  for (const item of document.items) for (const veld of [item.title, item.location, item.info, item.timeText]) assert.equal(naamMetHuisnummer(veld), false, `huisnummer in ${veld}`);
   // Een organisator met een rechtsvorm mag wel.
   const metVzw = asignEvenementenDocument({ feiten: [f], hand: { dossiers: { ET2099000060: fiche({ zekerheid: "zeker", naam: "Proefdoop", organisator: "Proefclub vzw" }) } }, vandaag: VANDAAG, retrievedAt: RETRIEVED }).document;
   assert.match(metVzw.items[0].info, /Organisatie: Proefclub vzw\./);
+  // Regel van de eigenaar van 26 oktober 2026: een huisnummer in de naam van een fiche blijft staan (bij een evenement altijd
+  // het exacte adres); de organisator nooit met een adres, en nooit een naam van een persoon.
+  const metNummer = asignEvenementenDocument({ feiten: [f], hand: { dossiers: { ET2099000060: fiche({ zekerheid: "zeker", naam: "Buurtfeest Proefstraat 12", organisator: "Proefclub vzw, Proefstraat 99" }) } }, vandaag: VANDAAG, retrievedAt: RETRIEVED }).document;
+  assert.equal(metNummer.items[0].title, "Buurtfeest Proefstraat 12");
+  assert.ok(!JSON.stringify(metNummer).includes("Proefstraat 99"), "de zetel van de organisator is geen plek van het evenement");
+  assert.ok(!JSON.stringify(metNummer).includes("Jan Voorbeeld"));
 });
 
 test("schrijfAsignEvenementen schrijft een geldig brondocument en laat bij een fout het vorige staan", () => {

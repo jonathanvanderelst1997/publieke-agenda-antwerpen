@@ -56,7 +56,10 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     result = await ontdekEvenementBesluiten({
       fetch: fetchImpl,
       today,
-      cache: vorig?.leesversie === LEESVERSIE ? vorig.besluiten : [],
+      // Ook een bestand van een oudere leesversie (vanaf 2: dezelfde velden): die besluiten blijven staan tot ze opnieuw
+      // gelezen zijn (cacheLeesversie), zodat geen agendapunt verdwijnt, ook geen Districtsfonds van buiten het zoekvenster.
+      cache: Number(vorig?.leesversie) >= 2 && Array.isArray(vorig?.besluiten) ? vorig.besluiten : [],
+      cacheLeesversie: Number(vorig?.leesversie) >= 2 ? vorig.leesversie : LEESVERSIE,
       straten: leesStraten(rootDir),
       log,
       ...(sleep ? { sleep } : {}),
@@ -72,7 +75,9 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   // Eén besluit met een "@", een huisnummer of een vreemde vorm legt de bron niet weken stil: het wordt
   // opgekuist (geen naam of plaats meer, dus geen agendapunt) of valt weg; de rest wordt geschreven.
   const bruikbaar = bruikbareBesluiten(result.besluiten);
-  const besluiten = besluitenDocument({ generatedAt: retrievedAt, venster: result.venster, besluiten: bruikbaar.besluiten });
+  // De nieuwe leesversie pas als alles opnieuw gelezen is; anders leest de volgende verversing de rest.
+  const leesversie = Number(vorig?.leesversie) >= 2 && vorig.leesversie !== LEESVERSIE && result.herleesRest > 0 ? vorig.leesversie : LEESVERSIE;
+  const besluiten = besluitenDocument({ generatedAt: retrievedAt, venster: result.venster, besluiten: bruikbaar.besluiten, leesversie });
   const fouten = validateEvenementBesluiten(besluiten);
   if (fouten.length) {
     // Alleen een fout in het bestand zelf (niet in één besluit): liever de vorige stand.
@@ -80,7 +85,7 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
     return [keepPreviousOnError(rootDir, SOURCE_ID, previous, "invalid_output", { dryRun, at: retrievedAt })];
   }
   const screened = screenItems(agendapuntenUitBesluiten(besluiten.besluiten, { today, retrievedAt }));
-  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, rejected: screened.rejected };
+  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, herleesRest: result.herleesRest, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, rejected: screened.rejected };
   if (dryRun) {
     log(JSON.stringify({ source: SOURCE_ID, dryRun: true, ...counts }));
     return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length })];
