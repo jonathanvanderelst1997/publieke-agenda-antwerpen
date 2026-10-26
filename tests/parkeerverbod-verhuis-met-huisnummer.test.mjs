@@ -59,10 +59,11 @@ test("een verhuis: overal het huisnummer, de titel 'Parkeerverbod', en nergens h
   }
 });
 
-test("A-Sign schrijft een ontbrekend tweede nummer als 0: \"12-0\" wordt nr. 12, \"0-0\" en \"0-12\" blijven zonder nummer", () => {
+test("A-Sign schrijft een ontbrekend nummer als 0: \"12-0\" en \"0-12\" worden nr. 12, \"0-0\" blijft zonder nummer", () => {
   const exact = (adres) => publiekParkeerAdres(adres, adresZonderHuisnummer(adres));
   assert.equal(exact("Proefstraat 12-0 2000 Antwerpen"), "Proefstraat 12, 2000 Antwerpen");
-  assert.equal(exact("Proefstraat 0-12 2000 Antwerpen"), "", "een 0 vooraan is geen plaats");
+  // Regel van 26 oktober 2026: altijd het huisnummer; de 0 is geen nummer, de 12 wel (nakijkronde van head 2d978a01).
+  assert.equal(exact("Proefstraat 0-12 2000 Antwerpen"), "Proefstraat 12, 2000 Antwerpen");
   assert.equal(exact("Proefstraat 0-0 2000 Antwerpen"), "");
   assert.equal(item("Container", "1", "Proefstraat 12-0 2000 Antwerpen").location, "Proefstraat 12, 2000 Antwerpen");
   assert.equal(item("Verhuis", "1", "Proefstraat 12-0 2000 Antwerpen").location, "Proefstraat 12, 2000 Antwerpen");
@@ -135,4 +136,21 @@ test("straatbestand: de bundelrij met de andere plaatsen van hetzelfde parkeerve
   assert.doesNotMatch(zichtbaar(kaart), VERRAAD);
   // De lijst per straat: in de andere straat de plaats van de bundelrij, met het huisnummer.
   assert.equal(parkeerverbodInLijst(bundel, { straat: TWEEDE }).waar, "Tweedeproefstraat 3, 2000 Antwerpen");
+});
+
+test("nakijkronde van head 2d978a01: een straat die geen straat is krijgt nooit een nummer; ladderlift is ook een verhuis", () => {
+  const namen = ["Proefstraat", "Proefmeir"]; // verzonnen; "Proefmeir" eindigt niet op een straatwoord maar staat in de lijst
+  for (const plaats of ["Jan Proefmans 12, 2000 Antwerpen", "Proefstraat thv 12, 2000 Antwerpen", "Proefstraat Proefmans 12, 2000 Antwerpen"]) {
+    assert.equal(isPubliekParkeerAdres(plaats, namen), false, plaats);
+    assert.doesNotMatch(parkeerAdresVoorOpslag(plaats, namen), /Proefmans|thv|12/, plaats);
+  }
+  assert.equal(parkeerAdresVoorOpslag("Proefstraat Proefmans 2000 Antwerpen", namen), "2000 Antwerpen");
+  assert.equal(parkeerAdresVoorOpslag("Proefstraat Proefmans 2000 Antwerpen", namen, { straat: "Proefstraat" }), "Proefstraat, 2000 Antwerpen");
+  for (const plaats of ["Proefstraat 12, 2000 Antwerpen", "Proefmeir 12–14, 2000 Antwerpen", "Testlaan 3, 2018 Antwerpen"]) {
+    assert.equal(isPubliekParkeerAdres(plaats, namen), true, plaats);
+    assert.equal(parkeerAdresVoorOpslag(plaats, namen), plaats, plaats);
+  }
+  assert.equal(publiekParkeerAdres("Proefmeir 12-14 2000 Antwerpen", adresZonderHuisnummer("Proefmeir 12-14 2000 Antwerpen", namen), namen), "Proefmeir 12–14, 2000 Antwerpen");
+  for (const t of ["ladderlift", "Ladder-lift", "meubeltransport", "levering meubelen"]) assert.equal(noemtVerhuis(t), true, t);
+  assert.equal(isPubliekParkeerAdres("Proefstraat 12, 2000 Antwerpen ladderlift", namen), false);
 });

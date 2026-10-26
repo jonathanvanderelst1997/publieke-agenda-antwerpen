@@ -204,6 +204,11 @@ test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opsl
     ["Proefstraat 12-12 bus 3 2000 Antwerpen", "Proefstraat 12, 2000 Antwerpen"],
     // Een bereik over (bijna) de hele straat: het bereik van de bron.
     ["Proefstraat 1-400 2000 Antwerpen", "Proefstraat 1–400, 2000 Antwerpen"],
+    // Nakijkronde van head 2d978a01: andere schrijfwijzen houden hun nummer ("0-4": het nummer na de 0).
+    ["Proefstraat 0-4 2000 Antwerpen", "Proefstraat 4, 2000 Antwerpen"],
+    ["Proefstraat 12+14 2000 Antwerpen", "Proefstraat 12 en 14, 2000 Antwerpen"],
+    ["Proefstraat 12,14 2000 Antwerpen", "Proefstraat 12 en 14, 2000 Antwerpen"],
+    ["Proefstraat 12bis-14 2000 Antwerpen", "Proefstraat 12bis–14, 2000 Antwerpen"],
   ];
   for (const [bron, plaats] of vormen) {
     const straat = adresZonderHuisnummer(bron);
@@ -217,7 +222,7 @@ test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opsl
   }
   // Geen huisnummer in de bron, of een adres dat niet klopt met de straat: niets (de kaart toont dan de straat).
   for (const bron of ["Proefstraat nvt-nvt 2000 Antwerpen", "Proefstraat Onbekend-Onbekend 2000 Antwerpen", "Proefstraat hoek-hoek 2000 Antwerpen",
-    "Proefstraat 2000 Antwerpen", "Proefstraat 12-12 2000 Antwerpen Jan Voorbeeld", "Proefstraat 12-x 2000 Antwerpen", "Proefstraat 0-4 2000 Antwerpen"]) {
+    "Proefstraat 2000 Antwerpen", "Proefstraat 12-12 2000 Antwerpen Jan Voorbeeld", "Proefstraat 12-x 2000 Antwerpen", "Proefstraat 0-0 2000 Antwerpen"]) {
     assert.equal(publiekParkeerAdres(bron, adresZonderHuisnummer(bron)), "", bron);
   }
   assert.equal(publiekParkeerAdres("Anderestraat 12-12 2000 Antwerpen", "Proefstraat, 2000 Antwerpen"), "", "een andere straat dan de geschoonde");
