@@ -206,31 +206,32 @@ test("parkeerverbod: weekdagen alleen bij \"1\", de uren uit de bron, en een GIP
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ GipodID: "12345678" })] });
   assert.equal(item.detail, "");
   assert.equal(item.gipodId, 12345678);
-  assert.equal(bb.bezoekersLinks(pc.publicSpaceEntry(item))[0].url, "https://www.geopunt.be/?app=hinder-in-kaart&gipodid=12345678");
+  // De algemene kaart van Hinder in Kaart: met gipodid opent die het record met contactgegevens (site/gipod-bron.js).
+  assert.equal(bb.bezoekersLinks(pc.publicSpaceEntry(item))[0].url, "https://www.geopunt.be/?app=hinder-in-kaart");
   assert.match(bron("site/public-space-live.js"), /Starttijd,Eindtijd/);
 });
 
-test("parkeerverbod in gewone taal: waarvoor, de uren, en een eerlijke zin zonder reden", () => {
-  assert.equal(pc.parkeerTitel("Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen"), "Parkeerverbod voor een verhuis");
-  assert.equal(pc.parkeerTitel("Melding ikv werfsignalisaties"), "Parkeerverbod voor een werf");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het inrichten van een laad-en loszone"), "Parkeerverbod voor een laad- en loszone");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het plaatsen van een beweegbaar toestel (voorbeeld: ladderlift, schaarlift, hoogtewerker)"), "Parkeerverbod voor een lift of hoogtewerker");
-  assert.equal(pc.parkeerTitel(""), "Tijdelijk parkeerverbod");
-  assert.equal(pc.parkeerTitel("Iets nieuws"), "Tijdelijk parkeerverbod");
+// Besluit van de eigenaar (18 oktober 2026): dat er een parkeerverbod is, waar en wanneer, nooit waarom. Met of zonder
+// reden in de bron: dezelfde titel en dezelfde zin (de strenge toets: tests/parkeerverbod-zonder-reden.test.mjs).
+test("parkeerverbod in gewone taal: de titel \"Parkeerverbod\", de uren, en nooit de reden", () => {
+  assert.equal(pc.PARKEERVERBOD_TITEL, "Parkeerverbod");
+  assert.equal(pc.parkeerTitel, undefined, "geen titel uit de reden meer");
   assert.equal(pc.parkeerUren({ startTime: "00:00", endTime: "23:59" }), "hele dag");
   assert.equal(pc.parkeerUren({ startTime: "07:00", endTime: "17:00" }), "van 7.00 tot 17.00 uur");
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Status: "In effect" })] });
+  assert.equal(item.title, "Parkeerverbod");
   const e = pc.publicSpaceEntry(item);
-  assert.equal(e.title, "Parkeerverbod voor een verhuis");
+  assert.equal(e.title, "Parkeerverbod");
   assert.equal(e.summary, "Niet parkeren van 7.00 tot 17.00 uur.");
   assert.equal(e.status, "Van kracht");
   assert.equal(e.time, "07:00");
-  assert.equal(e.info, "Reden volgens de stad: aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen");
-  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "Reden volgens de stad: melding in het kader van werfsignalisaties");
+  assert.equal(e.info, "");
+  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "");
   const [zonder] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Reden: null, Starttijd: uur(0), Eindtijd: uur(23, 59), EnkelWeekdagen: "1", Einddatum: dag2 })] });
   const z = pc.publicSpaceEntry(zonder);
-  assert.equal(z.title, "Tijdelijk parkeerverbod");
-  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen. De stad publiceert niet waarvoor.");
+  assert.equal(z.title, "Parkeerverbod");
+  // Geen "De stad publiceert niet waarvoor": de stad publiceert het wel, de site toont het bewust niet.
+  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen.");
   assert.doesNotMatch(z.title, /Parkeerverbod: /);
   assert.equal(pc.statusNl("vergund"), "Vergund door de stad");
 });
@@ -251,8 +252,10 @@ test("één rij per parkeerverbod-dossier en per werfzone-dossier, met jouw stra
   assert.equal(werf[0].title, "Werfzone met omleiding");
   assert.equal(werf[0].summary, "Je straat ligt op de omleiding; de werfzone zelf ligt elders. Vergund door de stad. De stad publiceert niet waarvoor deze werfzone dient.");
   assert.equal(werf[0].location, "Omleiding via Proefstraat + 3 andere straten");
-  assert.deepEqual([werf[0].start, werf[0].end], ["2026-10-26", "2026-10-31"]);
-  assert.deepEqual(werf[0].regels, [["Werfzone in", "Astraat en Bstraat"], ["Omleiding via", "Proefstraat + 3 andere straten"], ["3 fasen", "26 okt · 27–28 okt · 29–31 okt"]]);
+  // De Proefstraat ligt alleen in fase 1 en 2 op de omleiding (fase 3 is alleen de werfzone): de kaart toont die dagen,
+  // de hele werfzone staat in één regel (vaagheidsplan 12-10-2026, stap 4).
+  assert.deepEqual([werf[0].start, werf[0].end], ["2026-10-26", "2026-10-28"]);
+  assert.deepEqual(werf[0].regels, [["Werfzone in", "Astraat en Bstraat"], ["Omleiding via", "Proefstraat + 3 andere straten"], ["2 fasen in je straat", "26 okt · 27–28 okt"], ["Hele werfzone", "26–31 okt (in je straat alleen op de dagen van deze kaart; andere fasen: 29–31 okt)"]]);
   assert.doesNotMatch(JSON.stringify([werf[0].title, werf[0].info, werf[0].regels]), /Fase \d/);
   assert.equal(werf[0].straten.length, 5);
   assert.deepEqual(pk.duidelijkeKaart(werf[0], werf[0].item).regels, werf[0].regels, "de regels komen op de kaart");
@@ -298,7 +301,8 @@ test("terrassen: geen \"niet actief\", de straat van het adres, en een titel in 
   assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(inPlace\(live\.terraces\)\)/);
   // Ook de volledige lijsten onderaan gebruiken de titels in gewone taal, zonder fasenummer.
   assert.match(bron("site/terraces-live.js"), /<h3>\$\{esc\(terrasTitel\(item\.terraceType\)\)\}<\/h3>/);
-  assert.match(bron("site/public-space-live.js"), /parkeerTitel\(i\.reason\?\?i\.title\)/);
+  assert.match(bron("site/public-space-live.js"), /const titel=i=>i\.kind==="parking"\?PARKEERVERBOD_TITEL:/);
+  assert.doesNotMatch(bron("site/public-space-live.js"), /i\.reason|Reden volgens de stad/);
   assert.doesNotMatch(bron("site/public-space-live.js"), /<h3>\$\{esc\(i\.title\)\}/);
 });
 
@@ -318,12 +322,15 @@ test("een ruwe databron staat apart, in een ingeklapt blok \"Technische details\
 });
 
 // ---- 4. De melding viel op een gsm buiten het eerste scherm ----
-test("de melding over een laag die niet laadde, staat boven de tegels; tegels tonen geen valse 0", () => {
+// Sinds het besluit van 18-10-2026 ("niemand moet weten als er iets faalt") is er geen melding meer, ook niet boven de
+// tegels; een tegel toont nog altijd geen valse 0 (een streepje, geen "?").
+test("een laag die niet laadde: geen melding boven de tegels, en de tegels tonen geen valse 0", () => {
   const view = bron("site/place-view.js");
   const start = view.indexOf("placeBox.innerHTML = `");
   const sjabloon = view.slice(start, view.indexOf("`;", start));
-  assert.ok(sjabloon.indexOf("pv-place-failed") > 0 && sjabloon.indexOf("pv-place-failed") < sjabloon.indexOf('class="pv-stats"'), "melding vóór de tegels");
-  assert.match(view, /state\.werkenOnvolledig \? "\?"/);
+  assert.ok(sjabloon.indexOf('class="pv-stats"') > 0);
+  assert.equal(sjabloon.indexOf("pv-place-failed"), -1, "geen melding vóór de tegels");
+  assert.match(view, /state\.werkenOnvolledig \? "–"/);
   assert.match(view, /loading\.push\("terrassen"\)/, "ook terrassen melden dat ze nog laden");
 });
 
@@ -393,9 +400,9 @@ test("straatnamen met een cijfer blijven heel, en een tweede opkuis verandert ni
   }
 });
 
-test("lege staat met een laag die niet laadde: alleen iets zeggen over wat wel geladen is", () => {
+test("lege staat met een laag die niet laadde: niet 'niets op de agenda', en ook niet dat iets niet laadde", () => {
   const straat = { type: "straat", label: "Proefstraat" };
-  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "In wat wel geladen is, staat niets voor deze straat.");
+  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "Voor deze straat is niets gevonden.");
   assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: false }), "Er staat niets op de agenda voor deze straat.");
   assert.match(bron("site/place-view.js"), /onvolledig: Boolean\(state\.onvolledig\)/);
 });

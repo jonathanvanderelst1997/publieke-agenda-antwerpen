@@ -52,11 +52,14 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
 - De gewone weekmarkten staan als één gebundelde kaart (markt, dagen, uren), niet als losse marktdagen.
 - Bovenaan: de zoekbalk op plek (zie hieronder). Zonder plek toont het overzicht uitgaan & evenementen; wie een
   straat, wijk of postcode kiest zonder zelf soorten te kiezen, ziet alles op die plek (ook werken en hinder).
-- Versheid: de kop toont "bijgewerkt op …". Is de laatste verversing ouder dan 48 uur (een achterstand), dan
-  verschijnt een vriendelijke banner en blijven **bronitems** (uit de automatische bronnen) die alleen door de
-  ouderdom van hun bron vielen nog 14 dagen zichtbaar met "Laatst bevestigd …". Zonder achterstand is er geen
-  "Laatst bevestigd", en handmatige items krijgen die gratie nooit (zie hieronder). Verlopen datums en
-  bronconflicten blijven verborgen. Het manifest en de eventpagina's veranderen hierdoor niet.
+- Versheid: de kop toont "Bijgewerkt …" met het tijdstip van de momentopname. Is de laatste verversing ouder dan
+  48 uur (een achterstand), dan blijven **bronitems** (uit de automatische bronnen) die alleen door de ouderdom van
+  hun bron vielen nog 14 dagen zichtbaar, zoals de andere items. Een bezoeker ziet daar niets van: geen melding,
+  geen oranje pil, geen "Laatst bevestigd" (besluit van de eigenaar van 18-10-2026, "niemand moet weten als er iets
+  faalt, de momentopname blijft wel goed"; vroeger een banner "De agenda wordt even niet ververst"). De eigenaar
+  krijgt dan een alarm-issue (de job `freshness` in `.github/workflows/refresh.yml`). Zonder achterstand is er
+  geen gratie, en handmatige items krijgen die nooit (zie hieronder). Verlopen datums en bronconflicten blijven
+  verborgen. Het manifest en de eventpagina's veranderen hierdoor niet.
 
 ## Handmatige items: zichtbaar tot en met de einddatum
 
@@ -91,6 +94,26 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   `npm run geo:straten`), de 24 wijken en de zes postcodes. Hoofdletters, accenten, huisnummers, "str." en
   "st." maken niet uit; bij een tikfout volgt "Bedoelde je …?", bij een ander district (Berchem, Deurne …) een
   uitleg. De suggesties staan in de pagina zelf (geen pop-up) en werken met pijltjes en Enter.
+- Zoeken in heel de stad (bouwplan stap 3, `site/stad-zoeken.js`): ook de straatnamen van de 9 andere districten
+  (`site/geo/straten-stad.json`: alleen naam, district en postcode; opnieuw ophalen met `npm run geo:straten-stad`).
+  Bron: de straatas per postzone van stad Antwerpen (wegenregister, laag 905 op geodata.antwerpen.be), onder de
+  [Gratis Open Data Licentie](https://www.antwerpen.be/info/gratis-open-data-licentie) van stad Antwerpen ("bron stad
+  Antwerpen"); een straatnaam zonder stuk straat in die laag (het Arenaplein) komt uit het Gebouwen- en
+  adressenregister van Basisregisters Vlaanderen (straatnaam en de postcode van haar adressen), onder de
+  [Modellicentie voor gratis hergebruik v1.0](https://data.vlaanderen.be/id/licentie/modellicentie-gratis-hergebruik/v1.0).
+  Elke naamgenoot staat erin (dezelfde naam in een andere postcode of een ander district). Een straat buiten district
+  Antwerpen zegt "ligt in district X, deze agenda volgt district Antwerpen" en toont wat de site daar wel kent: de
+  markten van de stad (GIPOD) en het districtsnieuws (antwerpen.be), met hun bron, plus een straat met dezelfde naam
+  in district Antwerpen. De lijst en de module laden pas bij de eerste letter in het zoekveld (of bij een link als
+  `?plek=Bist 2610` of `?plek=district:Berchem`): de eerste weergave wacht er niet op.
+- Enter opent nooit een gok: alleen de suggestie die je met de pijltjes koos, of de enige plek die precies zo heet.
+  Heten meer plekken zo (de Statiestraat in 2018, Berchem en Ekeren), of past er alleen iets met een tikfout of
+  midden in een naam ("Stenplein" zit in het Kunstenplein van Berchem, maar je bedoelde het Steenplein), dan zegt de
+  lijst dat en kies je zelf (`enterKeuze` in `site/place-core.js`). Bij zo'n gok staan de plekken van district
+  Antwerpen vooraan. Een straatnaam met een cijfer ("Fort 7-straat", "De 7 schakenpad") en haar deellink werken ook;
+  een straat heet overal zoals de bewoner ze kent, zonder de homoniemtoevoeging van de straatas ("Proefstraat_AN"
+  wordt "Proefstraat"; die gaat weg bij het inlezen, zie `docs/PUBLIC_SPACE_SOURCE_POLICY.md`), en een oude link met
+  de toevoeging werkt nog.
 - Een plek kiezen toont één overzicht van alles daar: komende evenementen, lopende en geplande werken (GIPOD),
   parkeerverboden en innames (A-Sign), inspraak en infomomenten, markten en vergunningen. Bovenaan staan de
   aantallen; bij een straat kies je ook de straal (alleen de straat, + 250 m, + 500 m, + 1 km).

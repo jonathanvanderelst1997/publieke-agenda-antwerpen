@@ -4,6 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
+import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink } from "../site/gipod-bron.js";
+import { eventpaginaZin } from "../site/onbekend-zinnen.js";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const items = loadExpandedAgendaItems(rootDir);
@@ -46,14 +48,17 @@ function safeHttps(value) {
   return /^https:\/\/[^\s"'<>]+$/i.test(String(value ?? "")) ? String(value) : "";
 }
 
+// Een GIPOD-link (een ruw record of de datasetfiche) wordt één bronvermelding met de datasetfiche: nooit een
+// link naar het ruwe record, dat contactgegevens draagt (site/gipod-bron.js).
 function sourceLinks(item) {
   const links = [];
   const seen = new Set();
   const add = (url, label) => {
-    const href = safeHttps(url);
+    const gipod = gipodLink(url);
+    const href = gipod ? GIPOD_METADATA_URL : safeHttps(url);
     if (!href || seen.has(href)) return;
     seen.add(href);
-    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(label)}</a></li>`);
+    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(gipod ? GIPOD_BRON : label)}</a></li>`);
   };
   if (Array.isArray(item.sources) && item.sources.length) {
     for (const source of item.sources) {
@@ -78,8 +83,11 @@ function buildEventRedirectPage(item) {
   const title = escapeHtml(item.title);
   const description = escapeHtml(item.info || `${item.title} in District Antwerpen.`);
   const dateText = escapeHtml(item.dateLabel || item.date);
-  const timeText = escapeHtml(item.timeText || "Uur via de officiële bron");
-  const location = escapeHtml(item.location || "Locatie via de officiële bron");
+  // Zonder uur of plaats: dat zeggen (onbekend-zinnen.js), geen belofte dat de officiële bron het wel heeft, en
+  // "niet in de bron" alleen bij een bron die er nooit een geeft (eventpaginaZin). Een uur in timeSlot ("14:00") is
+  // wel een uur.
+  const timeText = escapeHtml(item.timeText || (/^\d{2}:\d{2}$/.test(String(item.timeSlot || "")) ? item.timeSlot : eventpaginaZin("uur", item.sourceId)));
+  const location = escapeHtml(item.location || eventpaginaZin("plaats", item.sourceId));
   const sourcePublisher = escapeHtml(item.sourcePublisher || "Publieke organisator");
   const eventJson = jsonForHtml({
     "@context": "https://schema.org",

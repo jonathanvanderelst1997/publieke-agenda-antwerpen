@@ -88,8 +88,20 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
   if (soort === "werken") {
     // Een werf in stukken: een punt per stuk (werkEntries in place-core.js).
     const punten = rijenVan(entry).map((w) => w?.point).filter(isPoint).map((p) => [p[0], p[1]]);
-    if (!punten.length) return null;
-    return [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }];
+    // Een werfkaart (samenWerven in place-core.js): ook de werfzone en de omleiding (exact, zoals een werfzone), en de
+    // parkeerverboden bij benadering (een afgerond punt, zoals een los parkeerverbod).
+    const vlakken = [], lijnen = [], ongeveer = new Map();
+    for (const r of Array.isArray(entry.werfRijen) ? entry.werfRijen : []) {
+      if (r?.kind === "sgw") { vlakken.push(...(r?.vorm?.vlakken || [])); lijnen.push(...(r?.vorm?.lijnen || [])); continue; }
+      const p = middenBijBenadering(r?.vorm);
+      if (p) ongeveer.set(`${p[0]},${p[1]}`, p);
+    }
+    const delen = [
+      ...(punten.length ? [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }] : []),
+      ...vlakDeel(vlakken, exact), ...lijnDeel(lijnen, exact),
+      ...(ongeveer.size ? [{ geometry: ongeveer.size === 1 ? { type: "Point", coordinates: [...ongeveer.values()][0] } : { type: "MultiPoint", coordinates: [...ongeveer.values()] }, parcours: false, ongeveer: true }] : []),
+    ];
+    return delen.length ? delen : null;
   }
   if (soort === "evenement") {
     // Het hele dossier, ook buiten de gekozen plek. Exact: het parcours (parcours=true; zonder live vorm de schets
@@ -240,9 +252,13 @@ export function popupHtml(entries = [], today = "") {
     if (!eerder || String(e.start || "9999") < String(eerder.start || "9999")) perSleutel.set(k, e);
   }
   const uniek = [...perSleutel.values()].sort((a, b) => String(a.start || "9999").localeCompare(String(b.start || "9999")) || String(a.title).localeCompare(String(b.title), "nl"));
+  // Wanneer: de dagen, en de uren zoals de kaart ze zegt (timeText: "van 8.00 tot 18.00 uur, alleen op weekdagen"); alleen
+  // zonder die tekst het beginuur. Nakijkronde van 18 oktober 2026: een parkeerverbod zei hier "12 mrt · 08.00" (zonder
+  // einduur) of bij meer dagen geen uren, terwijl de kaart "van 8.00 tot 18.00 uur" zegt.
   const wanneer = (e) => {
     const datum = e.end && e.end > e.start ? kortBereik(e.start, e.end, today) : e.start ? kortDatum(e.start, today) : "";
-    return [datum, e.time ? e.time.replace(":", ".") : ""].filter(Boolean).join(" · ");
+    const uren = e.item?.kind === "parking" && e.timeText ? e.timeText : e.time ? e.time.replace(":", ".") : "";
+    return [datum, uren].filter(Boolean).join(" · ");
   };
   // Bij benadering: een parkeerverbod, een losse inname of een vergunning; van een evenement de innames naast het
   // parcours, de omleidingen en de verkeersvrije zones (kijk naar de delen van de vorm, niet alleen naar de soort).

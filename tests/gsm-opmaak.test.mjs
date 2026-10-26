@@ -191,11 +191,15 @@ const inname = (i, type, beschrijving) => ({
 });
 
 test("samen met kaart-uitleg.js: elk parcours uit het dossier staat zichtbaar, het nummer en de codes niet", () => {
-  const onderdelen = [["Parkeerverbod", "Parkeerverbod langs het parcours"], ["Parcours", "Parcours volwassenen 10 km"], ["Parcours", "Parcours jeugd 5 km"]];
-  const uitleg = evenementKaartje(evenementFeiten(onderdelen.map(([type, tekst], i) => inname(i + 1, type, tekst))), { vandaag: "2026-10-10" });
+  // De privacyfilter laat alleen hele straatnamen uit de straatas over: elk parcours noemt hier zijn straat.
+  const onderdelen = [["Parkeerverbod", "Parkeerverbod langs het parcours"], ["Parcours", "parcours volwassenen 10 km over de Testvest"], ["Parcours", "parcours jeugd 5 km over de Proefrui"]];
+  const isStraat = (n) => ["testvest", "proefrui"].includes(String(n).toLowerCase());
+  const uitleg = evenementKaartje(evenementFeiten(onderdelen.map(([type, tekst], i) => inname(i + 1, type, tekst)), { isStraat }), { vandaag: "2026-10-10" });
   assert.ok(Array.isArray(uitleg.beschrijvingen), "kaart-uitleg.js geeft de omschrijvingen ook als lijst");
   const k = plekView.kaartIndeling(uitleg, { reference: `Dossier ${DOSSIER}`, straten: 3 });
-  for (const deel of ["Parcours volwassenen 10 km", "Parcours jeugd 5 km"]) assert.ok(k.dossier.zichtbaar.some((b) => b.includes(deel)), deel);
+  // Een getal ("10 km") en elk ander woord vallen weg (site/witte-lijst.js); de straat van elk parcours blijft zichtbaar.
+  for (const deel of ["Parcours: Testvest", "Parcours: Proefrui"]) assert.ok(k.dossier.zichtbaar.some((b) => b.includes(deel)), deel);
+  assert.doesNotMatch(JSON.stringify(k.dossier), /volwassenen|jeugd|\d+ km/);
   const zichtbaar = JSON.stringify(k.regels);
   assert.doesNotMatch(zichtbaar, new RegExp(`${DOSSIER}|IOD = |ETL = `));
   assert.ok(k.bron.some(([, dd]) => dd === `Dossier ${DOSSIER}`));

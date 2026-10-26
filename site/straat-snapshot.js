@@ -5,6 +5,7 @@
 import { metInzage } from "./inzage-status.js";
 import { vergunningBronUrl } from "./permits-live-core.js";
 import { maatregelSleutel } from "./place-core.js";
+import { veiligeFase } from "./witte-lijst.js";
 
 // De lagen in een straatbestand en hun naam als live laag (window.PUBLIC_AGENDA_LIVE_STREETS).
 export const STRAAT_LAGEN = Object.freeze([
@@ -18,20 +19,37 @@ export const STRAATVELDEN = Object.freeze(["streets", "werfzoneStreets", "omleid
 const ASIGN = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer";
 // Velden die voor elk item van een soort gelijk zijn (of uit het item volgen): de bouwer laat ze weg en
 // vulAan() zet ze terug, zodat een item er hetzelfde uitziet als wanneer de browser het live maakt.
+// Een parkeerverbod uit een straatbestand draagt ook `plaatsVanDeOchtend`: zijn plaats is de straat en de postcode, nooit
+// het huisnummer (dat bewaart de repo niet, site/adres-privacy.js). De kaart zegt dan dat het huisnummer alleen live in
+// A-Sign staat (site/place-core.js, HUISNUMMER_LIVE); een live rij (publiekParkeerAdres) heeft die markering niet.
 const VAST = Object.freeze({
-  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20` },
+  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20`, plaatsVanDeOchtend: true },
   iod: { sourceLabel: "A-Sign IOD", sourceUrl: `${ASIGN}/22` },
   sgw: { sourceLabel: "A-Sign SGW", sourceUrl: `${ASIGN}/48` },
 });
 export const WEGGELATEN = Object.freeze({
   werken: Object.freeze([]),
-  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
+  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters", "plaatsVanDeOchtend"]),
   vergunningen: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });
 // Een samenvatting van de fasen van een evenement (scripts/build-straat-snapshots.mjs) staat kort in het
-// bestand: zonder straat, titel of detail.
-const samenvatting = (item) => ({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [], ...item });
+// bestand: zonder straat, titel of detail. De velden van het bestand houden hun volgorde (de vaste erachter), zodat de bouwer
+// een vorige stand die meegaat (een laag die niet laadde) ongewijzigd terugschrijft.
+const samenvatting = (item) => ({ ...item, ...Object.fromEntries(Object.entries({ kindLabel: "Inname openbaar domein", title: "", location: "", detail: item.phase ? `Fase ${item.phase}` : "", status: "", streets: [] }).filter(([veld]) => !(veld in item))) });
+// Vangnet: de naam van de fase van een inname (faseNaam, vrij in te vullen) uit een bewaard bestand opnieuw door de filter
+// (veiligeFase in site/witte-lijst.js), ook in `detail` ("Fase Opbouw · Dossiertype ETL"). De bouwer filtert al bij de
+// ingang (normalizeIod) en bij het schrijven (itemVoorStraat in scripts/build-straat-snapshots.mjs); een ouder of fout
+// bestand toont zo toch geen vrije tekst. Een straatnaam blijft alleen als het een straat van de inname zelf is (de straatas
+// zelf is hier niet geladen).
+export function veiligeInname(item) {
+  if (item?.kind !== "iod" || typeof item.phase !== "string" || !item.phase) return item;
+  const fase = veiligeFase(item.phase, { straten: Array.isArray(item.streets) ? item.streets : [] });
+  if (fase === item.phase) return item;
+  const delen = String(item.detail || "").split(" · ");
+  const detail = (delen[0] === `Fase ${item.phase}` ? [fase ? `Fase ${fase}` : "", ...delen.slice(1)] : delen.filter((d) => !/^Fase /.test(d))).filter(Boolean).join(" · ");
+  return { ...item, phase: fase, ...("detail" in item ? { detail } : {}) };
+}
 export function vulAan(item, laag) {
   if (laag === "publiekeRuimte") return { ...(item.faseSamenvatting ? samenvatting(item) : item), ...(VAST[item.kind] || {}) };
   if (laag === "vergunningen") return { ...item, sourceLabel: "Stad Antwerpen · omgevingsvergunningen in behandeling", sourceUrl: vergunningBronUrl(item.dossier, item.project) };
@@ -48,23 +66,31 @@ export function straatItems(doc, laag) {
     const uit = vulAan({ ...item }, laag);
     for (const veld of STRAATVELDEN) if (Array.isArray(uit[veld])) uit[veld] = uit[veld].map(ref).filter(Boolean);
     if (laag === "terrassen" && !("address" in uit)) uit.address = "";
-    return uit;
+    return laag === "publiekeRuimte" ? veiligeInname(uit) : uit;
   });
 }
 
 // ---------- laden ----------
 
-let indexBelofte = null;
-// site/straat-index.json: elke keer nagevraagd (cache "no-cache": een 304 als het niet veranderde).
+let indexBelofte = null, indexPogingen = 0;
+// Zo vaak vraagt één pagina de index hoogstens, als ze niet laadt (een afgebroken verzoek, een 404 of een kapot bestand).
+export const MAX_INDEX_POGINGEN = 3;
+// site/straat-index.json: elke keer nagevraagd (cache "no-cache": een 304 als het niet veranderde). Een gelukte index blijft
+// onthouden tot de pagina opnieuw laadt. Een mislukte niet (nakijkronde 6 van 18-10-2026: één keer geen index zette de
+// momentopname uit voor elke straat tot herladen): de volgende vraag (een andere straat, een wijk) probeert opnieuw, tot
+// MAX_INDEX_POGINGEN keer per pagina. Een vraag terwijl de vorige nog loopt, wacht op die.
 export function laadStraatIndex({ fetch: fetchImpl = (...a) => globalThis.fetch(...a) } = {}) {
-  if (!indexBelofte) {
-    indexBelofte = fetchImpl("/straat-index.json", { cache: "no-cache", headers: { Accept: "application/json" } })
-      .then((r) => (r.ok ? r.json() : null))
-      .then((doc) => (doc && doc.schemaVersion === 1 && doc.straten && typeof doc.straten === "object" ? doc : null))
-      .catch(() => null);
-    // Ook "geen index" blijft onthouden tot de volgende keer dat de pagina laadt: geen tweede vraag.
-  }
-  return indexBelofte;
+  if (indexBelofte) return indexBelofte;
+  if (indexPogingen >= MAX_INDEX_POGINGEN) return Promise.resolve(null);
+  indexPogingen += 1;
+  const belofte = Promise.resolve()
+    .then(() => fetchImpl("/straat-index.json", { cache: "no-cache", headers: { Accept: "application/json" } }))
+    .then((r) => (r.ok ? r.json() : null))
+    .then((doc) => (doc && doc.schemaVersion === 1 && doc.straten && typeof doc.straten === "object" ? doc : null))
+    .catch(() => null)
+    .then((doc) => { if (!doc && indexBelofte === belofte) indexBelofte = null; return doc; });
+  indexBelofte = belofte;
+  return belofte;
 }
 
 // De stand van één straat bij de ochtendverversing. `{ index, doc }`, met doc null als de straat toen
@@ -104,6 +130,66 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
   return lagen;
 }
 
+// ---------- de momentopname van een gebied (een wijk of postcode) ----------
+
+// De stand van de ochtend van alle straten van een gebied (`ids`, de officiële straat-id's), met hoogstens `gelijktijdig`
+// verzoeken tegelijk: postcode 2000 telt bijna 500 straten. Geeft { index, standen: [{ id, doc }], ontbrekend }:
+// `ontbrekend` telt de straten zonder stand (een straat die alleen live mag, een bestand dat niet laadde of niet klopt).
+// Een straat zonder bestand had niets bij de verversing: die vraagt niets en telt mee als stand zonder items. Zonder
+// index: null (geen momentopname, zoals bij een straat).
+export async function laadGebied(ids = [], { fetch: fetchImpl = (...a) => globalThis.fetch(...a), gelijktijdig = 8, nu = () => Date.now() } = {}) {
+  const index = await laadStraatIndex({ fetch: fetchImpl });
+  if (!index) return null;
+  const lijst = [...new Set((Array.isArray(ids) ? ids : []).map(String))];
+  const standen = new Array(lijst.length).fill(null);
+  let ontbrekend = 0, volgende = 0;
+  const werker = async () => {
+    while (volgende < lijst.length) {
+      const i = volgende++;
+      const stand = await laadStraat(lijst[i], { fetch: fetchImpl, nu }).catch(() => null);
+      if (stand) standen[i] = { id: lijst[i], doc: stand.doc };
+      else ontbrekend += 1;
+    }
+  };
+  await Promise.all(Array.from({ length: Math.max(1, Math.min(Number(gelijktijdig) || 1, lijst.length)) }, werker));
+  return { index, standen: standen.filter(Boolean), ontbrekend };
+}
+
+// De items van een gebied per live laag (works, publicSpace, permits, terraces), elk item één keer (op zijn id): een item
+// dat aan meer straten hangt, staat in het bestand van elk van die straten. Een volledige rij gaat voor een korte (een
+// `bundel`: de andere rijen van een werfzone of parkeerverbod) of een samenvatting van fasen; de straten van alle
+// bestanden samen (een rij van een evenementendossier houdt in elk bestand alleen die straat). Alleen lagen met een
+// bruikbare stand in de index (ok of stale, zoals bij een straat in place-view.js). `volledig`: elke straat van het
+// gebied had een stand; `ververst`: de oudste stand van die lagen.
+const kortItem = (item) => Boolean(item?.bundel || item?.faseSamenvatting);
+function itemSamen(oud, nieuw) {
+  const [basis, ander] = kortItem(oud) && !kortItem(nieuw) ? [nieuw, oud] : [oud, nieuw];
+  const uit = { ...basis };
+  for (const veld of STRAATVELDEN) if (Array.isArray(basis[veld]) || Array.isArray(ander[veld])) uit[veld] = samenRefs(basis[veld] || [], ander[veld] || []);
+  return uit;
+}
+export function lagenUitGebied(gebied, { inzage = null, vandaag = "" } = {}) {
+  const lagen = {};
+  if (!gebied?.index) return { lagen, volledig: false, ververst: "" };
+  const bruikbaar = (laag) => ["ok", "stale"].includes(gebied.index.lagen?.[laag]?.status);
+  for (const [laag, live] of STRAAT_LAGEN) {
+    if (!bruikbaar(laag)) continue;
+    const perId = new Map();
+    for (const { doc } of gebied.standen || []) {
+      if (!doc) continue;
+      for (const item of straatItems(doc, laag)) {
+        const sleutel = itemId(item);
+        if (!sleutel) continue;
+        perId.set(sleutel, perId.has(sleutel) ? itemSamen(perId.get(sleutel), item) : item);
+      }
+    }
+    lagen[live] = [...perId.values()];
+  }
+  if (lagen.permits) lagen.permits = metInzage(lagen.permits, inzage, vandaag);
+  const tijden = STRAAT_LAGEN.filter(([laag]) => bruikbaar(laag)).map(([laag]) => gebied.index.lagen[laag].sinds).filter(Boolean).sort();
+  return { lagen, volledig: gebied.ontbrekend === 0, ververst: tijden[0] || gebied.index.ververst || "" };
+}
+
 // Als de rijen van de dossiers in het kader live niet geladen konden worden (publiekeRuimteInKader in
 // site/public-space-live.js): de live items van het kader, aangevuld met wat buiten dat kader ligt maar wel
 // op de kaart van de straat hoort (scripts/build-straat-snapshots.mjs):
@@ -113,7 +199,7 @@ export function lagenUitStand(stand, { inzage = null, vandaag = "" } = {}) {
 // - een werfzone of omleiding die het kader maar half raakt: live dan alleen "Omleiding", terwijl het een
 //   werfzone met omleiding is. Dan de soorten, straten en periode van de ochtend erbij.
 // Alleen voor een dossier dat live nog in het kader staat; een dossier dat live wegviel, blijft weg. Een
-// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dag, uren en reden): een
+// bundelrij alleen als live nog een rij dezelfde maatregel is (zelfde dossier, dagen en uren; maatregelSleutel): een
 // parkeerverbod dat live naar een andere dag schoof, houdt anders de oude dag van de ochtend.
 const refSleutel = (ref) => [ref?.id || "", ref?.name || "", ref?.postcode || ""].join("|");
 const samenRefs = (a = [], b = []) => [...new Map([...a, ...b].filter((ref) => ref?.name).map((ref) => [refSleutel(ref), ref])).values()];
@@ -189,25 +275,24 @@ export function tijdstipTekst(iso, nu = new Date()) {
   return `${Number(dag.slice(8, 10))} ${MAANDEN[Number(dag.slice(5, 7)) - 1]} ${uur}`;
 }
 
-// De zin onder de plek. `stand`: het tijdstip van de ochtendverversing; `nieuw`/`weg`: wat de live
-// controle anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan);
-// `mislukteDelen`: de lagen die live niet lukten (de rest wel).
-// Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er
-// bij wat rond de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog)
-// of "mislukt" (de straatassen laadden niet: dan blijft het bij de straat zelf).
-export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, mislukteDelen = [], straal = 0, straalStand = "klaar", nu = new Date() } = {}) {
+// De zin onder de plek. `ververst`: het tijdstip van de ochtendverversing; `nieuw`/`weg`: wat de live controle
+// anders vond; `mislukt`: de live controle lukte niet (dan blijft de stand van de ochtend staan); `mislukteDelen`: de
+// lagen die live niet lukten (de rest wel).
+// Met een straal (`straal` > 0) toont de stand van de ochtend alleen de straat zelf: alleen live komt er bij wat rond
+// de straat ligt. `straalStand`: "klaar", "laadt" (de straatassen voor de straal komen nog), "kader" (ze laadden niet: de
+// straal volgt het kader van de straat, site/neighborhood-map.js) of "mislukt" (geen kader: dan blijft het bij de straat zelf).
+// Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel goed". Lukt
+// live nakijken (deels) niet, dan zegt de zin dat niet: ze noemt de stand van de verversing, of wat live wel lukte.
+// `mislukt`, `mislukteDelen` en `straalStand` blijven intern (place-view.js zet ermee de lagen).
+export function standZin({ ververst = "", nieuw = 0, weg = 0, bezig = false, mislukt = false, straal = 0, straalStand = "klaar", nu = new Date() } = {}) {
   const om = tijdstipTekst(ververst, nu);
   const sinds = om ? ` sinds ${om}` : "";
-  const vanDeVerversing = om ? ` van de verversing van ${om}` : " van de verversing";
   if (bezig) return om ? `Stand van de verversing van ${om}. Live nakijken…` : "Live nakijken…";
-  if (mislukt && straal > 0) return `Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand${vanDeVerversing}.`;
-  if (mislukt) return om ? `Live nakijken lukte nu niet. Je ziet de stand van de verversing van ${om}.` : "Live nakijken lukte nu niet.";
+  if (mislukt) return om ? `Stand van de verversing van ${om}.` : "";
   const delen = [];
   if (nieuw) delen.push(`${nieuw} nieuw`);
   if (weg) delen.push(`${weg} niet meer in de bron`);
   const zinnen = [delen.length ? `Live nagekeken: ${delen.join(", ")}${sinds}.` : `Live nagekeken: niets nieuw${sinds}.`];
-  if (mislukteDelen.length) zinnen.push(`Live nakijken lukte nu niet voor ${mislukteDelen.join(", ")}: daarvan zie je ${straal > 0 ? "alleen de straat zelf, met " : ""}de stand${vanDeVerversing}.`);
   if (straal > 0 && straalStand === "laadt") zinnen.push("De straal rond de straat laadt nog…");
-  if (straal > 0 && straalStand === "mislukt") zinnen.push("De straal rond de straat kon nu niet geladen worden: je ziet alleen de straat zelf.");
   return zinnen.join(" ");
 }

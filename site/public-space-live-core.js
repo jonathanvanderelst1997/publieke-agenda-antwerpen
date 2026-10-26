@@ -1,5 +1,5 @@
 import {PUBLIC_PARKING_STATUSES,dedupeByKey,iodKey,normalizeIod,normalizeParking,normalizeSgw,parkingKey,publicOnly,sgwKey} from "./public-space-core.js";
-import { publiekParkeerAdres } from "./adres-privacy.js";
+import { PARKEERVERBOD_TITEL, publiekParkeerAdres } from "./adres-privacy.js";
 import {combineStreetResolutions,resolveAddressStreet,resolveGeometryStreets} from "./street-core.js";
 import {pointInGeometry} from "./works-core.js";
 import {voerUit,voerUitInStappen} from "./in-stappen.js";
@@ -77,6 +77,9 @@ function vormenPerSleutel(features,sleutel){const m=new Map();for(const f of fea
 const vormVan=(vormen,k)=>{const v=vormen.has(k)?parcoursGeometrie(vormen.get(k)):null;return v&&(v.vlakken.length||v.lijnen.length)?{vorm:v}:{}};
 // De officiële straatnamen uit een straatindex (voor straatnamen met een cijfer, zie adres-privacy.js).
 const namenUit=index=>index?.byName instanceof Map?[...index.byName.values()].flat().map(r=>r?.name).filter(Boolean):null;
+// Staat deze hele naam in de straatas? (zelfde sleutel als index.byName in street-core.js)
+const straatSleutel=v=>String(v??"").replace(/\s+/g," ").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g," ").trim();
+const straatPredicaat=index=>index?.byName instanceof Map?(naam=>index.byName.has(straatSleutel(naam))):null;
 // `postcodes`: alleen parkeerverboden met zo'n postcode (de browser geeft die van het district mee;
 // A-Sign "District='ANTWERPEN'" is de hele stad). Zonder postcodes: alles, zoals de historiek.
 // De onderdelen hieronder zijn generators: na elke feature een `yield`, zodat de browser het werk in
@@ -101,11 +104,13 @@ function* parkingItems(features,streetIndex,{postcodes=null,straatnamen=namenUit
     if(binnen&&n.postcode&&!binnen.has(n.postcode))continue;
     const r=straatVan(n.address);
     out.push({
-      id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:n.reason||"Tijdelijk parkeerverbod",
+      // De titel is altijd "Parkeerverbod": waar en wanneer, nooit waarom (site/adres-privacy.js).
+      id:`parking:${n.key}`,kind:"parking",kindLabel:"Parkeerverbod",title:PARKEERVERBOD_TITEL,
       location:(alleenLive?liveAdres.get(n.key):null)||n.address,start:n.start,end:n.end,status:n.status,reference:n.dossier,
       detail:n.weekdaysOnly?"Alleen op weekdagen":"",sourceLabel:"A-Sign parkeerverboden",
-      // Voor de kaart in gewone taal (place-core.js): de reden zoals de stad ze schrijft, de uren en een
-      // GIPOD-id als de stad er een geeft. De historiek (lib/live-history.mjs) bewaart deze velden niet.
+      // Voor de kaart in gewone taal (place-core.js): de uren en een GIPOD-id als de stad er een geeft. De reden van
+      // de stad (`reason`) alleen voor de interne logica (een parkeerverbod bij zijn werfzone of evenement), nooit als
+      // tekst. De historiek (lib/live-history.mjs) en de straatbestanden bewaren `reason` niet.
       reason:n.reason,postcode:n.postcode,startTime:n.startTime,endTime:n.endTime,weekdaysOnly:n.weekdaysOnly,...(n.gipodId?{gipodId:n.gipodId}:{}),
       sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",streets:[...r.streets],streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters,
       // De lijn van het parkeerverbod (laag 20), voor de straal; de historiek bewaart dit veld niet.
@@ -124,11 +129,14 @@ function* iodItems(features,district,streetIndex){
   // kruist (site/parcours-straten.js) als de verversing het dossier nog niet kent. De historiek bewaart
   // deze velden niet.
   for(const[k,fs]of vormenPerSleutel(exact,iodKey))vormen.set(k,fs);
-  return publicOnly(dedupeByKey(exact.map(attrs),normalizeIod)).map(n=>({
+  // De omschrijving alleen na de privacyfilter, met de straatas: een naam die een hele straatnaam is ("Meir",
+  // "Quinten Matsijslei") is een plek, geen persoon (bruikbareBeschrijving in kaart-uitleg.js).
+  const isStraat=straatPredicaat(streetIndex);
+  return publicOnly(dedupeByKey(exact.map(attrs),r=>normalizeIod(r,{isStraat}))).map(n=>({
     id:`iod:${n.key}`,kind:"iod",kindLabel:"Inname openbaar domein",title:n.type||"Inname openbaar domein",
     location:"",start:n.start,end:n.end,status:n.status,reference:n.dossier,
     detail:[n.phase?`Fase ${n.phase}`:"",n.dossierType?`Dossiertype ${n.dossierType}`:"",n.hindrance?`Hinder volgens IOD: ${n.hindrance}`:""].filter(Boolean).join(" · "),
-    phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,
+    phase:n.phase,dossierType:n.dossierType,innameType:n.type,hindrance:n.hindrance,description:n.description,kenmerk:n.kenmerk,
     sourceLabel:"A-Sign IOD",sourceUrl:"https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",...(()=>{const r=combineStreetResolutions(byKey.get(n.key)||[]);return{streets:r.streets,streetResolution:r.confidence,streetDistanceMeters:r.distanceMeters}})(),
     ...(()=>{const v=vormVan(vormen,n.key);return v.vorm&&n.type==="Parcours"?{vorm:v.vorm,parcours:v.vorm}:v})()
   }));

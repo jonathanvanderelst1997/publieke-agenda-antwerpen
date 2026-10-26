@@ -6,6 +6,8 @@
 // Een bron die antwoordt maar al 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), is
 // "leeg": ook een waarschuwing (oranje), geen fout (contentStatusOf in scripts/stale-policy.mjs). Op een
 // GitHub-runner komt er per lege bron een ::warning bij.
+// Ook de live lagen (de historiek en de straatbestanden): een laag die niet ververst raakte, is een waarschuwing
+// zolang haar vorige goede stand niet ouder is dan 48 uur, en daarna (of zonder goede stand) een fout.
 //
 // Het controlemoment is nu; met --at <ISO> kan een ander moment gekozen worden.
 // De krimpcontrole vergelijkt met `git show <ref>:site/sources/<bron>.json`, standaard HEAD
@@ -22,6 +24,7 @@ import { fileURLToPath } from "node:url";
 
 import { dropAllowed, isMainModule, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
+import { LIVE_HISTORY_FILE, LIVE_LAAG_MAX_UUR, liveLaagGezondheid } from "../lib/live-history.mjs";
 import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
 import { MAX_AGE_HOURS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
@@ -111,11 +114,24 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
     lines.push(["parcours-herkenning", `zeker=${s.zeker}`, `waarschijnlijk=${s.waarschijnlijk}`, `alleen-kaartzin=${s.alleenKaartzin}`, `met-handfiche=${s.metHandfiche}`, `generatedAt=${herkenning.generatedAt ?? "-"}`, ...(s.bronFouten?.length ? [`bronFouten=${s.bronFouten.length}`] : [])].join("\t"));
   }
 
-  // Straatbestanden (P5, scripts/build-straat-snapshots.mjs): alleen melden, telt niet als fout. Een laag
-  // die niet laadde of een bouw die al meer dan een dag niet lukte, is anders alleen op de plekpagina te zien.
+  // Live lagen. De site zegt bezoekers niet dat een laag faalt of oud is (besluit van 18-10-2026): dit is het signaal
+  // voor de eigenaar, met dezelfde regel als de job source-health in refresh.yml (liveLaagGezondheid in
+  // lib/live-history.mjs). Een laag die niet ververst raakte en haar vorige goede stand van hoogstens 48 uur houdt, is
+  // een waarschuwing (::warning op een runner); geen goede stand, of een oudere, is een fout.
+  // De historiek (site/history/live-layers.json, ook de bron van de radar): de GIPOD-werken en de publieke ruimte.
+  const historiek = fs.existsSync(path.join(rootDir, LIVE_HISTORY_FILE)) ? readJson(path.join(rootDir, LIVE_HISTORY_FILE)) : null;
+  for (const [laag, stand] of Object.entries(historiek?.layers && typeof historiek.layers === "object" ? historiek.layers : {})) {
+    const health = liveLaagGezondheid({ status: stand?.status, sinds: stand?.lastSuccessAt }, { at });
+    lines.push([`live-historiek:${laag}`, health, `status=${stand?.status ?? "-"}`, `lastSuccessAt=${stand?.lastSuccessAt ?? "-"}`, stand?.errorCode ? `errorCode=${stand.errorCode}` : ""].filter(Boolean).join("\t"));
+    if (health === "error") unhealthy += 1;
+    if (health === "stale") meld("Live laag stale", `live-historiek ${laag}: ${stand.status}${stand.errorCode ? ` (${stand.errorCode})` : ""}; de stand van ${stand.lastSuccessAt} blijft staan tot ze ${LIVE_LAAG_MAX_UUR} uur oud is`);
+  }
+  // De straatbestanden (P5, scripts/build-straat-snapshots.mjs): per laag dezelfde regel; een bouw die al meer dan een
+  // dag niet lukte, is een waarschuwing.
   const straat = straatIndexStand(fs.existsSync(path.join(rootDir, STRAAT_INDEX)) ? readJson(path.join(rootDir, STRAAT_INDEX)) || {} : null, { at });
-  lines.push(straat.regel);
-  warnings.push(...straat.waarschuwingen);
+  lines.push(straat.regel, ...straat.fouten);
+  unhealthy += straat.fouten.length;
+  for (const tekst of straat.waarschuwingen) meld("Straatbestanden", tekst);
 
   if (baseline) {
     const today = brusselsDate(new Date(at));
@@ -158,7 +174,8 @@ if (isMainModule(import.meta.url)) {
   const baseline = args.includes("--no-baseline") ? null : gitBaseline(rootDir, ref);
   const result = checkHealth({ rootDir, at, baseline, baselineLabel: ref });
   for (const line of result.lines) console.log(line);
-  // Oranje in de run van GitHub: een lege, verouderde of ongeldige afgeleide bron is een melding, geen fout.
+  // Oranje in de run van GitHub: een lege bron, een verouderde of ongeldige afgeleide bron en een live laag die niet
+  // ververst raakte (met een goede stand van hoogstens 48 uur) zijn een melding, geen fout.
   if (process.env.GITHUB_ACTIONS === "true") for (const { titel, tekst } of result.meldingen ?? []) console.log(`::warning title=${titel}::${tekst}`);
   process.exitCode = result.exitCode;
 }

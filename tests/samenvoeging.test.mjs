@@ -109,7 +109,7 @@ test("jouw straat bij alleen een zone: de kaart zegt ook dat het om 18 m gaat", 
   const zone = { ...parkeerRij, id: `iod:${DOSSIER}|F1|I3`, innameType: "Zone", title: "Zone", streets: [straat("Buurstraat", 9)] };
   const e = pc.evenementEntry([zone], { ...opties, straat: "Buurstraat" });
   assert.equal(e.jouwStraat, "Een zone van dit evenement ligt in of naast je straat");
-  assert.equal(kern(e)["Jouw straat"], "Jouw straat wordt gebruikt voor dit evenement op dinsdag 13 oktober; waarvoor precies, zegt de stad niet. Die inname ligt in je straat of tot 18 m van de straatas.");
+  assert.equal(kern(e)["Jouw straat"], "Jouw straat wordt gebruikt voor dit evenement op dinsdag 13 oktober. Die inname ligt in je straat of tot 18 m van de straatas.");
 });
 
 test("'Waar' bij een aanvraag: ook dicht bij, geen tunnel, de gekozen straat zichtbaar, en geen '1 andere straten'", () => {
@@ -130,15 +130,18 @@ test("open evenementkaart: het parcours vooraan in 'In het dossier', de parkeerv
   const pv = await import("../site/place-view.js");
   assert.equal(typeof pv.kaartIndeling, "function", "place-view.js kent kaartIndeling");
   const rijen = [
-    { ...parkeerRij, description: "Parkeerverbod langs het parcours" },
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "Parcours volwassenen 10 km" },
-    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "Parcours jeugd 5 km" },
-    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I6`, description: "Parkeerverbod aan de start" },
-    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I7`, description: "Parkeerverbod aan de finish" },
+    { ...parkeerRij, description: "Parkeerverbod langs de Proefvest" },
+    // De privacyfilter laat alleen hele straatnamen uit de straatas over (site/witte-lijst.js): elk parcours noemt zijn straat.
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I4`, description: "parcours volwassenen 10 km over de Testvest" },
+    { ...parcoursRij(), id: `iod:${DOSSIER}|F1|I5`, description: "parcours jeugd 5 km over de Proefrui" },
+    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I6`, description: "Parkeerverbod aan de start, Proefkaai" },
+    { ...parkeerRij, id: `iod:${DOSSIER}|F1|I7`, description: "Parkeerverbod aan de finish, Testdok" },
   ];
-  const e = pc.evenementEntry(rijen, opties);
+  const isStraat = (n) => ["proefvest", "testvest", "proefrui", "proefkaai", "testdok"].includes(String(n).toLowerCase());
+  const e = pc.evenementEntry(rijen, { ...opties, isStraat });
   assert.ok(Array.isArray(e.uitleg.kern), "de evenementkaart van #140");
   const { dossier } = pv.kaartIndeling(e.uitleg, { reference: e.reference, straten: e.straten.length });
-  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: Parcours volwassenen 10 km", "Parcours: Parcours jeugd 5 km"]);
+  // Een getal ("10 km") en elk woord dat geen straatnaam is, vallen weg uit de vrije tekst (site/witte-lijst.js).
+  assert.deepEqual(dossier.zichtbaar.slice(0, 2), ["Parcours: Testvest", "Parcours: Proefrui"]);
   assert.ok(dossier.dicht.length >= 2 && dossier.dicht.every((b) => /^Parkeerverbod/.test(b)), JSON.stringify(dossier));
 });

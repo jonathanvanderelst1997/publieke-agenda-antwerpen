@@ -65,10 +65,11 @@ test("2. een as zonder naam telt niet als straat: dan de straat uit de omschrijv
   assert.deepEqual(niets.streetNearby, []);
   const leeg = kaart(werk({ ...niets }));
   assert.equal(regels(leeg).Waar, "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt");
-  // Niet gezocht (geen punt, of de straatassen laadden niet): dan ook niet beweren dat er niets is.
+  // Niet gezocht (geen punt, of de straatassen laadden niet): dan ook niet beweren dat er niets is, en ook niet zeggen
+  // dat iets niet lukte (besluit van 18-10-2026).
   assert.equal(geenPunt.streetNearby, undefined);
   const onbekend = kaart(werk({ streets: [], streetResolution: "unresolved" }));
-  assert.equal(regels(onbekend).Waar, "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden");
+  assert.equal(regels(onbekend).Waar, "Alleen als punt op de kaart van GIPOD");
   for (const x of [leeg, onbekend]) assert.doesNotMatch(alleTekst(x), /geen straat in de buurt gevonden/);
 });
 
@@ -86,7 +87,9 @@ test("3. bij één adres staat nergens een huisnummer, ook niet in de tekst van 
   assert.equal(ku.beheerderTekst("2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m", { zonderNummers: true }), "2000 Antwerpen - Voorbeeldstraat - Plaatsen leidingen - 25m");
 });
 
-test("4. een hoogtewerker is een middel: \"Nutswerken met een hoogtewerker\", en een tunnelsluiting blijft wegenwerken", () => {
+// Een tunnelsluiting heette hier eerst "Wegenwerken" (de soort inname van GIPOD); sinds het vaagheidsplan van
+// 12 oktober 2026 zeggen de fasenamen wat het is: werken in de tunnel, en nog altijd geen hoogtewerker.
+test("4. een hoogtewerker is een middel: \"Nutswerken met een hoogtewerker\", en een tunnelsluiting zijn tunnelwerken", () => {
   assert.match(kaart(werk({ title: "2018 | Antwerpen | Voorbeeldstraat | 91", occupancyTypes: ["Hoogtewerker;Nutswerken"] })).titel, /^Nutswerken met een hoogtewerker in de Voorbeeldstraat /);
   const tunnel = kaart(werk({
     occupancyTypes: ["Wegeniswerken"], streets: [{ id: "3", name: "Voorbeeldtunnel", postcode: "2000" }],
@@ -95,7 +98,7 @@ test("4. een hoogtewerker is een middel: \"Nutswerken met een hoogtewerker\", en
       { description: "Onderhoudssluiting Voorbeeldtunnel nacht 1", start: "2026-10-26T20:00:00Z", end: "2026-10-27T05:00:00Z", consequences: ["Geen doorgang voor gemotoriseerd verkeer"] },
     ]),
   }));
-  assert.match(tunnel.titel, /^Wegenwerken in de Voorbeeldtunnel: afgesloten voor auto's /);
+  assert.match(tunnel.titel, /^Tunnelwerken in de Voorbeeldtunnel: afgesloten voor auto's /);
   assert.doesNotMatch(tunnel.titel, /hoogtewerker/);
   // Alleen een hoogtewerker, niets anders: dan blijft hij staan.
   assert.match(kaart(werk({ occupancyTypes: ["Hoogtewerker"] })).titel, /^Werk met een hoogtewerker /);

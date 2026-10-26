@@ -21,6 +21,7 @@ import {
   resultaatVoorHistoriek,
   tekstZonderHuisnummers,
 } from "../lib/historiek-privacy.mjs";
+import { echteAdresRegels, laadStraatnamen } from "../lib/echte-adressen.mjs";
 import { updateLiveHistory, validateLiveHistory } from "../lib/live-history.mjs";
 import { opkuisHistoriekPrivacy } from "../scripts/opkuis-historiek-privacy.mjs";
 
@@ -118,27 +119,26 @@ test("opkuis is een vast punt: een lange lijst valt helemaal weg en opnieuw opku
   }
 });
 
-// Een echte straat met een bestaand huisnummer hoort niet in een toets (de repo is publiek).
+// Een echte straat met een bestaand huisnummer hoort niet in een toets (de repo is publiek). Ook niet in de toetsen van
+// het parkeerverbod: die zetten een adres naast een verzonnen reden ("verhuis"), en juist dat verband wil de eigenaar
+// nergens publiek zien (besluit van 18 oktober 2026). Elke regel telt, ook een commentaar, en ook een nummer dat los van
+// de straat in dezelfde zin staat ("de Xstraat met huisnummer (12-14)"), of in een eigen veld van hetzelfde object
+// ({ Thoroughfarename, Housenumber }, ook over meer regels): dezelfde regel als de scan over de commits
+// (lib/echte-adressen.mjs, scripts/adressen-in-commits.mjs).
+const ALLEEN_999 = ["historiek-privacy.test.mjs", "historiek-privacy-verversing.test.mjs", "parkeerverbod-nakijk.test.mjs", "parkeerverbod-waar-exact.test.mjs", "adressen-in-commits.test.mjs", "publieke-parkeeradressen.test.mjs", "verrijken.test.mjs"];
 test("toetsen: een echte straatnaam krijgt alleen huisnummer 999", () => {
-  const namen = new Set(JSON.parse(fs.readFileSync(path.join(repoRoot, "site/geo/straten.json"), "utf8")).streets.map((rij) => String(rij[1]).toLowerCase()));
+  const namen = laadStraatnamen(path.join(repoRoot, "site/geo/straten.json"));
   const fouten = [];
-  for (const naam of ["historiek-privacy.test.mjs", "historiek-privacy-verversing.test.mjs"]) {
-    const regels = fs.readFileSync(path.join(repoRoot, "tests", naam), "utf8").split("\n");
-    regels.forEach((regel, index) => {
-      for (const [, tekst] of regel.matchAll(/"([^"\\]*)"/g)) {
-        for (const [begin, einde] of huisnummerStukken(tekst)) {
-          const woorden = tekst.slice(0, begin).toLowerCase().split(/[\s,(]+/).filter(Boolean);
-          const echt = [1, 2, 3, 4].some((k) => namen.has(woorden.slice(-k).join(" ")));
-          if (echt && tekst.slice(begin, einde).match(/\d+/g).some((nummer) => nummer !== "999")) fouten.push(`${naam}:${index + 1}`);
-        }
-      }
-    });
+  for (const naam of ALLEEN_999) {
+    // Per regel, en een object over meer regels als geheel (straat en huisnummer in losse velden).
+    for (const { regel } of echteAdresRegels(fs.readFileSync(path.join(repoRoot, "tests", naam), "utf8"), namen)) fouten.push(`${naam}:${regel}`);
   }
   assert.deepEqual(fouten, []);
 });
 
 const parkeer = (id, location, extra = {}) => ({
-  id: `parking:D${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location,
+  // De titel zoals de historiek ze nu bewaart: altijd "Parkeerverbod", nooit de reden (tests/parkeerverbod-zonder-reden.test.mjs).
+  id: `parking:D${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location,
   start: "2026-10-12T06:00:00.000Z", end: "2026-10-13T18:00:00.000Z", status: "Goedgekeurd", reference: `D${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null, ...extra,
 });

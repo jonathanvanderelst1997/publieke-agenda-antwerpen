@@ -6,12 +6,15 @@
 // bron staan, en de bron van die afleiding gaat mee. Geen klok: "vandaag" komt altijd van buiten.
 
 import {
-  DINGEN, LANG_DAGEN, OPNAME, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, patroonTekst, patroonVan, versieringTekst, voorwerpenIn,
-  zonderOntkenning,
+  DINGEN, KENMERK_WAARDEN, KENMERK_WOORDEN, LANG_DAGEN, OPNAME, alleenStraat, dingKeuze, dingVan, duurDagen, echteDagen, inWijk, isOpnameFase, kenmerkWoorden, patroonTekst, patroonVan,
+  versieringTekst, voorwerpenIn, zonderOntkenning,
 } from "./evenement-wat.js";
+import { gipodLink } from "./gipod-bron.js";
+import { onbekendVeld, onbekendZin } from "./onbekend-zinnen.js";
+import { sleutel as straatSleutel, witteTekst, zonderToevoegingInTekst } from "./witte-lijst.js";
 
 export const KAART_UITLEG_SCHEMA = 1;
-export const NIET_GEPUBLICEERD = "omschrijving niet gepubliceerd door de beheerder";
+export const NIET_GEPUBLICEERD = onbekendZin("werk-omschrijving");
 
 const clean = (v, max = 300) => String(v ?? "").replace(/\s+/g, " ").trim().slice(0, max);
 const uniek = (rows) => [...new Set(rows.map((v) => clean(v)).filter(Boolean))];
@@ -72,7 +75,7 @@ export function resterendeDuur({ start, eind, vandaag }) {
     const n = dagenTussen(v, s);
     return { toestand: "gepland", dagen: n, tekst: n === 1 ? "start morgen" : `start over ${termijn(n, v, s)}` };
   }
-  if (!e) return { toestand: "onbekend", dagen: null, tekst: "einddatum niet gepubliceerd" };
+  if (!e) return { toestand: "onbekend", dagen: null, tekst: onbekendZin("werk-einde") };
   if (e < v) return { toestand: "voorbij", dagen: 0, tekst: "afgelopen" };
   const n = dagenTussen(v, e);
   return { toestand: "bezig", dagen: n, tekst: n === 0 ? "laatste dag vandaag" : `nog ${termijn(n, v, e)}` };
@@ -89,6 +92,9 @@ const NUTSWERK = "Werken aan nutsleidingen";
 const HOOGTEWERKER = "Werk met een hoogtewerker";
 const WEGENWERKEN = "Wegenwerken";
 const SOORTEN_WERK = [
+  // Een cabine van het net ("HS cabine", stratentoets van 12 oktober 2026): vóór de andere, want specifieker
+  // dan "hoogspanning".
+  [/\b(?:hs|ms|hoogspannings|middenspannings)[- ]?cabine\b|\bcabine\b/i, "Werken aan een elektriciteitscabine"],
   [/riolering|\briool|afvoerleiding/i, "Rioleringswerken"],
   [/bemaling/i, "Bemaling (grondwater wegpompen)"],
   [/warmtenet|warmteleiding|stadsverwarming/i, "Werken aan het warmtenet"],
@@ -111,12 +117,25 @@ const SOORTEN_WERK = [
   [/\bgevel/i, "Gevelwerken"],
   [/dakwerk|\bdak\b|\bdaken\b/i, "Dakwerken"],
   [/torenkraan|snelmontagekraan|mobiele kraan|\bkraan\b/i, "Bouwkraan"],
-  [/\bsloop|afbraak|afbreken/i, "Sloopwerken"],
+  // Afbraak van een gebouw of iets anders, niet van de werf zelf: "Afbraak werf", "F3 Afbraak" na "F2 werf", "Fase na
+  // afbraak TK1" (de torenkraan) of een kale "afbraak" zeggen niet dat er iets gesloopt wordt (nakijkronde 12 oktober
+  // 2026: zo kregen werfzones "sloopwerken" als doel).
+  [/\bsloop|\bslopen\b|afbraakwerk|\b(?:afbraak|afbreken)\s+(?:van\s+)?(?:de\s+|het\s+|een\s+)?(?!(?:werf\w*|signalisatie|stelling|steiger|tk\d*|(?:toren|bouw)?kraan|en|na|tot)\b)\p{L}{3,}/iu, "Sloopwerken"],
   // "Renovatie" alleen bij een gebouw: "Renovatie Havenwegen" is een weg, geen bouwwerf.
-  [/ruwbouw|nieuwbouw|appartement|verbouwing|(?:gevel|dak|woning|gebouw)renovatie|renovatie (?:van )?(?:de |het |een )?(?:woning|gebouw|pand|huis|school|kerk|gevel)|bouwwerf|bouwproject/i, "Bouwwerf"],
+  // "Onderbouw deel 2" en "bovenbouw" zijn de fasen van een gebouw in opbouw (stratentoets van 12 oktober 2026).
+  [/ruwbouw|\b(?:onder|boven)bouw\b|nieuwbouw|appartement|verbouwing|(?:gevel|dak|woning|gebouw)renovatie|renovatie (?:van )?(?:de |het |een )?(?:woning|gebouw|pand|huis|school|kerk|gevel)|bouwwerf|bouwproject/i, "Bouwwerf"],
   [/\bverhuis/i, "Verhuis"],
   [/\bcontainers?\b/i, "Container"],
   [/\bsnoei|\bboom\b|\bbomen\b|groenaanleg|beplanting/i, "Groenwerken"],
+  // Woorden die beheerders vaak alleen in de fasenaam zetten (stratentoets van 12 oktober 2026): "Bijkomende
+  // betonstort plan 16B", "Fase 1 : Maaien", "Afsluiten tunnel", "Onderhoudssluiting ... tunnel nacht 1",
+  // vegen en kolken, zwerfvuil, "stockagezone". Achteraan: een ander, specifieker woord gaat voor.
+  [/betonstort/i, "Betonstort"],
+  [/\bmaai(?:en|werk(?:en)?|beurt(?:en)?)\b/i, "Maaien (groenonderhoud)"],
+  [/(?:afsluit\w*|sluiting)\b[^.;|]*tunnel|tunnel\w*\b[^.;|]*\b(?:afsluit\w*|sluiting|dicht)\b/i, "Tunnelafsluiting"],
+  [/tunnel/i, "Tunnelwerken"],
+  [/\bvegen\b|\bveeg\w*|\bkolken\b|kolkenreiniging|zwerfvuil|straatreiniging/i, "Straatreiniging (vegen, kolken of zwerfvuil)"],
+  [/stockage/i, "Opslagzone (stockage)"],
 ];
 // Eén soort uit vrije tekst: de eerste bron met een herkend woord wint. `zonder`: soorten die niet tellen.
 export function soortWerk(bronnen = [], { zonder = [] } = {}) {
@@ -236,7 +255,13 @@ export function soortVanWerk({ omschrijving = "", fasen = [], occupancyTypes = [
   }
   if (tekst.soort === AANSLUITING && netten.length) return { soort: aansluitingSoort(netten), bron: metInname(tekst.bron) };
   if (tekst.soort === NUTSWERK && inname.length) return { soort: netSoort(inname), bron: metInname(tekst.bron) };
-  if (tekst.soort) return tekst;
+  // Een soort uit de tekst of de fasen gaat voor, maar wat de vaste soort inname van GIPOD zegt ("Wegeniswerken"),
+  // blijft erbij (`innameSoort`): zonder viel dat feit weg bij een nieuwe soort uit de fasen ("Opslagzone"),
+  // nakijkronde 13 oktober 2026.
+  if (tekst.soort) {
+    const viaInname = types.includes("hoogtewerker") && types.includes("nutswerken") ? "Nutswerken met een hoogtewerker" : (INNAME_SOORT.find(([type]) => types.includes(type)) || [])[1] || "";
+    return viaInname && viaInname !== tekst.soort ? { ...tekst, innameSoort: viaInname } : tekst;
+  }
   if (inname.length) {
     if (grondwerk.includes("klantaansluiting") && !netwerk) return { soort: aansluitingSoort(inname), bron: "soort inname en soort grondwerk in GIPOD" };
     // Wegen of een kunstwerk samen met leidingen: een grote werf, geen gewoon nutswerk.
@@ -310,7 +335,7 @@ export function geldigeHuisnummers(tekst) {
   if (!m || !echtNummer(m[1]) || (m[2] && (!echtNummer(m[2]) || nr(m[2])[0] < nr(m[1])[0]))) return "";
   return t;
 }
-// Huisnummers die de beheerder zelf in een tekst zette: "Kammenstraat 18 - 24", "Schilderstraat 1-25".
+// Huisnummers die de beheerder zelf in een tekst zette: "Proefstraat 18 - 24", "Voorbeeldlaan 1-25".
 // Een reeks in elke schrijfwijze telt als reeks: "13 tem 15", "13 t.e.m. 15", "13 tot en met 15", "13 t/m 15",
 // "13 tot 15", "13 → 15", "13 en 15" en "13, 15 en 17" geven allemaal "nr. 13–15" (of 13–17), nooit "nr. 13".
 // Hoogstens drie cijfers: "Proefstraat 13, 2000 Antwerpen" is geen reeks tot 2000. Na een komma of "en"
@@ -335,8 +360,18 @@ export function huisnummerReeks(tekst) {
   return /–/.test(t) ? t : "";
 }
 
-// Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette.
-const CONTACT = /[@]|https?:|www\.|\b(?:tel|gsm|contact)\b|\d{4}\s?\d{2}\s?\d{2}/i;
+// Geen contactgegevens doorgeven, ook niet als een beheerder ze in een vrij tekstveld zette. Ook een mailadres zonder
+// gewone @ (nakijkronde van head 0b264665): "naam(at)voorbeeld.test", "naam[at]...", een volle-breedte ＠ (na NFKC een
+// @), "naam at voorbeeld punt test", en een losse domeinnaam ("inschrijven via voorbeeld.test"): een woord, een punt en
+// een uitgang in kleine letters, zonder spatie ertussen. Een zin die na een punt zonder spatie verdergaat
+// ("verzamelen.daarna"), valt daardoor ook weg: liever een omschrijving te weinig.
+const CONTACT_RE = /@|https?:|www\.|\b(?:tel|gsm|contact|e-?mail|mailto)\b|\d{4}\s?\d{2}\s?\d{2}|[(\[{<]\s*(?:at|dot|punt)\s*[)\]}>]|\sat\s[^;]{0,60}?\b(?:dot|punt)\b/i;
+const DOMEIN = /[\p{L}\d-]{2,}\.\p{Ll}{2,24}(?![\p{L}\d])/u;
+// Een Belgisch telefoonnummer in elke schrijfwijze (nakijkronde van head c7f1a651): met 0, +32 of 0032 vooraan, 9 of 10
+// cijfers samen, gescheiden door spaties, punten, schuine strepen, haakjes of koppeltekens ("03-123-45-67", "+32-3-123-45-67",
+// "04/71/12/34/56", "0471 12-34-56"). Een datum ("01/10/2026", 8 cijfers) valt erbuiten.
+const TELEFOON = /(?<![\p{L}\d])(?:\+32|0032|0)[\s./()-]*\d(?:[\s./()-]*\d){7,8}(?![\s./-]*\d)/u;
+export const CONTACT = Object.freeze({ test: (t) => { const n = String(t ?? "").normalize("NFKC"); return CONTACT_RE.test(n) || DOMEIN.test(n) || TELEFOON.test(n); } });
 
 // ---------- werken ----------
 
@@ -459,7 +494,8 @@ const LOS_STRAAT = /(?:steenweg|straat|str\.?|laan|lei|weg|dreef|baan|kaai|kade|
 // Na een straatnaam: een gekende uitgang, een straat van de kaart, of een woord in hoofdletters (GIPOD
 // schrijft adressen zo: "2020 ANTWERPEN, XBROEK 4").
 function naStraatnaam(voor, straten) {
-  const t = zonderAccenten(voor).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
+  // Vangnet: "PROEFSTRAAT_AN 12" is ook een nummer na een straatnaam (de bronnen geven de naam al zonder toevoeging).
+  const t = zonderAccenten(zonderToevoegingInTekst(voor)).replace(/(?:\s*[[(][^\])]*[\])])+\s*$/u, "");
   const woord = t.match(/[\p{L}.'-]+$/u)?.[0] || "";
   if (woord && (LOS_STRAAT.test(woord) || /^\p{Lu}{4,}$/u.test(woord))) return true;
   const klein = t.toLowerCase();
@@ -563,8 +599,11 @@ export function werkFeiten(werk = {}, { huisnummers = "", huisnummerBron = "" } 
   const straatUitTekst = straten.length && werk.streetResolution === "official_address_match";
   return {
     gipodId: Number(werk.gipodId) || null,
+    // Het dossiernummer van de werfzone in A-Sign (GIPOD Reference: "GW2026-001601"), zie werfDossier in site/works-core.js.
+    ...(/^GW\d{4}-\d{6}$/.test(clean(werk.dossier, 40)) ? { dossier: clean(werk.dossier, 40) } : {}),
     soort: soort.soort,
     soortBron: soort.bron,
+    ...(soort.innameSoort ? { innameSoort: soort.innameSoort } : {}),
     omschrijving,
     fasen: uniekeFasen(fasen),
     // Alleen bewaren wat iets zegt: het bestand van de verversing laadt in elke browser.
@@ -636,8 +675,65 @@ function gevolgInTitel(gevolg, { gs, ge, start, eind, vandaag, gepland }) {
   return { tekst: gevolg, vorm: "samen" };
 }
 
-// Titel, korte uitleg en details voor één werk.
-export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
+// De fasen van een werf in GIPOD zeggen vaak waarvoor ze dient ("Onderbouw deel 2", "Laad en loszone + Gevelstelling",
+// "Montage/Demontage Torenkraan"), ook als de beheerder zelf geen omschrijving publiceert. Een nummer ("Fase 3"), een
+// plancode ("plan 26-00889-09", "P26-02644-06/07/08"), "Fictieve fase" of alleen "Werken zelf" zegt niets. Geeft de
+// namen die iets zeggen, zonder nummering of plancode, in de volgorde van de fasen.
+const FASE_NUMMER = /^\s*(?:fase|deel|f)\s*-?\s*0*\d+[a-z]?\b\s*(?:[:.)\]–—-]+\s*)?/i;
+// Plancodes en dossiercodes: "plan 26-00889-09", "(plan 3)", "P26-02644-06/07/08", "pP25-02024-04", "F21-8000-646A",
+// "DE240707", "GW2025-106942", "2026-001010".
+const PLAN_CODE = /\(\s*plan\s*[\w-]*\s*\)|\bplan\s*[\w-]*\d[\w-]*|\b[a-z]{0,3}\d{2,}(?:[-/.][\w]+)*\b\.?/gi;
+const DOSSIER_CODE = /\b(?:GW|ET)\d{4}-?\d{6}\b/g;
+// Een fase die alleen de stand van de vergunning zegt, geen werk: "Fictieve fase", "Werken zelf", "bouwverlof",
+// "verlenging", "inname", "parkeerverbod", "nieuwe situatie" ...
+// Ook "extra dag", "project", "opbouw", "werf", "perimeter afzetting", "inkrimping van de werfzone", "werf in- en
+// uitrit" en "globaal" (nakijkronde 12 oktober 2026), met of zonder "aangepaste", "bijkomende" of "extra" ervoor.
+const LEGE_FASE = /^(?:na\s+|tijdens\s+|vervolg\s+)?(?:(?:aangepaste|algemene|bijkomende|extra|nieuwe|eerste|tweede|derde|laatste|kleinere|grotere)\s+)*(?:fictieve fase|werken zelf|werken|werkzaamheden|uitvoering(?: (?:der |van de )?werken)?|uitvoeringsfase|periode|fase|werfzone|werf|signalisatie|algemeen|globaal|project|voorbereiding|vervolg|rest|bouwverlof|verlenging|nieuwe situatie|enkelrichting|inkrimping(?: van de werfzone)?|instandhouding(?: inname)?|inname|parkeerverbod|werfinrichting|inrichting|werfinrit|(?:werf\s*)?in- en uitrit|basiswerf|reguliere fase|recurrente fase|opbouw|afbouw|afbraak(?: werf)?|opbouw werf|perimeter(?: afzetting)?|afzetting|dag|dagen|week|nacht)$/i;
+// Alleen een straat of plein ("Molenstraat", "Frederik Van Eedenplein", "Koordekenshoef") zegt waar, niet waarvoor.
+const FASE_STRAAT_EINDE = "(?:straat|straatje|laan|lei|plein|weg|kaai|kade|vest|dijk|plaats|markt|brug|park|singel|steenweg|hoef|hof|dok|tuin|dreef|pad|rui|vliet|gracht|poort|berg|baan|velden|hoek)";
+const ALLEEN_STRAAT = new RegExp(`^(?:\\p{Lu}[\\p{L}'’.-]*\\s+){0,3}\\p{Lu}?[\\p{L}'’.-]*${FASE_STRAAT_EINDE}$`, "u");
+// Een straat achteraan ("aangepaste recurrente fase Zwartzustersstraat") zegt waar, niet waarvoor.
+const STRAAT_ACHTERAAN = new RegExp(`\\s+\\p{Lu}[\\p{L}'’.-]*${FASE_STRAAT_EINDE}$`, "u");
+// Een fasenaam zegt waarvoor de werf dient als soortWerk er een soort werk in herkent, of als hij een werk noemt dat
+// gebeurt (monteren, plaatsen, leveren, storten, slopen, maaien, een "kelderwerk"...). Anders is het een naam die
+// niets zegt over het doel ("silo", "Project ...", een plaats): die tonen we niet als doel (nakijkronde 12 oktober
+// 2026: "extra dag", "Koordekenshoef" en "Perimeter afzetting" stonden als "Waarvoor, volgens GIPOD").
+const WERK_IN_FASE = /\b(?:de)?monta\w*|\binstall\w*|\b(?:terug)?plaats(?:en|ing)\b|\blever(?:en|ing\w*)\b|\blossen\b|\blaad-? en los\w*|\blaadzone|\bloszone|\bstort\w*|\w+stort\b|\brenov\w*|\bherstel\w*|\bvervang\w*|\b(?:her)?aanleg\w*|\bsloop\w*|\bslopen\b|\bgraaf\w*|\w*sluiting\b|\bafsluit\w*|\bmaai\w*|\bledig\w*|\breinig\w*|\bschilder\w*|\bmarkering\w*|\bbeschoei\w*|\bopslag\w*|\bstockage\w*|\bbemaling|\bzuivering|\bisolat\w*|\b(?:onder|boven|kelder|ruw|nieuw|ver|her)bouw\w*|\bbouwwerk\w*|\b\w+werk(?:en)?\b/iu;
+const GEEN_WERK_IN_FASE = /\b(?:werf|uitvoerings?)werk/i;
+const zegtWaarvoor = (naam) => Boolean(soortWerk([{ tekst: naam }]).soort) || (WERK_IN_FASE.test(naam) && !GEEN_WERK_IN_FASE.test(naam.match(WERK_IN_FASE)?.[0] || ""));
+export function faseDoelen(fasen = []) {
+  const uit = [];
+  for (const fase of fasen) {
+    let naam = clean(typeof fase === "string" ? fase : fase?.naam, 160).replace(DOSSIER_CODE, "")
+      // Wie het doet ("Levering van ... door <firma>") hoort niet bij het doel.
+      .replace(/\s+door\s+\S.*$/i, "")
+      // Een nummer na "pand", "nummer" of "nr" is een adres: dat stuk valt weg.
+      .replace(/\b(?:(?:pand|woning|gevel)\s+)?(?:huis)?(?:nummers?|nrs?\.?|n°)\s*\d+\w*/gi, " ");
+    // "vervolg fase 2: opbouw", "Fase 6: Fase 4: ...": de nummering (ook herhaald) en een fase achteraan weg.
+    for (let i = 0; i < 3; i++) naam = naam.replace(/^\s*vervolg\s+(?=fase\b)/i, "").replace(FASE_NUMMER, "");
+    naam = naam.replace(PLAN_CODE, " ").replace(/\s+fase\s*\d+\w*\s*$/i, "")
+      .replace(/^\s*fase\b\s*[-:]?\s*/i, "").replace(/\(\s*\)/g, "").replace(/\s{2,}/g, " ")
+      .replace(/^(?:periode\s+)?tijdens\s+(?:de\s+)?/i, "").replace(/^[\s:;,.|()=–—-]+|[\s:;,.|(=–—-]+$/g, "").trim();
+    // Een haakje dat niet sluit (de rest viel weg), en een lange zin tot aan het eerste haakje.
+    if ((naam.match(/\(/g) || []).length > (naam.match(/\)/g) || []).length) naam = naam.replace(/\s*\([^()]*$/, "").trim();
+    if ((naam.match(/\)/g) || []).length > (naam.match(/\(/g) || []).length) naam = naam.replace(/\)\s*$/, "").trim();
+    if (naam.length > 70 && naam.includes("(")) naam = naam.slice(0, naam.indexOf("(")).trim();
+    // Alleen een datum of een uur ("12/10-22u tem 13/10-6u") zegt niet waarvoor.
+    const woorden = naam.replace(/\d+(?:[/:.u-]\d*)*u?/gi, " ").replace(/\b(?:tem|t\/m|tot|van|vanaf|en)\b/gi, " ");
+    const zonderStraat = naam.replace(STRAAT_ACHTERAAN, "").trim();
+    if (!naam || LEGE_FASE.test(naam) || LEGE_FASE.test(zonderStraat) || /^zonder\b/i.test(naam) || (ALLEEN_STRAAT.test(naam) && !soortWerk([{ tekst: naam }]).soort) || !/\p{L}{4}/u.test(woorden) || CONTACT.test(naam) || !zegtWaarvoor(naam)) continue;
+    // Een reeks ("Onderhoudssluiting ... nacht 1", "... nacht 2"): één keer, zonder het volgnummer.
+    const kern = naam.replace(/\s*\b(?:nacht|dag|week)\s*\d+[a-z]?$/i, "").trim() || naam;
+    if (!uit.some((x) => x.toLowerCase() === kern.toLowerCase())) uit.push(kern);
+  }
+  return uit;
+}
+
+// Titel, korte uitleg en details voor één werk. `werf`: { dossier } als het werk in GIPOD hetzelfde
+// dossiernummer heeft als een werfzone in A-Sign (samenWerven in place-core.js). Zo'n werk is de werfzone zelf, door
+// de dienst die de vergunning geeft in GIPOD gezet: geen "Werken van Stad Antwerpen", wel "Werf", met de fasen van
+// GIPOD als wat, en "Beheerder in GIPOD" in plaats van "Opdrachtgever".
+export function werkKaartje(werk = {}, { vandaag, feiten = null, werf = null } = {}) {
   const f = feiten || werkFeiten(werk);
   const start = dagVan(werk.start), eind = dagVan(werk.end), v = dagVan(vandaag);
   const dt = (d) => datumBijVandaag(d, v);
@@ -648,7 +744,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const nummers = eenAdres ? "" : huisnummerReeks(f.huisnummers);
   const losNummerWeg = !eenAdres && !nummers && Boolean(geldigeHuisnummers(f.huisnummers) || (f.straten[0] && huisnummersUitTekst(f.omschrijving, f.straten[0])));
   const nabij = !straat && f.nabij?.straten?.length ? f.nabij : null;
-  const soort = f.soort || (werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
+  const soort = f.soort || (werf ? "Werf" : werk.ownerGroup && !/^(Andere|Onbekend)$/.test(werk.ownerGroup) ? `Werken van ${werk.ownerGroup}` : "Werken");
+  // Bij een werf zonder soort: de fasen die iets zeggen (faseDoelen), zonder huisnummer of naam (zoals de regel "Fasen").
+  const doelen = werf && !f.soort ? faseDoelen((f.fasen || []).map((x) => (eenAdres ? zonderHuisnummers(x.naam, 160) : zonderLosseHuisnummers(x.naam, f.straten)))) : [];
+  const beheerderLabel = werf ? "Beheerder in GIPOD" : "Opdrachtgever";
   // Waar, altijd met een voorzetsel: "in de Bermstraat nr. 2–10", of zonder straat het kruispunt of
   // de dichtste straat. Zonder enige straat in de buurt blijft de titel zonder plek.
   const waar = straat ? [opStraat(straat), nummers].filter(Boolean).join(" ")
@@ -659,7 +758,9 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   // De hinder kan vroeger stoppen dan het werk; voor "tot wanneer" telt het werk zelf.
   const duur = resterendeDuur({ start, eind, vandaag });
   let wanneer = "";
-  if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
+  // Een werk van één dag: "op 26 oktober" of "vandaag", niet "vanaf" of "tot" (alsof het dagen duurt).
+  if (start && eind && start === eind) wanneer = duur.toestand === "gepland" ? `op ${dt(start)} (${duur.tekst})` : duur.toestand === "bezig" ? "vandaag" : "";
+  else if (duur.toestand === "bezig") wanneer = `tot ${dt(eind)} (${duur.tekst})`;
   else if (duur.toestand === "gepland") wanneer = `vanaf ${dt(start)} (${duur.tekst})`;
   // Gevolgen in een fase buiten het district (bv. postcode 2070) horen niet in de titel of de samenvatting.
   const titelGevolgen = f.titelGevolgen || f.gevolgen;
@@ -677,10 +778,10 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
 
   const ontbreekt = [];
   if (!f.omschrijving) ontbreekt.push(NIET_GEPUBLICEERD);
-  if (!nummers && !eenAdres && !losNummerWeg) ontbreekt.push("huisnummers niet gepubliceerd");
-  if (f.hinderBekend === false) ontbreekt.push("gevolgen voor het verkeer niet gepubliceerd");
-  if (f.hinderBekend === null) ontbreekt.push("gevolgen voor het verkeer nu niet opgehaald");
-  if (!eind) ontbreekt.push("einddatum niet gepubliceerd");
+  if (!nummers && !eenAdres && !losNummerWeg) ontbreekt.push(onbekendZin("werk-huisnummers"));
+  if (f.hinderBekend === false || (f.hinderBekend && !f.gevolgen.length)) ontbreekt.push(onbekendZin("werk-gevolgen"));
+  // Laadde de hinderbron niet (hinderBekend null), dan zegt de kaart daar niets over (besluit van 18-10-2026).
+  if (!eind) ontbreekt.push(onbekendZin("werk-einde"));
 
   // Eerst één zin in gewone taal; de tekst van de beheerder staat apart (bronTekst, ingeklapt), zonder
   // los huisnummer.
@@ -696,14 +797,15 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const inname = (f.inname || []).length > 1 ? ` Volgens GIPOD: ${f.inname.join(" · ")}.` : "";
   const regels = [];
   regels.push(["Wat", f.soort
-    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.omschrijving ? "" : " De beheerder publiceerde zelf geen omschrijving."}`
+    ? `${f.soort}, afgeleid uit de ${f.soortBron}.${project ? ` Volgens de beheerder: “${project}”.` : ""}${inname}${f.innameSoort && !inname ? ` De soort inname in GIPOD: ${f.innameSoort.charAt(0).toLowerCase()}${f.innameSoort.slice(1)}.` : ""}${f.omschrijving ? "" : ` ${onbekendZin("beheerder-geen-omschrijving")}`}`
+    : werf ? `Een werf: dit werk staat in GIPOD met het dossiernummer van werfzone ${werf.dossier} in A-Sign.${doelen.length ? ` De fasen in GIPOD zeggen wat er gebeurt: ${doelen.map((x) => `“${x}”`).join(", ")}.` : ""}${bronTekst ? ` De beheerder schrijft: “${bronTekst}”` : ""}`
     : bronTekst ? `De beheerder schrijft: “${bronTekst}”`
-    : f.omschrijving ? "Niet bekend: de beheerder gaf alleen een adres op." : `Niet bekend: ${NIET_GEPUBLICEERD}.`]);
+    : onbekendZin(f.omschrijving ? "werk-alleen-adres" : "werk-wat")]);
   // Bij één adres ook geen huisnummer in de naam van een fase (ook niet uit een oudere verversing);
   // anders geen los huisnummer (een reeks blijft).
   const fasen = f.fasen.map((x) => ({ ...x, naam: eenAdres ? zonderHuisnummers(x.naam, 160) : zonderLosseHuisnummers(x.naam, f.straten) })).filter((x) => x.naam);
   if (fasen.length) regels.push(["Fasen", fasen.map((x) => `${x.naam}${x.buiten || faseBuitenDistrict(x.naam) ? " (buiten district Antwerpen)" : ""}${x.start || x.eind ? ` (${periodeTekst(x.start, x.eind, v)})` : ""}${x.gevolgen?.length ? `: ${x.gevolgen.join(", ")}` : ""}`).join(" · ")]);
-  regels.push(["Opdrachtgever", f.opdrachtgever || "niet gepubliceerd"]);
+  regels.push([beheerderLabel, f.opdrachtgever || onbekendZin("niet-gepubliceerd")]);
   // Een straat uit de omschrijving van de beheerder: zeg dat, en hoe ver het punt in GIPOD ervan ligt.
   const uitTekst = straat && f.straatBron ? [
     nummers && f.huisnummerBron === f.straatBron ? `straat en ${/–/.test(nummers) ? "huisnummers" : "huisnummer"} uit de ${f.straatBron}` : `straat uit de ${f.straatBron}`,
@@ -713,12 +815,12 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const haakjes = (lijst) => (lijst.length ? ` (${lijst.join("; ")})` : "");
   regels.push(["Waar", straat
     ? nummers ? `${straat}, ${nummers}${haakjes([...nummerBron, ...uitTekst])}`
-      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "huisnummers niet gepubliceerd", ...uitTekst])}`
+      : `${f.straten.join(", ")}${haakjes([eenAdres ? "huisnummer weggelaten: het gaat om één adres" : losNummerWeg ? "huisnummer weggelaten: één adres kan een woning zijn" : "", ...uitTekst].filter(Boolean))}`
     : nabij?.kruispunt ? `Bij het kruispunt van ${joinNl(nabij.straten)} (berekend uit het punt in GIPOD)`
     : nabij?.tussen ? `Tussen ${nabij.straten.map((n, i) => `${n} (ongeveer ${nabij.afstanden?.[i] ?? "?"} m)`).join(" en ")}; berekend uit het punt in GIPOD, de twee straten raken elkaar daar niet`
     : nabij ? nabij.afstand <= 35 ? `Nabij ${nabij.straten[0]} (ongeveer ${nabij.afstand} m; berekend uit het punt in GIPOD)` : `Niet langs een straat met naam; de dichtste straat is ${nabij.straten[0]} (ongeveer ${nabij.afstand} m)`
     : f.straatGezocht ? "Alleen als punt op de kaart van GIPOD; geen straat met naam binnen 150 m van dat punt"
-    : "Alleen als punt op de kaart van GIPOD; de straat kon nu niet bepaald worden"]);
+    : "Alleen als punt op de kaart van GIPOD"]);
   // De omschrijving met dezelfde regels als de tekst van de beheerder: geen naam, geen los huisnummer
   // (bij één adres geen enkel), en niets als er contactgegevens in staan.
   const ovOmschrijving = zonderNamen(f.omschrijving);
@@ -726,7 +828,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
     CONTACT.test(ovOmschrijving) ? "" : eenAdres ? zonderHuisnummers(ovOmschrijving) : zonderLosseHuisnummers(ovOmschrijving, f.straten)]);
   const deelsBuiten = f.titelGevolgen ? " · deels in een fase buiten district Antwerpen (zie Fasen)" : "";
   if (f.gevolgen.length) regels.push(["Gevolgen", `${uniek(f.gevolgen).join(" · ")}${f.hinderStart || f.hinderEind ? ` (${periodeTekst(f.hinderStart, f.hinderEind, v)})` : ""}${f.ernstig ? " · ernstige hinder volgens GIPOD" : ""}${deelsBuiten}`]);
-  else regels.push(["Gevolgen", f.hinderBekend === null ? "nu niet opgehaald" : "niet gepubliceerd in GIPOD"]);
+  // Geen gevolgen in GIPOD: dat staat één keer in "Niet in de bron" (ontbreekt), niet nog eens als eigen regel.
   if (ov.length) regels.push(["Bus en tram", ov.join(" · ")]);
   // GIPOD meldt hinder na de einddatum van het werk: zeg het, want de titel noemt dan geen "werken tot".
   const hinderNa = eind && f.hinderEind && f.hinderEind > eind ? ` · GIPOD meldt nog hinder tot ${dt(f.hinderEind)}` : "";
@@ -734,7 +836,7 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   const hinderVoor = start && f.hinderStart && f.hinderStart < start && (!f.hinderEind || f.hinderEind >= v)
     ? f.hinderEind && f.hinderEind < start ? ` · GIPOD meldt de hinder vóór de werkperiode (${vanTot(f.hinderStart, f.hinderEind, v)})` : ` · GIPOD meldt al hinder vanaf ${dt(f.hinderStart)}, vóór de start van het werk`
     : "";
-  regels.push(["Duur", `${periodeTekst(start, eind, v) || "niet gepubliceerd"}${duur.tekst ? ` · ${duur.tekst}` : ""}${hinderVoor}${hinderNa}`]);
+  regels.push(["Duur", `${periodeTekst(start, eind, v) || onbekendZin("niet-gepubliceerd")}${duur.tekst ? ` · ${duur.tekst}` : ""}${hinderVoor}${hinderNa}`]);
   // De datums zeggen "bezig", GIPOD zegt nog "concreet gepland": zeg allebei, niet alleen "nu bezig".
   const status = clean(werk.status, 60);
   if (duur.toestand === "bezig" && status && !/^in uitvoering$/i.test(status)) {
@@ -742,9 +844,9 @@ export function werkKaartje(werk = {}, { vandaag, feiten = null } = {}) {
   }
 
   const samenvatting = [
-    f.omschrijving ? "" : f.soort ? `${f.soort} (afgeleid uit GIPOD).` : "Omschrijving niet gepubliceerd door de beheerder.",
+    f.omschrijving ? "" : f.soort ? `${f.soort} (afgeleid uit GIPOD).` : werf ? (doelen.length ? `Volgens de fasen in GIPOD: ${doelen.join(" · ")}.` : "") : onbekendZin("werk-omschrijving-zin"),
     project && project.length <= 80 ? `Volgens de beheerder: ${project}.` : "",
-    f.opdrachtgever ? `Opdrachtgever: ${f.opdrachtgever}.` : "",
+    f.opdrachtgever ? `${beheerderLabel}: ${f.opdrachtgever}.` : "",
     titelGevolgen.length ? `${capital(uniek(titelGevolgen).map(gevolgKort).join(", "))}.` : "",
   ].filter(Boolean).join(" ");
   // De volledige tekst van de beheerder blijft ingeklapt na te lezen, tenzij "Wat" hem al helemaal toont.
@@ -776,13 +878,29 @@ export function isEvenementDossier(row = {}) {
   return /^ET/i.test(clean(row.reference || row.dossier, 40)) || /^ETL$/i.test(clean(row.dossierType, 20));
 }
 
-// Vrije tekst uit het dossier tonen we alleen als ze over het evenement gaat: een richting, een
-// halte, een afstand of een woord uit de lijst. Een losse naam ("maurits") kan een persoon zijn.
-const EVENEMENT_WOORDEN = /\b(?:van|naar|stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
-export function bruikbareBeschrijving(tekst) {
-  const t = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 140);
-  if (!t || CONTACT.test(t)) return "";
-  return EVENEMENT_WOORDEN.test(t) ? t : "";
+// De privacyfilter van de vrije tekst uit A-Sign (innameBeschrijving): site/witte-lijst.js. GRONDREGEL: uit de tekst
+// blijft alleen een volledige officiële straatnaam uit de straatas (`isStraat`, of een straat van de inname uit diezelfde
+// straatas, `straten`) of een district van Antwerpen over; al de rest valt weg, ook elk ander woord, elk cijfer en elke
+// telefoon-, mail- of huisnummervorm. Geeft "" als er geen straatnaam en geen district overblijft. De soort van een
+// evenement komt nooit uit deze tekst (kenmerkTekst hieronder).
+export function veiligeTekst(tekst, { straten = [], isStraat = null } = {}) {
+  return witteTekst(tekst, { straten, isStraat });
+}
+// Een omschrijving die de kaart toont: dezelfde filter.
+export const bruikbareBeschrijving = (tekst, opties = {}) => veiligeTekst(tekst, opties);
+
+// Een bewaarde omschrijving ("Parkeerverbod in Straat: Proefstraat" in kaart-uitleg.json, ook van een verversing met
+// oudere code) opnieuw door de filter. De soort vooraan is een vaste soort van A-Sign (innameTypeNaam: "Inname",
+// "Parcours", "Verkeersvrije Zone", "Parkeerverbod in Straat" ...), anders "Inname": geen vrije tekst. "" als er geen
+// straatnaam en geen district overblijft.
+const VASTE_INNAME_SOORTEN = new Set(["Inname", "Parcours", "Parkeerverbod in Straat", "Parkeerverbod op Plein", "Verkeersvrije Zone", "Omleiding", "Blokken op shot"]);
+export function veiligeOmschrijving(regel, opties = {}) {
+  const m = clean(regel, 400).match(/^([^:]{2,60}): (.+)$/);
+  if (!m) return veiligeTekst(regel, opties);
+  const b = veiligeTekst(m[2], opties);
+  if (!b) return "";
+  const soort = clean(m[1], 60);
+  return `${VASTE_INNAME_SOORTEN.has(soort) ? soort : "Inname"}: ${b}`;
 }
 
 // "Grote Markt" is een plein, geen markt: alleen woorden die echt een markt noemen tellen.
@@ -829,6 +947,111 @@ export function soortEvenement(teksten = []) {
   return soortEvenementMet(teksten).soort;
 }
 
+// De kenmerken van één ruwe omschrijving, als vaste woorden: de soort, de dingen en de voorwerpen (kenmerkWoorden in
+// site/evenement-wat.js), en "straat" als de tekst alleen een plek noemt. Nooit de tekst zelf: de verversing en de live laag
+// (normalizeIod in site/public-space-core.js) geven dit altijd mee naast de gefilterde omschrijving (ook leeg), en de
+// soort van een evenement komt alleen hieruit, nooit uit de tekst die de privacyfilter (site/witte-lijst.js) overlaat.
+//
+// Welke omschrijvingen tellen, is precies wat origin/main voor de soort las: de vroegere woordenfilter van de kaart
+// (bruikbareBeschrijving van voor de privacyfilter) liet een omschrijving alleen door met een woord over het evenement
+// (SOORT_TELT) en zonder contactgegevens (SOORT_CONTACT), en alleen de eerste 140 tekens; de soort kwam uit wat zo
+// overbleef. Die lijst toont hier niets: ze beslist alleen welke ruwe tekst een kenmerk krijgt, zodat de soort van elk
+// evenement gelijk blijft aan die op main (een "Kermisattractie" zonder ander woord gaf daar geen kermis, en geeft hier
+// ook geen). "overig": de tekst telt maar noemt niets uit de lijsten; "-": de tekst telt maar houdt na een ontkenning
+// geen letter ("geen stoet"); "": de tekst telt niet (dan ook niet voor alleOmschreven, zoals op main).
+const SOORT_TELT = /\b(?:van|naar|stop|start|aankomst|finish|verzamel\w*|parcours|wandel\w*|loop|run|jogging|marathon|fiets\w*|wieler\w*|koers|stoet|optocht|parade|processie|markt|braderie|feest|kermis|podium|tent|nadars?|dranghekken|parkeer\w*|verkeersvrij\w*|omleiding|doop\w*|spel\w*|drill\w*|halte|jeugd|volwassenen|ronde|stand|bar|toog|reuzenrad|kraam|kramen|servicepunt|generator)\b|\d+\s?(?:k|km)\b/i;
+const SOORT_CONTACT = /[@]|https?:|www\.|\b(?:tel|gsm|contact)\b|\d{4}\s?\d{2}\s?\d{2}/i;
+const SOORT_KENMERK = Object.freeze({
+  Studentendoop: "doop", Loopwedstrijd: "loopwedstrijd", Wielerwedstrijd: "wielerwedstrijd", Fietstocht: "fietstocht", Stoet: "stoet",
+  Wandeling: "wandeling", Markt: "braderie", Buurtfeest: "buurtfeest", "Tocht met haltes": "stop",
+});
+// De ruwe tekst zoals ze voor de soort telt (de eerste 140 tekens), of "" als ze niet telt.
+export function telVoorSoort(tekst) {
+  const t = clean(String(tekst ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 140);
+  return t && !SOORT_CONTACT.test(t) && SOORT_TELT.test(t) ? t : "";
+}
+// zonderHuisnummer zoals origin/main het had (zonder de uitzondering voor een afstand of een duur, zie zonderHuisnummer
+// hieronder): main las de omschrijving van een inname voor de soort na deze functie ("Proefstraat 5 km" werd "Proefstraat km").
+const zonderHuisnummerVanMain = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
+// Een voorvoegsel vooraan een tekst ("Inname: ", of in de omschrijving zelf "Stoet: "): soortEvenementMet haalt er precies
+// één weg, zoals op origin/main.
+const VOORVOEGSEL = /^[^:]{2,40}: /;
+// De vaste woorden van één tekst die voor de soort telt: "-" als er na een ontkenning geen letter overblijft, "overig" als ze
+// niets uit de lijsten noemt.
+function kenmerkWoordenVan(tekst) {
+  const t = clean(zonderOntkenning(tekst), 200);
+  if (!/\p{L}/u.test(t)) return "-";
+  const woorden = [
+    ...SOORTEN_EVENEMENT.filter(([re]) => re.test(t)).map(([, soort]) => SOORT_KENMERK[soort]),
+    ...(/student|schacht|\bdril/i.test(t) ? ["student"] : []),
+    ...kenmerkWoorden(t),
+  ];
+  const uit = [...new Set(woorden.filter(Boolean))];
+  if (alleenStraat(t)) uit.push("straat");
+  return uit.length ? uit.join(" ") : "overig";
+}
+// De kenmerken van één ruwe omschrijving, gelezen zoals origin/main ze voor de soort las, of null als de tekst niet telt
+// (telVoorSoort). Main gaf soortEvenementMet per inname TWEE teksten: de omschrijving ("Inname: " + de eerste 140 tekens na
+// zijn zonderHuisnummer; soortEvenementMet haalt alleen "Inname: " weg, een eigen voorvoegsel als "Stoet: " of "Doopfeest
+// schip: " blijft staan) en de ruwe tekst (waar soortEvenementMet dat eigen voorvoegsel wel weghaalt). Dus ook hier twee
+// aparte kenmerken, nooit samengevoegd: dingKeuze en gaatOver kijken per tekst, en `zeker` hangt daarvan af ("Kermis:
+// reuzenrad en kramen" is vermoedelijk een kermis, geen zeker reuzenrad).
+// - vol: de volle tekst, zoals main de omschrijving las (ook de plekpagina van main las alleen die, naast de bewaarde);
+// - kort: de tekst zonder voorvoegsel, zoals main de ruwe tekst las;
+// - bewaard: de volle tekst zoals de plekpagina van main hem uit kaart-uitleg.json las: main bewaarde de omschrijving na
+//   zijn zonderHuisnummer en paste dat daar nog eens toe ("Proefstraat 12a 10 km" werd zo "Proefstraat km").
+export function kenmerkenTekst(tekst) {
+  const ruw = telVoorSoort(tekst);
+  if (!ruw) return null;
+  const vol = zonderHuisnummerVanMain(ruw);
+  return { vol: kenmerkWoordenVan(vol), kort: kenmerkWoordenVan(ruw.replace(VOORVOEGSEL, "")), bewaard: kenmerkWoordenVan(zonderHuisnummerVanMain(vol)) };
+}
+// Zoals de live laag (normalizeIod in site/public-space-core.js) ze op een rij meegeeft (`kenmerk`): "vol|kort|bewaard" (een
+// kenmerk zelf is alleen kleine letters en spaties, of "-"), achteraan zonder wat gelijk is aan vol ("straat" als ze alle drie
+// gelijk zijn), en "" als de tekst niet telt.
+export function kenmerkTekst(tekst) {
+  const k = kenmerkenTekst(tekst);
+  if (!k) return "";
+  const delen = [k.vol, k.kort, k.bewaard];
+  while (delen.length > 1 && delen.at(-1) === k.vol) delen.pop();
+  return delen.join("|");
+}
+// De kenmerken van een rij: wat de live laag of de verversing meegaf, anders (een oudere vastlegging, een toets) uit haar
+// ruwe omschrijving. Een rij uit de live laag heeft altijd een kenmerk, ook een leeg: haar gefilterde omschrijving telt dus
+// nooit voor de soort.
+function kenmerkDelen(r = {}) {
+  const k = typeof r?.kenmerk === "string" ? r.kenmerk : kenmerkTekst(r?.description);
+  if (!k) return null;
+  const [vol, kort = vol, bewaard = vol] = k.split("|");
+  return { vol, kort, bewaard };
+}
+// Voor de soort in de verversing (evenementFeiten): per inname het kenmerk van de volle tekst en dat van de tekst zonder
+// voorvoegsel, elk apart (zoals main per inname de beschrijving en de ruwe tekst las); [] als de tekst niet telt.
+export const kenmerkenVan = (r = {}) => { const k = kenmerkDelen(r); return k ? [k.vol, k.kort] : []; };
+// Alleen het kenmerk van de volle tekst: zo las de plekpagina van origin/main de live omschrijvingen naast een bewaarde
+// uitleg (alleen de beschrijvingen, niet de ruwe tekst).
+export const volKenmerkVan = (r = {}) => kenmerkDelen(r)?.vol || "";
+// Wat de verversing per inname bewaart (`kenmerken` in kaart-uitleg.json): het kenmerk zoals de plekpagina van main de
+// bewaarde omschrijving las.
+export const bewaardKenmerkVan = (r = {}) => kenmerkDelen(r)?.bewaard || "";
+// De kenmerken van een bewaard evenement (kaart-uitleg.json), zoals de plekpagina van origin/main ze las: wat de verversing
+// als `kenmerken` bewaarde (bewaardKenmerkVan, voor elke inname). Een bestand van een verversing zonder kenmerken
+// (zoals origin/main het schrijft) bewaarde de omschrijvingen zelf ("Inname: Stoet: verzamelen ..."): main las die na zijn
+// zonderHuisnummer (nog eens) en haalde er één voorvoegsel af ("Inname: "), niet twee; dan dus het kenmerk van wat zo
+// overblijft.
+export function bewaardeKenmerken(e = {}) {
+  if (Array.isArray(e?.kenmerken)) return e.kenmerken.filter((k) => typeof k === "string" && k);
+  return (Array.isArray(e?.beschrijvingen) ? e.beschrijvingen : []).map((b) => zonderHuisnummerVanMain(b).replace(VOORVOEGSEL, "")).filter(Boolean).map(kenmerkWoordenVan);
+}
+// Alle waarden die in één kenmerk kunnen staan (kenmerkWoordenVan: de soorten, "student", de dingen en voorwerpen,
+// "straat"), en hoe lang een kenmerk hoogstens wordt als ze er allemaal in staan. De validatie van kaart-uitleg.json
+// (KENMERK_MAX in lib/kaart-uitleg-validatie.mjs) laat minstens zoveel toe: een kenmerk wordt nooit ingekort.
+export const KENMERK_DELEN = Object.freeze([...new Set([...Object.values(SOORT_KENMERK), "student", ...KENMERK_WAARDEN, "straat"])]);
+export const KENMERK_LANGST = KENMERK_DELEN.join(" ").length;
+// Is dit een kenmerk (alleen vaste woorden)? Voor de validatie van kaart-uitleg.json.
+const KENMERK_WOORD = new Set([...Object.values(SOORT_KENMERK), ...KENMERK_WOORDEN, "student", "straat", "overig"].flatMap((w) => w.split(" ")));
+export const isKenmerk = (k) => typeof k === "string" && (k === "-" || (/^[a-z]+(?: [a-z]+)*$/.test(k) && k.split(" ").every((w) => KENMERK_WOORD.has(w))));
+
 // Alle innames van één dossier worden één kaartje.
 export function bundelInnames(rows = []) {
   const groepen = new Map();
@@ -855,10 +1078,14 @@ export function innameSoort(type) {
   return "inname";
 }
 // Een huisnummer na een straatnaam ("voorbeeldlaan 34") kan een woning zijn: dat tonen we niet.
-export const zonderHuisnummer = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b/giu, "$1");
+// Een afstand of een duur na de straat ("Proefstraat 5 km") is geen huisnummer.
+export const zonderHuisnummer = (t) => clean(t, 200).replace(/(\p{L}*(?:straat|laan|lei|plein|baan|weg|kaai|vest|rui|markt|plaats|dreef|pad|hof|dijk|singel|brug))\s+\d+[a-z]?(?:\s*[-–]\s*\d+[a-z]?)?\b(?!\s*(?:km|k|m|meter|u|uur|h|min)\b)/giu, "$1");
 
-// Feiten over één evenementendossier (alle innames samen), zonder klok.
-export function evenementFeiten(rows = []) {
+// Feiten over één evenementendossier (alle innames samen), zonder klok. `isStraat(naam)`: staat die hele naam in de
+// straatas? De omschrijvingen gaan door de privacyfilter met de straten van elke inname én de straatas: een plek met De of
+// Van ("De Coninckplein", "Van Eycklei") of een straat die niet bij de inname staat (een parcours krijgt in de verversing
+// geen straten per inname) is anders een mogelijke naam (nakijkronde van head c7f1a651).
+export function evenementFeiten(rows = [], { isStraat = null } = {}) {
   const first = rows[0] || {};
   const onderdelen = [], fasen = new Map(), types = new Set();
   const perSoort = { parcours: new Set(), parkeerverbod: new Set(), verkeersvrij: new Set(), omleiding: new Set(), inname: new Set() };
@@ -889,23 +1116,27 @@ export function evenementFeiten(rows = []) {
       if (re > p.eind) p.eind = re;
       perSoortDagen[soortInname][naam] = p;
     }
-    const b = bruikbareBeschrijving(r.description);
-    if (b) onderdelen.push(`${type === "Parcours" ? "Parcours" : type || "Inname"}: ${zonderHuisnummer(b)}`);
+    const b = bruikbareBeschrijving(r.description, { straten: r.streets || [], isStraat });
+    if (b) onderdelen.push(`${type === "Parcours" ? "Parcours" : type || "Inname"}: ${b}`);
   }
   const starts = rows.map((r) => dagVan(r.start)).filter(Boolean).sort();
   const ends = rows.map((r) => dagVan(r.end)).filter(Boolean).sort();
   const straten = uniek(rows.flatMap((r) => (r.streets || []).map((s) => s?.name))).sort((a, b) => a.localeCompare(b, "nl"));
   const beschrijvingen = uniek(onderdelen);
-  // De soort en de voorwerpen komen uit alle omschrijvingen (ook "Sticker ..." of "Hub voor bladslag",
-  // die de woordenfilter niet toont), maar alleen als vast woord uit de lijst: de tekst zelf gaat nergens heen.
-  const ruw = rows.map((r) => clean(String(r.description ?? "").replace(/&gt;/g, ">").replace(/&lt;/g, "<").replace(/&amp;/g, "&"), 200)).filter((t) => t && !CONTACT.test(t));
+  // De soort en de voorwerpen komen uit de kenmerken van de ruwe omschrijvingen (kenmerkenTekst: vaste woorden, nooit de
+  // tekst zelf, en nooit de gefilterde omschrijving): per inname dat van de volle tekst en dat van de tekst zonder
+  // voorvoegsel, elk apart, zoals main per inname de beschrijving en de ruwe tekst las. De live laag en de verversing geven
+  // ze mee (`kenmerk`, uit normalizeIod); een rij zonder `kenmerk` (een oudere vastlegging, een toets) krijgt ze uit haar
+  // omschrijving.
+  const ruw = rows.flatMap(kenmerkenVan);
   // Een fase "Opname" (A-Sign): een film- of foto-opname, wat de omschrijving ook zegt.
   const opname = rows.some((r) => isOpnameFase(r.phase));
-  const sm = opname ? { soort: DING_LABEL(OPNAME.key), zeker: true } : soortEvenementMet([...beschrijvingen, ...ruw]);
+  const sm = opname ? { soort: DING_LABEL(OPNAME.key), zeker: true } : soortEvenementMet(ruw);
   const soort = sm.soort || "";
-  // Zonder "vermoedelijk" alleen als elke inname een omschrijving heeft die de kaart ziet (de live laag
-  // laat een omschrijving zonder woord uit de lijst weg: dan weten we niet wat er nog staat).
-  const alleOmschreven = rows.length > 0 && rows.every((r) => clean(r.description, 200));
+  // Zonder "vermoedelijk" alleen als elke inname een omschrijving heeft die voor de soort telt (een kenmerk, zie
+  // kenmerkenTekst; zo telde origin/main de omschrijvingen die zijn woordenfilter toonde). Niet de gefilterde
+  // omschrijving: die zegt sinds de privacyfilter alleen nog een straatnaam of een district.
+  const alleOmschreven = rows.length > 0 && rows.every((r) => kenmerkenVan(r).length > 0);
   // Hoeveel innames er op de dag(en) zelf staan, en op welke dagen echt (een maandag per maand is geen
   // periode van maanden). Zie site/evenement-wat.js.
   const opDag = rows.filter((r) => clean(r.phase, 40) === "Evenement");
@@ -924,6 +1155,10 @@ export function evenementFeiten(rows = []) {
     perSoortDagen,
     parcours: rows.filter((r) => clean(r.innameType || r.title, 80) === "Parcours").length,
     beschrijvingen,
+    // De kenmerken (vaste woorden) van de volle omschrijvingen (bewaardKenmerkVan): de verversing bewaart ze in
+    // kaart-uitleg.json, zodat de plekpagina de soort ook zonder live rijen kent (evenementSoort in site/place-core.js),
+    // zoals de plekpagina van origin/main ze uit de bewaarde beschrijvingen las.
+    kenmerken: [...new Set(rows.map(bewaardKenmerkVan).filter((k) => k && isKenmerk(k)))],
     soort,
     soortZeker: Boolean(sm.zeker && (opname || alleOmschreven)),
     alleOmschreven, opname,
@@ -979,12 +1214,14 @@ export function koppelEvenement(feiten, agendaItems = [], { naam = "" } = {}) {
     titel: clean(it.title, 160),
     tijd: clean(it.timeText, 80),
     locatie: zonderHuisnummer(clean(it.location, 200)),
-    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) ? url : "",
+    // Een GIPOD-link (ruw record of datasetfiche) is geen infopagina over het evenement (site/gipod-bron.js).
+    bronUrl: /^https:\/\/[^?#\s]+$/.test(url) && !gipodLink(url) ? url : "",
     agendaId: /^[a-z0-9][a-z0-9-]{2,200}$/.test(String(it.id || "")) && it.noEventPage !== true ? String(it.id) : "",
   };
 }
 
 // "38 straten in Historisch Centrum en Seefhoek". wijkVan(straatnaam) geeft een wijknaam of "".
+// De straten komen uit de straatas, al zonder homoniemtoevoeging (straatasNaam in site/street-core.js).
 export function stratenSamenvatting(straten = [], wijkVan = () => "") {
   const list = uniek(straten);
   if (!list.length) return "";
@@ -1060,8 +1297,9 @@ export function jouwStraat(f, straat, vandaag = "", { geenEvenement = false, soo
   else if (heeft(ps.parcours)) delen.push(rel === "naast" ? "ligt vlak naast het parcours" : rel === "kruist-of-naast" ? "kruist het parcours of ligt er vlak naast" : "ligt op of naast het parcours");
   if (heeft(ps.omleiding)) delen.push("ligt op de omleiding");
   const dit = geenEvenement ? "deze inname" : "dit evenement";
-  if (!delen.length && heeft(ps.inname)) delen.push(`wordt gebruikt voor ${dit}${wanneer("inname")}${soortBekend ? "" : "; waarvoor precies, zegt de stad niet"}`);
-  if (!delen.length && heeft(f.straten)) delen.push(`staat in het dossier van ${dit}${soortBekend ? "" : "; waarvoor, zegt de stad niet"}`);
+  // Waarvoor, zegt de kaart al bij "Wat" (één keer per kaart, niet nog eens hier).
+  if (!delen.length && heeft(ps.inname)) delen.push(`wordt gebruikt voor ${dit}${wanneer("inname")}`);
+  if (!delen.length && heeft(f.straten)) delen.push(`staat in het dossier van ${dit}`);
   return delen.length ? `Jouw straat ${joinNl(delen)}.` : "";
 }
 
@@ -1132,7 +1370,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   // Een automatische fiche zegt "onbekend" nadat ze de omschrijving al las: dan geen eigen woord-gok meer.
   const fSoort = id?.methode && id.zekerheid === "onbekend" ? "" : clean(f.soort, 200);
   const dagen = evenementDagen(f, bekend);
-  const datum = dagenTekst(dagen.start, dagen.eind, vandaag) || "datum niet gepubliceerd";
+  const datum = dagenTekst(dagen.start, dagen.eind, vandaag) || onbekendZin("datum");
   const straten = stratenSamenvatting(f.straten, wijkVan);
   const duur = resterendeDuur({ start: dagen.start, eind: dagen.eind, vandaag });
   // De echte dagen: losse dagen (een maandag per maand) of een lange periode (een maand, een jaar).
@@ -1151,37 +1389,45 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
 
   // WAT, met de titel: wat + waar.
   let titel, wat, zeker = "";
+  // Waar het "wat" vandaan komt, voor de lijst (bundelLijst in site/place-core.js): een naam, een soort uit het
+  // dossier, een vermoeden, een koppeling met de agenda, een woord uit de omschrijving, of niets ("leeg").
+  let watBron = "leeg";
   const inname = innameWat(f);
   if (bekend?.zekerheid === "zeker") {
+    watBron = "naam";
     titel = clean(bekend.naam, 120);
     // Een soort zonder inhoud ("evenement", uit een besluit) zegt niets: dan waar de naam vandaan komt.
     const soortZin = /^(?:een )?evenement$/i.test(clean(bekend.soort, 200)) ? (bekend.grond ? `${titel}: die naam staat in ${clean(bekend.grond, 160)}.` : "") : zin(bekend.soort);
     wat = [soortZin, bekend.organisator ? `Organisator: ${clean(bekend.organisator, 200)}.` : ""].filter(Boolean).join(" ");
   } else if (bekend?.soortZeker) {
+    watBron = "soort";
     // De soort staat in het dossier zelf (een reuzenrad, stickers, een studentendoop in de doopperiode).
     titel = metPlek(capital(zonderLidwoord(bekend.soort)), plek);
     wat = [`${capital(zonderLidwoord(bekend.soort))}: zo staat het in het dossier van de stad.`, zin(bekend.reden)].filter(Boolean).join(" ");
-    zeker = `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : "de naam maakt de stad niet bekend"}.`;
+    zeker = `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : onbekendZin("naam-stad")}.`;
   } else if (bekend) {
+    watBron = "vermoeden";
     titel = metPlek(`Vermoedelijk ${clean(bekend.soort, 200)}`, plek);
     wat = [`Vermoedelijk ${clean(bekend.soort, 200)}.`, zin(bekend.reden)].filter(Boolean).join(" ");
-    zeker = `Vermoedelijk${bekend.grond ? `, afgeleid uit ${clean(bekend.grond, 160)}` : !bekend.methode ? ", met de hand nagekeken" : ""}; de stad noemt geen naam.`;
+    zeker = `Vermoedelijk${bekend.grond ? `, afgeleid uit ${clean(bekend.grond, 160)}` : !bekend.methode ? ", met de hand nagekeken" : ""}; ${onbekendZin("naam-stad-vermoeden")}.`;
   } else if (koppeling) {
+    watBron = "koppeling";
     // Een koppeling op dag en straat blijft een vermoeden: zo staat het ook in de titel.
     titel = `Vermoedelijk: ${koppeling.titel}`;
     wat = `${titel}${koppeling.locatie ? ` (${koppeling.locatie})` : ""}. Gekoppeld aan agendapunt: dezelfde dag en dezelfde straat.`;
   } else if (fSoort) {
     // Zonder "vermoedelijk" alleen als het hele dossier over dat ding gaat (soortEvenementMet, f.soortZeker).
     const z = Boolean(f.soortZeker);
+    watBron = z ? "soort" : "woord";
     titel = metPlek(z ? fSoort : `Vermoedelijk een ${fSoort.toLowerCase()}`, plek);
-    wat = z ? `${fSoort}: zo staat het in het dossier van de stad. De stad maakt de naam niet bekend.` : `Vermoedelijk een ${fSoort.toLowerCase()}: dat staat in de omschrijving van het dossier. De stad maakt de naam niet bekend.`;
-    zeker = z ? `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : "de naam maakt de stad niet bekend"}.` : "Vermoedelijk: een woord in de omschrijving van het dossier.";
+    wat = z ? `${fSoort}: zo staat het in het dossier van de stad.` : `Vermoedelijk een ${fSoort.toLowerCase()}: dat staat in de omschrijving van het dossier. ${onbekendZin("naam-stad-zin")}`;
+    zeker = z ? `Zo staat het in het dossier; ${geenEvenement ? "het is geen evenement met publiek" : onbekendZin("naam-stad")}.` : "Vermoedelijk: een woord in de omschrijving van het dossier.";
   } else {
     // Niets over wát: dan wat er wél vaststaat (soort inname, plek, periode, omvang, voorwerpen).
     titel = metPlek(/^op \d+ (?:kleine )?plekken/.test(plek) && inname.titel === "Inname" ? "Innames" : inname.titel, plek);
     const voorwerpen = (f.voorwerpen || []).slice(0, 3);
-    wat = `De stad gaf toelating voor ${inname.zin}${voorwerpen.length ? `, met ${joinNl(voorwerpen)}` : ""}. Wat er gebeurt of wat er staat, zegt het dossier niet.`;
-    zeker = `${voorwerpen.length ? `Met ${joinNl(voorwerpen)}. ` : ""}Wat er gebeurt, zegt de stad niet.`;
+    wat = `De stad gaf toelating voor ${inname.zin}${voorwerpen.length ? `, met ${joinNl(voorwerpen)}` : ""}. ${onbekendZin("inname-wat")}`;
+    zeker = `${voorwerpen.length ? `Met ${joinNl(voorwerpen)}. ` : ""}${onbekendZin("inname-wat-kort")}`;
   }
   if (f.versiering && /^straatversiering$/i.test(zonderLidwoord(titel.replace(/ (?:op|in|aan|bij) .*$/, "")))) titel = metPlek(capital(f.versiering), plek);
   // Een lange titel (een soort met plekken in twee wijken) wordt op een gsm vier of vijf regels: dan staat
@@ -1195,10 +1441,11 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   const opbouw = fasenBuiten.find((p) => p.naam === "Opbouw"), afbraak = fasenBuiten.find((p) => p.naam === "Afbraak");
   const rand = [opbouw && opbouw.start < dagen.start ? `opbouw vanaf ${dagTekst(opbouw.start, vandaag)}` : "", afbraak && afbraak.eind > dagen.eind ? `afbraak tot ${dagTekst(afbraak.eind, vandaag)}` : ""].filter(Boolean);
   const wanneer = [
-    `${capital(losse || lang ? wanneerKort : datum)}${uren ? `, ${uren}` : "; de uren zijn niet gepubliceerd"}.`,
+    // Zonder uren: de zin staat één keer boven de sectie (onbekend-zinnen.js, evenementen-uren), niet op elke kaart.
+    `${capital(losse || lang ? wanneerKort : datum)}${uren ? `, ${uren}` : ""}.`,
     zin(bekend?.urenNoot),
     rand.length ? zin(joinNl(rand)) : "",
-    lang && !bekend ? "Dit is de periode waarin de stad de plek in gebruik geeft; of er elke dag iets gebeurt, zegt de stad niet." : !lang && dagen.bron === "inname" && f.eind && f.eind !== f.start ? "Dit is de periode waarin de stad de straat in gebruik geeft." : "",
+    lang && !bekend ? onbekendZin("elke-dag") : !lang && dagen.bron === "inname" && f.eind && f.eind !== f.start ? "Dit is de periode waarin de stad de straat in gebruik geeft." : "",
   ].filter(Boolean).join(" ");
 
   // WAAR en JOUW STRAAT
@@ -1207,7 +1454,7 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   // Een automatische fiche zet de dagen ook in haar zin bij "Waar" (uit het venster van de herkenner); de
   // kaart zegt ze al bij "Wanneer", uit de innames zelf. Dus hier zonder dagen: anders spreken ze elkaar tegen.
   const idWaar = /^Evenement zonder parcours/i.test(clean(id?.waar, 400)) ? "" : id?.methode ? waarZonderDagen(id?.waar) : clean(id?.waar, 400);
-  const waar = idWaar || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : plek ? `${capital(plek)}${straten && !/^\d/.test(plek) ? ` (${straten}, berekend uit de kaart van de stad)` : ""}.` : straten ? `${straten} (berekend uit de kaart van de stad).` : "Niet gepubliceerd.");
+  const waar = idWaar || (f.parcours ? `Parcours door ${straten || "de straten op de kaart"} (berekend uit de kaart van de stad).` : plek ? `${capital(plek)}${straten && !/^\d/.test(plek) ? ` (${straten}, berekend uit de kaart van de stad)` : ""}.` : straten ? `${straten} (berekend uit de kaart van de stad).` : onbekendZin("plek"));
   const jouw = jouwStraat(f, straat, vandaag, { geenEvenement, soortBekend: Boolean(bekend || koppeling || fSoort) });
 
   // WAT MERK JE
@@ -1219,17 +1466,18 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   ].filter(Boolean);
   // A-Sign geeft voor een parkeerverbod alleen dagen: de uren van het evenement gelden er niet voor.
   const merk = clean(id?.watMerkJe, 600) || (afgeleid.length
-    ? `${zin(joinNl(afgeleid))}${ps.parkeerverbod?.length ? " De uren van het parkeerverbod staan niet in het dossier." : ""}${f.hinder === "True" ? " De stad verwacht hinder voor het verkeer." : ""}`
-    : f.parcours ? "Straten op het parcours kunnen tijdelijk dicht zijn; welke en hoe laat, maakt de stad niet bekend."
+    ? `${zin(joinNl(afgeleid))}${ps.parkeerverbod?.length ? ` ${onbekendZin("parkeerverbod-uren")}` : ""}${f.hinder === "True" ? " De stad verwacht hinder voor het verkeer." : ""}`
+    : f.parcours ? onbekendZin("parcours-straten")
       : "In het dossier staat geen afgesloten straat, parkeerverbod of omleiding: alleen de inname zelf.");
 
   const kern = [["Wat", wat], ["Wanneer", wanneer], ["Waar", waar]];
   if (jouw) kern.push(["Jouw straat", jouw]);
   kern.push(["Wat merk je", merk]);
 
-  // Links naar een gewone pagina, nooit een databron.
+  // Links naar een gewone pagina, nooit een databron, en nooit een GIPOD-link (een ruw record draagt
+  // contactgegevens, site/gipod-bron.js; ook niet uit een oudere automatische fiche).
   const links = [];
-  const voegToe = (url, label, uitleg = "") => { if (url && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
+  const voegToe = (url, label, uitleg = "") => { if (url && !gipodLink(url) && !links.some((l) => l.url === url)) links.push({ url, label, uitleg }); };
   if (id?.link) voegToe(id.link, clean(id.linkLabel, 80) || "Officiële info over dit evenement", clean(id.linkUitleg, 160));
   for (const l of id?.extraLinks || []) voegToe(l.url, clean(l.label, 100));
   // Bij een koppeling: de officiële pagina van het agendapunt én het agendapunt zelf.
@@ -1240,6 +1488,13 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
   // (de knop "Toon alle N straten"): niet nog eens herhalen. De uitleg bij die stratenlijst: bij een
   // parcours de straten langs het parcours; zonder parcours de straten rond de plekken, geen parcours.
   const regels = [];
+  // Een dossier met meer plekken: hun namen, zoals de aanvrager ze in het dossier zette (alleen plaatsnamen,
+  // na de privacyfilter van lib/plaatsnaam.mjs; zie docs/PUBLIC_SPACE_SOURCE_POLICY.md).
+  const plekNamen = (Array.isArray(id?.plekNamen) ? id.plekNamen : []).map((n) => clean(n, 80)).filter((n) => n && !/[\d@]/.test(n));
+  // Welke van die plekken in de gekozen straat ligt: een naam die de straat noemt ("Groenplaats" op de Groenplaats).
+  const straatSl = straatSleutel(straat);
+  const hier = straatSl ? plekNamen.filter((n) => ` ${straatSleutel(n)} `.includes(` ${straatSl} `)) : [];
+  if (plekNamen.length >= 2) regels.push(["Plekken", `${plekNamen.length} plekken met een naam in het dossier: ${plekNamen.join(", ")}.${hier.length ? ` In deze straat: ${joinNl(hier.map((n) => `“${n}”`))}.` : ""}`]);
   const stratenNoot = f.straten.length > 3 ? (f.parcours ? "Straten langs het parcours, berekend uit de kaart van de stad. Ze zijn niet allemaal tegelijk dicht." : "Straten tot 18 m van de plekken in het dossier, berekend uit de kaart van de stad. Het is geen parcours: deze straten gaan niet dicht volgens het dossier.") : "";
 
   // Eén korte bronregel in gewone taal, zonder codes.
@@ -1262,13 +1517,26 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
       ? `De stad gaf toelating voor ${toelating}${dossier}, zonder naam. Het vermoeden steunt op het dossier en op wat we nagekeken hebben${nagekeken}.`
     : koppeling
       ? `De stad gaf toelating voor ${toelating}${dossier}. De naam komt van het agendapunt op dezelfde dag in dezelfde straat.`
-      : fSoort ? `De stad gaf toelating voor ${toelating}${dossier}, maar zegt niet wie het organiseert of op welke uren.`
-        : `De stad gaf toelating${dossier}, maar zegt niet wat het is, wie het organiseert of op welke uren.`;
+      : f.dossier ? `De stad gaf toelating voor ${fSoort ? toelating : "deze inname"}${dossier}. Bron: A-Sign, de databank van de stad.`
+      : fSoort ? `De stad gaf toelating voor ${toelating}${dossier}, ${onbekendZin("voetnoot-soort")}.`
+        : `De stad gaf toelating${dossier}, ${onbekendZin("voetnoot-leeg")}.`;
 
+  // Wat ontbreekt. Komt alles uit het evenementendossier (geen fiche, geen koppeling): één regel die die bron noemt
+  // en zegt wat ze niet geeft ("Niet in het evenementendossier ET... (A-Sign): wat er gebeurt en de naam ... · uren
+  // (A-Sign geeft alleen de dag) · organisator"); de voetnoot herhaalt het niet.
+  const alleenDossier = !bekend && !koppeling && Boolean(f.dossier);
+  const eenDag = !dagen.eind || dagen.eind === dagen.start;
   const ontbreekt = [];
-  if (!bekend && !koppeling) ontbreekt.push(fSoort ? "naam van het evenement niet gepubliceerd door de stad" : "wat er gebeurt en de naam niet gepubliceerd door de stad");
-  if (!uren) ontbreekt.push("uren niet gepubliceerd");
-  if (!bekend?.organisator) ontbreekt.push("organisator niet gepubliceerd");
+  if (alleenDossier) {
+    ontbreekt.push(onbekendZin(fSoort ? "dossier-naam-ontbreekt" : "dossier-wat-ontbreekt"));
+    if (!uren) ontbreekt.push(onbekendZin("dossier-uren-ontbreekt", { dagen: eenDag ? "de dag" : "de dagen" }));
+    ontbreekt.push(onbekendZin("dossier-organisator-ontbreekt"));
+  } else {
+    if (!bekend && !koppeling) ontbreekt.push(onbekendZin(fSoort ? "evenement-naam-ontbreekt" : "evenement-wat-ontbreekt"));
+    if (!uren) ontbreekt.push(onbekendZin("uren-ontbreekt"));
+    if (!bekend?.organisator) ontbreekt.push(onbekendZin("organisator-ontbreekt"));
+  }
+  const ontbreektKop = alleenDossier ? onbekendZin("niet-in-dossier-kop", { dossier: f.dossier }) : "";
 
   // De eerste regel: wanneer (met de uren), hoe groot of hoe zeker, en jouw straat.
   const omvang = !bekend && !koppeling && !fSoort ? clean(id?.omvang, 160) : "";
@@ -1278,9 +1546,14 @@ export function evenementKaartje(feiten, { vandaag, gekoppeld: gekoppeldIn = nul
     jouw,
   ].filter(Boolean).join(" ");
   return {
-    titel, samenvatting, kern, regels, links, voetnoot, ontbreekt, duur, plek: straten, technisch: "", stratenNoot,
+    titel, samenvatting, kern, regels, links, voetnoot, ontbreekt, ...(ontbreektKop ? { ontbreektKop } : {}), duur, plek: straten, technisch: "", stratenNoot,
     beschrijvingen: f.beschrijvingen || [], tijd: eersteUur(uren),
     zekerheid: bekend?.zekerheid || (koppeling ? "gekoppeld" : "onbekend"), dagen: { start: dagen.start, eind: dagen.eind },
+    // Wat er vaststaat over het "wat" (watBron), de soort inname zonder omschrijving ("Inname", "Parkeerverbod",
+    // "Parcours", "Verkeersvrije zone") en de soort van een vermoeden ("een studentenactiviteit"): voor de bundels.
+    watBron, innameSoort: inname.titel, soortTekst: clean(bekend?.soort || fSoort || koppeling?.titel || "", 200),
+    // Wat de kaart niet zelf zegt maar één keer per sectie (de uren): voor de sectie en de vaagheidsmeter.
+    onbekend: uren ? [] : [onbekendVeld("evenement-uren")],
     // Voor de lijst (site/place-core.js): de losse dagen (een maandag per maand is geen periode van maanden),
     // een lange periode (geen "Vandaag" en een eigen groep) en of het geen evenement met publiek is.
     losseDagen: losse ? echt.alle : [], lang, geenEvenement,

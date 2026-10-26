@@ -33,6 +33,8 @@ function signal(url, fields = {}) {
 const payload = (items, fields = {}) => ({ schema_version: 1, generated_on: "2026-09-27", items, ...fields });
 const DISTRICT_URL = "https://www.antwerpen.be/info/aaaaaaaaaaaaaaaaaaaaaaaa/infomarkt-burgerbegroting";
 const CITY_URL = "https://www.uitinvlaanderen.be/agenda/e/stadsfeest/00000000-aaaa-4bbb-8ccc-000000000001";
+// Een stadsitem op een officiële pagina van de stad (een UiT-link wordt nooit opgehaald of gepubliceerd).
+const CITY_PAGE = "https://www.antwerpen.be/info/cccccccccccccccccccccccc/stadsfeest";
 const PAGE_OK = "<html><body><h1>Infomarkt Burgerbegroting</h1><p>Op woensdag 14 oktober van 19 tot 21 uur in Districtshuis Harmonie, 2018 Antwerpen.</p></body></html>";
 
 function response(status, body = "", headers = {}) {
@@ -97,14 +99,17 @@ test("200: elk item wordt op de officiële pagina herverifieerd en per groep weg
   const body = payload([
     signal(DISTRICT_URL),
     signal(failing, { title: "Titel die niet op de pagina staat" }),
-    signal(CITY_URL, { group: "stad", sender_class: "participatie", title: "Stadsfeest op de Groenplaats", start: "2026-10-20", end: null, all_day: true, place: null }),
+    signal(CITY_PAGE, { group: "stad", sender_class: "participatie", title: "Stadsfeest op de Groenplaats", start: "2026-10-20", end: null, all_day: true, place: null }),
+    // UiT: niet opgehaald, niet nagekeken, dus niet gepubliceerd (alleen geteld).
+    signal(CITY_URL, { group: "stad", sender_class: "participatie", title: "Stadsfeest in het Proefpark", start: "2026-10-21", end: null, all_day: true, place: null }),
     signal(redirected, { title: "Finale Burgerbegroting", start: "2026-10-25T10:00", end: null }),
   ]);
   const { fetchImpl, calls } = fakeFetch({
     [ENDPOINT]: response(200, body),
     [DISTRICT_URL]: response(200, PAGE_OK),
     [failing]: response(200, PAGE_OK),
-    [CITY_URL]: response(200, "<h1>Stadsfeest op de Groenplaats</h1><p>Datum: 20/10</p>"),
+    [CITY_PAGE]: response(200, "<h1>Stadsfeest op de Groenplaats</h1><p>Datum: 20/10</p>"),
+    [CITY_URL]: response(200, "<h1>Stadsfeest in het Proefpark</h1><p>Datum: 21/10</p>"),
     [redirected]: response(301, "", { location: "https://www.burgerbegroting.be/finale-2026" }),
     "https://www.burgerbegroting.be/finale-2026": response(200, "<h1>Finale Burgerbegroting</h1><time>2026-10-25</time>"),
   });
@@ -114,6 +119,7 @@ test("200: elk item wordt op de officiële pagina herverifieerd en per groep weg
     ["mail-stad", "ok", 1],
   ]);
   assert.ok(calls.filter((call) => call.url !== ENDPOINT).every((call) => call.redirect === "manual"));
+  assert.ok(!calls.some((call) => call.url === CITY_URL), "UiT wordt nooit opgehaald");
 
   const district = read(root, "mail-district");
   assert.deepEqual(validateSourceDocument(district, { expectedSourceId: "mail-district" }), []);

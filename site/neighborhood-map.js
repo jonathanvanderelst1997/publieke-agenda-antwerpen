@@ -22,12 +22,14 @@
 import {
   RADIUS_OPTIONS,
   bboxOf,
+  isKader,
   itemPoint,
   nearSegments,
+  straalVolgensKader,
+  straatWijkKeuze,
   streetSegments,
   streetWijkMap,
   vormBinnenStraal,
-  streetsInWijk,
   wijkFeatures,
 } from "./neighborhood-core.js";
 import { pointInGeometry } from "./works-core.js";
@@ -90,39 +92,69 @@ function loadLeaflet() {
 }
 
 // De matcher die agenda-view.js gebruikt voor "in deze wijk" en "binnen de straal van je straat".
-// `straal`: of de straatassen voor de straal er zijn ("klaar"), nog komen ("laadt") of niet laadden
-// ("mislukt"); de plekpagina zegt het dan (site/straat-snapshot.js, standZin).
+// `straal`: of de straatassen voor de straal er zijn ("klaar"), nog komen ("laadt"), of niet laadden: dan "kader" (de
+// straal volgt het kader van de straat uit site/geo/straten.json, straalVolgensKader in site/neighborhood-core.js) of,
+// zonder dat kader, "mislukt" (agenda-view.js beslist dat per gekozen straat).
 export function createAreaMatcher({ wijken, geo, streetIndex = null, straatasMislukt = false }) {
   const byCode = new Map(wijken.map((f) => [f.properties.code, f]));
   const streetMap = streetIndex ? streetWijkMap(streetIndex, wijken) : null;
   const segmentCache = new Map();
   const straalCache = new WeakMap(); // item → Map("straat|straal" → ja/nee)
+  const kaderCache = new WeakMap(); // item → Map("straat|straal" → ja/nee/onzeker), zonder straatassen
+  // Met een punt: het punt. Zonder punt: de straten (straatWijkKeuze; "twijfel" als een straat ook door een andere wijk loopt).
+  const wijkKeuze = (item, code, refs = [], reserve = null) => {
+    const feature = byCode.get(code);
+    if (!feature) return "ja";
+    const point = itemPoint(item, geo);
+    if (point) return pointInGeometry(point, feature.geometry) ? "ja" : "nee";
+    return straatWijkKeuze(refs, code, streetMap || reserve);
+  };
+  function nearStreet(item, street, radius) {
+    if (!streetIndex) return straalKeuze(item, street, radius) === "ja";
+    if (!item || typeof item !== "object") return false;
+    const key = `${street.id}|${street.name}|${street.postcode}`;
+    if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
+    const point = itemPoint(item, geo);
+    if (point) return nearSegments(point, segmentCache.get(key), radius);
+    if (!item.vorm) return false;
+    let perItem = straalCache.get(item);
+    if (!perItem) { perItem = new Map(); straalCache.set(item, perItem); }
+    const straalKey = `${key}|${radius}`;
+    if (!perItem.has(straalKey)) perItem.set(straalKey, vormBinnenStraal(item.vorm, segmentCache.get(key), radius));
+    return perItem.get(straalKey);
+  }
+  function straalKeuze(item, street, radius) {
+    if (!item || typeof item !== "object" || !street) return "nee";
+    if (streetIndex) return nearStreet(item, street, radius) ? "ja" : "nee";
+    if (!straatasMislukt || !isKader(street.box)) return "onzeker";
+    let perItem = kaderCache.get(item);
+    if (!perItem) { perItem = new Map(); kaderCache.set(item, perItem); }
+    const sleutel = `${street.id}|${street.name}|${street.postcode}|${street.box.join(",")}|${radius}`;
+    if (!perItem.has(sleutel)) perItem.set(sleutel, straalVolgensKader(item, street.box, radius, geo));
+    return perItem.get(sleutel);
+  }
   return {
-    straal: streetIndex ? "klaar" : straatasMislukt ? "mislukt" : "laadt",
+    straal: streetIndex ? "klaar" : straatasMislukt ? "kader" : "laadt",
     labelFor: (code) => byCode.get(code)?.properties.naam || code,
-    inWijk(item, code, refs = []) {
-      const feature = byCode.get(code);
-      if (!feature) return true;
-      const point = itemPoint(item, geo);
-      if (point) return pointInGeometry(point, feature.geometry);
-      return streetsInWijk(refs, code, streetMap);
+    // `reserve`: de wijken per straat uit site/geo/straten.json (place-view.js, via agenda-view.js), dezelfde regel als
+    // streetWijkMap. Zolang de straatassen er niet zijn of als ze niet laadden, hangt een item zonder eigen punt (een
+    // parkeerverbod, een werk uit de momentopname) zo toch aan de wijk van zijn straten (nakijkronde 5 van 18-10-2026).
+    // `strikt` (een werk uit de momentopname, zonder zijn GIPOD-punt; nakijkronde 6): alleen als dat ondubbelzinnig is
+    // (wijkKeuze "ja"); een werk waarvan een straat ook door een andere wijk loopt, hoort er dan niet bij.
+    inWijk(item, code, refs = [], reserve = null, { strikt = false } = {}) {
+      const uit = wijkKeuze(item, code, refs, reserve);
+      return uit === "ja" || (!strikt && uit === "twijfel");
     },
+    // "ja", "nee" of "twijfel" (een item zonder punt, met een straat die ook door een andere wijk loopt).
+    wijkKeuze,
     // Met een punt (GIPOD, geocodering): ligt het punt binnen de straal. Zonder punt: ligt de eigen vorm
     // van het item (perceel, parkeerverbod, inname, parcours, werfzone) binnen de straal. Zonder punt en
-    // zonder vorm (een terras, een item uit de historiek): alleen in de straat zelf.
-    nearStreet(item, street, radius) {
-      if (!streetIndex || !item || typeof item !== "object") return false;
-      const key = `${street.id}|${street.name}|${street.postcode}`;
-      if (!segmentCache.has(key)) segmentCache.set(key, streetSegments(streetIndex, street));
-      const point = itemPoint(item, geo);
-      if (point) return nearSegments(point, segmentCache.get(key), radius);
-      if (!item.vorm) return false;
-      let perItem = straalCache.get(item);
-      if (!perItem) { perItem = new Map(); straalCache.set(item, perItem); }
-      const straalKey = `${key}|${radius}`;
-      if (!perItem.has(straalKey)) perItem.set(straalKey, vormBinnenStraal(item.vorm, segmentCache.get(key), radius));
-      return perItem.get(straalKey);
-    },
+    // zonder vorm (een terras, een item uit de historiek): alleen in de straat zelf. Zonder straatassen: alleen wat
+    // volgens het kader van de straat (`street.box`) zeker binnen de straal ligt (straalKeuze).
+    nearStreet,
+    // "ja", "nee" of "onzeker": met de straatassen zoals nearStreet; zonder (ze laadden niet) volgens het kader van de straat
+    // (straalVolgensKader); zolang ze laden, of zonder kader: "onzeker".
+    straalKeuze,
     segmentsFor(street) {
       if (!streetIndex || !street) return [];
       const key = `${street.id}|${street.name}|${street.postcode}`;
@@ -145,18 +177,27 @@ export function werkKaarten(werken = [], werfPerStuk = null) {
 // De buurtkaart (P9) geeft wat ze tekende per soort mee (kaartLagen in kaart-lagen.js): `opKaart` (alle
 // getekende kaartjes), `werkenGetekend` (werken en verkeershinder) en `ander` (evenementen op straat en
 // vergunningen). Zonder die getallen telt de zin de werken zelf (`werken`, `werfPerStuk`).
-export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, metPlek = false, lijstAantal = null } = {}) {
+// `lijstItems`: hoeveel items die regels samen zijn (een ingeklapte regel "4 terrassen" is 4 items, lijstTelling in
+// place-core.js). Verschilt dat van het aantal regels, dan zegt de zin beide, in de eenheid van het getal boven de lijst
+// ("N items uit officiële bronnen"): anders stonden er twee getallen voor dezelfde lijst (nakijkronde 13 oktober 2026:
+// "49 items uit officiële bronnen" boven de lijst en "21 in de lijst" onder de kaart).
+// `werkenMislukt`: de werken laadden niet (live.failed). Dan geen "werken en hinder worden geladen…" (dat bleef anders
+// eeuwig staan) en geen verzonnen "0 werken en hinder", zonder te zeggen dat iets faalt (besluit van 18-10-2026).
+export function kaartStatusZin({ where = "", mapped = 0, without = 0, werken = [], werfPerStuk = null, werkenGetekend = null, ander = 0, opKaart = null, werkenAan = false, werkenGeladen = false, werkenMislukt = false, metPlek = false, lijstAantal = null, lijstItems = null } = {}) {
   const metWerken = werkenAan && werkenGeladen;
   const works = Number.isInteger(werkenGetekend) ? werkenGetekend : werkKaarten(werken, werfPerStuk);
   const totaal = Number.isInteger(opKaart) ? opKaart : mapped + (metWerken ? works : 0) + ander;
+  const inLijst = Number.isInteger(lijstItems) && lijstItems !== lijstAantal
+    ? `${lijstAantal} ${lijstAantal === 1 ? "regel" : "regels"} in de lijst (samen ${lijstItems} ${lijstItems === 1 ? "item" : "items"})`
+    : `${lijstAantal} in de lijst`;
   const parts = Number.isInteger(lijstAantal) && metPlek
-    ? [`${lijstAantal} in de lijst, ${totaal} op de kaart in ${where}`]
+    ? [`${inLijst}, ${totaal} op de kaart in ${where}`]
     : [
       `${mapped} agendapunt${mapped === 1 ? "" : "en"} op de kaart in ${where}`,
       ...(metWerken || (Number.isInteger(werkenGetekend) && works > 0) ? [`${works} werken en hinder`] : []),
       ...(ander > 0 ? [ander === 1 ? "1 evenement of vergunning" : `${ander} evenementen en vergunningen`] : []),
     ];
-  if (werkenAan && !werkenGeladen) parts.push("werken en hinder worden geladen…");
+  if (werkenAan && !werkenGeladen && !werkenMislukt) parts.push("werken en hinder worden geladen…");
   // Wat zonder vaste plek is, telt (zoals "op de kaart" en de legenda) wat er hier is, niet wat de lijst nu toont:
   // "hier", zodat het niet leest als een deel van "X in de lijst".
   if (without) parts.push(`${without} hier zonder vaste plek`);
@@ -462,7 +503,8 @@ export async function mountNeighborhoodMap(view) {
     wijken = wijkFeatures(wijkDoc).filter((f) => f.properties.code.startsWith(DISTRICT_PREFIX));
     geo = geoDoc && typeof geoDoc.entries === "object" ? geoDoc : { entries: {} };
   } catch {
-    status.textContent = "De wijkgrenzen konden nu niet geladen worden. De agenda en de straatfilter werken gewoon.";
+    // Geen wijkgrenzen: geen wijkkeuze, zonder melding dat iets faalt (besluit van 18-10-2026).
+    status.textContent = "";
     view.straalNietBeschikbaar?.();
     window.dispatchEvent(new CustomEvent("public-agenda:area-ready"));
     return;
@@ -571,7 +613,8 @@ export async function mountNeighborhoodMap(view) {
         return kaart;
       })
       .catch(() => {
-        laadKnop.textContent = "Kaart niet beschikbaar · opnieuw proberen";
+        // Geen melding dat de kaart faalt (besluit van 18-10-2026): de knop blijft, om het opnieuw te proberen.
+        laadKnop.textContent = "🗺️ Toon de kaart";
         mapEl.dataset.kaart = "geen";
         return null;
       })
@@ -697,7 +740,8 @@ export async function mountNeighborhoodMap(view) {
     mapEl.dataset.opKaart = String(lagen.opKaart);
     const where = view.selected ? `${view.selected.name}${view.area.radius ? ` + ${radiusLabel(view.area.radius)}` : ""}` : view.area.wijk ? `wijk ${matcher?.labelFor(view.area.wijk) || ""}` : view.area.postcode ? `postcode ${view.area.postcode}` : "district Antwerpen";
     const p = lagen.perSoort;
-    laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(window.PUBLIC_AGENDA_LIVE_STREETS?.works) };
+    const live = window.PUBLIC_AGENDA_LIVE_STREETS || {};
+    laatste = { where, mapped: p.agenda, werkenGetekend: p.werken + p.verkeer, ander: p.evenement + p.vergunning, opKaart: lagen.opKaart, without: lagen.zonder.length, werkenGeladen: Boolean(live.works), werkenMislukt: !Array.isArray(live.works) && Boolean(live.failed?.works?.length) };
     zetStatus();
   }
   // De zin onder de kaart (voor schermlezers ook de melding: aria-live). "Geen plek" staat daarnaast zichtbaar in
@@ -709,7 +753,7 @@ export async function mountNeighborhoodMap(view) {
     meldingEl.textContent = balk;
     meldingEl.hidden = !balk;
     if (!laatste) return;
-    const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal });
+    const zin = kaartStatusZin({ ...laatste, werkenAan: view.enabled("works"), metPlek: Boolean(view.place), lijstAantal: lijstStand?.aantal, lijstItems: lijstStand?.items });
     status.textContent = melding ? `${zin} ${melding}` : zin;
   }
   let pending = 0;

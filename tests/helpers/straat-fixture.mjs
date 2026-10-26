@@ -23,7 +23,7 @@ export const WERK_TITEL = "Proefwerk riolering (snel)";
 export const werk = (gipodId = 990001, extra = {}) => ({
   gipodId, title: `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`, owner: "water-link", ownerGroup: "water-link", status: "Concreet gepland", // verzonnen adres
   start: "2099-03-19T06:00:00Z", end: "2099-04-09T16:00:00Z", workTypes: [], occupancyTypes: ["Riolering"],
-  sourceUrls: [`https://gipod.api.vlaanderen.be/api/v1/groundworks/${gipodId}`], lastModified: "2099-03-01T00:00:00Z",
+  lastModified: "2099-03-01T00:00:00Z", // geen sourceUrls: site/works-core.js neemt geen link naar het ruwe record meer op
   point: midden, recordCount: 1, boundaryConfidence: "point_inside_new", hindrance: null, hindranceSourceLoaded: true,
   streets: [KAM], streetResolution: "nearest_official_axis", streetDistanceMeters: 3, creator: "Proef Persoon", ...extra,
 });
@@ -71,8 +71,9 @@ const terras = (n, adres) => ({
   id: `terrace:PROEF-T${n}`, recordId: `PROEF-T${n}`, terraceType: "Terraszone binnen kern", status: "actief", address: adres, postcode: "2000",
   sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/49", streets: [KAM], streetResolution: "official_address_match", streetDistanceMeters: 0,
 });
-// Een item met een e-mailadres in de titel: dat mag nooit in een straatbestand.
-const metMail = { ...parkeerverbod(9), id: "parking:PROEF-9|L9", reference: "PROEF-9", title: "Info: proef@voorbeeld.be", reason: "Info: proef@voorbeeld.be" };
+// Een item met een e-mailadres in vrije tekst: dat mag nooit in een straatbestand. (Niet meer in de titel of de reden
+// van een parkeerverbod: die komen nooit in een straatbestand, de titel is altijd "Parkeerverbod"; site/adres-privacy.js.)
+const metMail = { ...parkeerverbod(9), id: "parking:PROEF-9|L9", reference: "PROEF-9", detail: "Info: proef@voorbeeld.be" };
 
 export function bronnen({ werken = [werk()], extraRuimte = [] } = {}) {
   return {

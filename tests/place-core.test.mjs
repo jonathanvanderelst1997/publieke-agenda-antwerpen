@@ -20,8 +20,11 @@ const top = (query) => searchPlaces(index, query, { limit: 5 })[0]?.place;
 
 test("normaliseren: hoofdletters, accenten, huisnummers, postcode en afkortingen", () => {
   assert.equal(foldText("  Één-Café’s  "), "een cafes");
-  assert.deepEqual(parseQuery("Kammenstr. 12"), { text: "kammenstraat", compact: "kammenstraat", postcode: "" });
-  assert.deepEqual(parseQuery("Gaston Burssenslaan 12 bus 3, 2050 Antwerpen"), { text: "gaston burssenslaan", compact: "gastonburssenslaan", postcode: "2050" });
+  assert.deepEqual(parseQuery("Kammenstr. 12"), { text: "kammenstraat", compact: "kammenstraat", postcode: "", ruw: "kammenstr12" });
+  assert.deepEqual(parseQuery("Gaston Burssenslaan 12 bus 3, 2050 Antwerpen"), { text: "gaston burssenslaan", compact: "gastonburssenslaan", postcode: "2050", ruw: "gastonburssenslaan12bus3antwerpen" });
+  // `ruw` houdt de cijfers (een straatnaam kan er een hebben), zonder de postcode (nakijkronde 12 oktober 2026).
+  assert.deepEqual(parseQuery("Fort 7-straat 2610"), { text: "fortstraat", compact: "fortstraat", postcode: "2610", ruw: "fort7straat" });
+  assert.equal(parseQuery("2610 Pad nr. 25").ruw, "padnr25");
   assert.equal(parseQuery("St.-Jansplein").compact, "sintjansplein");
   assert.equal(parseQuery("Nationale str").compact, "nationalestraat");
   assert.equal(parseQuery("Lange Elzenstr 5A").compact, "langeelzenstraat");
@@ -153,8 +156,10 @@ test("entries: agenda, GIPOD-werk en A-Sign in één vorm, zonder onveilige link
   assert.equal(manual.group, "werken");
   const work = workEntry({ gipodId: 12, title: "Riolering", status: "Concreet gepland", start: "2026-10-14T22:00:00Z", end: "2026-11-30T22:00:00Z", streets: [{ name: "Kammenstraat" }], sourceUrls: ["https://gipod.api.vlaanderen.be/x"] });
   assert.deepEqual([work.start, work.end, work.location, work.group], ["2026-10-15", "2026-11-30", "Kammenstraat", "werken"]);
+  // Een oudere bronlink naar het ruwe record (sourceUrls) telt niet: de bron van een werk is de datasetfiche.
+  assert.equal(work.sourceUrl, "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
   const sign = publicSpaceEntry({ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09T22:00:00Z", end: "2026-10-10T21:59:00Z", streets: [{ name: "Kammenstraat" }] });
-  assert.equal(sign.title, "Parkeerverbod voor een verhuis");
+  assert.equal(sign.title, "Parkeerverbod");
   const sum = summarize([agenda, { ...agenda, uid: "y" }, work, sign, manual], "2026-10-06");
   assert.equal(sum.evenementen, 1); // een reeks telt één keer
   assert.equal(sum.werkenGepland, 2);
@@ -237,8 +242,9 @@ test("de komende 7 dagen: één zin met een verkeerslicht, uit dezelfde kaartjes
   assert.match(dezeWeek(reeks, vandaag).zin, /1 evenement \(morgen\)/);
   // Parkeerverbod vandaag, en een andere plek in de zin.
   assert.match(dezeWeek([parkeer(3, "2026-10-12", "2026-10-12")], vandaag, { waar: "in Zurenborg" }).zin, /^De komende 7 dagen in Zurenborg: 1 parkeerverbod \(vanaf vandaag\)\.$/);
-  // Iets gevonden maar niet alles geladen: dat staat erbij.
-  assert.match(dezeWeek([werk(6, "2026-10-12", "2026-10-13")], vandaag, { onvolledig: true }).zin, /Niet alles laadde\.$/);
+  // Iets gevonden maar niet alles geladen: alleen wat gevonden is, zonder te zeggen dat iets niet laadde (besluit van
+  // 18-10-2026).
+  assert.equal(dezeWeek([werk(6, "2026-10-12", "2026-10-13")], vandaag, { onvolledig: true }).zin, "De komende 7 dagen in jouw straat: 1 werk (vanaf vandaag).");
   for (const licht of ["rustig", "let-op", "hinder", "onbekend"]) assert.ok(WEEK_LICHT[licht]);
 });
 
@@ -383,9 +389,11 @@ test("de komende 7 dagen: staat een laag uit of is ze niet geladen, dan nooit 'r
   assert.equal(leeg.licht, "onbekend");
   assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken staan uit. Of het rustig is, weten we dus niet.");
   assert.doesNotMatch(leeg.zin, /rustig\.|Geen werken/);
+  // Niet geladen zonder dat de bezoeker ze uit zette: nooit "rustig", maar ook geen reden (besluit van 18-10-2026). Niets
+  // gevonden zonder betrouwbare stand: geen weekzin (nakijkronde 3: "Onbekend … niets gevonden." verraadde de fout).
   const nietGeladen = dezeWeek([], vandaag, { onbekend: [{ wat: "parkeerverboden", uit: false, geladen: false }, { wat: "evenementen op straat", uit: false, geladen: false }] });
-  assert.equal(nietGeladen.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar parkeerverboden en evenementen op straat zijn niet geladen. Of het rustig is, weten we dus niet.");
-  // Iets gevonden: dat staat er, met wat niet geladen is.
+  assert.deepEqual(nietGeladen, { licht: "onbekend", zin: "" });
+  // Iets gevonden: dat staat er, met wat uit staat en daarom niet geladen is.
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
   assert.equal(dezeWeek([feest], vandaag, { onbekend: uit }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet geladen.");
   // Uit maar wel geladen: wat er is, telt gewoon mee (geen "niet geladen").
@@ -403,13 +411,14 @@ test("de komende 7 dagen: een laag die uit staat maar geladen is, maakt een lege
   assert.equal(dezeWeek([], vandaag, { onbekend: [{ wat: "werken", uit: true, geladen: false }] }).licht, "onbekend");
 });
 
-// Nakijkbevinding (weekzin): een werkenlaag die deels mislukte terwijl werken uit staan, telde als geladen.
-test("de komende 7 dagen: een laag die maar deels laadde, zegt dat erbij en is nooit 'rustig'", () => {
+// Nakijkbevinding (weekzin): een werkenlaag die deels mislukte terwijl werken uit staan, telde als geladen. Sinds het
+// besluit van 18-10-2026 zegt de zin niet meer dat ze maar deels laadde; "rustig" wordt ze nog altijd nooit.
+test("de komende 7 dagen: een laag die maar deels laadde, is nooit 'rustig', zonder te zeggen waarom", () => {
   const vandaag = "2026-10-12";
   const deels = [{ wat: "werken", uit: true, geladen: false, deels: true }];
   const feest = agendaEntry({ id: "f", title: "Buurtfeest", date: "2026-10-16", location: "Voorbeeldplein" }, "culture");
-  assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt). Werken zijn niet volledig geladen.");
+  assert.equal(dezeWeek([feest], vandaag, { onbekend: deels }).zin, "De komende 7 dagen in jouw straat: 1 evenement (vr 16 okt).");
   const leeg = dezeWeek([], vandaag, { onbekend: deels });
-  assert.equal(leeg.licht, "onbekend");
-  assert.equal(leeg.zin, "De komende 7 dagen in jouw straat: niets gevonden, maar werken zijn niet volledig geladen. Of het rustig is, weten we dus niet.");
+  assert.notEqual(leeg.licht, "rustig");
+  assert.equal(leeg.zin, "", "niets gevonden zonder betrouwbare stand: geen weekzin");
 });

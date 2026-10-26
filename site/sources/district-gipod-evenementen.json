@@ -5,17 +5,17 @@
   "publisher": "GIPOD / Digitaal Vlaanderen",
   "attribution": {
     "text": "Bron: GIPOD, Digitaal Vlaanderen (Modellicentie Gratis Hergebruik v1.0)",
-    "url": "https://geo.api.vlaanderen.be/GIPOD/ogc/features"
+    "url": "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"
   },
-  "url": "https://geo.api.vlaanderen.be/GIPOD/ogc/features",
+  "url": "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52",
   "allowedHosts": [
-    "geo.api.vlaanderen.be"
+    "metadata.vlaanderen.be"
   ],
   "officialPublic": true,
   "method": "GIPOD INNAME_PUNT: conservatieve echte-evenementselectie, exact punt binnen District Antwerpen",
-  "retrievedAt": "2026-10-16T03:17:45.334Z",
+  "retrievedAt": "2026-10-26T04:21:52.012Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "gipod-events-v1|2026-10-16",
+  "contentVersion": "gipod-events-v1|2026-10-26",
   "items": []
 }

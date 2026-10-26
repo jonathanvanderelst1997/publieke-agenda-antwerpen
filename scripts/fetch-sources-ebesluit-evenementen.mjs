@@ -66,7 +66,7 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   } catch (error) {
     const code = errorCodeOf(error);
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: code }));
-    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, code, { dryRun })];
+    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, code, { dryRun, at: retrievedAt })];
   }
 
   // Eén besluit met een "@", een huisnummer of een vreemde vorm legt de bron niet weken stil: het wordt
@@ -77,7 +77,7 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   if (fouten.length) {
     // Alleen een fout in het bestand zelf (niet in één besluit): liever de vorige stand.
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: "invalid_output", fouten: fouten.slice(0, 3) }));
-    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, "invalid_output", { dryRun })];
+    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, "invalid_output", { dryRun, at: retrievedAt })];
   }
   const screened = screenItems(agendapuntenUitBesluiten(besluiten.besluiten, { today, retrievedAt }));
   const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, rejected: screened.rejected };

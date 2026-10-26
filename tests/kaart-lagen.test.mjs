@@ -93,7 +93,7 @@ test("kaartSoort per bouwer: agenda, werk, parkeerverbod, werfzone, losse inname
   assert.equal(kaartSoort(agendapunt("a2", "2026-10-20", { category: "permits" })), "agenda", "een agendapunt blijft een agendapunt, ook bij de vergunningen");
   assert.equal(kaartSoort(werk), "werken");
   assert.equal(kaartSoort(parking), "verkeer");
-  assert.equal(parking.title, "Parkeerverbod voor een verhuis");
+  assert.equal(parking.title, "Parkeerverbod");
   assert.equal(kaartSoort(werf), "verkeer");
   assert.equal(werf.title, "Werfzone met omleiding");
   assert.equal(kaartSoort(los), "verkeer");
@@ -161,6 +161,7 @@ test("lijstUniversum: wat de lijst bij 'alles' toont; zonder start en afgelopen 
   assert.ok(!uids.includes("agenda:z1"), "zonder start: niet in de lijst");
   assert.ok(!uids.includes("agenda:v1"), "afgelopen: niet in de lijst");
   assert.ok(!uids.includes("agenda:m2"), "een losse marktdag staat niet in de lijst (alleen wekelijkse markten)");
+  // Eén aanvraag zonder omschrijving en één terras blijven gewone kaarten (een bundel vanaf twee, bundelLijst).
   assert.deepEqual(uids.sort(), ["agenda:m1", "agenda:t1", "markt|Proefmarkt|Proefplein", "permits:omv:1", "publicSpace:dossier:ET2099000504", "terraces:terrace:1"]);
   assert.equal(uit.find((e) => e.uid === losse.uid), losse, "het origineel, niet de kopie van de bak 'later'");
   const tel = telPerSoort(uit);

@@ -10,16 +10,17 @@ automatische bron gaat voor.
 |---|---|---|---|
 | `district-kalender` | district | "Wat beleef je in district Antwerpen?" | publieke portaal-API van antwerpen.be (`page-content-by-uuid/5efb0477b118f7b19c627b69`), hoogstens 2 verzoeken per ronde |
 | `district-nieuws` | district | nieuwsartikels van district Antwerpen | publiek nieuwskanaal; alleen een tabel (datum/uur/locatie) of een regel "Wanneer:", "Datum:" of een blok "Praktisch" telt, en alleen tussen de artikeldatum en `publishUntil` |
-| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. |
+| `district-gipod-evenementen` | district | publieke evenementen en operationele speelstraten op openbaar domein; **levert in de praktijk niets** | GIPOD `INNAME_PUNT`, standaard 365 dagen vooruit; alleen actuele/geplande `Evenement`-records met exact punt in District Antwerpen. Gewone evenementen blijven conservatief; `Speelstraat` telt alleen met concrete districtsstraat en een periode van maximaal 14 dagen. Stad Antwerpen zet in GIPOD alleen markten en ambulante handel; echte evenementen (feest/kermis, sport) staan er alleen van buurgemeenten, buiten het district (meting 10-10-2026: 9.083 rijen in het kader, 0 evenementen in het district). De bron gooit alles buiten het district weg (`outside_district` in `lib/gipod-events.mjs`) en toont dus nooit een evenement van een buurgemeente. Daarom het label "GIPOD-evenementen in het district (stad Antwerpen meldt hier geen evenementen; GIPOD bevat vooral buurgemeenten)"; de bron blijft staan voor als de stad ze toch in GIPOD zet. De bronlink van een item en van de bron is de GIPOD-datasetfiche, nooit de `INNAME_PUNT`-rij (zie "Geen links naar ruwe GIPOD-records" in `docs/WORKS_LIVE_SOURCE_POLICY.md`). |
 | `district-asign-evenementen` | district | de evenementendossiers van de stad op straat (parcours, verkeersvrije zones, innames): één punt per evenementdag, met naam, soort, of wat en waar met "naam onbekend" | **afgeleid**, geen eigen verzoeken: de dossiers die de parcoursherkenning al uit A-Sign (laag 22 en 23) haalt, in de stap `refresh:herkenning` (zie onder) |
 | `district-foren` | district | foren en kermissen, één punt per periode | A-Sign `MapServer/0` (foor) van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
-| `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel |
+| `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel. De bronlink is de GIPOD-datasetfiche, geen link per rij |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
-| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is** |
+| `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is**: wacht op de beslissing van de eigenaar (sleutel kost geld; zie onder) |
 | `mail-district`, `mail-stad` | district / stad | publieke activiteiten uit nieuwsbrieven | mail-signalen van de Brain Gateway; titel en datum worden op de officiële pagina gecontroleerd, uur en plaats alleen overgenomen als ze daar ook staan (zie onder) |
+| `awv-werf-supplement` | district | **geen agendapunten**: een aanvulling op de GIPOD-werken (rijstroken, doorgang, snelheidsbeperking, omleidingen, fase en werf van AWV), alleen op exact hetzelfde GIPOD-id | WFS "Werf – Innames" en "Werf – Lokale omleidingen" van het Agentschap Wegen en Verkeer (open data, geen sleutel), één vraag plus de omleidingen in blokken van 100 (zie onder) |
 
 De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten hosts) staan in
 `lib/source-feed.mjs`, niet in de data. Een data-refresh kan dus geen nieuwe host of andere groep toevoegen.
@@ -28,8 +29,8 @@ De vaste eigenschappen van elke bron (groep, uitgever, attributie, toegelaten ho
 
 Er is geen algemene limiet van 7 dagen. Elke gratis bron wordt zo ver vooruit gelezen als zij betrouwbaar en begrensd toelaat:
 
-- GIPOD-evenementen: 365 dagen.
-- GIPOD-markten: 365 dagen queryhorizon; per markt alleen de eerstvolgende nog geldige marktdag.
+- GIPOD-evenementen: 365 dagen in de vraag, maar GIPOD publiceert maar zes maanden vooruit (dataset 2b4b3bb7; gemeten op 17-10-2026: de laatste start in het district is 18-04-2027). In de praktijk dus zes maanden.
+- GIPOD-markten: 365 dagen queryhorizon, in de praktijk ook zes maanden; per markt alleen de eerstvolgende nog geldige marktdag.
 - Districtskalender en districtsnieuws: alle concreet gedateerde toekomstige items binnen hun geldige publicatieperiode.
 - eBesluit en openbare vergaderingen: officiële zoek- en kalenderperiodes, zonder 7-dagenafkap.
 - Koopzondagen: alle nog komende data die in de officiële jaarlijsten staan.
@@ -91,21 +92,231 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 
 - **`stale`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt. Dat is een waarschuwing:
   `npm run sources:health` en de job `source-health` blijven groen, de andere bronnen worden gewoon
-  ververst, en de site toont "(bron tijdelijk onbereikbaar; vorige gegevens blijven staan)";
+  ververst;
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
+
+## Een falende bron: intern wel, voor bezoekers niet
+
+Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel
+goed". De site toont daarom nergens dat een bron, een laag of een live aanvraag faalt of oud is: ze toont gewoon
+de laatste goede stand. Een echte lege toestand blijft leeg (geen verzonnen 0, geen "rustig", geen "niets
+gepland"), zonder uitleg waarom. `tests/bron-waarschuwing.test.mjs` houdt de zinnen van vroeger buiten
+`site/`.
+
+Op de agenda:
+
+- geen bronwaarschuwing bovenaan (de melding `#agenda-source-warning` van #191 en `site/bron-waarschuwing.js`
+  zijn weg, op de voorpagina en op de plekpagina);
+- de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon "ververst op …" met het moment
+  van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of "verouderd";
+- de zin "Officiële broncontrole …" in datzelfde blok (`#agenda-refresh-note`, `refreshNoteText` in
+  `site/agenda.js`) telt de punten van zo'n bron niet: ze noemt alleen verlopen punten en echte bronconflicten, en
+  is dezelfde of een bron nu faalt of niet (vroeger stond er "punten met bronconflict of verouderde bron", en met
+  eBesluit falend waren dat precies de punten van eBesluit);
+- laadt de gezamenlijke straatfilter (`site/agenda-view.js`) niet, dan blijft de gewone agenda, zonder zin
+  erover.
+
+Buiten de agendabronnen (live lagen, radar, historiek, kaart):
+
+- de zin onder een straat (`standZin` in `site/straat-snapshot.js`): lukt live nakijken niet, dan "Stand van de
+  verversing van 05:22."; lukt het deels, of laden de straatassen voor de straal niet, dan "Live nagekeken: …" met
+  wat wel lukte. Vroeger: "Live nakijken lukte nu niet …", "Rond de straat kon nu niet live geladen worden …",
+  "De straal rond de straat kon nu niet geladen worden …";
+- de momentopname van een straat (`site/straat/<id>.json`) blijft staan als een live laag faalt, ook als de bezoeker
+  "Alle lijsten, bronnen en instellingen" openklapt en de lijsten van het hele district dan laden en falen (nakijkronde
+  3 van 18-10-2026: de parkeerverboden, werfzones en evenementen van de straat vielen toen stil weg uit de weekzin,
+  de tegels en de lijst). Per laag zijn er twee bronnen, de straat en het district; `kiesLaag` in `site/live-lagen.js`
+  kiest: een gelukte lijst van het hele district, anders de laag van de straat (de momentopname of het gelukte live
+  kader), anders wat er wel is. Alleen een gelukte live laag vervangt de momentopname; een die (deels) faalt, vervangt of
+  leegt ze nooit, en de zin eronder blijft "Stand van de verversing van …" (`tests/momentopname-live-laag.test.mjs`,
+  `tests/e2e/snelheid.e2e.mjs`). Wat een laag mist, vraagt elke lijst van het district en elk kader van een straat aan
+  `mislukteOnderdelen` in `site/live-lagen.js` (per laag haar bronnen); nakijkronde 4 van 18-10-2026: de werkenlijst
+  van het district ging door als volledig zonder districtsgrens of straatassen (een werk viel dan weg uit de straat), en
+  het kader van een straat zonder GIPOD-hinder ook (de ernstige hinder verdween). Nu zijn beide deels geladen
+  (`werkenMislukt` in `site/works-live.js`: zonder grens, straatassen of hinder). Een mislukt onderdeel dat niet in
+  `ONDERDELEN` staat, of een bron die de laag niet kent, valt nooit weg (vroeger maakte "parkeerverboden en innames"
+  een week zonder nagekeken publieke ruimte "Rustig"). Kiest de bezoeker een andere plek, dan haalt de plekpagina de
+  lagen van de vorige straat in één keer weg (`zetStraatStand` in `site/place-view.js`): weg van de straat, zonder
+  stand, of een laag zonder bruikbare stand;
+- een plek groter dan één straat (nakijkronde 5 van 18-10-2026). Een laag van de plekpagina draagt haar dekking: het
+  gebied dat ze nakeek (`dektGebied` in `site/live-lagen.js`), en `live.gebied` is het gebied dat de bezoeker koos (de
+  plek, met de straal rond een straat). Een lijst van het hele district dekt elk gebied; de momentopname van een
+  straat alleen die straat; het live kader van een straat de straal waarmee het gevraagd is. Een laag die het gebied
+  niet dekt, houdt haar items maar is deels geladen (alle onderdelen in `live.failed`, `kiesLaag`): met een straal en
+  een live kader dat faalt (A-Sign, GIPOD, de districtsgrens of de straatassen) staat er dus nooit "Rustig" en geen 0
+  voor "in en rond jouw straat" (vroeger zei de momentopname van de straat alleen dat voor het hele gebied, met tegels
+  op 0), en zolang het kader nog onderweg is, zegt de weekzin dat er nog geladen wordt (vroeger al "Rustig", met een
+  spinner). Laden de straatassen voor de straal niet (`view.straalStand`), dan ligt niets rond de straat vast: dan
+  ook geen 0 bij evenementen en inspraak. Een wijk of postcode laadt de lijsten van het district live; faalt er één
+  (helemaal of deels), dan krijgt ze de momentopname van al haar straten (`laadGebied` en `lagenUitGebied` in
+  `site/straat-snapshot.js`, elk item één keer), zoals een straat de hare (vroeger verdwenen dan alle werken,
+  parkeerverboden en vergunningen van een wijk, met "–" naast echte getallen). Een straat zonder stand in dat gebied
+  (`alleenLive`, of een bestand dat niet laadt) maakt die momentopname deels geladen. Een item zonder eigen punt hangt
+  aan een wijk via zijn straten; zonder straatassen via de wijken per straat in `site/geo/straten.json` (dezelfde regel
+  als `streetWijkMap`). De momentopname van de straten binnen een straal toont de plekpagina niet: een straatbestand
+  heeft geen punt of vorm (privacy), dus de straal is er niet op toe te passen
+  (`tests/gebied-momentopname.test.mjs`, `tests/e2e/snelheid.e2e.mjs`);
+- de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
+  in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
+  die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat
+  zegt dan "niets gevonden" (`legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in `site/place-core.js`), niet
+  "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is". De weekzin (`dezeWeek`) noemt wat
+  gevonden is; is er niets gevonden en geen betrouwbare stand (live noch in de momentopname), dan valt ze weg
+  (nakijkronde 3: het grijze label "Onbekend" met "niets gevonden." verraadde dat een laag faalde; bij gezonde
+  bronnen staat er "Rustig" of "Let op"). Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet
+  geladen is), zegt de zin erbij, en zolang een laag nog onderweg is, zegt de zin dat ze nog geladen wordt.
+  Nakijkronde 3 (18-10-2026): ook de chips en de tegel "vergunningen". Laadde een laag van "Werken & verkeer"
+  (GIPOD, of een deel van A-Sign: dan meldt de publieke ruimte `[]` met mislukte onderdelen) of van "Vergunningen"
+  (omgevingsdossiers, terrassen) niet, dan staat er op de chip geen getal in plaats van 0 (`chipGetal` in
+  `site/place-core.js`); laadden de omgevingsdossiers niet, dan toont de tegel "vergunningen" een streepje.
+  `site/permits-live.js` meldt daarvoor een mislukking in `live.failed` (`meldLiveLaag`, onderdeel "vergunningen"),
+  zoals de andere live lagen. Wat wel geteld is, blijft staan, een echte 0 ook;
+- de "Volledige vooruitblik" (in het ingeklapte blok "Bronnen en volledige vooruitblik", op de voorpagina en de
+  plekpagina, `vooruitblikTellers` in `site/week-pulse.js`): laadden de werken of de publieke ruimte niet, dan staat er
+  een streepje in plaats van "0 werken starten", "0 eindigen", "0 maatregelen starten" of "0 werken met ernstige
+  hinder" (de stand per laag volgt `laagStand` in `site/live-lagen.js`, zoals "Alles per straat");
+- de buurtinfo (`site/buurt-info.js`, `radarToestand` in `site/buurt-info-core.js`): is een bronlaag niet actueel
+  of de radar ouder dan 26 uur, dan dezelfde zin en dezelfde getallen als anders; zonder radar is het blok leeg.
+  Vroeger: "Niet alle bronlagen zijn actueel. Getallen worden niet als volledig voorgesteld.", "De radar is ouder
+  dan 26 uur …", "Het wijzigingsoverzicht kon niet worden geladen …";
+- de district-radar en de straatfiches op de voorpagina (`radarRegels` in `site/street-overview.js`): een laag
+  die niet ververst raakte, toont de laatste goede stand; zonder bruikbare historiek staat er "—" zonder uitleg, en
+  "Geen operationele wijzigingen" staat er alleen als alle lagen nagekeken zijn. Laadt de straatas niet, dan is
+  dit deel leeg. Vroeger: "history verouderd", "na gezonde history-refresh", "Straatfiche tijdelijk niet
+  beschikbaar";
+- de lijsten van het district (werken, innames, vergunningen, terrassen): laadt een lijst niet, dan is ze leeg,
+  zonder "0" en zonder notitie; laadt een aanvulling niet (de districtsgrens, de GIPOD-hinder, A-Sign, de
+  AWV-werfdata, of die is ouder dan 3 dagen), dan valt haar zin weg en blijft de rest. Vroeger o.a. "De AWV-werfdata
+  is ouder dan 3 dagen …", "… kon nu niet geladen worden", "Hinderbron tijdelijk niet geladen", "Werken tijdelijk
+  niet geladen", "Terrassen niet geladen", "Omgevingsdossiers tijdelijk niet geladen". Ook de regel met de
+  aantallen telt alleen wat laadde (`publiekeRuimteKop` in `site/public-space-live.js`, `werkenMeta` in
+  `site/works-live.js`): geen "0 parkeerverboden · 0 innames" voor een A-Sign-laag die niet laadde, geen "0 met
+  gekoppelde hinder", "0 met A-Sign supplement" of "0 met AWV-werfdata" voor een aanvulling die niet laadde, en
+  zonder enige A-Sign-laag geen "0 maatregelen" en geen "A-Sign, geladen …";
+- een laag die niet laadde, "laadt" niet eeuwig: onder de buurtkaart staat dan geen "werken en hinder worden
+  geladen…" (`kaartStatusZin` in `site/neighborhood-map.js` kijkt ook naar `live.failed`), en bij "Alles per
+  straat" op de voorpagina geen "Live werken en maatregelen worden nog opgehaald." en geen "0 straten met actuele
+  of geplande informatie" (`overzichtTekst` in `site/street-overview.js`); de district-radar toont dan "—" in
+  plaats van "0 straten met ernstige hinder";
+- een werkkaart (`site/kaart-uitleg.js`) zegt niet meer "gevolgen voor het verkeer nu niet opgehaald" of "de
+  straat kon nu niet bepaald worden"; de historiek van een werk (`site/werk-historiek.js`) toont niets als het
+  archief niet laadt of onbruikbaar is;
+- de buurtkaart: laden de wijkgrenzen niet, dan geen zin erover; laadt de kaart niet, dan blijft de knop "Toon de
+  kaart" (vroeger "Kaart niet beschikbaar · opnieuw proberen").
+
+Intern blijft alles:
+
+- de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
+  `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);
+- de status van de live lagen in de historiek en de radar (`status` per laag), en `live.failed` in de browser;
+- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar: faalt `source-health`, dan vult
+  de job `alarm` in `.github/workflows/refresh.yml` het open alarm-issue "Alarm: agendaverversing of live versheid
+  faalt" aan (of opent het, als er geen open is), net als bij een falende verversing, datatak of live versheid. Dat
+  gebeurt bij een geplande run én bij een dispatch (behalve een proefrun met aanleiding "test"): de echte
+  ochtendverversing start de Gateway met `workflow_dispatch`, en de late cron slaat dan refresh en `source-health`
+  over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
+  eBesluit rood). Het alarm loopt alleen vanaf de standaardtak (`github.ref == 'refs/heads/main'`): een handmatige
+  run vanaf een andere tak faalt bewust (stap "Alleen vanaf main") en opent of vult geen alarm-issue. Zonder melding
+  op de site is dat het signaal voor de eigenaar. De reactie noemt welke bron of laag faalt, met haar foutcode
+  (nakijkronde 5 van 18-10-2026: elke rode bronstatus gaf dezelfde reactie, en een nieuwe falende bron viel niet op
+  naast de eBesluit-fout die elke ochtend rood stond): de stap "Elke bron gezond" geeft haar regels die met `BRON`
+  beginnen door als job-output `bron` (en zet ze in de samenvatting van de run), en de job `alarm` zet ze via `env`
+  in een codeblok in de reactie. Alleen vaste codes, bron-ID's en tijdstippen, tot veilige tekens beperkt (geen
+  `@`, backtick, haken of `<` `>`) en hoogstens 30 regels (`tests/refresh-workflow.test.mjs`);
+- ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
+  historiek (`site/history/live-layers.json`: `works`, de GIPOD-werken, en `publicSpace`, de publieke ruimte; ook de
+  bron van de radar) en de straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen,
+  evenementen). Dezelfde
+  regel als bij een agendabron (`liveLaagGezondheid` in `lib/live-history.mjs`): een laag die niet ververst raakte,
+  houdt haar vorige goede stand, en zolang die niet ouder is dan 48 uur is dat een waarschuwing (`::warning title=Live
+  laag stale` in de job `source-health`, "Live laag stale" of "Straatbestanden" in `npm run sources:health`). Geen
+  goede stand (`error` zonder `sinds` of `lastSuccessAt`), een goede stand van meer dan 48 uur of een onbekende status
+  is rood: de job `source-health` faalt (regel `BRON live-historiek …` of `BRON straatbestanden …`) en de job `alarm`
+  vult het alarm-issue aan. De job `refresh` geeft daarvoor de status per laag, zonder items, mee in het artefact
+  (`live-lagen.json`, stap "Stand van de live lagen"); ontbreekt dat bestand, dan faalt `source-health` dicht. Elke
+  laag hierboven moet erin staan: ontbrak de historiek of `site/straat-index.json` in de verversing, of staat een laag
+  er niet in, dan is `source-health` ook rood (regel `BRON … ontbreekt in de stand van de live lagen`, nakijkronde 3
+  van 18-10-2026: vroeger bleef ze dan groen) en vult de job `alarm` het alarm-issue aan;
+- de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
+
+Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van
+18-10-2026): geen melding "De agenda wordt even niet ververst … We werken eraan.", geen oranje pil "Laatst
+bijgewerkt", geen badge "Laatst bevestigd …" en geen "… omdat de verversing achterloopt" in de zin over de
+broncontrole. De kop toont "Bijgewerkt …" met het tijdstip van de momentopname, en de bronitems blijven 14 dagen
+zichtbaar (`graceStale`, intern). Zo eindigen ook dan op een gsm de plek en "Dit weekend" boven 600 px (P6, P8;
+met de melding waren dat 573/691/845 px en 791 px). De eigenaar krijgt het signaal via de job `freshness` en het
+alarm-issue. Wat niets met een bron te maken heeft, blijft: "Export niet beschikbaar" (het agendabestand maken in
+de browser), "Opslaan lukte niet" (een straat bewaren in de browser) en "Locatie niet beschikbaar" (de locatie van
+het toestel).
 
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
 en 5 seconden).
+
+## De reden van een fout in het bronbestand (`lastError`)
+
+Bij elke fout bewaart een fetcher de vorige, geverifieerde items (`keepPreviousOnError` in
+`lib/fetch-util.mjs`). Het bronbestand zegt sindsdien ook waarom en sinds wanneer:
+
+```json
+"fetchStatus": "error",
+"lastSuccessAt": "2026-10-12T03:21:58.546Z",
+"lastError": { "code": "search_http_500", "at": "2026-10-19T03:21:00.000Z" }
+```
+
+- `lastError.code` is de vaste foutcode van de laatste poging (`http_500`, `search_incomplete`,
+  `no_decisions`, `timeout`, `source_timeout`, `suspicious_drop` …), `lastError.at` het moment van die poging;
+  dezelfde code staat als `errorCode` in `refresh-status.json`;
+- bij eBesluit (`district-ebesluit`, `district-ebesluit-evenementen`) draagt de code een vaste fase
+  (`metFase` in `lib/ebesluit-discovery.mjs`): `search_<code>` als een zoekpagina faalde, `detail_<code>` als
+  de detailpagina van een agendapunt faalde, bv. `search_http_500` of `detail_http_500` (vroeger zei `http_500`
+  bij `district-ebesluit` niet welk van de twee). Een code die al een fase heeft (`search_incomplete`) of die
+  van het tijdsbudget is (`source_timeout`, `refresh_budget_exhausted`), blijft zoals ze is.
+  `isTransientErrorCode` (`lib/fetch-util.mjs`) en de job `source-health` kijken door de fase heen:
+  `search_http_500` is tijdelijk zoals `http_500`, `detail_http_404` blijvend; de melding toont de hele code;
+  `lastSuccessAt` is de laatste geslaagde verversing (gelijk aan de bewaarde `retrievedAt`). Zo staat in de
+  repo welke fout er is en sinds wanneer, ook als de logs van de verversing niet te lezen zijn.
+- Alleen een foutcode (`[a-z0-9_]`, hoogstens 60 tekens) en twee tijdstippen: nooit een URL, een zoekterm of
+  andere vrije tekst. `validateSourceDocument` (`lib/source-feed.mjs`, ook `npm run validate:data`) aanvaardt
+  de twee velden alleen samen en alleen bij `fetchStatus: "error"`; een bestand zonder blijft geldig.
+- Een geslaagde verversing schrijft het bestand opnieuw zonder deze velden.
+- Intern: de feed (`scripts/build-sources.mjs`) neemt ze niet over en de site toont ze nergens (besluit van
+  18-10-2026, zie hierboven). `refresh-status.json` houdt zoals voorheen `errorCode` per bron.
+
+## eBesluit: kleinere zoekpagina's bij een serverfout
+
+eBesluit levert tot 500 rijen per zoekpagina (`EBESLUIT_PAGE_SIZE`). Sinds 12/13 oktober 2026 faalden
+`district-ebesluit` en `district-ebesluit-evenementen` elke nacht met HTTP 500 (#180, #186); bij de
+evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar eigen fouten op. Daarom
+(`lib/ebesluit-discovery.mjs`):
+
+- geeft een zoekpagina na de bestaande herkansing (`getHtml`, één keer na 1,5 s) nog een 5xx, dan wordt
+  **hetzelfde venster** opnieuw doorzocht met pagina's van 100 en daarna 50 rijen
+  (`EBESLUIT_FALLBACK_PAGE_SIZES`). De rijen van een mislukte poging tellen niet;
+- elke poging blijft binnen 20 pagina's (`EBESLUIT_MAX_PAGES`, dus 2.000 rijen bij 100 en 1.000 bij 50): meer
+  treffers maken het venster onvolledig, en dan splitst het bestaande kwartaal-/maandpad zoals voorheen.
+  Het tijdsbudget van de bron (6 en 4 minuten) blijft gelden;
+- weigert eBesluit een grootte, dan begint elk volgend venster van **dezelfde run van die bron** meteen bij de
+  kleinere: over alle zoektermen en, bij `district-ebesluit`, over beide jaren (`pageSizeChoice`). De geweigerde
+  pagina van 500 wordt zo per run maar één keer gevraagd (met de herkansing: 2 verzoeken), niet per zoekterm en
+  jaar (vroeger 8 keer bij `district-ebesluit` en 6 keer bij de evenementen, en zo ging het tijdsbudget op). De
+  keuze gaat alleen naar kleinere pagina's en leeft alleen in die run: geen bestand, de volgende run begint weer
+  bij 500;
+- pas als ook pagina's van 50 falen, is het venster onvolledig, met de foutcode erbij. Faalt zo ook een
+  kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `search_http_500`): ze kan
+  niet meer volledig worden, en verder vragen belast een server in storing. Bij een aanhoudende 500 zijn dat
+  10 verzoeken voor `district-ebesluit` en 8 voor `district-ebesluit-evenementen`;
+- fail-closed blijft: een onvolledige zoekronde wordt nooit als volledig aanvaard (#186); de bron krijgt
+  `fetchStatus: "error"` met de vorige items en `lastError`.
 
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
 De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
 Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 
-- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten (`budgetMs` in
-  `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
+- standaard 3 minuten per fetcher (`SOURCE_BUDGET_MS`), `district-ebesluit` 6 minuten en `awv-werf-supplement`
+  60 seconden (`budgetMs` in `lib/source-registry.mjs`), alle fetchers samen hoogstens 12 minuten (`REFRESH_BUDGET_MS`), de live
   historiek daarna hoogstens 3 minuten (`LIVE_HISTORY_BUDGET_MS`);
 - na het budget faalt elk verzoek van die fetcher meteen (`FetchError("source_timeout")`); hij eindigt
   via zijn gewone foutpad. De bron krijgt `fetchStatus: "error"` met `errorCode: "source_timeout"` en
@@ -151,15 +362,16 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 ## Versheid
 
 - Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
-  `stale_source`) en toont de site in het rood "verouderd sinds …".
+  `stale_source`). De site zegt dat niet aan bezoekers (besluit van 18-10-2026, zie "Een falende bron"
+  hierboven); `sources:health` meldt het wel.
 - Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
   `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
   vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
   2 dagen.
-- "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
-  48 uur.
-- Per bron toont de site "ververst op …", in het oranje "leeg sinds …", in het rood "verouderd sinds …" of
-  "nog niet actief".
+- De gratie van 14 dagen (`graceStale`) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is
+  dan 48 uur. Een bezoeker ziet ze als gewone items, zonder "Laatst bevestigd" (besluit van 18-10-2026).
+- Per bron toont de site "ververst op …" (het moment van de laatste goede stand, ook als de laatste
+  ophaalpoging faalde), in het oranje "leeg sinds …" of "nog niet actief".
 
 ## Leeg: antwoordt wel, levert niets
 
@@ -249,7 +461,15 @@ verversing nooit vallen; lukt het niet, dan blijft het vorige `manual-check.json
   `inDistrict` komt uit de coördinaten en de officiële districtsgrens (`pointInDistrict`).
 - Per markt alleen de **eerstvolgende** marktdag die nog niet voorbij is, zodat de markten de stadsgroep
   niet overspoelen. Gemeten op 28-09-2026: 23 markten, waarvan 8 in district Antwerpen.
-- De bronlink van een markt is haar GIPOD-rij (`…/items/INNAME_PUNT.<id>`).
+- De bronvermelding van een markt is de GIPOD-datasetfiche, geen link per rij: "Bron: GIPOD (Digitaal
+  Vlaanderen)" met https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52. Een
+  `INNAME_PUNT`-rij toont `ContactOrganisations` (naam, e-mail, telefoon van een contactpersoon) met één
+  klik; op 17-10-2026 was dat veld bij 0 van de 26 marktrijen gevuld, maar dat hangt af van wat de beheerder
+  invult. De rij-id blijft alleen in de code (de controle op `feature.id`); het GIPOD-id staat in
+  `externalId`. Voor bezoekers linkt een markt naar de marktpagina van de stad (`infoUrl`), ook in de .ics.
+  `allowedHosts` van de bron is `www.antwerpen.be` en `metadata.vlaanderen.be`: een ruwe rij komt niet meer
+  door de validatie. Een bronbestand van vóór deze regel zet `build:sources` om (`zonderRuweGipodBron` in
+  `lib/source-feed.mjs`); de verversing schrijft het opnieuw.
 - Licentie: Modellicentie Gratis Hergebruik v1.0, met bronvermelding.
 
 ## Koopzondagen (`stad-koopzondagen`)
@@ -336,6 +556,34 @@ De operationele agenda gebruikt GIPOD als tweede officiële bron naast eBesluit.
 
 Contactorganisaties, aanvragers en andere bronvelden worden niet overgenomen. Een langer of niet concreet record wordt niet gepubliceerd. Deze GIPOD-laag geeft operationele straat + periode; eBesluit blijft de juridische bron voor de volledige goedkeuringslijst en eventuele weigeringen.
 
+Stand 17 oktober 2026: GIPOD heeft 44 speelstraten in Vlaanderen, maar geen enkele van stad Antwerpen of in het district; deze regel levert dus niets. De stad zet haar speelstraten wel in een publieke kaartlaag `Feniks_speelstraat` (ArcGIS Online van Stad Antwerpen: per speelstraat een dossiernummer, begin- en einddatum, status en het vlak, geen namen; 8 speelstraten van 31 oktober 2026 tot 1 januari 2027, waarvan 2 in het district). Die laag staat niet op het open-dataportaal en vermeldt geen licentie: ze wordt pas ingelezen als de eigenaar dat beslist (zie de brongrens Speelstraten in `docs/COVERAGE_MATRIX.md`, met het bouwplan). Een evenementendossier in A-Sign met het woord "speelstraat" wordt al een agendapunt via `district-asign-evenementen`.
+
+## AWV-werfdata (`awv-werf-supplement`, geen agendabron)
+
+Een aanvulling op de GIPOD-werkenlaag, geen bron van agendapunten (`lib/awv-werf.mjs`,
+`scripts/fetch-sources-awv-werf.mjs`, `site/works-awv-supplement.js`). De bron staat in `lib/source-feed.mjs`
+met `aanvulling: true`: ze heeft haar eigen itemvorm, `build:sources` slaat het bestand over (het komt nooit in
+`agenda-feed.js`) en ze krijgt wel haar eigen regel in `refresh-status.json`, met de gewone telling "leeg".
+
+- Vraag: `awv:Werf_Innames` op https://opendata.apps.mow.vlaanderen.be/opendata-geoserver/awv/wfs, in het kader
+  van het district (Lambert 72), totdatum vanaf vandaag, status `InUitvoering`, `ConcreetGepland` of
+  `ConcreetVoorUitvoering`, met een vaste lijst velden (nooit `Omschrijving`, `URL` of `Buffer_publicatie`).
+  De server rekent terug in EPSG:3857 (in WGS84 rondt hij af op 3 decimalen); de fetcher zet om met de exacte
+  formule (minder dan 1 cm verschil met pyproj).
+- Daarna `awv:Werf_Lokale_omleidingen` op `Inname_ID`, in blokken van hoogstens 100 (200 gaf HTTP 414), met
+  hoogstens 2 vragen tegelijk; alleen voor wie een omleiding geldt, niet de lijn.
+- Alleen innames met een GIPOD-id waarvan de lijn de exacte districtsgrens raakt. Een inname zonder einddatum
+  valt weg. Eén item per GIPOD-id, met `date` (vroegste van) en `endDate` (laatste tot).
+- Tekst alleen via een woordenlijst; de fase alleen als "Fase 2" of een maandnaam; de soort werk alleen uit de
+  vaste lijst van 23 AWV-categorieën (`AWV_SOORTEN`). De afdeling is Antwerpen, Lantis, TO (tunnelorganisatie) of
+  anders "AWV".
+- Faalt gesloten: een fout, een afgekapt antwoord (`numberMatched` groter dan wat er kwam, of 2.000 innames),
+  ongeldige JSON of een ongeldig bestand, en 0 innames terwijl de vorige ronde er meer dan 20 had
+  (`suspicious_drop`; `AGENDA_ALLOW_DROP=awv-werf-supplement` laat een bewuste daling toe). Het vorige bestand
+  blijft dan staan. De site toont een bestand ouder dan 3 dagen niet meer.
+- Proefverversing van 17 oktober 2026: 174 innames in het kader, 118 bewaard, 118 aanvullingen van 19 werven,
+  28 lokale omleidingen, 89 KB, 19 seconden.
+
 ## Evenementen uit eBesluit (`district-ebesluit-evenementen`)
 
 Collegebesluiten noemen een evenement bij naam, met dag, uren, plaats, opbouw en afbouw. De fetcher
@@ -419,7 +667,10 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   mee; de tekst zegt dat dan, met de dag van de laatste wijziging in A-Sign ("laatst gewijzigd op …:
   aanvraag nog niet goedgekeurd"). Niet de dag van de verversing: dan zou elk item elke ochtend veranderen.
 - **Eén agendapunt per evenementdag.** Opbouw en afbraak zijn geen eigen agendapunten: ze staan in het
-  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). Een dossier met meer dan 7 evenementdagen
+  veld `fasen` en in één zin ("Opbouw vanaf …, afbraak tot …"). De naam van een fase komt uit faseNaam
+  van A-Sign, een vrij in te vullen veld: alleen een vaste vorm ("Evenement", "Opbouw", "Afbraak",
+  "Opname periode 2"), "Opname", een district of een straat van het item (`veiligeFase` in
+  `site/witte-lijst.js`; de controle van het bronbestand weigert elke andere naam). Een dossier met meer dan 7 evenementdagen
   (een installatie van weken) krijgt één agendapunt per doorlopende reeks. De dagen van een handfiche gaan
   voor op die uit A-Sign. Een dossier zonder fase "Evenement" (alleen opbouw, of filmopnames met
   "Opname periode …") of met een evenementfase van meer dan 62 dagen (een constructie of plaatshouder
@@ -529,9 +780,14 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
 - Koopzondagen: "Bron: stad Antwerpen, koopzondagen (Vlaamse gratis open data licentie)", met een link
   naar https://www.antwerpen.be/info/koopzondagen.
 - Markten: "Bron: GIPOD, Digitaal Vlaanderen, en marktlijst stad Antwerpen (Modellicentie Gratis
-  Hergebruik v1.0)", met een link naar de OGC API van GIPOD.
+  Hergebruik v1.0)", met een link naar de officiële datasetfiche van GIPOD op metadata.vlaanderen.be (niet
+  meer naar de OGC API). De bronlink van een marktdag op de eventpagina en in de agenda is dezelfde fiche,
+  met de tekst "Bron: GIPOD (Digitaal Vlaanderen)".
 - Op de site staat bij elke gratis stadsbron haar eigen bronvermelding; op een eventpagina die van de bron
   met voorrang.
+- AWV-werfdata (aanvulling op een werk): "Bron: Agentschap Wegen en Verkeer (AWV), open data Werf, bijgewerkt op …"
+  met de datum van de jongste wijziging in de data en een link naar de metadatafiche, zoals het gebruiksrecht van
+  AWV vraagt; de tekst "Volgens AWV-werfdata" laat geen goedkeuring door AWV vermoeden.
 - Stad: "Bron: UiTinVlaanderen.be" met een link naar https://www.uitinvlaanderen.be, en per UiT-item
   "Bron: uitinvlaanderen.be" met een link naar de eigen UiT-pagina.
 - Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op
@@ -539,6 +795,12 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   UiT-items krijgen geen eigen eventpagina en staan niet in de sitemap.
 
 ## UiT: uit zonder sleutel
+
+Stand 17 oktober 2026: wacht op de beslissing van de eigenaar (sleutel kost geld). De Search API antwoordt
+zonder sleutel 401, ook op de testomgeving. Testsleutels zijn gratis maar werken alleen op de testomgeving.
+Voor de echte gegevens rekent publiq 125 euro per jaar (Basic plan, één website) of een prijs op maat; leden
+van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets in de code: de eigenaar zet
+`UITDATABANK_CLIENT_ID` als hij beslist.
 
 - `UITDATABANK_CLIENT_ID` (header `x-client-id`) of, als terugval, `UITDATABANK_API_KEY` (header `x-api-key`).
 - Zonder sleutel: "UiT uit: geen sleutel", `site/sources/stad-uit.json` blijft byte-identiek en

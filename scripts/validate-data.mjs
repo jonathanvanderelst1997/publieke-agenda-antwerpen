@@ -10,8 +10,10 @@ import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs"
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
+import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
-import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
+import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
+import { ruweGipodLinksIn } from "../site/gipod-bron.js";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 import { EVENEMENT_BESLUITEN_FILE, naamMetHuisnummer, validateEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
 import { AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
@@ -39,6 +41,8 @@ const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const sourcesDir = path.join(rootDir, "site", "sources");
 const problems = [];
 const summary = {};
+// Signalen: wat de eerstvolgende verversing zelf rechtzet. Ze kleuren de run niet rood (zie onderaan).
+const signalen = [];
 
 if (!fs.existsSync(sourcesDir)) {
   problems.push("site/sources ontbreekt");
@@ -68,6 +72,10 @@ if (!fs.existsSync(sourcesDir)) {
     }
     if (name === EVENEMENT_IDENTITEIT_FILE) {
       for (const error of validateEvenementIdentiteit(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    if (name === VAAGHEID_FILE) {
+      for (const error of validateVaagheid(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === INZAGE_STATUS_FILE) {
@@ -103,10 +111,15 @@ if (!fs.existsSync(sourcesDir)) {
       problems.push(`${name}: onbekende bron`);
       continue;
     }
-    for (const error of validateSourceDocument(json, { expectedSourceId: sourceId })) {
+    // Een GIPOD-bron van vóór 17 oktober 2026 (ruwe rij als bronlink) wordt getoetst in de vorm die build:sources
+    // en de fetchers ervan maken (lib/source-feed.mjs, zonderRuweGipodBron); de verversing schrijft ze opnieuw.
+    const migratie = zonderRuweGipodBron(json);
+    if (migratie.gemigreerd) signalen.push(`${name}: nog in de oude GIPOD-vorm (OGC API of ruwe rij als bronlink); de volgende verversing schrijft het opnieuw`);
+    for (const error of validateSourceDocument(migratie.document, { expectedSourceId: sourceId })) {
       if (!error.startsWith("privacy:")) problems.push(`${name}: ${error}`);
     }
-    const contract = validateEventContract(Array.isArray(json.items) ? json.items : []);
+    // Een aanvulling (AWV-werfdata) heeft geen agendapunten: haar eigen itemvorm toetst validateSourceDocument.
+    const contract = SOURCE_DEFINITIONS[sourceId]?.aanvulling ? { errors: [] } : validateEventContract(Array.isArray(json.items) ? json.items : []);
     for (const error of contract.errors) problems.push(`${name}: eventcontract ${error.code} (${error.id ?? error.index})`);
     // Een afgeleide bron uit de evenementendossiers van de stad (district-asign-evenementen): nooit een
     // huisnummer na een straatnaam, in geen enkel tekstveld en in geen enkele straat. Alleen het pad.
@@ -269,6 +282,27 @@ if (fs.existsSync(backfillDir)) {
   }
 }
 
+// Geen link naar een ruw GIPOD-record in wat de site publiceert (site/gipod-bron.js): zo'n record draagt
+// contactgegevens. De feed en de eventpagina's bouwt npm run check altijd opnieuw (build:sources met
+// zonderRuweGipodBron, build met sourceLinks): daar is elke ruwe link een fout. De bronbestanden, de
+// straatbestanden en de automatische herkenning schrijft alleen de verversing; daar is het tot de eerste
+// verversing na 17 oktober 2026 een signaal (de code die ze maakt, neemt geen ruwe link meer op).
+const tekstVan = (file) => { try { return fs.readFileSync(file, "utf8"); } catch { return ""; } };
+const bestandenOnder = (dir, test) => (fs.existsSync(dir) ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+  const target = path.join(dir, entry.name);
+  return entry.isDirectory() ? bestandenOnder(target, test) : test(entry.name) ? [target] : [];
+}) : []).sort();
+const ruweGipodIn = (files) => files.filter((file) => ruweGipodLinksIn(tekstVan(file)).length).map((file) => path.relative(rootDir, file).split(path.sep).join("/"));
+const altijdGebouwd = ruweGipodIn([path.join(rootDir, "site", "agenda-feed.js"), ...bestandenOnder(path.join(rootDir, "site", "event"), (name) => name === "index.html")]);
+for (const file of altijdGebouwd.slice(0, 20)) problems.push(`${file}: link naar een ruw GIPOD-record`);
+if (altijdGebouwd.length > 20) problems.push(`nog ${altijdGebouwd.length - 20} gebouwde bestanden met een link naar een ruw GIPOD-record`);
+const doorVerversing = ruweGipodIn([
+  ...bestandenOnder(sourcesDir, (name) => name.endsWith(".json")),
+  ...bestandenOnder(path.join(rootDir, "site", "straat"), (name) => name.endsWith(".json")),
+]);
+if (doorVerversing.length) signalen.push(`${doorVerversing.length} bestanden van de verversing met een link naar een ruw GIPOD-record (onder meer ${doorVerversing.slice(0, 3).join(", ")}); de volgende verversing schrijft ze zonder`);
+
+for (const signaal of signalen) console.log(`::warning title=Data::${signaal}`);
 for (const problem of problems) console.error(problem);
-console.log(JSON.stringify({ result: problems.length ? "FAIL" : "PASS", problems: problems.length, sources: summary }));
+console.log(JSON.stringify({ result: problems.length ? "FAIL" : "PASS", problems: problems.length, signalen: signalen.length, sources: summary }));
 if (problems.length) process.exitCode = 1;

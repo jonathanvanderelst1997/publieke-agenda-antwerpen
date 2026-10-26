@@ -8,7 +8,7 @@ import test from "node:test";
 
 import { DISTRICT_CHANNELS, channelApiUrl, fallbackLocationFor } from "../lib/district-channels.mjs";
 import { parseDistrictNewsArticle } from "../lib/district-news-parser.mjs";
-import { gipodQueryUrl, marketTitle, marketsFromGipod, parseMarketList, placeName } from "../lib/gipod-markets.mjs";
+import { GIPOD_METADATA_URL, gipodQueryUrl, marketTitle, marketsFromGipod, parseMarketList, placeName } from "../lib/gipod-markets.mjs";
 import { mergeEvents } from "../lib/merge-events.mjs";
 import { CITY_POSTCODES, DISTRICT_POSTCODES } from "../lib/postcodes.mjs";
 import { FORBIDDEN_KEYS, sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
@@ -286,7 +286,9 @@ test("GIPOD: bewaart alle bekende marktdagen, gesorteerd en zonder parkeerrijen"
   assert.deepEqual(items.map((item) => item.date), [...items.map((item) => item.date)].sort());
   assert.ok(items.some((item) => item.id === "markt-ma13-2026-09-30" && item.inDistrict === true));
   assert.ok(items.every((item) => item.info === "Openbare markt van stad Antwerpen. Marktdag volgens GIPOD."));
-  assert.ok(items.every((item) => item.sourceUrl.startsWith("https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.")));
+  // De bronlink is de datasetfiche van GIPOD, nooit de INNAME_PUNT-rij (die toont ContactOrganisations).
+  assert.ok(items.every((item) => item.sourceUrl === GIPOD_METADATA_URL));
+  assert.ok(items.every((item) => !JSON.stringify(item).includes("INNAME_PUNT.")));
   assert.ok(items.some((item) => item.inDistrict === true));
   assert.ok(items.some((item) => item.inDistrict === false));
   assert.ok(items.every((item) => item.infoUrl === (item.inDistrict ? "https://www.antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen" : "https://www.antwerpen.be/shoppen-en-markten")));
@@ -346,12 +348,13 @@ test("marktenfetcher: GIPOD plus marktlijst; zonder marktlijst toch door; GIPOD 
 test("bronnen in het register en het contract: groep stad, vaste hosts en attributie", () => {
   assert.deepEqual(
     FETCHERS.map((fetcher) => fetcher.name),
-    ["district-kalender", "district-nieuws", "district-vergaderingen", "district-gipod-evenementen", "district-ebesluit", "district-foren", "district-schoolstraten", "district-projecten", "stad-districten", "stad-markten", "stad-koopzondagen", "stad-uit", "mail", "district-ebesluit-evenementen"]
+    ["district-kalender", "district-nieuws", "district-vergaderingen", "district-gipod-evenementen", "district-ebesluit", "district-foren", "district-schoolstraten", "district-projecten", "stad-districten", "stad-markten", "stad-koopzondagen", "stad-uit", "mail", "awv-werf-supplement", "district-ebesluit-evenementen"]
   );
   const districten = sourceDocument("stad-districten", { fetchStatus: "ok" });
   assert.deepEqual([districten.scope, districten.allowedHosts], ["stad", ["www.antwerpen.be"]]);
   const markten = sourceDocument("stad-markten", { fetchStatus: "ok" });
-  assert.deepEqual([markten.scope, markten.allowedHosts], ["stad", ["www.antwerpen.be", "geo.api.vlaanderen.be"]]);
+  assert.deepEqual([markten.scope, markten.allowedHosts], ["stad", ["www.antwerpen.be", "metadata.vlaanderen.be"]]);
+  assert.deepEqual([markten.url, markten.attribution.url], [GIPOD_METADATA_URL, GIPOD_METADATA_URL]);
   const item = {
     id: "markt-ma1-2026-10-05",
     externalId: "12350257",
@@ -373,6 +376,11 @@ test("bronnen in het register en het contract: groep stad, vaste hosts en attrib
   };
   const wrongHost = sourceDocument("stad-markten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: [item] });
   assert.ok(validateSourceDocument(wrongHost).some((error) => /sourceUrl/.test(error)));
+  // Ook een ruwe INNAME_PUNT-rij op geo.api.vlaanderen.be komt niet meer door: alleen de datasetfiche.
+  const ruweRij = sourceDocument("stad-markten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: [{ ...item, sourceUrl: "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.1-1" }] });
+  assert.ok(validateSourceDocument(ruweRij).some((error) => /sourceUrl/.test(error)));
+  const fiche = sourceDocument("stad-markten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: [{ ...item, sourceUrl: GIPOD_METADATA_URL }] });
+  assert.deepEqual(validateSourceDocument(fiche), []);
   const wrongPrefix = sourceDocument("stad-districten", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: [{ ...item, sourceUrl: "https://www.antwerpen.be/info/x" }] });
   assert.ok(validateSourceDocument(wrongPrefix).some((error) => /ongeldige id/.test(error)));
 });
@@ -397,7 +405,7 @@ test("voorrang: district-nieuws > stad-districten > stad-markten > stad-uit", ()
   });
   const { items } = mergeEvents({
     "stad-uit": { scope: "stad", items: [item("uit-1", "https://www.uitinvlaanderen.be/agenda/e/x/1")] },
-    "stad-markten": { scope: "stad", items: [{ ...item("markt-ma1-2026-10-05", "https://geo.api.vlaanderen.be/GIPOD/ogc/features/v1/collections/INNAME_PUNT/items/INNAME_PUNT.1-1"), inDistrict: false }] },
+    "stad-markten": { scope: "stad", items: [{ ...item("markt-ma1-2026-10-05", GIPOD_METADATA_URL), inDistrict: false }] },
     "stad-districten": { scope: "stad", items: [{ ...item("stad-news-hoboken-a-2026-10-05", "https://www.antwerpen.be/info/a"), inDistrict: false }] },
   });
   assert.equal(items.length, 1);

@@ -229,6 +229,41 @@ export function voorwerpenIn(teksten = []) {
   return VOORWERPEN.filter(([re]) => re.test(tekst)).map(([, naam]) => naam);
 }
 
+// De vaste woorden die de soort, de dingen en de voorwerpen van een omschrijving bepalen, zonder de tekst zelf
+// (site/kaart-uitleg.js, kenmerkTekst): voor elk patroon hierboven dat in de tekst staat één vast woord dat datzelfde
+// patroon (en geen ander) raakt. Zo blijft de soort van een evenement bestaan, ook als de privacyfilter de omschrijving
+// zelf weglaat (nakijkronde van head ba03ff4: "Doopfeest MTS ..." verloor de doop van een schip).
+const DING_KENMERK = Object.freeze({
+  schip: "doop schip", kermis: "kermis", reuzenrad: "reuzenrad", versiering: "straatversiering", sticker: "sticker", bladslag: "bladslag",
+  mammobiel: "mammobiel", bord: "aankondigingsbord", oldtimer: "oldtimer",
+});
+const VERSIERING_KENMERK = Object.freeze([
+  [/\bvlag(?:gen)?(?:lijn(?:en)?)?\b/i, "vlaggen"], [/reuzenboek/i, "reuzenboek"], [/feestverlichting|kerstverlichting/i, "feestverlichting"],
+  [/\bkerstbo(?:om|men)\b/i, "kerstboom"],
+]);
+// Een voorwerp met een woord dat EVENEMENT_VOORWERP niet raakt (dat krijgt een eigen teken: "dj"), behalve waar dat niet
+// kan (tent, pagode, kramen: elk woord voor VOORWERPEN raakt dan ook EVENEMENT_VOORWERP).
+const VOORWERP_KENMERK = Object.freeze({
+  "een tent": "tent", "een podium": "buitenpodium", kramen: "kramen", "een wand": "wand", "een generator": "generator",
+  "een foodtruck": "food truck", toiletten: "dixitoilet", "een container": "container", "een aankondigingsbord": "aankondigingsbord",
+});
+// Alle waarden die kenmerkWoorden kan geven ("doop schip" is één waarde), en alle woorden daarin (voor de validatie van
+// bewaarde kenmerken: alleen vaste woorden).
+export const KENMERK_WAARDEN = Object.freeze([...new Set([...Object.values(DING_KENMERK), ...VERSIERING_KENMERK.map(([, w]) => w),
+  ...Object.values(VOORWERP_KENMERK), "dj", "opslag"])]);
+export const KENMERK_WOORDEN = Object.freeze([...new Set(KENMERK_WAARDEN.flatMap((w) => w.split(" ")))]);
+export function kenmerkWoorden(tekst) {
+  const t = clean(zonderOntkenning(tekst), 400);
+  if (!t) return [];
+  return [
+    ...DINGEN.filter((d) => d.re.test(t)).map((d) => DING_KENMERK[d.key]),
+    ...VERSIERING_KENMERK.filter(([re]) => re.test(t)).map(([, w]) => w),
+    ...VOORWERPEN.filter(([re]) => re.test(t)).map(([, naam]) => VOORWERP_KENMERK[naam]),
+    ...(EVENEMENT_VOORWERP.test(t) ? ["dj"] : []),
+    ...(OPSLAG.test(t) ? ["opslag"] : []),
+  ].filter(Boolean);
+}
+
 // ---------- hoe groot ----------
 
 // "ongeveer 80 m²", "ongeveer 1.300 m²", "ongeveer 10 ha".
