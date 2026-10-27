@@ -4896,7 +4896,7 @@
       "before": {
         "id": "work:20637021",
         "gipodId": 20637021,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Pelikaanstraat",
         "status": "In uitvoering",
         "start": "2026-10-17T05:00:00Z",
         "end": "2026-10-17T15:00:00Z",
@@ -4905,7 +4905,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

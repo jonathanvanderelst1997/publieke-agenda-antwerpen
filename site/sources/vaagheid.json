@@ -1,8 +1,8 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-10-26",
- "invoer": "b0d7fcfc66e4998d",
- "code": "3a3b5c2ed84743a4",
+ "invoer": "71d1045be889fd2d",
+ "code": "2c003c0264f81172",
  "agenda": {
   "items": 764,
   "vaag": 48,
@@ -289,10 +289,10 @@
   "detail": {
    "metOntbreekt": 280,
    "meerDanEen": 83,
-   "zinnen": 459,
+   "zinnen": 462,
    "perPatroon": {
     "niet-in-de-bron": 72,
-    "huisnummers-niet-gepubliceerd": 41,
+    "huisnummers-niet-gepubliceerd": 44,
     "organisator-niet-gepubliceerd": 10,
     "beheerder-geen-omschrijving": 9,
     "uren-niet-gepubliceerd": 9
@@ -624,7 +624,7 @@
  "vergelijking": {
   "vorige": {
    "invoer": "b0d7fcfc66e4998d",
-   "code": "a720a64e98bbadfa"
+   "code": "3a3b5c2ed84743a4"
   },
   "agenda": {
    "ok": true,
@@ -638,7 +638,7 @@
   },
   "straten": {
    "ok": true,
-   "stijging": -6.6,
+   "stijging": 0,
    "gestegen": []
   },
   "buiten": {
@@ -646,5 +646,14 @@
    "stijging": 0,
    "gestegen": []
   }
- }
+ },
+ "aanvaard": [
+  {
+   "waar": "straten",
+   "id": "detail:huisnummers-niet-gepubliceerd",
+   "van": 41,
+   "naar": 44,
+   "reden": "Regel van de eigenaar van 26 oktober 2026 (definitief): het huisnummer staat er altijd, ook bij een aansluiting, een container of een andere inname bij één huis. De bewaarde stand (kaart-uitleg.json en de straatbestanden van vóór deze regel) heeft dat nummer voor zo'n werk nog niet: de verversing vroeg het toen niet op. Tot de volgende verversing het uit GIPOD en het adressenregister haalt, zegt zo'n kaart in de ochtendstand 'huisnummers niet gepubliceerd' in plaats van 'huisnummer weggelaten: het gaat om één adres'. Live (de browser leest GIPOD) staat het nummer er meteen."
+  }
+ ]
 }

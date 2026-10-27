@@ -226,7 +226,8 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-opkuis-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const T1 = "2026-10-09T03:00:00.000Z", T2 = "2026-10-10T03:00:00.000Z";
-  const werk = { gipodId: 7, title: "2000 Antwerpen, Xstraat 12", status: "In uitvoering", start: T1, end: T2, owner: "Proef", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
+  // Een werk houdt zijn huisnummer (regel van de eigenaar van 26 oktober 2026); een parkeerverbod niet.
+  const werk = { gipodId: 7, title: "2000 Antwerpen, Xstraat 30", status: "In uitvoering", start: T1, end: T2, owner: "Proef", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
   const h1 = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen")] } });
   const h2 = updateLiveHistory(h1, { observedAt: T2, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen")] } });
   const dag = { schemaVersion: 1, date: "2026-10-10", events: h2.changes };
@@ -249,14 +250,16 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   assert.equal(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"), indexVooraf);
   for (const relative of ["site/history/live-layers.json", "site/history/archive/baseline.json"]) {
     const inhoud = fs.readFileSync(path.join(root, relative), "utf8");
-    assert.equal(inhoud.includes("Xstraat 2") || inhoud.includes("Xstraat 12") || inhoud.includes("2100"), false, relative);
+    assert.equal(inhoud.includes("Xstraat 2 ") || inhoud.includes("2100"), false, relative);
+    assert.equal(inhoud.includes("2000 Antwerpen, Xstraat 30"), true, `${relative}: het werk met zijn nummer`);
   }
 
   const eerste = opkuisHistoriekPrivacy({ rootDir: root, write: true });
   assert.deepEqual(eerste.leegGeworden, ["site/history/archive/2026-10-10.json"], "de enige wijziging lag buiten het district");
   const tekst = fs.readdirSync(path.join(root, "site/history/archive")).map((name) => fs.readFileSync(path.join(root, "site/history/archive", name), "utf8")).join("\n")
     + fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  for (const verboden of ["Xstraat 2", "Xstraat 12", "Ystraat", "2100"]) assert.equal(tekst.includes(verboden), false, verboden);
+  for (const verboden of ["Xstraat 2 ", "Ystraat", "2100"]) assert.equal(tekst.includes(verboden), false, verboden);
+  assert.equal(tekst.includes("2000 Antwerpen, Xstraat 30"), true, "het werk met zijn nummer");
   const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
   assert.deepEqual(index.days, []);
 
@@ -280,8 +283,9 @@ test("opkuis: wat niet lukt, houdt de rest niet tegen en wordt gemeld", (t) => {
   schrijf("site/history/archive/2026-10-09.json", "Proefstraat 12 bus 3 is geen JSON");
 
   const rapport = opkuisHistoriekPrivacy({ rootDir: root, write: true });
-  const live = fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  assert.equal(live.includes("Proefstraat 12"), false, "het huisnummer is toch weg");
+  const live = JSON.parse(fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8"));
+  assert.equal(live.layers.publicSpace.items[0].location, "Proefstraat, 2000 Antwerpen", "het huisnummer van het parkeerverbod is toch weg");
+  assert.equal(live.layers.works.items[0].title, "Proefstraat 12", "een werk houdt zijn huisnummer");
   assert.deepEqual(rapport.nogBevindingen, { "site/history/live-layers.json": 1 });
   assert.deepEqual(rapport.nietGeschreven, { "site/history/archive/2026-10-09.json": "geen geldige JSON" });
   assert.equal(JSON.stringify(rapport).includes("Proefstraat 12"), false, "het rapport toont geen inhoud");

@@ -21,6 +21,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { METINGEN, VAAGHEID_FILE, isAanvaard, vergelijk } from "../lib/vaagheid.mjs";
+// Een vaste naam, geen import uit site/: de basis kent site/werk-vorm.js misschien niet.
+const WERK_VORM_FILE = "werk-vorm.json";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const DATA = ["site/sources", "site/geo", "site/straat", "site/straat-index.json"];
@@ -64,8 +66,10 @@ export function meetBasis(basisRef, { tmp = fs.mkdtempSync(path.join(os.tmpdir()
     const tar = execFileSync("git", ["archive", basisRef, "lib", "scripts", "site", "package.json"], { cwd: root, maxBuffer: 512 * 1024 * 1024 });
     execFileSync("tar", ["-x", "-C", tmp], { input: tar });
     for (const rel of [...DATA, ...METER]) kopieer(path.join(root, rel), path.join(tmp, rel));
-    // De meting zelf is geen bron: een basis zonder meter zou ze als onbekende bron weigeren.
-    fs.rmSync(path.join(tmp, "site", "sources", VAAGHEID_FILE), { force: true });
+    // De meting zelf is geen bron: een basis zonder meter zou ze als onbekende bron weigeren. Zo ook de vaste vorm per
+    // werk (site/sources/werk-vorm.json, site/werk-vorm.js): een basis zonder die vorm kent het bestand niet, en de meting
+    // leest het niet (de straatbestanden en kaart-uitleg.json dragen de vorm al).
+    for (const naam of [VAAGHEID_FILE, WERK_VORM_FILE]) fs.rmSync(path.join(tmp, "site", "sources", naam), { force: true });
     if (fs.existsSync(path.join(root, "node_modules")) && !fs.existsSync(path.join(tmp, "node_modules"))) fs.symlinkSync(path.join(root, "node_modules"), path.join(tmp, "node_modules"), "dir");
     try {
       node(["scripts/build-sources.mjs"], tmp);

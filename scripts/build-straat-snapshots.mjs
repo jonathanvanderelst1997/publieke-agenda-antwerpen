@@ -18,7 +18,8 @@
 // dit script alles over de straten.
 //
 // Privacy, met dezelfde regels als de historiek (lib/historiek-privacy.mjs): alleen district Antwerpen,
-// geen huisnummers (ook niet in titels), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
+// geen huisnummers (ook niet in titels) behalve bij een werk (dat staat er met zijn exacte adres, regel van de eigenaar van
+// 26 oktober 2026), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
 // `reason`; site/adres-privacy.js; wel het dossier van zijn werfzone, `werfzoneDossier`, dat de werfkaart ook toont),
 // geen vrije beschrijving van een inname (innameBeschrijving),
 // geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
@@ -53,6 +54,7 @@ import { STRAATVELDEN, WEGGELATEN, straatItems, veiligeInname } from "../site/st
 import { parkeerverbodZonderReden } from "../site/adres-privacy.js";
 import { heeftToevoeging, zonderToevoegingInData } from "../site/witte-lijst.js";
 import { zonderRuweGipodLinks } from "../site/gipod-bron.js";
+import { werkenVoorDeSite } from "../site/werk-vorm.js";
 // De soort en de categorie van een agendapunt zoals de site ze geeft (site/agenda.js): voor het evenement van een
 // parkeerverbod (agendaZoalsDeSite). Deze twee bestanden zetten hun functies op globalThis.
 import "../site/event-types.js";
@@ -105,7 +107,8 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   // Een parkeerverbod buiten het district (A-Sign "District='ANTWERPEN'" is de hele stad) valt weg.
   if ((zonder.kind === "parking" || String(zonder.id).startsWith("parking:")) && parkeerverbodInDistrict(zonder) === false) return null;
   // Eerst de regels van de historiek (huisnummer na een straatnaam, naam na een dossiercode), dan een
-  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase).
+  // nummer na "gevel", "pand" of "nummer" in vrije tekst (de omschrijving van een GIPOD-hinderfase). Een werk houdt zijn
+  // huisnummer (lib/historiek-privacy.mjs).
   // De naam van de fase van een inname (faseNaam, vrij in te vullen) alleen als vaste vorm, district of straat van de inname
   // (veiligeFase in site/witte-lijst.js), ook in `detail`; zo leest straatItems hetzelfde terug.
   const schoon = itemZonderPandnummers(itemVoorHistoriek(veiligeInname(zonder)));
@@ -254,14 +257,16 @@ function agendaVanDeSite(rootDir, vandaag) {
 // straten zoals de browser ze vindt (site/street-core.js), privacyveilig in .cache/straat-bronnen.json.
 // Faalt hier iets, dan gaat de verversing gewoon door: de straatbestanden houden dan hun vorige stand.
 // `fetch` null: geen vergunningen en terrassen ophalen (die lagen houden dan hun vorige stand).
+// `werkVorm`: de vaste vorm per werk na deze verversing (site/sources/werk-vorm.json): de werken krijgen hier opnieuw hun
+// straat zoals de browser ze vindt, en daarna meteen de poort (werkenVoorDeSite, site/werk-vorm.js).
 // `siteAgenda`: de agenda zoals de site ze toont (agendaZoalsDeSite); zonder: uit site/agenda.js en site/agenda-feed.js.
-export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {}, siteAgenda = undefined }) {
+export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures, fetch: fetchImpl = null, sleep = wacht, log = () => {}, werkVorm = null, siteAgenda = undefined }) {
   const bestand = path.join(rootDir, BRONNEN_BESTAND);
   const laag = (result, items) => (result?.ok ? { ok: true, items } : { ok: false, items: [], errorCode: result?.errorCode || "niet_geladen" });
   try {
     const index = Array.isArray(streetFeatures) && streetFeatures.length ? buildStreetIndex(streetFeatures) : null;
     const district = publicSpaceResult?.district || null;
-    const works = worksResult?.ok && index ? applyWorkStreetResolution(worksResult.items, index) : [];
+    const works = worksResult?.ok && index ? werkenVoorDeSite(applyWorkStreetResolution(worksResult.items, index), werkVorm) : [];
     const raw = publicSpaceResult?.ok ? publicSpaceResult.features : null;
     // Een parkeerverbod voor een werf krijgt hier het dossiernummer van zijn werfzone (werfzoneDossier), en een parkeerverbod
     // voor een evenement de sleutel van dat evenement (evenementSleutel), met de reden van A-Sign die de verversing alleen

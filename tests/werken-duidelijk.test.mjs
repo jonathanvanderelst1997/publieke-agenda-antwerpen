@@ -103,13 +103,15 @@ test("huisnummers: nooit nr. 0 of een postcode als huisnummer, ook niet uit een 
   assert.match(pc.workEntry(werk({ title: "Gevelwerken" }), { vandaag: VANDAAG, uitleg: { werken: { 90000101: { huisnummers: "nr. 12–40", huisnummerBron: "afgeleid" } } } }).title, /in de Voorbeeldstraat nr\. 12–40 /);
 });
 
-test("huisnummers: een aansluiting of verhuis toont de straat, nooit het huisnummer van één adres", () => {
+// Regel van de eigenaar (26 oktober 2026, definitief): het huisnummer staat er altijd, ook bij een verhuis; alleen het woord
+// verhuis verdwijnt.
+test("huisnummers: een aansluiting toont het huisnummer; een verhuis ook, zonder het woord", () => {
   const k = kaart(werk({ title: "2018 ANTWERPEN, VOORBEELDSTRAAT 44", owner: "Fluvius Site Antwerpen", ownerGroup: "Fluvius", occupancyTypes: ["Olie, gas, chemicaliën"], workTypes: ["klantaansluiting"] }));
-  assert.match(k.titel, /^Nieuwe aansluiting op het gasnet in de Voorbeeldstraat /);
-  assert.doesNotMatch(alleTekst(k), /\b44\b/);
-  assert.match(regels(k).Waar, /huisnummer weggelaten/);
+  assert.match(k.titel, /^Nieuwe aansluiting op het gasnet in de Voorbeeldstraat nr\. 44 /);
+  assert.equal(regels(k).Waar, "Voorbeeldstraat, nr. 44 (omschrijving van de beheerder)");
   const entry = pc.workEntry(werk({ title: "Verhuislift Voorbeeldstraat 12" }), { vandaag: VANDAAG, uitleg: { werken: { 90000101: { huisnummers: "nr. 12", huisnummerBron: "afgeleid" } } } });
-  assert.doesNotMatch(`${entry.title} ${entry.location} ${entry.uitleg.regels.flat().join(" ")}`, /\b12\b/);
+  assert.match(`${entry.title} ${entry.location} ${entry.uitleg.regels.flat().join(" ")}`, /Voorbeeldstraat, nr\. 12\b/);
+  assert.doesNotMatch(`${entry.title} ${entry.summary} ${entry.location} ${entry.uitleg.regels.flat().join(" ")} ${entry.uitleg.bronTekst || ""}`, /verhuis/i);
 });
 
 test("titel: met \"in\" en het juiste lidwoord", () => {
@@ -190,9 +192,11 @@ test("dubbele kaarten: één werf in stukken wordt één kaart met alle GIPOD-nu
   assert.equal(entries[0].reference, "GIPOD 90000201, 90000202, 90000203");
   assert.deepEqual(entries[0].uitleg.regels.at(-1), ["Aantal", "3 dossiers in GIPOD met dezelfde soort, plek en periode"]);
   assert.equal(entries[1].reference, "GIPOD 90000204");
-  // Twee aansluitingen naast elkaar (andere huisnummers in de omschrijving) zijn ook één kaart.
+  // Twee aansluitingen naast elkaar (andere huisnummers in de omschrijving) zijn twee kaarten, elk met haar adres; twee
+  // stukken op hetzelfde adres één.
   const aansluiting = (id, nummer) => werk({ gipodId: id, title: `2018 ANTWERPEN, VOORBEELDSTRAAT ${nummer}`, owner: "Fluvius Site Antwerpen", ownerGroup: "Fluvius", occupancyTypes: ["Elektriciteit"], workTypes: ["klantaansluiting"] });
-  assert.equal(pc.werkEntries([aansluiting(90000301, 44), aansluiting(90000302, 46)], { vandaag: VANDAAG }).length, 1);
+  assert.equal(pc.werkEntries([aansluiting(90000301, 44), aansluiting(90000302, 46)], { vandaag: VANDAAG }).length, 2);
+  assert.equal(pc.werkEntries([aansluiting(90000301, 44), aansluiting(90000302, 44)], { vandaag: VANDAAG }).length, 1);
 });
 
 test("lijst: korte datums met jaartal als het jaar niet dit jaar is", () => {
