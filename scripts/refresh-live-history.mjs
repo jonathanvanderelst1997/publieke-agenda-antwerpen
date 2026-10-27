@@ -30,6 +30,9 @@ import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
+import { metRegisterNummers, vormNaVerversing, werkVormDocument, werkenVoorDeSite } from "../site/werk-vorm.js";
+import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
+import { gepubliceerdeWerkIds, leesWerkVorm, schrijfWerkVorm } from "../lib/werk-vorm-bestand.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -171,7 +174,21 @@ export async function asignLayer(layer, { where, outFields, geometry = false, sp
   return features;
 }
 
-export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets } = {}) {
+// Het huisnummer uit het adressenregister dat de vorige verversing in kaart-uitleg.json bewaarde, voor de titel van een werk in
+// de historiek (lijstTitel in site/werk-vorm.js: het nummer dat de kaart toont, regel van de eigenaar van 26 oktober 2026).
+// Een nieuw werk krijgt het zo een dag later; dat is geen wijziging (alleenHuisnummerErbij in lib/live-history.mjs).
+// Ontbreekt of faalt het bestand, dan alleen de nummers uit GIPOD.
+export function werkenMetRegisterNummers(rootDir, result) {
+  if (!result?.ok || !Array.isArray(result.items)) return result;
+  let uitleg = null;
+  try { uitleg = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", KAART_UITLEG_FILE), "utf8")); } catch { uitleg = null; }
+  return { ...result, items: metRegisterNummers(result.items, uitleg) };
+}
+
+// `werkVorm`: { vorm, bekend } (site/sources/werk-vorm.json en de werk-ids die al gepubliceerd waren): de poort
+// (werkenVoorDeSite, site/werk-vorm.js) komt direct na de straatkoppeling; de verversing legt daarna de vorm van een nieuw
+// werk vast (vormNaVerversing).
+export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, streets, werkVorm = null } = {}) {
   try {
     const [features, district, hindrance] = await Promise.all([
       gipodCollection(
@@ -199,7 +216,7 @@ export async function fetchWorksHistory({ fetch: fetchImpl = globalThis.fetch, s
       ),
     ]);
     const exactIds = new Set(worksExactSnapshot.exactGipodIds);
-    const items = applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets);
+    const items = werkenVoorDeSite(applyWorkStreetResolution(attachHindrance(collectWorks(features, exactIds, district), hindrance, true), streets), werkVorm?.vorm || null, { bekend: werkVorm?.bekend || null });
     return { ok: true, items };
   } catch (error) {
     return { ok: false, items: [], errorCode: errorCode(error, "works_fetch_failed") };
@@ -291,8 +308,13 @@ export async function refreshLiveHistory({
 } = {}) {
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
-  // Eerst de bestaande historiek opkuisen (geen huisnummers in vrije tekst, een parkeerverbod alleen met zijn plaats in de
-  // vorm van publiekParkeerAdres, alleen het district), ook oudere dagen
+  // De vaste vorm per werk (site/sources/werk-vorm.json), vóór er iets geschreven wordt: is het bestand onleesbaar of
+  // ongeldig, dan stopt de verversing hier met een fout. De werken die al gepubliceerd waren (vorige historiek, archief,
+  // kaart-uitleg.json en de straatbestanden: dezelfde bestanden als regel 35 van validate-data) blijven een gewone kaart
+  // (regel 13).
+  const werkVorm = { vorm: leesWerkVorm(rootDir), bekend: gepubliceerdeWerkIds(rootDir, { straten: true }) };
+  // Eerst de bestaande historiek opkuisen (geen huisnummers in vrije tekst behalve bij een werk, een parkeerverbod alleen
+  // met zijn plaats in de vorm van publiekParkeerAdres, alleen het district), ook oudere dagen
   // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
   // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
   // wat er nog opgekuist moet worden. De log toont alleen aantallen en het soort fout, nooit een stuk
@@ -313,11 +335,16 @@ export async function refreshLiveHistory({
     const previousErrors = validateLiveHistory(previous);
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
-  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
-  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers (behalve de exacte plaats van een
-  // parkeerverbod, regel van de eigenaar van 26 oktober 2026), vóór het
+  let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets,werkVorm}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
+  // De vaste vorm van elk nieuw werk, vóór de historiek, kaart-uitleg.json en de straatbestanden, en elk werk-id dat al
+  // gepubliceerd was en nog in geen lijst stond (bij gewoon: vormNaVerversing). Faalt de werkenlaag, dan komen alleen die
+  // gepubliceerde id's erbij; staan ze er al, dan blijft het bestand ongewijzigd.
+  const nieuweVorm = vormNaVerversing(werkVorm.vorm, worksResult.ok ? worksResult.items : [], { bekend: werkVorm.bekend });
+  if (worksResult.ok || JSON.stringify(nieuweVorm) !== JSON.stringify(werkVormDocument(werkVorm.vorm))) schrijfWerkVorm(rootDir, nieuweVorm);
+  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers (behalve bij een werk en de exacte
+  // plaats van een parkeerverbod, regel van de eigenaar van 26 oktober 2026), vóór het
   // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
-  const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
+  const worksVoorHistoriek = resultaatVoorHistoriek(werkenMetRegisterNummers(rootDir, worksResult));
   const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
   log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
   const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
@@ -380,7 +407,7 @@ export async function refreshLiveHistory({
   // De items per straat zoals de browser ze maakt, plus vergunningen en terrassen, voor de straatbestanden
   // (scripts/build-straat-snapshots.mjs verdeelt ze op het einde van npm run refresh). Faalt dit, dan
   // houden de straatbestanden hun vorige stand.
-  await verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures: streets?.features, fetch: straatFetch, log });
+  await verzamelStraatBronnen({ rootDir, observedAt, worksResult, publicSpaceResult, streetFeatures: streets?.features, fetch: straatFetch, log, werkVorm: nieuweVorm });
 
   // Bewust geen stap voor het Inzageloket (omgevingsloketinzage.omgeving.vlaanderen.be): robots.txt verbiedt
   // elke bot ("Disallow: /") en een Anubis-botcontrole staat voor elke pagina en voor de API. Die controle

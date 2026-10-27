@@ -24284,7 +24284,7 @@
       "before": {
         "id": "work:20644239",
         "gipodId": 20644239,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Otto Veniusstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T11:00:00Z",
         "end": "2026-10-03T14:00:00Z",
@@ -24293,7 +24293,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -24373,7 +24373,7 @@
       "before": {
         "id": "work:20676164",
         "gipodId": 20676164,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Carnotstraat",
         "status": "Concreet gepland",
         "start": "2026-10-03T09:00:00Z",
         "end": "2026-10-03T15:00:00Z",
@@ -24382,7 +24382,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -24415,7 +24415,7 @@
       "after": {
         "id": "work:20679394",
         "gipodId": 20679394,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Jacobstraat",
         "status": "Concreet gepland",
         "start": "2026-10-06T05:00:00Z",
         "end": "2026-10-08T16:00:00Z",
@@ -24424,7 +24424,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -24878,7 +24878,7 @@
       "before": {
         "id": "work:20715789",
         "gipodId": 20715789,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Sint-Bernardsesteenweg",
         "status": "Concreet gepland",
         "start": "2026-10-04T05:00:00Z",
         "end": "2026-10-04T10:00:00Z",
@@ -24887,7 +24887,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

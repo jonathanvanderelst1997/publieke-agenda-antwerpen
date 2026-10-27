@@ -14610,7 +14610,7 @@
       "before": {
         "id": "work:20619385",
         "gipodId": 20619385,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Walvisstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T06:00:00Z",
         "end": "2026-10-01T15:00:00Z",
@@ -14619,7 +14619,7 @@
         "boundaryConfidence": "exact_snapshot",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {
@@ -14870,7 +14870,7 @@
       "before": {
         "id": "work:20655905",
         "gipodId": 20655905,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Verviersstraat",
         "status": "In uitvoering",
         "start": "2026-10-01T07:00:00Z",
         "end": "2026-10-01T16:00:00Z",
@@ -14879,7 +14879,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

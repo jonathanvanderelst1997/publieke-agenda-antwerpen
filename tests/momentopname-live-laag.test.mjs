@@ -168,6 +168,9 @@ async function kaderMet(t, { hinderOk = true } = {}) {
     if (url.includes("/collections/INNAME_PUNT/")) return json({ type: "FeatureCollection", links: [], features: [{ type: "Feature", geometry: { type: "Point", coordinates: punt }, properties: { GipodId: 990001, Description: "Proefwerk (verzonnen)", Owner: "water-link", Status: "In uitvoering", Start: "2099-03-05T06:00:00Z", End: "2099-04-09T16:00:00Z" } }] });
     if (url.includes("/collections/HINDER_PUNT/")) return hinderOk ? json({ type: "FeatureCollection", links: [], features: [] }) : new Response("", { status: 500 });
     if (url.includes("returnIdsOnly")) return json({ objectIds: [] });
+    // De vaste vorm per werk (site/sources/werk-vorm.json, site/werk-vorm.js): het kader vraagt ze mee; het proefwerk is
+    // een gewone kaart.
+    if (url.startsWith("/sources/werk-vorm.json")) return json({ schema: 1, adreskaart: [], gewoon: [990001] });
     return new Response("", { status: 404 });
   };
   const { werkenInKader } = await import("../site/works-live.js");

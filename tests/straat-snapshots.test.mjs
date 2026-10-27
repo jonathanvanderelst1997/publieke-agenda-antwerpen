@@ -58,17 +58,20 @@ test("de bouwer schrijft per straat met items één klein bestand en een index m
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 
-test("privacy: geen huisnummer, geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
+// Regel van de eigenaar (26 oktober 2026): een werk staat er met zijn exacte adres, ook in een straatbestand; de andere lagen
+// (een parkeerverbod, een terras) zonder huisnummer.
+test("privacy: geen huisnummer (behalve bij een werk), geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
   const root = werkmap(t);
   await bouw(root);
   const tekst = alleTekst(root);
-  for (const verboden of ["Proefstraat 12", "12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
+  for (const verboden of ["12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
     assert.equal(tekst.includes(verboden), false, `"${verboden}" staat in een straatbestand`);
   }
-  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat.
-  assert.doesNotMatch(tekst, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
+  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat, op alles behalve de werken.
+  const zonderWerken = fs.readdirSync(path.join(root, "site", "straat")).map((naam) => { const { werken: _w, ...rest } = lees(root, `site/straat/${naam}`); return JSON.stringify(rest); }).join("\n");
+  assert.doesNotMatch(zonderWerken, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
   const kam = lees(root, `site/straat/${KAM.id}.json`);
-  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat - ${WERK_TITEL}`);
+  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`);
   assert.equal(kam.publiekeRuimte.find((i) => i.kind === "parking").location, "Proefstraat, 2000 Antwerpen");
   assert.equal(kam.publiekeRuimte.some((i) => /voorbeeld/i.test(JSON.stringify(i))), false, "het item met een e-mailadres valt weg");
   // Elk item afzonderlijk: een item met iets privé erin wordt null, niet half opgekuist.
@@ -385,15 +388,17 @@ test("privacy: ook 'thv', 'ter hoogte van', 'tegenover', 'naast', 'voor de deur 
   assert.deepEqual(straatItemPrivacy({ werken: [{ title: "omleiding bus 30 en 34" }] }), []);
 });
 
-test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-hinderfase) valt weg", async (t) => {
+test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst valt weg; bij een werk blijft het (exact adres)", async (t) => {
   // Verzonnen omschrijvingen van een hinderfase.
   const fasen = [
     { description: "Fase 2: stelling aan gevel nummer 12", start: "2099-03-19T06:00:00Z", end: "2099-03-20T16:00:00Z", consequences: ["Voetpad versmald"] },
     { description: "Herstel pand nr. 5 en 7", start: "2099-03-21T06:00:00Z", end: "2099-03-22T16:00:00Z", consequences: [] },
   ];
   const schoon = itemVoorStraat(werk(990001, { hindrance: { severe: false, consequences: ["Voetpad versmald"], phases: fasen } }), { laag: "werken" });
-  assert.ok(schoon, "het werk blijft (opgekuist), het valt niet weg");
-  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel", "Herstel pand"]);
+  assert.ok(schoon, "het werk blijft, het valt niet weg");
+  // Regel van de eigenaar (26 oktober 2026): een werk houdt zijn huisnummer, ook in de naam van een fase.
+  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel nummer 12", "Herstel pand nr. 5 en 7"]);
+  assert.deepEqual(straatItemPrivacy({ werken: [schoon] }), []);
   assert.equal(schoon.hindrance.phases[0].start, fasen[0].start, "datums blijven");
   // De scan ziet het ook (validate-data), maar niet in een officiële straatnaam met een cijfer.
   assert.deepEqual(straatItemPrivacy({ werken: [{ hindrance: { phases: [{ description: "stelling aan gevel nummer 12" }] } }] }).map((v) => v.code), ["huisnummer"]);
@@ -404,7 +409,7 @@ test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-h
   const root = werkmap(t);
   await bouw(root, { bronnenDoc: await schoneBronnen({ werken: [werk(990001, { hindrance: { severe: false, consequences: [], phases: fasen } })] }) });
   const tekst = alleTekst(root);
-  assert.doesNotMatch(tekst, /nummer 12|nr\. 5/);
+  assert.match(tekst, /stelling aan gevel nummer 12/, "een werk houdt het nummer in de naam van een fase");
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 

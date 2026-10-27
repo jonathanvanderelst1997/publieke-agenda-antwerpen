@@ -5324,7 +5324,7 @@
       "before": {
         "id": "work:20818151",
         "gipodId": 20818151,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Oranjestraat",
         "status": "In uitvoering",
         "start": "2026-10-24T06:00:00Z",
         "end": "2026-10-24T12:00:00Z",
@@ -5333,7 +5333,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

@@ -13086,7 +13086,7 @@
       "before": {
         "id": "work:20801704",
         "gipodId": 20801704,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Zirkstraat",
         "status": "In uitvoering",
         "start": "2026-10-15T05:00:00Z",
         "end": "2026-10-15T07:00:00Z",
@@ -13095,7 +13095,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

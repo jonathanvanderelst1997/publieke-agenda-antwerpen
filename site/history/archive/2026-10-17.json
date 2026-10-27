@@ -8577,7 +8577,7 @@
       "before": {
         "id": "work:20703338",
         "gipodId": 20703338,
-        "title": "Werk in openbaar domein",
+        "title": "Inname – Van Ertbornstraat",
         "status": "In uitvoering",
         "start": "2026-10-15T08:00:00Z",
         "end": "2026-10-16T10:00:00Z",
@@ -8586,7 +8586,7 @@
         "boundaryConfidence": "point_inside_new",
         "workTypes": [],
         "occupancyTypes": [
-          "(Verhuis)lift/levering"
+          "Inname"
         ],
         "streets": [
           {

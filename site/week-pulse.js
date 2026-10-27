@@ -1,5 +1,6 @@
 import {hinderkaart} from "./bezoekers-bronnen.js";
 import {zonderRuwGipodRecord} from "./gipod-bron.js";
+import {lijstTitel} from "./werk-vorm.js";
 import {laagStand} from "./live-lagen.js";
 import {parkeerverbodInLijst} from "./place-core.js";
 
@@ -34,7 +35,7 @@ export function buildWeekPulse({agendaItems=[],works=[],publicSpace=[],fromDay,t
   const severe=works.filter(item=>item.hindrance?.severe===true&&overlaps(String(item.start||"").slice(0,10),String(item.end||"").slice(0,10),from,to));
   const upcoming=[
     ...agenda.map(item=>({kind:"agenda",id:item.id,title:clean(item.title),date:isoDay(item.date),type:typeOf(item),location:clean(item.location),url:bron(item.sourceUrl||item.link)})),
-    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:clean(item.title)||"Werk start",date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:hinderkaart(),urlLabel:"Hinder in Kaart"})),
+    ...workStarts.map(item=>({kind:"work",id:`work:${item.gipodId}`,title:lijstTitel(item),date:String(item.start||"").slice(0,10),type:"work",location:(item.streets||[]).map(s=>s.name).join(" · "),url:hinderkaart(),urlLabel:"Hinder in Kaart"})),
     // Een parkeerverbod: waar exact (de plaats van de live laag, met het huisnummer of bereik; site/adres-privacy.js), niet
     // alleen de straatnaam, en wanneer: de dagen en de uren, zoals de kaart (parkeerverbodInLijst in site/place-core.js; derde
     // nakijkronde van 18 oktober 2026: hier stond alleen de begindag). Een werfzone of inname: haar straten.
