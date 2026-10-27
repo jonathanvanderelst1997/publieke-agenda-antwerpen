@@ -19,9 +19,6 @@ export const ONBEKEND_ZINNEN = Object.freeze({
   "werfzone-waarvoor": { zin: "De stad publiceert niet waarvoor deze {wat} dient.", meter: "wat-zegt-stad-niet", kern: true, waar: "kaart" },
   "werfzones-waarvoor": { zin: "Waarvoor deze werfzones en omleidingen dienen, staat niet in A-Sign, en GIPOD noemt geen werk met hetzelfde dossiernummer of alleen genummerde fasen.", meter: "wat-zegt-stad-niet", kern: true, waar: "bundel" },
   "werf-zonder-doel": { zin: "Waarvoor de werf dient, staat niet in A-Sign en niet in de fasen van GIPOD.", meter: "werf-zonder-doel", kern: true, waar: "kaart" },
-  // Een parkeerverbod uit de ochtendstand (een straatbestand): de straat en de postcode, nooit het huisnummer (dat bewaart de
-  // repo niet, site/adres-privacy.js). WAAR exact is wat de eigenaar eist (besluit van 18 oktober 2026), dus een kernveld.
-  "parkeerverbod-huisnummer-live": { zin: "Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn (nog) niet geladen.", meter: "huisnummer-alleen-live", kern: true, waar: "kaart" },
 
   // ---- evenementendossiers en innames (A-Sign) ----
   "inname-wat": { zin: "Wat er gebeurt of wat er staat, zegt het dossier niet.", meter: "wat-zegt-dossier-niet", kern: true, waar: "kaart" },

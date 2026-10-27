@@ -4,11 +4,11 @@
 //
 // - De kaartjes komen uit de lijst (window.PUBLIC_AGENDA_KAART.teken, site/place-view.js); elk object op de
 //   kaart is een kaartje van de lijst, met dezelfde soort, kleur en telsleutel (lijstSleutel).
-// - Privacy: parkeerverboden, losse innames (ook die van een evenement: opbouw, afbraak, de parkeerverboden erbij) en
-//   vergunningen staan op de kaart als één punt, het midden van hun kader afgerond op ONGEVEER_DECIMALEN (ongeveer
-//   100 m), met "plek bij benadering". Werken, werfzones en omleidingen, en van een evenement ook het parcours en de
-//   verkeersvrije zones (EVENEMENT_EXACT), staan exact op de kaart. Wie de rest toch exact wil tonen: één regel in
-//   vormVoor().
+// - Exact op de kaart (regel van de eigenaar van 26 oktober 2026: "exacte positie, geen afronding op 100 m"): werken,
+//   werfzones en omleidingen, parkeerverboden (ook voor een verhuis) en losse innames, en van een evenement het parcours en
+//   al zijn innames (opbouw, afbraak, de parkeerverboden erbij, omleidingen, verkeersvrije zones). Alleen een vergunning
+//   staat er als één punt, het midden van haar kader afgerond op ONGEVEER_DECIMALEN (ongeveer 100 m), met "plek bij
+//   benadering"; exact tonen is daar één regel in vormVoor().
 // - Een plek bij benadering tekent de kaart als een vorm van ONGEVEER_STRAAL meter rond dat punt, met een eigen
 //   vorm per soort (ONGEVEER_VORM): kleur is nooit de enige drager. Kaartjes op hetzelfde afgeronde punt horen bij
 //   elkaar (`ongeveer` in kaartLagen): een tik op een van hun vormen noemt ze allemaal.
@@ -18,15 +18,10 @@ import { KAART_SOORTEN, kaartSoort, kortBereik, kortDatum, lijstSleutel } from "
 
 export const ONGEVEER_DECIMALEN = 3;
 // Een plek bij benadering op de kaart: een vorm van zoveel meter rond het afgeronde punt (geen punt: dat zou een
-// plek beloven), per soort een eigen vorm. Een vergunning een ring, verkeer (parkeerverbod, losse inname) een
-// vierkant, de innames van een evenement een ruit.
+// plek beloven), per soort een eigen vorm. Alleen een vergunning nog: een ring. (Tot 26 oktober 2026 stonden ook
+// verkeer, als vierkant, en de innames van een evenement, als ruit, bij benadering; de kaart kan die vormen nog tekenen.)
 export const ONGEVEER_STRAAL = 60;
-export const ONGEVEER_VORM = Object.freeze({ evenement: "ruit", verkeer: "vierkant", vergunning: "ring" });
-// Van een evenement staan naast het parcours ook deze rijen exact op de kaart (innameType, A-Sign laag 22 en 23):
-// verkeersmaatregelen van het evenement op de openbare weg, geen inname van een plek door iemand. Al de rest
-// (parkeerverboden, "Inname", "Blokken op shot", een soort die de kaart niet kent) staat er bij benadering.
-const EVENEMENT_EXACT = Object.freeze(["omleiding", "verkeersvrije zone"]);
-const exactBijEvenement = (r) => EVENEMENT_EXACT.includes(String(r?.innameType || "").trim().toLowerCase());
+export const ONGEVEER_VORM = Object.freeze({ vergunning: "ring" });
 // Zoveel kaartjes per soort tekent de kaart hoogstens zonder gekozen plek (het hele district, met werken aan: een
 // district vol werken blijft vlot). Met een plek geen grens (neighborhood-map.js): de kaart toont alles van die plek,
 // zoals de lijst. Meting op de echte feed van 12 oktober 2026: de drukste straat heeft hoogstens 45 kaartjes van één
@@ -39,13 +34,9 @@ const esc = (v = "") => String(v).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<
 const CAT = Object.freeze(Object.fromEntries(KAART_SOORTEN.map((s) => [s.key, s.cat])));
 const rond = (x) => Number(x.toFixed(ONGEVEER_DECIMALEN));
 
-// Een plek bij benadering: een parkeerverbod, een losse inname (geen evenement, geen werfzone) en een
-// vergunning. Hangt alleen af van de soort, niet van de geometrie: de popup zegt het ook zonder vorm. (Van een
-// evenement zijn de innames naast het parcours bij benadering: dat zegt vormVoor, zie popupHtml.)
-function isOngeveer(entry, soort = kaartSoort(entry)) {
-  if (soort === "vergunning") return true;
-  return soort === "verkeer" && entry.item?.kind !== "sgw";
-}
+// Een plek bij benadering: alleen een vergunning. Hangt alleen af van de soort, niet van de geometrie: de popup zegt het
+// ook zonder vorm.
+const isOngeveer = (entry, soort = kaartSoort(entry)) => soort === "vergunning";
 
 // Alle coördinaten van een vorm ({vlakken: [[ring…]…], lijnen: [[punt…]…]}, parcours-straten.js).
 const geldigeLijn = (l) => Array.isArray(l) && l.filter(isPoint).length >= 2;
@@ -88,60 +79,41 @@ export function vormVoor(entry = {}, { geo = null } = {}) {
   if (soort === "werken") {
     // Een werf in stukken: een punt per stuk (werkEntries in place-core.js).
     const punten = rijenVan(entry).map((w) => w?.point).filter(isPoint).map((p) => [p[0], p[1]]);
-    // Een werfkaart (samenWerven in place-core.js): ook de werfzone en de omleiding (exact, zoals een werfzone), en de
-    // parkeerverboden bij benadering (een afgerond punt, zoals een los parkeerverbod).
-    const vlakken = [], lijnen = [], ongeveer = new Map();
-    for (const r of Array.isArray(entry.werfRijen) ? entry.werfRijen : []) {
-      if (r?.kind === "sgw") { vlakken.push(...(r?.vorm?.vlakken || [])); lijnen.push(...(r?.vorm?.lijnen || [])); continue; }
-      const p = middenBijBenadering(r?.vorm);
-      if (p) ongeveer.set(`${p[0]},${p[1]}`, p);
-    }
+    // Een werfkaart (samenWerven in place-core.js): ook de werfzone, de omleiding en de parkeerverboden, exact.
+    const vlakken = [], lijnen = [];
+    for (const r of Array.isArray(entry.werfRijen) ? entry.werfRijen : []) { vlakken.push(...(r?.vorm?.vlakken || [])); lijnen.push(...(r?.vorm?.lijnen || [])); }
     const delen = [
       ...(punten.length ? [{ geometry: punten.length === 1 ? { type: "Point", coordinates: punten[0] } : { type: "MultiPoint", coordinates: punten }, ...exact }] : []),
       ...vlakDeel(vlakken, exact), ...lijnDeel(lijnen, exact),
-      ...(ongeveer.size ? [{ geometry: ongeveer.size === 1 ? { type: "Point", coordinates: [...ongeveer.values()][0] } : { type: "MultiPoint", coordinates: [...ongeveer.values()] }, parcours: false, ongeveer: true }] : []),
     ];
     return delen.length ? delen : null;
   }
   if (soort === "evenement") {
-    // Het hele dossier, ook buiten de gekozen plek. Exact: het parcours (parcours=true; zonder live vorm de schets
-    // van de verversing), en de omleidingen en verkeersvrije zones (EVENEMENT_EXACT). De andere innames (opbouw,
-    // afbraak, de parkeerverboden van het evenement) zijn zoals elk parkeerverbod en elke losse inname: één punt per
-    // inname, het midden van haar kader afgerond, bij benadering (privacy). Innames op hetzelfde afgeronde punt zijn
-    // één punt.
-    const parcours = { lijnen: [], vlakken: [] }, verkeer = { lijnen: [], vlakken: [] }, punten = new Map();
+    // Het hele dossier, ook buiten de gekozen plek, exact: het parcours (parcours=true; zonder live vorm de schets van de
+    // verversing), en elke andere inname (opbouw, afbraak, de parkeerverboden van het evenement, omleidingen, verkeersvrije
+    // zones) met haar eigen vorm.
+    const parcours = { lijnen: [], vlakken: [] }, innames = { lijnen: [], vlakken: [] };
     for (const r of rijenVan(entry)) {
-      if (r?.parcours) {
-        parcours.lijnen.push(...(r.parcours.lijnen || []));
-        parcours.vlakken.push(...(r.parcours.vlakken || []));
-        continue;
-      }
-      if (exactBijEvenement(r)) {
-        verkeer.lijnen.push(...(r?.vorm?.lijnen || []));
-        verkeer.vlakken.push(...(r?.vorm?.vlakken || []));
-        continue;
-      }
-      const p = middenBijBenadering(r?.vorm);
-      if (p) punten.set(`${p[0]},${p[1]}`, p);
+      const doel = r?.parcours ? parcours : innames, vorm = r?.parcours || r?.vorm;
+      doel.lijnen.push(...(vorm?.lijnen || []));
+      doel.vlakken.push(...(vorm?.vlakken || []));
     }
     const lijn = { ...exact, parcours: true };
     let delen = [...vlakDeel(parcours.vlakken, lijn), ...lijnDeel(parcours.lijnen, lijn)];
     if (!delen.length) delen = lijnDeel(Array.isArray(entry.kaart) ? entry.kaart : [], lijn);
-    delen.push(...vlakDeel(verkeer.vlakken, exact), ...lijnDeel(verkeer.lijnen, exact));
-    const ongeveer = [...punten.values()];
-    if (ongeveer.length) delen.push({ geometry: ongeveer.length === 1 ? { type: "Point", coordinates: ongeveer[0] } : { type: "MultiPoint", coordinates: ongeveer }, parcours: false, ongeveer: true });
+    delen.push(...vlakDeel(innames.vlakken, exact), ...lijnDeel(innames.lijnen, exact));
     return delen.length ? delen : null;
   }
-  if (soort === "verkeer" && entry.item?.kind === "sgw") {
-    // Werfzone (vlakken) en omleiding (lijnen), van alle fasen van het dossier.
+  if (soort === "verkeer") {
+    // Exact: een werfzone (vlakken) en omleiding (lijnen) van alle fasen van het dossier; een parkeerverbod op elk van zijn
+    // plaatsen (de rijen van het dossier, bundelMaatregelen in place-core.js); een losse inname met haar vorm.
     const vlakken = [], lijnen = [];
     for (const r of rijenVan(entry)) { vlakken.push(...(r?.vorm?.vlakken || [])); lijnen.push(...(r?.vorm?.lijnen || [])); }
     const delen = [...vlakDeel(vlakken, exact), ...lijnDeel(lijnen, exact)];
     return delen.length ? delen : null;
   }
-  if (soort === "verkeer" || soort === "vergunning") {
-    // Bij benadering: het midden van het kader van de eigen vorm (de rij op de gekozen plek; een parkeerverbod
-    // op drie plaatsen is één punt bij jouw plek, niet ergens ertussen), afgerond. Een terras heeft geen vorm.
+  if (soort === "vergunning") {
+    // Bij benadering: het midden van het kader van de eigen vorm (het perceel), afgerond. Een terras heeft geen vorm.
     // Exact tonen zou zijn: return [...vlakDeel(vorm.vlakken, exact), ...lijnDeel(vorm.lijnen, exact)].
     const p = middenBijBenadering(entry.item?.vorm || rijenVan(entry).find((r) => r?.vorm)?.vorm);
     return p ? [{ geometry: { type: "Point", coordinates: p }, parcours: false, ongeveer: true }] : null;
@@ -260,13 +232,8 @@ export function popupHtml(entries = [], today = "") {
     const uren = e.item?.kind === "parking" && e.timeText ? e.timeText : e.time ? e.time.replace(":", ".") : "";
     return [datum, uren].filter(Boolean).join(" · ");
   };
-  // Bij benadering: een parkeerverbod, een losse inname of een vergunning; van een evenement de innames naast het
-  // parcours, de omleidingen en de verkeersvrije zones (kijk naar de delen van de vorm, niet alleen naar de soort).
-  const benadering = (e) => {
-    const delen = vormVoor(e) || [];
-    if (!isOngeveer(e) && !delen.some((d) => d.ongeveer)) return "";
-    return delen.some((d) => !d.ongeveer) ? "Parcours, omleidingen en verkeersvrije zones exact; parkeerverboden en andere innames bij benadering (privacy)" : "Plek bij benadering (privacy)";
-  };
+  // Bij benadering: alleen een vergunning (isOngeveer); al de rest staat exact op de kaart.
+  const benadering = (e) => (isOngeveer(e) || (vormVoor(e) || []).some((d) => d.ongeveer) ? "Plek bij benadering (privacy)" : "");
   const rijen = uniek.slice(0, POPUP_MAX).map((e) => {
     const regel = [wanneer(e), e.location].filter(Boolean).map(esc).join(" · ");
     const tekst = benadering(e);

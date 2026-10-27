@@ -46,7 +46,8 @@ test("parkeerverboden: alleen de postcodes van het district, ook in de vraag aan
     ],
     postcodes: psc.DISTRICT_POSTCODES,
   });
-  assert.deepEqual(items.map((i) => i.location).sort(), ["Grensstraat, 2018 Antwerpen", "Proefstraat, 2000 Antwerpen"]);
+  // De plaats exact, ook bij een verhuis (regel van de eigenaar van 26 oktober 2026): de reden telt niet.
+  assert.deepEqual(items.map((i) => i.location).sort(), ["Grensstraat 9, 2018 Antwerpen", "Proefstraat 12, 2000 Antwerpen"]);
 });
 
 test("de straten van een item worden één keer opgezocht, niet bij elke filterbeurt", () => {
@@ -391,12 +392,17 @@ test("straatnamen met een cijfer blijven heel, en een tweede opkuis verandert ni
   assert.equal(adresZonderHuisnummer("Proefstraat 12/14, 2000 Antwerpen"), "Proefstraat, 2000 Antwerpen");
   assert.equal(adresZonderHuisnummer("Proefstraat 3.5, 2000 Antwerpen"), "Proefstraat, 2000 Antwerpen");
   assert.equal(adresZonderHuisnummer("12, 2000 Antwerpen"), "2000 Antwerpen");
-  const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Adres: "De 7 schakenpad 3-5 2000 Antwerpen" })], streetIndex: { byName: new Map([["de 7 schakenpad", [{ id: "7", name: "De 7 schakenpad", postcode: "2000" }]]]) } });
-  assert.equal(item.location, "De 7 schakenpad, 2000 Antwerpen");
+  // Een echte straat: alleen huisnummer 999 (lib/echte-adressen.mjs). De plaats exact, met de hele straatnaam.
+  const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Adres: "De 7 schakenpad 999-999 2000 Antwerpen" })], streetIndex: { byName: new Map([["de 7 schakenpad", [{ id: "7", name: "De 7 schakenpad", postcode: "2000" }]]]) } });
+  assert.equal(item.location, "De 7 schakenpad 999, 2000 Antwerpen");
   assert.deepEqual(item.streets.map((s) => s.name), ["De 7 schakenpad"]);
   // De historiek kuist bij elke verversing opnieuw op, met de officiële stratenlijst van de site.
   for (const adres of ["Buurtweg nr 11 4-4 2000 Antwerpen", "Buurtweg nr 11, 2000 Antwerpen"]) {
     assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, "Buurtweg nr 11, 2000 Antwerpen");
+  }
+  // De plaats zoals publiekParkeerAdres ze schrijft, blijft exact (regel van 26 oktober 2026), ook na een straat met een cijfer.
+  for (const adres of ["Buurtweg nr 11 999, 2030 Antwerpen", "De 7 schakenpad 999–999B, 2050 Antwerpen"]) {
+    assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, adres);
   }
 });
 

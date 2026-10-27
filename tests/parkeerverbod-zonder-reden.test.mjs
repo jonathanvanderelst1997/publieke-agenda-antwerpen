@@ -54,8 +54,9 @@ const feature = (reden, extra = {}) => ({ attributes: {
   Dossiernummer: "2099-000001", Locatienummer: "L1", Status: "Goedgekeurd", Adres: "Proefstraat 12-14 2000 Antwerpen", Postcode: "2000",
   Reden: reden, Startdatum: DAG, Einddatum: DAG, Starttijd: uur(7), Eindtijd: uur(17), EnkelWeekdagen: "0", GipodID: null, District: "ANTWERPEN", ...extra,
 } });
-// `alleenLive`: zoals de browser (met het huisnummer of bereik van publiekParkeerAdres); zonder: zoals de verversing.
-const liveItem = (reden, extra = {}, { alleenLive = true } = {}) => collectPublicSpace({ parkingFeatures: [feature(reden, extra)], alleenLive })[0];
+// Zoals de browser en de verversing het maken: de plaats met het huisnummer of bereik van publiekParkeerAdres (regel van de
+// eigenaar van 26 oktober 2026: overal exact, ook bij een verhuis).
+const liveItem = (reden, extra = {}) => collectPublicSpace({ parkingFeatures: [feature(reden, extra)] })[0];
 // Alles wat een bewoner van een kaart ziet: de kop, het detail, de regels, de links en het kaartje op de buurtkaart. De ruwe
 // rijen (`item`, `rijen`, `werfParkeer`) zijn intern en worden nooit getoond.
 function zichtbaar(e, { straatNaam = PROEF.name } = {}) {
@@ -76,11 +77,13 @@ test("de regel zelf: titel 'Parkeerverbod' en nooit een veld reason, ook voor de
   assert.equal(parkeerverbodZonderReden(schoon), schoon, "een schoon item blijft hetzelfde object");
 });
 
-test("live laag en kaart: welke reden ook, de kaart van een parkeerverbod is letter voor letter dezelfde (titel 'Parkeerverbod')", () => {
+// Regel van de eigenaar van 26 oktober 2026: ook een verhuis is gewoon een "Parkeerverbod" met zijn huisnummer. De kaart
+// is dus voor elke reden, ook "Verhuis", letter voor letter dezelfde, met het bereik "Proefstraat 12–14".
+test("live laag en kaart: welke reden ook, de kaart van een parkeerverbod is letter voor letter dezelfde (titel 'Parkeerverbod'), ook bij een verhuis met het huisnummer", () => {
   const basis = zichtbaar(publicSpaceEntries([liveItem("")], { vandaag: VANDAAG, straat: PROEF.name })[0]);
   assert.match(basis, /"Parkeerverbod"/);
   assert.match(basis, /Niet parkeren van 7\.00 tot 17\.00 uur\./, "wanneer: de uren");
-  // Waar exact: het bereik zoals publiekParkeerAdres het schrijft (alleen live).
+  // Waar exact: het bereik zoals publiekParkeerAdres het schrijft.
   assert.match(basis, /Proefstraat 12–14, 2000 Antwerpen/);
   assert.doesNotMatch(basis, NOOIT);
   for (const [reden, verraad] of REDENEN) {
@@ -155,7 +158,7 @@ test("de districtslijst (public-space-live.js) en de code: geen reden als titel,
 test("historiek: nieuwe items, de vorige stand en oude wijzigingen zonder reden; een andere reden is geen wijziging", () => {
   const T1 = "2099-03-10T03:00:00.000Z", T2 = "2099-03-11T03:00:00.000Z";
   // Zoals de verversing ze ophaalt (scripts/refresh-live-history.mjs vraagt de reden niet eens op; hier wel, als proef).
-  const items = (reden) => REDENEN.map(([r], i) => ({ ...liveItem(reden ?? r, { Locatienummer: `L${i}` }, { alleenLive: false }), streets: [PROEF] }));
+  const items = (reden) => REDENEN.map(([r], i) => ({ ...liveItem(reden ?? r, { Locatienummer: `L${i}` }), streets: [PROEF] }));
   for (const item of items()) {
     const kort = compactPublicSpaceItem(item);
     assert.equal(kort.title, "Parkeerverbod");
@@ -197,14 +200,14 @@ test("historiek: nieuwe items, de vorige stand en oude wijzigingen zonder reden;
 
 test("straatbestanden: nieuwe items, bundelrijen en een vorige stand zonder reden; de scan houdt een bestand met reden tegen", (t) => {
   for (const [reden, verraad] of REDENEN) {
-    const schoon = itemVoorStraat({ ...liveItem(reden, {}, { alleenLive: false }), streets: [PROEF] }, { laag: "publiekeRuimte" });
+    const schoon = itemVoorStraat({ ...liveItem(reden, {}), streets: [PROEF] }, { laag: "publiekeRuimte" });
     assert.ok(schoon, reden);
     assert.equal(schoon.title, "Parkeerverbod");
     assert.equal("reason" in schoon, false);
     zonderReden(JSON.stringify(schoon), reden, verraad);
   }
   // De andere plaatsen van hetzelfde parkeerverbod (een bundelrij in elk straatbestand): zonder reden.
-  const twee = [{ ...liveItem("Verhuis", {}, { alleenLive: false }), streets: [PROEF] }, { ...liveItem("Verhuis", { Locatienummer: "L2" }, { alleenLive: false }), streets: [straat("Tweedestraat")] }];
+  const twee = [{ ...liveItem("Verhuis", {}), streets: [PROEF] }, { ...liveItem("Verhuis", { Locatienummer: "L2" }), streets: [straat("Tweedestraat")] }];
   const rijen = bundelAanvulling([twee[0]], bundelRijen(twee));
   assert.equal(rijen.length, 1);
   assert.equal(rijen[0].title, "Parkeerverbod");

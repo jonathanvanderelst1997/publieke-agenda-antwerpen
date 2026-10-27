@@ -291,7 +291,8 @@ export async function refreshLiveHistory({
 } = {}) {
   const observedAt = clock().toISOString();
   const file = path.join(rootDir, "site", "history", "live-layers.json");
-  // Eerst de bestaande historiek opkuisen (geen huisnummers, alleen het district), ook oudere dagen
+  // Eerst de bestaande historiek opkuisen (geen huisnummers in vrije tekst, een parkeerverbod alleen met zijn plaats in de
+  // vorm van publiekParkeerAdres, alleen het district), ook oudere dagen
   // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
   // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
   // wat er nog opgekuist moet worden. De log toont alleen aantallen en het soort fout, nooit een stuk
@@ -313,7 +314,8 @@ export async function refreshLiveHistory({
     if (previousErrors.length) throw new Error(`bestaande live historiek ongeldig: ${previousErrors[0]}`);
   }
   let streets; let streetErrorCode=null; try{streets=await streetIndex(fetchImpl)}catch(error){streetErrorCode=errorCode(error,"street_axis_fetch_failed")} const [worksResult,publicSpaceResult]=streetErrorCode?[{ok:false,items:[],errorCode:streetErrorCode},{ok:false,items:[],errorCode:streetErrorCode}]:await Promise.all([fetchWorksHistory({fetch:fetchImpl,streets}),fetchPublicSpaceHistory({fetch:fetchImpl,clock,streets})]);
-  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers, vóór het
+  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers (behalve de exacte plaats van een
+  // parkeerverbod, regel van de eigenaar van 26 oktober 2026), vóór het
   // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
   const worksVoorHistoriek = resultaatVoorHistoriek(worksResult);
   const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);

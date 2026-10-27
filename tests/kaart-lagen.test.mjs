@@ -195,66 +195,33 @@ test("vormVoor: een werfzone geeft een vlak (de werfzone) en een lijn (de omleid
   assert.deepEqual(delen[1].geometry.coordinates, [LIJN_HIER, LIJN_ELDERS]);
 });
 
-// Nakijkbevinding (P9-review, privacy): de parkeerverboden en andere innames van een evenementendossier stonden
-// exact op de kaart (een vlak of lijn, zonder "bij benadering"), ook die buiten de gekozen plek, terwijl de zin
-// onder de kaart zegt dat parkeerverboden en innames er bij benadering staan. Alleen het parcours staat exact.
-test("vormVoor: van een evenementendossier staat het parcours exact; de parkeerverboden en andere innames, ook elders, zijn een punt bij benadering", () => {
+// Regel van de eigenaar van 26 oktober 2026 ("exacte positie, geen afronding op 100 m"): van een evenementendossier staat
+// alles exact op de kaart, ook buiten de gekozen plek: het parcours, en elke andere inname met haar eigen vorm (opbouw,
+// afbraak, de parkeerverboden erbij, een podium, blokken op shot, omleidingen, verkeersvrije zones). Tot dan stonden de
+// parkeerverboden en de andere innames er als één afgerond punt (P9-review, privacy).
+const LIJN_PV = [[4.408123, 51.213456], [4.408789, 51.213987]];
+test("vormVoor: van een evenementendossier staan het parcours en elke inname exact, ook elders; de popup zegt niets over benadering", () => {
   const parcours = inname("ET2099000601", "Evenement", "Parcours", "2026-10-24", ["Proefstraat"], { vorm: vormLijn(LIJN_HIER), parcours: vormLijn(LIJN_HIER) });
   const opbouw = inname("ET2099000601", "Opbouw", "Parkeerverbod in Straat", "2026-10-23", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
-  const afbraak = inname("ET2099000601", "Afbraak", "Parkeerverbod in Straat", "2026-10-25", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
   const podium = inname("ET2099000601", "Evenement", "Podium", "2026-10-24", ["Proefstraat"], { vorm: { vlakken: [VLAK], lijnen: [] } });
-  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, opbouw, afbraak, podium] });
+  const omleiding = inname("ET2099000601", "Evenement", "Omleiding", "2026-10-24", ["Proefdreef"], { vorm: vormLijn(LIJN_PV) });
+  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, opbouw, podium, omleiding] });
   assert.equal(dossier.uid, "publicSpace:dossier:ET2099000601");
   const delen = vormVoor(dossier);
-  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["MultiPoint", false, true]]);
+  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["Polygon", false, false], ["MultiLineString", false, false]]);
   assert.deepEqual(delen[0].geometry.coordinates, LIJN_HIER, "het parcours exact");
-  // Opbouw en afbraak op dezelfde plek: één punt; het podium (een vlak) een tweede. Afgerond op 3 decimalen.
-  assert.deepEqual(delen[1].geometry.coordinates, [[4.417, 51.216], [4.406, 51.211]]);
-  const { fc } = kaartLagen([dossier]);
-  assert.ok(fc.features.every((f) => f.properties.soort === "evenement"));
-  const origineel = new Set([...LIJN_ELDERS, ...VLAK[0]].flat());
-  assert.deepEqual(coordinaten(fc).filter((n) => origineel.has(n)), [], "geen coördinaat van een inname van het evenement");
-  // De popup zegt het: het parcours exact, de andere innames bij benadering.
-  assert.match(popupHtml([dossier], VANDAAG), /bij benadering \(privacy\)/);
-  // Zonder parcours bij de rijen: de schets van de verversing, en de innames nog altijd bij benadering.
+  assert.deepEqual(delen[1].geometry.coordinates, VLAK, "het podium exact");
+  assert.deepEqual(delen[2].geometry.coordinates, [LIJN_ELDERS, LIJN_PV], "het parkeerverbod van de opbouw en de omleiding exact");
+  const { fc, ongeveer } = kaartLagen([dossier]);
+  assert.ok(fc.features.every((f) => f.properties.soort === "evenement" && !f.properties.ongeveer));
+  assert.deepEqual(ongeveer, []);
+  assert.doesNotMatch(popupHtml([dossier], VANDAAG), /benadering/);
+  // Zonder parcours bij de rijen: de schets van de verversing, en de innames exact.
   const [zonder] = publicSpaceEntries([opbouw], { ...psOpties, alle: [opbouw], uitleg: { evenementen: { ET2099000601: { kaart: [LIJN_HIER], straten: ["Proefstraat"] } } } });
-  assert.deepEqual(vormVoor(zonder).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["Point", false, true]]);
-  // Een evenement met alleen innames (geen parcours, geen schets): één punt bij benadering, geen lijn.
-  assert.deepEqual(vormVoor({ ...zonder, kaart: [] }).map((d) => [d.geometry.type, d.ongeveer]), [["Point", true]]);
-  assert.match(popupHtml([{ ...zonder, kaart: [] }], VANDAAG), /Plek bij benadering \(privacy\)/);
-});
-
-// Nakijkbevinding (P9b, ronde 1, privacy): het herstel hierboven rondde elke rij van een evenement af die geen parcours
-// is, ook een omleiding en een verkeersvrije zone, terwijl het plan zegt dat omleidingen exact staan. Die twee zijn
-// verkeersmaatregelen van het evenement op de openbare weg, geen inname van een plek door iemand: exact. Parkeerverboden,
-// "Inname", "Blokken op shot" en wat de kaart niet kent, blijven één afgerond punt.
-const LIJN_PV = [[4.408123, 51.213456], [4.408789, 51.213987]];
-test("vormVoor: van een evenementendossier staan parcours, omleiding en verkeersvrije zone exact; parkeerverboden en andere innames bij benadering", () => {
-  const parcours = inname("ET2099000604", "Evenement", "Parcours", "2026-10-24", ["Proefstraat"], { vorm: vormLijn(LIJN_HIER), parcours: vormLijn(LIJN_HIER) });
-  const omleiding = inname("ET2099000604", "Evenement", "Omleiding", "2026-10-24", ["Verre Proefkaai"], { vorm: vormLijn(LIJN_ELDERS) });
-  const vrij = inname("ET2099000604", "Evenement", "Verkeersvrije Zone", "2026-10-24", ["Proefplein"], { vorm: { vlakken: [VLAK], lijnen: [] } });
-  const pv = inname("ET2099000604", "Opbouw", "Parkeerverbod in Straat", "2026-10-23", ["Proefdreef"], { vorm: vormLijn(LIJN_PV) });
-  const blokken = inname("ET2099000604", "Evenement", "Blokken op shot", "2026-10-24", ["Proefdreef"], { vorm: vormLijn(LIJN_PV) });
-  const [dossier] = publicSpaceEntries([parcours], { ...psOpties, alle: [parcours, omleiding, vrij, pv, blokken] });
-  const delen = vormVoor(dossier);
-  assert.deepEqual(delen.map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["Polygon", false, false], ["LineString", false, false], ["Point", false, true]]);
-  assert.deepEqual(delen[0].geometry.coordinates, LIJN_HIER, "het parcours exact");
-  assert.deepEqual(delen[1].geometry.coordinates, VLAK, "de verkeersvrije zone exact");
-  assert.deepEqual(delen[2].geometry.coordinates, LIJN_ELDERS, "de omleiding exact");
-  // Het parkeerverbod en de blokken op dezelfde plaats: één afgerond punt, en hun eigen coördinaten nergens.
-  assert.deepEqual(delen[3].geometry.coordinates, [4.408, 51.214]);
-  const { fc } = kaartLagen([dossier]);
-  assert.ok(fc.features.every((f) => f.properties.soort === "evenement"));
-  const origineel = new Set(LIJN_PV.flat());
-  assert.deepEqual(coordinaten(fc).filter((n) => origineel.has(n)), [], "geen coördinaat van een parkeerverbod of inname van het evenement");
-  assert.match(popupHtml([dossier], VANDAAG), /Parcours, omleidingen en verkeersvrije zones exact; parkeerverboden en andere innames bij benadering \(privacy\)/);
-  // Alleen een omleiding (geen parcours, geen schets): een exacte lijn, en de popup zegt niets over benadering.
-  const [alleenOmleiding] = publicSpaceEntries([omleiding], { ...psOpties, alle: [omleiding] });
-  assert.deepEqual(vormVoor({ ...alleenOmleiding, kaart: [] }).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", false, false]]);
-  assert.doesNotMatch(popupHtml([{ ...alleenOmleiding, kaart: [] }], VANDAAG), /benadering/);
-  // Zonder live parcours komt de schets er nog altijd bij, naast de omleiding.
-  const [metSchets] = publicSpaceEntries([omleiding], { ...psOpties, alle: [omleiding], uitleg: { evenementen: { ET2099000604: { kaart: [LIJN_HIER], straten: ["Proefstraat"] } } } });
-  assert.deepEqual(vormVoor(metSchets).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["LineString", false, false]]);
+  assert.deepEqual(vormVoor(zonder).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", true, false], ["LineString", false, false]]);
+  // Een evenement met alleen innames (geen parcours, geen schets): de innames exact, geen lijn van een parcours.
+  assert.deepEqual(vormVoor({ ...zonder, kaart: [] }).map((d) => [d.geometry.type, d.parcours, d.ongeveer]), [["LineString", false, false]]);
+  assert.deepEqual(vormVoor({ ...zonder, kaart: [] })[0].geometry.coordinates, LIJN_ELDERS);
 });
 
 test("vormVoor: zonder live vorm komt de lijn van het evenement uit de schets van de verversing (entry.kaart)", () => {
@@ -266,27 +233,28 @@ test("vormVoor: zonder live vorm komt de lijn van het evenement uit de schets va
   assert.equal(vormVoor({ ...dossier, kaart: [] }), null);
 });
 
-test("privacy: een parkeerverbod en een vergunning zijn één punt met 3 decimalen; geen oorspronkelijke coördinaat in de GeoJSON", () => {
+// Regel van de eigenaar van 26 oktober 2026: een parkeerverbod (ook voor een verhuis) en een losse inname staan exact op de
+// kaart, op elk van hun plaatsen. Alleen een vergunning blijft één punt met 3 decimalen, zonder oorspronkelijke coördinaat.
+test("vormVoor: een parkeerverbod en een losse inname exact op elke plaats; een vergunning één punt met 3 decimalen", () => {
   const perceel = { vlakken: [[[[4.403456, 51.212345], [4.403987, 51.212345], [4.403987, 51.212876], [4.403456, 51.212345]]]], lijnen: [] };
   const aanvraag = permitEntry({ id: "omv:7", dossier: "OMV_2099000007", streets: [straat("Proefstraat")], vorm: perceel });
   const [parking] = publicSpaceEntries([{ ...parkeer("L1"), vorm: vormLijn(LIJN_HIER) }, { ...parkeer("L2"), vorm: vormLijn(LIJN_ELDERS) }], psOpties);
   const [los] = publicSpaceEntries([{ ...losseInname, vorm: { vlakken: [VLAK], lijnen: [] } }], psOpties);
-  for (const entry of [aanvraag, parking, los]) {
-    const delen = vormVoor(entry);
-    assert.equal(delen.length, 1);
-    assert.equal(delen[0].geometry.type, "Point");
-    assert.equal(delen[0].ongeveer, true);
-    for (const c of delen[0].geometry.coordinates) assert.ok(Math.abs(c * 1000 - Math.round(c * 1000)) < 1e-6, `${c} heeft hoogstens 3 decimalen`);
-  }
-  // Het parkeerverbod op twee plaatsen: één punt bij de rij op de gekozen plek (het midden van LIJN_HIER).
-  assert.deepEqual(vormVoor(parking)[0].geometry.coordinates, [4.402, 51.216]);
+  // Het parkeerverbod op twee plaatsen: elke plaats met haar eigen lijn.
+  assert.deepEqual(vormVoor(parking), [{ geometry: { type: "MultiLineString", coordinates: [LIJN_HIER, LIJN_ELDERS] }, parcours: false, ongeveer: false }]);
+  assert.deepEqual(vormVoor(los), [{ geometry: { type: "Polygon", coordinates: VLAK }, parcours: false, ongeveer: false }]);
+  const [vergunningDeel] = vormVoor(aanvraag);
+  assert.deepEqual([vergunningDeel.geometry.type, vergunningDeel.ongeveer], ["Point", true]);
+  for (const c of vergunningDeel.geometry.coordinates) assert.ok(Math.abs(c * 1000 - Math.round(c * 1000)) < 1e-6, `${c} heeft hoogstens 3 decimalen`);
   assert.equal(ONGEVEER_DECIMALEN, 3);
   const { fc } = kaartLagen([aanvraag, parking, los]);
-  assert.equal(fc.features.length, 3);
-  assert.ok(fc.features.every((f) => f.properties.ongeveer && f.geometry.type === "Point"));
-  const origineel = new Set([...LIJN_HIER, ...LIJN_ELDERS, ...VLAK[0], ...perceel.vlakken[0][0]].flat());
-  const verraden = coordinaten(fc).filter((n) => origineel.has(n));
-  assert.deepEqual(verraden, [], "geen enkele oorspronkelijke coördinaat");
+  assert.deepEqual(fc.features.map((f) => [f.properties.soort, f.geometry.type, f.properties.ongeveer]), [["vergunning", "Point", true], ["verkeer", "MultiLineString", false], ["verkeer", "Polygon", false]]);
+  const perceelPunten = new Set(perceel.vlakken[0][0].flat());
+  assert.deepEqual(coordinaten(fc).filter((n) => perceelPunten.has(n)), [], "geen oorspronkelijke coördinaat van het perceel");
+  // De popup: alleen de vergunning staat er bij benadering.
+  assert.doesNotMatch(popupHtml([parking], VANDAAG), /benadering/);
+  assert.doesNotMatch(popupHtml([los], VANDAAG), /benadering/);
+  assert.match(popupHtml([aanvraag], VANDAAG), /Plek bij benadering \(privacy\)/);
 });
 
 test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max en de agendapinnen", () => {
@@ -300,7 +268,7 @@ test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max e
   const tel = telPerSoort(teken);
   const alles = kaartLagen(teken, { geo, soortVan: tel.soortVan });
   for (const f of alles.fc.features) assert.deepEqual(Object.keys(f.properties).sort(), ["cat", "ongeveer", "parcours", "soort", "tel", "uid"]);
-  assert.deepEqual(alles.fc.features.find((f) => f.properties.soort === "verkeer").properties, { uid: parking.uid, tel: parking.uid, soort: "verkeer", cat: "publicSpace", parcours: false, ongeveer: true });
+  assert.deepEqual(alles.fc.features.find((f) => f.properties.soort === "verkeer").properties, { uid: parking.uid, tel: parking.uid, soort: "verkeer", cat: "publicSpace", parcours: false, ongeveer: false });
   assert.ok(alles.fc.features.filter((f) => f.properties.soort === "werken").every((f) => f.properties.cat === "works"));
   assert.deepEqual(alles.zonder.map((e) => e.uid), [terras.uid, "agenda:q1"], "het terras en het agendapunt zonder plek (één keer)");
   assert.equal(alles.pins.length, 1);
@@ -309,7 +277,7 @@ test("kaartLagen: properties, een terras in `zonder`, een verborgen soort, max e
   assert.deepEqual(alles.perSoort, { evenement: 0, werken: 5, verkeer: 1, vergunning: 0, agenda: 1 });
   assert.equal(alles.opKaart, 7);
   assert.deepEqual(alles.kaderVan.get(werken[0].uid), [4.401, 51.2, 4.401, 51.2]);
-  assert.deepEqual(alles.kader, [4.401, 51.2, 4.405, 51.216]);
+  assert.deepEqual(alles.kader, [4.401, 51.2, 4.405, 51.216789], "het parkeerverbod exact: het kader tot het einde van zijn lijn");
   // Verkeer verborgen: weg uit fc, maar de telling van de lijst verandert niet.
   const zonderVerkeer = kaartLagen(teken, { geo, soortVan: tel.soortVan, verborgen: new Set(["verkeer"]) });
   assert.equal(zonderVerkeer.fc.features.filter((f) => f.properties.soort === "verkeer").length, 0);
@@ -342,53 +310,39 @@ test("kaartMax: met een plek geen grens per soort, zonder plek MAX_PER_SOORT", (
   assert.equal(district.perSoort.werken, MAX_PER_SOORT, "zonder plek: de grens van het district");
 });
 
-// Nakijkbevindingen (P9-review, toegankelijkheid): (1) een parkeerverbod of losse inname bij benadering kreeg
-// dezelfde ring als een vergunning, alleen de kleur verschilde; (2) kaartjes bij benadering op hetzelfde afgeronde
-// punt lagen op Leaflet als identieke paden op elkaar: alleen het bovenste was aan te tikken.
-test("plekken bij benadering: elke soort een eigen vorm (vergunning een ring, verkeer een vierkant, de innames van een evenement een ruit)", () => {
-  assert.deepEqual({ ...ONGEVEER_VORM }, { evenement: "ruit", verkeer: "vierkant", vergunning: "ring" });
+// Nakijkbevindingen (P9-review, toegankelijkheid): (1) een plek bij benadering kreeg voor elke soort dezelfde ring, alleen de
+// kleur verschilde; (2) kaartjes bij benadering op hetzelfde afgeronde punt lagen op Leaflet als identieke paden op elkaar:
+// alleen het bovenste was aan te tikken. Sinds 26 oktober 2026 staat alleen een vergunning nog bij benadering: een ring.
+test("plekken bij benadering: alleen een vergunning, als ring van ONGEVEER_STRAAL meter", () => {
+  assert.deepEqual({ ...ONGEVEER_VORM }, { vergunning: "ring" });
   const p = [4.402, 51.216];
-  const ring = ongeveerPolygoon(p, "vergunning"), vierkant = ongeveerPolygoon(p, "verkeer"), ruit = ongeveerPolygoon(p, "evenement");
-  for (const g of [ring, vierkant, ruit]) {
-    assert.equal(g.type, "Polygon");
-    const r = g.coordinates[0];
-    assert.deepEqual(r[0], r.at(-1), "een gesloten ring");
-  }
-  const hoeken = (g) => g.coordinates[0].length - 1;
-  assert.equal(hoeken(vierkant), 4);
-  assert.equal(hoeken(ruit), 4);
-  assert.ok(hoeken(ring) >= 24, "een ring is rond");
-  // Het vierkant staat recht, de ruit op een punt: geen twee dezelfde vormen.
-  const [[x0, y0], [x1, y1]] = vierkant.coordinates[0];
-  assert.ok(Math.abs(y0 - y1) < 1e-12 && x1 > x0, "een zijde van het vierkant ligt horizontaal");
-  assert.ok(ruit.coordinates[0].some(([x, y]) => Math.abs(x - p[0]) < 1e-12 && y > p[1]), "de ruit heeft een punt recht boven het midden");
+  const ring = ongeveerPolygoon(p, "vergunning");
+  assert.equal(ring.type, "Polygon");
+  const r = ring.coordinates[0];
+  assert.deepEqual(r[0], r.at(-1), "een gesloten ring");
+  assert.ok(r.length - 1 >= 24, "een ring is rond");
   // Ongeveer ONGEVEER_STRAAL meter rond het punt: zo groot als de ring op de kaart was (60 m).
-  const noord = Math.max(...ring.coordinates[0].map(([, y]) => y));
+  const noord = Math.max(...r.map(([, y]) => y));
   assert.ok(Math.abs((noord - p[1]) * 111320 - 60) < 1, `${(noord - p[1]) * 111320} m`);
 });
 
-test("kaartLagen: kaartjes bij benadering op hetzelfde afgeronde punt staan samen in `ongeveer`; een tik op een van hun vormen noemt ze allemaal", () => {
-  const perceel = { vlakken: [[[[4.401800, 51.215900], [4.402200, 51.215900], [4.402200, 51.216100], [4.401800, 51.215900]]]], lijnen: [] };
-  const aanvraag = permitEntry({ id: "omv:8", dossier: "OMV_2099000008", streets: [straat("Proefstraat")], vorm: perceel });
+test("kaartLagen: vergunningen bij benadering op hetzelfde afgeronde punt staan samen in `ongeveer`; een parkeerverbod en een losse inname nooit", () => {
+  const perceel = (dx) => ({ vlakken: [[[[4.401800 + dx, 51.215900], [4.402200 + dx, 51.215900], [4.402200 + dx, 51.216100], [4.401800 + dx, 51.215900]]]], lijnen: [] });
+  const aanvraag = permitEntry({ id: "omv:8", dossier: "OMV_2099000008", streets: [straat("Proefstraat")], vorm: perceel(0) });
+  const buur = permitEntry({ id: "omv:9", dossier: "OMV_2099000009", streets: [straat("Proefstraat")], vorm: perceel(0.0001) });
   const [parking] = publicSpaceEntries([{ ...parkeer("L1"), vorm: vormLijn(LIJN_HIER) }], psOpties);
   const [los] = publicSpaceEntries([{ ...losseInname, vorm: { vlakken: [VLAK], lijnen: [] } }], psOpties);
-  const lagen = kaartLagen([aanvraag, parking, los]);
-  // Het perceel en het parkeerverbod liggen allebei bij (4.402, 51.216); de losse inname elders.
-  assert.deepEqual(lagen.ongeveer.map((g) => [g.point, g.soort, g.uids, g.samen]), [
-    [[4.402, 51.216], "vergunning", [aanvraag.uid], [aanvraag.uid, parking.uid]],
-    [[4.402, 51.216], "verkeer", [parking.uid], [aanvraag.uid, parking.uid]],
-    [[4.406, 51.211], "verkeer", [los.uid], [los.uid]],
-  ]);
-  // Elk een eigen vorm, in de soort van het kaartje.
-  assert.deepEqual(lagen.ongeveer.map((g) => g.vorm), ["ring", "vierkant", "vierkant"]);
+  const lagen = kaartLagen([aanvraag, parking, buur, los]);
+  // Beide percelen liggen bij (4.402, 51.216): één ring, met de twee aanvragen.
+  assert.deepEqual(lagen.ongeveer.map((g) => [g.point, g.soort, g.vorm, g.uids, g.samen]), [[[4.402, 51.216], "vergunning", "ring", [aanvraag.uid, buur.uid], [aanvraag.uid, buur.uid]]]);
   assert.deepEqual(lagen.ongeveer[0].geometry, ongeveerPolygoon([4.402, 51.216], "vergunning"));
-  assert.deepEqual(lagen.ongeveer[1].geometry, ongeveerPolygoon([4.402, 51.216], "verkeer"));
-  // De vormen komen alleen uit het afgeronde punt: geen enkele oorspronkelijke coördinaat.
-  const origineel = new Set([...LIJN_HIER, ...VLAK[0], ...perceel.vlakken[0][0]].flat());
+  // Het parkeerverbod en de losse inname: exact, met hun eigen coördinaten.
+  assert.deepEqual(lagen.fc.features.filter((f) => !f.properties.ongeveer).map((f) => [f.properties.uid, f.geometry.coordinates]), [[parking.uid, LIJN_HIER], [los.uid, VLAK]]);
+  // De vormen bij benadering komen alleen uit het afgeronde punt: geen enkele oorspronkelijke coördinaat van een perceel.
+  const origineel = new Set([...perceel(0).vlakken[0][0], ...perceel(0.0001).vlakken[0][0]].flat());
   assert.deepEqual(coordinaten(lagen.ongeveer).filter((n) => origineel.has(n)), []);
-  // Een verborgen soort valt ook hier weg; de andere kaartjes op dat punt blijven.
-  const zonderVerkeer = kaartLagen([aanvraag, parking, los], { verborgen: new Set(["verkeer"]) });
-  assert.deepEqual(zonderVerkeer.ongeveer.map((g) => [g.soort, g.samen]), [["vergunning", [aanvraag.uid]]]);
+  // Een verborgen soort valt ook hier weg.
+  assert.deepEqual(kaartLagen([aanvraag, parking, buur, los], { verborgen: new Set(["vergunning"]) }).ongeveer, []);
 });
 
 test("popupHtml: hoogstens 6, alles geëscaped, een knop naar de lijst en 'plek bij benadering'", () => {
@@ -399,7 +353,8 @@ test("popupHtml: hoogstens 6, alles geëscaped, een knop naar de lijst en 'plek 
   assert.match(html, /<button type="button" class="buurt-open" data-open-uid="agenda:x&lt;1&gt;">Toon in de lijst<\/button>/);
   assert.doesNotMatch(html, /bij benadering/);
   const [parking] = publicSpaceEntries([parkeer("L1")], psOpties);
-  assert.match(popupHtml([parking], VANDAAG), /Plek bij benadering \(privacy\)/);
+  assert.doesNotMatch(popupHtml([parking], VANDAAG), /benadering/, "een parkeerverbod staat exact op de kaart");
+  assert.match(popupHtml([vergunning], VANDAAG), /Plek bij benadering \(privacy\)/);
   const acht = Array.from({ length: 8 }, (_, i) => agendapunt(`z${i}`, `2026-10-2${i}`, { title: `Proefavond ${i}` }));
   const veel = popupHtml([...acht, acht[0]], VANDAAG);
   assert.equal(veel.match(/data-open-uid=/g).length, 6);

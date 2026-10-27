@@ -76,7 +76,7 @@ async function dossierFeatures(dateSql,refs){
   const lagen=await Promise.all(asignVragen(dateSql).map(([naam,nr,veld,vraag])=>Promise.all(dossierStukken(nr,vraag,veld,refs[DOSSIER_GROEP[naam]]||[]).map(stuk=>layer(nr,{...metOid(vraag,true),where:dossierWhere(vraag.where,veld,stuk)}))).then(delen=>[naam,delen.flat()])));
   return Object.fromEntries(lagen);
 }
-const verzamel=(f,{district,streetIndex})=>collectPublicSpaceInStappen({parkingFeatures:f.parking,iodFeatures:[...f.iod22,...f.iod23],sgwFeatures:[...f.sgw47.map(feature=>({feature,kind:"Omleiding"})),...f.sgw48.map(feature=>({feature,kind:"Werfzone"}))],districtGeometry:district,streetIndex,postcodes:DISTRICT_POSTCODES,alleenLive:true});
+const verzamel=(f,{district,streetIndex})=>collectPublicSpaceInStappen({parkingFeatures:f.parking,iodFeatures:[...f.iod22,...f.iod23],sgwFeatures:[...f.sgw47.map(feature=>({feature,kind:"Omleiding"})),...f.sgw48.map(feature=>({feature,kind:"Werfzone"}))],districtGeometry:district,streetIndex,postcodes:DISTRICT_POSTCODES});
 
 // Alleen het kader van één straat, voor de plekpagina (site/place-view.js): elke laag in één of twee kleine
 // verzoeken in plaats van ongeveer 130 blokken voor het hele district. Zelfde verwerking als de lijst
@@ -158,7 +158,7 @@ if(root){
     const sgw=[...(v.sgw47 instanceof Error?[]:v.sgw47).map(feature=>({feature,kind:"Omleiding"})),...(v.sgw48 instanceof Error?[]:v.sgw48).map(feature=>({feature,kind:"Werfzone"}))];
     const streetIndex=v.streets instanceof Error?null:v.streets;
     // In stappen: duizenden features verwerken mag de pagina op een gsm niet stilleggen.
-    try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES,alleenLive:true})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"]);verwerkingMislukt=true}
+    try{state.items=await collectPublicSpaceInStappen({parkingFeatures:parking,iodFeatures:iod,sgwFeatures:sgw,districtGeometry,streetIndex,postcodes:DISTRICT_POSTCODES})}catch{state.items=[];mislukt=mislukteOnderdelenPublicSpace(["parking","streets"]);verwerkingMislukt=true}
     state.ready=true;meldLiveLaag("publicSpace",state.items,mislukt);
     const kop=publiekeRuimteKop(state.items,{fail,district:Boolean(districtGeometry),moment:new Intl.DateTimeFormat("nl-BE",{dateStyle:"medium",timeStyle:"short"}).format(new Date()),mislukt:verwerkingMislukt});
     state.leeg=kop.leeg;meta.textContent=kop.meta;note.textContent=kop.note;
