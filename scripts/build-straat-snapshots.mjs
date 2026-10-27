@@ -412,9 +412,11 @@ export const SAMENVATTING_WEG = Object.freeze(["kindLabel", "title", "location",
 // uren: bundelMaatregelen in site/place-core.js) en toont dan "Werfzone met omleiding", de hele periode, de
 // fasen en "+ 4 andere straten". Een straatbestand bevat alleen de rijen van de straat zelf. Daarom komen de
 // andere rijen van zo'n bundel er kort bij (`bundel`: zonder vorm, adres of omschrijving): een fase van een
-// werfzone per rij, een parkeerverbod als één rij met de andere straten, met zijn verband (PARKEERVERBOD_VERBAND: het
-// dossier van zijn werfzone en de sleutel van zijn evenement, als het er een heeft): de kaart is één parkeerverbod, en elke
-// rij ervan hoort erbij. parkeerverbodVoorWerf (site/place-core.js) eist het dossier van de werfzone op elke rij.
+// werfzone per rij, een parkeerverbod als één rij met de andere straten en hun plaatsen exact (`plaatsen`, zoals de rijen ze
+// zeggen: "Xstraat 12–14, 2000 Antwerpen"; regel van de eigenaar van 26 oktober 2026), met zijn verband
+// (PARKEERVERBOD_VERBAND: het dossier van zijn werfzone en de sleutel van zijn evenement, als het er een heeft): de kaart is
+// één parkeerverbod, en elke rij ervan hoort erbij. parkeerverbodVoorWerf (site/place-core.js) eist het dossier van de
+// werfzone op elke rij.
 export const BUNDEL_VELDEN = Object.freeze({
   sgw: Object.freeze(["id", "kind", "kindLabel", "title", "reference", "start", "end", "streets", "werfzoneStreets", "omleidingStreets"]),
   parking: Object.freeze(["id", "kind", "reference", "start", "end", "startTime", "endTime", "weekdaysOnly", "title", "streets", ...Object.keys(PARKEERVERBOD_VERBAND)]),
@@ -440,7 +442,10 @@ export function bundelAanvulling(eigenRijen = [], bundels = new Map()) {
     const anderen = (bundels.get(sleutel) || []).filter((rij) => !ids.has(rij.id));
     if (!anderen.length) continue;
     if (sleutel.startsWith("sgw|")) uit.push(...anderen.map(kortVoorBundel));
-    else uit.push({ ...kortVoorBundel(anderen[0]), id: `${anderen[0].id}|bundel`, streets: uniekeRefs(anderen.flatMap((rij) => rij.streets || [])) });
+    else {
+      const plaatsen = [...new Set(anderen.map((rij) => clean(rij.location)).filter(Boolean))].sort((a, b) => a.localeCompare(b, "nl", { numeric: true }));
+      uit.push({ ...kortVoorBundel(anderen[0]), id: `${anderen[0].id}|bundel`, streets: uniekeRefs(anderen.flatMap((rij) => rij.streets || [])), ...(plaatsen.length ? { plaatsen } : {}) });
+    }
   }
   return uit;
 }

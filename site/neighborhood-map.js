@@ -249,8 +249,8 @@ export function pinNaam(entries = []) {
 
 // De stijl van een object op de Leaflet-kaart: de kleur van de soort, en een eigen vorm per soort (kleur is
 // nooit de enige drager): evenement een volle lijn, werken een stip, verkeer een streeplijn of gestreept vlak.
-// Een plek bij benadering (ONGEVEER_VORM): een vergunning een gestippelde ring, verkeer een gestreept vierkant, de
-// innames van een evenement een ruit met een volle rand. De klassen laten toetsen en CSS de objecten vinden.
+// Een plek bij benadering (ONGEVEER_VORM): een vergunning een gestippelde ring (een vierkant of ruit tekent ze ook nog, met
+// een gestreepte of volle rand). De klassen laten toetsen en CSS de objecten vinden.
 const ONGEVEER_RAND = Object.freeze({ ring: "1 6", vierkant: "8 6", ruit: null });
 function objStijl(p = {}, kleuren = {}) {
   const kleur = kleuren[p.soort] || "gray";
@@ -405,7 +405,7 @@ export async function mountNeighborhoodMap(view) {
     <p class="buurt-attrib">Wijkgrenzen: <a href="https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek2/MapServer/97" target="_blank" rel="noreferrer">stad Antwerpen, open data</a> ·
       locaties: <a href="https://geo.api.vlaanderen.be/geolocation/v4/Location" target="_blank" rel="noreferrer">Basisregisters Vlaanderen</a> · werken: GIPOD ·
       kaart: <a href="https://openfreemap.org" target="_blank" rel="noreferrer">OpenFreeMap</a>, © <a href="https://openmaptiles.org" target="_blank" rel="noreferrer">OpenMapTiles</a>, © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a>-bijdragers.
-      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Werken, werfzones en omleidingen, en van een evenement ook het parcours en de verkeersvrije zones, staan er exact; parkeerverboden, losse innames (ook die van een evenement) en vergunningen bij benadering (privacy).</p>
+      De kaart laadt bij OpenFreeMap (of, als dat niet lukt, bij OpenStreetMap) en cdnjs. Werken, werfzones, omleidingen, parkeerverboden en innames (ook die van een evenement, met het parcours) staan er exact; vergunningen bij benadering (privacy).</p>
     <span class="buurt-kleuren" hidden>${KAART_SOORTEN.map((s) => `<i class="cat-${s.cat}"></i>`).join("")}</span>`;
   anchor.after(section);
   const $ = (s) => section.querySelector(s);
@@ -435,7 +435,7 @@ export async function mountNeighborhoodMap(view) {
     knop.dataset.kaartsoort = s.key;
     knop.setAttribute("aria-pressed", "true");
     knop.hidden = true;
-    // Het tekentje: de vorm op de kaart, en voor een soort met plekken bij benadering ook die vorm (vierkant, ruit).
+    // Het tekentje: de vorm op de kaart, en voor een soort met plekken bij benadering in een andere vorm ook die vorm.
     const extra = ONGEVEER_VORM[s.key] && ONGEVEER_VORM[s.key] !== s.vorm ? `<span class="buurt-teken buurt-teken-${ONGEVEER_VORM[s.key]}" aria-hidden="true"></span>` : "";
     knop.innerHTML = `<span class="buurt-tekens"><span class="buurt-teken buurt-teken-${s.vorm}" aria-hidden="true"></span>${extra}</span><span class="buurt-leg-label">${esc(s.label)}</span> <span class="pv-chip-n">0</span><span class="buurt-vh"> op deze plek, 0 op de kaart</span>`;
     // Een tik op de legenda verandert niets boven de knoppen: de balk "geen plek" boven de kaart blijft staan. Ruimde

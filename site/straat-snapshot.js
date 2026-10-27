@@ -19,17 +19,16 @@ export const STRAATVELDEN = Object.freeze(["streets", "werfzoneStreets", "omleid
 const ASIGN = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer";
 // Velden die voor elk item van een soort gelijk zijn (of uit het item volgen): de bouwer laat ze weg en
 // vulAan() zet ze terug, zodat een item er hetzelfde uitziet als wanneer de browser het live maakt.
-// Een parkeerverbod uit een straatbestand draagt ook `plaatsVanDeOchtend`: zijn plaats is de straat en de postcode, nooit
-// het huisnummer (dat bewaart de repo niet, site/adres-privacy.js). De kaart zegt dan dat het huisnummer alleen live in
-// A-Sign staat (site/place-core.js, HUISNUMMER_LIVE); een live rij (publiekParkeerAdres) heeft die markering niet.
+// Een parkeerverbod uit een straatbestand heeft zijn plaats exact, zoals live (publiekParkeerAdres in site/adres-privacy.js,
+// regel van de eigenaar van 26 oktober 2026).
 const VAST = Object.freeze({
-  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20`, plaatsVanDeOchtend: true },
+  parking: { sourceLabel: "A-Sign parkeerverboden", sourceUrl: `${ASIGN}/20` },
   iod: { sourceLabel: "A-Sign IOD", sourceUrl: `${ASIGN}/22` },
   sgw: { sourceLabel: "A-Sign SGW", sourceUrl: `${ASIGN}/48` },
 });
 export const WEGGELATEN = Object.freeze({
   werken: Object.freeze([]),
-  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters", "plaatsVanDeOchtend"]),
+  publiekeRuimte: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
   vergunningen: Object.freeze(["sourceLabel", "sourceUrl", "streetResolution", "streetDistanceMeters"]),
   terrassen: Object.freeze(["sourceUrl", "streetResolution", "streetDistanceMeters"]),
 });

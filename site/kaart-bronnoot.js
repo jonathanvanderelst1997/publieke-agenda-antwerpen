@@ -11,7 +11,7 @@ export function kaartBronNoot(entry = {}, { zichtbaar = [] } = {}) {
   const soort = entry.source, soortInname = item.kind;
   if (soort === "terraces") {
     // De A-Sign-laag wordt al privacyveilig samengevat naar type en status.
-    return "Terrasregistratie: type en status bekend; uitbater en huisnummer worden hier niet getoond.";
+    return "Terrasregistratie: type en status bekend; de uitbater wordt hier niet getoond.";
   }
   if (soort === "publicSpace" && soortInname === "sgw") {
     // De A-Sign SGW-laag geeft het type verkeersmaatregel (werfzone/omleiding), niet de werfopdracht.
