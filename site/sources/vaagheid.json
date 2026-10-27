@@ -646,5 +646,14 @@
    "stijging": 0,
    "gestegen": []
   }
- }
+ },
+ "aanvaard": [
+  {
+   "waar": "straten",
+   "id": "detail:huisnummers-niet-gepubliceerd",
+   "van": 41,
+   "naar": 44,
+   "reden": "Regel van de eigenaar van 26 oktober 2026 (definitief): het huisnummer staat er altijd, ook bij een aansluiting, een container of een andere inname bij één huis. De bewaarde stand (kaart-uitleg.json en de straatbestanden van vóór deze regel) heeft dat nummer voor zo'n werk nog niet: de verversing vroeg het toen niet op. Tot de volgende verversing het uit GIPOD en het adressenregister haalt, zegt zo'n kaart in de ochtendstand 'huisnummers niet gepubliceerd' in plaats van 'huisnummer weggelaten: het gaat om één adres'. Live (de browser leest GIPOD) staat het nummer er meteen."
+  }
+ ]
 }
