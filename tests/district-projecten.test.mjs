@@ -6,7 +6,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { isProjectPage, momentFromBlock, parseTijdstip, projectChannelUrl, projectItems, projectPage, surveyFromBlock, zonderHuisnummers } from "../lib/district-projecten.mjs";
+import { isProjectPage, momentFromBlock, parseTijdstip, projectChannelUrl, projectItems, projectPage, surveyFromBlock, zonderContact, zonderHuisnummers } from "../lib/district-projecten.mjs";
 import { privacyFindings, validateSourceDocument } from "../lib/source-feed.mjs";
 import { PROJECT_MAX_PAGES, PROJECT_PAGE_SIZE, SOURCE_ID, run } from "../scripts/fetch-sources-projecten.mjs";
 
@@ -17,7 +17,8 @@ const noPause = async () => {};
 
 test("inspraak- en infomomenten: datum, uur en plaats uit de gelabelde regels", () => {
   const moment = momentFromBlock(["Infomoment 20 oktober 2026", "Kom langs.", "datum: dinsdag 20 oktober 2026", "tijdstip: doorlopend tussen 18u en 20u30, kom langs wanneer het jou past", "locatie: Zaal De Proef - Proefstraat 18, 2060 Antwerpen"]);
-  assert.deepEqual(moment, { kind: "Infomoment", date: "2026-10-20", timeSlot: "18:00", timeText: "18 tot 20.30 uur", place: "Zaal De Proef - Proefstraat, 2060 Antwerpen" });
+  // Het huisnummer blijft (regel van de eigenaar van 26 oktober 2026: altijd het exacte adres).
+  assert.deepEqual(moment, { kind: "Infomoment", date: "2026-10-20", timeSlot: "18:00", timeText: "18 tot 20.30 uur", place: "Zaal De Proef - Proefstraat 18, 2060 Antwerpen" });
   assert.deepEqual(parseTijdstip("doorlopend van 17.00 uur tot 21.00 uur"), { timeSlot: "17:00", timeText: "17 tot 21 uur" });
   assert.deepEqual(parseTijdstip("start om 19 uur en einde voorzien om 20 uur"), { timeSlot: "19:00", timeText: "19 uur" });
   assert.deepEqual(parseTijdstip("Spring binnen tussen 17 en 20 uur."), { timeSlot: "17:00", timeText: "17 tot 20 uur" });
@@ -41,11 +42,11 @@ test("fixture: momenten, bevraging en fasen; alleen projecten, alleen wat nog ko
       ["project-6a00000000000000000000a1-werfbezoek-2026-11-07", "Activiteit", "2026-11-07", null, "Werfbezoek: Heraanleg Voorbeeldstraat en Proefstraat"],
       ["project-6a00000000000000000000a1-bevraging-2026-11-15", "Oproep/deadline", "2026-10-01", "2026-11-15", "Bevraging: Heraanleg Voorbeeldstraat en Proefstraat"],
       // "augustus 2026" uit de tabel wordt de exacte startdag uit het blok "Fase 2: … Start: 3 augustus 2026".
-      ["project-6a00000000000000000000a1-fase-2-2026-08-03", "Werken", "2026-08-03", "2027-03-31", "Heraanleg Voorbeeldstraat en Proefstraat: fase 2 (Proefstraat + Voorbeeldstraat)"],
+      ["project-6a00000000000000000000a1-fase-2-2026-08-03", "Werken", "2026-08-03", "2027-03-31", "Heraanleg Voorbeeldstraat en Proefstraat: fase 2 (Proefstraat + Voorbeeldstraat van huisnummer 2 tot en met 40)"],
       ["project-6a00000000000000000000a1-fase-3-2027-01-01", "Werken", "2027-01-01", "2027-09-22", "Heraanleg Voorbeeldstraat en Proefstraat: fase 3 (Proefplein)"],
       ["project-6a00000000000000000000a1-fase-4-2027-04-20", "Werken", "2027-04-20", "2027-05-31", "Heraanleg Voorbeeldstraat en Proefstraat: fase 4, deel 1 (Voorbeeldstraat)"],
       ["project-6a00000000000000000000a1-fase-4-2028-03-01", "Werken", "2028-03-01", "2028-03-31", "Heraanleg Voorbeeldstraat en Proefstraat: fase 4, deel 2 (Voorbeeldstraat)"],
-      ["project-6a00000000000000000000e5-fase-1a-2026-10-05", "Werken", "2026-10-05", "2026-10-12", "Vergroening Blokstraat: fase 1A (Blokstraat)"],
+      ["project-6a00000000000000000000e5-fase-1a-2026-10-05", "Werken", "2026-10-05", "2026-10-12", "Vergroening Blokstraat: fase 1A (Blokstraat van huisnummer 16 tot en met 38)"],
     ]
   );
   assert.deepEqual([counts.projects, counts.past, counts.unreadablePeriods], [3, 2, 2]);
@@ -55,12 +56,14 @@ test("fixture: momenten, bevraging en fasen; alleen projecten, alleen wat nog ko
   assert.deepEqual(fase2.postcodes, ["2060"]);
 });
 
-test("privacy: geen personeelsvelden, namen, telefoon, e-mail, IBAN, huisnummers of het blok Samenstelling", () => {
+test("privacy: geen personeelsvelden, namen, telefoon, e-mail, IBAN, vrije tekst of het blok Samenstelling; plaats en zone met huisnummer", () => {
   const { items } = projectItems(fixture.data, { today: TODAY });
   const text = JSON.stringify(items);
-  for (const forbidden of ["Verzonnen", "creator", "assignee", "lockOwner", "0470", "@", "BE71", "Samenstelling", "huisnummer", "Proefstraat 18", "Proefstraat 60", "Partij X", "example.invalid"]) {
+  // "Proefstraat 60" staat alleen in een vrije zin van de pagina (de werfkeet): die gaat nooit mee.
+  for (const forbidden of ["Verzonnen", "creator", "assignee", "lockOwner", "0470", "@", "BE71", "Samenstelling", "Proefstraat 60", "Partij X", "example.invalid"]) {
     assert.ok(!text.includes(forbidden), forbidden);
   }
+  assert.ok(text.includes("Proefstraat 18, 2060 Antwerpen"), "de plaats van het infomoment met haar huisnummer");
   assert.deepEqual(privacyFindings(items), []);
   // projectPage() houdt alleen titel, tags, publishUntil en tekstblokken over.
   const page = projectPage(fixture.data[0]);
@@ -72,6 +75,26 @@ test("privacy: geen personeelsvelden, namen, telefoon, e-mail, IBAN, huisnummers
   assert.equal(zonderHuisnummers("Xstraat 12"), "Xstraat");
   assert.equal(zonderHuisnummers("Spaarstraat van huisnummer 16 tot en met 38"), "Spaarstraat");
   assert.equal(zonderHuisnummers("Werfkeet, bel 0470 11 22 33 of mail werf@example.invalid"), "Werfkeet");
+});
+
+test("plaats en zone: het huisnummer blijft (regel van 26 oktober 2026), telefoon, e-mail en busnummer niet; de id van een fase verandert niet", () => {
+  for (const [input, expected] of [
+    ["Xstraat 12", "Xstraat 12"],
+    ["Proefspaarstraat van huisnummer 16 tot en met 38", "Proefspaarstraat van huisnummer 16 tot en met 38"],
+    ["Werfkeet, bel 0470 11 22 33 of mail werf@example.invalid", "Werfkeet"],
+    ["Proefmeir 24 2000 Antwerpen", "Proefmeir 24 2000 Antwerpen"],
+    ["Voorbeeldplein 24-26, bus 3 2000 Antwerpen", "Voorbeeldplein 24-26 2000 Antwerpen"],
+    ["Zaal De Proef - Proefstraat 34 bus 2", "Zaal De Proef - Proefstraat 34"],
+    ["Proefstraatje 4B bus 12", "Proefstraatje 4B"],
+  ]) assert.equal(zonderContact(input), expected, input);
+  for (const kept of ["Bereikbaar met bus 22", "Fase 2 en 3", "dinsdag 20 oktober 2026", "Proefsebaan tussen Kerkstraat en Proefstraat"]) assert.equal(zonderContact(kept), kept, kept);
+  // Een fase zonder label krijgt haar id uit de zone zonder huisnummer, zoals vroeger: de historiek ziet geen nieuwe fase.
+  const pagina = { id: "6a00000000000000000000f6", slug: "heraanleg-proefstraat", title: "Heraanleg Proefstraat", tags: ["2060"], publishUntil: null, blocks: [
+    { type: "table", title: "", head: ["zone", "periode"], rows: [["Proefstraat van huisnummer 2 tot en met 40", "3 november 2026 - 30 november 2026"]] },
+  ] };
+  const [item] = projectItems([pagina], { today: TODAY }).items;
+  assert.equal(item.id, "project-6a00000000000000000000f6-proefstraat-2026-11-03");
+  assert.equal(item.location, "Proefstraat van huisnummer 2 tot en met 40, 2060 Antwerpen");
 });
 
 test("huisnummers vallen ook weg zonder komma, bij -baan, -dorp en -aan, met een busnummer en in reeksen", () => {

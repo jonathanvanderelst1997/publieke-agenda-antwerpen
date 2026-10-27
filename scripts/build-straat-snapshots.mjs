@@ -22,7 +22,8 @@
 // 26 oktober 2026), nooit de reden van een parkeerverbod (de titel is "Parkeerverbod", geen veld
 // `reason`; site/adres-privacy.js; wel het dossier van zijn werfzone, `werfzoneDossier`, dat de werfkaart ook toont),
 // geen vrije beschrijving van een inname (innameBeschrijving),
-// geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm (een
+// geen aanvrager of onderwerp van een vergunning, het adres van een terras en van het perceel van een vergunning alleen als
+// straat met huisnummer (straatAdres in lib/straat-bestanden.mjs; regel van de eigenaar van 26 oktober 2026), geen punt of vorm (een
 // precieze plek kan naar één woning wijzen), en nooit de velden creator, assignee of lockOwner.
 //
 // Een laag die vandaag niet laadde of verdacht krimpt, houdt de vorige stand (uit de bestaande
@@ -38,12 +39,12 @@ import { USER_AGENT, isMainModule } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import {
-  BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
-  PARKEERVERBOD_VERBAND, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatBestandenProblemen, straatItemPrivacy,
+  ADRES_LAGEN, BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
+  PARKEERVERBOD_VERBAND, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatAdres, straatBestandenProblemen, straatItemPrivacy,
 } from "../lib/straat-bestanden.mjs";
 import { loadExpandedAgendaItems } from "./agenda-source.mjs";
 import { locationKey } from "../site/neighborhood-core.js";
-import { collectPermits } from "../site/permits-live-core.js";
+import { adressenVoorVergunningen, collectPermits } from "../site/permits-live-core.js";
 import { dayOf, maatregelSleutel, parkeerverbodenAanEvenement, parkeerverbodenAanWerfzone } from "../site/place-core.js";
 import { DISTRICT_POSTCODES } from "../site/public-space-core.js";
 import { collectPublicSpace } from "../site/public-space-live-core.js";
@@ -119,7 +120,12 @@ export function itemVoorStraat(item, { laag = "" } = {}) {
   if (laag === "terrassen" && !schoon.address) schoon.address = "";
   // Ook dieper (de hinder van een werk, uit een oudere live laag): nooit een link naar een ruw GIPOD-record.
   const zonderGipod = zonderRuweGipodLinks(schoon);
-  return straatItemPrivacy(zonderGipod).length ? null : zonderGipod;
+  if (straatItemPrivacy(zonderGipod).length) return null;
+  // Het adres van een terras of van het perceel van een vergunning: na de privacyscan erbij, alleen als straat met huisnummer
+  // (straatAdres; regel van de eigenaar van 26 oktober 2026). Elk ander adres valt weg.
+  const adres = ADRES_LAGEN.includes(laag) ? straatAdres(item.address) : "";
+  if (adres) zonderGipod.address = adres;
+  return zonderGipod;
 }
 
 // Het kader [minX, minY, maxX, maxY] van wat we van een item weten: zijn punt (werk), zijn vorm (parkeer-
@@ -147,8 +153,9 @@ export function kaderVanItem(item, geometrie = null) {
 }
 const voegKaderToe = (schoon, kader) => (schoon && kader ? { ...schoon, __kader: kader } : schoon);
 
-// Een terras: geen adres (vaak met huisnummer), wel een groep per adres binnen de straat, zodat de
-// plekpagina twee zones op hetzelfde adres nog altijd als één terras toont (terrasEntries in place-core.js).
+// Een terras: met zijn adres als straat met huisnummer (itemVoorStraat, straatAdres; regel van de eigenaar van 26 oktober
+// 2026), en een groep per adres binnen de straat, zodat de plekpagina twee zones op hetzelfde adres als één terras toont
+// (terrasEntries in place-core.js), ook als het adres van A-Sign niet in die vorm past.
 export function terrassenVoorStraat(items = []) {
   const groepen = new Map();
   const uit = [];
@@ -156,7 +163,7 @@ export function terrassenVoorStraat(items = []) {
     const adres = locationKey(item?.address || "");
     const groep = adres ? (groepen.get(adres) || `g${groepen.size + 1}`) : "";
     if (adres) groepen.set(adres, groep);
-    const schoon = voegKaderToe(itemVoorStraat({ ...item, address: undefined }, { laag: "terrassen" }), item?.__kader || null);
+    const schoon = voegKaderToe(itemVoorStraat(item, { laag: "terrassen" }), item?.__kader || null);
     if (schoon) uit.push(groep ? { ...schoon, adresGroep: groep } : schoon);
   }
   return uit;
@@ -281,6 +288,9 @@ export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, 
     const permits = ophalen ? await haalVergunningen({ fetch: fetchImpl, sleep, districtGeometry: district, streetIndex: index }) : zonder;
     if (ophalen) await sleep(1000);
     const terraces = ophalen ? await haalTerrassen({ fetch: fetchImpl, sleep, districtGeometry: district, streetIndex: index }) : zonder;
+    // Het adres van het perceel van elke vergunning (adressenVoorVergunningen, de adresposities van de stad): na de terrassen,
+    // zodat een trage adresvraag die laag niet ophoudt. Lukt het niet, dan staan de vergunningen er zonder adres.
+    const vergunningen = permits.ok ? { ...permits, items: await adressenVoorVergunningen(permits.items, { fetch: fetchImpl, tegelijk: 2 }) } : permits;
     const schoon = (items, soort) => items.map((item) => voegKaderToe(itemVoorStraat(item, { laag: soort }), kaderVanItem(item))).filter(Boolean);
     const bronnen = {
       schemaVersion: STRAAT_SCHEMA,
@@ -288,7 +298,7 @@ export async function verzamelStraatBronnen({ rootDir, observedAt, worksResult, 
       lagen: {
         werken: laag(index ? worksResult : { ok: false, errorCode: "street_axis_missing" }, schoon(works, "werken")),
         publiekeRuimte: laag(raw && index && district ? publicSpaceResult : { ok: false, errorCode: publicSpaceResult?.errorCode || "street_axis_missing" }, schoon(publicSpace, "publiekeRuimte")),
-        vergunningen: laag(permits, schoon(permits.items, "vergunningen")),
+        vergunningen: laag(vergunningen, schoon(vergunningen.items, "vergunningen")),
         terrassen: { ...laag(terraces, terrassenVoorStraat(terraces.items)) },
       },
     };
