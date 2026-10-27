@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-26T04:23:16.139Z",
-  "classificationAsOf": "2026-10-26",
-  "sourceCount": 897,
-  "count": 710,
-  "eventPageCount": 710,
+  "candidateGeneratedAt": "2026-10-27T00:41:24.859Z",
+  "classificationAsOf": "2026-10-27",
+  "sourceCount": 896,
+  "count": 709,
+  "eventPageCount": 709,
   "classifications": {
     "expired": 132,
-    "current": 20,
-    "future": 690,
+    "current": 24,
+    "future": 685,
     "review_required": 55
   },
   "scopeCounts": {
-    "district": 88,
-    "stad": 622
+    "district": 89,
+    "stad": 620
   },
-  "feedGeneratedAt": "2026-10-26T04:23:16.139Z",
+  "feedGeneratedAt": "2026-10-27T00:41:24.859Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:24:31.168Z",
+      "retrievedAt": "2026-10-27T00:43:29.411Z",
       "state": "fresh"
     },
     {
@@ -43,14 +43,14 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:22:15.348Z",
+      "retrievedAt": "2026-10-27T00:37:57.069Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:21:52.012Z",
+      "retrievedAt": "2026-10-27T00:31:49.927Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:22:16.248Z",
+      "retrievedAt": "2026-10-27T00:37:58.343Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:21:41.900Z",
+      "retrievedAt": "2026-10-27T00:31:37.327Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:22:50.240Z",
+      "retrievedAt": "2026-10-27T00:38:31.949Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:22:50.240Z",
+      "retrievedAt": "2026-10-27T00:38:31.949Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-26T04:22:45.025Z",
+      "retrievedAt": "2026-10-27T00:38:27.291Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "8630a0b52cc086c770ab62707aa4d745112eb31417109dbf97535d8011860c75",
+  "digest": "a1869c01cd8e4edf0134a3706082aa4271aa4cc4290e052a12909b57fe85f8a4",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,8 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Gemengde markt Kioskplaats",
-    "Gemengde markt Arenaplein",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
@@ -272,6 +270,7 @@
     "Gemengde markt De Villegasstraat",
     "Optocht van de Nobele Orde van de Papegay (50 jaar)",
     "Najaarsfoor Sint-Jansplein",
+    "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
