@@ -80,7 +80,8 @@ const today = generatedAt.slice(0, 10);
 const addDays = (iso, n) => new Date(Date.parse(`${iso}T12:00:00Z`) + n * 86400000).toISOString().slice(0, 10);
 const district = fs.readFileSync(path.join(root, "lib", "district-antwerpen-grens.geojson"), "utf8");
 const WORK_TITLE = "Proefwerk riolering (e2e)";
-// De verzonnen reden van een parkeerverbod in A-Sign (laag 20), en wat haar zou verraden: die mag nergens op de pagina.
+// De verzonnen reden van een parkeerverbod in A-Sign (laag 20), en wat haar zou verraden: die mag nergens op de pagina. Een
+// verhuis: dat is gewoon een "Parkeerverbod" met zijn huisnummer (regel van de eigenaar van 26 oktober 2026).
 const REDEN_E2E = "Verhuis (e2e)";
 const VERRAAD_E2E = /verhuis/i;
 // De titel van een werk komt uit de kaartuitleg; de rij vinden we daarom op haar id.
@@ -1661,8 +1662,9 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
     assert.doesNotMatch(await page.evaluate(() => document.body.textContent), VERRAAD_E2E, "de reden staat ergens op de pagina");
     const paginaAttributen = await page.evaluate(() => [...document.querySelectorAll("*")].map((x) => [...x.attributes].map((a) => `${a.name}="${a.value}"`).join(" ")).join("\n"));
     assert.doesNotMatch(paginaAttributen, VERRAAD_E2E, "de reden staat in een attribuut ergens op de pagina");
-    // De buurtkaart (site/kaart-lagen.js): het parkeerverbod staat er bij benadering (een afgerond punt, privacy) en
-    // nooit exact; de popup zegt dat ("Plek bij benadering"), met de plaats exact in de tekst. Geen tekst noemt de reden.
+    // De buurtkaart (site/kaart-lagen.js): het parkeerverbod staat er exact, met zijn lijn op elke plaats (regel van de
+    // eigenaar van 26 oktober 2026: "exacte positie, geen afronding op 100 m"), en de popup noemt de plaats exact. Geen
+    // tekst noemt de reden.
     await page.waitForFunction((uid) => (window.PUBLIC_AGENDA_KAART?.teken || []).some((e) => String(e?.uid || "").startsWith(uid)), "publicSpace:parking:2026-999001", { timeout: 10000 });
     const kaart = await page.evaluate(async ({ uid, vandaag }) => {
       const { kaartLagen, popupHtml } = await import("/kaart-lagen.js");
@@ -1672,8 +1674,8 @@ test("zoeken op plek, end-to-end", { skip }, async (t) => {
       pop.innerHTML = popupHtml([e], vandaag);
       return { exact: fc.features.filter((f) => !f.properties.ongeveer).length, ongeveer: ongeveer.filter((g) => g.uids.includes(e.uid)).length, tekst: pop.textContent };
     }, { uid: "publicSpace:parking:2026-999001", vandaag: today });
-    assert.deepEqual([kaart.exact, kaart.ongeveer], [0, 1], "op de buurtkaart één plek bij benadering, nooit de lijn zelf");
-    assert.match(kaart.tekst, /Plek bij benadering \(privacy\)/);
+    assert.ok(kaart.exact >= 1 && kaart.ongeveer === 0, `op de buurtkaart de lijn zelf, nooit een plek bij benadering: ${JSON.stringify(kaart)}`);
+    assert.doesNotMatch(kaart.tekst, /bij benadering/);
     assert.ok(kaart.tekst.includes(PLAATS), `de popup noemt de plaats exact: ${JSON.stringify(kaart.tekst)}`);
     // Wanneer, ook in de popup: de dagen met de uren zoals de kaart ze zegt (nakijkronde van 18 oktober 2026: de popup
     // zei bij meer dagen geen uren, bij één dag alleen "08.00").

@@ -150,28 +150,26 @@ test("geen kandidaat: een lang dossier, een evenement dat niet elke dag loopt, o
 });
 
 // Nakijkronde van 18 oktober 2026: een evenementkaart uit de ochtendstand noemde het parkeerverbod onder "Wat merk je" met
-// alleen de straat en de postcode, zonder de zin dat het huisnummer alleen live in A-Sign staat (die zeggen de werfkaart,
-// parkeerRegel, en de kaart van het parkeerverbod wel). De ochtendstand bewaart bewust geen huisnummer (besluit van de
-// eigenaar van 18 oktober 2026); live, met het huisnummer, staat de zin er niet. De vaagheidsmeter telt ze.
-test("evenementkaart uit de ochtendstand: het parkeerverbod onder 'Wat merk je' zegt dat het huisnummer alleen live in A-Sign staat, en de meter telt het", () => {
+// alleen de straat en de postcode. Regel van de eigenaar van 26 oktober 2026: de ochtendstand bewaart de plaats met het
+// huisnummer (een echte straat in een toets: alleen 999; Proefplein is verzonnen), en de kaart noemt ze zo, zonder zin dat
+// het huisnummer alleen live komt. Niet vaag.
+test("evenementkaart uit de ochtendstand: het parkeerverbod onder 'Wat merk je' noemt zijn plaats met het huisnummer, en de meter ziet niets vaags", () => {
   const ev = evenementen([inname("ET2099000001", "2099-03-14")], { dossiers: { ET2099000001: fiche("Proefloop") } });
   const agendaItems = [dossierPunt("ET2099000001", "2099-03-14", "Proefloop")];
-  // Zoals een straatbestand het bewaart: geen reden, wel het evenement (evenementSleutel) en plaatsVanDeOchtend.
-  const ochtendRij = { id: "parking:2099-00001|1", kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: "Proefplein, 2000 Antwerpen", start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "Goedgekeurd", reference: "2099-00001", startTime: "08:00", endTime: "18:00", weekdaysOnly: false, streets: [straat("Proefplein")], evenementSleutel: "ET2099000001", plaatsVanDeOchtend: true };
+  // Zoals een straatbestand het bewaart: geen reden, wel de plaats exact en het evenement (evenementSleutel).
+  const ochtendRij = { id: "parking:2099-00001|1", kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: "Proefplein 12–14, 2000 Antwerpen", start: "2099-03-14T00:00:00.000Z", end: "2099-03-14T00:00:00.000Z", status: "Goedgekeurd", reference: "2099-00001", startTime: "08:00", endTime: "18:00", weekdaysOnly: false, streets: [straat("Proefplein")], evenementSleutel: "ET2099000001" };
   const [po, eo] = verrijkMetContext([publicSpaceEntry(ochtendRij), ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
-  assert.match(po.summary, /Het huisnummer staat alleen in de live gegevens van A-Sign/);
+  assert.doesNotMatch(po.summary, /huisnummer staat alleen in de live gegevens/);
   const watMerkJe = eo.uitleg.kern.find(([k]) => k === "Wat merk je")[1];
-  assert.match(watMerkJe, /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein, 2000 Antwerpen: 14 mrt, van 8\.00 tot 18\.00 uur \(2099-00001\)\. Het huisnummer staat alleen in de live gegevens van A-Sign; die zijn \(nog\) niet geladen\. Zelfde straat en dagen/);
+  assert.match(watMerkJe, /Ook een parkeerverbod in de laag parkeerverboden van A-Sign: Proefplein 12–14, 2000 Antwerpen: 14 mrt, van 8\.00 tot 18\.00 uur \(2099-00001\)\. Zelfde straat en dagen/);
   const meting = vaagheidVanKaart({ titel: eo.title, regels: eo.uitleg.kern.map(([k, v]) => `${k}: ${v}`) });
-  assert.ok(meting.patronen.includes("huisnummer-alleen-live"), JSON.stringify(meting.patronen));
-  assert.equal(meting.kern, true, "de plaats van het parkeerverbod is niet exact: de meter telt de kaart als vaag");
-  assert.ok(meting.detail.ontbreekt >= 1);
-  // Live, met het huisnummer (publiekParkeerAdres): exact, zonder die zin, en de meter ziet niets.
+  assert.equal(meting.patronen.includes("huisnummer-alleen-live"), false, JSON.stringify(meting.patronen));
+  assert.doesNotMatch(watMerkJe, /alleen in de live gegevens/);
+  // Live, met het huisnummer (publiekParkeerAdres): ook exact, zonder die zin.
   const p = parkeer(1, "2099-03-14");
   const [, el] = verrijkMetContext([p, ...ev], { straat: "Proefplein", vandaag: VANDAAG, agendaItems });
   const live = el.uitleg.kern.find(([k]) => k === "Wat merk je")[1];
   assert.doesNotMatch(live, /huisnummer staat alleen in de live gegevens/);
-  assert.equal(vaagheidVanKaart({ titel: el.title, regels: el.uitleg.kern.map(([k, v]) => `${k}: ${v}`) }).patronen.includes("huisnummer-alleen-live"), false);
 });
 
 test("een agendapunt uit een andere bron als enige kandidaat, en een vermoede naam: in de regel, nooit in de titel", () => {
