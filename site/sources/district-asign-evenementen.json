@@ -13,267 +13,11 @@
   ],
   "officialPublic": true,
   "method": "A-Sign laag 22 en 23: evenementendossiers in district Antwerpen, niet geweigerd of afgelast, één item per evenementdag; naam uit de handfiche, de automatische herkenning of een besluit, anders de soort, of wat en waar met 'naam onbekend'",
-  "retrievedAt": "2026-10-27T00:43:29.411Z",
+  "retrievedAt": "2026-10-28T03:04:37.874Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
   "items": [
-    {
-      "id": "asign-ev-et2026004329-2026-10-27",
-      "externalId": "ET2026004329",
-      "title": "Vermoedelijk een studentenactiviteit in de Pieter Coeckelaan",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-27",
-      "endDate": null,
-      "timeSlot": "Info",
-      "timeText": "",
-      "location": "Pieter Coeckelaan en Oosterveldlaan",
-      "postcodes": [
-        "2020"
-      ],
-      "info": "Parcours door 2 straten: Oosterveldlaan en Pieter Coeckelaan. Soort vermoed bij het nakijken met de hand; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026004329 van de stad (A-Sign), laatst gewijzigd op 27 juli 2026: aanvraag nog niet goedgekeurd.",
-      "infoUrl": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter",
-      "kind": "activity",
-      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
-      "reviewRequired": false,
-      "inDistrict": true,
-      "fasen": [
-        {
-          "naam": "Evenement",
-          "start": "2026-10-27",
-          "eind": "2026-10-27"
-        }
-      ],
-      "straten": [
-        "Pieter Coeckelaan",
-        "Oosterveldlaan"
-      ],
-      "nietGoedgekeurd": true,
-      "stratenVolledig": true,
-      "feiten": {
-        "dossier": "ET2026004329",
-        "status": "technisch_advies_ontvangen",
-        "bijgewerkt": "2026-07-27",
-        "dagen": [
-          "2026-10-27"
-        ],
-        "beginStraat": "Pieter Coeckelaan",
-        "wijk": "Middelheim",
-        "langs": [
-          1,
-          0
-        ],
-        "zone": [],
-        "kern": [
-          0
-        ],
-        "routeMeter": 2460
-      }
-    },
-    {
-      "id": "asign-ev-et2026004449-2026-10-27",
-      "externalId": "ET2026004449",
-      "title": "Vermoedelijk een studentenactiviteit op het Theaterplein",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-27",
-      "endDate": null,
-      "timeSlot": "Info",
-      "timeText": "",
-      "location": "Theaterplein, Aalmoezenierstraat, Arenbergstraat en 14 andere straten",
-      "postcodes": [
-        "2000"
-      ],
-      "info": "Parcours door 16 straten: onder meer Aalmoezenierstraat, Arenbergstraat, Bogaardestraat, Boogkeers. Evenement op 20 oktober en 27 oktober. Soort vermoed bij het nakijken met de hand; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026004449 van de stad (A-Sign), laatst gewijzigd op 8 september 2026: aanvraag goedgekeurd.",
-      "infoUrl": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter",
-      "kind": "activity",
-      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
-      "reviewRequired": false,
-      "inDistrict": true,
-      "fasen": [
-        {
-          "naam": "Evenement",
-          "start": "2026-10-27",
-          "eind": "2026-10-27"
-        }
-      ],
-      "straten": [
-        "Theaterplein",
-        "Sint-Michielskaai",
-        "Aalmoezenierstraat",
-        "Arenbergstraat",
-        "Bogaardestraat",
-        "Boogkeers",
-        "Fortuinstraat",
-        "Frankrijklei",
-        "Lange Gasthuisstraat",
-        "Louiza-Marialei",
-        "Mechelseplein",
-        "Nationalestraat",
-        "Nieuwstad",
-        "Oudevaartplaats",
-        "Prekersstraat",
-        "Rosier",
-        "Stoopstraat"
-      ],
-      "stratenVolledig": true,
-      "feiten": {
-        "dossier": "ET2026004449",
-        "status": "aanvraag_goedgekeurd",
-        "bijgewerkt": "2026-09-08",
-        "dagen": [
-          "2026-10-20",
-          "2026-10-27"
-        ],
-        "beginStraat": "Theaterplein",
-        "wijk": "Theaterbuurt & Meir",
-        "langs": [
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          12,
-          13,
-          14,
-          15,
-          16,
-          0
-        ],
-        "zone": [],
-        "kern": [
-          0,
-          1
-        ]
-      }
-    },
-    {
-      "id": "asign-ev-et2026005074-2026-10-27",
-      "externalId": "ET2026005074",
-      "title": "Vermoedelijk een studentenactiviteit op de Hanzestedenplaats",
-      "theme": "Activiteit",
-      "className": "activity",
-      "date": "2026-10-27",
-      "endDate": null,
-      "timeSlot": "Info",
-      "timeText": "",
-      "location": "Hanzestedenplaats, Amsterdamstraat, Bataviastraat en 31 andere straten",
-      "postcodes": [
-        "2000",
-        "2030"
-      ],
-      "info": "Parcours door 34 straten: onder meer Amsterdamstraat, Bataviastraat, Bonapartedok, Boterhamstraat. Soort vermoed bij het nakijken met de hand; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026005074 van de stad (A-Sign), laatst gewijzigd op 1 september 2026: aanvraag goedgekeurd.",
-      "infoUrl": "https://www.antwerpen.be/info/antwerps-doop-en-feestcharter",
-      "kind": "activity",
-      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
-      "reviewRequired": false,
-      "inDistrict": true,
-      "fasen": [
-        {
-          "naam": "Evenement",
-          "start": "2026-10-27",
-          "eind": "2026-10-27"
-        }
-      ],
-      "straten": [
-        "Hanzestedenplaats",
-        "Sloepenweg",
-        "Amsterdamstraat",
-        "Bataviastraat",
-        "Bonapartedok",
-        "Boterhamstraat",
-        "Entrepotkaai",
-        "Entrepotplaats",
-        "Falconplein",
-        "Frans Halsplein",
-        "Generaal Belliardstraat",
-        "Godefriduskaai",
-        "Hoornstraat",
-        "Kattendijkbrug",
-        "Lange Brilstraat",
-        "Londenbrug",
-        "Napoleonkaai",
-        "Nassaubrug",
-        "Nassaustraat",
-        "Nieuwpoortkaai",
-        "Oostendekaai",
-        "Oudeleeuwenrui",
-        "Paradijsstraat",
-        "Pieter van Hobokenstraat",
-        "Prinsesstraat",
-        "Prinsstraat",
-        "Rijnkaai",
-        "Sint-Aldegondiskaai",
-        "Sint-Laureiskaai",
-        "Stadswaag",
-        "Van Schoonbekeplein",
-        "Varkensmarkt",
-        "Venusstraat",
-        "Veurnekaai"
-      ],
-      "stratenVolledig": true,
-      "feiten": {
-        "dossier": "ET2026005074",
-        "status": "aanvraag_goedgekeurd",
-        "bijgewerkt": "2026-09-01",
-        "dagen": [
-          "2026-10-27"
-        ],
-        "beginStraat": "Hanzestedenplaats",
-        "wijk": "Eilandje",
-        "langs": [
-          2,
-          3,
-          4,
-          5,
-          6,
-          7,
-          8,
-          9,
-          10,
-          11,
-          0,
-          12,
-          13,
-          14,
-          15,
-          16,
-          17,
-          18,
-          19,
-          20,
-          21,
-          22,
-          23,
-          24,
-          25,
-          26,
-          27,
-          28,
-          1,
-          29,
-          30,
-          31,
-          32,
-          33
-        ],
-        "zone": [],
-        "kern": [
-          0,
-          1
-        ],
-        "routeMeter": 2416
-      }
-    },
     {
       "id": "asign-ev-et2026004413-2026-10-29",
       "externalId": "ET2026004413",
@@ -289,7 +33,7 @@
       "info": "Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026004413 van de stad (A-Sign), laatst gewijzigd op 7 augustus 2026: aanvraag goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -329,7 +73,7 @@
       "info": "Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026005416 van de stad (A-Sign), laatst gewijzigd op 15 september 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -380,7 +124,7 @@
       "infoUrl": "https://nova.antwerpen.be/halloweenfeest",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -445,7 +189,7 @@
       "info": "Verkeersvrije zone in de Brugstraat. Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026005698 van de stad (A-Sign), laatst gewijzigd op 19 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -495,7 +239,7 @@
       "info": "Verkeersvrije zone in de Dahliastraat. Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026005713 van de stad (A-Sign), laatst gewijzigd op 2 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -542,10 +286,10 @@
       "postcodes": [
         "2000"
       ],
-      "info": "Parcours door 69 straten: onder meer Arenbergstraat, Armeduivelstraat, Augustijnenstraat, Beddenstraat. Evenement van zondag 1 november tot vrijdag 20 november. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005943 van de stad (A-Sign), laatst gewijzigd op 21 oktober 2026: aanvraag nog niet goedgekeurd.",
+      "info": "Parcours door 69 straten: onder meer Arenbergstraat, Armeduivelstraat, Augustijnenstraat, Beddenstraat. Evenement van zondag 1 november tot vrijdag 20 november. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005943 van de stad (A-Sign), laatst gewijzigd op 26 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -631,7 +375,7 @@
       "feiten": {
         "dossier": "ET2026005943",
         "status": "aanvraag_ontvangen",
-        "bijgewerkt": "2026-10-21",
+        "bijgewerkt": "2026-10-26",
         "dagen": [
           "2026-11-01",
           "2026-11-02",
@@ -757,7 +501,7 @@
       "info": "Parcours door 5 straten: Grote Kauwenberg, Kleine Kauwenberg, Lange Winkelstraat, Prinsstraat en Vekestraat. Evenement van dinsdag 3 november tot dinsdag 24 november. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005960 van de stad (A-Sign), laatst gewijzigd op 19 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -838,7 +582,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -904,7 +648,7 @@
       "info": "Parcours door 41 straten: onder meer Appelmansstraat, Augustijnenstraat, Braderijstraat, Breydelstraat. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005676 van de stad (A-Sign), laatst gewijzigd op 6 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1034,7 +778,7 @@
       "info": "Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2025005359 van de stad (A-Sign), laatst gewijzigd op 15 januari 2026: aanvraag goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1081,7 +825,7 @@
       "info": "Verkeersvrije zone in 7 straten: onder meer Ernest Van Dijckkaai, Gildekamersstraat, Hofstraat, Oude Beurs. Opbouw vanaf donderdag 12 november. Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026001197 van de stad (A-Sign), laatst gewijzigd op 19 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1170,7 +914,7 @@
       "info": "Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2025006108 van de stad (A-Sign), laatst gewijzigd op 16 oktober 2025: aanvraag goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1227,7 +971,7 @@
       "info": "Parcours door 76 straten: onder meer Anneessensstraat, Artsen zonder Grenzenstraat, Baron Joostensstraat, Bervoetstraat. Verkeersvrije zone in 4 straten: Gillisplaats, Timmerwerfstraat, Vlaamsekaai en Waalsekaai. Opbouw vanaf donderdag 12 november, afbraak tot maandag 16 november. Evenementendossier ET2026000445 van de stad (A-Sign), laatst gewijzigd op 6 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1450,7 +1194,7 @@
       "info": "Parcours door 2 straten: Floraliënlaan en Middelheimlaan. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005665 van de stad (A-Sign), laatst gewijzigd op 12 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1502,7 +1246,7 @@
       "info": "Parcours door 31 straten: onder meer Bataviastraat, Bonapartedok, Boterhamstraat, Entrepotkaai. Naam onbekend. Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route. 17 november valt buiten de doopperiode van het studentencharter (1 tot 31 oktober). Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005298 van de stad (A-Sign), laatst gewijzigd op 9 september 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1614,7 +1358,7 @@
       "info": "Parcours door 7 straten: onder meer Belegstraat, Broederminstraat, Haantjeslei, Korte Achteromstraat. Soort vermoed bij het nakijken met de hand; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2026004615 van de stad (A-Sign), laatst gewijzigd op 15 september 2026: aanvraag goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1679,7 +1423,7 @@
       "infoUrl": "https://ordonobilis.eu/agenda-investituur-2026/",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1749,7 +1493,7 @@
       "info": "Evenement van zaterdag 21 november tot zondag 13 december. Opbouw vanaf woensdag 18 november, afbraak tot maandag 14 december. Naam automatisch herkend via de foorlijst van de stad (zelfde plein en periode). Evenementendossier ET2025006985 van de stad (A-Sign), laatst gewijzigd op 20 augustus 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1831,7 +1575,7 @@
       "info": "Parcours door 23 straten: onder meer Appelmansstraat, Breydelstraat, De Keyserlei, Eiermarkt. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026006109 van de stad (A-Sign), laatst gewijzigd op 25 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -1929,7 +1673,7 @@
       "infoUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2032,7 +1776,7 @@
       "info": "Parcours door 9 straten: onder meer Beukenlaan, Eglantierlaan, Floraliënlaan, Kruishofstraat. Naam onbekend. Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005499 van de stad (A-Sign), laatst gewijzigd op 17 september 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2110,7 +1854,7 @@
       "info": "Verkeersvrije zone in 6 straten: Ernest Van Dijckkaai, Jordaenskaai, Orteliuskaai, Plantinkaai, Sint-Michielskaai en Van Meterenkaai. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005928 van de stad (A-Sign), laatst gewijzigd op 19 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2171,7 +1915,7 @@
       "info": "Evenement van vrijdag 4 december 2026 tot zondag 3 januari 2027. Opbouw vanaf maandag 30 november. Naam automatisch herkend via de foorlijst van de stad (zelfde plein en periode). Evenementendossier ET2025006728 van de stad (A-Sign), laatst gewijzigd op 19 november 2025: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2247,15 +1991,15 @@
       "endDate": "2027-01-03",
       "timeSlot": "Info",
       "timeText": "",
-      "location": "Steenplein, Ernest Van Dijckkaai, Grote Markt en 8 andere straten",
+      "location": "Kaasrui, Ernest Van Dijckkaai, Grote Markt en 8 andere straten",
       "postcodes": [
         "2000"
       ],
-      "info": "Verkeersvrije zone in 8 straten: onder meer Ernest Van Dijckkaai, Grote Markt, Handschoenmarkt, Jan Blomstraat. Evenement van vrijdag 4 december 2026 tot zondag 3 januari 2027. Opbouw vanaf zondag 15 november. Naam met de hand nagekeken bij een publieke bron. Evenementendossier ET2026000222 van de stad (A-Sign), laatst gewijzigd op 19 augustus 2026: aanvraag nog niet goedgekeurd.",
+      "info": "Verkeersvrije zone in 8 straten: onder meer Ernest Van Dijckkaai, Grote Markt, Handschoenmarkt, Jan Blomstraat. Evenement van vrijdag 4 december 2026 tot zondag 3 januari 2027. Opbouw vanaf zondag 15 november. Naam met de hand nagekeken bij een publieke bron. Evenementendossier ET2026000222 van de stad (A-Sign), laatst gewijzigd op 26 oktober 2026: aanvraag nog niet goedgekeurd.",
       "infoUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.0234.7934/agendapunten/26.0630.3532.1854",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2271,15 +2015,15 @@
         }
       ],
       "straten": [
-        "Steenplein",
-        "Handschoenmarkt",
+        "Kaasrui",
         "Leeuw van Vlaanderenstraat",
         "Groenplaats",
         "Operaplein",
+        "Steenplein",
+        "Handschoenmarkt",
         "Ernest Van Dijckkaai",
         "Grote Markt",
         "Jan Blomstraat",
-        "Kaasrui",
         "Maalderijstraat",
         "Suikerrui"
       ],
@@ -2288,7 +2032,7 @@
       "feiten": {
         "dossier": "ET2026000222",
         "status": "technisch_advies_wordt_gevraagd",
-        "bijgewerkt": "2026-08-19",
+        "bijgewerkt": "2026-10-26",
         "dagen": [
           "2026-12-04",
           "2026-12-05",
@@ -2322,26 +2066,26 @@
           "2027-01-02",
           "2027-01-03"
         ],
-        "beginStraat": "Steenplein",
+        "beginStraat": "Kaasrui",
         "wijk": "Historisch centrum",
         "langs": [],
         "zone": [
-          5,
           6,
-          1,
           7,
+          5,
           8,
-          9,
           0,
+          9,
+          4,
           10
         ],
         "kern": [
-          0,
           1,
           2,
           3,
           4,
-          5
+          5,
+          6
         ]
       }
     },
@@ -2362,7 +2106,7 @@
       "info": "Parcours door 26 straten: onder meer Argentiniëlaan, Belfaststraat, Bostonstraat, Canadalaan. Opbouw vanaf zaterdag 5 december. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005821 van de stad (A-Sign), laatst gewijzigd op 21 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2471,7 +2215,7 @@
       "info": "Parcours door 7 straten: onder meer Artsen zonder Grenzenstraat, Jules Bordetstraat, Lamorinièrestraat, Lange Leemstraat. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026006044 van de stad (A-Sign), laatst gewijzigd op 22 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2534,7 +2278,7 @@
       "info": "Parcours door 27 straten: onder meer Antoon van Dyckstraat, Belgiëlei, Breughelstraat, Charlottalei. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026006061 van de stad (A-Sign), laatst gewijzigd op 21 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2638,7 +2382,7 @@
       "info": "Parcours door 17 straten: onder meer Boerhaavestraat, Constitutiestraat, Huybrechtsstraat, Kerkstraat. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026006095 van de stad (A-Sign), laatst gewijzigd op 22 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2735,7 +2479,7 @@
       "info": "Parcours door 30 straten: onder meer Bataviastraat, Bonapartedok, Entrepotkaai, Entrepotplaats. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005967 van de stad (A-Sign), laatst gewijzigd op 14 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2846,7 +2590,7 @@
       "info": "Parcours door 25 straten: onder meer Ankerrui, Bataviastraat, Bonapartedok, Entrepotkaai. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026004247 van de stad (A-Sign), laatst gewijzigd op 7 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -2930,6 +2674,85 @@
       }
     },
     {
+      "id": "asign-ev-et2026004671-2026-12-19",
+      "externalId": "ET2026004671",
+      "title": "Evenement in de Thonetlaan: verkeersvrije zone in 5 straten",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-19",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Thonetlaan, August Vermeylenlaan, Esmoreitlaan en 7 andere straten",
+      "postcodes": [
+        "2050"
+      ],
+      "info": "Verkeersvrije zone in 5 straten: August Vermeylenlaan, Esmoreitlaan, Gloriantlaan, Thomas Morusplein en Thonetlaan. Opbouw vanaf vrijdag 4 december, afbraak tot woensdag 23 december. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026004671 van de stad (A-Sign), laatst gewijzigd op 26 oktober 2026: aanvraag nog niet goedgekeurd.",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
+      "reviewRequired": false,
+      "inDistrict": true,
+      "fasen": [
+        {
+          "naam": "Opbouw",
+          "start": "2026-12-04",
+          "eind": "2026-12-19"
+        },
+        {
+          "naam": "Evenement",
+          "start": "2026-12-19",
+          "eind": "2026-12-19"
+        },
+        {
+          "naam": "Afbraak",
+          "start": "2026-12-19",
+          "eind": "2026-12-23"
+        }
+      ],
+      "straten": [
+        "Thonetlaan",
+        "Jachthavenweg",
+        "Fromentinstraat",
+        "Gloriantlaan",
+        "Pieter Doorlantlaan",
+        "Esmoreitlaan",
+        "Hugo De Ridderplein",
+        "Charles de Costerlaan",
+        "August Vermeylenlaan",
+        "Thomas Morusplein"
+      ],
+      "nietGoedgekeurd": true,
+      "stratenVolledig": true,
+      "feiten": {
+        "dossier": "ET2026004671",
+        "status": "technisch_advies_wordt_gevraagd",
+        "bijgewerkt": "2026-10-26",
+        "dagen": [
+          "2026-12-19"
+        ],
+        "beginStraat": "Thonetlaan",
+        "wijk": "Linkeroever",
+        "langs": [],
+        "zone": [
+          8,
+          5,
+          3,
+          9,
+          0
+        ],
+        "kern": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ]
+      }
+    },
+    {
       "id": "asign-ev-et2026005880-2026-12-19",
       "externalId": "ET2026005880",
       "title": "Evenement in Grote Goddaard: route van 1,9 km",
@@ -2947,7 +2770,7 @@
       "info": "Parcours door 20 straten: onder meer Appelmansstraat, Blauwmoezelstraat, Breydelstraat, De Keyserlei. Het dossier noemt geen naam, en geen besluit, kalender, nieuwsbericht of organisatoragenda die we nakijken, zegt met zekerheid welk evenement er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging, dan verschijnt de naam hier vanzelf. Evenementendossier ET2026005880 van de stad (A-Sign), laatst gewijzigd op 9 oktober 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -3037,7 +2860,7 @@
       "info": "Soort vermoed via de omschrijving in het dossier, wat vroeger op dezelfde plek gebeurde en het studentencharter; niet bevestigd. Een naam komt er pas als een besluit, een kalender of de organisator hem noemt. Evenementendossier ET2025006109 van de stad (A-Sign), laatst gewijzigd op 10 september 2026: aanvraag nog niet goedgekeurd.",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "reviewRequired": false,
       "inDistrict": true,
       "fasen": [
@@ -3076,6 +2899,69 @@
         "kern": [
           0
         ]
+      }
+    },
+    {
+      "id": "asign-ev-et2026004301-2026-12-27",
+      "externalId": "ET2026004301",
+      "title": "Rendierfeesten 2026",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-27",
+      "endDate": null,
+      "timeSlot": "Info",
+      "timeText": "",
+      "location": "Dageraadplaats",
+      "postcodes": [
+        "2018"
+      ],
+      "info": "Afbraak tot maandag 28 december. Organisatie: Parole vzw. Naam automatisch herkend via een besluit van de stad of het district (zelfde dag en straat). Evenementendossier ET2026004301 van de stad (A-Sign), laatst gewijzigd op 24 juli 2026: aanvraag nog niet goedgekeurd.",
+      "infoUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639",
+      "kind": "activity",
+      "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
+      "reviewRequired": false,
+      "inDistrict": true,
+      "fasen": [
+        {
+          "naam": "Opbouw",
+          "start": "2026-12-27",
+          "eind": "2026-12-27"
+        },
+        {
+          "naam": "Evenement",
+          "start": "2026-12-27",
+          "eind": "2026-12-27"
+        },
+        {
+          "naam": "Afbraak",
+          "start": "2026-12-27",
+          "eind": "2026-12-28"
+        }
+      ],
+      "straten": [
+        "Dageraadplaats"
+      ],
+      "sameAs": [
+        "ebesluit-ev-2026-dcan-00548-2026-12-27"
+      ],
+      "nietGoedgekeurd": true,
+      "stratenVolledig": true,
+      "feiten": {
+        "dossier": "ET2026004301",
+        "status": "technisch_advies_wordt_gevraagd",
+        "bijgewerkt": "2026-07-24",
+        "dagen": [
+          "2026-12-27"
+        ],
+        "beginStraat": "Dageraadplaats",
+        "wijk": "Zurenborg",
+        "langs": [],
+        "zone": [],
+        "kern": [
+          0
+        ],
+        "besluit": "2026_DCAN_00548"
       }
     }
   ]

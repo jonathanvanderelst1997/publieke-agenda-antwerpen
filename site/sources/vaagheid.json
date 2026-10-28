@@ -1,19 +1,19 @@
 {
  "schema": "vaagheid/1",
- "vandaag": "2026-10-27",
- "invoer": "eb9e2787568c4990",
+ "vandaag": "2026-10-28",
+ "invoer": "f65cce169feaf29c",
  "code": "4fe64be3b8a9a381",
  "agenda": {
-  "items": 763,
-  "vaag": 49,
-  "aandeel": 6.4,
+  "items": 760,
+  "vaag": 47,
+  "aandeel": 6.2,
   "perPatroon": {
-   "wie-onbekend": 62,
-   "uur-onbekend": 36,
+   "wie-onbekend": 59,
+   "uur-onbekend": 34,
    "plek-via-bron": 17,
+   "generieke-titel": 16,
    "datum-bij-benadering": 15,
-   "generieke-titel": 15,
-   "vermoedelijk": 13,
+   "vermoedelijk": 10,
    "uren-periode-onbekend": 7,
    "info-leeg": 2,
    "plek-alleen-postcode": 2
@@ -36,21 +36,14 @@
     "vaag": 0,
     "patronen": {}
    },
-   "district-nieuws": {
-    "items": 1,
-    "vaag": 0,
-    "patronen": {
-     "wie-onbekend": 1
-    }
-   },
    "district-asign-evenementen": {
-    "items": 32,
-    "vaag": 28,
+    "items": 31,
+    "vaag": 27,
     "patronen": {
-     "wie-onbekend": 32,
-     "uur-onbekend": 26,
-     "generieke-titel": 15,
-     "vermoedelijk": 13,
+     "wie-onbekend": 30,
+     "uur-onbekend": 25,
+     "generieke-titel": 16,
+     "vermoedelijk": 10,
      "uren-periode-onbekend": 5
     }
    },
@@ -79,12 +72,12 @@
     "patronen": {}
    },
    "district-ebesluit-evenementen": {
-    "items": 3,
-    "vaag": 3,
+    "items": 2,
+    "vaag": 2,
     "patronen": {
-     "uur-onbekend": 2,
      "plek-alleen-postcode": 1,
-     "uren-periode-onbekend": 1
+     "uren-periode-onbekend": 1,
+     "uur-onbekend": 1
     }
    },
    "district-vergaderingen": {
@@ -94,30 +87,30 @@
    }
   },
   "detail": {
-   "metOntbreekt": 20,
+   "metOntbreekt": 21,
    "meerDanEen": 0,
-   "zinnen": 20,
+   "zinnen": 21,
    "perPatroon": {}
   },
   "verboden": {},
   "zonderMarkten": {
-   "items": 140,
-   "vaag": 49
+   "items": 137,
+   "vaag": 47
   },
   "district": {
-   "items": 115,
-   "vaag": 32
+   "items": 112,
+   "vaag": 30
   }
  },
  "eventpaginas": {
-  "items": 708,
-  "vaag": 31,
-  "aandeel": 4.4,
+  "items": 707,
+  "vaag": 30,
+  "aandeel": 4.2,
   "perPatroon": {
-   "uur-niet-in-bron": 31,
-   "generieke-titel": 15,
-   "naam-stad-niet": 13,
-   "vermoedelijk": 13,
+   "uur-niet-in-bron": 30,
+   "generieke-titel": 16,
+   "naam-stad-niet": 14,
+   "vermoedelijk": 10,
    "naam-onbekend": 2
   },
   "perGroep": {
@@ -132,13 +125,13 @@
     "patronen": {}
    },
    "district-asign-evenementen": {
-    "items": 32,
-    "vaag": 31,
+    "items": 31,
+    "vaag": 30,
     "patronen": {
-     "uur-niet-in-bron": 31,
-     "generieke-titel": 15,
-     "naam-stad-niet": 13,
-     "vermoedelijk": 13,
+     "uur-niet-in-bron": 30,
+     "generieke-titel": 16,
+     "naam-stad-niet": 14,
+     "vermoedelijk": 10,
      "naam-onbekend": 2
     }
    },
@@ -149,45 +142,54 @@
    }
   },
   "detail": {
-   "metOntbreekt": 15,
+   "metOntbreekt": 16,
    "meerDanEen": 0,
-   "zinnen": 15,
+   "zinnen": 16,
    "perPatroon": {}
   },
   "verboden": {}
  },
  "straten": {
-  "items": 445,
-  "vaag": 248,
-  "aandeel": 55.7,
+  "items": 447,
+  "vaag": 245,
+  "aandeel": 54.8,
   "perPatroon": {
    "periode-onbekend": 157,
    "start-werken-onbekend": 57,
-   "uur-onbekend": 40,
-   "wat-zegt-stad-niet": 38,
-   "generieke-titel": 28,
-   "stand-onduidelijk": 25,
+   "wat-zegt-stad-niet": 40,
+   "uur-onbekend": 35,
+   "generieke-titel": 29,
+   "stand-onduidelijk": 26,
    "doel-onbekend": 12,
-   "vermoedelijk": 12,
    "wat-zegt-dossier-niet": 10,
-   "naam-stad-niet": 8,
    "uren-parkeerverbod-onbekend": 7,
+   "vermoedelijk": 6,
    "elke-dag-onbekend": 5,
    "plek-verspreid": 5,
-   "werf-zonder-doel": 5
+   "werf-zonder-doel": 5,
+   "naam-stad-niet": 3
   },
   "perGroep": {
    "agenda:district-asign-evenementen": {
-    "items": 31,
-    "vaag": 26,
+    "items": 32,
+    "vaag": 27,
     "patronen": {
-     "generieke-titel": 20,
-     "uur-onbekend": 20,
-     "vermoedelijk": 6
+     "generieke-titel": 21,
+     "uur-onbekend": 21,
+     "vermoedelijk": 5
     },
-    "meerDanEen": 14,
-    "losse": 31,
-    "losseVaag": 26
+    "meerDanEen": 15,
+    "losse": 32,
+    "losseVaag": 27
+   },
+   "publicSpace:sgw": {
+    "items": 45,
+    "vaag": 30,
+    "patronen": {
+     "wat-zegt-stad-niet": 30
+    },
+    "losse": 32,
+    "losseVaag": 17
    },
    "publicSpace:parking": {
     "items": 28,
@@ -196,43 +198,34 @@
     "losse": 28,
     "losseVaag": 0
    },
-   "publicSpace:sgw": {
-    "items": 42,
-    "vaag": 28,
-    "patronen": {
-     "wat-zegt-stad-niet": 28
-    },
-    "losse": 31,
-    "losseVaag": 17
-   },
    "permits": {
     "items": 57,
     "vaag": 12,
     "patronen": {
      "start-werken-onbekend": 57,
-     "stand-onduidelijk": 25,
+     "stand-onduidelijk": 26,
      "doel-onbekend": 12
     },
     "losse": 46,
     "losseVaag": 5
    },
    "publicSpace:event": {
-    "items": 20,
-    "vaag": 19,
+    "items": 15,
+    "vaag": 14,
     "patronen": {
-     "uur-onbekend": 19,
+     "uur-onbekend": 14,
      "wat-zegt-dossier-niet": 10,
      "wat-zegt-stad-niet": 10,
      "generieke-titel": 8,
-     "naam-stad-niet": 8,
      "uren-parkeerverbod-onbekend": 7,
-     "vermoedelijk": 6,
      "elke-dag-onbekend": 5,
-     "plek-verspreid": 5
+     "plek-verspreid": 5,
+     "naam-stad-niet": 3,
+     "vermoedelijk": 1
     },
-    "meerDanEen": 20,
-    "losse": 20,
-    "losseVaag": 19
+    "meerDanEen": 15,
+    "losse": 15,
+    "losseVaag": 14
    },
    "terraces": {
     "items": 157,
@@ -244,13 +237,13 @@
     "losseVaag": 2
    },
    "works": {
-    "items": 54,
+    "items": 58,
     "vaag": 5,
     "patronen": {
      "werf-zonder-doel": 5
     },
-    "meerDanEen": 53,
-    "losse": 54,
+    "meerDanEen": 57,
+    "losse": 58,
     "losseVaag": 5
    },
    "agenda:district-kalender": {
@@ -273,49 +266,36 @@
     "patronen": {},
     "losse": 52,
     "losseVaag": 0
-   },
-   "agenda:district-ebesluit-evenementen": {
-    "items": 1,
-    "vaag": 1,
-    "patronen": {
-     "uur-onbekend": 1
-    },
-    "losse": 1,
-    "losseVaag": 1
    }
   },
   "detail": {
-   "metOntbreekt": 285,
+   "metOntbreekt": 286,
    "meerDanEen": 87,
-   "zinnen": 460,
+   "zinnen": 447,
    "perPatroon": {
-    "niet-in-de-bron": 73,
-    "huisnummers-niet-gepubliceerd": 33,
-    "organisator-niet-gepubliceerd": 10,
+    "niet-in-de-bron": 72,
+    "huisnummers-niet-gepubliceerd": 34,
     "beheerder-geen-omschrijving": 9,
-    "uren-niet-gepubliceerd": 9
+    "organisator-niet-gepubliceerd": 5,
+    "uren-niet-gepubliceerd": 4
    }
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 407,
+   "kaarten": 412,
    "vaag": 224
   },
   "losse": {
    "kaarten": 268,
-   "vaag": 75
+   "vaag": 70
   },
   "ingeklapt": {
-   "regels": 25,
-   "kaarten": 183,
+   "regels": 19,
+   "kaarten": 179,
    "perSoort": {
     "aanvragen": {
      "regels": 2,
      "kaarten": 11
-    },
-    "studenten": {
-     "regels": 6,
-     "kaarten": 6
     },
     "terrassen": {
      "regels": 12,
@@ -323,7 +303,7 @@
     },
     "werfzones": {
      "regels": 5,
-     "kaarten": 11
+     "kaarten": 13
     }
    }
   },
@@ -336,11 +316,11 @@
     "ingeklapt": 0
    },
    "Riemstraat": {
-    "kaarten": 12,
-    "vaag": 7,
-    "losseKaarten": 9,
-    "losseVaag": 4,
-    "ingeklapt": 2
+    "kaarten": 10,
+    "vaag": 6,
+    "losseKaarten": 7,
+    "losseVaag": 3,
+    "ingeklapt": 1
    },
    "Vrijdagmarkt": {
     "kaarten": 19,
@@ -358,9 +338,9 @@
    },
    "Groenplaats": {
     "kaarten": 39,
-    "vaag": 31,
+    "vaag": 32,
     "losseKaarten": 11,
-    "losseVaag": 3,
+    "losseVaag": 4,
     "ingeklapt": 1
    },
    "Grote Markt": {
@@ -371,37 +351,37 @@
     "ingeklapt": 1
    },
    "Kloosterstraat": {
-    "kaarten": 36,
-    "vaag": 21,
-    "losseKaarten": 21,
-    "losseVaag": 6,
-    "ingeklapt": 2
+    "kaarten": 34,
+    "vaag": 20,
+    "losseKaarten": 19,
+    "losseVaag": 5,
+    "ingeklapt": 1
    },
    "Paardenmarkt": {
-    "kaarten": 30,
-    "vaag": 14,
-    "losseKaarten": 22,
-    "losseVaag": 8,
-    "ingeklapt": 3
+    "kaarten": 33,
+    "vaag": 15,
+    "losseKaarten": 23,
+    "losseVaag": 7,
+    "ingeklapt": 2
    },
    "Sint-Jansvliet": {
-    "kaarten": 43,
+    "kaarten": 45,
     "vaag": 11,
-    "losseKaarten": 35,
+    "losseKaarten": 37,
     "losseVaag": 3,
     "ingeklapt": 1
    },
    "Kammenstraat": {
-    "kaarten": 20,
+    "kaarten": 23,
     "vaag": 10,
-    "losseKaarten": 12,
+    "losseKaarten": 15,
     "losseVaag": 2,
     "ingeklapt": 2
    },
    "Isabella Brantstraat": {
-    "kaarten": 6,
+    "kaarten": 5,
     "vaag": 2,
-    "losseKaarten": 6,
+    "losseKaarten": 5,
     "losseVaag": 2,
     "ingeklapt": 0
    },
@@ -420,11 +400,11 @@
     "ingeklapt": 0
    },
    "Theaterplein": {
-    "kaarten": 11,
-    "vaag": 5,
-    "losseKaarten": 11,
-    "losseVaag": 5,
-    "ingeklapt": 1
+    "kaarten": 10,
+    "vaag": 4,
+    "losseKaarten": 10,
+    "losseVaag": 4,
+    "ingeklapt": 0
    },
    "Frans Hensstraat": {
     "kaarten": 2,
@@ -442,10 +422,10 @@
    },
    "Pieter Coeckelaan": {
     "kaarten": 8,
-    "vaag": 2,
+    "vaag": 1,
     "losseKaarten": 8,
-    "losseVaag": 2,
-    "ingeklapt": 1
+    "losseVaag": 1,
+    "ingeklapt": 0
    },
    "Bermstraat": {
     "kaarten": 2,
@@ -469,11 +449,11 @@
     "ingeklapt": 0
    },
    "Bonapartedok": {
-    "kaarten": 9,
-    "vaag": 9,
-    "losseKaarten": 5,
-    "losseVaag": 5,
-    "ingeklapt": 2
+    "kaarten": 8,
+    "vaag": 8,
+    "losseKaarten": 4,
+    "losseVaag": 4,
+    "ingeklapt": 1
    },
    "Emile Dancolaan": {
     "kaarten": 1,
@@ -490,9 +470,9 @@
     "ingeklapt": 0
    },
    "Thonetlaan": {
-    "kaarten": 11,
+    "kaarten": 12,
     "vaag": 3,
-    "losseKaarten": 11,
+    "losseKaarten": 12,
     "losseVaag": 3,
     "ingeklapt": 0
    },
@@ -621,44 +601,23 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "71d1045be889fd2d",
-   "code": "2c003c0264f81172"
+   "invoer": "eb9e2787568c4990",
+   "code": "4fe64be3b8a9a381"
   },
   "agenda": {
    "ok": true,
-   "stijging": 0.1,
+   "stijging": -0.2,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": 0.2,
+   "stijging": -0.2,
    "gestegen": []
   },
   "straten": {
-   "ok": false,
-   "stijging": 0.6,
-   "gestegen": [
-    {
-     "id": "generieke-titel",
-     "van": 24,
-     "naar": 28
-    },
-    {
-     "id": "detail:meer-dan-een-ontbreekt",
-     "van": 83,
-     "naar": 87
-    },
-    {
-     "id": "losse-vaag",
-     "van": 69,
-     "naar": 75
-    },
-    {
-     "id": "losse-vaag:agenda:district-asign-evenementen",
-     "van": 22,
-     "naar": 26
-    }
-   ]
+   "ok": true,
+   "stijging": -0.9,
+   "gestegen": []
   },
   "buiten": {
    "ok": true,

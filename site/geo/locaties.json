@@ -205,16 +205,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "hanzestedenplaats amsterdamstraat bataviastraat en 31 andere straten": {
-   "point": [
-    4.405,
-    51.2287
-   ],
-   "precision": "straat",
-   "street": "Hanzestedenplaats",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "hanzestedenplaats bataviastraat bonapartedok en 27 andere straten": {
    "point": [
     4.405,
@@ -233,16 +223,6 @@
    "precision": "adres",
    "street": "Stuivenbergplein",
    "postcode": "2060",
-   "checkedOn": "2026-10-05"
-  },
-  "het stadsmagazijn keistraat 5 7 2000 antwerpen": {
-   "point": [
-    4.40209,
-    51.22536
-   ],
-   "precision": "adres",
-   "street": "Keistraat",
-   "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
   "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
@@ -294,6 +274,16 @@
    "street": "Koningin Astridplein",
    "postcode": "2018",
    "checkedOn": "2026-10-21"
+  },
+  "koningin astridplein appelmansstraat breydelstraat en 20 andere straten": {
+   "point": [
+    4.42075,
+    51.219
+   ],
+   "precision": "straat",
+   "street": "Koningin Astridplein",
+   "postcode": "2018",
+   "checkedOn": "2026-10-28"
   },
   "kristus koningplein 2180 ekeren": {
    "point": [
@@ -385,16 +375,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "pieter coeckelaan en oosterveldlaan": {
-   "point": [
-    4.41625,
-    51.17632
-   ],
-   "precision": "straat",
-   "street": "Pieter Coeckelaan",
-   "postcode": "2020",
-   "checkedOn": "2026-10-12"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -466,16 +446,6 @@
    "checkedOn": "2026-10-12"
   },
   "theaterplein": {
-   "point": [
-    4.41058,
-    51.21419
-   ],
-   "precision": "straat",
-   "street": "Theaterplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
-  "theaterplein aalmoezenierstraat arenbergstraat en 14 andere straten": {
    "point": [
     4.41058,
     51.21419

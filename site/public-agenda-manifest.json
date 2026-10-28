@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-27T00:41:24.859Z",
-  "classificationAsOf": "2026-10-27",
-  "sourceCount": 896,
-  "count": 709,
-  "eventPageCount": 709,
+  "candidateGeneratedAt": "2026-10-28T03:02:42.621Z",
+  "classificationAsOf": "2026-10-28",
+  "sourceCount": 894,
+  "count": 708,
+  "eventPageCount": 708,
   "classifications": {
-    "expired": 132,
-    "current": 24,
-    "future": 685,
-    "review_required": 55
+    "expired": 133,
+    "current": 21,
+    "future": 687,
+    "review_required": 53
   },
   "scopeCounts": {
-    "district": 89,
+    "district": 88,
     "stad": 620
   },
-  "feedGeneratedAt": "2026-10-27T00:41:24.859Z",
+  "feedGeneratedAt": "2026-10-28T03:02:42.621Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:43:29.411Z",
+      "retrievedAt": "2026-10-28T03:04:37.874Z",
       "state": "fresh"
     },
     {
@@ -43,14 +43,14 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:37:57.069Z",
+      "retrievedAt": "2026-10-28T03:01:32.398Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:31:49.927Z",
+      "retrievedAt": "2026-10-28T02:57:37.047Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:37:58.343Z",
+      "retrievedAt": "2026-10-28T03:01:33.673Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:31:37.327Z",
+      "retrievedAt": "2026-10-28T02:57:23.819Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:38:31.949Z",
+      "retrievedAt": "2026-10-28T03:02:08.575Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:38:31.949Z",
+      "retrievedAt": "2026-10-28T03:02:08.575Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-27T00:38:27.291Z",
+      "retrievedAt": "2026-10-28T03:02:03.256Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "a1869c01cd8e4edf0134a3706082aa4271aa4cc4290e052a12909b57fe85f8a4",
+  "digest": "7ca0aebf3044760de93e2c10c838e4eb41dc1f6aa7c6a1ec0ae05119a086fcec",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,12 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Gemengde markt Sint-Franciscusplein",
-    "Gemengde markt Rooiplein",
-    "Gemengde markt Bist",
-    "Vermoedelijk een studentenactiviteit in de Pieter Coeckelaan",
-    "Vermoedelijk een studentenactiviteit op het Theaterplein",
-    "Vermoedelijk een studentenactiviteit op de Hanzestedenplaats",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
@@ -381,6 +375,7 @@
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
     "Evenement op het Koningin Astridplein: route van 2,1 km",
+    "Evenement in de Thonetlaan: verkeersvrije zone in 5 straten",
     "Evenement in Grote Goddaard: route van 1,9 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
@@ -408,6 +403,7 @@
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
+    "Rendierfeesten 2026",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
     "Gemengde markt Sint-Franciscusplein",
@@ -833,6 +829,9 @@
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Kristus-Koningplein",
+    "Woensdagmarkt Vosstraat",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
