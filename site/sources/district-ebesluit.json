@@ -19,8 +19,8 @@
   "contentVersion": "ebesluit-v2|2026-2027|3|6",
   "lastSuccessAt": "2026-10-12T03:21:58.546Z",
   "lastError": {
-    "code": "source_timeout",
-    "at": "2026-10-27T00:31:57.065Z"
+    "code": "search_http_503",
+    "at": "2026-10-28T02:57:44.746Z"
   },
   "items": [
     {
