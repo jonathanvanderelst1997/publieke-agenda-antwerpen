@@ -101,7 +101,8 @@ test("eén paginagrootte per run: de pagina van 500 één keer per run, niet per
   for (const term of ["markt", "foor"]) await searchKeyword(nepEbesluit({ weigert: (n) => n === 500, calls: los }), term, 2026, opties);
   assert.deepEqual(zoekGroottes(los), [500, 500, 100, 500, 500, 100]);
   // De keuze gaat alleen naar kleinere pagina's en blijft binnen [500, 100, 50]; een ongeldige keuze begint bij 500.
-  assert.deepEqual(keuze, { from: 1 });
+  // /zoeken werkte (met 100), dus de stand van de run zegt niet dat het stuk is, en de kalender bleef ongebruikt.
+  assert.deepEqual([keuze.from, keuze.zoekenStuk, keuze.kalender.size], [1, null, 0]);
   const vreemd = [];
   await searchKeyword(nepEbesluit({ calls: vreemd }), "markt", 2026, opties, { from: 7 });
   assert.deepEqual(zoekGroottes(vreemd), [500]);
@@ -245,10 +246,13 @@ test("altijd HTTP 500: fout search_http_500 met lastError in het bronbestand, de
   assert.deepEqual(Object.keys(doc.lastError), ["code", "at"]);
   assert.doesNotMatch(JSON.stringify(doc.lastError), /:\/\/|zoeken|query|speelstraat|kermis|foor|markt/);
   // Begrensd: het jaarvenster met 500, 100 en 50 (elk met de herkansing), het eerste kwartaal en de eerste maand
-  // alleen nog met 50; dan stopt de zoekronde (ze kan niet meer volledig worden), zonder detailpagina's.
+  // alleen nog met 50; dan stopt de zoekronde (ze kan niet meer volledig worden), zonder detailpagina's. Dan één
+  // poging via de kalender (lib/ebesluit-kalender.mjs): de eerste maandlijst geeft hier een 404, dus de bron faalt
+  // met de fout van /zoeken, zonder nog iets te vragen.
   assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 50, 50, 50, 50, 50, 50]);
-  assert.equal(calls.length, 10);
-  assert.deepEqual([...new Set(calls.map((u) => u.searchParams.get("query")))], [EBESLUIT_KEYWORDS[0]]);
+  assert.equal(calls.length, 11);
+  assert.equal(`${calls[10].pathname}${calls[10].search}`, "/zittingen/lijst?month=01&year=2026");
+  assert.deepEqual([...new Set(calls.filter((u) => u.pathname === "/zoeken").map((u) => u.searchParams.get("query")))], [EBESLUIT_KEYWORDS[0]]);
 
   // De volgende nacht weer HTTP 500: het bestand is leesbaar (readSourceDocument), de items blijven, lastError schuift op.
   assert.ok(readSourceDocument(root, SOURCE_ID), "een bronbestand met lastError is geldig");

@@ -482,7 +482,10 @@ test("een fout bij het zoeken laat beide bestanden staan en meldt error, met de 
   assert.deepEqual([document.lastError, document.lastSuccessAt, document.retrievedAt], [{ code: "search_http_500", at: "2026-10-11T04:00:00.000Z" }, NOW.toISOString(), NOW.toISOString()]);
   assert.deepEqual(validateSourceDocument(document, { expectedSourceId: SOURCE_ID }), []);
   // Begrensd: het venster met 500, 100 en 50 rijen (elk met de herkansing), dan de eerste maand met 50; geen detailpagina.
-  assert.deepEqual(calls.map((u) => [u.pathname, Number(u.searchParams.get("pageSize"))]), [500, 500, 100, 100, 50, 50, 50, 50].map((n) => ["/zoeken", n]));
+  // Dan één poging via de kalender (lib/ebesluit-kalender.mjs): de eerste maandlijst geeft hier een 404, dus de bron faalt
+  // met de fout van /zoeken.
+  assert.deepEqual(calls.slice(0, 8).map((u) => [u.pathname, Number(u.searchParams.get("pageSize"))]), [500, 500, 100, 100, 50, 50, 50, 50].map((n) => ["/zoeken", n]));
+  assert.deepEqual(calls.slice(8).map((u) => `${u.pathname}${u.search}`), ["/zittingen/lijst?month=08&year=2026"]);
 });
 
 test("terugval: weigert eBesluit zoekpagina's van 500 rijen, dan lukt het met 100 en is de bron gewoon ok", async (t) => {
