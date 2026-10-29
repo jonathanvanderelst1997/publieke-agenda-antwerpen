@@ -75,6 +75,16 @@
    "postcode": "2020",
    "checkedOn": "2026-10-14"
   },
+  "dageraadplaats": {
+   "point": [
+    4.42971,
+    51.20709
+   ],
+   "precision": "straat",
+   "street": "Dageraadplaats",
+   "postcode": "2018",
+   "checkedOn": "2026-10-29"
+  },
   "dageraadplaats 2018 antwerpen": {
    "point": [
     4.42971,
@@ -244,6 +254,16 @@
    "street": "Jan Vanhoenackerstraat",
    "postcode": "2000",
    "checkedOn": "2026-10-05"
+  },
+  "kaasrui ernest van dijckkaai grote markt en 8 andere straten": {
+   "point": [
+    4.40168,
+    51.2211
+   ],
+   "precision": "straat",
+   "street": "Kaasrui",
+   "postcode": "2000",
+   "checkedOn": "2026-10-29"
   },
   "kioskplaats 2660 hoboken": {
    "point": [
@@ -435,16 +455,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
-   "point": [
-    4.39671,
-    51.22179
-   ],
-   "precision": "straat",
-   "street": "Steenplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "theaterplein": {
    "point": [
     4.41058,
@@ -454,6 +464,16 @@
    "street": "Theaterplein",
    "postcode": "2000",
    "checkedOn": "2026-10-12"
+  },
+  "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
+   "point": [
+    4.39156,
+    51.23036
+   ],
+   "precision": "straat",
+   "street": "Thonetlaan",
+   "postcode": "2050",
+   "checkedOn": "2026-10-29"
   },
   "timmerwerfstraat anneessensstraat artsen zonder grenzenstraat en 75 andere straten": {
    "point": [

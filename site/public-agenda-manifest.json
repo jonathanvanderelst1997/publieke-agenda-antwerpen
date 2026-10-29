@@ -1,28 +1,28 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-28T03:02:42.621Z",
-  "classificationAsOf": "2026-10-28",
-  "sourceCount": 894,
-  "count": 708,
-  "eventPageCount": 708,
+  "candidateGeneratedAt": "2026-10-29T04:27:30.546Z",
+  "classificationAsOf": "2026-10-29",
+  "sourceCount": 902,
+  "count": 716,
+  "eventPageCount": 716,
   "classifications": {
     "expired": 133,
-    "current": 21,
-    "future": 687,
+    "current": 23,
+    "future": 693,
     "review_required": 53
   },
   "scopeCounts": {
-    "district": 88,
-    "stad": 620
+    "district": 90,
+    "stad": 626
   },
-  "feedGeneratedAt": "2026-10-28T03:02:42.621Z",
+  "feedGeneratedAt": "2026-10-29T04:27:30.546Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:04:37.874Z",
+      "retrievedAt": "2026-10-29T04:29:11.351Z",
       "state": "fresh"
     },
     {
@@ -43,14 +43,14 @@
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:01:32.398Z",
+      "retrievedAt": "2026-10-29T04:23:47.891Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T02:57:37.047Z",
+      "retrievedAt": "2026-10-29T04:17:40.375Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:01:33.673Z",
+      "retrievedAt": "2026-10-29T04:23:48.970Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T02:57:23.819Z",
+      "retrievedAt": "2026-10-29T04:17:29.215Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:02:08.575Z",
+      "retrievedAt": "2026-10-29T04:24:23.998Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:02:08.575Z",
+      "retrievedAt": "2026-10-29T04:24:23.998Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-28T03:02:03.256Z",
+      "retrievedAt": "2026-10-29T04:24:18.830Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "7ca0aebf3044760de93e2c10c838e4eb41dc1f6aa7c6a1ec0ae05119a086fcec",
+  "digest": "580a66cffb53c3aa65ae297cad2e5d74fb3e4e8fa7ad0167828690ca72a13d60",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,9 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Kristus-Koningplein",
-    "Woensdagmarkt Vosstraat",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
@@ -203,6 +200,7 @@
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
     "Evenement op de Ossenmarkt: route van 3,5 km",
+    "Evenement op de Kattendijkdok-Oostkaai: route van 6,1 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -377,6 +375,7 @@
     "Evenement op het Koningin Astridplein: route van 2,1 km",
     "Evenement in de Thonetlaan: verkeersvrije zone in 5 straten",
     "Evenement in Grote Goddaard: route van 1,9 km",
+    "Vermoedelijk een wandeling in de Beukenlaan",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -832,6 +831,15 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Gemengde markt Frederik van Eedenplein",
+    "Gemengde markt Ten Eeckhovelei",
+    "Gemengde markt Dageraadplaats",
+    "Gemengde markt Michel Willemsplein",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Botermarkt",
+    "Gemengde markt Zillebekelaan",
+    "Gemengde markt Laar (Borgerhout)",
+    "Gemengde markt Desguinlei",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
