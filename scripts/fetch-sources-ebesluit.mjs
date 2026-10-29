@@ -13,13 +13,16 @@ const itemId=row=>`ebesluit-${slug(row.decisionCode)}-${row.start}-${crypto.crea
 const item=(row,retrievedAt)=>({id:itemId(row),externalId:row.decisionCode,title:row.category==="fair"?row.title:`Openbare markt ${row.location}`,theme:"Activiteit",className:"activity",date:row.start,endDate:row.end&&row.end!==row.start?row.end:null,timeSlot:"Info",timeText:"",location:row.location,postcodes:[],info:row.category==="fair"?"Goedgekeurde foorperiode volgens eBesluit.":"Goedgekeurde feestdagregeling voor deze openbare markt.",kind:"activity",sourceUrl:row.sourceUrl,retrievedAt,reviewRequired:false,inDistrict:true});
 const dedupe=(rows,key)=>[...new Map(rows.map(row=>[key(row),row])).values()];
 
-// Eén paginagrootte voor de hele run (pageSizeChoice): weigert eBesluit 500 rijen, dan vraagt geen enkele zoekterm
-// van geen van beide jaren die pagina nog eens.
-async function discoverKnownYears(fetchImpl,years,sleep){
+// Eén stand voor de hele run (pageSizeChoice): weigert eBesluit 500 rijen, dan vraagt geen enkele zoekterm van geen
+// van beide jaren die pagina nog eens; is /zoeken onbruikbaar (een blijvende 5xx, of het venster genegeerd), dan gaan
+// alle zoektermen en beide jaren via de kalender, met één gedeelde cache van pagina's (searchKeyword in
+// lib/ebesluit-discovery.mjs). `vandaag` begrenst die kalender: zittingen na vandaag + 14 dagen hebben nog geen agenda.
+async function discoverKnownYears(fetchImpl,years,sleep,vandaag){
   const results=[],pageSizes=pageSizeChoice();
-  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year,pageSizes,...(sleep?{sleepImpl:sleep}:{})}));
+  for(const year of years)results.push(await discoverCivicDecisions({fetch:fetchImpl,year,pageSizes,vandaag,...(sleep?{sleepImpl:sleep}:{})}));
   return{
     years,
+    route:results.some(result=>result.route==="kalender")?"kalender":"zoeken",
     complete:results.every(result=>result.complete),
     decisions:dedupe(results.flatMap(result=>result.decisions),row=>row.code),
     calendarItems:dedupe(results.flatMap(result=>result.calendarItems),row=>[row.category,row.location,row.start,row.end,row.decisionCode].join("|")),
@@ -34,7 +37,7 @@ export async function run({fetch:fetchImpl=globalThis.fetch,clock=()=>new Date()
   const now=clock(),retrievedAt=now.toISOString(),year=Number(brusselsDate(now).slice(0,4)),years=[year,year+1];
   let discovery;
   try{
-    discovery=await discoverKnownYears(fetchImpl,years,sleep);
+    discovery=await discoverKnownYears(fetchImpl,years,sleep,brusselsDate(now));
     if(!discovery.complete)throw new FetchError("search_incomplete");
     if(!discovery.decisions.length)throw new FetchError("no_decisions");
   }catch(error){
@@ -46,7 +49,7 @@ export async function run({fetch:fetchImpl=globalThis.fetch,clock=()=>new Date()
   const suppressions=discovery.exceptions.filter(row=>row.category==="market_cancelled").map(row=>({targetSourceId:"stad-markten",date:row.date,location:row.location,sourceUrl:row.sourceUrl,decisionCode:row.decisionCode}));
   if(dryRun)return[statusEntry(SOURCE_ID,{fetchStatus:"ok",retrievedAt,itemCount:screened.items.length})];
   const document=writeSourceDocument(rootDir,SOURCE_ID,sourceDocument(SOURCE_ID,{retrievedAt,fetchStatus:"ok",contentVersion:`ebesluit-v2|${years.join("-")}|${discovery.decisions.length}|${suppressions.length}`,items:screened.items,suppressions}));
-  log(JSON.stringify({source:SOURCE_ID,years,items:document.items.length,suppressions:document.suppressions.length,playStreetAttachments:discovery.playStreetAttachments.length}));
+  log(JSON.stringify({source:SOURCE_ID,years,route:discovery.route,items:document.items.length,suppressions:document.suppressions.length,playStreetAttachments:discovery.playStreetAttachments.length}));
   return[statusEntry(SOURCE_ID,{fetchStatus:"ok",retrievedAt,itemCount:document.items.length})];
 }
 

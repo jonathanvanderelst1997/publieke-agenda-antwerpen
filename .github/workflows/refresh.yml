@@ -540,7 +540,18 @@ jobs:
                 kern=${code#channel_}
                 kern=${kern#search_}
                 kern=${kern#detail_}
-                if [[ $kern =~ ^http_(5[0-9][0-9]|429)$ || $kern =~ ^(timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$ ]] \
+                # De site weigert automatische toegang (Akamai "Access Denied"; zie BRON_WEIGERT_CODE in
+                # lib/fetch-util.mjs): een waarschuwing met uitleg zolang de vorige data binnen maxAgeHours
+                # valt (geen verversing lost dit op), daarna een fout: dan verbergt de site haar items.
+                if [ "$kern" = "bron_weigert_automatisch" ]; then
+                  if [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null) \
+                     && [ $((now - t)) -le $((maxage * 3600)) ]; then
+                    echo "Bron ${id}: de website weigert automatische toegang; vorige data van $(( (now - t) / 3600 )) uur geleden blijft staan"
+                    echo "::warning title=Bron weigert automatische toegang::${id}: de website weigert automatische toegang (geen storing bij ons); de vorige stand van $(( (now - t) / 3600 )) uur geleden blijft staan tot ze ${maxage} uur oud is."
+                  else
+                    bronregel "${id}: de website weigert automatische toegang (${code}) en de vorige stand (${retrieved}) is ouder dan ${maxage} uur; de site toont de items van deze bron niet meer"; bad=1
+                  fi
+                elif [[ $kern =~ ^http_(5[0-9][0-9]|429)$ || $kern =~ ^(timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$ ]] \
                    && [[ $retrieved =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T ]] && t=$(date -u -d "$retrieved" +%s 2>/dev/null) \
                    && [ $((now - t)) -le $((maxage * 3600)) ]; then
                   echo "Bron ${id}: stale (${code}); vorige data van $(( (now - t) / 3600 )) uur geleden blijft staan"

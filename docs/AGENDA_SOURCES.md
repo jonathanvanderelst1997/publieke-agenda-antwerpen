@@ -96,6 +96,33 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
 
+## De site weigert automatische toegang: "geweigerd", een melding
+
+Sinds de nacht van 22 op 23-10-2026 weigert de rand van www.antwerpen.be (Akamai) elke klant die geen
+browser is: een 403 met de pagina "Access Denied" en een referentie op errors.edgesuite.net, ook voor
+`robots.txt` (op 29-10-2026 nog altijd zo). Een gewone browser komt er wel door. Dat raakt `district-kalender`,
+`district-nieuws`, `district-projecten`, `stad-districten` en `stad-koopzondagen`, de handmatige items op
+www.antwerpen.be, en de herverificatie van de nieuwsbrieven (zie "Nieuwsbrieven via de Gateway"). Het is een
+keuze van de site, geen storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, geen
+omweg, geen herhaling).
+
+- `fetchWithTimeout` (`lib/fetch-util.mjs`) herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"`
+  (ook als `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`. `district-vergaderingen`
+  valt bij die code terug op de eBesluit-kalender, zoals bij elke fout op de pagina van antwerpen.be.
+- De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
+- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt:
+  een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm over iets
+  wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert automatische
+  toegang".
+- Is de vorige data ouder dan `maxAgeHours`, dan is het wél een fout (`error`, de verversing wordt rood):
+  de site verbergt dan de items van de bron, en dat moet iemand zien. De uitleg zegt hoe oud de stand is
+  ("Bron weigert automatische toegang, stand te oud"; in de job een `BRON`-regel voor het alarm-issue).
+  De vijf bronnen hierboven zijn dat sinds 24-10-2026: zij blijven rood tot de stad de agenda weer toelaat.
+- Een handmatig item op zo'n pagina blijft "onbereikbaar", nu met `httpStatus: 403` in plaats van `null`
+  (`scripts/check-manual-sources.mjs`).
+- Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
+  toelaten, of dezelfde gegevens als open data.
+
 ## Een falende bron: intern wel, voor bezoekers niet
 
 Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel
@@ -266,7 +293,8 @@ Bij elke fout bewaart een fetcher de vorige, geverifieerde items (`keepPreviousO
 ```
 
 - `lastError.code` is de vaste foutcode van de laatste poging (`http_500`, `search_incomplete`,
-  `no_decisions`, `timeout`, `source_timeout`, `suspicious_drop` …), `lastError.at` het moment van die poging;
+  `search_window_ignored`, `no_decisions`, `timeout`, `source_timeout`, `bron_weigert_automatisch`,
+  `suspicious_drop` …), `lastError.at` het moment van die poging;
   dezelfde code staat als `errorCode` in `refresh-status.json`;
 - bij eBesluit (`district-ebesluit`, `district-ebesluit-evenementen`) draagt de code een vaste fase
   (`metFase` in `lib/ebesluit-discovery.mjs`): `search_<code>` als een zoekpagina faalde, `detail_<code>` als
@@ -309,6 +337,49 @@ evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar
   10 verzoeken voor `district-ebesluit` en 8 voor `district-ebesluit-evenementen`;
 - fail-closed blijft: een onvolledige zoekronde wordt nooit als volledig aanvaard (#186); de bron krijgt
   `fetchStatus: "error"` met de vorige items en `lastError`.
+
+## eBesluit: de kalender als `/zoeken` onbruikbaar is
+
+`/zoeken` was na #201 nog altijd stuk, op twee manieren na elkaar: van 13-10-2026 tot 26-10-2026 gaf het bij
+elke vraag HTTP 500 (ook zonder parameters en in een gewone browser, en ook met pagina's van 50), en sinds
+26-10-2026 antwoordt het weer met 200 maar **negeert het het venster op zittingsdatum**: "markt" in oktober 2026
+gaf op 29-10-2026 "227.724 resultaten gevonden" met rijen uit 2008 tot 2013 bovenaan, en het formulier in het
+antwoord liet `meetingDateStart` en `meetingDateEnd` leeg (ook met dd/mm/jjjj, zoals het formulier van de site).
+Elk venster meldde dan meer treffers dan het kon doorlopen; `district-ebesluit` eindigde met `source_timeout` na
+zijn 6 minuten en `district-ebesluit-evenementen` met `search_incomplete`, elke nacht sinds 12-10-2026. De
+maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's werkten de hele tijd. Daarom
+(`searchKeyword` in `lib/ebesluit-discovery.mjs`, `lib/ebesluit-kalender.mjs`):
+
+- **Onbruikbaar** is `/zoeken` als het na de kleinere pagina's hierboven nog een 5xx geeft (`search_http_5xx`), of
+  als de eerste zoekpagina zelf toont dat het venster genegeerd is (`vensterGenegeerd`): van de rijen met een
+  zittingsdatum ligt de meerderheid buiten het gevraagde venster, en minstens 3 (`VENSTER_GENEGEERD_MIN_RIJEN`).
+  Dan heet de fout `search_window_ignored`, en wordt het venster niet meer in kwartalen en maanden opgesplitst
+  (dat hielp niets: elk venster gaf dezelfde rijen). Elke andere fout (een 404, het tijdsbudget, een onvolledige
+  zoekronde) gaat niet langs de kalender.
+- **Dan de kalender:** dezelfde rijen als de zoekfunctie, uit de maandlijst en de zittingspagina's van het
+  college, het districtscollege en de districtsraad van district Antwerpen (`KALENDER_ORGANEN`), tot 14 dagen na
+  vandaag (daarna staat er nog geen agenda), met de zoekterm in de titel. Ook in het meervoud of enkelvoud
+  (`trefwoordVormen` in `lib/ebesluit-kalender.mjs`): `/zoeken` vond voor "speelstraat" ook de besluiten over
+  "speelstraten", en die titel bevat "speelstraat" niet (straat -> straten, foor -> foren, evenementen ->
+  evenement). De detailronde daarna is dezelfde als voordien. `coverage.route` is `"kalender"`, en de logregel van
+  `district-ebesluit` zegt `"route":"kalender"`.
+- **Eén keer per run:** de eerste zoekterm die het merkt, zet het in de stand van de run (`pageSizeChoice`, dezelfde
+  stand als de paginagrootte van #201); elke volgende zoekterm en, bij `district-ebesluit`, ook het volgende jaar
+  gaan meteen naar de kalender. Elke maandlijst en elke zitting wordt per run hoogstens één keer gehaald (een
+  gedeelde cache), met 500 ms ertussen (`KALENDER_PAUZE_MS`), en `getHtml` herkanst een 5xx één keer. De volgende
+  run probeert `/zoeken` opnieuw: werkt het weer, dan is de kalender vanzelf uit beeld.
+- **Faalt ook de kalender**, dan faalt de bron met de fout van `/zoeken` (`search_http_500` of
+  `search_window_ignored`), zoals voordien: de vorige items blijven, met `lastError`. Het tijdsbudget blijft
+  `source_timeout`.
+- **Gemeten op 29-10-2026** (droge runs vanaf een gewone verbinding, met het tijdsbudget van de verversing):
+  `district-ebesluit` 1 zoekpagina, 12 maandlijsten en 125 zittingen (twee 503's, herkanst) en 8 agendapunten in
+  122 tot 131 s van de 360 s, met precies dezelfde 9 items en 6 onderdrukkingen (3 besluiten) als de laatste
+  geslaagde run via `/zoeken` op 12-10-2026; `district-ebesluit-evenementen` 1 zoekpagina, 4 maandlijsten, 32
+  zittingen en 20 agendapunten in 60 s van de 240 s: 45 besluiten, 6 agendapunten. Die meting was nog zonder de
+  meervoudsvormen: toen vond de kalender geen enkel besluit over speelstraten (zoals 2026_DCAN_00020 van
+  12-01-2026), dus dat het ook dezelfde drie besluiten waren als op 12-10, staat niet vast. De items en
+  onderdrukkingen raakt dat niet (een speelstratenbesluit wordt geen item, `civicCalendarFromDecision`); het aantal
+  besluiten in `contentVersion` en `playStreetAttachments` wel.
 
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
@@ -630,8 +701,11 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
-- **Fout bij het zoeken:** beide bestanden blijven zoals ze waren, `fetchStatus: "error"`. Een kapotte
-  detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt.
+- **Zoekfunctie onbruikbaar** (een blijvende 5xx, of het venster genegeerd): dan zoekt de bron via de kalender,
+  zie "eBesluit: de kalender als `/zoeken` onbruikbaar is". Dat geldt ook voor `district-ebesluit`.
+- **Fout bij het zoeken:** faalt ook de kalender, dan blijven beide bestanden zoals ze waren,
+  `fetchStatus: "error"` met de fout van `/zoeken`. Een kapotte detailpagina houdt de rest niet tegen en
+  komt de volgende keer opnieuw aan de beurt.
 - Gemeten op 10-10-2026: 60 besluiten, 36 gelezen in 42 tot 45 s, 8 komende agendapunten (onder meer de
   Antwerp Marathon op 18 oktober, met opbouw vanaf 12 en afbouw tot 21 oktober).
 - **Eigen fetcher:** deze bron heeft een eigen script en een eigen budget (4 min), in plaats van
@@ -851,6 +925,19 @@ van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets i
 - 404 (niet uitgerold) of 401/403 (nog niet publiek): `disabled`. 503 of een snapshot ouder dan 3 dagen:
   eerder aanvaarde items blijven tot hun datum voorbij is, zolang de pagina ze bevestigt
   (`upstream_stale`). Andere fouten: `error`, vorige items blijven. Andere bronnen worden nooit aangeraakt.
+- **Stand op 29-10-2026: de twee lanen waren nog nooit gevuld.** `mail-district` en `mail-stad` bestaan sinds
+  28-09-2026 en hadden in geen enkele verversing een item: de Gateway leverde elke keer 0 signalen
+  (`"signals":0` in de logregel `{"source":"mail",…}` van de verversing). `emptySince: 2026-10-10` in
+  `refresh-status.json` is dus niet de dag waarop de lanen stilvielen, maar de dag waarop de teller "leeg"
+  begon (#157, zie "Leeg: antwoordt wel, levert niets"). De nul komt niet van deze kant: aan de kant van de Mac
+  haalde nog geen enkele mail de poorten van de Gateway (een nieuwsbrief van een toegelaten afzender, met een
+  link naar een publieke pagina die zelf een komende activiteit bevestigt). Daar moet het opgelost worden, niet
+  hier.
+- Sinds 23-10-2026 weigert www.antwerpen.be automatische toegang (zie "De site weigert automatische toegang").
+  Een signaal met een link naar www.antwerpen.be haalt hier dan de herverificatie niet (reden
+  `bron_weigert_automatisch` in `reasons`), ook als de Gateway het levert.
+- Na een herstart van de Gateway geeft de route even 503 (`mail_signalen_unavailable`) tot de companion het
+  bestand opnieuw brengt (binnen het uur); hier is dat `upstream_stale`, geen fout.
 
 ## Privacy
 
