@@ -358,8 +358,11 @@ maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's werkten de hel
   zoekronde) gaat niet langs de kalender.
 - **Dan de kalender:** dezelfde rijen als de zoekfunctie, uit de maandlijst en de zittingspagina's van het
   college, het districtscollege en de districtsraad van district Antwerpen (`KALENDER_ORGANEN`), tot 14 dagen na
-  vandaag (daarna staat er nog geen agenda), met de zoekterm in de titel. De detailronde daarna is dezelfde als
-  voordien. `coverage.route` is `"kalender"`, en de logregel van `district-ebesluit` zegt `"route":"kalender"`.
+  vandaag (daarna staat er nog geen agenda), met de zoekterm in de titel. Ook in het meervoud of enkelvoud
+  (`trefwoordVormen` in `lib/ebesluit-kalender.mjs`): `/zoeken` vond voor "speelstraat" ook de besluiten over
+  "speelstraten", en die titel bevat "speelstraat" niet (straat -> straten, foor -> foren, evenementen ->
+  evenement). De detailronde daarna is dezelfde als voordien. `coverage.route` is `"kalender"`, en de logregel van
+  `district-ebesluit` zegt `"route":"kalender"`.
 - **Eén keer per run:** de eerste zoekterm die het merkt, zet het in de stand van de run (`pageSizeChoice`, dezelfde
   stand als de paginagrootte van #201); elke volgende zoekterm en, bij `district-ebesluit`, ook het volgende jaar
   gaan meteen naar de kalender. Elke maandlijst en elke zitting wordt per run hoogstens één keer gehaald (een
@@ -372,7 +375,11 @@ maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's werkten de hel
   `district-ebesluit` 1 zoekpagina, 12 maandlijsten en 125 zittingen (twee 503's, herkanst) en 8 agendapunten in
   122 tot 131 s van de 360 s, met precies dezelfde 9 items en 6 onderdrukkingen (3 besluiten) als de laatste
   geslaagde run via `/zoeken` op 12-10-2026; `district-ebesluit-evenementen` 1 zoekpagina, 4 maandlijsten, 32
-  zittingen en 20 agendapunten in 60 s van de 240 s: 45 besluiten, 6 agendapunten.
+  zittingen en 20 agendapunten in 60 s van de 240 s: 45 besluiten, 6 agendapunten. Die meting was nog zonder de
+  meervoudsvormen: toen vond de kalender geen enkel besluit over speelstraten (zoals 2026_DCAN_00020 van
+  12-01-2026), dus dat het ook dezelfde drie besluiten waren als op 12-10, staat niet vast. De items en
+  onderdrukkingen raakt dat niet (een speelstratenbesluit wordt geen item, `civicCalendarFromDecision`); het aantal
+  besluiten in `contentVersion` en `playStreetAttachments` wel.
 
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 

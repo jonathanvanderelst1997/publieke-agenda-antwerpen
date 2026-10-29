@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { EBESLUIT_KEYWORDS, VENSTER_GENEGEERD_MIN_RIJEN, discoverCivicDecisions, pageSizeChoice, searchKeyword, vensterGenegeerd, zoekfunctieStuk } from "../lib/ebesluit-discovery.mjs";
 import { ontdekEvenementBesluiten } from "../lib/ebesluit-evenementen.mjs";
-import { KALENDER_ORGANEN, maandenTussen, puntenUitZitting, zittingenUitLijst } from "../lib/ebesluit-kalender.mjs";
+import { KALENDER_ORGANEN, maandenTussen, puntenUitZitting, trefwoordVormen, zittingenUitLijst } from "../lib/ebesluit-kalender.mjs";
 import { FetchError } from "../lib/fetch-util.mjs";
 import { run as runEbesluit } from "../scripts/fetch-sources-ebesluit.mjs";
 
@@ -101,6 +101,54 @@ test("zittingspagina: per punt id, titel en of het gepubliceerd is; zelfde vorm 
   assert.match(cbs[0].title, /voor "Nachtelijke Testklanken",/, "entiteiten ontcijferd zoals in een zoekrij");
   assert.deepEqual(maandenTussen("2026-08-11", "2026-10-24"), [[2026, 8], [2026, 9], [2026, 10]]);
   assert.deepEqual(maandenTussen("2026-12-01", "2027-01-31"), [[2026, 12], [2027, 1]]);
+});
+
+// ---------- een zoekterm in de titel, ook in het meervoud ----------
+
+test("trefwoordVormen: de term, het meervoud met korte klinker (straat -> straten) en een meervoud zonder -en", () => {
+  assert.deepEqual(trefwoordVormen("speelstraat"), ["speelstraat", "speelstraten"]);
+  assert.deepEqual(trefwoordVormen("foor"), ["foor", "foren"]);
+  assert.deepEqual(trefwoordVormen("Evenementen"), ["evenementen", "evenement"]);
+  // Markten en kermissen bevatten de term al; geen extra vorm nodig.
+  assert.deepEqual(trefwoordVormen("markt"), ["markt"]);
+  assert.deepEqual(trefwoordVormen("kermis"), ["kermis"]);
+  assert.deepEqual(trefwoordVormen("muziekactiviteit"), ["muziekactiviteit"]);
+  assert.deepEqual(trefwoordVormen(""), []);
+});
+
+// /zoeken vond voor "speelstraat" ook de besluiten over "speelstraten" (classifyCivicDecisionTitle heeft er een eigen
+// regel voor). Via de kalender vielen die weg: de titel "... Speelstraten - Principebeslissing stratenlijst 2026 -
+// Goedkeuring" (zo staat 2026_DCAN_00020 op de zittingspagina van 12-01-2026) bevat "speelstraat" niet. Verzonnen
+// codes en ids, in de vorm van de echte titels.
+test("district-ebesluit via de kalender: speelstraat vindt ook de besluiten over speelstraten, zoals /zoeken", async () => {
+  const titels = {
+    "26.1005.0020.0020": "2026_DCAN_09120 - Ondersteuning. Districtsfonds: beleef je buurt! Speelstraten - Principebeslissing stratenlijst 2026 - Goedkeuring",
+    "26.1005.0021.0021": "2026_DCAN_09121 - Binnengemeentelijke decentralisatie - Aanvullend verkeersreglement. Aanvragen speelstraten paasvakantie 2026 - Goedkeuring",
+    "26.1005.0022.0022": "2026_DCAN_09122 - Proefstraat. Wegeniswerken - Gunning - Goedkeuring",
+  };
+  const zitting = `<ul>${Object.entries(titels).map(([id, titel]) => `
+    <li class="agendapage" data-meeting-item-id="${id}"><div class="item"><a href="/zittingen/25.0901.0000.0007/agendapunten/${id}" class="title">${titel}</a></div></li>`).join("")}
+  </ul>`;
+  const besluit = (titel) => `Besluit ${titel} districtscollege Antwerpen Het districtscollege antwerpen beslist: Artikel 1 goed volgens bijlage. Artikel 2 Einde. <a href="/files/speelstraten.pdf">speelstraten.pdf</a>`;
+  const calls = [];
+  const fetchImpl = async (url) => {
+    const u = new URL(String(url));
+    calls.push(`${u.pathname}${u.search}`);
+    if (u.pathname === "/zoeken") return resp(zonderVenster());
+    if (u.pathname === "/zittingen/lijst") return resp(u.searchParams.get("month") === "10" && u.searchParams.get("year") === "2026" ? kalender("lijst-2026-10.html") : LEGE_LIJST);
+    if (u.pathname === "/zittingen/25.0901.0000.0007") return resp(zitting);
+    const punt = u.pathname.match(/\/agendapunten\/([^/]+)$/)?.[1];
+    if (punt && titels[punt]) return resp(besluit(titels[punt]));
+    return /^\/zittingen\/[0-9.]+$/.test(u.pathname) ? resp("<ul></ul>") : resp("", 404);
+  };
+  const result = await discoverCivicDecisions({ fetch: fetchImpl, year: 2026, retryDelayMs: 0, sleepImpl: noSleep, vandaag: TODAY });
+  assert.equal(result.route, "kalender");
+  const speelstraat = result.coverage.find((c) => c.keyword === "speelstraat");
+  assert.equal(speelstraat.resultCount, 2, "beide besluiten over speelstraten, niet de wegeniswerken");
+  assert.deepEqual(result.decisions.map((d) => [d.code, d.category]), [["2026_DCAN_09120", "play_street_approval"], ["2026_DCAN_09121", "play_street_approval"]]);
+  assert.deepEqual(result.playStreetAttachments.map((p) => p.decisionCode), ["2026_DCAN_09120", "2026_DCAN_09121"]);
+  // De detailronde vraagt alleen die twee punten; de wegeniswerken vallen al op de titel weg.
+  assert.deepEqual(calls.filter((c) => c.includes("/agendapunten/")).sort(), ["/zittingen/25.0901.0000.0007/agendapunten/26.1005.0020.0020", "/zittingen/25.0901.0000.0007/agendapunten/26.1005.0021.0021"]);
 });
 
 // ---------- herkennen dat /zoeken het venster negeert ----------
