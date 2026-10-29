@@ -87,6 +87,17 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
   assert.deepEqual(validateManualCheck(written), []);
 });
 
+test("een weigering aan de rand van de site is onbereikbaar, met httpStatus 403", async (t) => {
+  const root = tempRoot(t);
+  const akamai = "<HTML><HEAD><TITLE>Access Denied</TITLE></HEAD><BODY><H1>Access Denied</H1>Reference&#32;&#35;18&#46;0000aaaa<P>https&#58;&#47;&#47;errors&#46;edgesuite&#46;net&#47;18</P></BODY></HTML>";
+  const fetch = async (url) => (String(url).includes("gaston")
+    ? new Response(akamai, { status: 403, headers: { "content-type": "text/html" } })
+    : { status: 200, headers: { get: () => null }, text: async () => "<p>Openbare werken</p>" });
+  const doc = await run({ rootDir: root, fetch, clock: () => new Date("2026-10-06T03:20:00Z"), log: () => {}, sleep: async () => {} });
+  const gaston = doc.sources.find((entry) => entry.sourceId === "city-gaston-buurtfeest");
+  assert.deepEqual([gaston.status, gaston.httpStatus], ["onbereikbaar", 403]);
+});
+
 test("gewijzigd of weg haalt het handmatige item van de site; onbereikbaar niet", (t) => {
   const items = loadExpandedAgendaItems(rootDir).filter((item) => !item.feed);
   const feest = items.find((item) => item.id === "buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10");
