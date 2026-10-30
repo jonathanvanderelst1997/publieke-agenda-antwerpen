@@ -35,6 +35,16 @@
    "postcode": "2020",
    "checkedOn": "2026-10-12"
   },
+  "beukenlaan en acacialaan": {
+   "point": [
+    4.409,
+    51.18085
+   ],
+   "precision": "straat",
+   "street": "Beukenlaan",
+   "postcode": "2020",
+   "checkedOn": "2026-10-30"
+  },
   "bist 2610 wilrijk": {
    "point": [
     4.395,
@@ -185,6 +195,16 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
+  "geelhandplaats 3 2060 antwerpen": {
+   "point": [
+    4.42998,
+    51.22268
+   ],
+   "precision": "adres",
+   "street": "Geelhandplaats",
+   "postcode": "2060",
+   "checkedOn": "2026-10-30"
+  },
   "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
    "point": [
     4.40467,
@@ -264,6 +284,16 @@
    "street": "Kaasrui",
    "postcode": "2000",
    "checkedOn": "2026-10-29"
+  },
+  "kattendijkdok oostkaai amsterdamstraat bataviastraat en 28 andere straten": {
+   "point": [
+    4.4092,
+    51.23595
+   ],
+   "precision": "straat",
+   "street": "Kattendijkdok-Oostkaai",
+   "postcode": "2000",
+   "checkedOn": "2026-10-30"
   },
   "kioskplaats 2660 hoboken": {
    "point": [
@@ -505,16 +535,6 @@
    "postcode": "2018",
    "checkedOn": "2026-10-16"
   },
-  "viaduct dam en damplein": {
-   "point": [
-    4.42502,
-    51.23064
-   ],
-   "precision": "straat",
-   "street": "Viaduct-Dam",
-   "postcode": "2060",
-   "checkedOn": "2026-10-12"
-  },
   "vosstraat 2140 borgerhout": {
    "point": [
     4.45157,
@@ -579,7 +599,6 @@
   "duinstraat 2060 antwerpen": "2026-10-24",
   "durletstraat 2018 antwerpen": "2026-10-24",
   "fort 8 district hoboken plaats volgens het bericht": "2026-10-18",
-  "geelhandplaats 2060 antwerpen": "2026-10-24",
   "grotebeerstraat 2018 antwerpen": "2026-10-24",
   "halenstraat kant stuivenbergplein 2060 antwerpen": "2026-10-24",
   "harmoniepark 1": "2026-10-19",
@@ -592,7 +611,6 @@
   "lange riddersstraat 2000 antwerpen": "2026-10-24",
   "lange van ruusbroecstraat 2018 antwerpen": "2026-10-24",
   "louiza marialei 2018 antwerpen": "2026-10-24",
-  "nieuw zuid district antwerpen": "2026-10-26",
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-10-24",
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-24",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-24",
@@ -602,6 +620,7 @@
   "schijnpoortweg 2060 antwerpen": "2026-10-24",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-24",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-10-24",
+  "seefhoek 2060 antwerpen": "2026-10-30",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-24",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-24",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-10-18",
@@ -609,6 +628,7 @@
   "toeristisch centrum antwerpen": "2026-10-19",
   "van de wervestraat 2060 antwerpen": "2026-10-24",
   "van immerseelstraat 2018 antwerpen": "2026-10-24",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-24"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-24",
+  "wolf food market te godefriduskaai 30 2000 antwerpen": "2026-10-30"
  }
 }
