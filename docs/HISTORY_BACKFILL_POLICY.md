@@ -27,7 +27,7 @@ Elke backfillbron krijgt `sourceId`, `completeness` (`full`, `partial` of `unkno
 
 ## Eerste materializer
 
-`node scripts/backfill-asign-parking-history.mjs` voert standaard alleen een dry-run uit voor A-Sign laag 20. Schrijven vereist expliciet `node scripts/backfill-asign-parking-history.mjs --write`.
+De CLI vereist een expliciete scope. `node scripts/backfill-asign-parking-history.mjs --month=2020-05` controleert uitsluitend de gekozen maand, schrijft niets en rapporteert `partial`. `--all` vraagt een volledige dry-run; alleen `--all --write` kan de volledige jaarscherven en index schrijven. Oudere bronrecords worden alleen geteld. Hun aanwezigheid blokkeert de gekozen periode niet. Iedere geïmporteerde record moet binnen haar aangevraagde maandvenster en de vastgelegde dekking vallen.
 
 De generator:
 - leest de eigen bewezen baseline uit `site/history/archive/index.json` en neemt alleen parkeerverboden op die vóór die baseline eindigden;
@@ -43,3 +43,21 @@ De generator:
 - Alleen dezelfde publieke velden als live mogen worden opgeslagen; privacyregels blijven gelden.
 - Bestaande historische shards worden niet stil overschreven.
 - “Volledige history” betekent volledige **bewezen** bronhistoriek waar de bron dat ondersteunt, plus de volledige eigen observatiehistoriek vanaf de baseline; niet-bewijsbare gaten blijven zichtbaar.
+
+### Integriteitscontrole van de bronbatches
+
+De historische generator gebruikt `lib/asign-history-fetch.mjs`.
+Hij leest maximaal 100 objecten per detailbatch en weigert een ontbrekende
+ID-lijst, dubbele of ongeldige IDs, transferlimieten en ontbrekende of onverwachte
+detailobjecten. De bronfilter blijft op de detailquery staan. Elke response is
+begrensd in tijd en omvang.
+
+De generator controleert het district opnieuw en gebruikt de bestaande publieke
+adresprojectie, met een geverifieerd huisnummer waar die projectie het ondersteunt.
+Een onopgeloste locatie of conflicterende bronidentiteit stopt de import.
+
+Geslaagde fixturetoetsen bewijzen geen uitgevoerde gegevensronde. Historische
+statuswaarden en daadwerkelijke brondekking worden gecontroleerd in de dry-run.
+Er wordt geen dekking voor andere bronnen toegevoegd.
+
+De bronproef van 28 oktober 2026 telde 199.697 oudere startdatums en meer dan 15.000 bronrecords in elk jaarvenster. De importer gebruikt daarom opeenvolgende maandvensters en vereist voor een volledige CLI-ronde expliciet `--all`. Een maandproef publiceert geen jaarschijf, index of volledige dekkingsclaim. De bestaande grenzen per aanvraag en per jaarschijf blijven gelden.
