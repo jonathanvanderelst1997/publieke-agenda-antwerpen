@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-10-30T04:23:30.381Z",
+  "generatedAt": "2026-10-31T04:23:42.760Z",
   "venster": {
-    "van": "2026-08-31",
-    "tot": "2027-02-27"
+    "van": "2026-09-01",
+    "tot": "2027-02-28"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 45,
-    "gelezen": 26,
+    "besluiten": 42,
+    "gelezen": 25,
     "teLezen": 0,
-    "metDag": 25,
-    "inDistrict": 20,
-    "agendapunten": 18
+    "metDag": 24,
+    "inDistrict": 19,
+    "agendapunten": 17
   },
   "besluiten": [
     {
@@ -53,105 +53,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
-    },
-    {
-      "id": "26.0824.3924.1832",
-      "code": "2026_DCAN_00561",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-08-31",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Cézanne - Week van het Nederlands",
-      "organisator": "Nekka vzw",
-      "dagen": [
-        "2026-10-17"
-      ],
-      "uren": null,
-      "plaats": "Keistraat 5/7, 2000 Antwerpen",
-      "straten": [
-        "Keistraat"
-      ],
-      "postcodes": [
-        "2000"
-      ],
-      "inDistrict": true,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0824.3924.1832",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0824.0216.6349",
-      "code": "2026_DCAN_00562",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-08-31",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
-      "organisator": null,
-      "dagen": [],
-      "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0824.0216.6349"
-    },
-    {
-      "id": "26.0821.3353.9193",
-      "code": "2026_DCAN_00563",
-      "soort": "districtsfonds",
-      "status": "weigering",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-08-31",
-      "gepubliceerd": true,
-      "gelezen": false,
-      "naam": null,
-      "organisator": "Out Of Sight vzw",
-      "dagen": [],
-      "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0821.3353.9193"
-    },
-    {
-      "id": "26.0826.0131.8354",
-      "code": "2026_DCAN_00564",
-      "soort": "districtsfonds",
-      "status": "weigering",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-08-31",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
-      "organisator": null,
-      "dagen": [],
-      "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5368.9608/agendapunten/26.0826.0131.8354"
     },
     {
       "id": "26.0529.8160.2202",
@@ -1340,6 +1241,29 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0573.6817/agendapunten/26.1019.7382.7220"
+    },
+    {
+      "id": "26.1028.4364.6933",
+      "code": "2026_DCAN_00711",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-02",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "MAJESTIC VZW",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0246.4565/agendapunten/26.1028.4364.6933"
     }
   ]
 }
