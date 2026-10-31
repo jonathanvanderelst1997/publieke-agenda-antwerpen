@@ -1,56 +1,56 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-10-30T04:24:31.083Z",
-  "classificationAsOf": "2026-10-30",
-  "sourceCount": 896,
-  "count": 716,
-  "eventPageCount": 716,
+  "candidateGeneratedAt": "2026-10-31T04:24:25.171Z",
+  "classificationAsOf": "2026-10-31",
+  "sourceCount": 894,
+  "count": 714,
+  "eventPageCount": 714,
   "classifications": {
-    "expired": 129,
-    "current": 24,
-    "future": 692,
-    "review_required": 51
+    "expired": 130,
+    "current": 25,
+    "future": 689,
+    "review_required": 50
   },
   "scopeCounts": {
     "district": 93,
-    "stad": 623
+    "stad": 621
   },
-  "feedGeneratedAt": "2026-10-30T04:24:31.083Z",
+  "feedGeneratedAt": "2026-10-31T04:24:25.171Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:26:26.996Z",
+      "retrievedAt": "2026-10-31T04:26:01.214Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:20:00.526Z",
+      "retrievedAt": "2026-10-31T04:19:57.733Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:23:30.381Z",
+      "retrievedAt": "2026-10-31T04:23:42.760Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:22:33.760Z",
+      "retrievedAt": "2026-10-31T04:22:29.798Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:19:52.211Z",
+      "retrievedAt": "2026-10-31T04:19:51.550Z",
       "state": "empty"
     },
     {
@@ -78,28 +78,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:22:34.923Z",
+      "retrievedAt": "2026-10-31T04:22:30.558Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:19:40.915Z",
+      "retrievedAt": "2026-10-31T04:19:39.502Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:23:10.120Z",
+      "retrievedAt": "2026-10-31T04:23:03.051Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:23:10.120Z",
+      "retrievedAt": "2026-10-31T04:23:03.051Z",
       "state": "empty"
     },
     {
@@ -120,7 +120,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-10-30T04:23:04.572Z",
+      "retrievedAt": "2026-10-31T04:22:58.470Z",
       "state": "fresh"
     },
     {
@@ -131,7 +131,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "d633b7dcc12d3b75de23cb17c304bb542971f30b80d050edddd36195ead0f6e4",
+  "digest": "f7d81b301667d95dfee4b67b743ac9c9ecc277a2d923701bb2a19ae2dbdc6365",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -156,12 +156,6 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
-    "Gemengde markt Michel Willemsplein",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Botermarkt",
-    "Gemengde markt Zillebekelaan",
-    "Gemengde markt Laar (Borgerhout)",
-    "Gemengde markt Desguinlei",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
@@ -839,6 +833,10 @@
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
     "Gemengde markt Desguinlei",
+    "Gemengde markt Wim Saerensplein",
+    "Gemengde markt en exotische markt Oudevaartplaats",
+    "Markt voor voeding, bloemen en planten Kioskplaats",
+    "Gemengde markt De Villegasstraat",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
