@@ -65,26 +65,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-15"
   },
-  "brugstraat": {
-   "point": [
-    4.41859,
-    51.22653
-   ],
-   "precision": "straat",
-   "street": "Brugstraat",
-   "postcode": "2060",
-   "checkedOn": "2026-10-12"
-  },
-  "co nova schijfstraat 105 2020 antwerpen": {
-   "point": [
-    4.37308,
-    51.19068
-   ],
-   "precision": "adres",
-   "street": "Schijfstraat",
-   "postcode": "2020",
-   "checkedOn": "2026-10-14"
-  },
   "dageraadplaats": {
    "point": [
     4.42971,
@@ -104,16 +84,6 @@
    "street": "Dageraadplaats",
    "postcode": "2018",
    "checkedOn": "2026-10-05"
-  },
-  "dahliastraat": {
-   "point": [
-    4.41947,
-    51.22718
-   ],
-   "precision": "straat",
-   "street": "Dahliastraat",
-   "postcode": "2060",
-   "checkedOn": "2026-10-12"
   },
   "de coninckplein": {
    "point": [
@@ -590,10 +560,9 @@
   "demerstraat 2060 antwerpen": "2026-10-24",
   "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-22",
   "district borgerhout locatie via de officiele bron": "2026-10-19",
-  "district borsbeek locatie via de officiele bron": "2026-10-18",
+  "district borsbeek locatie via de officiele bron": "2026-11-01",
   "district deurne locatie via de officiele bron": "2026-10-27",
   "district ekeren locatie via de officiele bron": "2026-10-19",
-  "district merksem locatie via de officiele bron": "2026-10-19",
   "district wilrijk locatie via de officiele bron": "2026-10-19",
   "districtshuis antwerpen zaal benoit": "2026-10-19",
   "duinstraat 2060 antwerpen": "2026-10-24",
@@ -604,7 +573,6 @@
   "hertoginstraat 2018 antwerpen": "2026-10-24",
   "jacob jordaensstraat 2018 antwerpen": "2026-10-24",
   "korte scholierstraat antwerpen": "2026-10-24",
-  "kruispunt lange elzenstraat desguinlei 2018 antwerpen": "2026-10-24",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-10-24",
   "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-10-24",
   "lange riddersstraat 2000 antwerpen": "2026-10-24",
@@ -613,7 +581,7 @@
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-10-24",
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-24",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-24",
-  "park gravenhof district hoboken plaats volgens het bericht": "2026-10-18",
+  "park gravenhof district hoboken plaats volgens het bericht": "2026-11-01",
   "provinciehuis antwerpen": "2026-10-19",
   "scheldestraat 2000 antwerpen": "2026-10-24",
   "schijnpoortweg 2060 antwerpen": "2026-10-24",
@@ -622,12 +590,11 @@
   "seefhoek 2060 antwerpen": "2026-10-30",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-24",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-10-24",
-  "sporthal de rode loop district merksem plaats volgens het bericht": "2026-10-18",
+  "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-01",
   "ten eeckhovelei 2100 deurne": "2026-10-19",
   "toeristisch centrum antwerpen": "2026-10-19",
   "van de wervestraat 2060 antwerpen": "2026-10-24",
   "van immerseelstraat 2018 antwerpen": "2026-10-24",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-24",
-  "wolf food market te godefriduskaai 30 2000 antwerpen": "2026-10-30"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-24"
  }
 }
