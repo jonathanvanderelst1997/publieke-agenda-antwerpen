@@ -219,9 +219,10 @@ test("bouwen: één item per GIPOD-id met omleidingen; het bestand is geldig en 
   assert.match(validateAwvSupplementItems([items[1], items[0]]).join("\n"), /niet gesorteerd/);
 });
 
-test("de bron staat in het register met een eigen budget van 60 s en is een aanvulling, geen agendabron", () => {
+test("de bron staat in het register met een eigen budget van 120 s en is een aanvulling, geen agendabron", () => {
   const fetcher = FETCHERS.find((f) => f.sourceIds.includes(AWV_WERF_SOURCE_ID));
-  assert.equal(fetcher.budgetMs, 60_000);
+  // 120 s sinds 03-11-2026: één innamesvraag duurde 22,5 s (issue #215); zie WFS_TIMEOUT_MS.
+  assert.equal(fetcher.budgetMs, 120_000);
   assert.equal(FETCHERS.at(-1).name, "district-ebesluit-evenementen", "eBesluit-evenementen blijft als laatste");
   const definitie = SOURCE_DEFINITIONS[AWV_WERF_SOURCE_ID];
   assert.deepEqual([definitie.aanvulling, definitie.scope, definitie.bootstrapOptional, definitie.shrinkGuard], [true, "district", true, false]);
@@ -289,4 +290,22 @@ test("de aanvulling komt nooit in de agendafeed: build:sources slaat het bestand
   assert.equal(documents.some((d) => d.sourceId === AWV_WERF_SOURCE_ID), false);
   const feed = fs.readFileSync(new URL("../site/agenda-feed.js", import.meta.url), "utf8");
   assert.doesNotMatch(feed, /awv-werf-supplement/);
+});
+
+test("een WFS-vraag mag 50 s duren, niet de standaard 20 s (issue #215)", async (t) => {
+  const { WFS_TIMEOUT_MS, haalWfs } = await import("../scripts/fetch-sources-awv-werf.mjs");
+  assert.equal(WFS_TIMEOUT_MS, 50_000);
+  // Een antwoord dat pas na 22,5 s komt (zoals gemeten op 03-11-2026), met nagebootste timers: na 20 s
+  // breekt de vraag niet meer af, na 50 s wel.
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const traag = (msAntwoord) => (url, { signal }) => new Promise((klaar, fout) => {
+    const timer = setTimeout(() => klaar(new Response(JSON.stringify({ type: "FeatureCollection", features: [] }), { status: 200 })), msAntwoord);
+    signal.addEventListener("abort", () => { clearTimeout(timer); fout(new Error("aborted")); });
+  });
+  const op22 = haalWfs(traag(22_500), "https://opendata.apps.mow.vlaanderen.be/x");
+  t.mock.timers.tick(22_500);
+  assert.equal((await op22).type, "FeatureCollection");
+  const op60 = haalWfs(traag(60_000), "https://opendata.apps.mow.vlaanderen.be/x");
+  t.mock.timers.tick(50_000);
+  await assert.rejects(op60, (fout) => fout.code === "timeout" || /timeout/.test(String(fout.message ?? fout)));
 });
