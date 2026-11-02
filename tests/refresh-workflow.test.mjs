@@ -241,13 +241,16 @@ test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zoda
     // reactie weg.
     const bin = path.join(temp, "bin");
     fs.mkdirSync(bin);
-    fs.writeFileSync(path.join(bin, "gh"), '#!/usr/bin/env bash\ncase "$1 $2" in\n  "issue list") echo 42 ;;\n  "issue comment") printf "%s" "$5" > "$GH_UIT" ;;\n  *) exit 3 ;;\nesac\n', { mode: 0o755 });
-    const reactie = (dag, bron) => {
+    // "issue view" geeft de vorige reactie (GH_VORIGE), of niets.
+    fs.writeFileSync(path.join(bin, "gh"), '#!/usr/bin/env bash\ncase "$1 $2" in\n  "issue list") echo 42 ;;\n  "issue view") cat "${GH_VORIGE:-/dev/null}" ;;\n  "issue comment") printf "%s" "$5" > "$GH_UIT" ;;\n  *) exit 3 ;;\nesac\n', { mode: 0o755 });
+    let laatsteStdout = "";
+    const reactie = (dag, bron, extra = {}) => {
       const uitBestand = path.join(temp, `${dag}-reactie.txt`);
-      const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, GH_UIT: uitBestand, GH_TOKEN: "proef", GH_REPO: "proef/agenda", RUN_URL: "https://github.com/proef/agenda/actions/runs/123", EVENT: "workflow_dispatch", REASON: "brain", R_REFRESH: "success", R_PUBLISH: "success", R_HEALTH: "failure", R_FRESH: "success", BRON: bron ?? "" };
+      const env = { ...process.env, PATH: `${bin}:${process.env.PATH}`, GH_UIT: uitBestand, GH_TOKEN: "proef", GH_REPO: "proef/agenda", RUN_URL: "https://github.com/proef/agenda/actions/runs/123", EVENT: "workflow_dispatch", REASON: "brain", R_REFRESH: "success", R_PUBLISH: "success", R_HEALTH: "failure", R_FRESH: "success", BRON: bron ?? "", ...extra };
       const uit = spawnSync("bash", ["-c", alarm.run], { env, encoding: "utf8" });
       assert.equal(uit.status, 0, uit.stderr);
-      return fs.readFileSync(uitBestand, "utf8");
+      laatsteStdout = uit.stdout;
+      return fs.existsSync(uitBestand) ? fs.readFileSync(uitBestand, "utf8") : null;
     };
     const fout = (sourceId, errorCode, uur) => ({ sourceId, fetchStatus: "error", retrievedAt: geleden(uur), errorCode, maxAgeHours: 48 });
     // Dag 1: alleen eBesluit (al 60 uur een 500). Dag 2: daarbovenop de kalender van het district en de werken van de historiek.
@@ -280,6 +283,20 @@ test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zoda
     const b4 = reactie("veel", `${veel}\nIets anders @iemand\n<b>vet</b>`);
     assert.equal((b4.match(/^BRON /gm) || []).length, 30);
     assert.doesNotMatch(b4, /@iemand|<b>|Iets anders/);
+    // Issue #215: dezelfde fouten als in de vorige reactie geven geen nieuwe reactie, ook als een tijdstip of een
+    // aantal uren in de regels veranderde; een andere fout wel.
+    assert.match(b2, /^Kenmerk: \d+ \(dezelfde fouten geven geen nieuwe reactie\)$/m);
+    const vorige = path.join(temp, "vorige.txt");
+    fs.writeFileSync(vorige, b2);
+    assert.equal(reactie("zelfde", dag2.bron, { GH_VORIGE: vorige }), null, "geen nieuwe reactie");
+    assert.match(laatsteStdout, /Dezelfde fouten als in de vorige reactie op issue #42/);
+    const weigering = (ts, uur) => `BRON district-kalender: de website weigert automatische toegang (bron_weigert_automatisch) en de vorige stand (${ts}) is ${uur} uur oud`;
+    const eerste = reactie("weigering-1", weigering("2026-10-22T03:19:18.427Z", 260));
+    const vorigeWeigering = path.join(temp, "vorige-weigering.txt");
+    fs.writeFileSync(vorigeWeigering, eerste);
+    assert.equal(reactie("weigering-2", weigering("2026-10-23T03:19:18.427Z", 284), { GH_VORIGE: vorigeWeigering }), null, "ander tijdstip, zelfde fout: geen reactie");
+    const ander = reactie("ander", dag1.bron, { GH_VORIGE: vorige });
+    assert.ok(ander && ander.includes("BRON district-ebesluit"), "een andere set fouten: wel een reactie");
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }
