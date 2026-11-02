@@ -46,7 +46,8 @@ test("parkeerverboden: alleen de postcodes van het district, ook in de vraag aan
     ],
     postcodes: psc.DISTRICT_POSTCODES,
   });
-  assert.deepEqual(items.map((i) => i.location).sort(), ["Grensstraat, 2018 Antwerpen", "Proefstraat, 2000 Antwerpen"]);
+  // De plaats exact, ook bij een verhuis (regel van de eigenaar van 26 oktober 2026): de reden telt niet.
+  assert.deepEqual(items.map((i) => i.location).sort(), ["Grensstraat 9, 2018 Antwerpen", "Proefstraat 12, 2000 Antwerpen"]);
 });
 
 test("de straten van een item worden één keer opgezocht, niet bij elke filterbeurt", () => {
@@ -211,27 +212,27 @@ test("parkeerverbod: weekdagen alleen bij \"1\", de uren uit de bron, en een GIP
   assert.match(bron("site/public-space-live.js"), /Starttijd,Eindtijd/);
 });
 
-test("parkeerverbod in gewone taal: waarvoor, de uren, en een eerlijke zin zonder reden", () => {
-  assert.equal(pc.parkeerTitel("Aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen"), "Parkeerverbod voor een verhuis");
-  assert.equal(pc.parkeerTitel("Melding ikv werfsignalisaties"), "Parkeerverbod voor een werf");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het inrichten van een laad-en loszone"), "Parkeerverbod voor een laad- en loszone");
-  assert.equal(pc.parkeerTitel("Aanvraag tot het plaatsen van een beweegbaar toestel (voorbeeld: ladderlift, schaarlift, hoogtewerker)"), "Parkeerverbod voor een lift of hoogtewerker");
-  assert.equal(pc.parkeerTitel(""), "Tijdelijk parkeerverbod");
-  assert.equal(pc.parkeerTitel("Iets nieuws"), "Tijdelijk parkeerverbod");
+// Besluit van de eigenaar (18 oktober 2026): dat er een parkeerverbod is, waar en wanneer, nooit waarom. Met of zonder
+// reden in de bron: dezelfde titel en dezelfde zin (de strenge toets: tests/parkeerverbod-zonder-reden.test.mjs).
+test("parkeerverbod in gewone taal: de titel \"Parkeerverbod\", de uren, en nooit de reden", () => {
+  assert.equal(pc.PARKEERVERBOD_TITEL, "Parkeerverbod");
+  assert.equal(pc.parkeerTitel, undefined, "geen titel uit de reden meer");
   assert.equal(pc.parkeerUren({ startTime: "00:00", endTime: "23:59" }), "hele dag");
   assert.equal(pc.parkeerUren({ startTime: "07:00", endTime: "17:00" }), "van 7.00 tot 17.00 uur");
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Status: "In effect" })] });
+  assert.equal(item.title, "Parkeerverbod");
   const e = pc.publicSpaceEntry(item);
-  assert.equal(e.title, "Parkeerverbod voor een verhuis");
+  assert.equal(e.title, "Parkeerverbod");
   assert.equal(e.summary, "Niet parkeren van 7.00 tot 17.00 uur.");
   assert.equal(e.status, "Van kracht");
   assert.equal(e.time, "07:00");
-  assert.equal(e.info, "Reden volgens de stad: aanvraag tot een verhuis met of zonder ladderlift, verhuiswagen");
-  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "Reden volgens de stad: melding in het kader van werfsignalisaties");
+  assert.equal(e.info, "");
+  assert.equal(pc.publicSpaceEntry({ ...item, reason: "Melding ikv werfsignalisaties" }).info, "");
   const [zonder] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Reden: null, Starttijd: uur(0), Eindtijd: uur(23, 59), EnkelWeekdagen: "1", Einddatum: dag2 })] });
   const z = pc.publicSpaceEntry(zonder);
-  assert.equal(z.title, "Tijdelijk parkeerverbod");
-  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen. De stad publiceert niet waarvoor.");
+  assert.equal(z.title, "Parkeerverbod");
+  // Geen "De stad publiceert niet waarvoor": de stad publiceert het wel, de site toont het bewust niet.
+  assert.equal(z.summary, "Niet parkeren, de hele dag, alleen op weekdagen.");
   assert.doesNotMatch(z.title, /Parkeerverbod: /);
   assert.equal(pc.statusNl("vergund"), "Vergund door de stad");
 });
@@ -301,7 +302,8 @@ test("terrassen: geen \"niet actief\", de straat van het adres, en een titel in 
   assert.match(bron("site/place-view.js"), /\.\.\.terrasEntries\(inPlace\(live\.terraces\)\)/);
   // Ook de volledige lijsten onderaan gebruiken de titels in gewone taal, zonder fasenummer.
   assert.match(bron("site/terraces-live.js"), /<h3>\$\{esc\(terrasTitel\(item\.terraceType\)\)\}<\/h3>/);
-  assert.match(bron("site/public-space-live.js"), /parkeerTitel\(i\.reason\?\?i\.title\)/);
+  assert.match(bron("site/public-space-live.js"), /const titel=i=>i\.kind==="parking"\?PARKEERVERBOD_TITEL:/);
+  assert.doesNotMatch(bron("site/public-space-live.js"), /i\.reason|Reden volgens de stad/);
   assert.doesNotMatch(bron("site/public-space-live.js"), /<h3>\$\{esc\(i\.title\)\}/);
 });
 
@@ -321,12 +323,15 @@ test("een ruwe databron staat apart, in een ingeklapt blok \"Technische details\
 });
 
 // ---- 4. De melding viel op een gsm buiten het eerste scherm ----
-test("de melding over een laag die niet laadde, staat boven de tegels; tegels tonen geen valse 0", () => {
+// Sinds het besluit van 18-10-2026 ("niemand moet weten als er iets faalt") is er geen melding meer, ook niet boven de
+// tegels; een tegel toont nog altijd geen valse 0 (een streepje, geen "?").
+test("een laag die niet laadde: geen melding boven de tegels, en de tegels tonen geen valse 0", () => {
   const view = bron("site/place-view.js");
   const start = view.indexOf("placeBox.innerHTML = `");
   const sjabloon = view.slice(start, view.indexOf("`;", start));
-  assert.ok(sjabloon.indexOf("pv-place-failed") > 0 && sjabloon.indexOf("pv-place-failed") < sjabloon.indexOf('class="pv-stats"'), "melding vóór de tegels");
-  assert.match(view, /state\.werkenOnvolledig \? "\?"/);
+  assert.ok(sjabloon.indexOf('class="pv-stats"') > 0);
+  assert.equal(sjabloon.indexOf("pv-place-failed"), -1, "geen melding vóór de tegels");
+  assert.match(view, /state\.werkenOnvolledig \? "–"/);
   assert.match(view, /loading\.push\("terrassen"\)/, "ook terrassen melden dat ze nog laden");
 });
 
@@ -387,18 +392,23 @@ test("straatnamen met een cijfer blijven heel, en een tweede opkuis verandert ni
   assert.equal(adresZonderHuisnummer("Proefstraat 12/14, 2000 Antwerpen"), "Proefstraat, 2000 Antwerpen");
   assert.equal(adresZonderHuisnummer("Proefstraat 3.5, 2000 Antwerpen"), "Proefstraat, 2000 Antwerpen");
   assert.equal(adresZonderHuisnummer("12, 2000 Antwerpen"), "2000 Antwerpen");
-  const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Adres: "De 7 schakenpad 3-5 2000 Antwerpen" })], streetIndex: { byName: new Map([["de 7 schakenpad", [{ id: "7", name: "De 7 schakenpad", postcode: "2000" }]]]) } });
-  assert.equal(item.location, "De 7 schakenpad, 2000 Antwerpen");
+  // Een echte straat: alleen huisnummer 999 (lib/echte-adressen.mjs). De plaats exact, met de hele straatnaam.
+  const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Adres: "De 7 schakenpad 999-999 2000 Antwerpen" })], streetIndex: { byName: new Map([["de 7 schakenpad", [{ id: "7", name: "De 7 schakenpad", postcode: "2000" }]]]) } });
+  assert.equal(item.location, "De 7 schakenpad 999, 2000 Antwerpen");
   assert.deepEqual(item.streets.map((s) => s.name), ["De 7 schakenpad"]);
   // De historiek kuist bij elke verversing opnieuw op, met de officiële stratenlijst van de site.
   for (const adres of ["Buurtweg nr 11 4-4 2000 Antwerpen", "Buurtweg nr 11, 2000 Antwerpen"]) {
     assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, "Buurtweg nr 11, 2000 Antwerpen");
   }
+  // De plaats zoals publiekParkeerAdres ze schrijft, blijft exact (regel van 26 oktober 2026), ook na een straat met een cijfer.
+  for (const adres of ["Buurtweg nr 11 999, 2030 Antwerpen", "De 7 schakenpad 999–999B, 2050 Antwerpen"]) {
+    assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, adres);
+  }
 });
 
-test("lege staat met een laag die niet laadde: alleen iets zeggen over wat wel geladen is", () => {
+test("lege staat met een laag die niet laadde: niet 'niets op de agenda', en ook niet dat iets niet laadde", () => {
   const straat = { type: "straat", label: "Proefstraat" };
-  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "In wat wel geladen is, staat niets voor deze straat.");
+  assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: true }), "Voor deze straat is niets gevonden.");
   assert.equal(pc.legeStaatTekst({ place: straat, aantalSoorten: 6, onvolledig: false }), "Er staat niets op de agenda voor deze straat.");
   assert.match(bron("site/place-view.js"), /onvolledig: Boolean\(state\.onvolledig\)/);
 });

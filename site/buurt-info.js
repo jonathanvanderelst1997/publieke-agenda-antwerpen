@@ -1,12 +1,12 @@
 // Buurtinformatie per gekozen officiële straat: kleine 7-dagenradar en verwijzingen
 // naar betrouwbare Vlaamse kaarten. Geen adres-/huisnummerregistratie op een server.
 import { buildPlaceIndex, resolvePlaceParam } from "./place-core.js";
-import { radarVoorStraat } from "./buurt-info-core.js";
+import { radarToestand, radarVoorStraat } from "./buurt-info-core.js";
 
 let indexBelofte = null, radarBelofte = null;
 async function laadJson(url) {
   const antwoord = await fetch(url, { headers: { Accept: "application/json" }, cache: "no-cache" });
-  if (!antwoord.ok) throw new Error("bron tijdelijk niet bereikbaar");
+  if (!antwoord.ok) throw new Error(`http_${antwoord.status}`);
   return antwoord.json();
 }
 function laadIndex() {
@@ -55,28 +55,22 @@ async function teken() {
   const cijfers = element.querySelector(".buurt-info-aantallen");
   const periode = element.querySelector(".buurt-info-periode");
   status.textContent = "Straat en laatste waarnemingen nakijken…";
+  status.hidden = false;
   cijfers.hidden = true;
   periode.textContent = "";
   const [index, radar] = await Promise.all([laadIndex(), laadRadar()]);
   if (parameter !== new URLSearchParams(window.location.search).get("plek")) return;
   const straat = index ? resolvePlaceParam(index, parameter) : null;
   if (!straat || straat.type !== "straat") { element.hidden = true; return; }
+  // Een laag die niet actueel is, of een oudere radar: de laatste goede stand, zonder te zeggen dat iets faalt
+  // (besluit van 18-10-2026, radarToestand). Zonder radar: leeg.
   const info = radarVoorStraat(radar, straat);
-  if (info.status === "onbeschikbaar") {
-    status.textContent = "Het wijzigingsoverzicht kon niet worden geladen. De gewone straatagenda blijft beschikbaar.";
-    return;
-  }
+  const toestand = radarToestand(info);
+  status.textContent = toestand.zin;
+  status.hidden = !toestand.zin;
+  if (!toestand.cijfers) return;
   const datum = new Intl.DateTimeFormat("nl-BE", { timeZone: "Europe/Brussels", day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(info.ververst));
   periode.textContent = info.periodenoot + ". Laatste datacontrole: " + datum + ".";
-  if (info.status !== "ok") {
-    status.textContent = info.status === "verouderd"
-      ? "De radar is ouder dan 26 uur. Getallen worden niet als actueel voorgesteld."
-      : "Niet alle bronlagen zijn actueel. Getallen worden niet als volledig voorgesteld.";
-    return;
-  }
-  status.textContent = info.nieuw + info.gewijzigd + info.afgelopen
-    ? "Dit zijn waargenomen wijzigingen, niet de werkelijke start- of einddatum van de maatregelen."
-    : "Geen wijzigingen geregistreerd in het beschikbare radarvenster; dat zegt niets over bestaande werken.";
   element.querySelector("[data-nieuw]").textContent = String(info.nieuw);
   element.querySelector("[data-gewijzigd]").textContent = String(info.gewijzigd);
   element.querySelector("[data-afgelopen]").textContent = String(info.afgelopen);

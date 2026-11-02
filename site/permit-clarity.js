@@ -402,16 +402,22 @@ export function aanvraagZegtNiet(item={}){
 // een straat tot 24 m van het perceel grenst er niet altijd aan. Een tunnel ligt eronder, niet
 // ernaast: die noemen we niet, tenzij er niets anders is. De gekozen straat staat altijd in de korte
 // regel (meteen na "ook dicht bij"); vanaf 3 straten staat de volledige lijst ingeklapt.
-export function waarTekst(namen=[],voorkeur=""){
+// `adres`: het adres van het perceel ("Proefstraat 12" of "Proefstraat 12–16 en Voorbeeldlaan 3", adressenVoorVergunningen in
+// site/permits-live-core.js; regel van de eigenaar van 26 oktober 2026: een vergunning met haar huisnummer). Dat staat dan
+// vooraan, en de straten van dat adres komen niet nog eens bij "ook dicht bij".
+export function waarTekst(namen=[],voorkeur="",adres=""){
   const alle=[...new Set(namen.map(n=>String(n||"").replace(/\s+/g," ").trim()).filter(Boolean))];
   const zonderTunnel=alle.filter(n=>!isTunnel(n));
   const lijst=zonderTunnel.length?zonderTunnel:alle;
-  const rest=lijst.slice(1);
+  const plek=String(adres||"").replace(/\s+/g," ").trim();
+  const inAdres=naam=>new RegExp(`(?:^| en )${naam.replace(/[.*+?^${}()|[\]\\]/g,"\\$&")} \\d`).test(plek);
+  const rest=plek?lijst.filter(n=>!inAdres(n)):lijst.slice(1);
+  const eerste=plek||lijst[0]||"";
   const i=voorkeur?rest.indexOf(voorkeur):-1;
   if(i>0)rest.unshift(...rest.splice(i,1));
   const ook=rest.length<=3?(rest.length<=1?rest.join(""):`${rest.slice(0,-1).join(", ")} en ${rest.at(-1)}`):`${rest.slice(0,2).join(", ")} en ${rest.length-2} andere straten`;
-  const straten=lijst.length?[lijst[0],...rest]:[];
-  return {kort:rest.length?`${lijst[0]} · ook dicht bij ${ook}`:lijst[0]||"",straten,ingeklapt:straten.length>=3};
+  const straten=eerste?[eerste,...rest]:[];
+  return {kort:rest.length?`${eerste} · ook dicht bij ${ook}`:eerste,straten,ingeklapt:straten.length>=3};
 }
 // Titel van een aanvraag, ook voor oudere items die alleen een ruwe categorie hebben.
 export const aanvraagTitel=(item={})=>item.inhoud?.titel||item.purpose||ONBEKEND_TITEL;
@@ -438,7 +444,7 @@ export function duidelijkeKaart(entry={},item={},{straat="",vandaag=brusselsVand
         ...(wie?[[stage.type==="aanvraag"?"Wie beslist":"Beslist door",wie]]:[]),
         ...(item.decisionDateLabel?[["Beslissingsdatum",item.decisionDateLabel]]:[]),
         ...(nummer?[["Dossiernummer",nummer]]:[])],
-      waar:waarTekst((item.streets||[]).map(s=>s?.name),straat),
+      waar:waarTekst((item.streets||[]).map(s=>s?.name),straat,item.address),
       eigenDetail:true,inzageloket:true,
     };
   }

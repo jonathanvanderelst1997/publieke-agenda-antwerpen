@@ -6,7 +6,7 @@
 //
 // Twee soorten vragen aan de WFS van AWV (lib/awv-werf.mjs): één voor de innames, daarna de lokale
 // omleidingen van die innames in blokken van hoogstens 100, met hoogstens 2 vragen tegelijk. Eigen
-// tijdsbudget van 60 s (lib/source-registry.mjs). Faalt een vraag, is een antwoord afgekapt of ongeldig, of
+// tijdsbudget van 120 s (lib/source-registry.mjs). Faalt een vraag, is een antwoord afgekapt of ongeldig, of
 // komen er 0 innames terwijl de vorige ronde er meer dan 20 had: de bron faalt gesloten, het vorige bestand
 // blijft staan en refresh-status.json meldt de fout.
 //
@@ -27,9 +27,13 @@ export const MIN_VORIGE_VOOR_NUL = 20;
 export const PARALLEL = 2;
 // Gemeten: 366 KB voor 174 innames. Ruim daarboven is geen gewoon antwoord meer.
 export const MAX_BYTES = 8 * 1024 * 1024;
+// Hoe lang één WFS-vraag mag duren. De standaard van 20 s (REQUEST_TIMEOUT_MS) volstond tot eind oktober; op
+// 03-11-2026 duurde de innamesvraag 22,5 s voor 383 KB (190 innames), en sinds 28-10 faalde de bron elke dag
+// op "timeout" (issue #215). De WFS antwoordt wel, alleen trager: 50 s laat ruimte binnen het budget van de bron.
+export const WFS_TIMEOUT_MS = 50_000;
 
 export async function haalWfs(fetchImpl, url) {
-  const response = await fetchWithTimeout(fetchImpl, url, { headers: { "user-agent": USER_AGENT, accept: "application/json" }, redirect: "error" });
+  const response = await fetchWithTimeout(fetchImpl, url, { headers: { "user-agent": USER_AGENT, accept: "application/json" }, redirect: "error" }, WFS_TIMEOUT_MS);
   if (!response.ok) throw new FetchError(`http_${response.status}`);
   let text;
   try {

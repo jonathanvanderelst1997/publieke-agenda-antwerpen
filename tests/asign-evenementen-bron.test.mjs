@@ -71,7 +71,7 @@ test("sources:health leest de afgeleide bron uit haar bestand: nog niet afgeleid
   assert.equal(oud.exitCode, 0, "een verouderde afgeleide bron is een melding, geen fout");
 });
 
-test("validate-data: een huisnummer in een agendapunt van de afgeleide bron is een fout, met alleen het pad", () => {
+test("validate-data: een huisnummer in een agendapunt van de afgeleide bron mag (regel van 26 oktober 2026), een nummer in een straatnaam is een fout, met alleen het pad", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "asign-validatie-"));
   try {
     fs.cpSync(path.join(repoRoot, "lib"), path.join(root, "lib"), { recursive: true });
@@ -84,10 +84,13 @@ test("validate-data: een huisnummer in een agendapunt van de afgeleide bron is e
     schrijf([item()]);
     const goed = run();
     assert.equal(goed.stderr.split("\n").filter((l) => l.startsWith(`${SOURCE_ID}.json`)).length, 0, goed.stderr);
-    schrijf([item({ location: "Proefstraat 999", straten: ["Proefstraat 999"] })]); // verzonnen straat en huisnummer
+    schrijf([item({ location: "Proefstraat 999" })]); // verzonnen straat en huisnummer: het exacte adres mag
+    const metNummer = run();
+    assert.equal(metNummer.stderr.split("\n").filter((l) => l.startsWith(`${SOURCE_ID}.json`)).length, 0, metNummer.stderr);
+    schrijf([item({ location: "Proefstraat 999", straten: ["Proefstraat 999"] })]); // een straat uit de straatas heeft geen nummer
     const fout = run();
     const regels = fout.stderr.split("\n").filter((l) => l.startsWith(`${SOURCE_ID}.json`));
-    assert.deepEqual(regels, [`${SOURCE_ID}.json: privacy huisnummer op items[0].location`, `${SOURCE_ID}.json: privacy huisnummer op items[0].straten[0]`]);
+    assert.deepEqual(regels, [`${SOURCE_ID}.json: huisnummer in een straatnaam op items[0].straten[0]`]);
     assert.equal(fout.status, 1);
     assert.equal(fout.stderr.includes("999"), false, "de melding toont de waarde niet");
   } finally {

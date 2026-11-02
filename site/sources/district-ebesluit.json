@@ -13,10 +13,15 @@
   ],
   "officialPublic": true,
   "method": "eBesluit Antwerpen: gepubliceerde districtsbesluiten voor foren en feestdagmarkten",
-  "retrievedAt": "2026-10-12T03:21:58.546Z",
+  "retrievedAt": "2026-11-01T04:18:43.469Z",
   "fetchStatus": "error",
   "maxAgeHours": 48,
-  "contentVersion": "ebesluit-v2|2026-2027|3|6",
+  "contentVersion": "ebesluit-v2|2026-2027|4|6",
+  "lastSuccessAt": "2026-11-01T04:18:43.469Z",
+  "lastError": {
+    "code": "search_http_500",
+    "at": "2026-11-02T04:19:38.468Z"
+  },
   "items": [
     {
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7",
@@ -33,7 +38,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -52,7 +57,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -71,7 +76,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -90,7 +95,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -109,7 +114,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -128,7 +133,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -147,7 +152,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -166,7 +171,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -185,7 +190,7 @@
       "info": "Goedgekeurde feestdagregeling voor deze openbare markt.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.3160.9052/agendapunten/25.1215.0892.1173",
-      "retrievedAt": "2026-10-12T03:21:58.546Z",
+      "retrievedAt": "2026-11-01T04:18:43.469Z",
       "reviewRequired": false,
       "inDistrict": true
     }

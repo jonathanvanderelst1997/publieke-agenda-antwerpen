@@ -182,6 +182,53 @@ export function vormBinnenStraal(vorm, segments, radius) {
   return false;
 }
 
+// ---- straal zonder straatassen: het kader van de straat ----
+// Laden de straatassen niet (MapServer/905), dan kent de pagina van de gekozen straat alleen haar omhullend kader uit
+// site/geo/straten.json: [minLon, minLat, maxLon, maxLat] over de eindpunten van haar stukken, afgerond op 0,00001°
+// (scripts/build-straten.mjs). Daarmee is de afstand tot de straat te begrenzen (nakijkronde 6 van 18-10-2026: zonder
+// straatassen vielen de agendapunten rond de straat stil weg):
+// - ondergrens: de afstand tot het kader (de straat ligt erin);
+// - bovengrens: elke zijde van het kader draagt een eindpunt van de straat, dus ligt de straat hoogstens zo ver als het
+//   verste hoekpunt van de dichtstbijzijnde zijde.
+// "ja": zeker binnen de straal (bovengrens erbinnen), "nee": zeker erbuiten (ondergrens erbuiten), anders "onzeker". Een
+// marge van KADER_MARGE meter vangt de afronding en de vlakke benadering op; ze maakt "ja" en "nee" alleen zeldzamer.
+export const KADER_MARGE = 3;
+export const isKader = (box) => Array.isArray(box) && box.length >= 4 && box.slice(0, 4).every(Number.isFinite) && box[0] <= box[2] && box[1] <= box[3];
+function afstandenTotKader(p, box) {
+  const [x1, y1, x2, y2] = box;
+  const binnen = [Math.min(Math.max(p[0], x1), x2), Math.min(Math.max(p[1], y1), y2)];
+  const hoeken = [[x1, y1], [x2, y1], [x2, y2], [x1, y2]];
+  const max = Math.min(...hoeken.map((h, i) => Math.max(distanceMeters(p, h), distanceMeters(p, hoeken[(i + 1) % 4]))));
+  return { min: distanceMeters(p, binnen), max };
+}
+// De afstand tussen twee kaders (0 als ze elkaar raken): een ondergrens voor de afstand tussen wat erin ligt.
+function kaderTotKader(a, b) {
+  const dx = Math.max(0, a[0] - b[2], b[0] - a[2]), dy = Math.max(0, a[1] - b[3], b[1] - a[3]);
+  const lat = (((a[1] + a[3] + b[1] + b[3]) / 4) * Math.PI) / 180;
+  return Math.hypot(dx * 111320 * Math.cos(lat), dy * 110540);
+}
+const keuze = (min, max, radius) => (max + KADER_MARGE <= radius ? "ja" : min - KADER_MARGE > radius ? "nee" : "onzeker");
+// Ligt `item` binnen `radius` meter van de straat met kader `box`? Zoals nearStreet in site/neighborhood-map.js: met een
+// punt (GIPOD, geocodering) het punt, zonder punt de eigen vorm, zonder punt en vorm (een terras, een item uit de
+// historiek) alleen in de straat zelf ("nee"). Zonder geldig kader: "onzeker".
+export function straalVolgensKader(item, box, radius, geo = null) {
+  if (!item || typeof item !== "object" || !(radius > 0)) return "nee";
+  if (!isKader(box)) return "onzeker";
+  const point = itemPoint(item, geo);
+  if (point) {
+    const { min, max } = afstandenTotKader(point, box);
+    return keuze(min, max, radius);
+  }
+  if (!item.vorm) return "nee";
+  const k = vormKader(item.vorm);
+  if (!k) return "nee";
+  let max = Infinity;
+  for (const lijn of [...(item.vorm.vlakken || []).flat(), ...(item.vorm.lijnen || [])]) {
+    for (const p of lijn || []) if (isXY(p)) max = Math.min(max, afstandenTotKader(p, box).max);
+  }
+  return keuze(kaderTotKader(k, box), max, radius);
+}
+
 // Straatnaam → wijkcodes, via het midden van elk straatsegment. Zo kan ook een item zonder punt maar
 // met een officiële straat (parkeerverbod, vergunning, terras) in een wijk vallen.
 export function streetWijkMap(index, wijken) {
@@ -210,6 +257,30 @@ export function streetsInWijk(streets, code, map) {
     for (const [key, set] of map) if (key.startsWith(prefix) && set.has(code)) return true;
     return false;
   });
+}
+
+// Hetzelfde, maar alleen als het ondubbelzinnig is: "ja" als een straat van het item helemaal in de wijk ligt (al haar
+// stukken, dus één wijk in `map`), "nee" als geen straat erdoor loopt, en "twijfel" als een straat ook door een andere wijk
+// loopt. Voor een werk uit de momentopname (site/straat/<id>.json): dat heeft geen punt (lib/straat-bestanden.mjs laat het
+// weg), en live ligt een werk via zijn GIPOD-punt in precies één wijk. Via de wijken van zijn straten hing het aan elk
+// van die wijken: een valse "Let op" in elke wijk waar de straat doorloopt (nakijkronde 6 van 18-10-2026). Een straat
+// zonder postcode telt elke variant van die naam: alleen als ze allemaal helemaal in de wijk liggen, is het "ja".
+export function straatWijkKeuze(streets, code, map) {
+  if (!code || !map) return "nee";
+  let twijfel = false;
+  for (const ref of streets || []) {
+    const exact = map.get(`${locationKey(ref?.name)}|${ref?.postcode || ""}`);
+    let sets = exact ? [exact] : [];
+    if (!exact && !ref?.postcode) {
+      const prefix = `${locationKey(ref?.name)}|`;
+      sets = [...map].filter(([key]) => key.startsWith(prefix)).map(([, set]) => set);
+    }
+    const raakt = sets.filter((set) => set.has(code));
+    if (!raakt.length) continue;
+    if (raakt.length === sets.length && sets.every((set) => set.size === 1)) return "ja";
+    twijfel = true;
+  }
+  return twijfel ? "twijfel" : "nee";
 }
 
 // Eén beslissing voor "in mijn buurt". area = { wijk, street, radius, streetSegments }.

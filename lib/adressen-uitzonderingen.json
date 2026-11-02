@@ -1,0 +1,48 @@
+{
+ "schemaVersion": 1,
+ "uitleg": "Commits die al gepusht zijn en een echte straat met een bestaand huisnummer bevatten (scripts/adressen-in-commits.mjs). Ze staan publiek en kunnen zonder force niet meer weg; de CI-stap 'Geen echt adres in de commits' (ci.yml) houdt een PR daarom niet tegen op precies deze plaats. Elke andere plaats, regel of commit telt gewoon. Een uitzondering geldt alleen voor die commit, niet voor de eindboom: de scan kijkt ook naar de netto diff van de basis tot de kop van de PR, zonder uitzonderingen. Staat het adres er aan de kop nog (ook verschoven, zonder '+'-regel in een latere commit), dan blijft de PR rood tot een nieuwe commit het wegneemt. Ook de commits van andere open PR's: zodra deze lijst op main staat, leest CI alleen de lijst van de basiscommit, en een PR kan zichzelf dan niet meer vrijmaken. Nooit een lokale, nog niet gepushte commit: die vervang je door één nieuwe commit met de eindboom (git commit-tree).",
+ "uitzonderingen": [
+  {
+   "commit": "928db055ab3d2136d701c9f118b4487af401530c",
+   "waar": "tests/parkeerverbod-nakijk.test.mjs",
+   "regels": [122],
+   "aantal": 1,
+   "reden": "Al gepusht op 18 oktober 2026 in PR #202 (tak claude/parkeerverbod-zonder-reden), vóór de scan bestond. Eén toetsregel met een echte straat uit de data en een bestaand huisnummer; een latere commit van dezelfde PR geeft die straat huisnummer 999 (tests/historiek-privacy.test.mjs, een echte straatnaam krijgt alleen huisnummer 999). Wegnemen kan alleen met force, en dat mag niet."
+  },
+  {
+   "commit": "697e0ec40d840ba56d956c5ae2d1fdefd06dc2c6",
+   "waar": "site/kaart-uitleg.js",
+   "regels": [367],
+   "aantal": 1,
+   "reden": "Al gepusht op 18 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. Een regel code met een echte straat en een bestaand huisnummer; die PR kan zichzelf na de merge van #202 niet meer uitzonderen (CI leest dan alleen de lijst van de basiscommit). Wegnemen kan alleen met force, en dat mag niet."
+  },
+  {
+   "commit": "697e0ec40d840ba56d956c5ae2d1fdefd06dc2c6",
+   "waar": "tests/werken-nakijk2.test.mjs",
+   "regels": [57],
+   "aantal": 1,
+   "reden": "Al gepusht op 18 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. Een toetsregel met een echte straat en een bestaand huisnummer; die PR kan zichzelf na de merge van #202 niet meer uitzonderen (CI leest dan alleen de lijst van de basiscommit). Wegnemen kan alleen met force, en dat mag niet."
+  },
+  {
+   "commit": "42ef9f097f6477e9212480660cfb1990b9bb4653",
+   "waar": "audit/STRAAT_BRONNEN_QA_20261015.md",
+   "regels": [20],
+   "aantal": 2,
+   "reden": "Al gepusht op 15 oktober 2026 in PR #192, vóór deze scan bestond. Een auditregel met twee openbare voorzieningen en hun publieke adres, geen privéadres; die PR kan zichzelf na de merge van #202 niet meer uitzonderen (CI leest dan alleen de lijst van de basiscommit). Wegnemen kan alleen met force, en dat mag niet."
+  },
+  {
+   "commit": "b5731b0354947780819d948a558b0feee4b03e19",
+   "waar": "site/kaart-uitleg.js",
+   "regels": [338],
+   "aantal": 1,
+   "reden": "Geschreven op 18 oktober en gepusht op 23 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. De commit zette een regel commentaar terug zoals main ze toen had (terug naar main als vertrekpunt); de PR die deze uitzondering toevoegt, vervangt die regel op main door verzonnen straten, en de netto diff van #203 voegt ze niet toe."
+  },
+  {
+   "commit": "b5731b0354947780819d948a558b0feee4b03e19",
+   "waar": "tests/werken-nakijk2.test.mjs",
+   "regels": [61],
+   "aantal": 1,
+   "reden": "Geschreven op 18 oktober en gepusht op 23 oktober 2026 in PR #203 (tak claude/werken-exact-adres), vóór deze scan op main stond. De commit zette een toetsregel terug zoals main ze toen had (terug naar main als vertrekpunt); aan de kop van #203 staat die regel er niet meer in, en de PR die deze uitzondering toevoegt, vervangt ze ook op main door een verzonnen straat."
+  }
+ ]
+}

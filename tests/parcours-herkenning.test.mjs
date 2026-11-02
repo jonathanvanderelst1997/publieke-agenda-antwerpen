@@ -161,7 +161,9 @@ test("validatie: 'zeker' alleen met een bron die dag en plek noemt; de echte uit
   assert.deepEqual(privacyFindings(doc), []);
   assert.match(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, methode: "patroon" } } }).join(" "), /zeker zonder bron die dag en plek noemt/);
   assert.match(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, bron: [auto.bron.at(-1)] } } }).join(" "), /zeker zonder eigen bron/);
-  assert.match(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, waar: "Aan de Beatrijslaan 32." } } }).join(" "), /huisnummer/);
+  // Regel van de eigenaar van 26 oktober 2026: het exacte adres van een evenement mag, de zetel van de organisator niet.
+  assert.deepEqual(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, waar: "Aan de Proeflaan 32." } } }), []);
+  assert.match(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, organisator: "Proefclub vzw, Proeflaan 32" } } }).join(" "), /organisator bevat een huisnummer/);
   assert.match(validateHerkenning({ ...doc, dossiers: { ET2026003440: { ...auto, geheim: 1 } } }).join(" "), /onverwachte sleutel geheim/);
   const pat = bijwerkenPatronen(null, { dossiers: F.dossiers, hand: F.hand, vandaag: VANDAAG });
   assert.deepEqual(validatePatronen(pat), []);

@@ -221,8 +221,8 @@
 
   // Alleen bij een achterstand (de laatste verversing is ouder dan 48 uur, `backlog`): een
   // BRONITEM (uit de automatische feed) dat alleen verborgen werd omdat zijn bron niet tijdig
-  // opnieuw opgehaald werd, mag binnen graceDays na de laatste bevestiging zichtbaar blijven,
-  // gemarkeerd met "Laatst bevestigd". Handmatige items vallen hier nooit onder: die blijven
+  // opnieuw opgehaald werd, mag binnen graceDays na de laatste bevestiging zichtbaar blijven, als een
+  // gewoon item (graceStale, intern; besluit van 18-10-2026). Handmatige items vallen hier nooit onder: die blijven
   // zichtbaar tot en met hun laatste dag. Een verlopen datum, bronconflict of onbevestigde bron
   // blijft verborgen.
   function inStaleGrace(item, nowMs, graceDays = 14, { backlog = true } = {}) {

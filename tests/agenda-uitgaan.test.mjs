@@ -102,7 +102,7 @@ test("bij verouderde data blijven alleen bevestigde, niet-verlopen items zichtba
   const base = { feed: true, reviewReason: "stale_source", verificationState: "verified", sourceRetrievedAt: "2026-10-02T08:55:00Z" };
   assert.equal(U.inStaleGrace(base, now), true);
   assert.equal(U.inStaleGrace(base, now, 14, { backlog: true }), true);
-  // Geen achterstand: geen "Laatst bevestigd", ook niet voor een bronitem (zoals de README zegt).
+  // Geen achterstand: geen gratie, ook niet voor een bronitem (zoals de README zegt).
   assert.equal(U.inStaleGrace(base, now, 14, { backlog: false }), false);
   // Handmatige items krijgen nooit de 14-dagengratie: ze lopen tot en met hun laatste dag.
   assert.equal(U.inStaleGrace({ ...base, feed: undefined }, now), false);
@@ -116,7 +116,8 @@ test("de site laadt de module vóór agenda.js en houdt de straatfilter bovenaan
   const index = fs.readFileSync(new URL("../site/index.html", import.meta.url), "utf8");
   assert.ok(index.indexOf('src="/agenda-uitgaan.js"') > 0 && index.indexOf('src="/agenda-uitgaan.js"') < index.indexOf('src="/agenda.js"'));
   assert.ok(index.indexOf('id="agenda-street-jump"') < index.indexOf('id="agenda-highlights"'));
-  assert.match(index, /id="agenda-stale-banner"/);
+  // Geen melding meer als de agenda meer dan 48 uur oud is (besluit van 18-10-2026, tests/bron-waarschuwing.test.mjs).
+  assert.doesNotMatch(index, /id="agenda-stale-banner"/);
   assert.match(index, /id="agenda-freshness"/);
   assert.match(index, /name="color-scheme" content="light dark"/);
   const agenda = fs.readFileSync(new URL("../site/agenda.js", import.meta.url), "utf8");

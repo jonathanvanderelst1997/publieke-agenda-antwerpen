@@ -27,3 +27,16 @@ export function radarVoorStraat(radar, straat, { nu = Date.now() } = {}) {
   }
   return { status, nieuw, gewijzigd, afgelopen, ververst: radar.ververst, periodenoot };
 }
+// Wat de buurtinfo toont (besluit van de eigenaar van 18-10-2026: "niemand moet weten als er iets faalt, de
+// momentopname blijft wel goed"). Is een laag niet actueel (`gedeeltelijk`) of de radar ouder dan 26 uur
+// (`verouderd`), dan gewoon de laatste goede stand, met dezelfde zin en dezelfde getallen; de status blijft intern.
+// Zonder bruikbare radar (`onbeschikbaar`): leeg, zonder zin en zonder getallen.
+export function radarToestand(info) {
+  if (!info || info.status === "onbeschikbaar") return { zin: "", cijfers: false };
+  return {
+    zin: info.nieuw + info.gewijzigd + info.afgelopen
+      ? "Dit zijn waargenomen wijzigingen, niet de werkelijke start- of einddatum van de maatregelen."
+      : "Geen wijzigingen geregistreerd in het beschikbare radarvenster; dat zegt niets over bestaande werken.",
+    cijfers: true,
+  };
+}

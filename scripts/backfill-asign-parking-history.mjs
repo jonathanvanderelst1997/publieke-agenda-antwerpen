@@ -16,13 +16,15 @@ import { applyPublicSpaceStreetResolution, buildStreetIndex } from "../lib/stree
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
 import { asignLayer } from "./refresh-live-history.mjs";
 import { normalizeParking, PUBLIC_PARKING_STATUSES } from "../site/public-space-core.js";
+import { PARKEERVERBOD_TITEL } from "../site/adres-privacy.js";
 import { fetchStreetFeatures } from "../site/street-source.js";
 
 export const ASIGN_PARKING_BACKFILL_SOURCE_ID = "asign-parking";
 export const ASIGN_PARKING_BACKFILL_COVERAGE_FROM = "2019-09-16";
 export const ASIGN_PARKING_SOURCE_URL = "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20";
 
-const OUT_FIELDS = "Dossiernummer,Locatienummer,Status,Adres,Reden,Startdatum,Einddatum,EnkelWeekdagen,GipodID,District";
+// Zonder Reden: de historiek bewaart nooit waarom er een parkeerverbod is (site/adres-privacy.js).
+const OUT_FIELDS = "Dossiernummer,Locatienummer,Status,Adres,Startdatum,Einddatum,EnkelWeekdagen,GipodID,District";
 const attrs = (feature) => feature?.attributes || feature?.properties || feature || {};
 const toDay = (value) => {
   const time = Date.parse(value || "");
@@ -61,7 +63,7 @@ function historicalParkingItem(feature, streetIndex, baselineDay) {
     id: `parking:${normalized.key}`,
     kind: "parking",
     kindLabel: "Parkeerverbod",
-    title: normalized.reason || "Tijdelijk parkeerverbod",
+    title: PARKEERVERBOD_TITEL,
     location: normalized.address,
     start: normalized.start,
     end: normalized.end,

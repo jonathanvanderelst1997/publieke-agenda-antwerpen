@@ -20,7 +20,7 @@ import {
   ontdekEvenementBesluiten,
   opbouwAfbouw,
   plaatsInDistrict,
-  plaatsZonderNummers,
+  plaatsOpgekuist,
   soortVanTitel,
   straatIndex,
   urenUitTekst,
@@ -57,12 +57,14 @@ const DETAILS = {
 
 // Nep-eBesluit: "Evenementen" geeft de verzonnen zoekpagina (plus extraRijen), de andere termen niets.
 // extraDetails: { id: fixturenaam } bovenop DETAILS.
-function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, extraRijen = "", extraDetails = {} } = {}) {
+// `weigertPagina`: paginagroottes waarop het zoeken HTTP 500 geeft (de terugval naar kleinere pagina's).
+function nepEbesluit({ calls = [], kapot = new Set(), zoekStatus = 200, weigertPagina = [], extraRijen = "", extraDetails = {} } = {}) {
   return async (url) => {
     const u = new URL(String(url));
     calls.push(u);
     if (u.pathname === "/zoeken") {
       if (zoekStatus !== 200) return resp("", zoekStatus);
+      if (weigertPagina.includes(Number(u.searchParams.get("pageSize")))) return resp("", 500);
       // Deze fictieve zoekserver moet de totaalstand mee aanpassen bij extra testbesluiten.
       // Echte bronresultaten met een afwijkend totaal blijven fail-closed.
       if (u.searchParams.get("query") !== "Evenementen") return resp('<span class="result-count">0 resultaten gevonden</span>');
@@ -127,8 +129,8 @@ test("zoek-HTML met verzonnen titels geeft de juiste namen, soorten en organisat
     ["evenement", "goedkeuring", "Testfeest Deurne", null, null],
     ["evenement", "weigering", "Afgewezen Testfestival 2026", null, null],
     ["muziek", "goedkeuring", "Nachtelijke Testklanken", "Proefklank vzw", "Voorbeeldplein, 2000 Antwerpen"],
-    // Een aanvrager zonder rechtsvorm komt er nooit in; het huisnummer ook niet.
-    ["muziek", "goedkeuring", "Tuinfeest", null, "Proefstraat, 2018 Antwerpen"],
+    // Een aanvrager zonder rechtsvorm komt er nooit in; de plaats wel, met haar huisnummer (regel van 26 oktober 2026).
+    ["muziek", "goedkeuring", "Tuinfeest", null, "Proefstraat 12, 2018 Antwerpen"],
     ["districtsfonds", "goedkeuring", null, null, null],
     // Districtsfonds van een ander district, logistiek en een sponsorovereenkomst: geen evenementbesluit.
     null,
@@ -146,8 +148,8 @@ test("titels: weigering, intrekking, programma van een district en een datum in 
   assert.equal(soortVanTitel("2026_CBS_1 - Ondersteuning. Evenementen. Testclub vzw - Proefdag 2026. Vastlegging nominatief krediet - Goedkeuring", cbs), null);
   assert.equal(soortVanTitel("2026_CBS_1 - Evenementen - Testdag 2026. Organisatie - Kennisneming", cbs), null);
   // Een rechtzetting van een muziektoelating, zonder aanhalingstekens rond de naam.
-  const recht = soortVanTitel("2026_CBS_1 - Toelating muziekactiviteit - Rechtzetting materiële vergissing - Testklank bv, voor Proef - Avond, Meir 12-14, 2000 Antwerpen. Dossiernummer MUZA2026/1/EM - Goedkeuring", cbs);
-  assert.deepEqual([recht.naam, recht.organisator, recht.plaats], ["Proef - Avond", "Testklank bv", "Meir, 2000 Antwerpen"]);
+  const recht = soortVanTitel("2026_CBS_1 - Toelating muziekactiviteit - Rechtzetting materiële vergissing - Testklank bv, voor Proef - Avond, Proefmeir 12-14, 2000 Antwerpen. Dossiernummer MUZA2026/1/EM - Goedkeuring", cbs);
+  assert.deepEqual([recht.naam, recht.organisator, recht.plaats], ["Proef - Avond", "Testklank bv", "Proefmeir 12-14, 2000 Antwerpen"]);
 });
 
 test("zoeken op een eigen venster hergebruikt searchKeyword en splitst per maand als het te veel is", async () => {
@@ -227,10 +229,12 @@ test("muziekactiviteit: dag, uren tot na middernacht en de plaats van het evenem
   assert.equal(detail.plaats, "Voorbeeldplein, 2000 Antwerpen");
 });
 
-test("plaats: huisnummers weg, district of niet", () => {
-  assert.equal(plaatsZonderNummers("Noordersingel 28-30, 2140 Borgerhout"), "Noordersingel, 2140 Borgerhout");
-  assert.equal(plaatsZonderNummers("Keistraat 5/7, 2000 Antwerpen"), "Keistraat, 2000 Antwerpen");
-  assert.equal(plaatsZonderNummers("Leopold de Waelplaats zonder nummer (zn), 2000 Antwerpen"), "Leopold de Waelplaats, 2000 Antwerpen");
+test("plaats: het huisnummer blijft (regel van 26 oktober 2026), 'zonder nummer' en een busnummer vallen weg; district of niet", () => {
+  assert.equal(plaatsOpgekuist("Proefsingel 28-30, 2140 Borgerhout"), "Proefsingel 28-30, 2140 Borgerhout");
+  assert.equal(plaatsOpgekuist("Proefstraat 5/7, 2000 Antwerpen"), "Proefstraat 5/7, 2000 Antwerpen");
+  assert.equal(plaatsOpgekuist("Leopold de Waelplaats zonder nummer (zn), 2000 Antwerpen"), "Leopold de Waelplaats, 2000 Antwerpen");
+  assert.equal(plaatsOpgekuist("Proefstraat 12 bus 3, 2018 Antwerpen"), "Proefstraat 12, 2018 Antwerpen");
+  assert.equal(plaatsOpgekuist("Proefstraat 12, bus 3"), "Proefstraat 12");
   assert.equal(plaatsInDistrict("Proefstraat, 2018 Antwerpen", INDEX).inDistrict, true);
   assert.equal(plaatsInDistrict("Vosplein, 2140 Borgerhout", INDEX).inDistrict, false);
   assert.equal(plaatsInDistrict("Spoor Oost", INDEX).inDistrict, false);
@@ -240,27 +244,28 @@ test("plaats: huisnummers weg, district of niet", () => {
   assert.equal(plaatsInDistrict("Linkeroever", INDEX).inDistrict, true);
 });
 
-test("privacy: het blok Samenstelling, een persoonsnaam, een IBAN en adressen raken nooit de uitvoer", () => {
+test("privacy: het blok Samenstelling, een persoonsnaam en een IBAN raken nooit de uitvoer; de plaats wel, met huisnummer", () => {
   const delen = detailDelen(fixture("districtsfonds.html"));
   assert.ok(!JSON.stringify(delen).includes("Testpersoon"), "Samenstelling is weggeknipt vóór het lezen");
   const detail = leesDetail(fixture("districtsfonds.html"), { soort: "districtsfonds", zitting: "2026-10-05", index: INDEX });
-  assert.deepEqual([detail.naam, detail.organisator, detail.dagen, detail.plaats], ["Buurtfeest Proefstraat", null, ["2026-11-14"], "Proefstraat, 2018 Antwerpen"]);
+  assert.deepEqual([detail.naam, detail.organisator, detail.dagen, detail.plaats], ["Buurtfeest Proefstraat", null, ["2026-11-14"], "Proefstraat 7, 2018 Antwerpen"]);
   assert.deepEqual(detail.uren, { start: "14:00", einde: "18:00" });
   const tekst = JSON.stringify(detail);
-  for (const verboden of ["Piet", "Proefpersoon", "Testpersoon", "Verzonnen", "Proefnaam", "BE00", "1234 5678", "Proefstraat 7", "0470", "EUR"]) {
+  for (const verboden of ["Piet", "Proefpersoon", "Testpersoon", "Verzonnen", "Proefnaam", "BE00", "1234 5678", "0470", "EUR"]) {
     assert.ok(!tekst.includes(verboden), `${verboden} mag niet in de uitvoer`);
   }
 });
 
-test("privacy: een lijst locaties met ontwerpers en hun adres geeft alleen straten en postcodes", () => {
+test("privacy: een lijst locaties met ontwerpers en hun adres geeft alleen straten met huisnummer en postcodes, nooit een naam", () => {
   const detail = leesDetail(fixture("districtsfonds-locaties.html"), { soort: "districtsfonds", zitting: "2026-08-24", index: INDEX });
   assert.equal(detail.organisator, "Atelier Créatif Proef vzw", "HTML-entiteiten worden gewone letters");
   assert.equal(detail.naam, "Proefweek Juwelen 2026");
   assert.deepEqual(detail.dagen, ["2026-11-01", "2026-11-02", "2026-11-03", "2026-11-04"]);
-  assert.equal(detail.plaats, "Meir, Proefstraat, Rijnkaai, Voorbeeldplein, 2000 en 2018 Antwerpen");
+  // In de volgorde van de cel (nakijkronde van head 533ac5f4), niet op alfabet.
+  assert.equal(detail.plaats, "Meir 999, Rijnkaai 999, Voorbeeldplein 51, Proefstraat 87, 2000 en 2018 Antwerpen");
   assert.deepEqual(detail.straten, ["Meir", "Proefstraat", "Rijnkaai", "Voorbeeldplein"]);
   const tekst = JSON.stringify(detail);
-  for (const verboden of ["Gerda", "Verzonnen", "Lotte", "Fictief", "Proefhuis", "Proefgalerie", "Testschool", "51", "87", "GEHUURDE", ")"]) {
+  for (const verboden of ["Gerda", "Verzonnen", "Lotte", "Fictief", "Proefhuis", "Proefgalerie", "Testschool", "GEHUURDE", ")"]) {
     assert.ok(!tekst.includes(verboden), `${verboden} mag niet in de uitvoer`);
   }
 });
@@ -293,7 +298,9 @@ test("validatie van evenement-besluiten.json: huisnummer, organisator zonder rec
   };
   const doc = (b) => ({ schemaVersion: 1, bron: "https://ebesluit.antwerpen.be/", methode: "x", leesversie: 1, generatedAt: NOW.toISOString(), venster: { van: "2026-08-11", tot: "2027-02-07" }, zoektermen: [], samenvatting: {}, besluiten: [b] });
   assert.deepEqual(validateEvenementBesluiten(doc(goed)), []);
-  assert.ok(validateEvenementBesluiten(doc({ ...goed, plaats: "Rijnkaai 12" })).some((e) => /huisnummer/.test(e)));
+  assert.deepEqual(validateEvenementBesluiten(doc({ ...goed, plaats: "Rijnkaai 999" })), [], "een huisnummer in de plaats mag (regel van 26 oktober 2026)");
+  assert.ok(validateEvenementBesluiten(doc({ ...goed, plaats: "Proefkaai 12 bus 3" })).some((e) => /busnummer/.test(e)));
+  assert.ok(validateEvenementBesluiten(doc({ ...goed, naam: "Feest Rijnkaai 999" })).some((e) => /naam met huisnummer/.test(e)));
   assert.ok(validateEvenementBesluiten(doc({ ...goed, organisator: "Piet Proefpersoon" })).some((e) => /rechtsvorm/.test(e)));
   assert.ok(validateEvenementBesluiten(doc({ ...goed, naam: "Rekening BE00 1234 5678 9012" })).some((e) => /privacy: iban/.test(e)));
   assert.ok(validateEvenementBesluiten(doc({ ...goed, aanvrager: "x" })).some((e) => /onbekende sleutel aanvrager/.test(e)));
@@ -325,7 +332,7 @@ test("fetcher: schrijft het besluitenbestand en agendapunten met een plaats in h
   assert.deepEqual(document.items.map((i) => [i.title, i.date, i.timeSlot, i.timeText, i.location, i.theme]), [
     ["Nachtelijke Testklanken", "2026-11-07", "20:00", "vanaf 20.00 uur", "Voorbeeldplein, 2000 Antwerpen", "Activiteit"],
     ["Scheldekaaienloop 2026", "2026-11-08", "10:00", "10.00 tot 16.00 uur", "Rijnkaai, 2000 Antwerpen", "Sport"],
-    ["Buurtfeest Proefstraat", "2026-11-14", "14:00", "14.00 tot 18.00 uur", "Proefstraat, 2018 Antwerpen", "Activiteit"],
+    ["Buurtfeest Proefstraat", "2026-11-14", "14:00", "14.00 tot 18.00 uur", "Proefstraat 7, 2018 Antwerpen", "Activiteit"],
   ], "geen agendapunt voor het tuinfeest van een privépersoon, de weigering of het andere district");
   const loopItem = document.items[1];
   assert.equal(loopItem.id, "ebesluit-ev-2026-cbs-09001-2026-11-08");
@@ -333,11 +340,18 @@ test("fetcher: schrijft het besluitenbestand en agendapunten met een plaats in h
   assert.match(document.items[0].info, /Einde om 02\.00 uur 's nachts\./);
   assert.ok(document.items.every((i) => i.inDistrict === true && i.sourceUrl.startsWith("https://ebesluit.antwerpen.be/zittingen/")));
 
-  // De privacy-fixture: niets van de aanvrager, de Samenstelling of de betaaltabel in de bestanden.
+  // De privacy-fixture: niets van de aanvrager, de Samenstelling of de betaaltabel in de bestanden: geen naam, geen
+  // rekening- of ondernemingsnummer en geen zetel van een organisator (Proefstraat 99). De plaats van het evenement staat er wel
+  // met haar huisnummer (regel van de eigenaar van 26 oktober 2026): Proefstraat 7 (Districtsfonds) en Proefstraat 12 (het
+  // tuinfeest, zonder de naam van de aanvrager).
   const alles = JSON.stringify([besluiten, document]);
-  for (const verboden of ["Piet", "Proefpersoon", "Testpersoon", "Verzonnen", "Proefnaam", "BE00", "0123.456.789", "0987.654.321", "Proefstraat 7", "Proefstraat 12", "Proefstraat 99", "@"]) {
+  for (const verboden of ["Piet", "Proefpersoon", "Testpersoon", "Verzonnen", "Proefnaam", "BE00", "0123.456.789", "0987.654.321", "Proefstraat 99", "@"]) {
     assert.ok(!alles.includes(verboden), `${verboden} mag niet in de uitvoer`);
   }
+  assert.deepEqual(besluiten.besluiten.filter((b) => /Proefstraat \d/.test(b.plaats ?? "")).map((b) => [b.soort, b.plaats]).sort(), [
+    ["districtsfonds", "Proefstraat 7, 2018 Antwerpen"],
+    ["muziek", "Proefstraat 12, 2018 Antwerpen"],
+  ]);
 });
 
 test("cache: een tweede verversing haalt geen gelezen detailpagina opnieuw op", async (t) => {
@@ -347,6 +361,89 @@ test("cache: een tweede verversing haalt geen gelezen detailpagina opnieuw op", 
   await runOnce(root, nepEbesluit({ calls }));
   assert.deepEqual(calls.filter((u) => u.pathname !== "/zoeken"), [], "alleen de zoekpagina's");
   assert.equal(readJson(root, `${SOURCE_ID}.json`).items.length, 3);
+});
+
+// Regel van de eigenaar van 26 oktober 2026: de plaats met huisnummer (leesversie 3). Een bestand van leesversie 2 had de
+// plaats zonder nummer: die besluiten worden opnieuw gelezen, en tot dat lukt blijft het oude besluit (en zijn agendapunt) staan.
+function alsLeesversie2(root) {
+  const bestand = path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE);
+  const doc = JSON.parse(fs.readFileSync(bestand, "utf8"));
+  doc.leesversie = 2;
+  // Een bestand van leesversie 2 kende nog geen leesversie per besluit.
+  for (const b of doc.besluiten) { delete b.leesversie; if (b.plaats) b.plaats = b.plaats.replace(/ \d+(?=,|$)/g, ""); }
+  fs.writeFileSync(bestand, JSON.stringify(doc));
+  return doc;
+}
+
+test("leesversie 3: een bestand van leesversie 2 wordt opnieuw gelezen, en krijgt zo het huisnummer in de plaats", async (t) => {
+  const root = makeRoot(t);
+  await runOnce(root, nepEbesluit());
+  const oud = alsLeesversie2(root);
+  assert.equal(oud.besluiten.find((b) => b.soort === "districtsfonds" && b.gelezen).plaats, "Proefstraat, 2018 Antwerpen");
+  const calls = [];
+  await runOnce(root, nepEbesluit({ calls }));
+  const gelezen = oud.besluiten.filter((b) => b.gelezen && b.gepubliceerd && ["goedkeuring", "ingetrokken"].includes(b.status) && b.inDistrict !== false).map((b) => b.id).sort();
+  assert.ok(gelezen.length >= 3);
+  assert.deepEqual(calls.filter((u) => u.pathname !== "/zoeken").map((u) => u.pathname.split("/").pop()).sort(), gelezen, "alleen de gelezen besluiten opnieuw");
+  const nu = readJson(root, EVENEMENT_BESLUITEN_FILE);
+  assert.equal(nu.leesversie, 3);
+  assert.equal(nu.besluiten.find((b) => b.soort === "districtsfonds" && b.gelezen).plaats, "Proefstraat 7, 2018 Antwerpen");
+  assert.ok(readJson(root, `${SOURCE_ID}.json`).items.some((i) => i.location === "Proefstraat 7, 2018 Antwerpen"));
+  // Daarna is alles van leesversie 3: geen detailpagina meer.
+  const daarna = [];
+  await runOnce(root, nepEbesluit({ calls: daarna }));
+  assert.deepEqual(daarna.filter((u) => u.pathname !== "/zoeken"), []);
+});
+
+test("leesversie 3: lukt het opnieuw lezen niet, dan blijft het oude besluit en zijn agendapunt staan, en de oude leesversie", async (t) => {
+  const root = makeRoot(t);
+  await runOnce(root, nepEbesluit());
+  const voor = readJson(root, `${SOURCE_ID}.json`).items.length;
+  const oud = alsLeesversie2(root);
+  const fonds = oud.besluiten.find((b) => b.soort === "districtsfonds" && b.gelezen);
+  await runOnce(root, nepEbesluit({ kapot: new Set([fonds.id]) }));
+  const nu = readJson(root, EVENEMENT_BESLUITEN_FILE);
+  assert.equal(nu.leesversie, 2, "de volgende verversing leest de rest");
+  const zelfde = nu.besluiten.find((b) => b.id === fonds.id);
+  assert.deepEqual([zelfde.gelezen, zelfde.plaats], [true, "Proefstraat, 2018 Antwerpen"]);
+  assert.equal(readJson(root, `${SOURCE_ID}.json`).items.length, voor, "geen agendapunt verdwijnt");
+  await runOnce(root, nepEbesluit());
+  const klaar = readJson(root, EVENEMENT_BESLUITEN_FILE);
+  assert.equal(klaar.leesversie, 3);
+  assert.equal(klaar.besluiten.find((b) => b.id === fonds.id).plaats, "Proefstraat 7, 2018 Antwerpen");
+});
+
+test("leesversie per besluit: een blijvend kapotte pagina laat de andere besluiten niet elke verversing opnieuw lezen", async (t) => {
+  // Nakijkronde van head 533ac5f4: het bestand bleef op leesversie 2 en elke verversing las alle besluiten opnieuw.
+  const root = makeRoot(t);
+  await runOnce(root, nepEbesluit());
+  const oud = alsLeesversie2(root);
+  const fonds = oud.besluiten.find((b) => b.soort === "districtsfonds" && b.gelezen);
+  const kapot = new Set([fonds.id]);
+  await runOnce(root, nepEbesluit({ kapot }));
+  for (let i = 0; i < 3; i += 1) {
+    const calls = [];
+    await runOnce(root, nepEbesluit({ kapot, calls }));
+    assert.deepEqual(calls.filter((u) => u.pathname !== "/zoeken").map((u) => u.pathname.split("/").pop()), [fonds.id], `verversing ${i + 2}: alleen de kapotte`);
+  }
+  const nu = readJson(root, EVENEMENT_BESLUITEN_FILE);
+  assert.equal(nu.leesversie, 2);
+  assert.ok(nu.besluiten.filter((b) => b.gelezen && b.id !== fonds.id).every((b) => b.leesversie === 3));
+  assert.equal(nu.besluiten.find((b) => b.id === fonds.id).leesversie, undefined);
+  await runOnce(root, nepEbesluit());
+  assert.equal(readJson(root, EVENEMENT_BESLUITEN_FILE).leesversie, 3);
+});
+
+test("leesversie 3: ontdekEvenementBesluiten leest eerst de nieuwe besluiten, dan de oude, binnen maxDetails", async () => {
+  const eerste = await ontdekEvenementBesluiten({ fetch: nepEbesluit(), today: TODAY, straten: STRATEN, sleep: noSleep });
+  const cache = eerste.besluiten.map(({ leesversie: _versie, ...b }) => (b.plaats ? { ...b, plaats: b.plaats.replace(/ \d+(?=,|$)/g, "") } : b));
+  const calls = [];
+  const deels = await ontdekEvenementBesluiten({ fetch: nepEbesluit({ calls }), today: TODAY, straten: STRATEN, sleep: noSleep, cache, cacheLeesversie: 2, maxDetails: 1 });
+  assert.equal(calls.filter((u) => u.pathname !== "/zoeken").length, 1);
+  assert.equal(deels.herleesRest, eerste.besluiten.filter((b) => b.gelezen && b.inDistrict !== false && b.gepubliceerd && b.status !== "weigering").length - 1);
+  assert.equal(deels.besluiten.filter((b) => b.gelezen).length, eerste.besluiten.filter((b) => b.gelezen).length, "geen gelezen besluit gaat verloren");
+  const zelfde = await ontdekEvenementBesluiten({ fetch: nepEbesluit(), today: TODAY, straten: STRATEN, sleep: noSleep, cache: eerste.besluiten });
+  assert.equal(zelfde.herleesRest, 0);
 });
 
 test("een kapotte detailpagina houdt de rest niet tegen en komt de volgende keer opnieuw aan de beurt", async (t) => {
@@ -369,15 +466,49 @@ test("hoogstens N detailpagina's per verversing; de rest volgt later", async () 
   assert.equal(result.teLezen, 2);
 });
 
-test("een fout bij het zoeken laat beide bestanden staan en meldt error", async (t) => {
+test("een fout bij het zoeken laat beide bestanden staan en meldt error, met de reden in het bronbestand", async (t) => {
   const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const voor = [EVENEMENT_BESLUITEN_FILE, `${SOURCE_ID}.json`].map((n) => fs.readFileSync(path.join(root, "site", "sources", n), "utf8"));
-  const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500 }), { clock: () => new Date("2026-10-11T04:00:00Z") });
-  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "http_500", 3]);
+  const calls = [];
+  const [status] = await runOnce(root, nepEbesluit({ zoekStatus: 500, calls }), { clock: () => new Date("2026-10-11T04:00:00Z") });
+  // De fase staat in de foutcode: het zoeken faalde (search_), niet een detailpagina.
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["error", "search_http_500", 3]);
   assert.equal(fs.readFileSync(path.join(root, "site", "sources", EVENEMENT_BESLUITEN_FILE), "utf8"), voor[0]);
-  assert.equal(readJson(root, `${SOURCE_ID}.json`).fetchStatus, "error");
-  assert.deepEqual(readJson(root, `${SOURCE_ID}.json`).items, JSON.parse(voor[1]).items);
+  const document = readJson(root, `${SOURCE_ID}.json`);
+  assert.equal(document.fetchStatus, "error");
+  assert.deepEqual(document.items, JSON.parse(voor[1]).items);
+  // De reden en sinds wanneer (keepPreviousOnError): intern, de site toont het nergens.
+  assert.deepEqual([document.lastError, document.lastSuccessAt, document.retrievedAt], [{ code: "search_http_500", at: "2026-10-11T04:00:00.000Z" }, NOW.toISOString(), NOW.toISOString()]);
+  assert.deepEqual(validateSourceDocument(document, { expectedSourceId: SOURCE_ID }), []);
+  // Begrensd: het venster met 500, 100 en 50 rijen (elk met de herkansing), dan de eerste maand met 50; geen detailpagina.
+  // Dan één poging via de kalender (lib/ebesluit-kalender.mjs): de eerste maandlijst geeft hier een 404, dus de bron faalt
+  // met de fout van /zoeken.
+  assert.deepEqual(calls.slice(0, 8).map((u) => [u.pathname, Number(u.searchParams.get("pageSize"))]), [500, 500, 100, 100, 50, 50, 50, 50].map((n) => ["/zoeken", n]));
+  assert.deepEqual(calls.slice(8).map((u) => `${u.pathname}${u.search}`), ["/zittingen/lijst?month=08&year=2026"]);
+});
+
+test("terugval: weigert eBesluit zoekpagina's van 500 rijen, dan lukt het met 100 en is de bron gewoon ok", async (t) => {
+  const root = makeRoot(t);
+  const calls = [];
+  const [status] = await runOnce(root, nepEbesluit({ weigertPagina: [500], calls }));
+  assert.deepEqual([status.fetchStatus, status.errorCode, status.itemCount], ["ok", null, 3]);
+  const document = readJson(root, `${SOURCE_ID}.json`);
+  assert.ok(!("lastError" in document));
+  const groottes = calls.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
+  // De hele run vraagt de pagina van 500 maar één keer (met de bestaande herkansing); daarna begint elke zoekterm meteen
+  // bij 100 (pageSizeChoice in lib/ebesluit-discovery.mjs). Vroeger 6 keer: per zoekterm opnieuw.
+  assert.equal(groottes.filter((n) => n === 500).length, 2);
+  assert.deepEqual(groottes, [500, 500, ...EVENEMENT_ZOEKTERMEN.map(() => 100)]);
+  // Elke zoekterm is nog altijd gezocht, met een volledige zoekronde.
+  assert.deepEqual([...new Set(calls.filter((u) => u.pathname === "/zoeken").map((u) => u.searchParams.get("query")))], EVENEMENT_ZOEKTERMEN);
+
+  // Niet over runs heen: de volgende run begint weer bij 500 (geen bestand, alleen het geheugen van één run).
+  const calls2 = [];
+  await runOnce(root, nepEbesluit({ weigertPagina: [500], calls: calls2 }));
+  const tweede = calls2.filter((u) => u.pathname === "/zoeken").map((u) => Number(u.searchParams.get("pageSize")));
+  assert.deepEqual(tweede.slice(0, 3), [500, 500, 100]);
+  assert.equal(tweede.filter((n) => n === 500).length, 2);
 });
 
 test("agendapunten: alleen wat nog komt; uitzondering en toekenning over hetzelfde feest worden één punt", () => {
@@ -417,10 +548,10 @@ const punten = (besluiten) => agendapuntenUitBesluiten(besluiten, { today: TODAY
 test("B1: een muziektitel zonder postcode zet het adres niet in de naam", () => {
   const titel = (rest) => `2026_CBS_1 - Toelating muziekactiviteit - Proefklank vzw, voor ${rest}. Dossiernummer MUZA2026/1/EM - Goedkeuring`;
   const tuin = soortVanTitel(titel("Tuinfeest, Proefstraat 12. District Antwerpen"), CBS);
-  assert.deepEqual([tuin.naam, tuin.plaats], ["Tuinfeest", "Proefstraat, District Antwerpen"]);
+  assert.deepEqual([tuin.naam, tuin.plaats], ["Tuinfeest", "Proefstraat 12, District Antwerpen"]);
   assert.equal(plaatsInDistrict(tuin.plaats, INDEX).inDistrict, true);
   const elders = soortVanTitel(titel("Proefstress, Proeflaan 1. District Hoboken"), CBS);
-  assert.deepEqual([elders.naam, elders.plaats], ["Proefstress", "Proeflaan, District Hoboken"]);
+  assert.deepEqual([elders.naam, elders.plaats], ["Proefstress", "Proeflaan 1, District Hoboken"]);
   assert.equal(plaatsInDistrict(elders.plaats, INDEX).inDistrict, false);
   const park = soortVanTitel(titel("Proeffeesten 2026, Rijnkaai zonder nummer (zn), Antwerpen"), CBS);
   assert.deepEqual([park.naam, park.plaats], ["Proeffeesten 2026", "Rijnkaai, Antwerpen"]);
@@ -438,15 +569,15 @@ test("B1: de validatie weigert ook een huisnummer in de naam", () => {
   assert.deepEqual(validateEvenementBesluiten(doc(besluit({ naam: "Proefpark 2026" }))), []);
 });
 
-test("B1: de fetcher schrijft nooit een huisnummer uit een muziektitel", async (t) => {
+test("B1: de fetcher schrijft het huisnummer uit een muziektitel in de plaats, nooit in de naam", async (t) => {
   const root = makeRoot(t);
   const extraRijen = zoekRij({ id: "26.0901.0101.0101", titel: "2026_CBS_09101 - Toelating muziekactiviteit - Proefklank vzw, voor Tuinfeest, Proefstraat 12. District Antwerpen. Dossiernummer MUZA2026/997/EM - Goedkeuring", gepubliceerd: false });
   const [status] = await runOnce(root, nepEbesluit({ extraRijen }));
   assert.equal(status.fetchStatus, "ok");
   const besluiten = readJson(root, EVENEMENT_BESLUITEN_FILE);
   const tuin = besluiten.besluiten.find((b) => b.code === "2026_CBS_09101");
-  assert.deepEqual([tuin.naam, tuin.plaats, tuin.inDistrict], ["Tuinfeest", "Proefstraat, District Antwerpen", true]);
-  assert.ok(!JSON.stringify(besluiten).includes("Proefstraat 12"));
+  assert.deepEqual([tuin.naam, tuin.plaats, tuin.inDistrict], ["Tuinfeest", "Proefstraat 12, District Antwerpen", true]);
+  assert.ok(!besluiten.besluiten.some((b) => /Proefstraat \d/.test(b.naam ?? "")), "nooit een adres in een naam");
 });
 
 test("B2: één besluit met een @ legt de bron niet stil", async (t) => {
@@ -464,10 +595,10 @@ test("B2: één besluit met een @ legt de bron niet stil", async (t) => {
 test("B2: een straat van het district met een cijfer is geen huisnummer", () => {
   const index = straatIndex([...STRATEN, ["7", "De 7 Proefpad", "2050", [], [4.37, 51.22, 4.38, 51.23]], ["8", "4 Proefmaandpad", "2020", [], [4.39, 51.18, 4.4, 51.19]]]);
   const plaats = ev.plaatsUitStraten("De 7 Proefpad 3 en 4 Proefmaandpad, bij Piet Proefpersoon", index);
-  assert.equal(plaats, "4 Proefmaandpad, De 7 Proefpad");
+  assert.equal(plaats, "De 7 Proefpad 3, 4 Proefmaandpad", "het huisnummer na de straat blijft, de naam van de bewoner nooit; in de volgorde van de tekst");
   const doc = (b) => ({ schemaVersion: 1, bron: "https://ebesluit.antwerpen.be/", methode: "x", leesversie: 2, generatedAt: NOW.toISOString(), venster: { van: "2026-08-11", tot: "2027-02-07" }, zoektermen: [], samenvatting: {}, besluiten: [b] });
   assert.deepEqual(validateEvenementBesluiten(doc(besluit({ soort: "districtsfonds", plaats, straten: ["4 Proefmaandpad", "De 7 Proefpad"] }))), []);
-  assert.ok(validateEvenementBesluiten(doc(besluit({ soort: "districtsfonds", plaats: "De 7 Proefpad 3", straten: ["De 7 Proefpad"] }))).some((e) => /plaats met huisnummer/.test(e)), "een echt huisnummer blijft verboden");
+  assert.deepEqual(validateEvenementBesluiten(doc(besluit({ soort: "districtsfonds", plaats: "De 7 Proefpad 3", straten: ["De 7 Proefpad"] }))), [], "een echt huisnummer mag (regel van 26 oktober 2026)");
 });
 
 test("B2: een ongeldig besluit wordt opgekuist of valt weg, de rest blijft", () => {

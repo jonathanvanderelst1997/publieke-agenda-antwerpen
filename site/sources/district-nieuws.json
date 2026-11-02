@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
+  "lastSuccessAt": "2026-10-22T03:19:21.248Z",
+  "lastError": {
+    "code": "bron_weigert_automatisch",
+    "at": "2026-11-02T04:19:18.228Z"
+  },
   "items": [
     {
       "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",

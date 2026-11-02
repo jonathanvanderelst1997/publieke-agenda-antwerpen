@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
+  "lastSuccessAt": "2026-10-22T03:19:55.478Z",
+  "lastError": {
+    "code": "channel_bron_weigert_automatisch",
+    "at": "2026-11-02T04:20:39.365Z"
+  },
   "items": [
     {
       "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22",

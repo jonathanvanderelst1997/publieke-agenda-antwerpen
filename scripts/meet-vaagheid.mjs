@@ -56,7 +56,9 @@ export function invoerVingerafdruk({ straten = STRATEN_TOETS } = {}) {
     hash.update(`${rel}\n`);
     hash.update(fs.readFileSync(f));
   };
-  const bronnen = fs.readdirSync(path.join(root, "site", "sources")).filter((n) => n.endsWith(".json") && n !== VAAGHEID_FILE).sort();
+  // Niet de meting zelf, en niet de vaste vorm per werk (site/sources/werk-vorm.json): de meting leest ze niet (de
+  // straatbestanden en kaart-uitleg.json dragen die vorm al), en een basis zonder die vorm kent het bestand niet.
+  const bronnen = fs.readdirSync(path.join(root, "site", "sources")).filter((n) => n.endsWith(".json") && n !== VAAGHEID_FILE && n !== "werk-vorm.json").sort();
   for (const n of bronnen) voeg(`site/sources/${n}`);
   for (const rel of ["site/geo/straten.json", "site/geo/wijken.geo.json", "site/geo/locaties.json", "site/straat-index.json", "site/geo/straten-stad.json"]) voeg(rel);
   const stratenDoc = JSON.parse(fs.readFileSync(path.join(root, "site", "geo", "straten.json"), "utf8"));

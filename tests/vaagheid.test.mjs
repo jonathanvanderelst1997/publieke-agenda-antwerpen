@@ -84,17 +84,18 @@ test("kaarten op de plekpagina: de eerlijk-onbekend-zinnen worden geteld", () =>
   const k = vaagheidVanKaart({ titel: "Innames op 26 plekken verspreid over de stad", uur: "Uur onbekend", regels: ["Wat: De stad gaf toelating voor een inname van de openbare ruimte. Wat er gebeurt of wat er staat, zegt het dossier niet."] });
   for (const id of ["generieke-titel", "plek-verspreid", "uur-onbekend", "wat-zegt-dossier-niet"]) assert.ok(k.patronen.includes(id), id);
   assert.equal(k.kern, true);
-  assert.equal(vaagheidVanKaart({ titel: "Parkeerverbod voor een verhuis", uur: "7.00", regels: ["Niet parkeren 7 tot 17 uur."] }).kern, false);
+  assert.equal(vaagheidVanKaart({ titel: "Parkeerverbod", uur: "7.00", regels: ["Niet parkeren 7 tot 17 uur."] }).kern, false);
 });
 
-test("nieuwe patronen: terras zonder periode, werk zonder wat, parkeerverbod zonder welk; en wat als veld ontbreekt", () => {
+test("nieuwe patronen: terras zonder periode, werk zonder wat; een parkeerverbod is niet vaag; en wat als veld ontbreekt", () => {
   assert.ok(vaagheidVanKaart({ titel: "Terras met vergunning", regels: ["Een terras op het openbaar domein, met een vergunning van de stad. Een periode publiceert de stad niet."] }).patronen.includes("periode-onbekend"));
   assert.ok(vaagheidVanKaart({ titel: "Werken van Stad Antwerpen in de Proefstraat tot 31 december" }).kern);
   assert.ok(vaagheidVanKaart({ titel: "Werken in de Proefstraat vanaf 3 november" }).patronen.includes("werk-zonder-wat"));
   // Een soort met "Werken aan ..." is wel een wat.
   assert.ok(!vaagheidVanKaart({ titel: "Werken aan het elektriciteitsnet in de Proefstraat op 26 oktober" }).kern);
-  assert.ok(vaagheidVanKaart({ titel: "Parkeerverbod voor een werf" }).patronen.includes("parkeerverbod-welk"));
-  assert.ok(!vaagheidVanKaart({ titel: "Parkeerverbod voor een verhuis" }).kern);
+  // "Parkeerverbod" is de hele titel: waarvoor staat er nooit bij (besluit van 18 oktober 2026), en dat is geen vaagheid.
+  assert.deepEqual(vaagheidVanKaart({ titel: "Parkeerverbod" }).patronen, []);
+  assert.ok(!vaagheidVanKaart({ titel: "Parkeerverbod" }).kern);
   // Een veld dat zegt wat ontbreekt (de zin staat één keer per sectie): telt als patroon, en als vaag als het een kern is.
   const k = vaagheidVanKaart({ titel: "Studentenactiviteit op het Proefplein", uur: "", onbekend: [{ meter: "uur-onbekend", kern: true }, "naam-stad-niet"] });
   assert.deepEqual(k.patronen, ["naam-stad-niet", "uur-onbekend"]);
@@ -177,4 +178,24 @@ test("ratel: ook de uitleg buiten district Antwerpen telt, en een meting die weg
   assert.match(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg }, opgeslagen)[0], /^buiten: staat in site\/sources\/vaagheid\.json, maar/);
   // Een bestand zonder "buiten" (van voor die meting): niets te vergelijken.
   assert.deepEqual(ratelFouten({ agenda: leeg, eventpaginas: leeg, straten: leeg, buiten: meting(30) }, { agenda: leeg, eventpaginas: leeg, straten: leeg }), []);
+});
+
+// Vierde nakijkronde van 18 oktober 2026: de reden van losse-vaag:publicSpace:sgw sprak van "vijf werfzones" die hun
+// parkeerverbod terugkrijgen; het zijn er vier, de vijfde staat los omdat haar bundel van twee uiteenvalt. Elke kaart die
+// erbij komt, staat nu met haar dossier in de reden: precies zoveel dossiers als de stijging (naar - van), en de reden
+// noemt niet meer werfzones met een parkeerverbod dan er zijn.
+test("aanvaard: de reden van de werfkaarten noemt elke kaart die erbij komt, met haar dossier", () => {
+  const doc = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", VAAGHEID_FILE), "utf8"));
+  const a = (doc.aanvaard || []).find((x) => x.waar === "straten" && x.id === "losse-vaag:publicSpace:sgw");
+  if (!a) return;
+  const dossiers = new Set(a.reden.match(/\bGW\d{4}-\d{6}\b/g) || []);
+  assert.equal(dossiers.size, a.naar - a.van, `${a.naar - a.van} kaarten erbij, ${dossiers.size} dossiers in de reden`);
+  assert.doesNotMatch(a.reden, /\b(?:Vijf|vijf) werfzones\b[^.]*parkeerverbod terug/);
+  // Hoeveel werfzones hun parkeerverbod terugkrijgen, hangt af van de data (23 oktober: vier; na de verversing van
+  // 25 oktober: drie). Het telwoord in die zin moet kloppen met de dossiers die ze noemt.
+  const telwoord = { een: 1, twee: 2, drie: 3, vier: 4, zes: 6, zeven: 7, acht: 8 };
+  const zin = a.reden.match(/\b(Een|Twee|Drie|Vier|Zes|Zeven|Acht) werfzones?\b([^.]*)parkeerverbod terug/);
+  assert.ok(zin, "de reden zegt hoeveel werfzones hun parkeerverbod terugkrijgen");
+  const genoemd = new Set(zin[2].match(/\bGW\d{4}-\d{6}\b/g) || []);
+  assert.equal(genoemd.size, telwoord[zin[1].toLowerCase()], `${zin[1]} werfzones, ${genoemd.size} dossiers in die zin`);
 });

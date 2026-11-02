@@ -160,14 +160,15 @@ test("7. geen huisnummer in een omschrijving: de privacyfilter (site/witte-lijst
   // Een bewaarde omschrijving (kaart-uitleg.json van een oudere verversing) gaat opnieuw door de filter.
   assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"), "");
   assert.equal(veiligeOmschrijving("Parkeerverbod in Straat: parkeerverbod Proefstraat t.o.v. 123", { isStraat }), "Parkeerverbod in Straat: Proefstraat");
-  // Het vangnet in de validatie keurt een bestand met zo'n nummer af, en het bestand van nu heeft er geen.
+  // Het vangnet in de validatie keurt een bestand met ongefilterde tekst af (een nummer na een aanwijzer), en het bestand van nu
+  // heeft er geen. Een straat met haar huisnummer mag (regel van de eigenaar van 26 oktober 2026).
   assert.ok(HUISNUMMER_IN_OMSCHRIJVING.test("Parkeerverbod in Straat: parkeerverbod t.o.v. 123"));
-  assert.ok(HUISNUMMER_IN_OMSCHRIJVING.test("Inname: Proefstraat 12"));
+  assert.ok(!HUISNUMMER_IN_OMSCHRIJVING.test("Inname: Proefstraat 12"));
   assert.ok(!HUISNUMMER_IN_OMSCHRIJVING.test("Parcours: Wandelen 5 km · stop 2 stadspark"));
   const doc = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", "kaart-uitleg.json"), "utf8"));
   assert.deepEqual(validateKaartUitleg(doc), []);
   const metNummer = { ...doc, evenementen: { ...doc.evenementen, ET2099170041: { start: "2026-10-20", eind: "2026-10-20", soort: "", soortBron: "", beschrijvingen: ["Parkeerverbod in Straat: parkeerverbod tegenover nr 7"], straten: [], kruist: [], stratenTekst: "", gekoppeld: null, kaart: [], kaartDeel: false } } };
-  assert.ok(validateKaartUitleg(metNummer).some((f) => /huisnummer in een omschrijving/.test(f)));
+  assert.ok(validateKaartUitleg(metNummer).some((f) => /ongefilterde tekst/.test(f)));
 });
 
 // ---------- 10. de vaagheidsratel ----------

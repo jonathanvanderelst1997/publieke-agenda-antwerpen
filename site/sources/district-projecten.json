@@ -17,6 +17,11 @@
   "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": null,
+  "lastSuccessAt": "2026-10-22T03:19:47.336Z",
+  "lastError": {
+    "code": "bron_weigert_automatisch",
+    "at": "2026-11-02T04:20:11.444Z"
+  },
   "items": [
     {
       "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01",

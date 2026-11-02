@@ -5,13 +5,17 @@
 // de vorige stand blijft, en een melding met uitleg in plaats van een fout. Niets probeert er omheen.
 // De weigeringspagina hieronder heeft de vorm van de echte, met een verzonnen referentie.
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { BRON_WEIGERT_CODE, FetchError, fetchWithTimeout, isRandWeigering, isTransientErrorCode, sourceHealthOf } from "../lib/fetch-util.mjs";
+import { BRON_WEIGERT_CODE, FetchError, fetchWithTimeout, isRandWeigering, isTransientErrorCode, isWeigeringCode, sourceHealthOf } from "../lib/fetch-util.mjs";
+import { LIVE_HISTORY_LAYERS } from "../lib/live-history.mjs";
+import { STRAAT_LAGEN } from "../lib/straat-bestanden.mjs";
 import { SOURCE_ID, run } from "../scripts/fetch-sources-koopzondagen.mjs";
+import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 import { checkHealth } from "../scripts/sources-health.mjs";
 
 const AKAMAI = `<HTML><HEAD>
@@ -109,11 +113,53 @@ test("sources:health: is de vorige stand te oud, dan wordt een weigering een fou
   assert.match(melding.tekst, /\(530 uur oud\)\. Dat is ouder dan 48 uur: de site toont de items van deze bron niet meer\./);
 });
 
-test("de bronstatus in de workflow kent dezelfde code als waarschuwing", () => {
-  assert.ok(workflow.includes(`[ "$code" = "${BRON_WEIGERT_CODE}" ]`));
+// De stap "Elke bron gezond" van source-health draait hier echt (bash, jq en GNU date, zoals op de runner), met een
+// verzonnen refresh-status.json; zie ook tests/refresh-workflow.test.mjs. Ontbreekt een van de drie (macOS heeft BSD
+// date), dan slaat de toets over in plaats van vals te falen.
+const stapKanDraaien = spawnSync("bash", ["-c", "command -v jq >/dev/null && date -u -d 2026-10-22T03:20:28Z +%s >/dev/null 2>&1"]).status === 0;
+test("de bronstatus in de workflow: een weigering is een waarschuwing binnen maxAgeHours en daarna een fout, zoals sourceHealthOf", { skip: stapKanDraaien ? false : "bash, jq of GNU date ontbreekt" }, () => {
+  const stap = leesWerkstroom(workflow).get("source-health").steps.find((s) => s.name === "Elke bron gezond");
+  assert.ok(stap?.run, "stap Elke bron gezond");
+  const draai = (bronnen) => {
+    const temp = fs.mkdtempSync(path.join(os.tmpdir(), "bron-weigering-stap-"));
+    try {
+      fs.mkdirSync(path.join(temp, "in"));
+      fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
+      const sinds = new Date().toISOString();
+      const lagen = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
+        .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds, errorCode: null }));
+      fs.writeFileSync(path.join(temp, "in", "live-lagen.json"), JSON.stringify({ lagen }));
+      const uit = spawnSync("bash", ["-c", stap.run], { env: { ...process.env, RUNNER_TEMP: temp }, encoding: "utf8" });
+      return { code: uit.status, tekst: uit.stdout };
+    } finally {
+      fs.rmSync(temp, { recursive: true, force: true });
+    }
+  };
+  const recent = new Date(Date.now() - 26 * 3_600_000).toISOString();
+  const oud = new Date(Date.now() - 22 * 24 * 3_600_000).toISOString();
+  const fout = (sourceId, errorCode, retrievedAt) => ({ sourceId, fetchStatus: "error", retrievedAt, errorCode, maxAgeHours: 48 });
+  // Binnen 48 uur: een waarschuwing met uitleg, de run blijft groen. Ook als kanaalfout van stad-districten.
+  for (const errorCode of [BRON_WEIGERT_CODE, `channel_${BRON_WEIGERT_CODE}`]) {
+    assert.equal(isWeigeringCode(errorCode), true, errorCode);
+    const { code, tekst } = draai([fout("stad-koopzondagen", errorCode, recent)]);
+    assert.equal(code, 0, `${errorCode}: ${tekst}`);
+    assert.match(tekst, /::warning title=Bron weigert automatische toegang::stad-koopzondagen: de website weigert automatische toegang/);
+    assert.match(tekst, /de vorige stand van 26 uur geleden blijft staan tot ze 48 uur oud is/);
+  }
+  // Te oud of zonder datum: rood, met een BRON-regel die zegt waarom (die gaat naar het alarm-issue).
+  for (const retrievedAt of [oud, "-"]) {
+    const { code, tekst } = draai([fout("stad-koopzondagen", BRON_WEIGERT_CODE, retrievedAt)]);
+    assert.equal(code, 1, tekst);
+    assert.match(tekst, /^BRON stad-koopzondagen: de website weigert automatische toegang \(bron_weigert_automatisch\) en de vorige stand \(.*\) is ouder dan 48 uur; de site toont de items van deze bron niet meer$/m);
+  }
+  // Een gewone 403 blijft rood, ook binnen 48 uur: zonder de weigeringspagina weten we niet wat er is.
+  const gewoon = draai([fout("stad-koopzondagen", "http_403", recent)]);
+  assert.equal(gewoon.code, 1, gewoon.tekst);
+  assert.match(gewoon.tekst, /^BRON stad-koopzondagen: fetchStatus error \(http_403\)$/m);
+});
+
+test("de bronstatus in de workflow kent dezelfde code als sourceHealthOf", () => {
+  assert.ok(workflow.includes(`[ "$kern" = "${BRON_WEIGERT_CODE}" ]`));
   assert.match(workflow, /title=Bron weigert automatische toegang::/);
-  // Binnen maxAgeHours een waarschuwing, daarna een fout (bad=1), zoals sourceHealthOf.
-  const tak = workflow.slice(workflow.indexOf(`[ "$code" = "${BRON_WEIGERT_CODE}" ]`), workflow.indexOf("elif [[ $code =~ ^http_"));
-  assert.match(tak, /-le \$\(\(maxage \* 3600\)\)/);
-  assert.match(tak, /else\n\s+echo "BRON \$\{id\}: de website weigert automatische toegang en de vorige stand .*"; bad=1\n/);
+  assert.equal(isTransientErrorCode(BRON_WEIGERT_CODE), false);
 });

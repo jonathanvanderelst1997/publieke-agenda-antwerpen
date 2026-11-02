@@ -231,10 +231,13 @@ test("identiteitsbestand: geldig, publiek en zonder persoonsgegevens", async () 
   const fout = structuredClone(IDENTITEIT);
   fout.dossiers.ET2026001217.link = "https://example.org/?mail=x";
   fout.dossiers.ET2026001217.waar = "Start aan Voorbeeldstraat 12";
+  fout.dossiers.ET2026001217.organisator = "Proefclub vzw, Voorbeeldstraat 99";
   fout.dossiers.ET2026003440.naam = "";
   const errors = validateEvenementIdentiteit(fout);
   assert.ok(errors.some((e) => /ET2026001217\.link/.test(e)));
-  assert.ok(errors.some((e) => /ET2026001217\.waar bevat een huisnummer/.test(e)));
+  // Regel van de eigenaar van 26 oktober 2026: bij een evenement het exacte adres; de organisator nooit met een adres.
+  assert.ok(!errors.some((e) => /ET2026001217\.waar/.test(e)));
+  assert.ok(errors.some((e) => /ET2026001217\.organisator bevat een huisnummer/.test(e)));
   assert.ok(errors.some((e) => /ET2026003440: zeker zonder naam/.test(e)));
   // Geen agendabron: de feed-bouw leest het bestand niet als bron.
   const { documents } = readSources(root);

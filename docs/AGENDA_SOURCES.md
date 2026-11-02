@@ -92,7 +92,7 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 
 - **`stale`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt. Dat is een waarschuwing:
   `npm run sources:health` en de job `source-health` blijven groen, de andere bronnen worden gewoon
-  ververst, en de site toont "(bron tijdelijk onbereikbaar; vorige gegevens blijven staan)";
+  ververst;
 - **`error`** als de vorige data ouder is dan 48 uur (haar items zijn dan ook van de site), of bij een
   blijvende fout (`suspicious_drop`, `no_list`, `invalid_json` …). Dat blijft rood.
 
@@ -100,26 +100,286 @@ de GitHub-runners in oktober 2026. `sourceHealthOf` in `lib/fetch-util.mjs` noem
 
 Sinds de nacht van 22 op 23-10-2026 weigert de rand van www.antwerpen.be (Akamai) elke klant die geen
 browser is: een 403 met de pagina "Access Denied" en een referentie op errors.edgesuite.net, ook voor
-`robots.txt`. Een gewone browser komt er wel door. Dat raakt `district-kalender`, `district-nieuws`,
-`district-projecten`, `stad-districten` en `stad-koopzondagen`. Het is een keuze van de site, geen
-storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, geen omweg, geen herhaling).
+`robots.txt` (op 29-10-2026 nog altijd zo). Een gewone browser komt er wel door. Dat raakt `district-kalender`,
+`district-nieuws`, `district-projecten`, `stad-districten` en `stad-koopzondagen`, de handmatige items op
+www.antwerpen.be, en de herverificatie van de nieuwsbrieven (zie "Nieuwsbrieven via de Gateway"). Het is een
+keuze van de site, geen storing bij ons, en de agenda probeert er niet omheen (geen andere User-Agent, geen
+omweg, geen herhaling).
 
-- `fetchWithTimeout` herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"` (ook als
-  `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`.
+- `fetchWithTimeout` (`lib/fetch-util.mjs`) herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"`
+  (ook als `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`. `district-vergaderingen`
+  valt bij die code terug op de eBesluit-kalender, zoals bij elke fout op de pagina van antwerpen.be.
 - De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
-- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur)
-  valt: een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm
-  over iets wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert
-  automatische toegang".
+- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt:
+  een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm over iets
+  wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert automatische
+  toegang".
 - Is de vorige data ouder dan `maxAgeHours`, dan is het wél een fout (`error`, de verversing wordt rood):
   de site verbergt dan de items van de bron, en dat moet iemand zien. De uitleg zegt hoe oud de stand is
-  ("Bron weigert automatische toegang, stand te oud").
+  ("Bron weigert automatische toegang, stand te oud"; in de job een `BRON`-regel voor het alarm-issue).
+  De vijf bronnen hierboven zijn dat sinds 24-10-2026: zij blijven rood tot de stad de agenda weer toelaat.
+- Een handmatig item op zo'n pagina blijft "onbereikbaar", nu met `httpStatus: 403` in plaats van `null`
+  (`scripts/check-manual-sources.mjs`).
 - Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
   toelaten, of dezelfde gegevens als open data.
+
+## Een falende bron: intern wel, voor bezoekers niet
+
+Besluit van de eigenaar (18-10-2026): "niemand moet weten als er iets faalt, de momentopname blijft wel
+goed". De site toont daarom nergens dat een bron, een laag of een live aanvraag faalt of oud is: ze toont gewoon
+de laatste goede stand. Een echte lege toestand blijft leeg (geen verzonnen 0, geen "rustig", geen "niets
+gepland"), zonder uitleg waarom. `tests/bron-waarschuwing.test.mjs` houdt de zinnen van vroeger buiten
+`site/`.
+
+Op de agenda:
+
+- geen bronwaarschuwing bovenaan (de melding `#agenda-source-warning` van #191 en `site/bron-waarschuwing.js`
+  zijn weg, op de voorpagina en op de plekpagina);
+- de bronnenlijst ("Bronnen en volledige vooruitblik") zegt bij zo'n bron gewoon "ververst op …" met het moment
+  van haar laatste goede stand, zonder "mislukt", "onbereikbaar" of "verouderd";
+- de zin "Officiële broncontrole …" in datzelfde blok (`#agenda-refresh-note`, `refreshNoteText` in
+  `site/agenda.js`) telt de punten van zo'n bron niet: ze noemt alleen verlopen punten en echte bronconflicten, en
+  is dezelfde of een bron nu faalt of niet (vroeger stond er "punten met bronconflict of verouderde bron", en met
+  eBesluit falend waren dat precies de punten van eBesluit);
+- laadt de gezamenlijke straatfilter (`site/agenda-view.js`) niet, dan blijft de gewone agenda, zonder zin
+  erover.
+
+Buiten de agendabronnen (live lagen, radar, historiek, kaart):
+
+- de zin onder een straat (`standZin` in `site/straat-snapshot.js`): lukt live nakijken niet, dan "Stand van de
+  verversing van 05:22."; lukt het deels, of laden de straatassen voor de straal niet, dan "Live nagekeken: …" met
+  wat wel lukte. Vroeger: "Live nakijken lukte nu niet …", "Rond de straat kon nu niet live geladen worden …",
+  "De straal rond de straat kon nu niet geladen worden …";
+- de momentopname van een straat (`site/straat/<id>.json`) blijft staan als een live laag faalt, ook als de bezoeker
+  "Alle lijsten, bronnen en instellingen" openklapt en de lijsten van het hele district dan laden en falen (nakijkronde
+  3 van 18-10-2026: de parkeerverboden, werfzones en evenementen van de straat vielen toen stil weg uit de weekzin,
+  de tegels en de lijst). Per laag zijn er twee bronnen, de straat en het district; `kiesLaag` in `site/live-lagen.js`
+  kiest: een gelukte lijst van het hele district, anders de laag van de straat (de momentopname of het gelukte live
+  kader), anders wat er wel is. Alleen een gelukte live laag vervangt de momentopname; een die (deels) faalt, vervangt of
+  leegt ze nooit, en de zin eronder blijft "Stand van de verversing van …" (`tests/momentopname-live-laag.test.mjs`,
+  `tests/e2e/snelheid.e2e.mjs`). Wat een laag mist, vraagt elke lijst van het district en elk kader van een straat aan
+  `mislukteOnderdelen` in `site/live-lagen.js` (per laag haar bronnen); nakijkronde 4 van 18-10-2026: de werkenlijst
+  van het district ging door als volledig zonder districtsgrens of straatassen (een werk viel dan weg uit de straat), en
+  het kader van een straat zonder GIPOD-hinder ook (de ernstige hinder verdween). Nu zijn beide deels geladen
+  (`werkenMislukt` in `site/works-live.js`: zonder grens, straatassen of hinder). Een mislukt onderdeel dat niet in
+  `ONDERDELEN` staat, of een bron die de laag niet kent, valt nooit weg (vroeger maakte "parkeerverboden en innames"
+  een week zonder nagekeken publieke ruimte "Rustig"). Kiest de bezoeker een andere plek, dan haalt de plekpagina de
+  lagen van de vorige straat in één keer weg (`zetStraatStand` in `site/place-view.js`): weg van de straat, zonder
+  stand, of een laag zonder bruikbare stand;
+- een plek groter dan één straat (nakijkronde 5 van 18-10-2026). Een laag van de plekpagina draagt haar dekking: het
+  gebied dat ze nakeek (`dektGebied` in `site/live-lagen.js`), en `live.gebied` is het gebied dat de bezoeker koos (de
+  plek, met de straal rond een straat). Een lijst van het hele district dekt elk gebied; de momentopname van een
+  straat alleen die straat; het live kader van een straat de straal waarmee het gevraagd is. Een laag die het gebied
+  niet dekt, houdt haar items maar is deels geladen (alle onderdelen in `live.failed`, `kiesLaag`): met een straal en
+  een live kader dat faalt (A-Sign, GIPOD, de districtsgrens of de straatassen) staat er dus nooit "Rustig" en geen 0
+  voor "in en rond jouw straat" (vroeger zei de momentopname van de straat alleen dat voor het hele gebied, met tegels
+  op 0), en zolang het kader nog onderweg is, zegt de weekzin dat er nog geladen wordt (vroeger al "Rustig", met een
+  spinner). Laden de straatassen voor de straal niet (`view.straalStand`), dan ligt niets rond de straat vast: dan
+  ook geen 0 bij evenementen en inspraak. Een wijk of postcode laadt de lijsten van het district live; faalt er één
+  (helemaal of deels), dan krijgt ze de momentopname van al haar straten (`laadGebied` en `lagenUitGebied` in
+  `site/straat-snapshot.js`, elk item één keer), zoals een straat de hare (vroeger verdwenen dan alle werken,
+  parkeerverboden en vergunningen van een wijk, met "–" naast echte getallen). Een straat zonder stand in dat gebied
+  (`alleenLive`, of een bestand dat niet laadt) maakt die momentopname deels geladen. Een item zonder eigen punt hangt
+  aan een wijk via zijn straten; zonder straatassen via de wijken per straat in `site/geo/straten.json` (dezelfde regel
+  als `streetWijkMap`). De momentopname van de straten binnen een straal toont de plekpagina niet: een straatbestand
+  heeft geen punt of vorm (privacy), dus de straal is er niet op toe te passen
+  (`tests/gebied-momentopname.test.mjs`, `tests/e2e/snelheid.e2e.mjs`);
+- de plekpagina: geen melding "… konden nu niet geladen worden. Dit overzicht is onvolledig." boven de tegels of
+  in de lege staat (`onvolledigMelding` in `site/live-lagen.js` is weg). Intern blijft `live.failed`: een laag
+  die niet laadde, maakt de weekzin nooit "rustig" en een tegel nooit een valse 0 (een streepje). De lege staat
+  zegt dan "niets gevonden" (`legeStaatTekst`, `legeDagLabel`, `legeTijdlijnTekst` in `site/place-core.js`), niet
+  "Niet alles laadde", "zijn niet (volledig) geladen" of "In wat wel geladen is". De weekzin (`dezeWeek`) noemt wat
+  gevonden is; is er niets gevonden en geen betrouwbare stand (live noch in de momentopname), dan valt ze weg
+  (nakijkronde 3: het grijze label "Onbekend" met "niets gevonden." verraadde dat een laag faalde; bij gezonde
+  bronnen staat er "Rustig" of "Let op"). Alleen wat de bezoeker zelf koos (een soort die uit staat en daarom niet
+  geladen is), zegt de zin erbij, en zolang een laag nog onderweg is, zegt de zin dat ze nog geladen wordt.
+  Nakijkronde 3 (18-10-2026): ook de chips en de tegel "vergunningen". Laadde een laag van "Werken & verkeer"
+  (GIPOD, of een deel van A-Sign: dan meldt de publieke ruimte `[]` met mislukte onderdelen) of van "Vergunningen"
+  (omgevingsdossiers, terrassen) niet, dan staat er op de chip geen getal in plaats van 0 (`chipGetal` in
+  `site/place-core.js`); laadden de omgevingsdossiers niet, dan toont de tegel "vergunningen" een streepje.
+  `site/permits-live.js` meldt daarvoor een mislukking in `live.failed` (`meldLiveLaag`, onderdeel "vergunningen"),
+  zoals de andere live lagen. Wat wel geteld is, blijft staan, een echte 0 ook;
+- de "Volledige vooruitblik" (in het ingeklapte blok "Bronnen en volledige vooruitblik", op de voorpagina en de
+  plekpagina, `vooruitblikTellers` in `site/week-pulse.js`): laadden de werken of de publieke ruimte niet, dan staat er
+  een streepje in plaats van "0 werken starten", "0 eindigen", "0 maatregelen starten" of "0 werken met ernstige
+  hinder" (de stand per laag volgt `laagStand` in `site/live-lagen.js`, zoals "Alles per straat");
+- de buurtinfo (`site/buurt-info.js`, `radarToestand` in `site/buurt-info-core.js`): is een bronlaag niet actueel
+  of de radar ouder dan 26 uur, dan dezelfde zin en dezelfde getallen als anders; zonder radar is het blok leeg.
+  Vroeger: "Niet alle bronlagen zijn actueel. Getallen worden niet als volledig voorgesteld.", "De radar is ouder
+  dan 26 uur …", "Het wijzigingsoverzicht kon niet worden geladen …";
+- de district-radar en de straatfiches op de voorpagina (`radarRegels` in `site/street-overview.js`): een laag
+  die niet ververst raakte, toont de laatste goede stand; zonder bruikbare historiek staat er "—" zonder uitleg, en
+  "Geen operationele wijzigingen" staat er alleen als alle lagen nagekeken zijn. Laadt de straatas niet, dan is
+  dit deel leeg. Vroeger: "history verouderd", "na gezonde history-refresh", "Straatfiche tijdelijk niet
+  beschikbaar";
+- de lijsten van het district (werken, innames, vergunningen, terrassen): laadt een lijst niet, dan is ze leeg,
+  zonder "0" en zonder notitie; laadt een aanvulling niet (de districtsgrens, de GIPOD-hinder, A-Sign, de
+  AWV-werfdata, of die is ouder dan 3 dagen), dan valt haar zin weg en blijft de rest. Vroeger o.a. "De AWV-werfdata
+  is ouder dan 3 dagen …", "… kon nu niet geladen worden", "Hinderbron tijdelijk niet geladen", "Werken tijdelijk
+  niet geladen", "Terrassen niet geladen", "Omgevingsdossiers tijdelijk niet geladen". Ook de regel met de
+  aantallen telt alleen wat laadde (`publiekeRuimteKop` in `site/public-space-live.js`, `werkenMeta` in
+  `site/works-live.js`): geen "0 parkeerverboden · 0 innames" voor een A-Sign-laag die niet laadde, geen "0 met
+  gekoppelde hinder", "0 met A-Sign supplement" of "0 met AWV-werfdata" voor een aanvulling die niet laadde, en
+  zonder enige A-Sign-laag geen "0 maatregelen" en geen "A-Sign, geladen …";
+- een laag die niet laadde, "laadt" niet eeuwig: onder de buurtkaart staat dan geen "werken en hinder worden
+  geladen…" (`kaartStatusZin` in `site/neighborhood-map.js` kijkt ook naar `live.failed`), en bij "Alles per
+  straat" op de voorpagina geen "Live werken en maatregelen worden nog opgehaald." en geen "0 straten met actuele
+  of geplande informatie" (`overzichtTekst` in `site/street-overview.js`); de district-radar toont dan "—" in
+  plaats van "0 straten met ernstige hinder";
+- een werkkaart (`site/kaart-uitleg.js`) zegt niet meer "gevolgen voor het verkeer nu niet opgehaald" of "de
+  straat kon nu niet bepaald worden"; de historiek van een werk (`site/werk-historiek.js`) toont niets als het
+  archief niet laadt of onbruikbaar is;
+- de buurtkaart: laden de wijkgrenzen niet, dan geen zin erover; laadt de kaart niet, dan blijft de knop "Toon de
+  kaart" (vroeger "Kaart niet beschikbaar · opnieuw proberen").
+
+Intern blijft alles:
+
+- de bronstatus in het bronbestand, in `site/sources/refresh-status.json` en in de feed (`fetchStatus`,
+  `errorCode`, `retrievedAt`), en `sourceFreshness` in de browser (`site/agenda-refresh.js`);
+- de status van de live lagen in de historiek en de radar (`status` per laag), en `live.failed` in de browser;
+- `npm run sources:health`, de job `source-health` en de alarmen naar de eigenaar: faalt `source-health`, dan vult
+  de job `alarm` in `.github/workflows/refresh.yml` het open alarm-issue "Alarm: agendaverversing of live versheid
+  faalt" aan (of opent het, als er geen open is), net als bij een falende verversing, datatak of live versheid. Dat
+  gebeurt bij een geplande run én bij een dispatch (behalve een proefrun met aanleiding "test"): de echte
+  ochtendverversing start de Gateway met `workflow_dispatch`, en de late cron slaat dan refresh en `source-health`
+  over (`al-vers`). Alleen bij de cron kwam er bij een rode bronstatus dus nooit een issue (15 tot 18 oktober 2026,
+  eBesluit rood). Het alarm loopt alleen vanaf de standaardtak (`github.ref == 'refs/heads/main'`): een handmatige
+  run vanaf een andere tak faalt bewust (stap "Alleen vanaf main") en opent of vult geen alarm-issue. Zonder melding
+  op de site is dat het signaal voor de eigenaar. De reactie noemt welke bron of laag faalt, met haar foutcode
+  (nakijkronde 5 van 18-10-2026: elke rode bronstatus gaf dezelfde reactie, en een nieuwe falende bron viel niet op
+  naast de eBesluit-fout die elke ochtend rood stond): de stap "Elke bron gezond" geeft haar regels die met `BRON`
+  beginnen door als job-output `bron` (en zet ze in de samenvatting van de run), en de job `alarm` zet ze via `env`
+  in een codeblok in de reactie. Alleen vaste codes, bron-ID's en tijdstippen, tot veilige tekens beperkt (geen
+  `@`, backtick, haken of `<` `>`) en hoogstens 30 regels (`tests/refresh-workflow.test.mjs`);
+- ook voor de live lagen (nakijkronde 3 van 18-10-2026; vroeger was de zin op de site daar het enige signaal): de
+  historiek (`site/history/live-layers.json`: `works`, de GIPOD-werken, en `publicSpace`, de publieke ruimte; ook de
+  bron van de radar) en de straatbestanden (`site/straat-index.json`: werken, publiekeRuimte, vergunningen, terrassen,
+  evenementen). Dezelfde
+  regel als bij een agendabron (`liveLaagGezondheid` in `lib/live-history.mjs`): een laag die niet ververst raakte,
+  houdt haar vorige goede stand, en zolang die niet ouder is dan 48 uur is dat een waarschuwing (`::warning title=Live
+  laag stale` in de job `source-health`, "Live laag stale" of "Straatbestanden" in `npm run sources:health`). Geen
+  goede stand (`error` zonder `sinds` of `lastSuccessAt`), een goede stand van meer dan 48 uur of een onbekende status
+  is rood: de job `source-health` faalt (regel `BRON live-historiek …` of `BRON straatbestanden …`) en de job `alarm`
+  vult het alarm-issue aan. De job `refresh` geeft daarvoor de status per laag, zonder items, mee in het artefact
+  (`live-lagen.json`, stap "Stand van de live lagen"); ontbreekt dat bestand, dan faalt `source-health` dicht. Elke
+  laag hierboven moet erin staan: ontbrak de historiek of `site/straat-index.json` in de verversing, of staat een laag
+  er niet in, dan is `source-health` ook rood (regel `BRON … ontbreekt in de stand van de live lagen`, nakijkronde 3
+  van 18-10-2026: vroeger bleef ze dan groen) en vult de job `alarm` het alarm-issue aan;
+- de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
+
+Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van
+18-10-2026): geen melding "De agenda wordt even niet ververst … We werken eraan.", geen oranje pil "Laatst
+bijgewerkt", geen badge "Laatst bevestigd …" en geen "… omdat de verversing achterloopt" in de zin over de
+broncontrole. De kop toont "Bijgewerkt …" met het tijdstip van de momentopname, en de bronitems blijven 14 dagen
+zichtbaar (`graceStale`, intern). Zo eindigen ook dan op een gsm de plek en "Dit weekend" boven 600 px (P6, P8;
+met de melding waren dat 573/691/845 px en 791 px). De eigenaar krijgt het signaal via de job `freshness` en het
+alarm-issue. Wat niets met een bron te maken heeft, blijft: "Export niet beschikbaar" (het agendabestand maken in
+de browser), "Opslaan lukte niet" (een straat bewaren in de browser) en "Locatie niet beschikbaar" (de locatie van
+het toestel).
 
 De eBesluit-kalender (terugval van `district-vergaderingen`, 13 maandpagina's) pauzeert 250 ms tussen
 de pagina's en probeert een maand bij 5xx, 429, time-out of netwerkfout nog twee keer opnieuw (na 2
 en 5 seconden).
+
+## De reden van een fout in het bronbestand (`lastError`)
+
+Bij elke fout bewaart een fetcher de vorige, geverifieerde items (`keepPreviousOnError` in
+`lib/fetch-util.mjs`). Het bronbestand zegt sindsdien ook waarom en sinds wanneer:
+
+```json
+"fetchStatus": "error",
+"lastSuccessAt": "2026-10-12T03:21:58.546Z",
+"lastError": { "code": "search_http_500", "at": "2026-10-19T03:21:00.000Z" }
+```
+
+- `lastError.code` is de vaste foutcode van de laatste poging (`http_500`, `search_incomplete`,
+  `search_window_ignored`, `no_decisions`, `timeout`, `source_timeout`, `bron_weigert_automatisch`,
+  `suspicious_drop` …), `lastError.at` het moment van die poging;
+  dezelfde code staat als `errorCode` in `refresh-status.json`;
+- bij eBesluit (`district-ebesluit`, `district-ebesluit-evenementen`) draagt de code een vaste fase
+  (`metFase` in `lib/ebesluit-discovery.mjs`): `search_<code>` als een zoekpagina faalde, `detail_<code>` als
+  de detailpagina van een agendapunt faalde, bv. `search_http_500` of `detail_http_500` (vroeger zei `http_500`
+  bij `district-ebesluit` niet welk van de twee). Een code die al een fase heeft (`search_incomplete`) of die
+  van het tijdsbudget is (`source_timeout`, `refresh_budget_exhausted`), blijft zoals ze is.
+  `isTransientErrorCode` (`lib/fetch-util.mjs`) en de job `source-health` kijken door de fase heen:
+  `search_http_500` is tijdelijk zoals `http_500`, `detail_http_404` blijvend; de melding toont de hele code;
+  `lastSuccessAt` is de laatste geslaagde verversing (gelijk aan de bewaarde `retrievedAt`). Zo staat in de
+  repo welke fout er is en sinds wanneer, ook als de logs van de verversing niet te lezen zijn.
+- Alleen een foutcode (`[a-z0-9_]`, hoogstens 60 tekens) en twee tijdstippen: nooit een URL, een zoekterm of
+  andere vrije tekst. `validateSourceDocument` (`lib/source-feed.mjs`, ook `npm run validate:data`) aanvaardt
+  de twee velden alleen samen en alleen bij `fetchStatus: "error"`; een bestand zonder blijft geldig.
+- Een geslaagde verversing schrijft het bestand opnieuw zonder deze velden.
+- Intern: de feed (`scripts/build-sources.mjs`) neemt ze niet over en de site toont ze nergens (besluit van
+  18-10-2026, zie hierboven). `refresh-status.json` houdt zoals voorheen `errorCode` per bron.
+
+## eBesluit: kleinere zoekpagina's bij een serverfout
+
+eBesluit levert tot 500 rijen per zoekpagina (`EBESLUIT_PAGE_SIZE`). Sinds 12/13 oktober 2026 faalden
+`district-ebesluit` en `district-ebesluit-evenementen` elke nacht met HTTP 500 (#180, #186); bij de
+evenementenbron kan dat alleen het zoeken zijn, want haar detailronde vangt haar eigen fouten op. Daarom
+(`lib/ebesluit-discovery.mjs`):
+
+- geeft een zoekpagina na de bestaande herkansing (`getHtml`, één keer na 1,5 s) nog een 5xx, dan wordt
+  **hetzelfde venster** opnieuw doorzocht met pagina's van 100 en daarna 50 rijen
+  (`EBESLUIT_FALLBACK_PAGE_SIZES`). De rijen van een mislukte poging tellen niet;
+- elke poging blijft binnen 20 pagina's (`EBESLUIT_MAX_PAGES`, dus 2.000 rijen bij 100 en 1.000 bij 50): meer
+  treffers maken het venster onvolledig, en dan splitst het bestaande kwartaal-/maandpad zoals voorheen.
+  Het tijdsbudget van de bron (6 en 4 minuten) blijft gelden;
+- weigert eBesluit een grootte, dan begint elk volgend venster van **dezelfde run van die bron** meteen bij de
+  kleinere: over alle zoektermen en, bij `district-ebesluit`, over beide jaren (`pageSizeChoice`). De geweigerde
+  pagina van 500 wordt zo per run maar één keer gevraagd (met de herkansing: 2 verzoeken), niet per zoekterm en
+  jaar (vroeger 8 keer bij `district-ebesluit` en 6 keer bij de evenementen, en zo ging het tijdsbudget op). De
+  keuze gaat alleen naar kleinere pagina's en leeft alleen in die run: geen bestand, de volgende run begint weer
+  bij 500;
+- pas als ook pagina's van 50 falen, is het venster onvolledig, met de foutcode erbij. Faalt zo ook een
+  kalendermaand (het kleinste venster), dan stopt de zoekronde meteen met die code (bv. `search_http_500`): ze kan
+  niet meer volledig worden, en verder vragen belast een server in storing. Bij een aanhoudende 500 zijn dat
+  10 verzoeken voor `district-ebesluit` en 8 voor `district-ebesluit-evenementen`;
+- fail-closed blijft: een onvolledige zoekronde wordt nooit als volledig aanvaard (#186); de bron krijgt
+  `fetchStatus: "error"` met de vorige items en `lastError`.
+
+## eBesluit: de kalender als `/zoeken` onbruikbaar is
+
+`/zoeken` was na #201 nog altijd stuk, op twee manieren na elkaar: van 13-10-2026 tot 26-10-2026 gaf het bij
+elke vraag HTTP 500 (ook zonder parameters en in een gewone browser, en ook met pagina's van 50), en sinds
+26-10-2026 antwoordt het weer met 200 maar **negeert het het venster op zittingsdatum**: "markt" in oktober 2026
+gaf op 29-10-2026 "227.724 resultaten gevonden" met rijen uit 2008 tot 2013 bovenaan, en het formulier in het
+antwoord liet `meetingDateStart` en `meetingDateEnd` leeg (ook met dd/mm/jjjj, zoals het formulier van de site).
+Elk venster meldde dan meer treffers dan het kon doorlopen; `district-ebesluit` eindigde met `source_timeout` na
+zijn 6 minuten en `district-ebesluit-evenementen` met `search_incomplete`, elke nacht sinds 12-10-2026. De
+maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's werkten de hele tijd. Daarom
+(`searchKeyword` in `lib/ebesluit-discovery.mjs`, `lib/ebesluit-kalender.mjs`):
+
+- **Onbruikbaar** is `/zoeken` als het na de kleinere pagina's hierboven nog een 5xx geeft (`search_http_5xx`), of
+  als de eerste zoekpagina zelf toont dat het venster genegeerd is (`vensterGenegeerd`): van de rijen met een
+  zittingsdatum ligt de meerderheid buiten het gevraagde venster, en minstens 3 (`VENSTER_GENEGEERD_MIN_RIJEN`).
+  Dan heet de fout `search_window_ignored`, en wordt het venster niet meer in kwartalen en maanden opgesplitst
+  (dat hielp niets: elk venster gaf dezelfde rijen). Elke andere fout (een 404, het tijdsbudget, een onvolledige
+  zoekronde) gaat niet langs de kalender.
+- **Dan de kalender:** dezelfde rijen als de zoekfunctie, uit de maandlijst en de zittingspagina's van het
+  college, het districtscollege en de districtsraad van district Antwerpen (`KALENDER_ORGANEN`), tot 14 dagen na
+  vandaag (daarna staat er nog geen agenda), met de zoekterm in de titel. Ook in het meervoud of enkelvoud
+  (`trefwoordVormen` in `lib/ebesluit-kalender.mjs`): `/zoeken` vond voor "speelstraat" ook de besluiten over
+  "speelstraten", en die titel bevat "speelstraat" niet (straat -> straten, foor -> foren, evenementen ->
+  evenement). De detailronde daarna is dezelfde als voordien. `coverage.route` is `"kalender"`, en de logregel van
+  `district-ebesluit` zegt `"route":"kalender"`.
+- **Eén keer per run:** de eerste zoekterm die het merkt, zet het in de stand van de run (`pageSizeChoice`, dezelfde
+  stand als de paginagrootte van #201); elke volgende zoekterm en, bij `district-ebesluit`, ook het volgende jaar
+  gaan meteen naar de kalender. Elke maandlijst en elke zitting wordt per run hoogstens één keer gehaald (een
+  gedeelde cache), met 500 ms ertussen (`KALENDER_PAUZE_MS`), en `getHtml` herkanst een 5xx één keer. De volgende
+  run probeert `/zoeken` opnieuw: werkt het weer, dan is de kalender vanzelf uit beeld.
+- **Faalt ook de kalender**, dan faalt de bron met de fout van `/zoeken` (`search_http_500` of
+  `search_window_ignored`), zoals voordien: de vorige items blijven, met `lastError`. Het tijdsbudget blijft
+  `source_timeout`.
+- **Gemeten op 29-10-2026** (droge runs vanaf een gewone verbinding, met het tijdsbudget van de verversing):
+  `district-ebesluit` 1 zoekpagina, 12 maandlijsten en 125 zittingen (twee 503's, herkanst) en 8 agendapunten in
+  122 tot 131 s van de 360 s, met precies dezelfde 9 items en 6 onderdrukkingen (3 besluiten) als de laatste
+  geslaagde run via `/zoeken` op 12-10-2026; `district-ebesluit-evenementen` 1 zoekpagina, 4 maandlijsten, 32
+  zittingen en 20 agendapunten in 60 s van de 240 s: 45 besluiten, 6 agendapunten. Die meting was nog zonder de
+  meervoudsvormen: toen vond de kalender geen enkel besluit over speelstraten (zoals 2026_DCAN_00020 van
+  12-01-2026), dus dat het ook dezelfde drie besluiten waren als op 12-10, staat niet vast. De items en
+  onderdrukkingen raakt dat niet (een speelstratenbesluit wordt geen item, `civicCalendarFromDecision`); het aantal
+  besluiten in `contentVersion` en `playStreetAttachments` wel.
 
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
@@ -173,15 +433,16 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 ## Versheid
 
 - Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
-  `stale_source`) en toont de site in het rood "verouderd sinds …".
+  `stale_source`). De site zegt dat niet aan bezoekers (besluit van 18-10-2026, zie "Een falende bron"
+  hierboven); `sources:health` meldt het wel.
 - Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
   `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
   vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
   2 dagen.
-- "Laatst bevestigd" (14 dagen) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is dan
-  48 uur.
-- Per bron toont de site "ververst op …", in het oranje "leeg sinds …", in het rood "verouderd sinds …" of
-  "nog niet actief".
+- De gratie van 14 dagen (`graceStale`) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is
+  dan 48 uur. Een bezoeker ziet ze als gewone items, zonder "Laatst bevestigd" (besluit van 18-10-2026).
+- Per bron toont de site "ververst op …" (het moment van de laatste goede stand, ook als de laatste
+  ophaalpoging faalde), in het oranje "leeg sinds …" of "nog niet actief".
 
 ## Leeg: antwoordt wel, levert niets
 
@@ -347,11 +608,12 @@ nooit opgehaald is, meldt `npm run sources:health` als "nog niet opgehaald".
   - Privacy: de kanaalrespons bevat personeelsvelden (`creator`, `assignee`, `lockOwner`) en namen en
     nummers van aannemers. `projectPage()` houdt alleen titel, tags, `publishUntil` en de tekst van tekst-
     en tabelblokken over; blokken "Meer info", "Contact" en "Samenstelling" worden overgeslagen, en de
-    pagina's over de districtsraad, subsidies en reglementen zijn geen projecten. Plaatsen verliezen hun
-    huisnummers, telefoonnummers en e-mailadressen (`zonderHuisnummers`): ook "Meir 24 2000 Antwerpen"
-    (een nummer vlak voor een postcode), reeksen ("135-137"), busnummers ("34 bus 2") en straten op -baan,
-    -dorp, -aan, -gang, -steeg, -poort … Er komt geen vrije tekst van de pagina in een item, buiten datum,
-    uur, plaats, fase en zone.
+    pagina's over de districtsraad, subsidies en reglementen zijn geen projecten. Plaatsen en zones houden
+    hun huisnummer (regel van de eigenaar van 26 oktober 2026: altijd het exacte adres, ook "Proefmeir 24 2000
+    Antwerpen" en reeksen als "135-137"), maar verliezen telefoonnummers, e-mailadressen, een zin om te bellen of
+    te mailen en een busnummer ("34 bus 2": één appartement) (`zonderContact`). De id van een fase komt nog uit de
+    zone zonder huisnummer (`zonderHuisnummers`), zodat de historiek geen nieuwe fase ziet. Er komt geen vrije
+    tekst van de pagina in een item, buiten datum, uur, plaats, fase en zone.
 
 ## Speelstraten via GIPOD
 
@@ -426,21 +688,21 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
   privépersoon hoort niet in de agenda.
 - **Privacy:** het blok "Samenstelling" wordt weggeknipt vóór er iets gelezen wordt; een organisator of
   aanvrager alleen met rechtsvorm (vzw, bv, nv, …) of als publieke instelling; nooit een
-  ondernemingsnummer, IBAN of het adres van de aanvrager. Geen huisnummer in plaats of naam: een
-  muziektitel zonder postcode ("Feest, Proefstraat 12. District Antwerpen") geeft naam "Feest" en plaats
-  "Proefstraat, District Antwerpen". Een straat van het district met een cijfer in de naam ("4
-  septemberpad") telt niet als huisnummer. Uit de tabel van het Districtsfonds komen alleen straten,
-  postcodes en gebieden (die cel noemt soms ontwerpers met hun adres). `validate:data` controleert het
-  bestand.
+  ondernemingsnummer, IBAN of het adres van de aanvrager (zijn zetel, zijn woonplaats in de betaaltabel).
+  De plaats van het evenement staat er met haar huisnummer (regel van de eigenaar van 26 oktober 2026, leesversie
+  3), nooit met een busnummer; de naam nooit met een adres: een muziektitel zonder postcode ("Feest, Proefstraat
+  12. District Antwerpen") geeft naam "Feest" en plaats "Proefstraat 12, District Antwerpen". Uit de tabel van
+  het Districtsfonds komen alleen straten met het huisnummer erachter, postcodes en gebieden, nooit een ander
+  woord (die cel noemt soms ontwerpers of bewoners bij naam), in de volgorde van de cel (de hoofdplaatsen eerst).
+  Een besluit dat met leesversie 2 gelezen was (de plaats zonder nummer), wordt opnieuw gelezen; tot dat lukt,
+  blijft het oude besluit met zijn agendapunt staan, en het bestand houdt leesversie 2 tot alles opnieuw gelezen
+  is. Elk gelezen besluit draagt zijn eigen `leesversie`: een besluit dat al opnieuw gelezen is, wordt niet nog
+  eens gelezen, ook als één pagina blijvend faalt (dan alleen die ene). `validate:data` controleert het bestand.
 - **Eén ongeldig besluit legt de bron niet stil:** een besluit dat de vorm- of privacycontrole niet haalt,
   wordt opgekuist (zonder naam, organisator en plaats blijft het in de cache, maar wordt het geen
   agendapunt) of valt weg; de rest wordt gewoon geschreven. Een "@" in een naam wordt "at".
-- **Zoekfunctie stuk (5xx op `/zoeken`):** dan zoekt de bron via de kalender (`lib/ebesluit-kalender.mjs`):
-  de maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's van het college, het
-  districtscollege en de districtsraad van district Antwerpen, tot 14 dagen na vandaag, met de zoekterm in
-  de titel. Dat geldt ook voor `district-ebesluit`. Aanleiding: `/zoeken` gaf vanaf 13-10-2026 bij elke
-  vraag HTTP 500, ook zonder parameters en in een gewone browser, terwijl de lijst en de zittingen werkten.
-  Elke pagina één keer per verversing, 500 ms ertussen; `coverage.route` is dan `"kalender"`.
+- **Zoekfunctie onbruikbaar** (een blijvende 5xx, of het venster genegeerd): dan zoekt de bron via de kalender,
+  zie "eBesluit: de kalender als `/zoeken` onbruikbaar is". Dat geldt ook voor `district-ebesluit`.
 - **Fout bij het zoeken:** faalt ook de kalender, dan blijven beide bestanden zoals ze waren,
   `fetchStatus: "error"` met de fout van `/zoeken`. Een kapotte detailpagina houdt de rest niet tegen en
   komt de volgende keer opnieuw aan de beurt.
@@ -563,10 +825,11 @@ Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenement
   Marathon) of, via dezelfde pagina, het nieuws van een ander district (de EkeRun). De lijst gaat van 755 naar 822
   items. De stap duurt een paar seconden bovenop de herkenning.
 - **Privacy:** de omschrijving van een inname gaat nooit letterlijk mee (alleen het trefwoord
-  "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; alleen straatnamen van de
-  straatas, nooit een huisnummer (`validate:data` scant titel, plaats, info, uur en straten van deze bron
-  op een huisnummer na een straatnaam); een organisator alleen met een rechtsvorm of als publieke
-  instelling; alleen postcodes van het district.
+  "speelstraat"); de beheerder en de aanvrager worden niet eens opgehaald; de plaats zijn straatnamen van de
+  straatas (A-Sign geeft een evenementendossier geen adres; `validate:data` weigert een nummer in die straten). Een
+  huisnummer in de naam, de soort, de uren of de reden van een fiche blijft staan (regel van de eigenaar van 26
+  oktober 2026: bij een evenement altijd het exacte adres); een organisator alleen met een rechtsvorm of als
+  publieke instelling, en nooit met een adres; alleen postcodes van het district.
 
 ## Buurtkaart: wijken en coördinaten (geen agendabron)
 
@@ -662,6 +925,19 @@ van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets i
 - 404 (niet uitgerold) of 401/403 (nog niet publiek): `disabled`. 503 of een snapshot ouder dan 3 dagen:
   eerder aanvaarde items blijven tot hun datum voorbij is, zolang de pagina ze bevestigt
   (`upstream_stale`). Andere fouten: `error`, vorige items blijven. Andere bronnen worden nooit aangeraakt.
+- **Stand op 29-10-2026: de twee lanen waren nog nooit gevuld.** `mail-district` en `mail-stad` bestaan sinds
+  28-09-2026 en hadden in geen enkele verversing een item: de Gateway leverde elke keer 0 signalen
+  (`"signals":0` in de logregel `{"source":"mail",…}` van de verversing). `emptySince: 2026-10-10` in
+  `refresh-status.json` is dus niet de dag waarop de lanen stilvielen, maar de dag waarop de teller "leeg"
+  begon (#157, zie "Leeg: antwoordt wel, levert niets"). De nul komt niet van deze kant: aan de kant van de Mac
+  haalde nog geen enkele mail de poorten van de Gateway (een nieuwsbrief van een toegelaten afzender, met een
+  link naar een publieke pagina die zelf een komende activiteit bevestigt). Daar moet het opgelost worden, niet
+  hier.
+- Sinds 23-10-2026 weigert www.antwerpen.be automatische toegang (zie "De site weigert automatische toegang").
+  Een signaal met een link naar www.antwerpen.be haalt hier dan de herverificatie niet (reden
+  `bron_weigert_automatisch` in `reasons`), ook als de Gateway het levert.
+- Na een herstart van de Gateway geeft de route even 503 (`mail_signalen_unavailable`) tot de companion het
+  bestand opnieuw brengt (binnen het uur); hier is dat `upstream_stale`, geen fout.
 
 ## Privacy
 

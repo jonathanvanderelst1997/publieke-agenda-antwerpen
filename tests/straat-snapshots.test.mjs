@@ -58,17 +58,20 @@ test("de bouwer schrijft per straat met items één klein bestand en een index m
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 
-test("privacy: geen huisnummer, geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
+// Regel van de eigenaar (26 oktober 2026): een werk staat er met zijn exacte adres, ook in een straatbestand; de andere lagen
+// (een parkeerverbod, een terras) zonder huisnummer.
+test("privacy: geen huisnummer (behalve bij een werk), geen naam, geen vrije beschrijving, geen adres of plek, geen e-mail", async (t) => {
   const root = werkmap(t);
   await bouw(root);
   const tekst = alleTekst(root);
-  for (const verboden of ["Proefstraat 12", "12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
+  for (const verboden of ["12-14", "Proefstraat 5", "Proefstraat 9", "Jan Voorbeeld", "0470", "proef@", "Proef Persoon", "creator", "\"point\"", "\"vorm\"", "\"description\"", "\"aanvrager\"", "__kader", "__straten"]) {
     assert.equal(tekst.includes(verboden), false, `"${verboden}" staat in een straatbestand`);
   }
-  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat.
-  assert.doesNotMatch(tekst, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
+  // Dezelfde grep als de gitleaks-regel huisnummer-bij-straat, op alles behalve de werken.
+  const zonderWerken = fs.readdirSync(path.join(root, "site", "straat")).map((naam) => { const { werken: _w, ...rest } = lees(root, `site/straat/${naam}`); return JSON.stringify(rest); }).join("\n");
+  assert.doesNotMatch(zonderWerken, /\p{Lu}[\p{L}'-]*(?:straat|laan|lei|plein|weg|kaai|vest|markt)[ \t]+[1-9][0-9]{0,3}/u);
   const kam = lees(root, `site/straat/${KAM.id}.json`);
-  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat - ${WERK_TITEL}`);
+  assert.equal(kam.werken[0].title, `2000 Antwerpen, Proefstraat 12 - ${WERK_TITEL}`);
   assert.equal(kam.publiekeRuimte.find((i) => i.kind === "parking").location, "Proefstraat, 2000 Antwerpen");
   assert.equal(kam.publiekeRuimte.some((i) => /voorbeeld/i.test(JSON.stringify(i))), false, "het item met een e-mailadres valt weg");
   // Elk item afzonderlijk: een item met iets privé erin wordt null, niet half opgekuist.
@@ -90,7 +93,8 @@ test("de browser leest een straatbestand terug als dezelfde items als de live la
   assert.equal(lagen.works[0].id, "work:990001");
   assert.equal(lagen.works[0].streetResolution, "nearest_official_axis", "kaart-uitleg.js gebruikt dit veld voor werken");
   assert.equal(lagen.permits[0].sourceUrl, vergunningBronUrl("20990001", "OMV_2099000001"));
-  // Twee terraszones op hetzelfde adres blijven één terras, zonder dat het adres in het bestand staat.
+  // Twee terraszones op hetzelfde adres blijven één terras. Het adres zelf staat er niet: de verzonnen straat staat niet in de
+  // stratenlijst (straatAdres in lib/straat-bestanden.mjs; een officiële straat met haar huisnummer wel, sinds 26 oktober 2026).
   assert.ok(lagen.terraces.every((i) => i.address === ""));
   assert.equal(terrasEntries(lagen.terraces).length, 2);
   // Een evenementendossier dat de verversing kent: in de Huikstraat één rij, voor één kaart.
@@ -204,7 +208,10 @@ test("radar.json: een drukke week (twee verversingen per dag) past in het budget
   assert.equal(radarPeriodeTekst(periode), `laatste ${periode.dagen} ${periode.dagen === 1 ? "dag" : "dagen"} (ingekort)`);
   assert.ok(periode.dagen < 7);
   assert.equal(radarPeriodeTekst(historiekUitRadar(bouwRadar(history)).periode), "laatste 7 dagen", "niet ingekort");
-  assert.match(fs.readFileSync(path.join(repoRoot, "site", "street-overview.js"), "utf8"), /radarPeriodeTekst\(state\.history\?\.periode\)/);
+  // De periode staat bij het aantal gewijzigde straten (radarRegels, met de periode van de radar).
+  assert.match(fs.readFileSync(path.join(repoRoot, "site", "street-overview.js"), "utf8"), /radarRegels\(r,state\.history\?\.periode\)/);
+  const { radarRegels } = await import("../site/street-overview.js");
+  assert.equal(radarRegels({ historyState: "ok", recentlyChangedStreets: 2, latestChangeCounts: { added: 0, changed: 0, removed: 0 }, latestChangedStreets: 0 }, periode).noot, radarPeriodeTekst(periode));
 });
 
 test("radar.json: ook een verversing die bijna elke straat raakt, past in het budget (validate-data blijft groen)", async (t) => {
@@ -260,7 +267,8 @@ test("het kader rond een straat, het verschil en de zin onder de plek", () => {
   assert.equal(standZin({ ververst: VERVERST, nieuw: 1, nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22.");
   assert.equal(standZin({ ververst: VERVERST, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   assert.equal(standZin({ ververst: VERVERST, nieuw: 2, weg: 1, nu: NU }), "Live nagekeken: 2 nieuw, 1 niet meer in de bron sinds 05:22.");
-  assert.equal(standZin({ ververst: VERVERST, mislukt: true, nu: NU }), "Live nakijken lukte nu niet. Je ziet de stand van de verversing van 05:22.");
+  // Lukt live nakijken niet: gewoon de stand van de verversing, zonder te zeggen dat iets faalt (besluit van 18-10-2026).
+  assert.equal(standZin({ ververst: VERVERST, mislukt: true, nu: NU }), "Stand van de verversing van 05:22.");
   assert.equal(standZin({ ververst: VERVERST, bezig: true, nu: NU }), "Stand van de verversing van 05:22. Live nakijken…");
 });
 
@@ -380,15 +388,17 @@ test("privacy: ook 'thv', 'ter hoogte van', 'tegenover', 'naast', 'voor de deur 
   assert.deepEqual(straatItemPrivacy({ werken: [{ title: "omleiding bus 30 en 34" }] }), []);
 });
 
-test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-hinderfase) valt weg", async (t) => {
+test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst valt weg; bij een werk blijft het (exact adres)", async (t) => {
   // Verzonnen omschrijvingen van een hinderfase.
   const fasen = [
     { description: "Fase 2: stelling aan gevel nummer 12", start: "2099-03-19T06:00:00Z", end: "2099-03-20T16:00:00Z", consequences: ["Voetpad versmald"] },
     { description: "Herstel pand nr. 5 en 7", start: "2099-03-21T06:00:00Z", end: "2099-03-22T16:00:00Z", consequences: [] },
   ];
   const schoon = itemVoorStraat(werk(990001, { hindrance: { severe: false, consequences: ["Voetpad versmald"], phases: fasen } }), { laag: "werken" });
-  assert.ok(schoon, "het werk blijft (opgekuist), het valt niet weg");
-  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel", "Herstel pand"]);
+  assert.ok(schoon, "het werk blijft, het valt niet weg");
+  // Regel van de eigenaar (26 oktober 2026): een werk houdt zijn huisnummer, ook in de naam van een fase.
+  assert.deepEqual(schoon.hindrance.phases.map((f) => f.description), ["Fase 2: stelling aan gevel nummer 12", "Herstel pand nr. 5 en 7"]);
+  assert.deepEqual(straatItemPrivacy({ werken: [schoon] }), []);
   assert.equal(schoon.hindrance.phases[0].start, fasen[0].start, "datums blijven");
   // De scan ziet het ook (validate-data), maar niet in een officiële straatnaam met een cijfer.
   assert.deepEqual(straatItemPrivacy({ werken: [{ hindrance: { phases: [{ description: "stelling aan gevel nummer 12" }] } }] }).map((v) => v.code), ["huisnummer"]);
@@ -399,7 +409,7 @@ test("privacy: een nummer na 'gevel', 'pand' of 'nummer' in vrije tekst (GIPOD-h
   const root = werkmap(t);
   await bouw(root, { bronnenDoc: await schoneBronnen({ werken: [werk(990001, { hindrance: { severe: false, consequences: [], phases: fasen } })] }) });
   const tekst = alleTekst(root);
-  assert.doesNotMatch(tekst, /nummer 12|nr\. 5/);
+  assert.match(tekst, /stelling aan gevel nummer 12/, "een werk houdt het nummer in de naam van een fase");
   assert.deepEqual(straatBestandenProblemen(root), []);
 });
 
@@ -426,17 +436,20 @@ test("laadStraat kijkt de hash na: een bestand met een andere inhoud wordt één
   // Klopt de hash meteen: geen tweede verzoek (zie de toets van laadStraat hierboven).
 });
 
-test("de zin onder de plek met een straal: eerlijk als live of de straatassen voor de straal niet laadden", () => {
-  assert.equal(standZin({ ververst: VERVERST, mislukt: true, straal: 500, nu: NU }), "Rond de straat kon nu niet live geladen worden. Je ziet alleen de straat zelf, met de stand van de verversing van 05:22.");
+// Besluit van 18-10-2026 ("niemand moet weten als er iets faalt"): laden live of de straatassen voor de straal niet,
+// dan zegt de zin dat niet; ze noemt de stand van de verversing of wat live wel lukte.
+test("de zin onder de plek met een straal: laden live of de straatassen voor de straal niet, dan zonder melding", () => {
+  assert.equal(standZin({ ververst: VERVERST, mislukt: true, straal: 500, nu: NU }), "Stand van de verversing van 05:22.");
   assert.equal(standZin({ ververst: VERVERST, straal: 500, straalStand: "laadt", nu: NU }), "Live nagekeken: niets nieuw sinds 05:22. De straal rond de straat laadt nog…");
-  assert.equal(standZin({ ververst: VERVERST, nieuw: 1, straal: 250, straalStand: "mislukt", nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22. De straal rond de straat kon nu niet geladen worden: je ziet alleen de straat zelf.");
-  assert.equal(standZin({ ververst: VERVERST, mislukteDelen: ["vergunningen"], straal: 250, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22. Live nakijken lukte nu niet voor vergunningen: daarvan zie je alleen de straat zelf, met de stand van de verversing van 05:22.");
+  assert.equal(standZin({ ververst: VERVERST, nieuw: 1, straal: 250, straalStand: "mislukt", nu: NU }), "Live nagekeken: 1 nieuw sinds 05:22.");
+  assert.equal(standZin({ ververst: VERVERST, mislukteDelen: ["vergunningen"], straal: 250, nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   // Zonder straal: zoals voorheen.
   assert.equal(standZin({ ververst: VERVERST, straal: 0, straalStand: "laadt", nu: NU }), "Live nagekeken: niets nieuw sinds 05:22.");
   // De kaart zegt of de straatassen voor de straal er zijn.
   const wijken = [];
   assert.equal(createAreaMatcher({ wijken, geo: { entries: {} } }).straal, "laadt");
-  assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, straatasMislukt: true }).straal, "mislukt");
+  // Laadden ze niet, dan volgt de straal het kader van de straat uit site/geo/straten.json (nakijkronde 6 van 18-10-2026).
+  assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, straatasMislukt: true }).straal, "kader");
   assert.equal(createAreaMatcher({ wijken, geo: { entries: {} }, streetIndex: { byName: new Map(), streets: [] } }).straal, "klaar");
 });
 
@@ -514,14 +527,17 @@ test("werfzones en parkeerverboden: de andere fasen en plaatsen van hetzelfde do
   assert.deepEqual(bundel.map((i) => i.id).sort(), ["parking:PROEF-PV|L2|bundel", "sgw:PROEF-GW|2"]);
   assert.deepEqual(bundel.find((i) => i.kind === "parking").streets.map((s) => s.name).sort(), [HUIK.name, PET.name]);
   // Zoals de plekpagina ze toont: de werfzone met de fase waarin de Kammenstraat op de omleiding ligt (fase 2 is alleen
-  // de werfzone in de Peterseliestraat) en de hele werfzone in één regel; het parkeerverbod met de andere straten.
+  // de werfzone in de Peterseliestraat) en de hele werfzone in één regel; het parkeerverbod met zijn andere plaatsen (de
+  // ochtendstand: de straat en de postcode, zonder huisnummer; tweede nakijkronde van 18 oktober 2026, waar exact).
   const inStraat = kam.filter((i) => (i.streets || []).some((s) => s.id === KAM.id));
   const kaarten = publicSpaceEntries(inStraat, { vandaag: "2099-03-10", alle: kam, straat: KAM.name });
   const werfzone = kaarten.find((k) => k.item?.kind === "sgw");
   assert.equal(werfzone.title, "Werfzone met omleiding");
   assert.equal(werfzone.end, "2099-03-20");
   assert.match(werfzone.regels.find(([dt]) => dt === "Hele werfzone")?.[1] || "", /^8 mrt – 10 apr \(in je straat alleen op de dagen van deze kaart; andere fasen: 1–10 apr\)$/);
-  assert.match(kaarten.find((k) => k.item?.reference === "PROEF-PV").location, /^Kammenstraat \+ 2 andere straten/);
+  const pv = kaarten.find((k) => k.item?.reference === "PROEF-PV");
+  assert.equal(pv.location, "Kammenstraat, 2000 Antwerpen + 2 andere plaatsen");
+  assert.deepEqual(pv.plaatsen, ["Kammenstraat, 2000 Antwerpen", "Huikstraat, 2000 Antwerpen", "Peterseliestraat, 2000 Antwerpen"]);
   // Live raakt het kader van de straat de werfzone van fase 1 niet: live alleen "Omleiding". De ochtend vult aan.
   const live = [{ ...kam.find((i) => i.id === "sgw:PROEF-GW|1"), kindLabel: "Omleiding", title: "Omleiding", streets: [KAM], werfzoneStreets: [] }];
   const samen = aanvullenMetOchtend(live, kam);
