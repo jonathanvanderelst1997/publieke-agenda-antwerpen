@@ -669,6 +669,19 @@ export function vorigAantal(docs, laag) {
 
 // Welke agendapunten in welke straat: de locatie op een officiële straatnaam (zoals de plekpagina, met
 // site/geo/locaties.json voor een geocodeerde locatie), alleen wat vandaag nog loopt of komt.
+// Een agendapunt van een districtsproject (bron district-projecten, id "project-<id>-..."): een inspraakmoment of
+// infomarkt over een heraanleg. Het hoort bij de straat waar het doorgaat (de locatie) én bij de straten die het
+// project heraanlegt, zoals de titel ze noemt ("Inspraakmoment: Heraanleg Jeruzalemstraat & Engelse Beurs"). Issue
+// #225 (30-10-2026): het inspraakmoment van 3 november stond alleen bij de Wolstraat (De Groene Waterman), niet bij
+// de twee projectstraten. Eén agendapunt, met dezelfde id in elk straatbestand; alleen officiële straatnamen uit de
+// titel (resolveAddressStreets) en alleen in de postcodes van het punt zelf.
+export const isProjectpunt = (item) => /^project-/.test(String(item?.id || ""));
+export function projectStraten(item, index) {
+  if (!isProjectpunt(item)) return [];
+  const postcodes = new Set((Array.isArray(item?.postcodes) ? item.postcodes : []).map(String));
+  return resolveAddressStreets(clean(item?.title), index).streets.filter((ref) => !postcodes.size || postcodes.has(String(ref.postcode)));
+}
+
 export function agendaPerStraat(items, { byName, locaties = {}, vandaag }) {
   const index = { byName };
   const uit = [];
@@ -680,6 +693,8 @@ export function agendaPerStraat(items, { byName, locaties = {}, vandaag }) {
       const entry = locaties?.[locationKey(item.location || "")];
       if (entry?.street) refs = (byName.get(locationKey(entry.street)) || []).filter((ref) => !entry.postcode || ref.postcode === String(entry.postcode));
     }
+    const project = projectStraten(item, index);
+    if (project.length) refs = [...new Map([...refs, ...project].map((ref) => [`${ref.id}|${ref.postcode}`, ref])).values()];
     if (!refs.length) continue;
     const punt = agendapuntVoorStraat(item);
     if (punt) uit.push({ ...punt, __straten: refs });
