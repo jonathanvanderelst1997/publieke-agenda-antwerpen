@@ -15,9 +15,14 @@
   "officialPublic": true,
   "method": "antwerpen.be jaartabel met fail-closed fallback naar officiële eBesluit-maandkalender voor districtsraad/raadscommissies",
   "retrievedAt": "2026-11-01T04:18:21.555Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "meetings-ebesluit-v1|2026-11-01|13",
+  "lastSuccessAt": "2026-11-01T04:18:21.555Z",
+  "lastError": {
+    "code": "http_500",
+    "at": "2026-11-02T04:19:31.248Z"
+  },
   "items": [
     {
       "id": "district-vergadering-ebesluit-25-0722-6457-7477",
