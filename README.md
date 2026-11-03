@@ -52,6 +52,10 @@ De site opent op "Uitgaan & evenementen" (`site/agenda-uitgaan.js`, `site/agenda
 - De gewone weekmarkten staan als één gebundelde kaart (markt, dagen, uren), niet als losse marktdagen.
 - Bovenaan: de zoekbalk op plek (zie hieronder). Zonder plek toont het overzicht uitgaan & evenementen; wie een
   straat, wijk of postcode kiest zonder zelf soorten te kiezen, ziet alles op die plek (ook werken en hinder).
+- Laatst bekende stand (besluit van de eigenaar van 3-11-2026): kon een bron niet opnieuw gelezen worden (sinds
+  23-10-2026 weigert www.antwerpen.be ons), dan blijven de komende items van haar laatste goede lezing zichtbaar tot
+  hun eigen datum voorbij is. Een bron die wel gelezen werd en een item niet meer heeft, schrapt het. Zie
+  [docs/AGENDA_SOURCES.md](docs/AGENDA_SOURCES.md), "Versheid".
 - Versheid: de kop toont "Bijgewerkt …" met het tijdstip van de momentopname. Is de laatste verversing ouder dan
   48 uur (een achterstand), dan blijven **bronitems** (uit de automatische bronnen) die alleen door de ouderdom van
   hun bron vielen nog 14 dagen zichtbaar, zoals de andere items. Een bezoeker ziet daar niets van: geen melding,

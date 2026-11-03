@@ -259,7 +259,8 @@ test("altijd HTTP 500: fout search_http_500 met lastError in het bronbestand, de
   const nog = new Date("2026-09-30T06:00:00Z");
   await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
   const tweede = leesBron(root);
-  assert.deepEqual([tweede.lastError, tweede.lastSuccessAt], [{ code: "search_http_500", at: nog.toISOString() }, NOW.toISOString()]);
+  // since: de eerste mislukte nacht van de reeks blijft staan (de melding zegt "sinds" die dag).
+  assert.deepEqual([tweede.lastError, tweede.lastSuccessAt], [{ code: "search_http_500", at: nog.toISOString(), since: toen.toISOString() }, NOW.toISOString()]);
   assert.deepEqual(tweede.items, vorige.items);
 
   // Lukt het weer, dan valt de reden weg.
@@ -298,7 +299,7 @@ test("de fase in de foutcode: een detailpagina die faalt is detail_http_500, het
   const nog = new Date("2026-09-30T06:00:00Z");
   const [zoeken] = await draai(root, nepEbesluit({ weigert: ALTIJD }), nog);
   assert.equal(zoeken.errorCode, "search_http_500");
-  assert.deepEqual(leesBron(root).lastError, { code: "search_http_500", at: nog.toISOString() });
+  assert.deepEqual(leesBron(root).lastError, { code: "search_http_500", at: nog.toISOString(), since: toen.toISOString() });
   // Een niet-tijdelijke fout op een detailpagina: detail_http_404, één verzoek.
   const [weg] = await draai(root, async (url) => (new URL(String(url)).pathname.endsWith("/markt") ? resp("", 404) : nepEbesluit()(url)), new Date("2026-10-01T06:00:00Z"));
   assert.equal(weg.errorCode, "detail_http_404");
@@ -338,7 +339,7 @@ test("ook een andere fout staat er: no_decisions en search_incomplete", async (t
   // Een zoekpagina die meer treffers meldt dan ze toont: onvolledig, nooit als volledig aanvaard (#186).
   await draai(root, nepEbesluit({ zoek: () => `<span class="result-count">3 resultaten gevonden</span>${ZOEKPAGINA}` }), new Date("2026-09-30T06:00:00Z"));
   const doc = leesBron(root);
-  assert.deepEqual([doc.fetchStatus, doc.lastError, doc.lastSuccessAt, doc.items.length], ["error", { code: "search_incomplete", at: "2026-09-30T06:00:00.000Z" }, NOW.toISOString(), 2]);
+  assert.deepEqual([doc.fetchStatus, doc.lastError, doc.lastSuccessAt, doc.items.length], ["error", { code: "search_incomplete", at: "2026-09-30T06:00:00.000Z", since: "2026-09-29T06:00:00.000Z" }, NOW.toISOString(), 2]);
 });
 
 test("keepPreviousOnError zonder vorig bestand: lastSuccessAt null, en de reden staat er toch", (t) => {

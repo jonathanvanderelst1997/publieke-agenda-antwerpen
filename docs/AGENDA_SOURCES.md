@@ -109,15 +109,20 @@ omweg, geen herhaling).
 - `fetchWithTimeout` (`lib/fetch-util.mjs`) herkent die pagina en geeft `errorCode: "bron_weigert_automatisch"`
   (ook als `channel_<code>`) in plaats van `http_403`. Een gewone 403 blijft `http_403`. `district-vergaderingen`
   valt bij die code terug op de eBesluit-kalender, zoals bij elke fout op de pagina van antwerpen.be.
-- De vorige items blijven staan zoals bij elke fout; na 48 uur verbergt de site ze, zoals altijd.
-- `sourceHealthOf` noemt de bron **`geweigerd`** zolang de vorige data binnen `maxAgeHours` (48 uur) valt:
-  een melding met uitleg en de ouderdom, geen fout. Zo geeft niet elke verversing opnieuw alarm over iets
-  wat geen verversing oplost; de job `source-health` zet een waarschuwing "Bron weigert automatische
-  toegang".
-- Is de vorige data ouder dan `maxAgeHours`, dan is het wél een fout (`error`, de verversing wordt rood):
-  de site verbergt dan de items van de bron, en dat moet iemand zien. De uitleg zegt hoe oud de stand is
-  ("Bron weigert automatische toegang, stand te oud"; in de job een `BRON`-regel voor het alarm-issue).
-  De vijf bronnen hierboven zijn dat sinds 24-10-2026: zij blijven rood tot de stad de agenda weer toelaat.
+- De vorige items blijven staan zoals bij elke fout, en de site toont de komende items van die laatste goede
+  lezing tot hun eigen datum voorbij is (zie "Versheid: laatst bekende stand" hieronder). Van 24-10 tot 3-11-2026
+  verborg de site ze na 48 uur; zo vielen FURIE!, de inspraakmomenten en de werffasen van het district weg.
+- `sourceHealthOf` noemt de bron **`geweigerd`**, hoe oud de vorige data ook is: een melding, geen fout. Geen
+  verversing lost dit op, en de agenda blijft volledig voor wat er al bekend was.
+- Eén melding per website, in gewone woorden, zonder tijdstippen (`weigeringsMeldingen` in
+  `scripts/sources-health.mjs`): "www.antwerpen.be weigert ons sinds 23-10-2026; de agenda toont de laatst bekende
+  activiteiten (laatste goede lezing 22-10-2026) tot hun eigen datum voorbij is. …". "Sinds" is de eerste geweigerde
+  poging van de reeks: `lastError.since` in het bronbestand en `errorSince` in `refresh-status.json`
+  (`keepPreviousOnError`, `errorSinceOf` in `lib/fetch-util.mjs`).
+- De verversing zet die zin in het artefact (`weigering.txt`, `npm run sources:health -- --weigering`); de job
+  `source-health` geeft hem door als job-output `melding` (een `::warning`, geen `BRON`-regel, geen rode run), en de
+  job `alarm` zet hem één keer in een eigen issue "Melding: een website weigert de agenda". Dezelfde zin geeft geen
+  nieuwe reactie (kenmerk); een andere zin (een andere website, of een nieuwe reeks) wel.
 - Een handmatig item op zo'n pagina blijft "onbereikbaar", nu met `httpStatus: 403` in plaats van `null`
   (`scripts/check-manual-sources.mjs`).
 - Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
@@ -265,7 +270,8 @@ Intern blijft alles:
   laag hierboven moet erin staan: ontbrak de historiek of `site/straat-index.json` in de verversing, of staat een laag
   er niet in, dan is `source-health` ook rood (regel `BRON … ontbreekt in de stand van de live lagen`, nakijkronde 3
   van 18-10-2026: vroeger bleef ze dan groen) en vult de job `alarm` het alarm-issue aan;
-- de versheidsregel hieronder: na 48 uur verdwijnen de items van een bron die niet ververst raakt.
+- de versheidsregel hieronder: een bron die niet ververst raakt, houdt haar komende items tot hun eigen datum
+  (laatst bekende stand); `sources:health` en het alarm melden de bron wel.
 
 Ook als de hele agenda meer dan 48 uur niet ververst is, zegt de site dat niet meer (nakijkronde 2 van
 18-10-2026): geen melding "De agenda wordt even niet ververst … We werken eraan.", geen oranje pil "Laatst
@@ -433,15 +439,22 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 
 ## Versheid
 
-- Elke automatische bron is 48 uur geldig (`maxAgeHours`). Daarna verdwijnen haar items (reden
-  `stale_source`). De site zegt dat niet aan bezoekers (besluit van 18-10-2026, zie "Een falende bron"
-  hierboven); `sources:health` meldt het wel.
+- **Laatst bekende stand** (besluit van de eigenaar van 3-11-2026: "ik wil terug alles werkend en erop hebben").
+  Elke automatische bron is 48 uur vers (`maxAgeHours`). Werd een bron gelezen en staat een item er niet meer in,
+  dan is het weg: het bronbestand heeft het niet meer (een afgelasting). Kon een bron NIET opnieuw gelezen worden
+  (geweigerd, time-out, 403, een fout, of de verversing liep niet), dan blijft haar bestand de items van de laatste
+  goede lezing houden (`keepPreviousOnError`, met `lastSuccessAt`), en blijft elk komend item daarvan zichtbaar tot en
+  met zijn eigen laatste dag (`endDate`, anders `date`), zoals een handmatig item. Voorbije items vallen weg zoals
+  altijd. Intern heet zo'n item `lastKnown: true` met `lastGoodReadAt` (`site/agenda-refresh.js`); de site toont dat
+  niet aan bezoekers (besluit van 18-10-2026), `sources:health` en het alarm melden de bron wel. Alleen een bronitem
+  zonder leesbaar moment van lezing blijft dicht (`stale_source`). De bronbestanden staan in de repo: de laatste goede
+  lezing overleeft elke herstart.
 - Handmatige items op datum blijven zichtbaar tot en met hun laatste dag (`endDate`, anders `date`, in
   `Europe/Brussels`) en verdwijnen de dag erna, zonder herbevestiging. Alleen een handmatig item met een
   vaste classificatie uit een regel (een lopende werf zonder harde einddatum) volgt nog de provenance-SLA van
   2 dagen.
 - De gratie van 14 dagen (`graceStale`) geldt alleen voor bronitems, en alleen als de laatste verversing ouder is
-  dan 48 uur. Een bezoeker ziet ze als gewone items, zonder "Laatst bevestigd" (besluit van 18-10-2026).
+  dan 48 uur. Sinds de laatst bekende stand raakt ze alleen nog een bronitem zonder leesbaar moment van lezing.
 - Per bron toont de site "ververst op …" (het moment van de laatste goede stand, ook als de laatste
   ophaalpoging faalde), in het oranje "leeg sinds …" of "nog niet actief".
 
@@ -899,6 +912,30 @@ van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets i
   https://www.uitinvlaanderen.be/agenda/alle/antwerpen.
 - Paginagewicht, nagemeten met 1.900 synthetische events (3.799 kandidaten, 1.457 weggeschreven):
   `agenda-feed.js` 1,5 MB onverpakt; `npm run check` blijft groen.
+
+## Een tweede bron zolang www.antwerpen.be weigert
+
+Nagekeken op 3-11-2026, met de gewone User-Agent van de agenda en zonder iets te omzeilen:
+
+- **Al actief, niet op www.antwerpen.be:** eBesluit (`district-vergaderingen` valt terug op de eBesluit-kalender;
+  `district-ebesluit-evenementen`: activiteiten met een besluit van het district), GIPOD (markten, evenementen,
+  speelstraten), A-Sign (evenementen op straat, foren) en de AWV-werfdata. Die blijven gewoon nieuwe items brengen.
+- **UiTdatabank (publiq), de echte tweede bron voor activiteiten van stad en district:** de ophaler staat klaar
+  (`scripts/fetch-sources-uit.mjs`, zie hierboven), zonder sleutel antwoordt de Search API 401. Wat de eigenaar moet
+  doen: op het publiq-platform (platform.publiq.be, aanmelden met zijn UiTiD) een integratie "Search API" voor deze
+  website aanvragen (Basic plan voor één website, of een gratis integratie vragen als lid van het UiTnetwerk), en de
+  client-ID van de productieomgeving als Actions-variabele `UITDATABANK_CLIENT_ID` in deze repo zetten. Daarna vult de
+  volgende verversing `stad-uit` (hoogstens 1.500 activiteiten in 30 dagen, alleen op de canonieke site).
+- **Niet bruikbaar:** visit.antwerpen.be en www.districtantwerpen.be weigeren ons op dezelfde manier (403);
+  het open-dataportaal van de stad (portaal-stadantwerpen.opendata.arcgis.com) heeft markten, foren en schoolstraten
+  (die lezen we al), geen activiteitenkalender; de lagen van Slim naar Antwerpen op geodata.antwerpen.be hebben werven
+  en omleidingen, geen activiteiten; www.slimnaarantwerpen.be en nova.antwerpen.be antwoorden wel, maar hebben geen
+  gestructureerde agenda (geen iCal, geen schema.org Event).
+- **Nieuwsbrieven en uitnodigingen in zijn mailbox:** de route bestaat (zie hieronder), maar de herverificatie op de
+  officiële pagina lukt niet zolang www.antwerpen.be weigert, en de Gateway leverde nog geen enkel signaal. Een signaal
+  zonder publieke bevestiging gaat nooit live (een uitnodiging kan besloten zijn).
+- **De echte oplossing vraagt iets van de stad:** de agenda (User-Agent `publieke-agenda-antwerpen/1.0`) toelaten op
+  www.antwerpen.be, of dezelfde kalender als open data publiceren.
 
 ## Nieuwsbrieven via de Gateway
 

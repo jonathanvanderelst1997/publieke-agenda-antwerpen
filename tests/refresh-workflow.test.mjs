@@ -80,6 +80,7 @@ function alarmLoopt(uitkomst, event = "schedule", reason = "", ref = "refs/heads
     .replace(/github\.event_name/g, JSON.stringify(event))
     .replace(/github\.ref/g, JSON.stringify(ref))
     .replace(/inputs\.reason/g, JSON.stringify(event === "workflow_dispatch" ? reason : ""))
+    .replace(/needs\.source-health\.outputs\.melding/g, JSON.stringify(uitkomst.melding ?? ""))
     .replace(/needs\.([a-z-]+)\.result/g, (_, job) => JSON.stringify(uitkomst[job] ?? "success"))
     .replace(/([!=])=/g, "$1==")
     .replace(/'/g, '"');
@@ -96,6 +97,9 @@ test("alarm: loopt ook als alleen source-health faalt, bij een geplande run", ()
   // Overgeslagen of geannuleerd is geen rode bronstatus.
   assert.equal(alarmLoopt({ "source-health": "skipped" }), false);
   assert.equal(alarmLoopt({ "source-health": "cancelled" }), false);
+  // Een melding (een website weigert ons; geen fout) laat de job ook lopen, voor het eigen meldingsissue.
+  assert.equal(alarmLoopt({ melding: "een website weigert ons" }), true);
+  assert.equal(alarmLoopt({ melding: "een website weigert ons" }, "workflow_dispatch", "test"), false, "geen proefrun");
 });
 
 // Nakijkbevinding (18-10-2026): de echte verversing start de Gateway elke ochtend om 05:17 met workflow_dispatch; de
@@ -151,7 +155,7 @@ test("alarm: één alarm-issue met een vaste titel, aangevuld met een reactie; a
   assert.match(run, /title="Alarm: agendaverversing of live versheid faalt"/);
   assert.match(run, /gh issue list --state open --search "\\"\$\{title\}\\" in:title"/);
   assert.match(run, /select\(\.title == \\"\$\{title\}\\"\)/);
-  const comment = run.indexOf('gh issue comment "$num"'), create = run.indexOf('gh issue create --title "$title"'), anders = run.indexOf("else");
+  const comment = run.indexOf('gh issue comment "$num"'), create = run.indexOf('gh issue create --title "$title"'), anders = run.indexOf("else", comment);
   assert.ok(comment > 0 && create > anders && anders > comment, "eerst aanvullen; alleen anders een nieuw issue");
   // De uitkomst van source-health staat in het issue.
   assert.match(blok, /R_HEALTH: \$\{\{ needs\.source-health\.result \}\}/);
@@ -297,6 +301,22 @@ test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zoda
     assert.equal(reactie("weigering-2", weigering("2026-10-23T03:19:18.427Z", 284), { GH_VORIGE: vorigeWeigering }), null, "ander tijdstip, zelfde fout: geen reactie");
     const ander = reactie("ander", dag1.bron, { GH_VORIGE: vorige });
     assert.ok(ander && ander.includes("BRON district-ebesluit"), "een andere set fouten: wel een reactie");
+    // Een melding zonder fout (3-11-2026: een website weigert ons): een reactie in het eigen meldingsissue met de zin
+    // in gewone woorden, één keer; dezelfde zin geeft geen nieuwe reactie, en zonder fout geen alarm.
+    const zin = "www.antwerpen.be weigert ons sinds 23-10-2026; de agenda toont de laatst bekende activiteiten (laatste goede lezing 22-10-2026) tot hun eigen datum voorbij is. Bronnen: district-kalender.";
+    const groen = { R_HEALTH: "success", MELDING: zin };
+    const m1 = reactie("melding-1", "", groen);
+    assert.ok(m1 && m1.startsWith(zin), m1);
+    assert.match(m1, /de site toont de laatst bekende activiteiten van deze bronnen tot hun eigen datum voorbij is/);
+    assert.match(m1, /^Kenmerk: \d+ \(dezelfde melding geeft geen nieuwe reactie\)$/m);
+    assert.doesNotMatch(m1, /Alarm|faalde/);
+    const vorigeMelding = path.join(temp, "vorige-melding.txt");
+    fs.writeFileSync(vorigeMelding, m1);
+    assert.equal(reactie("melding-2", "", { ...groen, GH_VORIGE: vorigeMelding }), null, "dezelfde melding: geen nieuwe reactie");
+    assert.match(laatsteStdout, /Melding staat al in issue #42/);
+    // Geen @-vermelding of opmaak uit de melding.
+    const raarM = reactie("melding-raar", "", { R_HEALTH: "success", MELDING: "@iemand `x` <b>weigert</b> [y](z)" });
+    assert.doesNotMatch(raarM, /[@`<>[\]]/);
   } finally {
     fs.rmSync(temp, { recursive: true, force: true });
   }

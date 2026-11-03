@@ -118,21 +118,52 @@ test("retrievedAt per item gaat voor op dat van de bron; scope en inDistrict gaa
   assert.equal(engine.config.classificationAsOf, "2026-09-28");
 });
 
-test("een bron die langer dan 48 uur niet ververst is, wordt verborgen en als verouderd gemeld", () => {
-  const feed = feedWith([feedItem("district-kal-aaaaaa-2026-10-10")]);
+// Besluit van de eigenaar (3-11-2026): "ik wil terug alles werkend en erop hebben". Kon een bron niet opnieuw
+// gelezen worden, dan blijft elk komend item van haar laatste goede lezing zichtbaar tot zijn eigen datum voorbij is.
+test("kon de bron niet opnieuw gelezen worden, dan blijft de laatst bekende stand zichtbaar tot de eigen datum", () => {
+  const feed = feedWith([feedItem("district-kal-aaaaaa-2026-10-10"), feedItem("district-kal-bbbbbb-2026-09-29", { date: "2026-09-29" })]);
   const engine = engineWith(feed);
-  const fresh = engine.reconcileAgendaItems(feed.items, "2026-09-30", { now: "2026-09-30T04:59:00.000Z" });
-  assert.equal(fresh.publicItems.length, 1);
+  const fresh = engine.reconcileAgendaItems(feed.items, "2026-09-29", { now: "2026-09-29T04:59:00.000Z" });
+  assert.equal(fresh.publicItems.length, 2);
+  assert.deepEqual(fresh.auditItems.map((item) => item.lastKnown), [false, false]);
   assert.equal(fresh.sourceFreshness.find((entry) => entry.sourceId === "district-kalender").state, "fresh");
 
-  const stale = engine.reconcileAgendaItems(feed.items, "2026-09-30", { now: "2026-09-30T05:01:00.000Z" });
-  assert.equal(stale.publicItems.length, 0);
-  assert.equal(stale.auditItems[0].classification, "review_required");
-  assert.equal(stale.auditItems[0].reviewReason, "stale_source");
-  const freshness = stale.sourceFreshness.find((entry) => entry.sourceId === "district-kalender");
+  // Meer dan 48 uur na de laatste goede lezing (de bron weigert, of de verversing liep niet): het item blijft.
+  const laatstBekend = engine.reconcileAgendaItems(feed.items, "2026-09-30", { now: "2026-09-30T05:01:00.000Z" });
+  const toekomst = laatstBekend.auditItems.find((item) => item.id === "district-kal-aaaaaa-2026-10-10");
+  assert.deepEqual([toekomst.classification, toekomst.reviewReason, toekomst.lastKnown], ["future", null, true]);
+  assert.equal(toekomst.lastGoodReadAt, RETRIEVED);
+  assert.equal(toekomst.visibleThrough, "2026-10-10");
+  assert.equal(toekomst.recheckDueOn, "2026-10-10");
+  // Een item van de laatste goede lezing waarvan de datum voorbij is, valt weg zoals altijd.
+  const voorbij = laatstBekend.auditItems.find((item) => item.id === "district-kal-bbbbbb-2026-09-29");
+  assert.equal(voorbij.classification, "expired");
+  assert.deepEqual(laatstBekend.publicItems.map((item) => item.id), ["district-kal-aaaaaa-2026-10-10"]);
+  // Weken later nog altijd, tot en met de eigen dag; de dag erna niet meer.
+  assert.equal(engine.reconcileAgendaItems(feed.items, "2026-10-10", { now: "2026-10-10T20:00:00.000Z" }).publicItems.length, 1);
+  assert.equal(engine.reconcileAgendaItems(feed.items, "2026-10-11", { now: "2026-10-11T08:00:00.000Z" }).publicItems.length, 0);
+  // Intern blijft de bron verouderd (sources:health en het alarm zien dat), de bezoeker ziet de stand.
+  const freshness = laatstBekend.sourceFreshness.find((entry) => entry.sourceId === "district-kalender");
   assert.equal(freshness.state, "stale");
   assert.equal(freshness.staleSince, "2026-09-30T05:00:00.000Z");
   assert.equal(freshness.maxAgeHours, 48);
+});
+
+test("werd de bron wel gelezen en staat het item er niet meer in, dan is het weg (een afgelasting)", () => {
+  const voor = feedWith([feedItem("district-kal-aaaaaa-2026-10-10"), feedItem("district-kal-cccccc-2026-10-12", { date: "2026-10-12" })]);
+  // Een geslaagde lezing een dag later, zonder het tweede item: het bronbestand heeft het niet meer.
+  const na = feedWith([feedItem("district-kal-aaaaaa-2026-10-10", { retrievedAt: "2026-09-29T05:00:00.000Z" })], { retrievedAt: "2026-09-29T05:00:00.000Z" });
+  assert.equal(engineWith(voor).reconcileAgendaItems(voor.items, "2026-09-29", { now: "2026-09-29T06:00:00.000Z" }).publicItems.length, 2);
+  const result = engineWith(na).reconcileAgendaItems(na.items, "2026-09-29", { now: "2026-09-29T06:00:00.000Z" });
+  assert.deepEqual(result.publicItems.map((item) => item.id), ["district-kal-aaaaaa-2026-10-10"]);
+  assert.equal(result.auditItems.some((item) => item.id === "district-kal-cccccc-2026-10-12"), false);
+});
+
+test("een bronitem zonder leesbaar moment van de laatste lezing blijft dicht", () => {
+  const feed = feedWith([feedItem("district-kal-aaaaaa-2026-10-10", { retrievedAt: undefined })], { retrievedAt: null });
+  const engine = engineWith(feed);
+  const [audit] = engine.reconcileAgendaItems(feed.items, "2026-09-30", { now: "2026-09-30T05:01:00.000Z" }).auditItems;
+  assert.deepEqual([audit.classification, audit.reviewReason, audit.lastKnown], ["review_required", "stale_source", false]);
 });
 
 test("een handmatig item op datum loopt tot en met zijn laatste dag, zonder herbevestigingsvenster", () => {

@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-11-03",
-  "sourceDigest": "00e7ccdfc57eb3146078f3d65f918f7fdeb3673a1d77fbeaa53ff23bb038f581",
-  "matrixDigest": "00e7ccdfc57eb3146078f3d65f918f7fdeb3673a1d77fbeaa53ff23bb038f581",
+  "sourceDigest": "47eaac4e7262ef4e77dc6bc5af52b92da3d45f0002eab070a4777c2e54920ae7",
+  "matrixDigest": "47eaac4e7262ef4e77dc6bc5af52b92da3d45f0002eab070a4777c2e54920ae7",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 899
+    "unchanged": 898
   },
   "actions": [
     {
@@ -466,14 +466,14 @@
     {
       "id": "district-kal-6a746a7ff4182b8edf63a76b-2026-11-20",
       "action": "unchanged",
-      "sourceDigest": "0d4b02a932d0ae63a42bec28f7228a6eae42e6fe548c86487cf6afa9dd2ad5f6",
-      "matrixDigest": "0d4b02a932d0ae63a42bec28f7228a6eae42e6fe548c86487cf6afa9dd2ad5f6"
+      "sourceDigest": "f62e5460d915bf6e6ecae83bc7e91eb08ff4d0e5dc42d07666a2c50668656654",
+      "matrixDigest": "f62e5460d915bf6e6ecae83bc7e91eb08ff4d0e5dc42d07666a2c50668656654"
     },
     {
       "id": "district-kal-6a746a7ff4182b8edf63a774-2026-11-27",
       "action": "unchanged",
-      "sourceDigest": "81eae64a4ba6939351c575b904c8677a8e6799345142e4056415b34bec1e8241",
-      "matrixDigest": "81eae64a4ba6939351c575b904c8677a8e6799345142e4056415b34bec1e8241"
+      "sourceDigest": "8b21625a623d3a095787f9576ce6c22cb20be04afc6dd3afe479fd89eeab6cf6",
+      "matrixDigest": "8b21625a623d3a095787f9576ce6c22cb20be04afc6dd3afe479fd89eeab6cf6"
     },
     {
       "id": "district-kal-6a746a7ff4182b8edf63a77b-2026-10-31",
@@ -484,20 +484,20 @@
     {
       "id": "district-kal-6a746a7ff4182b8edf63a77d-2026-11-04",
       "action": "unchanged",
-      "sourceDigest": "2fd4a5937b79aaa010aebe70ff1f6daf06dbe17269699fa321169f96571f27c9",
-      "matrixDigest": "2fd4a5937b79aaa010aebe70ff1f6daf06dbe17269699fa321169f96571f27c9"
+      "sourceDigest": "696255fff9692d4cf1b1eb40dbc227beccbb37857c3762c60d2e40cccb1dc9d5",
+      "matrixDigest": "696255fff9692d4cf1b1eb40dbc227beccbb37857c3762c60d2e40cccb1dc9d5"
     },
     {
       "id": "district-kal-6a746a7ff4182b8edf63a77e-2026-11-10",
       "action": "unchanged",
-      "sourceDigest": "f335625d27b6eb758739cd3b435f8fb23adeeaf504ad47d74101bcca6a98c0d2",
-      "matrixDigest": "f335625d27b6eb758739cd3b435f8fb23adeeaf504ad47d74101bcca6a98c0d2"
+      "sourceDigest": "1062f02b2467abff9054b48d2fcf846b883e30a3a307424f1beee5ea2ba9c87f",
+      "matrixDigest": "1062f02b2467abff9054b48d2fcf846b883e30a3a307424f1beee5ea2ba9c87f"
     },
     {
       "id": "district-kal-6a746a7ff4182b8edf63a780-2026-11-26",
       "action": "unchanged",
-      "sourceDigest": "a072e86e8ec47b327cc2f39a7027168cb3cb32166254ed1f3c75ad485dbc70b8",
-      "matrixDigest": "a072e86e8ec47b327cc2f39a7027168cb3cb32166254ed1f3c75ad485dbc70b8"
+      "sourceDigest": "a2e9f8d7aa44a11df859f9e2bf4cfe5b2355f77255a567663a4eae771a8a4939",
+      "matrixDigest": "a2e9f8d7aa44a11df859f9e2bf4cfe5b2355f77255a567663a4eae771a8a4939"
     },
     {
       "id": "district-news-6304b9240106af48e55ac9eb-2026-10-23",
@@ -896,12 +896,6 @@
       "matrixDigest": "42f3cc0bb07af2035a0cc1dd518b794aeff743094944d8d4d7c1fb0cf788b93f"
     },
     {
-      "id": "furie-450-jaar-later-grote-markt-2026-11-04",
-      "action": "unchanged",
-      "sourceDigest": "d4515abe29da143a407af6b1de9597296083df5d117cdf55e4fc43f9ea0d564e",
-      "matrixDigest": "d4515abe29da143a407af6b1de9597296083df5d117cdf55e4fc43f9ea0d564e"
-    },
-    {
       "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-05-d104f9e9",
       "action": "unchanged",
       "sourceDigest": "ff97254dd6b822d3a4765debf8223636a2ee196be38ba5dfc1d0bc6e47550888",
@@ -958,26 +952,26 @@
     {
       "id": "koopzondag-2026-12-06",
       "action": "unchanged",
-      "sourceDigest": "ea112dc6d5bc9e5e4d6b84595301606605376321421bb44f05173f162553ae25",
-      "matrixDigest": "ea112dc6d5bc9e5e4d6b84595301606605376321421bb44f05173f162553ae25"
+      "sourceDigest": "185f06a3ce4eb2d24f4f7d99868421e789bdb448f9460dfd68c935cb9e00f520",
+      "matrixDigest": "185f06a3ce4eb2d24f4f7d99868421e789bdb448f9460dfd68c935cb9e00f520"
     },
     {
       "id": "koopzondag-2026-12-13",
       "action": "unchanged",
-      "sourceDigest": "4c9395590c3fae31cd54b2c4088cab7f7ee1613287b3f43834df4ec042d79763",
-      "matrixDigest": "4c9395590c3fae31cd54b2c4088cab7f7ee1613287b3f43834df4ec042d79763"
+      "sourceDigest": "32fbd952696f1584a64821de2f893bf78c684dd055139632ba913c1b2150d66a",
+      "matrixDigest": "32fbd952696f1584a64821de2f893bf78c684dd055139632ba913c1b2150d66a"
     },
     {
       "id": "koopzondag-2026-12-20",
       "action": "unchanged",
-      "sourceDigest": "d713ee33b4e8d65565b8bbf5079481bf56743503d767d466be244890f6f0f9f6",
-      "matrixDigest": "d713ee33b4e8d65565b8bbf5079481bf56743503d767d466be244890f6f0f9f6"
+      "sourceDigest": "0ed6c05b6232234fdef3047bf2ab76f38c43170b56af794960548adcfcca9685",
+      "matrixDigest": "0ed6c05b6232234fdef3047bf2ab76f38c43170b56af794960548adcfcca9685"
     },
     {
       "id": "koopzondag-2026-12-27",
       "action": "unchanged",
-      "sourceDigest": "4aa879f85228eea5381d9ddf5fcaefae6ab20f44ada87ad31ffabdef59382571",
-      "matrixDigest": "4aa879f85228eea5381d9ddf5fcaefae6ab20f44ada87ad31ffabdef59382571"
+      "sourceDigest": "b4722f7190b51c25ffa7975b6a5c61abb156e2f8fc84f5148e3f3a6554146089",
+      "matrixDigest": "b4722f7190b51c25ffa7975b6a5c61abb156e2f8fc84f5148e3f3a6554146089"
     },
     {
       "id": "lambermontmartre-2026-06-28",
@@ -4774,20 +4768,20 @@
     {
       "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01",
       "action": "unchanged",
-      "sourceDigest": "761281ae5bcaac914e8366feb38bb9d2d55ce2ffb5b35f293fa1224ac0cbcfa5",
-      "matrixDigest": "761281ae5bcaac914e8366feb38bb9d2d55ce2ffb5b35f293fa1224ac0cbcfa5"
+      "sourceDigest": "4b9d0c1139172ebd91e9fb5fc13aee57513da2d3071e70e5bb78de4b5e0a4d9f",
+      "matrixDigest": "4b9d0c1139172ebd91e9fb5fc13aee57513da2d3071e70e5bb78de4b5e0a4d9f"
     },
     {
       "id": "project-5d725f47b628f03ea317d3b8-fase-5-2026-08-01",
       "action": "unchanged",
-      "sourceDigest": "779f0dc490e57b386372bba4fa4951a53e335c64f100cace47edad38ac9d0250",
-      "matrixDigest": "779f0dc490e57b386372bba4fa4951a53e335c64f100cace47edad38ac9d0250"
+      "sourceDigest": "16326f79ceaa020e9d3c950615e387281882088dbb33fe2e09015c1e28492b0d",
+      "matrixDigest": "16326f79ceaa020e9d3c950615e387281882088dbb33fe2e09015c1e28492b0d"
     },
     {
       "id": "project-5ebcee18901c1f55f320daf0-fase-4b-2026-08-01",
       "action": "unchanged",
-      "sourceDigest": "af9d4153499cb84020da142021084360044e7da1f1266ae99dffe65737e01071",
-      "matrixDigest": "af9d4153499cb84020da142021084360044e7da1f1266ae99dffe65737e01071"
+      "sourceDigest": "056fb30071f4ea81fc66b2eebce6d88b932d2ba1901fa2ad0d0a2caade5343c8",
+      "matrixDigest": "056fb30071f4ea81fc66b2eebce6d88b932d2ba1901fa2ad0d0a2caade5343c8"
     },
     {
       "id": "project-5ebcee18901c1f55f320daf0-fase-6a-2026-08-10",
@@ -4798,44 +4792,44 @@
     {
       "id": "project-5ebcee18901c1f55f320daf0-fase-6b-2026-08-10",
       "action": "unchanged",
-      "sourceDigest": "b2ded720cb09bb04afb47b8eb03d0cb7dbddb31b6f04196dfc2481f7debdea6b",
-      "matrixDigest": "b2ded720cb09bb04afb47b8eb03d0cb7dbddb31b6f04196dfc2481f7debdea6b"
+      "sourceDigest": "6af452efdae08b066ae87f7c1966aab9bf1ec07ae7687667c556eaf2911bb089",
+      "matrixDigest": "6af452efdae08b066ae87f7c1966aab9bf1ec07ae7687667c556eaf2911bb089"
     },
     {
       "id": "project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01",
       "action": "unchanged",
-      "sourceDigest": "55ad82d833a1f8e171a5556bd059c99a5203449b44f77dd28d19c8d967a4fa9e",
-      "matrixDigest": "55ad82d833a1f8e171a5556bd059c99a5203449b44f77dd28d19c8d967a4fa9e"
+      "sourceDigest": "5479da29b29ba1aa017ba3ab45e93476f235be20d9548db9bdb1ccbc0a610d62",
+      "matrixDigest": "5479da29b29ba1aa017ba3ab45e93476f235be20d9548db9bdb1ccbc0a610d62"
     },
     {
       "id": "project-608fe3749dc6b9660910da8b-fase-2-2026-08-03",
       "action": "unchanged",
-      "sourceDigest": "3d96a64dc91ee958ac2fc24f776b99a87760530c3f31e3e9df23c9d25cae8efd",
-      "matrixDigest": "3d96a64dc91ee958ac2fc24f776b99a87760530c3f31e3e9df23c9d25cae8efd"
+      "sourceDigest": "9eeafe272f728b89e14ea10fbc300bd2440add83087e52a01261e1f7212dbb4c",
+      "matrixDigest": "9eeafe272f728b89e14ea10fbc300bd2440add83087e52a01261e1f7212dbb4c"
     },
     {
       "id": "project-608fe3749dc6b9660910da8b-fase-3-2027-01-01",
       "action": "unchanged",
-      "sourceDigest": "6c7a328106c9cf24c164425f2b381f6e3eaab6c39390784cf9a6cd39ad5a55ec",
-      "matrixDigest": "6c7a328106c9cf24c164425f2b381f6e3eaab6c39390784cf9a6cd39ad5a55ec"
+      "sourceDigest": "4afab21ab890404833b5a9961ee0b4cda13a9cda3659b11cb1a29a57d7d3d929",
+      "matrixDigest": "4afab21ab890404833b5a9961ee0b4cda13a9cda3659b11cb1a29a57d7d3d929"
     },
     {
       "id": "project-608fe3749dc6b9660910da8b-fase-4-2027-06-21",
       "action": "unchanged",
-      "sourceDigest": "cb3a1cf5311a63e798f9c85946d849fcf8afdfb7d49825acec299d8cd0c4b821",
-      "matrixDigest": "cb3a1cf5311a63e798f9c85946d849fcf8afdfb7d49825acec299d8cd0c4b821"
+      "sourceDigest": "4e022fe2ab5bcc8123f7e7e6dd21ae4178bcfa732910e037b3a6dd8575709404",
+      "matrixDigest": "4e022fe2ab5bcc8123f7e7e6dd21ae4178bcfa732910e037b3a6dd8575709404"
     },
     {
       "id": "project-65af88d5bcb6dfe17b56eb18-fase-3-2027-01-01",
       "action": "unchanged",
-      "sourceDigest": "7b95faa7312423c30146b4d36e2bc8176fee36107df3bbc1c3141946a147b656",
-      "matrixDigest": "7b95faa7312423c30146b4d36e2bc8176fee36107df3bbc1c3141946a147b656"
+      "sourceDigest": "b43c96638d812389225df26b2d0d217826eb8bcafb38fe4258becf58cfa902ed",
+      "matrixDigest": "b43c96638d812389225df26b2d0d217826eb8bcafb38fe4258becf58cfa902ed"
     },
     {
       "id": "project-65af88d5bcb6dfe17b56eb18-fase-4-2027-04-01",
       "action": "unchanged",
-      "sourceDigest": "7f4ce81622d9e4e97f5be8b0a9c423aeefc3ab3fc433c1a51fef5e2267bcbbe5",
-      "matrixDigest": "7f4ce81622d9e4e97f5be8b0a9c423aeefc3ab3fc433c1a51fef5e2267bcbbe5"
+      "sourceDigest": "a2592754e3076636d0da65b50789b897fd93951ba630fcafd83da08e342184be",
+      "matrixDigest": "a2592754e3076636d0da65b50789b897fd93951ba630fcafd83da08e342184be"
     },
     {
       "id": "project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19",
@@ -4846,38 +4840,38 @@
     {
       "id": "project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01",
       "action": "unchanged",
-      "sourceDigest": "8a520add25c9ad8f636dfe77ea1b15acab310ce32f601b692da498bc017c85c8",
-      "matrixDigest": "8a520add25c9ad8f636dfe77ea1b15acab310ce32f601b692da498bc017c85c8"
+      "sourceDigest": "4ba42b7264669fe77f699793268bd2468bebfce8aa3af4ab2a2c814fc2fe217f",
+      "matrixDigest": "4ba42b7264669fe77f699793268bd2468bebfce8aa3af4ab2a2c814fc2fe217f"
     },
     {
       "id": "project-69d4e01eff0ca8b3330b381c-fase-2-2026-09-01",
       "action": "unchanged",
-      "sourceDigest": "85e976ca0466780f4e1e43a9829b9df613a109b66a35c0868f17d1386c40cfed",
-      "matrixDigest": "85e976ca0466780f4e1e43a9829b9df613a109b66a35c0868f17d1386c40cfed"
+      "sourceDigest": "376b0e4f5c727fc41105acd9c09704681daa023593d0e888745e1652c32b9f9e",
+      "matrixDigest": "376b0e4f5c727fc41105acd9c09704681daa023593d0e888745e1652c32b9f9e"
     },
     {
       "id": "project-69d4e01eff0ca8b3330b381c-fase-3-2027-01-01",
       "action": "unchanged",
-      "sourceDigest": "394313c4046fcc7ddc1baf67912cf381a8cb990d20577d704727c8f478b3ed50",
-      "matrixDigest": "394313c4046fcc7ddc1baf67912cf381a8cb990d20577d704727c8f478b3ed50"
+      "sourceDigest": "5821eff5bc0e01313abe06061fdd4df3ec663d1fe0aaf32e5fa2f435763fea88",
+      "matrixDigest": "5821eff5bc0e01313abe06061fdd4df3ec663d1fe0aaf32e5fa2f435763fea88"
     },
     {
       "id": "project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01",
       "action": "unchanged",
-      "sourceDigest": "f35ece4b6b9107b6c7e7db28110ed3e7c8ad6dabeb25f79ce456a7a605097868",
-      "matrixDigest": "f35ece4b6b9107b6c7e7db28110ed3e7c8ad6dabeb25f79ce456a7a605097868"
+      "sourceDigest": "3c8b3649ae83e53e241f3e24b109ab6493c9b0836452523d726453c07d517130",
+      "matrixDigest": "3c8b3649ae83e53e241f3e24b109ab6493c9b0836452523d726453c07d517130"
     },
     {
       "id": "project-6abbbb7f332512009f4367fe-bevraging-2026-11-15",
       "action": "unchanged",
-      "sourceDigest": "247dff775227a7344567ba7e60a5863d18c6d665dd2af6e0cef0fd5bbee17362",
-      "matrixDigest": "247dff775227a7344567ba7e60a5863d18c6d665dd2af6e0cef0fd5bbee17362"
+      "sourceDigest": "c3b43e8bd271e1241da8746d77eb485a5d89d8621bbee2b473dd87703c527a81",
+      "matrixDigest": "c3b43e8bd271e1241da8746d77eb485a5d89d8621bbee2b473dd87703c527a81"
     },
     {
       "id": "project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03",
       "action": "unchanged",
-      "sourceDigest": "e4a16defa2f3568634bd49cca554c63298442d6262d2dde572ee494cf1d768a2",
-      "matrixDigest": "e4a16defa2f3568634bd49cca554c63298442d6262d2dde572ee494cf1d768a2"
+      "sourceDigest": "0d7a302a6574b379b0b2fef3ce361a1ba3b721188ce40e7e43b1d16a436870e9",
+      "matrixDigest": "0d7a302a6574b379b0b2fef3ce361a1ba3b721188ce40e7e43b1d16a436870e9"
     },
     {
       "id": "reanimatielessen-2026-09-10",
@@ -5098,86 +5092,86 @@
     {
       "id": "stad-news-berendrecht-zandvliet-lillo-561cec28aea8a744228b45cb-2026-11-11",
       "action": "unchanged",
-      "sourceDigest": "59839ea6fa8c348c55af0c2ad54943d2ba9e518df847619265009d571aa5bbe7",
-      "matrixDigest": "59839ea6fa8c348c55af0c2ad54943d2ba9e518df847619265009d571aa5bbe7"
+      "sourceDigest": "921cc38d2b8ce8fb03a2090705693a57d55aba834cb94920cd083ebb50437ae5",
+      "matrixDigest": "921cc38d2b8ce8fb03a2090705693a57d55aba834cb94920cd083ebb50437ae5"
     },
     {
       "id": "stad-news-borgerhout-5bd16d8c2d2a3c75b55b3f48-2026-11-11",
       "action": "unchanged",
-      "sourceDigest": "7fecb0eec0df2b0f7f5176f19b18f3359afc040c0390f234979d2d6c00b9a21d",
-      "matrixDigest": "7fecb0eec0df2b0f7f5176f19b18f3359afc040c0390f234979d2d6c00b9a21d"
+      "sourceDigest": "a009f3ec65a79894988a8c24a3e06b652ef89af179661d7b25e6804b0ac6ea12",
+      "matrixDigest": "a009f3ec65a79894988a8c24a3e06b652ef89af179661d7b25e6804b0ac6ea12"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06",
       "action": "unchanged",
-      "sourceDigest": "f7d36d1788ed999699ce5c8d13bf9ce337edf8e276ef727d5c5fb5173c712e33",
-      "matrixDigest": "f7d36d1788ed999699ce5c8d13bf9ce337edf8e276ef727d5c5fb5173c712e33"
+      "sourceDigest": "9e6f409143b6185cf325afc40ac564642567df83a58967b22f0ca2997907635b",
+      "matrixDigest": "9e6f409143b6185cf325afc40ac564642567df83a58967b22f0ca2997907635b"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07",
       "action": "unchanged",
-      "sourceDigest": "f1062bdb925ac67e80db58921f4c7394fda97ff60ba9b55d08888a3f4a1d4f6f",
-      "matrixDigest": "f1062bdb925ac67e80db58921f4c7394fda97ff60ba9b55d08888a3f4a1d4f6f"
+      "sourceDigest": "74837bda52aaf37ee905865b7af51c1b7e1f35b2c20b7b27d05e66dcc11290e8",
+      "matrixDigest": "74837bda52aaf37ee905865b7af51c1b7e1f35b2c20b7b27d05e66dcc11290e8"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08",
       "action": "unchanged",
-      "sourceDigest": "96175db2f5c8e37251617046a86b4370fbca7a57bc437636f391e111010d85a1",
-      "matrixDigest": "96175db2f5c8e37251617046a86b4370fbca7a57bc437636f391e111010d85a1"
+      "sourceDigest": "80dbf9295f7598392394f7be615477da320617044d02f08b5b7ba7d925942b11",
+      "matrixDigest": "80dbf9295f7598392394f7be615477da320617044d02f08b5b7ba7d925942b11"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13",
       "action": "unchanged",
-      "sourceDigest": "9731a3750cf521a2e60e0cc5769921147940fd1b87ca31983dc85fd6ae4b145c",
-      "matrixDigest": "9731a3750cf521a2e60e0cc5769921147940fd1b87ca31983dc85fd6ae4b145c"
+      "sourceDigest": "2047750260d1c208a62b62eca328e39722cf7961ab26cdc714d9566f6fe1c573",
+      "matrixDigest": "2047750260d1c208a62b62eca328e39722cf7961ab26cdc714d9566f6fe1c573"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15",
       "action": "unchanged",
-      "sourceDigest": "06b5667849bf769e135ed3e2f62cc25f25bf4b1a37abc49a851c9b35c9e32d0d",
-      "matrixDigest": "06b5667849bf769e135ed3e2f62cc25f25bf4b1a37abc49a851c9b35c9e32d0d"
+      "sourceDigest": "26a356b85be572b108e7906d9a0d2113b24c08e31eddb048149068cb906144f2",
+      "matrixDigest": "26a356b85be572b108e7906d9a0d2113b24c08e31eddb048149068cb906144f2"
     },
     {
       "id": "stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11",
       "action": "unchanged",
-      "sourceDigest": "ae49194fbfd9d359e1d5b9a1c49a7509ce05a693c36c3f31f24094a3d247edeb",
-      "matrixDigest": "ae49194fbfd9d359e1d5b9a1c49a7509ce05a693c36c3f31f24094a3d247edeb"
+      "sourceDigest": "d0a0b7933f04d2ee5e0031c70c3368c7391e19a378ea20310aaaf518a2c9516e",
+      "matrixDigest": "d0a0b7933f04d2ee5e0031c70c3368c7391e19a378ea20310aaaf518a2c9516e"
     },
     {
       "id": "stad-news-borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15",
       "action": "unchanged",
-      "sourceDigest": "eb5ef45fe3a7e90c84d622939d744813e07464f6e3560d23be4b2251dbf309c0",
-      "matrixDigest": "eb5ef45fe3a7e90c84d622939d744813e07464f6e3560d23be4b2251dbf309c0"
+      "sourceDigest": "48c28bf1eeb672b0f219187bc1df2f39c60ef208d000553735c6d09c7577b1da",
+      "matrixDigest": "48c28bf1eeb672b0f219187bc1df2f39c60ef208d000553735c6d09c7577b1da"
     },
     {
       "id": "stad-news-deurne-670e4c5276ce668584728824-2026-11-11",
       "action": "unchanged",
-      "sourceDigest": "3349e2abfceece811e2647c876c0abd40c17bdb98cb4c1a5d5581c969993d9cc",
-      "matrixDigest": "3349e2abfceece811e2647c876c0abd40c17bdb98cb4c1a5d5581c969993d9cc"
+      "sourceDigest": "406bf861895c5eeacd9f6edae5218fdd33b468b2fe785279a11c78e1a6c87334",
+      "matrixDigest": "406bf861895c5eeacd9f6edae5218fdd33b468b2fe785279a11c78e1a6c87334"
     },
     {
       "id": "stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18",
       "action": "unchanged",
-      "sourceDigest": "7d7f43bd86f56218775c8190ef48c28147346a36f652b177c57e33c34cb4ee87",
-      "matrixDigest": "7d7f43bd86f56218775c8190ef48c28147346a36f652b177c57e33c34cb4ee87"
+      "sourceDigest": "c8efd5492412c27da9f243182046a8ea335070557d50e58699263962a92980c6",
+      "matrixDigest": "c8efd5492412c27da9f243182046a8ea335070557d50e58699263962a92980c6"
     },
     {
       "id": "stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08",
       "action": "unchanged",
-      "sourceDigest": "a1ed6ba21f119d2b4a254facfa05c05e2278adc2178d89b7cce994fc2239c62d",
-      "matrixDigest": "a1ed6ba21f119d2b4a254facfa05c05e2278adc2178d89b7cce994fc2239c62d"
+      "sourceDigest": "c9eb0864affe90ccd9319bba456ddeb68213ceb1dd82660fc1d945d4a44ff4b4",
+      "matrixDigest": "c9eb0864affe90ccd9319bba456ddeb68213ceb1dd82660fc1d945d4a44ff4b4"
     },
     {
       "id": "stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18",
       "action": "unchanged",
-      "sourceDigest": "11c401b50dd8259938a2fed04642823944de64a8207a1ad9fa97e719ffd683ba",
-      "matrixDigest": "11c401b50dd8259938a2fed04642823944de64a8207a1ad9fa97e719ffd683ba"
+      "sourceDigest": "fdfa8a13b6b372c704a2e32180b0f83ce28b58dff444af3ff7e0c0e4e1ab70cc",
+      "matrixDigest": "fdfa8a13b6b372c704a2e32180b0f83ce28b58dff444af3ff7e0c0e4e1ab70cc"
     },
     {
       "id": "stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28",
       "action": "unchanged",
-      "sourceDigest": "7e8b23fc0726bd64bafb6432cfa9beaa617804460bcc5f0807c982956aa7d242",
-      "matrixDigest": "7e8b23fc0726bd64bafb6432cfa9beaa617804460bcc5f0807c982956aa7d242"
+      "sourceDigest": "65356804781eaf2f754d196e7dc5e5447b66f580ad72dc98534de27ff0bfbfef",
+      "matrixDigest": "65356804781eaf2f754d196e7dc5e5447b66f580ad72dc98534de27ff0bfbfef"
     },
     {
       "id": "stad-news-hoboken-6718b2f31beefe7ae24580cd-2026-10-30",
@@ -5206,32 +5200,32 @@
     {
       "id": "stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-13",
       "action": "unchanged",
-      "sourceDigest": "f477868fb4247fedb484b741022559d58267ca0c702ac1c9ba6ad0353fcf5faf",
-      "matrixDigest": "f477868fb4247fedb484b741022559d58267ca0c702ac1c9ba6ad0353fcf5faf"
+      "sourceDigest": "de58bd1f9b50bfe705ea82ff7200206808283ea15ae0910ca80f7f8bf4782f93",
+      "matrixDigest": "de58bd1f9b50bfe705ea82ff7200206808283ea15ae0910ca80f7f8bf4782f93"
     },
     {
       "id": "stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-20",
       "action": "unchanged",
-      "sourceDigest": "b1a04e603617054f0b1a0f7590c9e413a287ae4302a508e070a75590317a2443",
-      "matrixDigest": "b1a04e603617054f0b1a0f7590c9e413a287ae4302a508e070a75590317a2443"
+      "sourceDigest": "664dd5e16181f79c35337d9198e3043a0e3ae02ad03bb45f5279d4f1f5c2b236",
+      "matrixDigest": "664dd5e16181f79c35337d9198e3043a0e3ae02ad03bb45f5279d4f1f5c2b236"
     },
     {
       "id": "stad-news-merksem-699c648e7c39f43c7a20d062-2026-12-18",
       "action": "unchanged",
-      "sourceDigest": "de7dff8e88b8f5765ac68e53cf25f30dd47ceea85d6ef18332175091a0bd95b6",
-      "matrixDigest": "de7dff8e88b8f5765ac68e53cf25f30dd47ceea85d6ef18332175091a0bd95b6"
+      "sourceDigest": "38e13779a945748537dfb82d41dde28301a97f022c88a1cac526f299c0fc1767",
+      "matrixDigest": "38e13779a945748537dfb82d41dde28301a97f022c88a1cac526f299c0fc1767"
     },
     {
       "id": "stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18",
       "action": "unchanged",
-      "sourceDigest": "7affb1690d77b836f70fcd483bd43b9131f7104c1a00c9fe1faf16a153b064df",
-      "matrixDigest": "7affb1690d77b836f70fcd483bd43b9131f7104c1a00c9fe1faf16a153b064df"
+      "sourceDigest": "e22f1649de016846a14f639fc30c6393c3703708767329d909f0003a44af4e73",
+      "matrixDigest": "e22f1649de016846a14f639fc30c6393c3703708767329d909f0003a44af4e73"
     },
     {
       "id": "stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28",
       "action": "unchanged",
-      "sourceDigest": "6558cbc79ee5e761bfd87097ce40d99274e7869849b77427170ac2a49d4e90f1",
-      "matrixDigest": "6558cbc79ee5e761bfd87097ce40d99274e7869849b77427170ac2a49d4e90f1"
+      "sourceDigest": "95fdea4815fb64cd194e4e779fe275d0ae55b60060437e6d16a38abdcb5007da",
+      "matrixDigest": "95fdea4815fb64cd194e4e779fe275d0ae55b60060437e6d16a38abdcb5007da"
     },
     {
       "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22",
@@ -5242,14 +5236,14 @@
     {
       "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19",
       "action": "unchanged",
-      "sourceDigest": "6ba1bd01dfd84db93fd009091f72f0ddbf8b5e03584058fd376bf0ae92854cce",
-      "matrixDigest": "6ba1bd01dfd84db93fd009091f72f0ddbf8b5e03584058fd376bf0ae92854cce"
+      "sourceDigest": "204ab131171104a6fa451be6e7651ba77f0a8ec4c961c232816459462f9b13c3",
+      "matrixDigest": "204ab131171104a6fa451be6e7651ba77f0a8ec4c961c232816459462f9b13c3"
     },
     {
       "id": "stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10",
       "action": "unchanged",
-      "sourceDigest": "384a5ac91cd3193b69fc9e66cff97f87f74adefd257aad5047df622ac9044e69",
-      "matrixDigest": "384a5ac91cd3193b69fc9e66cff97f87f74adefd257aad5047df622ac9044e69"
+      "sourceDigest": "59c798afec70a0ffe251deb6863b4710db7c1a07b694d1c19ca4c52619a867f0",
+      "matrixDigest": "59c798afec70a0ffe251deb6863b4710db7c1a07b694d1c19ca4c52619a867f0"
     },
     {
       "id": "strip-en-boekenplein-2026-06-21",

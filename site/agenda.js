@@ -1507,19 +1507,6 @@ const agendaItems = [
     "location": "Regatta",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
     "link": "https://www.citaatopstraat.be/"
-  },
-  {
-    "id": "furie-450-jaar-later-grote-markt-2026-11-04",
-    "title": "FURIE! 450 jaar later",
-    "theme": "Activiteit",
-    "className": "activity",
-    "date": "2026-11-04",
-    "dateLabel": "4 november 2026",
-    "timeSlot": "19:00",
-    "timeText": "19 tot 20.30 uur",
-    "location": "Grote Markt, 2000 Antwerpen",
-    "info": "District Antwerpen herdenkt de Spaanse Furie, exact 450 jaar geleden, met een eenmalige avond op de Grote Markt: live muziek, literatuur, theater met poppen en acteurs, een lichtspektakel en foodtrucks. Gratis. Een organisatie van district Antwerpen met Bad van Marie, Museum Plantin-Moretus, het Poesjenellentheater en culturele partners.",
-    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend"
   }
 ];
 
@@ -1541,6 +1528,9 @@ const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 // Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.
 const hiddenUitItems = onCanonicalHost ? [] : agendaReconciliation.publicItems.filter(isUitItem);
 const uitgaan = window.PublicAgendaUitgaan || null;
+// Sinds 3-11-2026 blijft een bronitem van een bron die niet opnieuw gelezen kon worden, gewoon zichtbaar tot zijn eigen
+// datum (laatst bekende stand, lastKnown in agenda-refresh.js); de gratie hieronder raakt dan alleen nog een bronitem
+// zonder leesbaar moment van lezing.
 // Versheid: alleen als de laatste geslaagde verversing ouder is dan 48 uur (een achterstand),
 // blijven BRONITEMS (uit de automatische feed) die alleen daardoor wegvielen (reviewReason "stale_source") nog
 // STALE_GRACE_DAYS zichtbaar (graceStale, intern). Een bezoeker ziet ze als gewone items, zonder badge met de

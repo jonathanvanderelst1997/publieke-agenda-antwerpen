@@ -10,6 +10,7 @@ import { MANUAL_CHECK_FILE, validateManualCheck } from "../lib/manual-check.mjs"
 import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-validatie.mjs";
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
+import { VASTE_ADRESSEN_FILE, validateVasteAdressen } from "../lib/vaste-adressen.mjs";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
@@ -92,6 +93,11 @@ if (!fs.existsSync(sourcesDir)) {
     if (name === WERK_VORM_FILE) continue;
     if (name === VAAGHEID_FILE) {
       for (const error of validateVaagheid(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    // Het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
+    if (name === VASTE_ADRESSEN_FILE) {
+      for (const error of validateVasteAdressen(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === INZAGE_STATUS_FILE) {
