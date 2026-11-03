@@ -131,3 +131,14 @@ body:has(.verleden-pagina) {
 .verleden-leeg {
   color: var(--pa-muted);
 }
+
+.verleden-parkeer summary {
+  cursor: pointer;
+}
+
+.verleden-parkeer ul {
+  color: var(--pa-muted);
+  font-size: 14px;
+  gap: 4px;
+  margin-top: 8px;
+}

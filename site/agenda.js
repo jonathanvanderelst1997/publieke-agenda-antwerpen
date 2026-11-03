@@ -1556,6 +1556,36 @@ const renderedAgendaItems = (uitgaan?.markeerWekelijkseReeksen ? uitgaan.markeer
 // stadsdossier aan als het op dezelfde dag in dezelfde straat staat (site/kaart-uitleg.js).
 window.PUBLIC_AGENDA_PUBLIC_ITEMS = renderedAgendaItems;
 
+// Het verleden in de agenda zelf (besluit van de eigenaar van 3 november 2026: "dat blijft gewoon zo staan in die
+// agenda, de tijd gaat verder… en als je dat openzet, staat dat op de huidige dag"). Een voorbij punt blijft in de
+// lijst staan, met "Voorbij", boven vandaag. De lijst opent op vandaag; "Eerdere dagen" bladert terug, een week per
+// klik. De punten komen uit het verleden van de agenda (site/verleden/<JJJJ-MM>.json, lib/agenda-verleden.mjs), dat de
+// browser pas laadt na de eerste weergave. Lukt dat niet, dan blijft de agenda zoals ze was, zonder melding.
+let verledenItems = [];
+let verledenDagenGetoond = 0;
+let verledenMaandenTeLaden = null;
+const VERLEDEN_STAP_DAGEN = 7;
+const THEMA_KLASSE = { Activiteit: "activity", Sport: "sport", "Oproep/deadline": "call", Werken: "works" };
+
+function laatsteDagVan(item) {
+  return item.endDate && item.endDate > item.date ? item.endDate : item.date;
+}
+
+function verledenNaarItem(record) {
+  const item = {
+    ...record,
+    feed: true,
+    voorbij: true,
+    classification: "expired",
+    className: THEMA_KLASSE[record.theme] || "activity",
+    timeSlot: record.timeSlot || "Info",
+    link: record.bronnen?.[0]?.url || "",
+    sources: (Array.isArray(record.bronnen) ? record.bronnen : []).map((bron) => ({ url: bron.url, label: bron.label })),
+  };
+  const metSoortItem = { ...item, eventType: window.PublicAgendaEventTypes?.classifyEventType(item) || "other" };
+  return { ...metSoortItem, category: uitgaan ? uitgaan.categoryOf(metSoortItem) : "other" };
+}
+
 function isUitItem(item) {
   return item.sourceId === "stad-uit";
 }
@@ -2073,7 +2103,7 @@ function sourceLinksTemplate(item) {
     links.push(`<li><a href="${esc(href)}" target="_blank" rel="noreferrer">${esc(href === AGENDA_GIPOD_METADATA_URL ? AGENDA_GIPOD_BRON : label)}</a></li>`);
   };
   if (Array.isArray(item.sources) && item.sources.length) {
-    item.sources.forEach((source) => add(source.url, source.sourceId === "stad-uit" ? "Bron: uitinvlaanderen.be" : sourceLabel(source.sourceId)));
+    item.sources.forEach((source) => add(source.url, source.label || (source.sourceId === "stad-uit" ? "Bron: uitinvlaanderen.be" : sourceLabel(source.sourceId))));
   } else {
     add(item.link, "Officiële bron");
   }
@@ -2092,7 +2122,7 @@ function eventTemplate(item) {
   const open = openId === item.id;
   const id = esc(item.id);
   return `
-    <article class="event ${esc(item.className)} cat-${esc(item.category || "other")} ${open ? "open" : ""}" id="${id}">
+    <article class="event ${esc(item.className)} cat-${esc(item.category || "other")} ${open ? "open" : ""}${item.voorbij ? " voorbij" : ""}" id="${id}">
       <div class="time">
         <strong>${esc(item.timeSlot)}</strong>
         ${item.timeText ? `<span>${esc(item.timeText)}</span>` : ""}
@@ -2106,7 +2136,7 @@ function eventTemplate(item) {
         <div class="meta">
           ${item.location ? `<span>${esc(item.location)}</span>` : ""}
           ${item.dateLabel ? `<span>${esc(item.dateLabel)}</span>` : ""}
-          <span>${item.classification === "current" || (item.graceStale && item.date <= todayIso()) ? "Lopend" : "Toekomstig"}</span>
+          <span${item.voorbij ? ' class="voorbij-badge"' : ""}>${item.voorbij ? "Voorbij" : item.classification === "current" || (item.graceStale && item.date <= todayIso()) ? "Lopend" : "Toekomstig"}</span>
           ${item.nietGoedgekeurd ? `<span class="aanvraag-badge">${esc(NIET_GOEDGEKEURD_LABEL)}</span>` : ""}
           <span class="scope-badge scope-${scopeOf(item)}">${esc(scopeLabels[scopeOf(item)])}</span>
         </div>
@@ -2117,11 +2147,11 @@ function eventTemplate(item) {
             ${item.timeText ? `<div><dt>Uur</dt><dd>${esc(item.timeText)}</dd></div>` : ""}
             ${item.location ? `<div><dt>Waar</dt><dd>${esc(item.location)}</dd></div>` : ""}
             <div><dt>Bron</dt><dd>${esc(item.sourcePublisher)}</dd></div>
-            <div><dt>Gecontroleerd</dt><dd>${esc(formatSimpleDate(String(item.sourceRetrievedAt || "").slice(0, 10)))}</dd></div>
+            ${item.voorbij ? "" : `<div><dt>Gecontroleerd</dt><dd>${esc(formatSimpleDate(String(item.sourceRetrievedAt || "").slice(0, 10)))}</dd></div>`}
           </dl>
           ${sourceLinksTemplate(item)}
           ${item.noEventPage ? "" : `<a class="event-deep-link" href="/event/${encodeURIComponent(item.id)}">Deel dit agendapunt</a>`}
-          ${item.nietGoedgekeurd ? "" : `<button type="button" class="event-calendar" data-calendar-id="${id}">Voeg toe aan agenda (.ics)</button>`}
+          ${item.voorbij ? "" : item.nietGoedgekeurd ? "" : `<button type="button" class="event-calendar" data-calendar-id="${id}">Voeg toe aan agenda (.ics)</button>`}
         </div>
       </div>
     </article>
@@ -2213,15 +2243,42 @@ function bindEmptyState(root) {
   );
 }
 
-function renderList(items) {
+// De voorbije dagen boven vandaag: de laatste `verledenDagenGetoond` dagen met een voorbij punt, de oudste bovenaan,
+// en daarboven de knop om verder terug te bladeren (zolang er nog meer is) en de weg naar /verleden/.
+function verledenDagenTemplate(past) {
+  const perDag = {};
+  for (const item of past) (perDag[laatsteDagVan(item)] ||= []).push(item);
+  const dagen = Object.keys(perDag).sort((a, b) => b.localeCompare(a));
+  const getoond = dagen.slice(0, verledenDagenGetoond).reverse();
+  const meer = dagen.length > getoond.length || (verledenMaandenTeLaden?.length ?? 0) > 0;
+  if (!getoond.length && !meer) return "";
+  const knop = meer
+    ? `<button type="button" class="agenda-eerder" data-agenda-eerder>← Eerdere dagen${getoond.length ? "" : " (voorbij)"}</button>`
+    : "";
+  const blokken = getoond.map((date) => `
+      <section class="day-block day-voorbij">
+        <header>
+          <h2>${formatDateTitle(date)}</h2>
+          <p>${formatDateSummary(date, perDag[date].length)} · voorbij</p>
+        </header>
+        <div class="event-list">
+          ${perDag[date].sort((a, b) => String(a.timeSlot).localeCompare(String(b.timeSlot)) || a.title.localeCompare(b.title)).map(eventTemplate).join("")}
+        </div>
+      </section>`).join("");
+  return `<div class="agenda-terug">${knop}<a href="/verleden/">Alles in het verleden</a></div>${blokken}`;
+}
+
+function renderList(items, past = []) {
   const root = document.getElementById("agenda-list");
   const today = todayIso();
   const markets = uitgaan ? uitgaan.bundleWeeklyMarkets(items.filter((item) => item.category === "markets"), today) : [];
   const works = items.filter((item) => item.theme === "Werken");
   const calendarItems = items.filter((item) => item.theme !== "Werken" && item.category !== "markets");
+  const verleden = verledenDagenTemplate(past.filter((item) => item.theme !== "Werken" && item.category !== "markets"));
   if (!calendarItems.length && !works.length && !markets.length) {
-    root.innerHTML = emptyStateTemplate();
+    root.innerHTML = `${verleden}${emptyStateTemplate()}`;
     bindEmptyState(root);
+    bindVerleden(root);
     return;
   }
 
@@ -2248,7 +2305,8 @@ function renderList(items) {
       </section>
     `)
     .join("");
-  root.innerHTML = `${marketsBundleTemplate(markets)}${worksOverviewTemplate(works)}${schedule}`;
+  root.innerHTML = `${marketsBundleTemplate(markets)}${worksOverviewTemplate(works)}${verleden}${schedule}`;
+  bindVerleden(root);
 
   root.querySelectorAll(".event-toggle").forEach((button) => {
     button.addEventListener("click", () => openAgendaItem(button.dataset.id));
@@ -2273,6 +2331,49 @@ function renderList(items) {
       hasScrolledToToday = true;
       todayBlock.scrollIntoView({ block: "start" });
     }, 80);
+  }
+}
+
+function bindVerleden(root) {
+  root.querySelector("[data-agenda-eerder]")?.addEventListener("click", async (event) => {
+    const knop = event.currentTarget;
+    knop.disabled = true;
+    verledenDagenGetoond += VERLEDEN_STAP_DAGEN;
+    await laadVerledenTot(verledenDagenGetoond);
+    render();
+  });
+}
+
+// Laadt maanden van het verleden tot er minstens `dagen` voorbije dagen zijn (of er niets meer is).
+async function laadVerledenTot(dagen) {
+  if (typeof fetch !== "function") return;
+  try {
+    if (verledenMaandenTeLaden === null) {
+      const response = await fetch("/verleden/maanden.json", { cache: "no-cache" });
+      if (!response.ok) throw new Error(String(response.status));
+      const index = await response.json();
+      const nu = todayIso().slice(0, 7);
+      verledenMaandenTeLaden = (Array.isArray(index?.maanden) ? index.maanden : [])
+        .filter((entry) => /^\d{4}-\d{2}$/.test(String(entry?.maand)) && entry.maand <= nu && entry.aantal > 0)
+        .map((entry) => entry.maand)
+        .sort((a, b) => b.localeCompare(a));
+    }
+    const vandaag = todayIso();
+    const verledenDagen = () => new Set(verledenItems.filter((item) => laatsteDagVan(item) < vandaag).map(laatsteDagVan)).size;
+    while (verledenMaandenTeLaden.length && verledenDagen() < dagen + 1) {
+      const maand = verledenMaandenTeLaden.shift();
+      const response = await fetch(`/verleden/${maand}.json`, { cache: "no-cache" });
+      if (!response.ok) continue;
+      const document = await response.json();
+      const bekend = new Set(verledenItems.map((item) => item.id));
+      for (const record of Array.isArray(document?.items) ? document.items : []) {
+        if (!record?.id || record.opgegaanIn || bekend.has(record.id) || !/^\d{4}-\d{2}-\d{2}$/.test(String(record.date))) continue;
+        verledenItems.push(verledenNaarItem(record));
+      }
+    }
+  } catch {
+    // Zonder verleden blijft de agenda zoals ze was (besluit van 18-10-2026: geen melding).
+    if (verledenMaandenTeLaden === null) verledenMaandenTeLaden = [];
   }
 }
 
@@ -2587,7 +2688,11 @@ function render() {
   renderFreshness();
   renderHighlights(visible);
   renderDitWeekend(visible);
-  renderList(visible);
+  const huidigeIds = new Set(renderedAgendaItems.map((item) => item.id));
+  const vandaag = todayIso();
+  const voorbij = verledenItems.filter((item) => laatsteDagVan(item) < vandaag && !huidigeIds.has(item.id)
+    && passesScope(item) && (!window.PUBLIC_AGENDA_VIEW || window.PUBLIC_AGENDA_VIEW.matchesStreet(item)) && passesCategory(item));
+  renderList(visible, voorbij);
   window.dispatchEvent(new CustomEvent("public-agenda:agenda-view", { detail: { count: visible.length, categoryCounts } }));
 }
 
@@ -2620,6 +2725,8 @@ function setupThemeToggle() {
 
 render();
 setupThemeToggle();
+// Het verleden laden na de eerste weergave: de lijst opent op vandaag, de knop "Eerdere dagen" verschijnt erboven.
+if (document.getElementById?.("agenda-list")) laadVerledenTot(0).then(render).catch(() => {});
 
 window.addEventListener("public-agenda:view-change", render);
 window.addEventListener("public-agenda:reset-filters", () => {

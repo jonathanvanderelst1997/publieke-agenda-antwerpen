@@ -6,7 +6,13 @@ import { fileURLToPath } from "node:url";
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
 import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink } from "../site/gipod-bron.js";
 import { bouwEventpagina } from "../lib/eventpagina.mjs";
+import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
 import {
+  PARKEER_VERLEDEN_DIR,
+  isParkeerMaandBestand,
+  parkeerBestanden,
+  parkeerRecordVanItem,
+  werkParkeerverledenBij,
   VERLEDEN_DIR,
   verledenMaandTekst,
   VERLEDEN_INDEX_FILE,
@@ -131,6 +137,27 @@ const { index: verledenIndex, bestanden: verledenMaanden } = verledenBestanden(
   asOf,
   bestaandeMaanden.map((name) => name.slice(0, 7))
 );
+
+// De parkeerverboden in het verleden (besluit van de eigenaar van 3 november 2026: "die moeten er wel in komen. Maar
+// gewoon als parkeerverbod, niet per se de reden. En het huisnummer mocht dan wel."): uit de publieke-ruimtelaag van
+// de historiek (site/history/live-layers.json), elk als "Parkeerverbod" met zijn plaats en periode, nooit een reden.
+const parkeerDir = path.join(rootDir, PARKEER_VERLEDEN_DIR);
+const parkeerMaanden = fs.existsSync(parkeerDir) ? fs.readdirSync(parkeerDir).filter(isParkeerMaandBestand).sort() : [];
+const vorigeParkeerverboden = parkeerMaanden.flatMap((name) => JSON.parse(fs.readFileSync(path.join(parkeerDir, name), "utf8")).items ?? []);
+const historiekBestand = path.join(siteDir, "history", "live-layers.json");
+const publiekeRuimte = fs.existsSync(historiekBestand) ? JSON.parse(fs.readFileSync(historiekBestand, "utf8"))?.layers?.publicSpace ?? null : null;
+const straatnamen = officieleStraatnamen();
+const parkeerverleden = werkParkeerverledenBij(
+  vorigeParkeerverboden,
+  (Array.isArray(publiekeRuimte?.items) ? publiekeRuimte.items : []).map((item) => parkeerRecordVanItem(item, straatnamen)).filter(Boolean),
+  asOf,
+  { volledig: publiekeRuimte?.status === "ok", straatnamen }
+);
+if (parkeerverleden.geweigerd) console.error(`verleden: ${parkeerverleden.geweigerd} parkeerverboden niet in de publieke vorm, niet bewaard`);
+const { bestanden: parkeerBestandenPerMaand, lijst: parkeerLijst } = parkeerBestanden(parkeerverleden.records, parkeerMaanden.map((name) => name.slice(0, 7)));
+verledenIndex.parkeerAantal = parkeerverleden.records.length;
+verledenIndex.parkeerverboden = parkeerLijst;
+fs.mkdirSync(parkeerDir, { recursive: true });
 fs.mkdirSync(verledenDir, { recursive: true });
 const schrijfAlsAnders = (file, inhoud) => {
   if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== inhoud) {
@@ -139,6 +166,7 @@ const schrijfAlsAnders = (file, inhoud) => {
   }
 };
 for (const [name, document] of verledenMaanden) schrijfAlsAnders(path.join(verledenDir, name), verledenMaandTekst(document));
+for (const [name, document] of parkeerBestandenPerMaand) schrijfAlsAnders(path.join(parkeerDir, name), verledenMaandTekst(document));
 schrijfAlsAnders(path.join(rootDir, VERLEDEN_INDEX_FILE), `${JSON.stringify(verledenIndex, null, 2)}\n`);
 
 // Eén statische pagina per record: een publiek item ("actueel") zoals altijd, een ander met zijn stand (voorbij,

@@ -20,7 +20,7 @@ const bb = await laad("../site/bezoekers-bronnen.js");
 const pk = await laad("../site/permit-clarity.js");
 const lh = await laad("../lib/live-history.mjs");
 const lha = await laad("../lib/live-history-archive.mjs");
-const hp = await laad("../lib/historiek-privacy.mjs");
+const ph = await laad("../lib/parkeer-historiek.mjs");
 
 const bron = (pad) => { try { return fs.readFileSync(new URL(`../${pad}`, import.meta.url), "utf8"); } catch { return ""; } };
 const dag = Date.UTC(2026, 9, 14), dag2 = Date.UTC(2026, 9, 16);
@@ -335,15 +335,12 @@ test("een laag die niet laadde: geen melding boven de tegels, en de tegels tonen
   assert.match(view, /loading\.push\("terrassen"\)/, "ook terrassen melden dat ze nog laden");
 });
 
-// ---- 5. Oude parkeerverboden in het archief ----
-// Sinds het besluit van de eigenaar van 3 november 2026 ("er moet geen historie zijn van parkeerverboden") staat er geen
-// parkeerverbod meer in de historiek of het archief: de baseline en elke oudere dag verliezen ze bij de verversing.
-test("archief: de baseline en oudere dagen verliezen hun parkeerverboden", () => {
+// ---- 5. Oude huisnummers in het archief ----
+test("archief: de baseline en oudere dagen verliezen hun huisnummers en de foute weekdagregel", () => {
   const item = { id: "parking:D|L", kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location: "Proefstraat 26-28 2000 Antwerpen", start: "2026-10-01T00:00:00.000Z", end: "2026-10-02T00:00:00.000Z", status: "Goedgekeurd", reference: "D", detail: "Alleen op weekdagen", streets: [], streetResolution: "unresolved", streetDistanceMeters: null };
-  const inname = { id: "iod:D|F|I", kind: "iod", kindLabel: "Inname openbaar domein", title: "Inname", location: "Proefstraat", start: "2026-10-01T00:00:00.000Z", end: "2026-10-02T00:00:00.000Z", status: "aanvraag_goedgekeurd", reference: "D", detail: "", streets: [], streetResolution: "unresolved", streetDistanceMeters: null };
-  const baseline = lha.updateHistoryArchiveBaseline({ schemaVersion: 1, layers: { works: null, publicSpace: { observedAt: "2026-10-01T00:00:00.000Z", items: [item, inname] } } }, { observedAt: "2026-10-09T00:00:00.000Z", layers: {} });
-  assert.deepEqual(baseline.layers.publicSpace.items, [inname]);
-  assert.equal(baseline.layers.publicSpace.observedAt, "2026-10-01T00:00:00.000Z", "de baseline zelf blijft staan");
+  const baseline = lha.updateHistoryArchiveBaseline({ schemaVersion: 1, layers: { works: null, publicSpace: { observedAt: "2026-10-01T00:00:00.000Z", items: [item] } } }, { observedAt: "2026-10-09T00:00:00.000Z", layers: {} });
+  assert.equal(baseline.layers.publicSpace.items[0].location, "Proefstraat, 2000 Antwerpen");
+  assert.equal(baseline.layers.publicSpace.items[0].detail, "");
   const t = "2026-10-05T03:00:00.000Z";
   const oud = { schemaVersion: 1, date: "2026-10-05", events: [
     { observedAt: t, layer: "publicSpace", id: "parking:D|L", type: "removed", fields: [], before: item, after: null },
@@ -351,20 +348,20 @@ test("archief: de baseline en oudere dagen verliezen hun parkeerverboden", () =>
     { observedAt: t, layer: "works", id: "work:1", type: "changed", fields: ["status"], before: { status: "Gepland" }, after: { status: "Bezig" } },
   ] };
   const schoon = lha.scrubHistoryArchiveDay(oud);
-  assert.doesNotMatch(JSON.stringify(schoon), /parking|26-28|3-3|5-5|Alleen op weekdagen/);
-  assert.deepEqual(schoon.events.map((event) => event.id), ["work:1"], "alleen het werk blijft");
+  assert.doesNotMatch(JSON.stringify(schoon), /26-28|3-3|5-5|Alleen op weekdagen/);
+  assert.equal(schoon.events.length, 2, "een wijziging van alleen het huisnummer valt weg");
   assert.deepEqual(lha.validateHistoryArchiveDay(schoon), []);
   assert.equal(lha.scrubHistoryArchiveDay(schoon), schoon, "tweede keer: niets te doen");
   const index = lha.updateHistoryArchiveIndexDay({ schemaVersion: 1, days: [{ date: "2026-10-05", file: "site/history/archive/2026-10-05.json", count: 3, digest: "x" }] }, schoon);
-  assert.equal(index.days[0].count, 1);
+  assert.equal(index.days[0].count, 2);
   assert.match(index.days[0].digest, /^[a-f0-9]{64}$/);
-  assert.doesNotMatch(JSON.stringify(lha.updateHistoryArchiveDay(oud, t, [])), /parking|26-28|Alleen op weekdagen/);
+  assert.doesNotMatch(JSON.stringify(lha.updateHistoryArchiveDay(oud, t, [])), /26-28|Alleen op weekdagen/);
   assert.match(bron("scripts/refresh-live-history.mjs"), /scrubHistoryArchiveDay\(before\)/);
 });
 
-test("historiek: geen parkeerverbod, en geen massa wijzigingen bij de overgang", () => {
+test("historiek: geen weekdagregel bij parkeerverboden, en geen massa wijzigingen bij de overgang", () => {
   const live = { id: "parking:D|L", kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location: "Proefstraat, 2000 Antwerpen", start: "2026-10-13T00:00:00.000Z", end: "2026-10-14T00:00:00.000Z", status: "Goedgekeurd", reference: "D", detail: "Alleen op weekdagen", streets: [], streetResolution: "unresolved", streetDistanceMeters: null };
-  assert.equal(lh.compactPublicSpaceItem(live), null);
+  assert.equal(lh.compactPublicSpaceItem(live).detail, "");
   const t1 = "2026-10-08T03:00:00.000Z", t2 = "2026-10-09T03:00:00.000Z";
   const vorige = { schemaVersion: 1, observedAt: t1, baselineInitializedAt: t1, layers: {
     works: { status: "ok", lastAttemptAt: t1, lastSuccessAt: t1, errorCode: null, count: 0, digest: null, items: [] },
@@ -372,8 +369,7 @@ test("historiek: geen parkeerverbod, en geen massa wijzigingen bij de overgang",
   }, changes: [] };
   const volgende = lh.updateLiveHistory(vorige, { observedAt: t2, worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: [{ ...live, detail: "" }] } });
   assert.equal(volgende.changes.length, 0);
-  assert.deepEqual(volgende.layers.publicSpace.items, []);
-  assert.doesNotMatch(JSON.stringify(volgende), /parking|26-26|Alleen op weekdagen/);
+  assert.doesNotMatch(JSON.stringify(volgende), /26-26|Alleen op weekdagen/);
 });
 
 // ---- 6. Klein ----
@@ -400,14 +396,13 @@ test("straatnamen met een cijfer blijven heel, en een tweede opkuis verandert ni
   const [item] = psl.collectPublicSpace({ parkingFeatures: [parkeer({ Adres: "De 7 schakenpad 999-999 2000 Antwerpen" })], streetIndex: { byName: new Map([["de 7 schakenpad", [{ id: "7", name: "De 7 schakenpad", postcode: "2000" }]]]) } });
   assert.equal(item.location, "De 7 schakenpad 999, 2000 Antwerpen");
   assert.deepEqual(item.streets.map((s) => s.name), ["De 7 schakenpad"]);
-  // Het straatbestand (itemVoorHistoriek, zoals scripts/build-straat-snapshots.mjs het lopende parkeerverbod bewaart) kuist
-  // op met de officiële stratenlijst van de site. De historiek zelf bewaart geen parkeerverboden meer (3 november 2026).
+  // De historiek kuist bij elke verversing opnieuw op, met de officiële stratenlijst van de site.
   for (const adres of ["Buurtweg nr 11 4-4 2000 Antwerpen", "Buurtweg nr 11, 2000 Antwerpen"]) {
-    assert.equal(hp.itemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, "Buurtweg nr 11, 2000 Antwerpen");
+    assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, "Buurtweg nr 11, 2000 Antwerpen");
   }
   // De plaats zoals publiekParkeerAdres ze schrijft, blijft exact (regel van 26 oktober 2026), ook na een straat met een cijfer.
   for (const adres of ["Buurtweg nr 11 999, 2030 Antwerpen", "De 7 schakenpad 999–999B, 2050 Antwerpen"]) {
-    assert.equal(hp.itemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, adres);
+    assert.equal(ph.parkeerItemVoorHistoriek({ id: "parking:X|1", kind: "parking", location: adres }).location, adres);
   }
 });
 

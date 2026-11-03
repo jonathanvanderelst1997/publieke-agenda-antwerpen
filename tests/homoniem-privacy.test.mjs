@@ -163,8 +163,8 @@ test("homoniem: de huisnummers van een werk vinden de straat ook als de adrespos
 
 // ---------- de historiek ----------
 
-// Regel van de eigenaar (26 oktober 2026): een werk houdt zijn huisnummer in de historiek en de straatbestanden. Een
-// parkeerverbod staat sinds 3 november 2026 helemaal niet meer in de historiek. De toevoeging valt overal weg.
+// Regel van de eigenaar (26 oktober 2026): een werk houdt zijn huisnummer in de historiek en de straatbestanden; een
+// parkeerverbod niet. De toevoeging valt overal weg.
 test("homoniem: de historiek houdt geen toevoeging, en geen huisnummer na zo'n straat buiten een werk, ook niet uit een oud bestand (vangnet)", () => {
   // De huisnummerregel: een straatnaam met toevoeging is een straatnaam.
   for (const t of ["2018 ANTWERPEN, PROEFSTRAAT_AN 12", "Proefstraat_AN 12 bus 3", "Proeflei_DE 7", "2000 ANTWERPEN, PROEFSTRAAT_XY 12 DN40"]) {
@@ -180,7 +180,7 @@ test("homoniem: de historiek houdt geen toevoeging, en geen huisnummer na zo'n s
   assert.ok(codes.has("huisnummer") && codes.has("toevoeging"), [...codes].join(", "));
   const schoon = historiekVoorPubliek(doc);
   nergens(schoon, "historiek", { nummer: true });
-  assert.deepEqual(schoon.layers.publicSpace.items, [], "geen parkeerverbod in de historiek");
+  nergens(schoon.layers.publicSpace, "historiek van de parkeerverboden");
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
   // Een werk houdt zijn huisnummer: de wijziging van het nummer blijft, zonder toevoeging.
   assert.equal(schoon.changes.length, 2);

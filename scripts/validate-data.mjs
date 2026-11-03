@@ -35,7 +35,11 @@ import {
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
 import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
 import {
+  PARKEER_VERLEDEN_DIR,
+  isParkeerMaandBestand,
+  validateParkeerMaand,
   VERLEDEN_DIR,
   VERLEDEN_INDEX_FILE,
   isVerledenMaandBestand,
@@ -43,7 +47,6 @@ import {
   validateVerledenMaand,
   verledenDigest,
 } from "../lib/agenda-verleden.mjs";
-import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
 import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 import { werkVormProblemen } from "../lib/werk-vorm-validatie.mjs";
 import { WERK_VORM_FILE } from "../site/werk-vorm.js";
@@ -232,9 +235,6 @@ const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatM
   return entry.isDirectory() ? historyFiles(target) : entry.name.endsWith(".json") ? [target] : [];
 });
 let historyPrivacyFindings = 0;
-// Geen enkel parkeerverbod onder site/history: niet in live-layers.json, baseline.json, een dagshard of een backfill
-// (besluit van de eigenaar van 3 november 2026: "er moet geen historie zijn van parkeerverboden", lib/parkeer-historiek.mjs).
-let historyParkeerverboden = 0;
 for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() : []) {
   const relative = path.relative(rootDir, file).split(path.sep).join("/");
   let document;
@@ -247,18 +247,15 @@ for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() :
     problems.push(`${relative}: privacy ${finding.code} op ${finding.path}`);
     historyPrivacyFindings += 1;
   }
-  for (const finding of parkeerverbodenInHistoriek(document)) {
-    if (historyParkeerverboden < 50) problems.push(`${relative}: parkeerverbod op ${finding.path}`);
-    historyParkeerverboden += 1;
-  }
 }
-if (historyParkeerverboden) problems.push(`site/history: ${historyParkeerverboden} parkeerverboden; er hoort geen historiek van parkeerverboden te zijn; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 // De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
 if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
 // Het verleden van de agenda (lib/agenda-verleden.mjs, besluit van de eigenaar van 3 november 2026): elk record in
-// vorm en zonder privacyprobleem, geen enkel parkeerverbod, de index klopt met de maanden, en elk record heeft zijn
-// eventpagina (en omgekeerd: een eventpagina zonder record zou bij de volgende verversing niemand meer bijwerken).
+// vorm en zonder privacyprobleem, de index klopt met de maanden, en elk record heeft zijn eventpagina (en omgekeerd:
+// een eventpagina zonder record zou bij de volgende verversing niemand meer bijwerken). De parkeerverboden
+// (site/verleden/parkeerverboden/): elk als "Parkeerverbod" met alleen id, plaats in de publieke vorm en periode, nooit
+// een reden of het woord verhuis.
 const verledenDir = path.join(rootDir, VERLEDEN_DIR);
 let verledenSamenvatting = null;
 if (fs.existsSync(verledenDir)) {
@@ -273,7 +270,7 @@ if (fs.existsSync(verledenDir)) {
   let verledenProblemen = 0;
   const maanden = new Map();
   for (const name of fs.readdirSync(verledenDir).sort()) {
-    if (name === "maanden.json" || name === "index.html") continue;
+    if (name === "maanden.json" || name === "index.html" || name === "parkeerverboden") continue;
     const relative = `${VERLEDEN_DIR}/${name}`;
     if (!isVerledenMaandBestand(name)) {
       problems.push(`${relative}: onverwacht bestand`);
@@ -286,10 +283,7 @@ if (fs.existsSync(verledenDir)) {
       problems.push(`${relative}: geen geldige JSON`);
       continue;
     }
-    const fouten = [
-      ...validateVerledenMaand(document, name.slice(0, 7)),
-      ...parkeerverbodenInHistoriek(document).map((finding) => `parkeerverbod op ${finding.path}`),
-    ];
+    const fouten = validateVerledenMaand(document, name.slice(0, 7));
     for (const fout of fouten) if (verledenProblemen++ < 50) problems.push(`${relative}: ${fout}`);
     maanden.set(name.slice(0, 7), document);
     for (const record of Array.isArray(document.items) ? document.items : []) {
@@ -308,7 +302,39 @@ if (fs.existsSync(verledenDir)) {
   const eventDir = path.join(rootDir, "site", "event");
   const zonderRecord = fs.existsSync(eventDir) ? fs.readdirSync(eventDir, { withFileTypes: true }).filter((entry) => entry.isDirectory() && !verledenIds.has(entry.name)).map((entry) => entry.name) : [];
   if (zonderRecord.length) problems.push(`site/event: ${zonderRecord.length} eventpagina's zonder record in het verleden (onder meer ${zonderRecord.slice(0, 3).join(", ")})`);
-  verledenSamenvatting = { items: verledenIds.size, maanden: maanden.size };
+  const parkeerDir = path.join(rootDir, PARKEER_VERLEDEN_DIR);
+  const parkeerMaanden = new Map();
+  const parkeerIds = new Set();
+  const straatnamen = officieleStraatnamen();
+  let parkeerProblemen = 0;
+  for (const name of fs.existsSync(parkeerDir) ? fs.readdirSync(parkeerDir).sort() : []) {
+    const relative = `${PARKEER_VERLEDEN_DIR}/${name}`;
+    if (!isParkeerMaandBestand(name)) {
+      problems.push(`${relative}: onverwacht bestand`);
+      continue;
+    }
+    let document;
+    try {
+      document = JSON.parse(fs.readFileSync(path.join(parkeerDir, name), "utf8"));
+    } catch {
+      problems.push(`${relative}: geen geldige JSON`);
+      continue;
+    }
+    for (const fout of validateParkeerMaand(document, name.slice(0, 7), straatnamen)) if (parkeerProblemen++ < 50) problems.push(`${relative}: ${fout}`);
+    parkeerMaanden.set(name.slice(0, 7), document);
+    for (const record of Array.isArray(document.items) ? document.items : []) {
+      if (parkeerIds.has(record?.id)) problems.push(`${relative}: een parkeerverbod staat in twee maanden`);
+      parkeerIds.add(record?.id);
+    }
+  }
+  if (parkeerProblemen > 50) problems.push(`${PARKEER_VERLEDEN_DIR}: nog ${parkeerProblemen - 50} problemen`);
+  for (const entry of verledenIndex?.parkeerverboden ?? []) {
+    const document = parkeerMaanden.get(entry.maand);
+    if (!document) problems.push(`${VERLEDEN_INDEX_FILE}: parkeermaand ${entry.maand} ontbreekt`);
+    else if (entry.aantal !== document.items?.length || entry.digest !== verledenDigest(document.items ?? [])) problems.push(`${VERLEDEN_INDEX_FILE}: parkeermaand ${entry.maand} wijkt af`);
+  }
+  for (const maand of parkeerMaanden.keys()) if (!(verledenIndex?.parkeerverboden ?? []).some((entry) => entry.maand === maand)) problems.push(`${PARKEER_VERLEDEN_DIR}/${maand}.json: niet in de index`);
+  verledenSamenvatting = { items: verledenIds.size, maanden: maanden.size, parkeerverboden: parkeerIds.size };
 }
 
 // Straatbestanden (P5, scripts/build-straat-snapshots.mjs): elk onder 100 kB, de radar onder 50 kB, de

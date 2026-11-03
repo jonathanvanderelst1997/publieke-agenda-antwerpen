@@ -683,6 +683,38 @@ a {
   padding: 10px 12px;
 }
 
+/* Voorbije punten in de agenda zelf, boven vandaag (site/agenda.js, verledenDagenTemplate). */
+.agenda-terug {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+}
+
+.agenda-eerder {
+  background: var(--pa-surface, var(--surface));
+  border: 1px solid var(--pa-line-strong, var(--line));
+  border-radius: 999px;
+  color: var(--pa-ink, var(--text));
+  cursor: pointer;
+  font-weight: 750;
+  padding: 8px 14px;
+}
+
+.agenda-terug a {
+  color: var(--pa-muted, var(--muted));
+  font-weight: 750;
+}
+
+.day-block.day-voorbij {
+  border-top-style: dashed;
+  opacity: 0.86;
+}
+
+.event.voorbij .voorbij-badge {
+  font-weight: 850;
+}
+
 /* Op de agenda zelf: de weg naar het verleden (/verleden/). */
 .agenda-verleden {
   border-top: 3px solid var(--pa-line-strong, var(--deep));

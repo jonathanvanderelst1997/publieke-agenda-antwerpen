@@ -24,6 +24,7 @@ const POSITIVES = [
   "site/event/a-b/index.html",
   "site/verleden/maanden.json",
   "site/verleden/2026-11.json",
+  "site/verleden/parkeerverboden/2026-11.json",
   "audit/provenance-source-diff-latest.json",
   "audit/provenance-source-snapshot-latest.json",
   "audit/provenance-expiry-sla.json",
@@ -50,8 +51,8 @@ const NEGATIVES = [
   "site/history/archive/oud.json",
   "site/history/backfill/gipod/2020.json",
   "site/history/backfill/asign-parking/20x0.json",
-  // Geen historiek van parkeerverboden (besluit van de eigenaar van 3 november 2026): de verversing schrijft nooit een
-  // backfill van de A-Sign-parkeerverboden.
+  // Geen import van parkeerverboden van vóór de start (#222, besluit van de eigenaar van 3 november 2026): de verversing
+  // schrijft nooit een backfill van de A-Sign-parkeerverboden. Wat de site zelf zag, staat wel in de historiek.
   "site/history/backfill/asign-parking/2019.json",
   "site/history/backfill/asign-parking/index.json",
   "lib/data-lane-paths.json",
@@ -64,14 +65,18 @@ const NEGATIVES = [
   "site/verleden/2026-13.json",
   "site/verleden/2026-11-03.json",
   "site/verleden/parkeerverboden.json",
+  "site/verleden/parkeerverboden/index.html",
+  "site/verleden/parkeerverboden/2026-13.json",
   "site/agenda-verleden.js",
   "audit/provenance-source-snapshot-20260928.json",
 ];
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 17);
-  assert.ok(spec.allowed.every((pattern) => !/park/i.test(pattern)), "geen pad voor een parkeerhistoriek");
+  assert.equal(spec.allowed.length, 18);
+  // De parkeerverboden die de site zelf zag, staan in de historiek en in het verleden (site/verleden/parkeerverboden/);
+  // een backfill van vóór de start niet.
+  assert.ok(spec.allowed.every((pattern) => !/backfill/.test(pattern) || !/park/i.test(pattern)), "geen pad voor een backfill van parkeerverboden");
   // Geen eventpagina wissen (besluit van de eigenaar van 3 november 2026): wat ooit in de agenda stond, blijft staan.
   assert.deepEqual(spec.deletableUnder, ["site/straat/"]);
   for (const pattern of spec.allowed) {

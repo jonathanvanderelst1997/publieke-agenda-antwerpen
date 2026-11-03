@@ -1,22 +1,22 @@
 // P4: de verversing van de historiek schrijft alleen district Antwerpen en geen huisnummers in vrije tekst. Een werk houdt
 // zijn huisnummer (regel van de eigenaar van 26 oktober 2026: een werk staat er altijd met zijn exacte adres). Een
-// parkeerverbod komt er sinds 3 november 2026 helemaal niet meer in (besluit van de eigenaar: "er moet geen historie zijn
-// van parkeerverboden"); het lopende parkeerverbod staat wel in de stand voor de straatbestanden, met zijn plaats exact
-// zoals publiekParkeerAdres ze schrijft, zonder bus, reden of het woord verhuis.
+// parkeerverbod houdt zijn plaats exact, zoals publiekParkeerAdres ze schrijft (dezelfde regel), zonder bus, reden of het
+// woord verhuis.
 // Verzonnen gegevens; deze toets gebruikt alleen wat ook op main bestaat (de verversing zelf), zodat
 // hij op main faalt en met lib/historiek-privacy.mjs slaagt.
 import assert from "node:assert/strict";
-import crypto from "node:crypto";
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
 import { refreshLiveHistory } from "../scripts/refresh-live-history.mjs";
-import { compactWorkItem, validateLiveHistory } from "../lib/live-history.mjs";
+import { updateLiveHistory, validateLiveHistory } from "../lib/live-history.mjs";
 import {
   historyArchiveEventsDigest,
-  validateHistoryArchiveBaseline,
+  updateHistoryArchiveBaseline,
+  updateHistoryArchiveDay,
+  updateHistoryArchiveIndex,
   validateHistoryArchiveDay,
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
@@ -35,9 +35,9 @@ const PARKEER = [
   { id: 3, adres: "Proefweg 7 2100 Antwerpen" },
   { id: 4, adres: "Proefstraat 20 2000 Antwerpen" },
 ];
-// Wat nooit in de historiek komt: een parkeerverbod (ook niet zijn id of titel), een bus, het nummer in de vorm van de bron
-// ("14-16"), het verbod buiten het district, en de reden (de verzonnen reden "Verhuis", ook als oude titel).
-const VERBODEN = ["parking", "Parkeerverbod", "PROEF-", "bus 3", "14-16", "Proefweg", "2100", "erhuis"];
+// Wat nooit in de historiek komt: een bus, het nummer in de vorm van de bron ("14-16"), het verbod buiten het district,
+// en de reden (de verzonnen reden "Verhuis", ook als oude titel).
+const VERBODEN = ["bus 3", "14-16", "Proefweg", "2100", "erhuis"];
 
 const parkeerFeature = ({ id, adres }) => ({
   attributes: {
@@ -77,41 +77,31 @@ function maakNepFetch(werk) {
   };
 }
 
-// Een historiek zoals op main tot 3 november 2026: met parkeerverboden (met huisnummers, de reden als titel en een
-// parkeerverbod buiten het district), en een werk met een wijziging op elke dag.
+// Een historiek zoals op main: met huisnummers en met een parkeerverbod buiten het district.
 const oudParkeer = (id, adres) => ({
   id: `parking:PROEF-${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location: adres,
   start: new Date(START).toISOString(), end: new Date(EINDE).toISOString(), status: "Goedgekeurd", reference: `PROEF-${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null,
 });
 const oudWerk = { gipodId: 990001, title: "2000 Antwerpen, Proefstraat 30", status: "In uitvoering", start: "2026-10-01T06:00:00Z", end: "2026-10-30T18:00:00Z", owner: "Proefbedrijf", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
-const sha = (items) => crypto.createHash("sha256").update(JSON.stringify([...items].sort((a, b) => String(a.id).localeCompare(String(b.id), "nl")))).digest("hex");
-const laag = (items, at) => ({ status: "ok", lastAttemptAt: at, lastSuccessAt: at, errorCode: null, count: items.length, digest: sha(items), items });
 
 function oudeStand(root) {
-  const werk = compactWorkItem(oudWerk);
-  const verbod = (id) => oudParkeer(id, PARKEER[id - 1].adres);
-  const toegevoegd = (at, id) => ({ observedAt: at, layer: "publicSpace", id: verbod(id).id, type: "added", fields: [], before: null, after: verbod(id) });
-  const werkWijziging = (at, voor, na) => ({ observedAt: at, layer: "works", id: werk.id, type: "changed", fields: ["status"], before: { status: voor }, after: { status: na } });
-  const gisterenEvents = [toegevoegd(T0, 3), toegevoegd(T0, 4), werkWijziging(T0, "Concreet gepland", "In uitvoering")];
-  const vandaagEvents = [toegevoegd(T1, 2), werkWijziging(T1, "In uitvoering", "In uitvoering (verlengd)")];
-  const h1 = {
-    schemaVersion: 1, observedAt: T1, retentionDays: 90, baselineInitializedAt: TA,
-    layers: { works: laag([{ ...werk, status: "In uitvoering (verlengd)" }], T1), publicSpace: laag([1, 2, 3, 4].map(verbod), T1) },
-    changes: [...gisterenEvents, ...vandaagEvents],
-  };
-  const baseline = { schemaVersion: 1, layers: { works: { observedAt: TA, items: [werk] }, publicSpace: { observedAt: TA, items: [verbod(1)] } } };
-  const gisteren = { schemaVersion: 1, date: "2026-10-10", events: gisterenEvents };
-  const dag = { schemaVersion: 1, date: "2026-10-11", events: vandaagEvents };
-  const index = {
-    schemaVersion: 1, baselineInitializedAt: TA, lastObservedAt: T1,
-    days: [gisteren, dag].map((d) => ({ date: d.date, file: `site/history/archive/${d.date}.json`, count: d.events.length, digest: historyArchiveEventsDigest(d.events) })),
-  };
+  const oud = (...ids) => ({ ok: true, items: ids.map((id) => oudParkeer(id, PARKEER[id - 1].adres)) });
+  const hA = updateLiveHistory(null, { observedAt: TA, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1) });
+  const h0 = updateLiveHistory(hA, { observedAt: T0, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1, 3, 4) });
+  const h1 = updateLiveHistory(h0, { observedAt: T1, worksResult: { ok: true, items: [oudWerk] }, publicSpaceResult: oud(1, 2, 3, 4) });
+  const baseline = updateHistoryArchiveBaseline(null, hA);
+  // Een oudere dag (gisteren) en de dag van vandaag, allebei zoals op main.
+  const gisteren = updateHistoryArchiveDay(null, T0, h0.changes.filter((change) => change.observedAt === T0));
+  const dag = updateHistoryArchiveDay(null, T1, h1.changes.filter((change) => change.observedAt === T1));
+  const index = updateHistoryArchiveIndex(
+    updateHistoryArchiveIndex(null, { observedAt: T0, baseline, dayDocument: gisteren }),
+    { observedAt: T1, baseline, dayDocument: dag }
+  );
   const schrijf = (relative, value) => {
     fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
     fs.writeFileSync(path.join(root, relative), `${JSON.stringify(value, null, 2)}\n`);
   };
-  assert.deepEqual(validateLiveHistory(h1), [], "de oude stand is geldig");
   schrijf("site/history/live-layers.json", h1);
   schrijf("site/history/archive/baseline.json", baseline);
   schrijf(`site/history/archive/${gisteren.date}.json`, gisteren);
@@ -132,50 +122,45 @@ const historiekTekst = (root) => {
   return bestanden.map((file) => [path.relative(root, file), fs.readFileSync(file, "utf8")]);
 };
 
-test("verversing: geen parkeerverbod in de historiek, ook niet uit een oude stand; het lopende staat wel in de stand voor de straten; een werk met zijn nummer", async (t) => {
+test("verversing: historiek zonder huisnummers van parkeerverboden en alleen het district, ook na een oude stand; een werk met zijn nummer", async (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-privacy-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   oudeStand(root);
 
   const history = await refreshLiveHistory({ rootDir: root, fetch: nepFetch, clock: () => new Date(T2), log: () => {} });
 
-  // Geen enkel bestand onder site/history bevat nog een parkeerverbod, een bus, de reden of het adres buiten het district.
+  // Geen enkel bestand onder site/history bevat nog een bus, de reden of het adres buiten het district.
   for (const [file, inhoud] of historiekTekst(root)) {
     for (const verboden of VERBODEN) assert.equal(inhoud.includes(verboden), false, `${file} bevat nog "${verboden}"`);
   }
-  assert.deepEqual(history.layers.publicSpace.items, []);
-  assert.equal(history.layers.publicSpace.status, "ok");
-  assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat 30");
-  // De overgang maakt geen wijzigingen: geen "removed" voor elk oud parkeerverbod, geen "added" voor de nieuwe.
-  assert.deepEqual(history.changes.filter((change) => change.observedAt === T2).map((change) => change.id), ["work:990001"], "alleen het werk (terug naar zijn status)");
-  assert.ok(history.changes.every((change) => change.layer === "works"));
-  assert.deepEqual(validateLiveHistory(history), []);
 
-  // Het archief (ook de oudere dag) en de index blijven geldig en kloppen met elkaar; alleen de wijzigingen van het werk
-  // blijven over.
-  const baseline = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/baseline.json"), "utf8"));
-  assert.deepEqual(validateHistoryArchiveBaseline(baseline), []);
-  assert.deepEqual(baseline.layers.publicSpace.items, []);
-  const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
-  assert.deepEqual(validateHistoryArchiveIndex(index), []);
-  for (const datum of ["2026-10-10", "2026-10-11"]) {
-    const dag = JSON.parse(fs.readFileSync(path.join(root, `site/history/archive/${datum}.json`), "utf8"));
-    assert.deepEqual(validateHistoryArchiveDay(dag), []);
-    assert.equal(index.days.find((day) => day.date === datum).digest, historyArchiveEventsDigest(dag.events));
-    assert.ok(dag.events.length > 0 && dag.events.every((event) => event.id === "work:990001"), `${datum}: alleen het werk blijft`);
-  }
-
-  // De lopende parkeerverboden staan wel in de stand voor de straatbestanden (die de site toont), met hun plaats exact,
-  // als "Parkeerverbod" en zonder reden; dat van buiten het district niet.
-  const bronnen = JSON.parse(fs.readFileSync(path.join(root, ".cache/straat-bronnen.json"), "utf8"));
-  const parkeer = bronnen.lagen.publiekeRuimte.items.filter((item) => item.kind === "parking");
+  const parkeer = history.layers.publicSpace.items.filter((item) => item.kind === "parking");
+  assert.deepEqual(parkeer.map((item) => item.id).sort(), ["parking:PROEF-1|L1", "parking:PROEF-2|L2", "parking:PROEF-4|L4"]);
+  // De plaats exact, ook bij een verhuis: "Proefstraat 12 bus 3" wordt nr. 12, "14-16" het bereik 14–16.
   assert.deepEqual(Object.fromEntries(parkeer.map((item) => [item.id, item.location])), {
     "parking:PROEF-1|L1": "Proefstraat 12, 2000 Antwerpen",
     "parking:PROEF-2|L2": "Proefstraat 14–16, 2000 Antwerpen",
     "parking:PROEF-4|L4": "Proefstraat 20, 2000 Antwerpen",
   });
   assert.ok(parkeer.every((item) => item.title === "Parkeerverbod" && !("reason" in item)));
-  assert.doesNotMatch(JSON.stringify(parkeer), /erhuis|bus 3|Proefweg/);
+  assert.ok(parkeer.every((item) => item.streets.length === 1 && item.streets[0].postcode === "2000"), "de straat blijft gekend");
+  assert.equal(history.layers.works.items[0].title, "2000 Antwerpen, Proefstraat 30");
+
+  // De overgang maakt geen massa wijzigingen: een huisnummer dat erbij komt (de oude stand had alleen de straat) is geen
+  // "changed", het verbod buiten het district is geen "removed".
+  assert.deepEqual(history.changes.filter((change) => change.observedAt === T2), []);
+  assert.deepEqual(validateLiveHistory(history), []);
+
+  // Het archief (ook de oudere dag) en de index blijven geldig en kloppen met elkaar.
+  const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
+  assert.deepEqual(validateHistoryArchiveIndex(index), []);
+  const verwacht = { "2026-10-10": ["parking:PROEF-4|L4"], "2026-10-11": ["parking:PROEF-2|L2"] };
+  for (const [datum, ids] of Object.entries(verwacht)) {
+    const dag = JSON.parse(fs.readFileSync(path.join(root, `site/history/archive/${datum}.json`), "utf8"));
+    assert.deepEqual(validateHistoryArchiveDay(dag), []);
+    assert.equal(index.days.find((day) => day.date === datum).digest, historyArchiveEventsDigest(dag.events));
+    assert.deepEqual(dag.events.map((event) => event.id), ids, `${datum}: alleen de toevoeging in het district blijft`);
+  }
 });
 
 // Een titel met een lange lijst nummers (verzonnen): de opkuis vooraf en de nieuwe ophaling moeten

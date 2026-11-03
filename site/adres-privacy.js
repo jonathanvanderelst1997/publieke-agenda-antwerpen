@@ -152,9 +152,8 @@ const PARKEER_NUMMER = new RegExp(`^(?:${NR_UIT}(?:–(?:${NR_UIT}|hoek))?|hoek�
 // Is dit een plaats zoals publiekParkeerAdres ze schrijft ("Xstraat 12–14, 2000 Antwerpen")? De straat is die van
 // adresZonderHuisnummer (dezelfde regel als de opkuis), en wat tussen de straat en de postcode staat, is alleen een nummer
 // in die vorm: nooit een naam, een bus, een reden of andere vrije tekst. Met een lijst officiële straatnamen moet de straat
-// erin staan. Zo'n plaats mag bewaard worden (de
-// straatbestanden; regel van de eigenaar van 26 oktober 2026); elke andere vorm wordt de straat met de postcode. Een
-// historiek van parkeerverboden is er sinds 3 november 2026 niet meer (lib/parkeer-historiek.mjs).
+// erin staan. Zo'n plaats mag bewaard worden (historiek,
+// straatbestanden; regel van de eigenaar van 26 oktober 2026); elke andere vorm wordt de straat met de postcode.
 export function isPubliekParkeerAdres(adres, straatnamen = null) {
   const tekst = String(adres ?? "");
   if (tekst.length > 220 || /\s{2}|^\s|\s$/.test(tekst)) return false;
@@ -163,8 +162,8 @@ export function isPubliekParkeerAdres(adres, straatnamen = null) {
   if (!s || s[2] !== m[2] || !m[1].startsWith(`${s[1]} `) || noemtVerhuis(tekst) || !isOfficieel(s[1], straatnamen)) return false;
   return PARKEER_NUMMER.test(m[1].slice(s[1].length + 1));
 }
-// De plaats van een parkeerverbod zoals ze bewaard wordt (lib/historiek-privacy.mjs voor de straatbestanden; de historiek
-// bewaart geen parkeerverboden meer, lib/parkeer-historiek.mjs): exact als ze de vorm van publiekParkeerAdres heeft, anders de straat met de postcode. Is die straat geen
+// De plaats van een parkeerverbod zoals ze bewaard wordt (lib/parkeer-historiek.mjs, lib/historiek-privacy.mjs, de
+// straatbestanden): exact als ze de vorm van publiekParkeerAdres heeft, anders de straat met de postcode. Is die straat geen
 // officiële straat (met een lijst om na te kijken), dan de officiële straat van het item (`straat`: streets[0] van de
 // straatkoppeling) met de postcode, en zonder die alleen de postcode: nooit een naam of vrije tekst als straat.
 export function parkeerAdresVoorOpslag(adres, straatnamen = null, { straat = "" } = {}) {

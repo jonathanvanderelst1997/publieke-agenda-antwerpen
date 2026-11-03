@@ -165,20 +165,12 @@ test("radar.json: dezelfde wijzigingen per straat als live-layers.json", async (
   const nu = Date.now(), dag = 86_400_000, iso = (t) => new Date(t).toISOString();
   const history = {
     observedAt: iso(nu - dag / 2),
-    layers: { works: { status: "ok", items: [] }, publicSpace: { status: "ok", items: [{ id: "iod:a", kind: "iod", streets: [KAM] }] } },
-    changes: [h(KAM, "iod:a", "added", iso(nu - 3 * dag)), h(KAM, "iod:b", "removed", iso(nu - dag / 2)), h(PET, "sgw:c", "changed", iso(nu - dag / 2)), h(PET, "iod:d", "added", iso(nu - 9 * dag))],
+    layers: { works: { status: "ok", items: [] }, publicSpace: { status: "ok", items: [{ id: "parking:a", kind: "parking", streets: [KAM] }] } },
+    changes: [h(KAM, "parking:a", "added", iso(nu - 3 * dag)), h(KAM, "parking:b", "removed", iso(nu - dag / 2)), h(PET, "parking:c", "changed", iso(nu - dag / 2)), h(PET, "parking:d", "added", iso(nu - 9 * dag))],
   };
   const radar = bouwRadar(history);
   assert.deepEqual(Object.keys(radar.straten).sort(), [`${KAM.id}|${KAM.name}|${KAM.postcode}`, `${PET.id}|${PET.name}|${PET.postcode}`]);
-  // Een parkeerverbod telt nooit mee (besluit van de eigenaar van 3 november 2026: geen historiek van parkeerverboden), ook
-  // niet als een oudere historiek er nog een heeft.
-  const metParkeer = {
-    ...history,
-    layers: { ...history.layers, publicSpace: { status: "ok", items: [...history.layers.publicSpace.items, { id: "parking:p", kind: "parking", streets: [PET] }] } },
-    changes: [...history.changes, h(PET, "parking:p", "added", iso(nu - dag / 2)), h(KAM, "parking:q", "removed", iso(nu - dag / 2)), { ...h(KAM, "x", "removed", iso(nu - dag / 2)), id: "x", after: null, before: { id: "x", kind: "parking", streets: [KAM] } }],
-  };
-  assert.deepEqual(bouwRadar(metParkeer), radar);
-  const publicSpace = [{ id: "iod:a", kind: "iod", title: "Inname", streets: [KAM] }, { id: "iod:x", kind: "iod", title: "Inname", streets: [PET] }];
+  const publicSpace = [{ id: "parking:a", kind: "parking", title: "Verhuis", streets: [KAM] }, { id: "parking:x", kind: "parking", title: "Verhuis", streets: [PET] }];
   const tel = (hist) => buildStreetGroups({ publicSpace, history: hist }).map((g) => [g.street.name, g.changes.length, g.changes.filter((c) => c.observedAt === history.observedAt).map((c) => c.type).sort().join(",")]);
   assert.deepEqual(tel(historiekUitRadar(radar)), tel(history));
   assert.deepEqual(tel(historiekUitRadar(radar)), [["Kammenstraat", 2, "removed"], ["Peterseliestraat", 1, "changed"]]);
@@ -192,7 +184,7 @@ function drukkeHistoriek({ straten, runs }) {
   const letters = (i) => i.toString(26).split("").map((c) => String.fromCharCode(97 + parseInt(c, 26))).join("");
   const refs = Array.from({ length: straten }, (_, i) => ({ id: String(900000 + i), name: `Proef${letters(i)}straat`, postcode: "2000" }));
   const observedAt = runs.at(-1);
-  const changes = runs.flatMap((run) => refs.map((ref, i) => ({ observedAt: run, layer: "publicSpace", id: `iod:proef-${i}-${run}`, type: "changed", fields: ["end"], before: null, after: { id: `iod:proef-${i}-${run}`, streets: [ref] } })));
+  const changes = runs.flatMap((run) => refs.map((ref, i) => ({ observedAt: run, layer: "publicSpace", id: `parking:proef-${i}-${run}`, type: "changed", fields: ["end"], before: null, after: { id: `parking:proef-${i}-${run}`, streets: [ref] } })));
   return { observedAt, layers: { works: { status: "ok", items: [] }, publicSpace: { status: "ok", items: [] } }, changes };
 }
 

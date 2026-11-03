@@ -1,7 +1,8 @@
 // Het verleden van de agenda (besluit van de eigenaar van 3 november 2026: "alles wat ooit in agenda staat, publiek blijft
 // staan, maar verdwijnt dan naar verleden"). lib/agenda-verleden.mjs houdt per agendapunt met een eigen pagina een record
 // bij, scripts/build-agenda.mjs wist geen eventpagina meer, en /verleden/ (site/agenda-verleden.js) toont wat voorbij is,
-// het nieuwste eerst. Nooit een parkeerverbod. Alleen verzonnen punten; geen netwerk.
+// het nieuwste eerst. De parkeerverboden die de site zag, staan er ook (site/verleden/parkeerverboden/): als
+// "Parkeerverbod" met de plaats en het huisnummer, nooit de reden. Alleen verzonnen punten en straten; geen netwerk.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -10,6 +11,13 @@ import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import {
+  PARKEER_VERLEDEN_DIR,
+  isParkeerMaandBestand,
+  parkeerBestanden,
+  parkeerRecordProblemen,
+  parkeerRecordVanItem,
+  validateParkeerMaand,
+  werkParkeerverledenBij,
   VERLEDEN_DIR,
   VERLEDEN_INDEX_FILE,
   isVerledenMaandBestand,
@@ -23,8 +31,8 @@ import {
   werkVerledenBij,
 } from "../lib/agenda-verleden.mjs";
 import { bouwEventpagina, leesEventpagina } from "../lib/eventpagina.mjs";
-import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
-import { filterVerleden, inVerleden, maandenTotNu, perDag, verledenHtml } from "../site/agenda-verleden.js";
+import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
+import { filterParkeer, filterVerleden, inVerleden, maandenTotNu, parkeerInVerleden, perDag, verledenHtml } from "../site/agenda-verleden.js";
 import { checkDataLane } from "../lib/data-lane.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
@@ -81,10 +89,9 @@ test("voorbij of weggevallen: het record blijft; weg alleen als het vóór de la
   assert.equal(paginaStand(perId(juni.records).get("kal-b-2099-05-20"), { actueel: false, asOf: "2099-06-01" }), "voorbij");
 });
 
-test("nooit een parkeerverbod in het verleden, en dezelfde privacyregels als de rest van de site", () => {
+test("agendapunten: dezelfde privacyregels als de rest van de site; een parkeerverbod hoort in zijn eigen lijst", () => {
   const { records, geweigerd } = werkVerledenBij([], [
-    punt("parking-et2099000001-2099-05-02", { title: "Parkeerverbod" }),
-    punt("kal-c-2099-05-02", { title: "Parkeerverbod Proefstraat 4" }),
+    punt("kal-p-2099-05-02", { kind: "parking" }),
     punt("kal-d-2099-05-02", { info: "Info via proef@voorbeeld.be" }),
     punt("kal-e-2099-05-02", { info: "Bel 03 123 45 67" }),
     punt("kal-f-2099-05-02", { title: "Verhuislift Proefstraat" }),
@@ -93,11 +100,57 @@ test("nooit een parkeerverbod in het verleden, en dezelfde privacyregels als de 
     punt("kal-ok-2099-05-02"),
   ], "2099-04-01");
   assert.deepEqual(records.map((record) => record.id), ["kal-ok-2099-05-02"]);
-  assert.equal(geweigerd.length, 7);
-  assert.ok(verledenRecordProblemen({ ...punt("x-2099-05-02"), sinds: "2099-04-01", kind: "parking" }).some((p) => /onbekende sleutel kind|parkeerverbod/.test(p)));
-  // Ook een oud record dat de regels van vandaag niet haalt, verdwijnt uit de nieuwe stand.
-  const oud = [{ ...punt("kal-oud-2099-05-02", { title: "Parkeerverbod" }), sinds: "2099-04-01" }];
-  assert.equal(werkVerledenBij(oud, [], "2099-04-02").records.length, 0);
+  assert.equal(geweigerd.length, 6);
+});
+
+// Verzonnen straten: Proefstraat en Testlei, in een eigen lijst officiële straatnamen.
+const STRATEN = ["Proefstraat", "Testlei"];
+const verbod = (n, extra = {}) => ({
+  id: `parking:2099-00${n}|${n}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: `Proefstraat ${n}, 2000 Antwerpen`,
+  start: "2099-05-01T00:00:00.000Z", end: "2099-05-03T00:00:00.000Z", status: "In effect", reference: `2099-00${n}`, detail: "",
+  streets: [{ id: "1", name: "Proefstraat", postcode: "2000" }], ...extra,
+});
+
+test("parkeerverboden: Parkeerverbod met straat en exact huisnummer, nooit een reden, een naam of het woord verhuis", () => {
+  assert.deepEqual(parkeerRecordVanItem(verbod(12), STRATEN), { id: "parking:2099-0012|12", location: "Proefstraat 12, 2000 Antwerpen", start: "2099-05-01", end: "2099-05-03" });
+  // Een reden of een naam in het adres valt weg: dan blijft de straat met de postcode.
+  assert.equal(parkeerRecordVanItem(verbod(13, { location: "Proefstraat 13 verhuis Jansens 2000 Antwerpen" }), STRATEN).location, "Proefstraat, 2000 Antwerpen");
+  // Een reden in het record zelf, of een andere sleutel, wordt geweigerd.
+  const goed = parkeerRecordVanItem(verbod(12), STRATEN);
+  assert.deepEqual(parkeerRecordProblemen(goed, STRATEN), []);
+  assert.ok(parkeerRecordProblemen({ ...goed, reason: "Verhuis" }, STRATEN).some((p) => /onbekende sleutel reason/.test(p)));
+  assert.ok(parkeerRecordProblemen({ ...goed, title: "Verhuislift" }, STRATEN).some((p) => /onbekende sleutel title/.test(p)));
+  assert.ok(parkeerRecordProblemen({ ...goed, location: "Proefstraat 12 bij Jansens, 2000 Antwerpen" }, STRATEN).some((p) => /publieke vorm/.test(p)));
+  assert.ok(parkeerRecordProblemen({ ...goed, location: "Verhuisstraat 3, 2000 Antwerpen" }, ["Verhuisstraat"]).length > 0);
+  // Geen parkeerverbod: geen record.
+  assert.equal(parkeerRecordVanItem({ id: "iod:ET1|F1|I1", kind: "iod", location: "Proefstraat, 2000 Antwerpen" }, STRATEN), null);
+});
+
+test("parkeerverboden: bijhouden per verversing, voorbij of weggevallen, per maand van de laatste dag", () => {
+  const a = parkeerRecordVanItem(verbod(12), STRATEN);
+  const b = parkeerRecordVanItem(verbod(14, { end: "2099-06-02T00:00:00.000Z" }), STRATEN);
+  const eerste = werkParkeerverledenBij([], [a, b], "2099-05-01", { straatnamen: STRATEN });
+  assert.equal(eerste.records.length, 2);
+  // 4 mei: a is afgelopen (geen weg), b is uit A-Sign verdwenen vóór zijn einde (weg).
+  const later = werkParkeerverledenBij(eerste.records, [], "2099-05-04", { straatnamen: STRATEN });
+  assert.equal(later.records.find((r) => r.id === a.id).weg, undefined);
+  assert.equal(later.records.find((r) => r.id === b.id).weg, "2099-05-04");
+  // Laadde de laag niet, dan geen weg.
+  assert.equal(werkParkeerverledenBij(eerste.records, [], "2099-05-04", { volledig: false, straatnamen: STRATEN }).records.find((r) => r.id === b.id).weg, undefined);
+  assert.deepEqual(werkParkeerverledenBij(later.records, [], "2099-05-04", { straatnamen: STRATEN }).records, later.records, "idempotent");
+  const { bestanden, lijst } = parkeerBestanden(later.records, ["2099-04"]);
+  assert.deepEqual([...bestanden.keys()], ["2099-04.json", "2099-05.json", "2099-06.json"]);
+  assert.deepEqual(lijst.map((e) => [e.maand, e.aantal]), [["2099-04", 0], ["2099-05", 1], ["2099-06", 1]]);
+  for (const [name, document] of bestanden) assert.deepEqual(validateParkeerMaand(document, name.slice(0, 7), STRATEN), [], name);
+  // Op /verleden/: na de laatste dag, per dag samen, met plaats en periode, zonder reden.
+  assert.equal(parkeerInVerleden(a, "2099-05-03"), false);
+  assert.equal(parkeerInVerleden(a, "2099-05-04"), true);
+  const groepen = perDag([], filterParkeer(later.records, { vandaag: "2099-07-01" }));
+  assert.deepEqual(groepen.map((g) => [g.dag, g.parkeerverboden.length]), [["2099-06-02", 1], ["2099-05-03", 1]]);
+  const html = verledenHtml(groepen);
+  assert.match(html, /Parkeerverbod · Proefstraat 12, 2000 Antwerpen · 1 mei 2099 tot 3 mei 2099/);
+  assert.doesNotMatch(html, /verhuis/i);
+  assert.deepEqual(filterParkeer(later.records, { vandaag: "2099-07-01", zoek: "proefstraat 14" }).map((r) => r.id), [b.id]);
 });
 
 test("ontdubbelen: een hernummerd punt gaat op in het nieuwe; twee evenementendossiers niet; over bronnen heen alleen met een specifieke link", () => {
@@ -174,7 +227,6 @@ test("/verleden/: alleen wat voorbij is (na middernacht in Brussel), het nieuwst
     { ...punt("kal-b-2099-05-03", { date: "2099-05-03", title: "Concert", dateLabel: "3 mei 2099" }), sinds: "2099-04-01" },
     { ...punt("markt-ma1-2099-05-02", { sourceId: "stad-markten", scope: "stad", inDistrict: true, title: "Markt Proefplein" }), sinds: "2099-04-01" },
     { ...punt("markt-ma2-2099-05-02", { sourceId: "stad-markten", scope: "stad", inDistrict: false, title: "Markt Testlei" }), sinds: "2099-04-01" },
-    { ...punt("kal-c-2099-05-02", { title: "Parkeerverbod" }), sinds: "2099-04-01" },
     { ...punt("kal-d-2099-05-02", { opgegaanIn: "kal-a-2099-05-02" }), sinds: "2099-04-01" },
   ];
   assert.equal(inVerleden(records[1], "2099-05-03"), false, "de laatste dag zelf staat nog in de agenda");
@@ -190,8 +242,9 @@ test("/verleden/: alleen wat voorbij is (na middernacht in Brussel), het nieuwst
   const html = verledenHtml(groepen);
   assert.match(html, /href="\/event\/kal-b-2099-05-03\/"/);
   assert.match(html, /2 markten/);
-  assert.doesNotMatch(html, /Parkeerverbod/);
   assert.deepEqual(maandenTotNu({ maanden: [{ maand: "2099-04", aantal: 2 }, { maand: "2099-05", aantal: 3 }, { maand: "2099-06", aantal: 1 }, { maand: "2099-03", aantal: 0 }] }, "2099-05-04"), ["2099-05", "2099-04"]);
+  // Een maand met alleen parkeerverboden telt ook.
+  assert.deepEqual(maandenTotNu({ maanden: [{ maand: "2099-05", aantal: 3 }], parkeerverboden: [{ maand: "2099-03", aantal: 9 }] }, "2099-05-04"), ["2099-05", "2099-03"]);
 });
 
 test("databaan: geen eventpagina en geen maand van het verleden wissen", () => {
@@ -205,7 +258,7 @@ test("databaan: geen eventpagina en geen maand van het verleden wissen", () => {
   assert.doesNotMatch(build, /rmSync|unlinkSync|rmdirSync/);
 });
 
-test("repo: het verleden is geldig, zonder parkeerverbod, en elke eventpagina heeft een record (en omgekeerd)", () => {
+test("repo: het verleden is geldig, elke eventpagina heeft een record (en omgekeerd), en de parkeerverboden staan erin zonder reden", () => {
   const dir = path.join(root, VERLEDEN_DIR);
   const index = JSON.parse(fs.readFileSync(path.join(root, VERLEDEN_INDEX_FILE), "utf8"));
   assert.deepEqual(validateVerledenIndex(index), []);
@@ -213,14 +266,24 @@ test("repo: het verleden is geldig, zonder parkeerverbod, en elke eventpagina he
   for (const name of fs.readdirSync(dir).filter(isVerledenMaandBestand)) {
     const document = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
     assert.deepEqual(validateVerledenMaand(document, name.slice(0, 7)), [], name);
-    assert.deepEqual(parkeerverbodenInHistoriek(document), [], name);
-    assert.ok(document.items.every((record) => !/parkeerverbod/i.test(record.title)), name);
     for (const record of document.items) ids.add(record.id);
   }
   assert.equal(ids.size, index.aantal);
   const paginas = fs.readdirSync(path.join(root, "site", "event"), { withFileTypes: true }).filter((entry) => entry.isDirectory()).map((entry) => entry.name);
   assert.deepEqual(paginas.filter((id) => !ids.has(id)), [], "eventpagina zonder record");
   assert.deepEqual([...ids].filter((id) => !paginas.includes(id)), [], "record zonder eventpagina");
+  // De parkeerverboden: er zijn er, elk in de publieke vorm, zonder reden of titel, en de index klopt.
+  const straatnamen = officieleStraatnamen();
+  const parkeerDir = path.join(root, PARKEER_VERLEDEN_DIR);
+  let aantal = 0;
+  for (const name of fs.readdirSync(parkeerDir).filter(isParkeerMaandBestand)) {
+    const document = JSON.parse(fs.readFileSync(path.join(parkeerDir, name), "utf8"));
+    assert.deepEqual(validateParkeerMaand(document, name.slice(0, 7), straatnamen), [], name);
+    assert.ok(document.items.every((record) => !("reason" in record) && !("title" in record)), name);
+    aantal += document.items.length;
+  }
+  assert.ok(aantal > 0, "parkeerverboden in het verleden");
+  assert.equal(aantal, index.parkeerAantal);
 });
 
 const ondiep = spawnSync("git", ["rev-parse", "--is-shallow-repository"], { cwd: root, encoding: "utf8" });

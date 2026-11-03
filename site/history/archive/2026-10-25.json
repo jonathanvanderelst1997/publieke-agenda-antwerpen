@@ -327,6 +327,3138 @@
     {
       "observedAt": "2026-10-25T04:20:26.405Z",
       "layer": "publicSpace",
+      "id": "parking:2026-049695|1176390",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-049695|1176390",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vondelstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-049695",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3095",
+            "name": "Vondelstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-050747|1178189",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-050747|1178189",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Straatsburgdok-Noordkaai, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-050747",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2762",
+            "name": "Straatsburgdok-Noordkaai",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-050747|1178190",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-050747|1178190",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Straatsburgdok-Noordkaai, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-050747",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2762",
+            "name": "Straatsburgdok-Noordkaai",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-050747|1178191",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-050747|1178191",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Straatsburgdok-Noordkaai, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-050747",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2762",
+            "name": "Straatsburgdok-Noordkaai",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-050747|1178192",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-050747|1178192",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Straatsburgdok-Noordkaai, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-050747",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2762",
+            "name": "Straatsburgdok-Noordkaai",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-053520|1182601",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-053520|1182601",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Indiëstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-053520",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1253",
+            "name": "Indiëstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-055321|1185204",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-055321|1185204",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Filomenastraat, 2018 Antwerpen",
+        "start": "2026-09-07T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-055321",
+        "detail": "",
+        "streets": [
+          {
+            "id": "847",
+            "name": "Filomenastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-056856|1189198",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-056856|1189198",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Richardstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-056856",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2428",
+            "name": "Richardstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189623",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189623",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189624",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189624",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189627",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189627",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189629",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189629",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189632",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189632",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189633",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189633",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189634",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189634",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189635",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189635",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189636",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189636",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koordekenshoef, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1602",
+            "name": "Koordekenshoef",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189637",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189637",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ketelhof, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1519",
+            "name": "Ketelhof",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-058149|1189638",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-058149|1189638",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ketelhof, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-058149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1519",
+            "name": "Ketelhof",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-059742|1191897",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-059742|1191897",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Schoonbekestraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-059742",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2979",
+            "name": "Van Schoonbekestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-059959|1192332",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-059959|1192332",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Lozanastraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-059959",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1744",
+            "name": "Lange Lozanastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-060258|1192682",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-060258|1192682",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Piet Verhaertstraat, 2020 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-060258",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2300",
+            "name": "Piet Verhaertstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-061385|1194364",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-061385|1194364",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koningin Elisabethlei, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-061385",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1593",
+            "name": "Koningin Elisabethlei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062213|1195675",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062213|1195675",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Scholiersstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062213",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1750",
+            "name": "Lange Scholiersstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196906",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196906",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196907",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196907",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196909",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196909",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196910",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196910",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196911",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196911",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196914",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196914",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196920",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196920",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196921",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196921",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-062940|1196922",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-062940|1196922",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Vlijtstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-062940",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3086",
+            "name": "Vlijtstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063226|1197309",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063226|1197309",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Oudekerkstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063226",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2203",
+            "name": "Oudekerkstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063454|1197638",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063454|1197638",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Montignystraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063454",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2062",
+            "name": "Montignystraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063454|1197640",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063454|1197640",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Montignystraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063454",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2062",
+            "name": "Montignystraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063485|1197671",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063485|1197671",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Turckstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063485",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2863",
+            "name": "Turckstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063758|1198064",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063758|1198064",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Graaf van Egmontstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063758",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1021",
+            "name": "Graaf van Egmontstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063832|1198285",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063832|1198285",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Aalmoezenierstraat, 2000 Antwerpen",
+        "start": "2026-10-06T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-063832",
+        "detail": "",
+        "streets": [
+          {
+            "id": "123",
+            "name": "Aalmoezenierstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-064355|1199021",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-064355|1199021",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Markgravelei, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-064355",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1951",
+            "name": "Markgravelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-064380|1199052",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-064380|1199052",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Geertstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-064380",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2942",
+            "name": "Van Geertstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-064902|1199904",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-064902|1199904",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Emile Verhaerenlaan, 2050 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-064902",
+        "detail": "",
+        "streets": [
+          {
+            "id": "801",
+            "name": "Emile Verhaerenlaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065172|1201091",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065172|1201091",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Albertstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065172",
+        "detail": "",
+        "streets": [
+          {
+            "id": "158",
+            "name": "Albertstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065276|1201271",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065276|1201271",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Anselmostraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065276",
+        "detail": "",
+        "streets": [
+          {
+            "id": "197",
+            "name": "Anselmostraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065276|1201272",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065276|1201272",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Biartstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065276",
+        "detail": "",
+        "streets": [
+          {
+            "id": "337",
+            "name": "Biartstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065334|1201371",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065334|1201371",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Borzestraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065334",
+        "detail": "",
+        "streets": [
+          {
+            "id": "411",
+            "name": "Borzestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065421|1201473",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065421|1201473",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Jan Van Rijswijcklaan, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065421",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1323",
+            "name": "Jan Van Rijswijcklaan",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065421|1201475",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065421|1201475",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Van Ruusbroecstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065421",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1756",
+            "name": "Lange Van Ruusbroecstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065484|1201559",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065484|1201559",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Tijl Uilenspiegellaan, 2050 Antwerpen",
+        "start": "2026-10-12T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-065484",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2824",
+            "name": "Tijl Uilenspiegellaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065545|1201632",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065545|1201632",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Jan van Rijswijcklaan, 2020 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065545",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1323",
+            "name": "Jan Van Rijswijcklaan",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065682|1201832",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065682|1201832",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Leemstraat, 2018 Antwerpen",
+        "start": "2026-10-17T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-065682",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1742",
+            "name": "Lange Leemstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065742|1201907",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065742|1201907",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Oudekerkstraat, 2018 Antwerpen",
+        "start": "2026-10-22T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-065742",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2203",
+            "name": "Oudekerkstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065862|1202085",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065862|1202085",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Volhardingstraat, 2020 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065862",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3091",
+            "name": "Volhardingstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066423|1202881",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066423|1202881",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Rotterdamstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066423",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2479",
+            "name": "Rotterdamstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066423|1205289",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066423|1205289",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Diercxsensstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066423",
+        "detail": "",
+        "streets": [
+          {
+            "id": "674",
+            "name": "Diercxsensstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066430|1202888",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066430|1202888",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Van Ruusbroecstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066430",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1756",
+            "name": "Lange Van Ruusbroecstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066860|1203715",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066860|1203715",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Verdussenstraat, 2018 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066860",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3020",
+            "name": "Verdussenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066958|1203855",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066958|1203855",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Geuzenstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066958",
+        "detail": "",
+        "streets": [
+          {
+            "id": "986",
+            "name": "Geuzenstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067030|1203957",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067030|1203957",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Achteromstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067030",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1726",
+            "name": "Lange Achteromstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067061|1204012",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067061|1204012",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Schoonbekestraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067061",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2979",
+            "name": "Van Schoonbekestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067067|1204018",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067067|1204018",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Nationalestraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067067",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2102",
+            "name": "Nationalestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067275|1204300",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067275|1204300",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Beeldekensstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067275",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1729",
+            "name": "Lange Beeldekensstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067449|1204574",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067449|1204574",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lamorinièrestraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067449",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1723",
+            "name": "Lamorinièrestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067509|1204639",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067509|1204639",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Provinciestraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067509",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2380",
+            "name": "Provinciestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067566|1204718",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067566|1204718",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Augustinessenplein, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067566",
+        "detail": "",
+        "streets": [
+          {
+            "id": "155932",
+            "name": "Augustinessenplein",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067687|1204903",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067687|1204903",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "August Michielsstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067687",
+        "detail": "",
+        "streets": [
+          {
+            "id": "237",
+            "name": "August Michielsstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067755|1204995",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067755|1204995",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Keizerstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067755",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1493",
+            "name": "Keizerstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067784|1205026",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067784|1205026",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Huidevettersstraat, 2000 Antwerpen",
+        "start": "2026-10-22T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-067784",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1235",
+            "name": "Huidevettersstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067812|1205065",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067812|1205065",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Kerkstraat, 2060 Antwerpen",
+        "start": "2026-10-21T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-067812",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1514",
+            "name": "Kerkstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067830|1205085",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067830|1205085",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Viaduct-Dam, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067830",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3032",
+            "name": "Viaduct-Dam",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067839|1205097",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067839|1205097",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Kievitstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067839",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1738",
+            "name": "Lange Kievitstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067861|1205120",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067861|1205120",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Leemstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067861",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1742",
+            "name": "Lange Leemstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067906|1205168",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067906|1205168",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Noorderlaan, 2030 Antwerpen",
+        "start": "2026-10-16T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-067906",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2123",
+            "name": "Noorderlaan",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068020|1205376",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068020|1205376",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Sint-Norbertusstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068020",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2649",
+            "name": "Sint-Norbertusstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068163|1205644",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068163|1205644",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Sint-Gummarusstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068163",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2622",
+            "name": "Sint-Gummarusstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068168|1205651",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068168|1205651",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Riemstraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068168",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2431",
+            "name": "Riemstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068169|1205652",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068169|1205652",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Scheldestraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068169",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2540",
+            "name": "Scheldestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068274|1205843",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068274|1205843",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Groenendaallaan, 2030 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068274",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1049",
+            "name": "Groenendaallaan",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068274|1205844",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068274|1205844",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Tunnelplaats, 2000 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068274",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2862",
+            "name": "Tunnelplaats",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068299|1205910",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068299|1205910",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Busken Huetstraat, 2050 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068299",
+        "detail": "",
+        "streets": [
+          {
+            "id": "494",
+            "name": "Busken Huetstraat",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068338|1205961",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068338|1205961",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ballaarstraat, 2018 Antwerpen",
+        "start": "2026-10-19T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-068338",
+        "detail": "",
+        "streets": [
+          {
+            "id": "260",
+            "name": "Ballaarstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068358|1205993",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068358|1205993",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Robert Molsstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068358",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2451",
+            "name": "Robert Molsstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068410|1206116",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068410|1206116",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Viaduct-Dam, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068410",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3032",
+            "name": "Viaduct-Dam",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068411|1206117",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068411|1206117",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koningin Elisabethlei, 2018 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068411",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1593",
+            "name": "Koningin Elisabethlei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068442|1206152",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068442|1206152",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Waalsekaai, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068442",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3127",
+            "name": "Waalsekaai",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068443|1206153",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068443|1206153",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Pacificatiestraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068443",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2226",
+            "name": "Pacificatiestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068510|1206251",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068510|1206251",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lambermontstraat, 2000 Antwerpen",
+        "start": "2026-10-21T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-068510",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1716",
+            "name": "Lambermontstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068574|1206373",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068574|1206373",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Geertstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068574",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2942",
+            "name": "Van Geertstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068699|1206598",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068699|1206598",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Korte Beeldekensstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068699",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1613",
+            "name": "Korte Beeldekensstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068709|1206609",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068709|1206609",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Duinstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068709",
+        "detail": "",
+        "streets": [
+          {
+            "id": "738",
+            "name": "Duinstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068720|1206620",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068720|1206620",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Sanderusstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068720",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2513",
+            "name": "Sanderusstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068724|1206624",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068724|1206624",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Draakstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068724",
+        "detail": "",
+        "streets": [
+          {
+            "id": "714",
+            "name": "Draakstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068757|1206667",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068757|1206667",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lode Zielenslaan, 2050 Antwerpen",
+        "start": "2026-10-22T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-068757",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1853",
+            "name": "Lode Zielenslaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068793|1206748",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068793|1206748",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Eggestraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068793",
+        "detail": "",
+        "streets": [
+          {
+            "id": "769",
+            "name": "Eggestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068795|1206751",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068795|1206751",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Duinstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068795",
+        "detail": "",
+        "streets": [
+          {
+            "id": "738",
+            "name": "Duinstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068815|1206781",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068815|1206781",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Scholiersstraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068815",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1750",
+            "name": "Lange Scholiersstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068821|1206796",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068821|1206796",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Lozanastraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068821",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1744",
+            "name": "Lange Lozanastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068822|1206797",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068822|1206797",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "De Moystraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068822",
+        "detail": "",
+        "streets": [
+          {
+            "id": "625",
+            "name": "De Moystraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068853|1206837",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068853|1206837",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Oranjestraat, 2060 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068853",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2174",
+            "name": "Oranjestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068901|1206890",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068901|1206890",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Napoleonkaai, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068901",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2096",
+            "name": "Napoleonkaai",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069002|1207009",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069002|1207009",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Brialmontlei, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069002",
+        "detail": "",
+        "streets": [
+          {
+            "id": "465",
+            "name": "Brialmontlei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069009|1207018",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069009|1207018",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Schijfwerpersstraat, 2020 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069009",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2551",
+            "name": "Schijfwerpersstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069013|1207020",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069013|1207020",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Carel van Manderstraat, 2050 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069013",
+        "detail": "",
+        "streets": [
+          {
+            "id": "504",
+            "name": "Carel van Manderstraat",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069089|1207137",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069089|1207137",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Oudekerkstraat, 2018 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069089",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2203",
+            "name": "Oudekerkstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069139|1207220",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069139|1207220",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Aernout en Willemlaan, 2050 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069139",
+        "detail": "",
+        "streets": [
+          {
+            "id": "139",
+            "name": "Aernout en Willemlaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069156|1207238",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069156|1207238",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Pacificatiestraat, 2000 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069156",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2226",
+            "name": "Pacificatiestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069373|1207770",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069373|1207770",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Kruishofstraat, 2020 Antwerpen",
+        "start": "2026-10-23T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069373",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1692",
+            "name": "Kruishofstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069528|1207979",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069528|1207979",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Gloriantlaan, 2050 Antwerpen",
+        "start": "2026-10-24T00:00:00.000Z",
+        "end": "2026-10-24T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069528",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1003",
+            "name": "Gloriantlaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-10-25T04:20:26.405Z",
+      "layer": "publicSpace",
       "id": "sgw:GW2026-003884|36525",
       "type": "removed",
       "fields": [],
