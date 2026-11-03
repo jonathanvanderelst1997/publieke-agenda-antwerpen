@@ -39,27 +39,42 @@ assert.ok(feedIds.every((id) => /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(id)), 'feed ev
 assert.ok(feedIds.every((id) => !ids.includes(id)), 'feed IDs must not collide with literal IDs')
 const knownIds = new Set([...ids, ...feedIds])
 
+// Het verleden van de agenda (site/verleden/, lib/agenda-verleden.mjs): elk item dat ooit een pagina had, houdt ze op
+// dezelfde URL. Een pagina hoort bij een publiek item (knop naar de agenda) of bij een record van het verleden (knop
+// naar het verleden of naar het item waarin het opging).
+const verledenRoot = new URL('../site/verleden/', import.meta.url)
+const verledenRecords = new Map()
+if (existsSync(verledenRoot)) {
+  for (const name of (await readdir(verledenRoot)).filter((name) => /^\d{4}-\d{2}\.json$/.test(name))) {
+    for (const record of JSON.parse(await readFile(new URL(name, verledenRoot), 'utf8')).items) verledenRecords.set(record.id, record)
+  }
+}
+
 const eventPageRoot = new URL('../site/event/', import.meta.url)
 const eventPageDirs = (await readdir(eventPageRoot, { withFileTypes: true }))
   .filter((entry) => entry.isDirectory())
   .map((entry) => entry.name)
   .sort()
-assert.equal(eventPageDirs.length, manifest.eventPageCount, 'one static HTTP-200 route must exist per public event with an event page')
+assert.equal(eventPageDirs.length, manifest.eventPageCount + (manifest.archivedEventPageCount ?? 0), 'one static HTTP-200 route must exist per public event with an event page, and per event that ever had one')
 assert.ok(manifest.eventPageCount <= manifest.count)
+let actuelePaginas = 0
 for (const id of eventPageDirs) {
-  assert.ok(knownIds.has(id), `generated event page has unknown source id: ${id}`)
+  assert.ok(knownIds.has(id) || verledenRecords.has(id), `event page has no source id and no record in site/verleden: ${id}`)
   const page = await readFile(new URL(`../site/event/${id}/index.html`, import.meta.url), 'utf8')
-  assert.match(page, new RegExp(`\\?event=${id}`))
+  if (page.includes(`href="/?event=${id}"`)) actuelePaginas += 1
+  else assert.match(page, new RegExp(`href="(/verleden/\\?maand=\\d{4}-\\d{2}#${id}|/event/[a-z0-9-]+/)"`), `event page ${id} links neither to the agenda nor to the past`)
   assert.match(page, new RegExp(`/event/${id}/`))
   assert.match(page, /property="og:title"/)
   assert.match(page, /application\/ld\+json/)
   assert.doesNotMatch(page, /window\.location\.replace/)
 }
+assert.equal(actuelePaginas, manifest.eventPageCount, 'every public event page links to the agenda')
 
 const robots = await readFile(new URL('../site/robots.txt', import.meta.url), 'utf8')
 const sitemap = await readFile(new URL('../site/sitemap.xml', import.meta.url), 'utf8')
 assert.match(robots, /Sitemap: https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/sitemap\.xml/)
-assert.equal((sitemap.match(/<url>/g) ?? []).length, manifest.eventPageCount + 1)
+assert.equal((sitemap.match(/<url>/g) ?? []).length, manifest.eventPageCount + (manifest.archivedEventPageCount ?? 0) + 2)
+assert.match(sitemap, /<loc>https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/verleden\/<\/loc>/)
 assert.match(source, /aria-pressed/)
 assert.match(source, /aria-controls/)
 assert.match(source, /aria-hidden="true"/)
@@ -69,6 +84,7 @@ console.log(JSON.stringify({
   uniqueSourceEventIds: new Set(ids).size,
   feedEventIds: feedIds.length,
   staticEventPages: eventPageDirs.length,
+  archivedEventPages: manifest.archivedEventPageCount ?? 0,
   routeForms: ['/event/:id', '/?event=:id', '#event=:id'],
   result: 'PASS',
 }, null, 2))

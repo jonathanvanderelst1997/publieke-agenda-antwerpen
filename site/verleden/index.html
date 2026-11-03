@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="nl-BE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Het verleden van de publieke agenda voor District Antwerpen: alles wat sinds 13 augustus 2026 in de agenda stond, het nieuwste eerst." />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="index,follow" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nl_BE" />
+    <meta property="og:title" content="Verleden | Mijn publieke agenda voor District Antwerpen" />
+    <meta property="og:description" content="Alles wat sinds 13 augustus 2026 in de publieke agenda stond, het nieuwste eerst." />
+    <meta property="og:url" content="https://mijn-publieke-agenda-voor-district.onrender.com/verleden/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://mijn-publieke-agenda-voor-district.onrender.com/verleden/" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Donker/licht: dezelfde keuze als op de agenda (site/index.html).
+      try {
+        const savedTheme = window.localStorage.getItem("agenda-thema");
+        if (savedTheme === "dark" || savedTheme === "light") document.documentElement.dataset.theme = savedTheme;
+      } catch {
+        /* Zonder opslag volgt de pagina gewoon het toestel. */
+      }
+    </script>
+    <title>Verleden | Mijn publieke agenda voor District Antwerpen</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/agenda-uitgaan.css" />
+    <link rel="stylesheet" href="/agenda-verleden.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Ga naar het verleden</a>
+    <main id="main-content" class="verleden-pagina">
+      <a class="verleden-terug" href="/">← Terug naar de publieke agenda</a>
+      <header class="verleden-kop">
+        <h1>Verleden</h1>
+        <p>
+          Wat voorbij is, verdwijnt niet: alles wat sinds 13 augustus 2026 in deze agenda stond, blijft hier staan, het
+          nieuwste eerst. Elk punt houdt zijn eigen pagina, met wat de agenda toen toonde en de officiële bron.
+        </p>
+        <p class="verleden-noot">Parkeerverboden staan hier niet: die toont de agenda alleen zolang ze lopen of nog komen.</p>
+      </header>
+      <section class="verleden-filters" aria-label="Verleden filteren">
+        <input type="search" data-verleden-zoek placeholder="Zoek een titel of plaats…" aria-label="Zoek in het verleden" />
+        <label><input type="checkbox" data-verleden-stad /> Ook de andere districten van de stad</label>
+      </section>
+      <p class="verleden-status" data-verleden-status aria-live="polite">Het verleden laden…</p>
+      <div class="verleden-lijst" data-verleden-lijst></div>
+      <button type="button" class="verleden-meer" data-verleden-meer hidden>Toon een oudere maand</button>
+    </main>
+    <script type="module" src="/agenda-verleden.js"></script>
+  </body>
+</html>

@@ -206,8 +206,10 @@ export function vasteControles(werkstroom) {
 done | sort -k1,1nr -k2,2nr | tail -n +6 | while read -r _ _ old; do echo "$old"; done`;
   const laneZaak = (changes, raw) => ({ changes, raw });
   const laneZaken = {
-    goed: laneZaak("M\tsite/sources/refresh-status.json\nD\tsite/event/oud-2026-01-01/index.html\n", ":100644 100644 aaa bbb M\tsite/sources/refresh-status.json\n:100644 000000 aaa 000 D\tsite/event/oud-2026-01-01/index.html\n"),
-    hernoeming: laneZaak("R100\tsite/event/a-2026-01-01/index.html\tsite/event/b-2026-01-01/index.html\n", ":100644 100644 aaa aaa R100\tsite/event/a-2026-01-01/index.html\tsite/event/b-2026-01-01/index.html\n"),
+    goed: laneZaak("M\tsite/sources/refresh-status.json\nD\tsite/straat/1416.json\n", ":100644 100644 aaa bbb M\tsite/sources/refresh-status.json\n:100644 000000 aaa 000 D\tsite/straat/1416.json\n"),
+    hernoeming: laneZaak("R100\tsite/straat/1416.json\tsite/straat/2289.json\n", ":100644 100644 aaa aaa R100\tsite/straat/1416.json\tsite/straat/2289.json\n"),
+    // Een eventpagina wist de verversing nooit (het verleden van de agenda, lib/agenda-verleden.mjs).
+    eventpagina: laneZaak("D\tsite/event/oud-2026-01-01/index.html\n", ":100644 000000 aaa 000 D\tsite/event/oud-2026-01-01/index.html\n"),
     code: laneZaak("M\t.github/workflows/ci.yml\n", ":100644 100644 aaa bbb M\t.github/workflows/ci.yml\n"),
     modus: laneZaak("M\tsite/sources/refresh-status.json\n", ":100644 100755 aaa bbb M\tsite/sources/refresh-status.json\n"),
     wissen: laneZaak("D\tsite/sources/refresh-status.json\n", ":100644 000000 aaa 000 D\tsite/sources/refresh-status.json\n"),

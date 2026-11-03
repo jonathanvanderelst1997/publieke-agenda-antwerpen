@@ -96,7 +96,11 @@ export function meetEventpaginas(feed, vandaag) {
   for (const id of komend.keys()) {
     const f = path.join(root, "site", "event", id, "index.html");
     if (!fs.existsSync(f)) continue;
-    const html = fs.readFileSync(f, "utf8").replace(/<script[\s\S]*?<\/script>/g, " ");
+    const ruw = fs.readFileSync(f, "utf8");
+    // Alleen de pagina van een punt dat nu in de agenda staat: een pagina uit het verleden (lib/eventpagina.mjs, een
+    // punt dat uit de bron viel) telt niet mee.
+    if (!ruw.includes(`href="/?event=${id}"`)) continue;
+    const html = ruw.replace(/<script[\s\S]*?<\/script>/g, " ");
     const tekst = html.replace(/<[^>]+>/g, "\n").split("\n").map((x) => x.trim()).filter(Boolean);
     const titel = tekst.find((x) => x === komend.get(id).title) || komend.get(id).title;
     res.push({ ...vaagheidVanKaart({ titel, regels: tekst }), sourceId: komend.get(id).sourceId });

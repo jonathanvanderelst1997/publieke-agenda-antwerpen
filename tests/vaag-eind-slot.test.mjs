@@ -212,8 +212,8 @@ test("eventpagina zonder uur of plaats: 'Geen uur in de bron.' alleen voor A-Sig
   const uur = TEKST_PATRONEN.find((p) => p.id === "uur-niet-in-bron"), plek = TEKST_PATRONEN.find((p) => p.id === "plek-niet-in-bron");
   assert.match("Geen uur gevonden; zie de officiële bron.", uur.re);
   assert.match("Geen plaats gevonden; zie de officiële bron.", plek.re);
-  // De build gebruikt die keuze voor elke eventpagina.
-  const build = fs.readFileSync(new URL("../scripts/build-agenda.mjs", import.meta.url), "utf8");
-  assert.match(build, /eventpaginaZin\("uur", item\.sourceId\)/);
-  assert.match(build, /eventpaginaZin\("plaats", item\.sourceId\)/);
+  // De build gebruikt die keuze voor elke eventpagina (lib/eventpagina.mjs bouwt ze, ook die van het verleden).
+  const build = fs.readFileSync(new URL("../lib/eventpagina.mjs", import.meta.url), "utf8");
+  assert.match(build, /eventpaginaZin\("uur", record\.sourceId\)/);
+  assert.match(build, /eventpaginaZin\("plaats", record\.sourceId\)/);
 });

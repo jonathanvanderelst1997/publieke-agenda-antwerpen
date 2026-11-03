@@ -1,0 +1,133 @@
+/* Het verleden van de agenda (/verleden/, site/agenda-verleden.js) en de regel op een voorbije eventpagina. */
+.verleden-pagina {
+  background: var(--pa-bg);
+  color: var(--pa-ink);
+  display: grid;
+  gap: 18px;
+  margin: 0 auto;
+  max-width: 920px;
+  min-height: 100vh;
+  padding: 32px clamp(16px, 4vw, 56px) 56px;
+}
+
+body:has(.verleden-pagina) {
+  background: var(--pa-bg);
+}
+
+.verleden-terug {
+  color: var(--pa-accent);
+  font-weight: 850;
+}
+
+.verleden-kop h1 {
+  color: var(--pa-ink-strong);
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.verleden-kop p {
+  color: var(--pa-muted);
+  line-height: 1.55;
+  margin: 12px 0 0;
+}
+
+.verleden-filters {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.verleden-filters input[type="search"] {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line-strong);
+  border-radius: 8px;
+  color: var(--pa-ink);
+  flex: 1 1 260px;
+  font: inherit;
+  padding: 10px 12px;
+}
+
+.verleden-status {
+  color: var(--pa-muted);
+  font-size: 14px;
+  margin: 0;
+}
+
+.verleden-lijst {
+  display: grid;
+  gap: 14px;
+}
+
+.verleden-maand {
+  color: var(--pa-ink-strong);
+  font-size: 24px;
+  margin: 18px 0 0;
+}
+
+.verleden-dag {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.verleden-dag h3 {
+  color: var(--pa-ink-strong);
+  font-size: 16px;
+  margin: 0 0 8px;
+}
+
+.verleden-dag ul {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.verleden-punt {
+  display: grid;
+  gap: 2px;
+  scroll-margin-top: 80px;
+}
+
+.verleden-punt a {
+  color: var(--pa-ink);
+}
+
+.verleden-meta {
+  color: var(--pa-muted);
+  font-size: 14px;
+}
+
+.verleden-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  color: var(--pa-muted);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.verleden-doel,
+.verleden-punt :target {
+  outline: 3px solid var(--pa-focus);
+  outline-offset: 3px;
+}
+
+.verleden-meer {
+  background: var(--pa-surface);
+  border: 2px solid var(--pa-accent);
+  border-radius: 8px;
+  color: var(--pa-ink);
+  cursor: pointer;
+  font-weight: 900;
+  justify-self: start;
+  padding: 10px 14px;
+}
+
+.verleden-leeg {
+  color: var(--pa-muted);
+}

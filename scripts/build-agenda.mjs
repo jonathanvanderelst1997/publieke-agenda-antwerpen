@@ -5,7 +5,17 @@ import { fileURLToPath } from "node:url";
 
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
 import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink } from "../site/gipod-bron.js";
-import { eventpaginaZin } from "../site/onbekend-zinnen.js";
+import { bouwEventpagina } from "../lib/eventpagina.mjs";
+import {
+  VERLEDEN_DIR,
+  verledenMaandTekst,
+  VERLEDEN_INDEX_FILE,
+  isVerledenMaandBestand,
+  maandVan,
+  paginaStand,
+  verledenBestanden,
+  werkVerledenBij,
+} from "../lib/agenda-verleden.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const items = loadExpandedAgendaItems(rootDir);
@@ -38,10 +48,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
-function jsonForHtml(value) {
-  return JSON.stringify(value).replaceAll("<", "\\u003c");
-}
-
 const DISTRICT_ATTRIBUTION = "Bron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)";
 
 function safeHttps(value) {
@@ -58,7 +64,7 @@ function sourceLinks(item) {
     const href = gipod ? GIPOD_METADATA_URL : safeHttps(url);
     if (!href || seen.has(href)) return;
     seen.add(href);
-    links.push(`<li><a href="${escapeHtml(href)}" target="_blank" rel="noreferrer">${escapeHtml(gipod ? GIPOD_BRON : label)}</a></li>`);
+    links.push({ url: href, label: gipod ? GIPOD_BRON : label });
   };
   if (Array.isArray(item.sources) && item.sources.length) {
     for (const source of item.sources) {
@@ -68,7 +74,7 @@ function sourceLinks(item) {
     add(item.link, "Officiële bron");
   }
   add(item.infoUrl, "Meer info bij de organisator");
-  return links.join("\n            ");
+  return links;
 }
 
 function attributionFor(item) {
@@ -77,96 +83,81 @@ function attributionFor(item) {
   return primary?.attribution?.text ?? `Bron: ${primary?.publisher ?? "officiële publieke bron"}`;
 }
 
-function buildEventRedirectPage(item) {
-  const destination = `/?event=${encodeURIComponent(item.id)}`;
-  const canonical = `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(item.id)}/`;
-  const title = escapeHtml(item.title);
-  const description = escapeHtml(item.info || `${item.title} in District Antwerpen.`);
-  const dateText = escapeHtml(item.dateLabel || item.date);
-  // Zonder uur of plaats: dat zeggen (onbekend-zinnen.js), geen belofte dat de officiële bron het wel heeft, en
-  // "niet in de bron" alleen bij een bron die er nooit een geeft (eventpaginaZin). Een uur in timeSlot ("14:00") is
-  // wel een uur.
-  const timeText = escapeHtml(item.timeText || (/^\d{2}:\d{2}$/.test(String(item.timeSlot || "")) ? item.timeSlot : eventpaginaZin("uur", item.sourceId)));
-  const location = escapeHtml(item.location || eventpaginaZin("plaats", item.sourceId));
-  const sourcePublisher = escapeHtml(item.sourcePublisher || "Publieke organisator");
-  const eventJson = jsonForHtml({
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: item.title,
-    startDate: item.date,
-    description: item.info || undefined,
-    endDate: item.endDate || undefined,
-    location: item.location ? { "@type": "Place", name: item.location } : undefined,
-    url: canonical,
-    inLanguage: "nl-BE",
-  });
-  return `<!doctype html>
-<html lang="nl-BE">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="index,follow" />
-    <meta name="description" content="${description}" />
-    <meta name="referrer" content="strict-origin-when-cross-origin" />
-    <meta property="og:type" content="website" />
-    <meta property="og:locale" content="nl_BE" />
-    <meta property="og:title" content="${title}" />
-    <meta property="og:description" content="${description}" />
-    <meta property="og:url" content="${canonical}" />
-    <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="${title}" />
-    <meta name="twitter:description" content="${description}" />
-    <link rel="canonical" href="${canonical}" />
-    <link rel="stylesheet" href="/styles.css" />
-    <script type="application/ld+json">${eventJson}</script>
-    <title>${title} | Publieke agenda District Antwerpen</title>
-  </head>
-  <body>
-    <main class="event-page">
-      <a href="/">← Terug naar de publieke agenda</a>
-      <article class="event-summary">
-        <h1>${title}</h1>
-        <p>${description}</p>
-        <dl>
-          <div><dt>Wanneer</dt><dd>${dateText}</dd></div>
-          <div><dt>Uur</dt><dd>${timeText}</dd></div>
-          <div><dt>Waar</dt><dd>${location}</dd></div>
-          <div><dt>Bron</dt><dd>${sourcePublisher}</dd></div>
-        </dl>
-        <div class="event-actions">
-          <a href="${destination}">Bekijk in de volledige agenda</a>
-        </div>
-        <ul class="event-sources" aria-label="Bronnen">
-            ${sourceLinks(item)}
-        </ul>
-        <p class="event-attribution">${escapeHtml(attributionFor(item))}</p>
-      </article>
-    </main>
-  </body>
-</html>
-`;
+// Wat de eventpagina van een publiek item toont, als record voor het verleden (lib/agenda-verleden.mjs). De pagina
+// (lib/eventpagina.mjs, stand "actueel") is dezelfde als vóór het verleden bestond.
+function recordVanItem(item) {
+  return {
+    id: item.id,
+    title: String(item.title ?? ""),
+    info: String(item.info ?? ""),
+    date: item.date,
+    endDate: item.endDate || null,
+    dateLabel: String(item.dateLabel ?? ""),
+    timeText: String(item.timeText ?? ""),
+    timeSlot: String(item.timeSlot ?? ""),
+    location: String(item.location ?? ""),
+    theme: String(item.theme ?? ""),
+    scope: item.scope === "stad" ? "stad" : "district",
+    ...(typeof item.inDistrict === "boolean" ? { inDistrict: item.inDistrict } : {}),
+    sourceId: String(item.sourceId ?? ""),
+    sourcePublisher: String(item.sourcePublisher ?? ""),
+    bronnen: sourceLinks(item),
+    attributie: attributionFor(item),
+  };
 }
 
-// Eén statische pagina per publiek item met eigen eventpagina; mappen van items die niet meer
-// publiek zijn (verlopen, verouderd of vervangen) worden in vaste volgorde verwijderd.
-const pageIds = new Set();
 for (const item of pageItems) {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(item.id)) {
     throw new Error(`Onveilige event-ID voor statische route: ${item.id}`);
   }
-  pageIds.add(item.id);
 }
+
+// Het verleden van de agenda (besluit van de eigenaar van 3 november 2026): elk item met een eigen pagina dat ooit
+// publiek was, houdt een record in site/verleden/<JJJJ-MM>.json en zijn pagina op dezelfde URL. Geen enkele
+// eventpagina wordt nog gewist; de databaan mag het ook niet (lib/data-lane-paths.json).
+const asOf = engine.config.classificationAsOf;
+const verledenDir = path.join(rootDir, VERLEDEN_DIR);
+const bestaandeMaanden = fs.existsSync(verledenDir) ? fs.readdirSync(verledenDir).filter(isVerledenMaandBestand).sort() : [];
+const vorigVerleden = bestaandeMaanden.flatMap((name) => {
+  const document = JSON.parse(fs.readFileSync(path.join(verledenDir, name), "utf8"));
+  return Array.isArray(document.items) ? document.items : [];
+});
+const verleden = werkVerledenBij(vorigVerleden, pageItems.map(recordVanItem), asOf);
+for (const { id, problemen } of verleden.geweigerd) {
+  console.error(`verleden: ${id} niet bewaard en zonder eigen pagina (${problemen.slice(0, 3).join("; ")})`);
+}
+const { index: verledenIndex, bestanden: verledenMaanden } = verledenBestanden(
+  verleden.records,
+  asOf,
+  bestaandeMaanden.map((name) => name.slice(0, 7))
+);
+fs.mkdirSync(verledenDir, { recursive: true });
+const schrijfAlsAnders = (file, inhoud) => {
+  if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== inhoud) {
+    fs.mkdirSync(path.dirname(file), { recursive: true });
+    fs.writeFileSync(file, inhoud, "utf8");
+  }
+};
+for (const [name, document] of verledenMaanden) schrijfAlsAnders(path.join(verledenDir, name), verledenMaandTekst(document));
+schrijfAlsAnders(path.join(rootDir, VERLEDEN_INDEX_FILE), `${JSON.stringify(verledenIndex, null, 2)}\n`);
+
+// Eén statische pagina per record: een publiek item ("actueel") zoals altijd, een ander met zijn stand (voorbij,
+// weg, opgegaan). Een map zonder record blijft staan: niets wordt gewist (scripts/test-deep-links.mjs meldt ze).
+const recordsPerId = new Map(verleden.records.map((record) => [record.id, record]));
 fs.mkdirSync(eventPagesDir, { recursive: true });
-for (const entry of fs.readdirSync(eventPagesDir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
-  if (!entry.isDirectory() || !pageIds.has(entry.name)) fs.rmSync(path.join(eventPagesDir, entry.name), { recursive: true, force: true });
+for (const record of [...verleden.records].sort((a, b) => a.id.localeCompare(b.id))) {
+  const stand = paginaStand(record, { actueel: verleden.actueleIds.has(record.id), asOf });
+  const page = bouwEventpagina(record, {
+    stand,
+    maand: maandVan(record),
+    opgegaanInTitel: record.opgegaanIn ? recordsPerId.get(record.opgegaanIn)?.title ?? "" : "",
+  });
+  schrijfAlsAnders(path.join(eventPagesDir, record.id, "index.html"), page);
 }
-for (const item of [...pageItems].sort((a, b) => a.id.localeCompare(b.id))) {
-  const itemDir = path.join(eventPagesDir, item.id);
-  fs.mkdirSync(itemDir, { recursive: true });
-  const file = path.join(itemDir, "index.html");
-  const page = buildEventRedirectPage(item);
-  if (!fs.existsSync(file) || fs.readFileSync(file, "utf8") !== page) fs.writeFileSync(file, page, "utf8");
-}
+const actuelePaginas = pageItems.filter((item) => verleden.actueleIds.has(item.id));
+const archiefPaginas = verleden.records.filter((record) => !verleden.actueleIds.has(record.id)).map((record) => record.id).sort();
+const wezen = fs.readdirSync(eventPagesDir, { withFileTypes: true }).filter((entry) => entry.isDirectory() && !recordsPerId.has(entry.name));
+if (wezen.length) console.error(`verleden: ${wezen.length} eventpagina's zonder record (blijven staan): ${wezen.slice(0, 5).map((entry) => entry.name).join(", ")}`);
 
 const manifest = {
   schemaVersion: 2,
@@ -175,7 +166,10 @@ const manifest = {
   classificationAsOf: engine.config.classificationAsOf,
   sourceCount: items.length,
   count: result.publicItems.length,
-  eventPageCount: pageItems.length,
+  eventPageCount: actuelePaginas.length,
+  // Pagina's van items die niet meer in de agenda staan (voorbij, weggevallen of opgegaan in een ander item): ze
+  // blijven op dezelfde URL (site/verleden/, lib/agenda-verleden.mjs).
+  archivedEventPageCount: archiefPaginas.length,
   classifications: result.counts,
   scopeCounts: {
     district: result.publicItems.filter((item) => item.scope !== "stad").length,
@@ -204,8 +198,9 @@ fs.writeFileSync(
 
 const sitemapUrls = [
   "https://mijn-publieke-agenda-voor-district.onrender.com/",
-  ...pageItems.map((item) =>
-    `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(item.id)}/`
+  "https://mijn-publieke-agenda-voor-district.onrender.com/verleden/",
+  ...[...actuelePaginas.map((item) => item.id), ...archiefPaginas].map((id) =>
+    `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(id)}/`
   ),
 ];
 const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -215,4 +210,4 @@ ${sitemapUrls.map((url) => `  <url><loc>${escapeHtml(url)}</loc></url>`).join("\
 `;
 fs.writeFileSync(path.join(siteDir, "sitemap.xml"), sitemap, "utf8");
 
-console.log(JSON.stringify({ count: manifest.count, eventPageCount: manifest.eventPageCount, classifications: manifest.classifications, digest }, null, 2));
+console.log(JSON.stringify({ count: manifest.count, eventPageCount: manifest.eventPageCount, archivedEventPageCount: manifest.archivedEventPageCount, verleden: verledenIndex.aantal, classifications: manifest.classifications, digest }, null, 2));
