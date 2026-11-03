@@ -1,7 +1,9 @@
 // Regel van de eigenaar van 26 oktober 2026 ("al vijf keer gezegd"): bij een parkeerverbod staat altijd de plaats met het
 // huisnummer, ook als het voor een verhuis is. Een verhuis is dan gewoon een "Parkeerverbod" met zijn huisnummer: nooit de
 // reden, nergens het woord verhuis (ook niet verhuislift, meubellift of verhuizing). Zo live, in de lijst per straat, in de
-// vooruitblik, en in wat de verversing bewaart (de historiek, de straatbestanden: de publieke git-geschiedenis is aanvaard).
+// vooruitblik, en in wat de verversing bewaart voor de lopende en komende parkeerverboden (de straatbestanden: de publieke
+// git-geschiedenis is aanvaard). Een historiek van parkeerverboden is er sinds 3 november 2026 niet meer (besluit van de
+// eigenaar, tests/geen-parkeerhistoriek.test.mjs).
 // Verzonnen straten, nummers, dossiers en redenen; geen netwerk.
 import assert from "node:assert/strict";
 import test from "node:test";
@@ -47,8 +49,9 @@ test("een verhuis: overal het huisnummer, de titel 'Parkeerverbod', en nergens h
       assert.match(lijst, /Proefstraat 12–14/, reden);
       assert.doesNotMatch(lijst, VERRAAD, reden);
     }
-    // Wat de verversing bewaart: de historiek en het straatbestand houden de plaats exact, zonder reden.
-    for (const opgeslagen of [compactPublicSpaceItem(rij), itemVoorStraat(rij, { laag: "publiekeRuimte" })]) {
+    // Wat de verversing bewaart: het straatbestand houdt de plaats exact, zonder reden; de historiek bewaart niets.
+    assert.equal(compactPublicSpaceItem(rij), null, reden);
+    for (const opgeslagen of [itemVoorStraat(rij, { laag: "publiekeRuimte" })]) {
       assert.ok(opgeslagen, reden);
       assert.equal(opgeslagen.location, "Proefstraat 12–14, 2000 Antwerpen", reden);
       assert.equal(opgeslagen.title, "Parkeerverbod");
@@ -100,20 +103,17 @@ test("bewaren: alleen de vorm van publiekParkeerAdres blijft exact; een naam, ee
   assert.deepEqual(bevindingen, [{ code: "reden", path: "$.layers.publicSpace.items[0].kindLabel" }, { code: "reden", path: "$.changes[0].after.detail" }]);
 });
 
-test("historiek: het huisnummer dat erbij komt is geen wijziging, een ander huisnummer wel", () => {
+test("historiek: een parkeerverbod komt er niet in, ook niet als zijn huisnummer verandert", () => {
   const T1 = "2099-03-10T03:00:00.000Z", T2 = "2099-03-11T03:00:00.000Z", T3 = "2099-03-12T03:00:00.000Z";
   const laag = (rij) => ({ ok: true, items: [rij] });
   const exact = item("Verhuis");
-  // Een historiek van vóór 26 oktober 2026: alleen de straat met de postcode.
   const oud = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [] }, publicSpaceResult: laag({ ...exact, location: "Proefstraat, 2000 Antwerpen" }) });
-  assert.equal(oud.layers.publicSpace.items[0].location, "Proefstraat, 2000 Antwerpen");
   const nu = updateLiveHistory(oud, { observedAt: T2, worksResult: { ok: true, items: [] }, publicSpaceResult: laag(exact) });
-  assert.equal(nu.layers.publicSpace.items[0].location, "Proefstraat 12–14, 2000 Antwerpen");
-  assert.deepEqual(nu.changes, [], "de overgang maakt geen massa wijzigingen");
   const verschoven = updateLiveHistory(nu, { observedAt: T3, worksResult: { ok: true, items: [] }, publicSpaceResult: laag(item("Verhuis", "1", "Proefstraat 16-18 2000 Antwerpen")) });
-  assert.deepEqual(verschoven.changes.map((c) => [c.type, c.fields, c.before, c.after]), [["changed", ["location"], { location: "Proefstraat 12–14, 2000 Antwerpen" }, { location: "Proefstraat 16–18, 2000 Antwerpen" }]]);
-  for (const doc of [nu, verschoven]) {
-    assert.doesNotMatch(JSON.stringify(doc), VERRAAD);
+  for (const doc of [oud, nu, verschoven]) {
+    assert.deepEqual(doc.layers.publicSpace.items, []);
+    assert.deepEqual(doc.changes, []);
+    assert.doesNotMatch(JSON.stringify(doc), /Proefstraat|parking/);
     assert.deepEqual(historiekPrivacyBevindingen(doc), []);
   }
 });

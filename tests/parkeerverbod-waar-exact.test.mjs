@@ -213,7 +213,8 @@ test("publiekParkeerAdres: elke vorm van A-Sign zo exact als de bron, en de opsl
   for (const [bron, plaats] of vormen) {
     const straat = adresZonderHuisnummer(bron);
     assert.equal(publiekParkeerAdres(bron, straat), plaats, bron);
-    // Wat bewaard wordt (historiek, straatbestanden, archief), houdt dezelfde plaats (regel van 26 oktober 2026); de straat
+    // Wat bewaard wordt (de straatbestanden; een historiek van parkeerverboden is er sinds 3 november 2026 niet meer), houdt
+    // dezelfde plaats (regel van 26 oktober 2026); de straat
     // zelf blijft eruit te halen (voor de straat op de kaart en de opzoeking).
     assert.equal(parkeerAdresVoorOpslag(plaats), plaats, `${plaats}: parkeerAdresVoorOpslag`);
     assert.equal(itemVoorHistoriek({ id: "parking:2099-000777|1", kind: "parking", title: "Parkeerverbod", location: plaats }).location, plaats, `${plaats}: itemVoorHistoriek`);

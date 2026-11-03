@@ -1,13 +1,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { backfillSourceCanImport, sourceHistoryRecord, validateHistoryBackfillManifest } from "../lib/history-backfill.mjs";
+import { backfillSourceCanImport, isParkeerBackfillBron, sourceHistoryRecord, validateHistoryBackfillManifest } from "../lib/history-backfill.mjs";
 
+// Een bron met een bewezen volledige historiek (verzonnen voorbeeld, geen parkeerverboden).
 const full = {
-  sourceId: "asign-parking",
+  sourceId: "voorbeeld-bron",
   completeness: "full",
   coverageFrom: "2019-09-16",
   coverageTo: null,
-  sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/20",
+  sourceUrl: "https://geodata.antwerpen.be/arcgissql/rest/services/P_Voorbeeld/Voorbeeld/MapServer/1",
   evidence: "De officiële laagbeschrijving zegt expliciet dat de laag de volledige historiek bevat.",
   dedupeKey: "Dossiernummer|Locatienummer",
   snapshotDigest: null,
@@ -32,9 +33,9 @@ test("unknown claimt bewust geen historische periode en wordt niet geïmporteerd
 
 test("bronhistoriek houdt geldigheid apart van observatie-events", () => {
   const record = sourceHistoryRecord({
-    sourceId: "asign-parking", sourceRecordId: "D1|L1",
+    sourceId: "voorbeeld-bron", sourceRecordId: "D1|L1",
     validFrom: "2020-01-01", validTo: "2020-01-02",
-    payload: { kind: "parking", title: "Tijdelijk parkeerverbod" },
+    payload: { id: "iod:D1|F1|I1", kind: "iod", title: "Inname" },
   });
   assert.equal("observedAt" in record, false);
   assert.throws(() => sourceHistoryRecord({ ...record, validFrom: "2020-02-01", validTo: "2020-01-01" }), /omgekeerd/);

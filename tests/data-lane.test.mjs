@@ -20,7 +20,6 @@ const POSITIVES = [
   "site/history/archive/index.json",
   "site/history/archive/2026-10-01.json",
   "site/history/backfill/index.json",
-  "site/history/backfill/asign-parking/2019.json",
   "site/agenda-feed.js",
   "site/event/a-b/index.html",
   "audit/provenance-source-diff-latest.json",
@@ -49,6 +48,10 @@ const NEGATIVES = [
   "site/history/archive/oud.json",
   "site/history/backfill/gipod/2020.json",
   "site/history/backfill/asign-parking/20x0.json",
+  // Geen historiek van parkeerverboden (besluit van de eigenaar van 3 november 2026): de verversing schrijft nooit een
+  // backfill van de A-Sign-parkeerverboden.
+  "site/history/backfill/asign-parking/2019.json",
+  "site/history/backfill/asign-parking/index.json",
   "lib/data-lane-paths.json",
   "package.json",
   ".github/workflows/ci.yml",
@@ -60,7 +63,8 @@ const NEGATIVES = [
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 17);
+  assert.equal(spec.allowed.length, 16);
+  assert.ok(spec.allowed.every((pattern) => !/park/i.test(pattern)), "geen pad voor een parkeerhistoriek");
   assert.deepEqual(spec.deletableUnder, ["site/event/", "site/straat/"]);
   for (const pattern of spec.allowed) {
     assert.ok(pattern.startsWith("^") && pattern.endsWith("$"), pattern);

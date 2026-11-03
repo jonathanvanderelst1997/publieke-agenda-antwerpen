@@ -26,11 +26,13 @@ const work = (overrides = {}) => ({
   ...overrides,
 });
 
+// Een inname van het openbaar domein. Een parkeerverbod komt nooit in de historiek (besluit van de eigenaar van
+// 3 november 2026; zie de laatste toets en tests/geen-parkeerhistoriek.test.mjs).
 const space = (overrides = {}) => ({
-  id: "parking:D1|L1",
-  kind: "parking",
-  kindLabel: "Parkeerverbod",
-  title: "Werfsignalisatie",
+  id: "iod:D1|F1|I1",
+  kind: "iod",
+  kindLabel: "Inname openbaar domein",
+  title: "Inname",
   location: "Teststraat 1",
   start: "2026-10-01T06:00:00Z",
   end: "2026-10-02T18:00:00Z",
@@ -137,27 +139,34 @@ test("validator weigert dubbele ids en foutieve digest", () => {
 
 test("straatmetadata veroorzaakt geen operationeel change-event",()=>{const a=updateLiveHistory(null,{observedAt:T1,worksResult:{ok:true,items:[work({streets:[],streetResolution:"unresolved"})]},publicSpaceResult:{ok:true,items:[space()]}});const b=updateLiveHistory(a,{observedAt:T2,worksResult:{ok:true,items:[work({streets:[{id:"10",name:"Teststraat",postcode:"2000"}],streetResolution:"nearest_official_axis",streetDistanceMeters:4})]},publicSpaceResult:{ok:true,items:[space()]}});assert.equal(b.changes.filter(x=>x.observedAt===T2&&x.layer==="works").length,0);assert.equal(b.layers.works.items[0].streets[0].name,"Teststraat")});
 
-// Herstelplan O1/4: geen huisnummers bij parkeerverboden, ook niet in de historiek.
-test("historiek: geen huisnummers meer, en de overgang maakt geen duizenden wijzigingen", () => {
+// Geen historiek van parkeerverboden (besluit van de eigenaar van 3 november 2026). Een oudere historiek met parkeerverboden
+// (zoals tot dan op main) verliest ze, zonder een "removed" per parkeerverbod; een nieuw parkeerverbod komt er niet in.
+test("historiek: geen parkeerverboden, ook niet uit een oudere stand, en de overgang maakt geen wijzigingen", () => {
   const T1 = "2026-10-08T03:00:00.000Z", T2 = "2026-10-09T03:00:00.000Z", T3 = "2026-10-10T03:00:00.000Z";
-  const parkeer = (id, adres) => ({ id: `parking:${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Verhuis", location: adres, start: "2026-10-13T00:00:00.000Z", end: "2026-10-14T00:00:00.000Z", status: "Goedgekeurd", reference: id, detail: "", streets: [], streetResolution: "unresolved", streetDistanceMeters: null });
-  assert.equal(compactPublicSpaceItem(parkeer("P1", "Teststraat 26-26 2000 Antwerpen")).location, "Teststraat, 2000 Antwerpen");
-  // Een oude historiek zoals op main: adressen met huisnummer, in de items én in de wijzigingen.
-  const oudItem = (id) => ({ ...parkeer(id, "Teststraat 26-26 2000 Antwerpen") });
+  const parkeer = (id, adres) => ({ id: `parking:${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location: adres, start: "2026-10-13T00:00:00.000Z", end: "2026-10-14T00:00:00.000Z", status: "Goedgekeurd", reference: id, detail: "", streets: [], streetResolution: "unresolved", streetDistanceMeters: null });
+  assert.equal(compactPublicSpaceItem(parkeer("P1", "Teststraat 26-26 2000 Antwerpen")), null);
+  const inname = compactPublicSpaceItem(space());
   const vorige = {
     schemaVersion: 1, observedAt: T2, retentionDays: 90, baselineInitializedAt: T1,
     layers: {
       works: { status: "ok", lastAttemptAt: T2, lastSuccessAt: T2, errorCode: null, count: 0, digest: null, items: [] },
-      publicSpace: { status: "ok", lastAttemptAt: T2, lastSuccessAt: T2, errorCode: null, count: 2, digest: null, items: [oudItem("P1"), oudItem("P2")] },
+      publicSpace: { status: "ok", lastAttemptAt: T2, lastSuccessAt: T2, errorCode: null, count: 3, digest: null, items: [parkeer("P1", "Teststraat 26-26 2000 Antwerpen"), parkeer("P2", "Teststraat 26-26 2000 Antwerpen"), inname] },
     },
-    changes: [{ observedAt: T2, layer: "publicSpace", id: "parking:P2", type: "added", fields: [], before: null, after: oudItem("P2") }],
+    changes: [
+      { observedAt: T2, layer: "publicSpace", id: "parking:P2", type: "added", fields: [], before: null, after: parkeer("P2", "Teststraat 26-26 2000 Antwerpen") },
+      { observedAt: T2, layer: "publicSpace", id: "parking:P3", type: "removed", fields: [], before: parkeer("P3", "Teststraat 26-26 2000 Antwerpen"), after: null },
+      { observedAt: T2, layer: "publicSpace", id: inname.id, type: "added", fields: [], before: null, after: inname },
+    ],
   };
   const nieuw = updateLiveHistory(vorige, {
     observedAt: T3,
     worksResult: { ok: true, items: [] },
-    publicSpaceResult: { ok: true, items: [parkeer("P1", "Teststraat 26-26 2000 Antwerpen"), parkeer("P2", "Teststraat 26-26 2000 Antwerpen")] },
+    publicSpaceResult: { ok: true, items: [parkeer("P1", "Teststraat 26-26 2000 Antwerpen"), parkeer("P4", "Teststraat 26-26 2000 Antwerpen"), space()] },
   });
-  assert.deepEqual(nieuw.changes.filter((c) => c.observedAt === T3), [], "geen 'changed' alleen omdat het huisnummer wegviel");
+  assert.deepEqual(nieuw.layers.publicSpace.items.map((item) => item.id), [inname.id], "alleen de inname blijft");
+  assert.equal(nieuw.layers.publicSpace.count, 1);
+  assert.deepEqual(nieuw.changes.map((c) => c.id), [inname.id], "de wijziging van de inname blijft, die van de parkeerverboden niet");
+  assert.deepEqual(nieuw.changes.filter((c) => c.observedAt === T3), [], "geen 'removed' of 'added' van een parkeerverbod");
   assert.deepEqual(validateLiveHistory(nieuw), []);
-  assert.doesNotMatch(JSON.stringify(nieuw), /26-26/);
+  assert.doesNotMatch(JSON.stringify(nieuw), /parking|Parkeerverbod|26-26/);
 });

@@ -1,5 +1,7 @@
-// Eenmalige opkuis van site/history (live-layers.json en archive/): alleen district Antwerpen en geen
-// huisnummers (lib/historiek-privacy.mjs). Daarna houdt de verversing (scripts/refresh-live-history.mjs)
+// Eenmalige opkuis van site/history (live-layers.json en archive/): alleen district Antwerpen, geen
+// huisnummers (lib/historiek-privacy.mjs) en geen enkel parkeerverbod (besluit van de eigenaar van 3 november 2026:
+// "er moet geen historie zijn van parkeerverboden", lib/parkeer-historiek.mjs): geen item in de laag publicSpace of in
+// baseline.json, en geen wijziging in live-layers.json of in een dagshard. Daarna houdt de verversing (scripts/refresh-live-history.mjs)
 // het zo; ze draait deze opkuis ook zelf vooraf, zodat een oud bestand dat toch terugkomt (bv. uit een
 // oudere datatak) bij de volgende verversing schoon wordt. Veilig om opnieuw te draaien: een schoon
 // bestand blijft gelijk en wordt niet herschreven.
@@ -22,8 +24,8 @@ import {
   archiefDagVoorPubliek,
   historiekPrivacyBevindingen,
   historiekVoorPubliek,
-  parkeerDistrictOpzoeking,
 } from "../lib/historiek-privacy.mjs";
+import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
 import { LIVE_HISTORY_FILE, validateLiveHistory } from "../lib/live-history.mjs";
 import {
   LIVE_HISTORY_ARCHIVE_BASELINE_FILE,
@@ -37,9 +39,11 @@ import {
 } from "../lib/live-history-archive.mjs";
 
 const tekst = (value) => `${JSON.stringify(value, null, 2)}\n`;
+// De bevindingen in een bestand van site/history: de privacyscan en elk parkeerverbod (code `parkeerverbod`).
+const bevindingen = (document) => [...historiekPrivacyBevindingen(document), ...parkeerverbodenInHistoriek(document)];
 const telling = (document) => {
   const counts = {};
-  for (const finding of historiekPrivacyBevindingen(document)) counts[finding.code] = (counts[finding.code] || 0) + 1;
+  for (const finding of bevindingen(document)) counts[finding.code] = (counts[finding.code] || 0) + 1;
   return counts;
 };
 
@@ -70,12 +74,6 @@ export function opkuisHistoriekPrivacy({ rootDir, write = false, verwijderLeeg =
   const index = readJson(indexFile);
   const days = new Map(dayNames.map((name) => [name, readJson(path.join(archiveDir, name))]).filter(([, day]) => day));
 
-  // Eén opzoeking over alle bestanden: een "changed" zonder adres vindt zo het adres van hetzelfde
-  // parkeerverbod in een ander bestand. Blijft het onbekend, dan valt de wijziging weg (de opkuis kan
-  // niet bewijzen dat ze in het district ligt).
-  const opzoeking = parkeerDistrictOpzoeking([live, baseline, ...days.values()].filter(Boolean));
-  const opties = { onbekend: false, opzoeking };
-
   const uit = new Map();
   const noteer = (relative, before, after, aantal) => {
     rapport.files[relative] = {
@@ -95,7 +93,7 @@ export function opkuisHistoriekPrivacy({ rootDir, write = false, verwijderLeeg =
   };
 
   if (live) {
-    const schoon = historiekVoorPubliek(live, opties);
+    const schoon = historiekVoorPubliek(live);
     noteer(LIVE_HISTORY_FILE, live, schoon, (doc) => ({
       works: doc.layers?.works?.items?.length ?? 0,
       publicSpace: doc.layers?.publicSpace?.items?.length ?? 0,
@@ -116,7 +114,7 @@ export function opkuisHistoriekPrivacy({ rootDir, write = false, verwijderLeeg =
   const schoneDagen = new Map();
   for (const [name, day] of days) {
     const relative = `${LIVE_HISTORY_ARCHIVE_DIR}/${name}`;
-    const schoon = archiefDagVoorPubliek(day, opties);
+    const schoon = archiefDagVoorPubliek(day);
     noteer(relative, day, schoon, (doc) => ({ events: doc.events?.length ?? 0 }));
     if (!geldig(relative, validateHistoryArchiveDay(schoon))) continue;
     if (schoon.events.length) {
@@ -150,7 +148,7 @@ export function opkuisHistoriekPrivacy({ rootDir, write = false, verwijderLeeg =
   // Wat de scan na de opkuis nog vindt (normaal niets): het bestand wordt toch geschreven, want het
   // is schoner dan ervoor, en de melding zegt waar het zit.
   for (const [file, document] of uit) {
-    const over = historiekPrivacyBevindingen(document).length;
+    const over = bevindingen(document).length;
     if (over) rapport.nogBevindingen[path.relative(rootDir, file)] = over;
   }
 
