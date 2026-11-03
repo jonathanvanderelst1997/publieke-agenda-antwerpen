@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-11-03",
-  "sourceItemCount": 898,
-  "sourceDigest": "6a22ff5008b226084a889126e87ed62194aa5b4dca33791ef1bb6d4b01a519ff",
+  "sourceItemCount": 899,
+  "sourceDigest": "00e7ccdfc57eb3146078f3d65f918f7fdeb3673a1d77fbeaa53ff23bb038f581",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -1914,6 +1914,19 @@
       "canonicalSourceUrl": "https://www.scratch-antwerp.be/freedom-friday/",
       "sourceHost": "www.scratch-antwerp.be",
       "sourceRetrievedAt": "2026-08-13T13:24:19Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "furie-450-jaar-later-grote-markt-2026-11-04",
+      "title": "FURIE! 450 jaar later",
+      "eventDate": "2026-11-04",
+      "classification": "future",
+      "classificationAsOf": "2026-11-03",
+      "sourceId": "district-furie-450",
+      "sourcePublisher": "District Antwerpen",
+      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-11-03T21:15:00Z",
       "verificationState": "verified"
     },
     {

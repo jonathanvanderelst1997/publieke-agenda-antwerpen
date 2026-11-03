@@ -125,6 +125,16 @@
       scope: "district",
       check: { mustContain: ["buurtfeest", "inhuldiging"] },
     },
+    "district-furie-450": {
+      publisher: "District Antwerpen",
+      url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend",
+      retrievedAt: "2026-11-03T21:15:00Z",
+      state: "verified",
+      note: "Officiële nieuwspagina van district Antwerpen: FURIE!, herdenking van de Spaanse Furie op woensdag 4 november 2026, 19 tot 20.30 uur, Grote Markt, gratis. Ook in de districtskalender (woe 4/11 om 19 uur, 2000 Antwerpen, Grote Markt). Overbrugging: de districtskalender is sinds 24-10-2026 niet meer zichtbaar omdat www.antwerpen.be automatische toegang weigert.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["FURIE!", "Grote Markt"] },
+    },
     "publiekeruimte-schoolstraat-vanhoenacker": {
       publisher: "District Antwerpen, team Publieke Ruimte",
       url: "https://www.antwerpen.be/publiekeruimte",
@@ -178,6 +188,10 @@
     {
       match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
       sourceId: "city-gaston-buurtfeest",
+    },
+    {
+      match: { title: "FURIE! 450 jaar later", dates: ["2026-11-04"] },
+      sourceId: "district-furie-450",
     },
     {
       match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },

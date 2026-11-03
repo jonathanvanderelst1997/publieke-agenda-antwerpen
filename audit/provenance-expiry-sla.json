@@ -4,24 +4,24 @@
   "classificationAsOf": "2026-11-03",
   "verifiedSourceSnapshotAt": "2026-11-03T04:24:42.087Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
-  "sourceItemCount": 898,
-  "localCandidateCount": 715,
+  "sourceItemCount": 899,
+  "localCandidateCount": 716,
   "classifications": {
     "current": 22,
     "expired": 137,
-    "future": 693,
+    "future": 694,
     "review_required": 46
   },
   "slaStatuses": {
     "expired_not_public": 137,
-    "fresh_verified": 715,
+    "fresh_verified": 716,
     "stale_blocked": 46
   },
   "sourceKinds": {
     "historical_link_only": 81,
     "official_feed": 782,
     "official_organizer": 6,
-    "public_authority": 29
+    "public_authority": 30
   },
   "items": [
     {
@@ -2807,6 +2807,30 @@
       "publishEligible": false,
       "includedInLocalCandidate": false,
       "failClosed": true
+    },
+    {
+      "id": "furie-450-jaar-later-grote-markt-2026-11-04",
+      "title": "FURIE! 450 jaar later",
+      "theme": "Activiteit",
+      "eventDate": "2026-11-04",
+      "classification": "future",
+      "classificationAsOf": "2026-11-03",
+      "sourceId": "district-furie-450",
+      "sourcePublisher": "District Antwerpen",
+      "sourceKind": "public_authority",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend",
+      "sourceHost": "www.antwerpen.be",
+      "sourceRetrievedAt": "2026-11-03T21:15:00Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": null,
+      "recheckDueOn": "2026-11-04",
+      "visibleThrough": "2026-11-04",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
     },
     {
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7",
