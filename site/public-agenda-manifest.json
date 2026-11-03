@@ -3,18 +3,18 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-11-03T04:24:42.087Z",
   "classificationAsOf": "2026-11-03",
-  "sourceCount": 898,
-  "count": 715,
-  "eventPageCount": 715,
+  "sourceCount": 899,
+  "count": 716,
+  "eventPageCount": 716,
   "archivedEventPageCount": 314,
   "classifications": {
     "expired": 137,
     "current": 22,
-    "future": 693,
+    "future": 694,
     "review_required": 46
   },
   "scopeCounts": {
-    "district": 93,
+    "district": 94,
     "stad": 622
   },
   "feedGeneratedAt": "2026-11-03T04:24:42.087Z",
@@ -132,13 +132,14 @@
       "state": "inactive"
     }
   ],
-  "digest": "1eaaf5b02508041000c172eacfc56f342af299d9b4cdca22584f283fc4a34857",
+  "digest": "d2e61157b7abcf577626b5c1f69b2674e0f0ef31ffdaf6a6a042e7b7e1f228b1",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "FURIE! 450 jaar later",
     "Schoolstraat Hertoginstraat",
     "Schoolstraat Durletstraat",
     "Schoolstraat Bervoetstraat",

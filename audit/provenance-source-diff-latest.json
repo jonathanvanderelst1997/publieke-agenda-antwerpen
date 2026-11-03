@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-11-03",
-  "sourceDigest": "6a22ff5008b226084a889126e87ed62194aa5b4dca33791ef1bb6d4b01a519ff",
-  "matrixDigest": "6a22ff5008b226084a889126e87ed62194aa5b4dca33791ef1bb6d4b01a519ff",
+  "sourceDigest": "00e7ccdfc57eb3146078f3d65f918f7fdeb3673a1d77fbeaa53ff23bb038f581",
+  "matrixDigest": "00e7ccdfc57eb3146078f3d65f918f7fdeb3673a1d77fbeaa53ff23bb038f581",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 898
+    "unchanged": 899
   },
   "actions": [
     {
@@ -894,6 +894,12 @@
       "action": "unchanged",
       "sourceDigest": "42f3cc0bb07af2035a0cc1dd518b794aeff743094944d8d4d7c1fb0cf788b93f",
       "matrixDigest": "42f3cc0bb07af2035a0cc1dd518b794aeff743094944d8d4d7c1fb0cf788b93f"
+    },
+    {
+      "id": "furie-450-jaar-later-grote-markt-2026-11-04",
+      "action": "unchanged",
+      "sourceDigest": "d4515abe29da143a407af6b1de9597296083df5d117cdf55e4fc43f9ea0d564e",
+      "matrixDigest": "d4515abe29da143a407af6b1de9597296083df5d117cdf55e4fc43f9ea0d564e"
     },
     {
       "id": "gratis-initiaties-boogschieten-2026-07-05-2026-07-05-d104f9e9",

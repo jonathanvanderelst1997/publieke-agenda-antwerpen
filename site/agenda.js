@@ -1507,6 +1507,19 @@ const agendaItems = [
     "location": "Regatta",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
     "link": "https://www.citaatopstraat.be/"
+  },
+  {
+    "id": "furie-450-jaar-later-grote-markt-2026-11-04",
+    "title": "FURIE! 450 jaar later",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-11-04",
+    "dateLabel": "4 november 2026",
+    "timeSlot": "19:00",
+    "timeText": "19 tot 20.30 uur",
+    "location": "Grote Markt, 2000 Antwerpen",
+    "info": "District Antwerpen herdenkt de Spaanse Furie, exact 450 jaar geleden, met een eenmalige avond op de Grote Markt: live muziek, literatuur, theater met poppen en acteurs, een lichtspektakel en foodtrucks. Gratis. Een organisatie van district Antwerpen met Bad van Marie, Museum Plantin-Moretus, het Poesjenellentheater en culturele partners.",
+    "link": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend"
   }
 ];
 

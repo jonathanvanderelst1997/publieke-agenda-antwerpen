@@ -77,11 +77,12 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
     if (String(url).includes("publiekeruimte")) return { status: 302, headers: { get: () => "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken" }, text: async () => "" };
     if (String(url).includes("maandvandevoetganger.be")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Wandelen met woorden – Poëtische Rimpelingen</h1><p>10 oktober om 14 uur</p>" };
     if (String(url).includes("gaston")) return { status: 200, headers: { get: () => null }, text: async () => "<p>Op 10 oktober 2026: officiële inhuldiging en gratis buurtfeest.</p>" };
+    if (String(url).includes("furie-450-jaar-later")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>FURIE! 450 jaar later.</h1><p>Grote Markt, Antwerpen<br>woensdag 4 november 2026<br>19 tot 20.30 uur</p>" };
     return { status: 200, headers: { get: () => null }, text: async () => "<p>Openbare werken</p>" };
   };
   const doc = await run({ rootDir: root, fetch, clock: () => new Date("2026-10-06T03:20:00Z"), log: () => {}, sleep: async () => {} });
   const byId = Object.fromEntries(doc.sources.map((entry) => [entry.sourceId, entry.status]));
-  assert.deepEqual(byId, { "poetische-rimpelingen-regatta": "ok", "city-gaston-buurtfeest": "ok", "publiekeruimte-schoolstraat-vanhoenacker": "niet_controleerbaar" });
+  assert.deepEqual(byId, { "poetische-rimpelingen-regatta": "ok", "city-gaston-buurtfeest": "ok", "district-furie-450": "ok", "publiekeruimte-schoolstraat-vanhoenacker": "niet_controleerbaar" });
   assert.ok(asked.some((url) => url.endsWith("/openbare-werken")), "doorverwijzing gevolgd");
   const written = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", "manual-check.json"), "utf8"));
   assert.deepEqual(validateManualCheck(written), []);
