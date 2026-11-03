@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-01T04:22:24.744Z",
+  "generatedAt": "2026-11-03T04:23:59.799Z",
   "venster": {
-    "van": "2026-09-02",
-    "tot": "2027-03-01"
+    "van": "2026-09-04",
+    "tot": "2027-03-03"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 42,
-    "gelezen": 25,
+    "besluiten": 45,
+    "gelezen": 28,
     "teLezen": 0,
-    "metDag": 24,
-    "inDistrict": 19,
-    "agendapunten": 17
+    "metDag": 25,
+    "inDistrict": 21,
+    "agendapunten": 18
   },
   "besluiten": [
     {
@@ -1241,6 +1241,96 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0573.6817/agendapunten/26.1019.7382.7220"
+    },
+    {
+      "id": "26.1014.2203.8115",
+      "code": "2026_CBS_07640",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-10-30",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Full Circle 2026",
+      "organisator": "Better Together bv",
+      "dagen": [],
+      "uren": null,
+      "plaats": "Koningin Astridplein 27, Steenplein 1, Sint-Pietersvliet 7, Desguinlei 25, Simonsstraat 21, Noordersingel 28-30, Franklin Rooseveltplaats 1, Godefriduskaai 30,t",
+      "straten": [
+        "Desguinlei",
+        "Franklin Rooseveltplaats",
+        "Godefriduskaai",
+        "Koningin Astridplein",
+        "Noordersingel",
+        "Simonsstraat",
+        "Sint-Pietersvliet",
+        "Steenplein"
+      ],
+      "postcodes": [],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2336.8360/agendapunten/26.1014.2203.8115",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1019.6710.2511",
+      "code": "2026_CBS_07642",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-10-30",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "100Y - NMBS",
+      "organisator": "Better Together bv",
+      "dagen": [
+        "2026-11-12"
+      ],
+      "uren": {
+        "start": "19:00",
+        "einde": "23:59"
+      },
+      "plaats": "het Centraal Station, Koningin Astridplein 27, 2018 Antwerpen",
+      "straten": [
+        "Koningin Astridplein"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2336.8360/agendapunten/26.1019.6710.2511",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1019.5872.2463",
+      "code": "2026_CBS_07737",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-10-30",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "IJspiste met schaatsverhuur en winterbar tijdens Winter in Antwerpen 2026-2027",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": "2026-11-02",
+      "afbouw": "2027-01-17",
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.2336.8360/agendapunten/26.1019.5872.2463",
+      "leesversie": 3
     },
     {
       "id": "26.1028.4364.6933",

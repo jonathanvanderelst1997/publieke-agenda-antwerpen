@@ -215,6 +215,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-19"
   },
+  "het centraal station koningin astridplein 27 2018 antwerpen": {
+   "point": [
+    4.42114,
+    51.21737
+   ],
+   "precision": "adres",
+   "street": "Koningin Astridplein",
+   "postcode": "2018",
+   "checkedOn": "2026-11-03"
+  },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
     4.43234,
