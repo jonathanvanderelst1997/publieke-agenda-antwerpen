@@ -137,21 +137,13 @@ test("toetsen: een echte straatnaam krijgt alleen huisnummer 999", () => {
 });
 
 const parkeer = (id, location, extra = {}) => ({
-  // Een parkeerverbod zoals de historiek het tot 3 november 2026 bewaarde. Sindsdien komt er geen parkeerverbod meer in
-  // (besluit van de eigenaar, tests/geen-parkeerhistoriek.test.mjs); de straatbestanden houden de regels hieronder.
+  // De titel zoals de historiek ze nu bewaart: altijd "Parkeerverbod", nooit de reden (tests/parkeerverbod-zonder-reden.test.mjs).
   id: `parking:D${id}|L${id}`, kind: "parking", kindLabel: "Parkeerverbod", title: "Parkeerverbod", location,
   start: "2026-10-12T06:00:00.000Z", end: "2026-10-13T18:00:00.000Z", status: "Goedgekeurd", reference: `D${id}`, detail: "",
   streets: [], streetResolution: "unresolved", streetDistanceMeters: null, ...extra,
 });
 
-// Een inname (IOD): die blijft in de historiek, zonder huisnummer.
-const inname = (id, location, extra = {}) => ({
-  id: `iod:D${id}|F${id}|I${id}`, kind: "iod", kindLabel: "Inname openbaar domein", title: "Inname", location,
-  start: "2026-10-12T06:00:00.000Z", end: "2026-10-13T18:00:00.000Z", status: "aanvraag_goedgekeurd", reference: `D${id}`, detail: "",
-  streets: [], streetResolution: "unresolved", streetDistanceMeters: null, ...extra,
-});
-
-// Een historiek zoals main ze schreef (met huisnummers en parkeerverboden), los van lib/live-history.mjs: die kan zelf al
+// Een historiek zoals main ze schreef (met huisnummers), los van lib/live-history.mjs: die kan zelf al
 // opkuisen (#139), en deze toetsen moeten de oude vorm blijven nabootsen.
 const sha = (items) => crypto.createHash("sha256").update(JSON.stringify([...items].sort((a, b) => String(a.id).localeCompare(String(b.id), "nl")))).digest("hex");
 const laag = (items, at) => ({ status: "ok", lastAttemptAt: at, lastSuccessAt: at, errorCode: null, count: items.length, digest: sha(items), items });
@@ -160,12 +152,13 @@ const oudeHistoriek = ({ observedAt, works = [], publicSpace = [], changes = [] 
   layers: { works: laag(works, observedAt), publicSpace: laag(publicSpace, observedAt) }, changes,
 });
 
-test("de verversing: geen enkel parkeerverbod gaat naar de historiek, een inname wel (zonder huisnummer)", () => {
-  const result = resultaatVoorHistoriek({ ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen"), parkeer(3, "Zstraat 9 2600 Antwerpen"), inname(4, "Xstraat 2 2000 Antwerpen")] });
-  assert.deepEqual(result.items.map((item) => item.id), ["iod:D4|F4|I4"]);
-  assert.equal(result.items[0].location, "Xstraat, 2000 Antwerpen");
-  assert.equal(result.parkeerverboden, 3);
-  assert.equal(resultaatVoorHistoriek({ ok: false, items: [parkeer(5, "Xstraat 2 2000 Antwerpen")], errorCode: "x" }).ok, false, "een mislukte laag blijft mislukt");
+test("een punt buiten het district valt weg", () => {
+  const result = resultaatVoorHistoriek({ ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen"), parkeer(3, "Zstraat 9 2600 Antwerpen")] });
+  assert.deepEqual(result.items.map((item) => item.id), ["parking:D1|L1"]);
+  assert.equal(result.buitenDistrict, 2);
+  // Zonder postcode beslist de officiële straat van het district.
+  const zonder = resultaatVoorHistoriek({ ok: true, items: [parkeer(4, "Xstraat 2", { streets: [{ id: "1", name: "Xstraat", postcode: "2000" }] }), parkeer(5, "Ystraat 5")] });
+  assert.deepEqual(zonder.items.map((item) => item.id), ["parking:D4|L4"]);
 });
 
 test("de scan vindt een huisnummer, een postcode buiten het district en een punt buiten de grens", () => {
@@ -208,51 +201,42 @@ test("een naam na een dossiercode valt weg uit de historiek, en de scan vindt he
   assert.deepEqual(validateLiveHistory(publiek), []);
 });
 
-test("historiek: oude parkeerverboden en al hun wijzigingen vallen weg, ook een wijziging zonder adres; een inname blijft", () => {
+test("historiek: oude wijzigingen zonder adres volgen hun parkeerverbod; een wijziging van alleen het huisnummer valt weg", () => {
   const T2 = "2026-10-10T03:00:00.000Z";
   const h2 = oudeHistoriek({
     observedAt: T2,
-    publicSpace: [parkeer(1, "Xstraat 4 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen", { end: "2026-10-14T18:00:00.000Z" }), inname(3, "Xstraat 4 2000 Antwerpen")],
+    publicSpace: [parkeer(1, "Xstraat 4 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen", { end: "2026-10-14T18:00:00.000Z" })],
     changes: [
       { observedAt: T2, layer: "publicSpace", id: "parking:D1|L1", type: "changed", fields: ["location"], before: { location: "Xstraat 2 2000 Antwerpen" }, after: { location: "Xstraat 4 2000 Antwerpen" } },
       { observedAt: T2, layer: "publicSpace", id: "parking:D2|L2", type: "changed", fields: ["end"], before: { end: "2026-10-13T18:00:00.000Z" }, after: { end: "2026-10-14T18:00:00.000Z" } },
-      { observedAt: T2, layer: "publicSpace", id: "iod:D3|F3|I3", type: "changed", fields: ["end"], before: { end: "2026-10-13T18:00:00.000Z" }, after: { end: "2026-10-14T18:00:00.000Z" } },
     ],
   });
   assert.deepEqual(validateLiveHistory(h2), []);
-  const schoon = historiekVoorPubliek(h2);
-  assert.deepEqual(schoon.changes.map((change) => change.id), ["iod:D3|F3|I3"]);
-  assert.deepEqual(schoon.layers.publicSpace.items.map((item) => [item.id, item.location]), [["iod:D3|F3|I3", "Xstraat, 2000 Antwerpen"]]);
-  assert.equal(schoon.layers.publicSpace.count, 1);
+  const schoon = historiekVoorPubliek(h2, { onbekend: false });
+  assert.deepEqual(schoon.changes, []);
+  assert.deepEqual(schoon.layers.publicSpace.items.map((item) => item.location), ["Xstraat, 2000 Antwerpen"]);
   assert.deepEqual(validateLiveHistory(schoon), []);
   assert.deepEqual(historiekPrivacyBevindingen(schoon), []);
-  assert.doesNotMatch(JSON.stringify(schoon), /parking|Parkeerverbod/);
-  // Dagarchief: dezelfde regels.
-  const dag = archiefDagVoorPubliek({ schemaVersion: 1, date: "2026-10-10", events: h2.changes });
-  assert.deepEqual(dag.events.map((event) => event.id), ["iod:D3|F3|I3"]);
+  // Dagarchief: dezelfde regels; een wijziging waarvan het adres niet te vinden is, valt weg.
+  const dag = archiefDagVoorPubliek({ schemaVersion: 1, date: "2026-10-10", events: h2.changes }, { onbekend: false });
+  assert.deepEqual(dag.events, []);
 });
 
 test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-op", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "historiek-opkuis-"));
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const T1 = "2026-10-09T03:00:00.000Z", T2 = "2026-10-10T03:00:00.000Z";
-  // Een werk houdt zijn huisnummer (regel van de eigenaar van 26 oktober 2026); een parkeerverbod verdwijnt helemaal
-  // (besluit van 3 november 2026). De oude bestanden zoals main ze tot dan schreef: met parkeerverboden.
+  // Een werk houdt zijn huisnummer (regel van de eigenaar van 26 oktober 2026); een parkeerverbod niet.
   const werk = { gipodId: 7, title: "2000 Antwerpen, Xstraat 30", status: "In uitvoering", start: T1, end: T2, owner: "Proef", ownerGroup: "Andere", boundaryConfidence: "point_inside_new", workTypes: [], occupancyTypes: [], hindrance: null };
-  const h1 = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [] } });
-  const nieuwVerbod = parkeer(2, "Ystraat 5 2100 Antwerpen");
-  const h2 = {
-    ...oudeHistoriek({ observedAt: T2, works: h1.layers.works.items, publicSpace: [parkeer(1, "Xstraat 2 2000 Antwerpen"), nieuwVerbod] }),
-    baselineInitializedAt: T1,
-    changes: [{ observedAt: T2, layer: "publicSpace", id: nieuwVerbod.id, type: "added", fields: [], before: null, after: nieuwVerbod }],
-  };
+  const h1 = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen")] } });
+  const h2 = updateLiveHistory(h1, { observedAt: T2, worksResult: { ok: true, items: [werk] }, publicSpaceResult: { ok: true, items: [parkeer(1, "Xstraat 2 2000 Antwerpen"), parkeer(2, "Ystraat 5 2100 Antwerpen")] } });
   const dag = { schemaVersion: 1, date: "2026-10-10", events: h2.changes };
   const schrijf = (relative, value) => {
     fs.mkdirSync(path.dirname(path.join(root, relative)), { recursive: true });
     fs.writeFileSync(path.join(root, relative), `${JSON.stringify(value, null, 2)}\n`);
   };
   schrijf("site/history/live-layers.json", h2);
-  schrijf("site/history/archive/baseline.json", { schemaVersion: 1, layers: { works: { observedAt: T1, items: h1.layers.works.items }, publicSpace: { observedAt: T1, items: [parkeer(1, "Xstraat 2 2000 Antwerpen")] } } });
+  schrijf("site/history/archive/baseline.json", { schemaVersion: 1, layers: { works: { observedAt: T1, items: h1.layers.works.items }, publicSpace: { observedAt: T1, items: h1.layers.publicSpace.items } } });
   schrijf("site/history/archive/2026-10-10.json", dag);
   schrijf("site/history/archive/index.json", { schemaVersion: 1, baselineInitializedAt: T1, lastObservedAt: T2, days: [{ date: "2026-10-10", file: "site/history/archive/2026-10-10.json", count: 1, digest: "0".repeat(64) }] });
 
@@ -266,15 +250,15 @@ test("eenmalige opkuis: schrijft schone, geldige bestanden en is daarna een no-o
   assert.equal(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"), indexVooraf);
   for (const relative of ["site/history/live-layers.json", "site/history/archive/baseline.json"]) {
     const inhoud = fs.readFileSync(path.join(root, relative), "utf8");
-    assert.equal(inhoud.includes("Xstraat 2 ") || inhoud.includes("2100") || inhoud.includes("parking"), false, relative);
+    assert.equal(inhoud.includes("Xstraat 2 ") || inhoud.includes("2100"), false, relative);
     assert.equal(inhoud.includes("2000 Antwerpen, Xstraat 30"), true, `${relative}: het werk met zijn nummer`);
   }
 
   const eerste = opkuisHistoriekPrivacy({ rootDir: root, write: true });
-  assert.deepEqual(eerste.leegGeworden, ["site/history/archive/2026-10-10.json"], "de enige wijziging was een parkeerverbod");
+  assert.deepEqual(eerste.leegGeworden, ["site/history/archive/2026-10-10.json"], "de enige wijziging lag buiten het district");
   const tekst = fs.readdirSync(path.join(root, "site/history/archive")).map((name) => fs.readFileSync(path.join(root, "site/history/archive", name), "utf8")).join("\n")
     + fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8");
-  for (const verboden of ["Xstraat 2 ", "Ystraat", "2100", "parking", "Parkeerverbod"]) assert.equal(tekst.includes(verboden), false, verboden);
+  for (const verboden of ["Xstraat 2 ", "Ystraat", "2100"]) assert.equal(tekst.includes(verboden), false, verboden);
   assert.equal(tekst.includes("2000 Antwerpen, Xstraat 30"), true, "het werk met zijn nummer");
   const index = JSON.parse(fs.readFileSync(path.join(root, "site/history/archive/index.json"), "utf8"));
   assert.deepEqual(index.days, []);
@@ -300,7 +284,7 @@ test("opkuis: wat niet lukt, houdt de rest niet tegen en wordt gemeld", (t) => {
 
   const rapport = opkuisHistoriekPrivacy({ rootDir: root, write: true });
   const live = JSON.parse(fs.readFileSync(path.join(root, "site/history/live-layers.json"), "utf8"));
-  assert.deepEqual(live.layers.publicSpace.items, [], "het parkeerverbod is toch weg");
+  assert.equal(live.layers.publicSpace.items[0].location, "Proefstraat, 2000 Antwerpen", "het huisnummer van het parkeerverbod is toch weg");
   assert.equal(live.layers.works.items[0].title, "Proefstraat 12", "een werk houdt zijn huisnummer");
   assert.deepEqual(rapport.nogBevindingen, { "site/history/live-layers.json": 1 });
   assert.deepEqual(rapport.nietGeschreven, { "site/history/archive/2026-10-09.json": "geen geldige JSON" });
@@ -318,7 +302,7 @@ test("validate-data meldt een huisnummer in de historiek met het pad, zonder de 
     for (const name of fs.readdirSync(path.join(repoRoot, "site")).filter((entry) => entry.endsWith(".js"))) {
       fs.copyFileSync(path.join(repoRoot, "site", name), path.join(root, "site", name));
     }
-    const history = oudeHistoriek({ observedAt: "2026-10-10T03:00:00.000Z", publicSpace: [inname(1, "Xstraat 27 2000 Antwerpen")] });
+    const history = oudeHistoriek({ observedAt: "2026-10-10T03:00:00.000Z", publicSpace: [parkeer(1, "Xstraat 27 2000 Antwerpen")] });
     fs.writeFileSync(path.join(root, "site/history/live-layers.json"), JSON.stringify(history));
     const run = spawnSync(process.execPath, [path.join(root, "scripts", "validate-data.mjs")], { encoding: "utf8" });
     const regels = run.stderr.split("\n").filter((line) => line.startsWith("site/history/") && line.includes("privacy"));

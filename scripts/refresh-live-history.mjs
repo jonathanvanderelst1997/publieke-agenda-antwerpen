@@ -28,7 +28,6 @@ import { schrijfKaartUitleg } from "../lib/kaart-uitleg-refresh.mjs";
 import { attachHindrance } from "../site/works-hindrance.js";
 import { collectWorks } from "../site/works-core.js";
 import { archiefBaselineVoorPubliek, archiefDagVoorPubliek, historiekVoorPubliek, resultaatVoorHistoriek } from "../lib/historiek-privacy.mjs";
-import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
 import { opkuisHistoriekPrivacy } from "./opkuis-historiek-privacy.mjs";
 import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
 import { metRegisterNummers, vormNaVerversing, werkVormDocument, werkenVoorDeSite } from "../site/werk-vorm.js";
@@ -314,8 +313,9 @@ export async function refreshLiveHistory({
   // kaart-uitleg.json en de straatbestanden: dezelfde bestanden als regel 35 van validate-data) blijven een gewone kaart
   // (regel 13).
   const werkVorm = { vorm: leesWerkVorm(rootDir), bekend: gepubliceerdeWerkIds(rootDir, { straten: true }) };
-  // Eerst de bestaande historiek opkuisen (geen huisnummers in vrije tekst behalve bij een werk, geen enkel parkeerverbod,
-  // alleen het district), ook oudere dagen van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
+  // Eerst de bestaande historiek opkuisen (geen huisnummers in vrije tekst behalve bij een werk, een parkeerverbod alleen
+  // met zijn plaats in de vorm van publiekParkeerAdres, alleen het district), ook oudere dagen
+  // van het archief. Een schone historiek blijft ongemoeid; wat niet lukt, houdt de andere bestanden
   // niet tegen. Lukt het helemaal niet, dan gaat de verversing gewoon door; validate-data meldt dan
   // wat er nog opgekuist moet worden. De log toont alleen aantallen en het soort fout, nooit een stuk
   // van een bestand (de logs zijn publiek).
@@ -341,15 +341,14 @@ export async function refreshLiveHistory({
   // gepubliceerde id's erbij; staan ze er al, dan blijft het bestand ongewijzigd.
   const nieuweVorm = vormNaVerversing(werkVorm.vorm, worksResult.ok ? worksResult.items : [], { bekend: werkVorm.bekend });
   if (worksResult.ok || JSON.stringify(nieuweVorm) !== JSON.stringify(werkVormDocument(werkVorm.vorm))) schrijfWerkVorm(rootDir, nieuweVorm);
-  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers (behalve bij een werk, regel van de
-  // eigenaar van 26 oktober 2026), vóór het vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa
-  // wijzigingen ontstaat. Geen enkel parkeerverbod (besluit van de eigenaar van 3 november 2026, lib/parkeer-historiek.mjs):
-  // die staan alleen live en in de straatbestanden en kaart-uitleg.json van de ochtend (publicSpaceResult hieronder).
+  // Privacy (lib/historiek-privacy.mjs): alleen district Antwerpen en geen huisnummers (behalve bij een werk en de exacte
+  // plaats van een parkeerverbod, regel van de eigenaar van 26 oktober 2026), vóór het
+  // vergelijken en het schrijven. Ook de vorige stand, zodat er geen massa wijzigingen ontstaat.
   const worksVoorHistoriek = resultaatVoorHistoriek(werkenMetRegisterNummers(rootDir, worksResult));
   const publicSpaceVoorHistoriek = resultaatVoorHistoriek(publicSpaceResult);
-  log(JSON.stringify({ historiekPrivacy: { parkeerverbodenNietBewaard: publicSpaceVoorHistoriek?.parkeerverboden ?? 0 } }));
+  log(JSON.stringify({ historiekPrivacy: { parkeerverbodenBuitenDistrict: publicSpaceVoorHistoriek?.buitenDistrict ?? 0 } }));
   const history = updateLiveHistory(historiekVoorPubliek(previous), { observedAt, worksResult: worksVoorHistoriek, publicSpaceResult: publicSpaceVoorHistoriek });
-  const errors = [...validateLiveHistory(history), ...parkeerverbodenInHistoriek(history).map((finding) => `parkeerverbod op ${finding.path}`)];
+  const errors = validateLiveHistory(history);
   if (errors.length) throw new Error(`live historiek ongeldig: ${errors[0]}`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, `${JSON.stringify(history, null, 2)}\n`, "utf8");
@@ -370,8 +369,8 @@ export async function refreshLiveHistory({
     historyArchiveEventsForRun(history, baseline)
   );
   let archiveIndex = updateHistoryArchiveIndex(previousIndex, { observedAt, baseline, dayDocument });
-  // Oudere dagen: zonder parkeerverboden (lib/parkeer-historiek.mjs). Alleen een dag die echt verandert, wordt
-  // herschreven; daarna is dit bij elke verversing een no-op.
+  // Oudere dagen: parkeerverboden opkuisen (geen huisnummers, geen foute weekdagregel). Alleen een
+  // dag die echt verandert, wordt herschreven; daarna is dit bij elke verversing een no-op.
   const archiveDir = path.dirname(archiveBaselineFile);
   const olderDays = [];
   for (const name of fs.existsSync(archiveDir) ? fs.readdirSync(archiveDir).sort() : []) {
@@ -392,7 +391,6 @@ export async function refreshLiveHistory({
     ...validateHistoryArchiveDay(dayDocument),
     ...olderDays.flatMap(([, document]) => validateHistoryArchiveDay(document)),
     ...validateHistoryArchiveIndex(archiveIndex),
-    ...[baseline, dayDocument, ...olderDays.map(([, document]) => document)].flatMap((document) => parkeerverbodenInHistoriek(document)).map((finding) => `parkeerverbod op ${finding.path}`),
   ];
   if (archiveErrors.length) throw new Error(`live historiekarchief ongeldig: ${archiveErrors[0]}`);
 

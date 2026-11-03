@@ -1,0 +1,17 @@
+{"schemaVersion":1,"maand":"2027-09","items":[
+{"id":"parking:2025-054911|1055241","location":"Sint-Paulusstraat 32–40, 2000 Antwerpen","start":"2027-05-01","end":"2027-09-01"},
+{"id":"parking:2025-054911|1055242","location":"Sint-Paulusstraat 35–43, 2000 Antwerpen","start":"2027-05-01","end":"2027-09-01"},
+{"id":"parking:2026-066196|1202546","location":"Museumstraat 1–7, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-066196|1202551","location":"Museumstraat 12A, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-066196|1202548","location":"Museumstraat 2–4, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-066196|1202549","location":"Museumstraat 4–8, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-066196|1202550","location":"Museumstraat 8–12, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-066196|1202547","location":"Museumstraat 9–11, 2000 Antwerpen","start":"2026-10-17","end":"2027-09-10","weg":"2026-10-29"},
+{"id":"parking:2026-061050|1193872","location":"Kattendijkdok-Westkaai 81–91, 2000 Antwerpen","start":"2026-09-19","end":"2027-09-12"},
+{"id":"parking:2026-061050|1193871","location":"Limastraat, 2000 Antwerpen","start":"2026-09-19","end":"2027-09-12"},
+{"id":"parking:2026-061051|1193874","location":"Kattendijkdok-Westkaai 81–91, 2000 Antwerpen","start":"2027-09-13","end":"2027-09-13"},
+{"id":"parking:2026-061051|1193873","location":"Limastraat, 2000 Antwerpen","start":"2027-09-13","end":"2027-09-13"},
+{"id":"parking:2025-054912|1055238","location":"Sint-Paulusstraat 32–40, 2000 Antwerpen","start":"2027-09-01","end":"2027-09-15"},
+{"id":"parking:2025-054912|1130493","location":"Sint-Paulusstraat 35–43, 2000 Antwerpen","start":"2027-09-01","end":"2027-09-15"},
+{"id":"parking:2025-077930|1089592","location":"Plantinkaai 24–27, 2000 Antwerpen","start":"2027-05-15","end":"2027-09-30"}
+]}

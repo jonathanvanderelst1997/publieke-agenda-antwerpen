@@ -2,7 +2,7 @@
 
 Stand: 28 september 2026.
 
-De publieke agenda heeft live browserlagen voor GIPOD-werken + gevalideerde hinder en voor bevestigde A-Sign-maatregelen (parkeerverboden, IOD, SGW). Alleen live tonen is onvoldoende om veranderingen te kunnen volgen. Daarom schrijft de dagelijkse dataverversing één compacte, privacyveilige historiek, van de werken, de innames (IOD) en de werfzones en omleidingen (SGW). Niet van de parkeerverboden: zie "Geen historiek van parkeerverboden" hieronder.
+De publieke agenda heeft live browserlagen voor GIPOD-werken + gevalideerde hinder en voor bevestigde A-Sign-maatregelen (parkeerverboden, IOD, SGW). Alleen live tonen is onvoldoende om veranderingen te kunnen volgen. Daarom schrijft de dagelijkse dataverversing één compacte, privacyveilige historiek:
 
 - `site/history/live-layers.json` voor de actuele compacte snapshot en maximaal 90 dagen snelle wijzigingsevents;
 - `site/history/archive/baseline.json` met de eerste succesvolle snapshot per laag;
@@ -17,30 +17,37 @@ De 90-dagengrens is dus alleen nog een snelle live-weergavelaag. Het archief zel
 Een laag wordt alleen vervangen wanneer alle bronnen die voor die laag nodig zijn succesvol zijn gelezen.
 
 - werken: GIPOD INNAME_PUNT + officiële districtsgrens + gevalideerde HINDER_PUNT;
-- publieke ruimte: parkeerverboden + IOD polygon/lijn + SGW omleiding/werfzone + officiële districtsgrens (de parkeerverboden alleen voor de straatbestanden en kaart-uitleg.json; de laag van de historiek bewaart ze niet).
+- publieke ruimte: parkeerverboden + IOD polygon/lijn + SGW omleiding/werfzone + officiële districtsgrens.
 
 Bij een fout blijft de vorige succesvolle snapshot staan met status `stale` en een korte foutcode. Er worden dan geen `removed`-events afgeleid.
 
-## Geen historiek van parkeerverboden
-
-Besluit van de eigenaar van 3 november 2026: "er moet geen historie zijn van parkeerverboden". Een tijdelijk parkeerverbod staat op de site zolang het loopt of nog moet komen: live uit A-Sign in de browser, en in de stand van de ochtend (de straatbestanden onder `site/straat/`), met de regels van `site/adres-privacy.js` (nooit de reden, altijd het exacte huisnummer, nooit een naam). Is het voorbij, dan bewaart de site er niets van:
-
-- `site/history/live-layers.json`: geen parkeerverbod in de laag `publicSpace` en geen wijziging (`added`, `changed`, `removed`) van een parkeerverbod. De laag `publicSpace` bevat de innames (IOD) en de werfzones en omleidingen (SGW);
-- `site/history/archive/`: geen parkeerverbod in `baseline.json` en geen event van een parkeerverbod in een dagshard;
-- `site/history/radar.json`: telt geen wijziging van een parkeerverbod;
-- geen backfill van de A-Sign-parkeerhistoriek (`docs/HISTORY_BACKFILL_POLICY.md`).
-
-De code (`lib/parkeer-historiek.mjs`) haalt ze eruit bij elke verversing, ook uit een oudere stand (zonder een `removed` per parkeerverbod). `node scripts/opkuis-historiek-privacy.mjs --write` haalt ze uit bestaande bestanden, en `validate:data` houdt elk bestand onder `site/history` met een parkeerverbod tegen (melding met het pad, nooit de waarde). Op 3 november 2026 zijn ze zo één keer uit de bestaande bestanden gehaald, en is de radar opnieuw gebouwd (`node scripts/build-straat-snapshots.mjs --alleen-radar`). Oudere versies van die bestanden blijven in de git-geschiedenis van de publieke repo staan: die herschrijven gaat alleen met een force-push.
-
 ## Privacy
 
-De historiek bevat alleen velden die al publiek in de live kaarten mogen staan, en geen parkeerverboden (hierboven). Geen aanvrager, contactorganisatie, adminlink, ruwe geometrie of andere bronpayload wordt opgeslagen. Een werk staat erin in zijn vaste vorm (`site/werk-vorm.js`, `site/sources/werk-vorm.json`, docs/PUBLIC_SPACE_SOURCE_POLICY.md "Werken: adreskaart of gewone kaart"), met zijn huisnummer (regel van de eigenaar van 26 oktober 2026; dat die adressen blijvend in de git-geschiedenis staan, is aanvaard): een gewone kaart met de titel zoals de lijst hem toont, een adreskaart als "<soort> – <straat> <nummer>" zonder vrije tekst; nooit het woord verhuis. De verversing schrijft de vaste vorm vóór de historiek. De bestaande privacy-scan controleert zowel `live-layers.json` als baseline en alle dagshards in `validate:data`; de index bevat alleen datum, pad, aantal en digest.
+De historiek bevat alleen velden die al publiek in de live kaarten mogen staan. Geen aanvrager, contactorganisatie, adminlink, ruwe geometrie of andere bronpayload wordt opgeslagen. Een werk staat erin in zijn vaste vorm (`site/werk-vorm.js`, `site/sources/werk-vorm.json`, docs/PUBLIC_SPACE_SOURCE_POLICY.md "Werken: adreskaart of gewone kaart"), met zijn huisnummer (regel van de eigenaar van 26 oktober 2026; dat die adressen blijvend in de git-geschiedenis staan, is aanvaard): een gewone kaart met de titel zoals de lijst hem toont, een adreskaart als "<soort> – <straat> <nummer>" zonder vrije tekst; nooit het woord verhuis. De verversing schrijft de vaste vorm vóór de historiek. De bestaande privacy-scan controleert zowel `live-layers.json` als baseline en alle dagshards in `validate:data`; de index bevat alleen datum, pad, aantal en digest.
 
 ## Verleden van de agenda
 
-De historiek hierboven gaat over de live lagen (werken, innames, werfzones). De agendapunten zelf hebben een eigen
-verleden: `site/verleden/` en de pagina /verleden/ (`docs/AGENDA_VERLEDEN.md`). Wat ooit in de agenda stond, blijft
-daar publiek staan, met zijn eventpagina op dezelfde URL; nooit een parkeerverbod.
+De historiek hierboven gaat over de live lagen (werken, parkeerverboden, innames, werfzones). De agendapunten zelf
+hebben een eigen verleden: `site/verleden/` en de pagina /verleden/ (`docs/AGENDA_VERLEDEN.md`). Wat ooit in de agenda
+stond, blijft daar publiek staan, met zijn eventpagina op dezelfde URL. De parkeerverboden uit deze historiek staan er
+ook, per maand van hun laatste dag (`site/verleden/parkeerverboden/`).
+
+## Parkeerverboden (3 november 2026)
+
+#232 haalde de parkeerverboden die ochtend uit de historiek, het archief en de radar. Dezelfde dag zei de eigenaar dat
+het anders bedoeld was: "die moeten er wel in komen. Maar gewoon als parkeerverbod, niet per se de reden. En het
+huisnummer mocht dan wel." Het "geen historie" ging alleen over een import van vóór de start (#222, dicht). Dus:
+
+- de code van #232 is teruggedraaid, behalve de backfill: `scripts/backfill-asign-parking-history.mjs` blijft weg, de
+  databaan laat `site/history/backfill/asign-parking/` niet toe en `lib/history-backfill.mjs` weigert elke parkeerbron
+  en elk parkeerrecord (`docs/HISTORY_BACKFILL_POLICY.md`);
+- de data van vóór #232 is terug (`live-layers.json`, de baseline en de dagen van het archief vanaf 1 oktober 2026,
+  de radar): tussen #232 en de terugdraai liep geen verversing, dus er ging niets verloren;
+- een parkeerverbod staat erin als "Parkeerverbod", de plaats in de vorm van `publiekParkeerAdres` (officiële straat met
+  het exacte huisnummer, anders de straat met de postcode), nooit een reden, nooit het woord verhuis, nooit een naam
+  (`lib/parkeer-historiek.mjs`, `historiekPrivacyBevindingen`). Wat vóór 26 oktober 2026 bewaard werd, heeft vaak nog
+  geen huisnummer: de historiek bewaarde toen alleen de straat;
+- `tests/parkeerhistoriek.test.mjs` houdt dat vast.
 
 ## Datalaan
 
@@ -48,19 +55,19 @@ De data-lane laat uitsluitend `site/history/live-layers.json`, `site/history/arc
 
 ## Canonieke straatkoppeling
 
-De dagelijkse refresh gebruikt de officiële Antwerpse wegenregisterlaag `wegenregister_straatas_postzone` (laag 905). GIPOD-werkpunten worden alleen aan de dichtstbijzijnde straatas gekoppeld als de match voldoende nabij en niet ambigu is. Parkeerverboden worden via hun officiële adres aan dezelfde canonieke straatnamen/postcodes gekoppeld (voor de straatbestanden; de historiek bewaart ze niet). Ambigue of te verre matches blijven onopgelost. IOD/SGW volgen later via een geometrische join. Straatmetadata veroorzaakt op zichzelf geen operationeel `changed`-event. Een titel van een werk die alleen een huisnummer bijkrijgt (de overgang naar de regel van 26 oktober 2026, of een nummer dat een dag later uit het adressenregister komt) ook niet; een ander of weggevallen nummer wel. Bij uitval van de straatbron blijft de history fail-closed.
+De dagelijkse refresh gebruikt de officiële Antwerpse wegenregisterlaag `wegenregister_straatas_postzone` (laag 905). GIPOD-werkpunten worden alleen aan de dichtstbijzijnde straatas gekoppeld als de match voldoende nabij en niet ambigu is. Parkeerverboden worden via hun officiële adres aan dezelfde canonieke straatnamen/postcodes gekoppeld. Ambigue of te verre matches blijven onopgelost. IOD/SGW volgen later via een geometrische join. Straatmetadata veroorzaakt op zichzelf geen operationeel `changed`-event. Een titel van een werk die alleen een huisnummer bijkrijgt (de overgang naar de regel van 26 oktober 2026, of een nummer dat een dag later uit het adressenregister komt) ook niet; een ander of weggevallen nummer wel. Bij uitval van de straatbron blijft de history fail-closed.
 
 ## Snelheid: straatbestanden en radar (P5, oktober 2026)
 
 De browser vraagt `live-layers.json` (8 tot 12 MB) niet meer op. Op het einde van `npm run refresh` schrijft `scripts/build-straat-snapshots.mjs`:
 
-- `site/history/radar.json` (enkele tientallen kB): per straat en per verversing van de laatste 7 dagen het aantal nieuwe, gewijzigde en afgelopen items (werken, innames, werfzones; nooit een parkeerverbod), voor de district-radar op de voorpagina (`site/street-overview.js`);
+- `site/history/radar.json` (enkele tientallen kB): per straat en per verversing van de laatste 7 dagen het aantal nieuwe, gewijzigde en afgelopen items, voor de district-radar op de voorpagina (`site/street-overview.js`);
 - `site/straat/<id>.json`: per officiële straat (id uit `site/geo/straten.json`) de werken, A-Sign-items (parkeerverboden, innames, werfzones, evenementen op straat, terrassen), vergunningen en agendapunten zoals de browser ze live maakt, plus het tijdstip van de verversing. Alleen straten met minstens één item; een bestand wordt alleen herschreven als de inhoud verandert;
 - `site/straat-index.json`: welke straten een bestand hebben, met een hash per straat, en de stand per laag.
 
 De plekpagina toont een straat meteen uit haar bestand en vraagt daarna live alleen het kader van die straat na (`site/straat-snapshot.js`, `site/place-view.js`), met een zin zoals "Live nagekeken: 1 nieuw sinds 05:22". Lukt live nakijken niet, dan blijft de stand van de ochtend staan, met een eerlijke zin. Zonder straatbestanden werkt alles zoals vroeger.
 
-Privacy: dezelfde opkuis als de historiek (geen huisnummers, ook niet in titels, behalve bij een werk en de plaats van een lopend of komend parkeerverbod in de vorm van `publiekParkeerAdres`, regel van de eigenaar van 26 oktober 2026; geen naam na een dossiercode), en daarbovenop geen vrije beschrijving van een inname, geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm, en nooit `creator`, `assignee` of `lockOwner`. `validate:data` kijkt elk bestand na (grootte onder 100 kB, de radar onder 50 kB, de index klopt, privacyscan). De datalaan laat `site/history/radar.json`, `site/straat-index.json` en `site/straat/<id>.json` toe; verwijderen mag onder `site/straat/` (een straat zonder items).
+Privacy: dezelfde opkuis als de historiek (geen huisnummers, ook niet in titels, behalve bij een werk en de plaats van een parkeerverbod in de vorm van `publiekParkeerAdres`, regel van de eigenaar van 26 oktober 2026; geen naam na een dossiercode), en daarbovenop geen vrije beschrijving van een inname, geen aanvrager of onderwerp van een vergunning, geen adres van een terras, geen punt of vorm, en nooit `creator`, `assignee` of `lockOwner`. `validate:data` kijkt elk bestand na (grootte onder 100 kB, de radar onder 50 kB, de index klopt, privacyscan). De datalaan laat `site/history/radar.json`, `site/straat-index.json` en `site/straat/<id>.json` toe; verwijderen mag onder `site/straat/` (een straat zonder items).
 
 Een laag die bij de verversing niet laadt of verdacht krimpt (meer dan de helft minder bij minstens 20 items), houdt per straat haar vorige stand, met status `stale` in de index.
 

@@ -6,8 +6,8 @@
 // "voorbij" is, rekent de browser met de dag van vandaag in Brussel: na middernacht schuift een punt vanzelf van de
 // agenda naar hier, ook vóór de volgende verversing. De markten van een dag staan samen op één regel.
 //
-// Geen parkeerverboden: die staan nooit in het verleden (lib/parkeer-historiek.mjs); deze pagina laat er voor de
-// zekerheid ook geen door.
+// De parkeerverboden die de site zag (site/verleden/parkeerverboden/<JJJJ-MM>.json, lib/agenda-verleden.mjs) staan per
+// dag van hun einde samen: "Parkeerverbod", de plaats met het exacte huisnummer en de periode, nooit de reden.
 //
 // De functies bovenaan zijn puur (tests/agenda-verleden.test.mjs); mountVerleden() hangt ze aan de pagina.
 
@@ -27,14 +27,17 @@ export function vandaagInBrussel(nu = new Date()) {
   return `${delen.year}-${delen.month}-${delen.day}`;
 }
 
-const lijktParkeerverbod = (record) =>
-  String(record?.id ?? "").startsWith("parking") || /^(?:tijdelijk\s+)?parkeerverbod\b/i.test(String(record?.title ?? "").trim());
-
-// Hoort dit record in het verleden van vandaag? Voorbij, niet opgegaan in een ander punt, geen parkeerverbod.
+// Hoort dit record in het verleden van vandaag? Voorbij, en niet opgegaan in een ander punt.
 export function inVerleden(record, vandaag) {
   if (!record || !DAG.test(String(record.date ?? "")) || !DAG.test(String(vandaag ?? ""))) return false;
-  if (record.opgegaanIn || lijktParkeerverbod(record)) return false;
+  if (record.opgegaanIn) return false;
   return laatsteDag(record) < vandaag;
+}
+
+// Een parkeerverbod ({ id, location, start, end }) is voorbij na zijn laatste dag. Nooit een reden: die staat niet in
+// het record, en deze pagina toont alleen "Parkeerverbod", de plaats en de periode.
+export function parkeerInVerleden(record, vandaag) {
+  return Boolean(record) && String(record.id ?? "").startsWith("parking:") && DAG.test(String(record.end ?? "")) && DAG.test(String(vandaag ?? "")) && record.end < vandaag;
 }
 
 export function inDistrict(record) {
@@ -51,30 +54,36 @@ export function filterVerleden(records, { vandaag, alleenDistrict = true, zoek =
     && (!term || vouw(`${record.title} ${record.location} ${record.dateLabel}`).includes(term)));
 }
 
-// Per laatste dag, het nieuwste eerst; per dag de markten apart.
-export function perDag(records) {
+export function filterParkeer(records, { vandaag, zoek = "" } = {}) {
+  const term = vouw(zoek).trim();
+  return records.filter((record) => parkeerInVerleden(record, vandaag) && (!term || vouw(`parkeerverbod ${record.location}`).includes(term)));
+}
+
+// Per laatste dag, het nieuwste eerst; per dag de markten en de parkeerverboden apart.
+export function perDag(records, parkeerverboden = []) {
   const dagen = new Map();
-  for (const record of records) {
-    const dag = laatsteDag(record);
-    if (!dagen.has(dag)) dagen.set(dag, { dag, punten: [], markten: [] });
-    (record.sourceId === MARKT_BRON ? dagen.get(dag).markten : dagen.get(dag).punten).push(record);
-  }
+  const groep = (dag) => {
+    if (!dagen.has(dag)) dagen.set(dag, { dag, punten: [], markten: [], parkeerverboden: [] });
+    return dagen.get(dag);
+  };
+  for (const record of records) (record.sourceId === MARKT_BRON ? groep(laatsteDag(record)).markten : groep(laatsteDag(record)).punten).push(record);
+  for (const record of parkeerverboden) groep(record.end).parkeerverboden.push(record);
   return [...dagen.values()]
     .sort((a, b) => b.dag.localeCompare(a.dag))
-    .map((groep) => ({
-      ...groep,
-      punten: groep.punten.sort((a, b) => String(a.timeSlot).localeCompare(String(b.timeSlot)) || a.title.localeCompare(b.title, "nl")),
-      markten: groep.markten.sort((a, b) => a.title.localeCompare(b.title, "nl")),
+    .map((g) => ({
+      ...g,
+      punten: g.punten.sort((a, b) => String(a.timeSlot).localeCompare(String(b.timeSlot)) || a.title.localeCompare(b.title, "nl")),
+      markten: g.markten.sort((a, b) => a.title.localeCompare(b.title, "nl")),
+      parkeerverboden: g.parkeerverboden.sort((a, b) => a.location.localeCompare(b.location, "nl") || a.id.localeCompare(b.id)),
     }));
 }
 
-// De maanden om te laden, het nieuwste eerst: alleen tot en met deze maand (een latere maand heeft niets voorbij).
+// De maanden om te laden, het nieuwste eerst: alleen tot en met deze maand (een latere maand heeft niets voorbij), met
+// agendapunten of parkeerverboden.
 export function maandenTotNu(index, vandaag) {
   const nu = String(vandaag).slice(0, 7);
-  return (Array.isArray(index?.maanden) ? index.maanden : [])
-    .filter((entry) => /^\d{4}-\d{2}$/.test(String(entry?.maand)) && entry.maand <= nu && entry.aantal > 0)
-    .map((entry) => entry.maand)
-    .sort((a, b) => b.localeCompare(a));
+  const metIets = (lijst) => (Array.isArray(lijst) ? lijst : []).filter((entry) => /^\d{4}-\d{2}$/.test(String(entry?.maand)) && entry.maand <= nu && entry.aantal > 0).map((entry) => entry.maand);
+  return [...new Set([...metIets(index?.maanden), ...metIets(index?.parkeerverboden)])].sort((a, b) => b.localeCompare(a));
 }
 
 export function esc(value) {
@@ -127,6 +136,21 @@ function marktenTemplate(markten) {
     </li>`;
 }
 
+function periodeTekst(start, end) {
+  return start === end ? korteDatum(end) : `${korteDatum(start)} tot ${korteDatum(end)}`;
+}
+
+// De parkeerverboden van een dag: één regel, open te klappen; elk als "Parkeerverbod", de plaats en de periode.
+function parkeerTemplate(parkeerverboden) {
+  if (!parkeerverboden.length) return "";
+  return `<li class="verleden-punt verleden-parkeer">
+      <details>
+        <summary><strong>🅿️ ${parkeerverboden.length === 1 ? "1 parkeerverbod" : `${parkeerverboden.length} parkeerverboden`}</strong> liepen af</summary>
+        <ul>${parkeerverboden.map((record) => `<li id="${esc(record.id)}">Parkeerverbod · ${esc(record.location)} · ${esc(periodeTekst(record.start, record.end))}${record.weg ? ` · stond sinds ${esc(korteDatum(record.weg))} niet meer in A-Sign` : ""}</li>`).join("")}</ul>
+      </details>
+    </li>`;
+}
+
 export function verledenHtml(groepen) {
   if (!groepen.length) return `<p class="verleden-leeg">Binnen deze keuze staat er (nog) niets in het verleden.</p>`;
   let maand = "";
@@ -134,7 +158,7 @@ export function verledenHtml(groepen) {
     const kop = groep.dag.slice(0, 7) !== maand ? `<h2 class="verleden-maand">${esc(metHoofdletter(maandTitel((maand = groep.dag.slice(0, 7)))))}</h2>` : "";
     return `${kop}<section class="verleden-dag" aria-label="${esc(dagTitel(groep.dag))}">
       <h3>${esc(dagTitel(groep.dag))}</h3>
-      <ul>${groep.punten.map(puntTemplate).join("")}${marktenTemplate(groep.markten)}</ul>
+      <ul>${groep.punten.map(puntTemplate).join("")}${marktenTemplate(groep.markten)}${parkeerTemplate(groep.parkeerverboden ?? [])}</ul>
     </section>`;
   }).join("");
 }
@@ -147,6 +171,7 @@ export async function mountVerleden({ root = document, fetchJson = (url) => fetc
   const status = root.querySelector("[data-verleden-status]");
   const zoekVeld = root.querySelector("[data-verleden-zoek]");
   const stadVeld = root.querySelector("[data-verleden-stad]");
+  const parkeerVeld = root.querySelector("[data-verleden-parkeer]");
   if (!lijst) return;
   const vandaag = vandaagInBrussel(nu);
   const url = new URL(window.location.href);
@@ -166,23 +191,28 @@ export async function mountVerleden({ root = document, fetchJson = (url) => fetc
     return;
   }
   const maanden = maandenTotNu(index, vandaag);
+  const metAgenda = new Set((index?.maanden ?? []).filter((entry) => entry.aantal > 0).map((entry) => entry.maand));
+  const metParkeer = new Set((index?.parkeerverboden ?? []).filter((entry) => entry.aantal > 0).map((entry) => entry.maand));
   const geladen = [];
+  const parkeer = [];
   let volgende = 0;
   const laadMaand = async () => {
     const maand = maanden[volgende];
     volgende += 1;
-    try {
-      const document = await fetchJson(`/verleden/${maand}.json`);
-      if (Array.isArray(document?.items)) geladen.push(...document.items);
-    } catch {
-      /* een maand die niet laadt, slaat de pagina over; de volgende knop probeert de rest */
-    }
+    const [agenda, verboden] = await Promise.all([
+      metAgenda.has(maand) ? fetchJson(`/verleden/${maand}.json`).catch(() => null) : null,
+      metParkeer.has(maand) ? fetchJson(`/verleden/parkeerverboden/${maand}.json`).catch(() => null) : null,
+    ]);
+    /* een maand die niet laadt, slaat de pagina over; de volgende knop probeert de rest */
+    if (Array.isArray(agenda?.items)) geladen.push(...agenda.items);
+    if (Array.isArray(verboden?.items)) parkeer.push(...verboden.items);
   };
   const teken = () => {
     const records = filterVerleden(geladen, { vandaag, alleenDistrict: !stadVeld?.checked, zoek: zoekVeld?.value ?? "" });
-    lijst.innerHTML = verledenHtml(perDag(records));
+    const verboden = parkeerVeld && !parkeerVeld.checked ? [] : filterParkeer(parkeer, { vandaag, zoek: zoekVeld?.value ?? "" });
+    lijst.innerHTML = verledenHtml(perDag(records, verboden));
     const vanaf = volgende < maanden.length ? maandTitel(maanden[volgende - 1] ?? "") : "";
-    status.textContent = `${records.length} voorbije ${records.length === 1 ? "punt" : "punten"}${vanaf ? ` sinds het begin van ${vanaf}` : " sinds 13 augustus 2026"}${stadVeld?.checked ? "" : " in district Antwerpen"}.${vanaf ? " Oudere maanden laden met de knop onderaan." : ""}`;
+    status.textContent = `${records.length} voorbije ${records.length === 1 ? "punt" : "punten"}${verboden.length ? ` en ${verboden.length} ${verboden.length === 1 ? "parkeerverbod" : "parkeerverboden"}` : ""}${vanaf ? ` sinds het begin van ${vanaf}` : ""}${stadVeld?.checked ? "" : " in district Antwerpen"}.${vanaf ? " Oudere maanden laden met de knop onderaan." : ""}`;
     if (meer) {
       meer.hidden = volgende >= maanden.length;
       if (!meer.hidden) meer.textContent = `Toon ${maandTitel(maanden[volgende])}`;
@@ -210,6 +240,7 @@ export async function mountVerleden({ root = document, fetchJson = (url) => fetc
   });
   zoekVeld?.addEventListener("input", teken);
   stadVeld?.addEventListener("change", teken);
+  parkeerVeld?.addEventListener("change", teken);
 }
 
 if (typeof document !== "undefined" && document.querySelector?.("[data-verleden-lijst]")) {

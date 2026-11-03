@@ -1,9 +1,12 @@
 import {civicCalendarFromDecision,classifyCivicDecisionTitle,extractPdfAttachments,normalizeDecisionTitle} from "../lib/civic-decision.mjs";
+import {EBESLUIT_PAGE_SIZE,ebesluitZoekUrl,resultCountFromSearch} from "../lib/ebesluit-discovery.mjs";
 const BASE="https://ebesluit.antwerpen.be";
 const UA="Mozilla/5.0";
 const keywords=["speelstraat","kermis","foor","markt"];
 const year=Number(process.argv[2]||new Date().getFullYear());
-const start=`${year}-01-01`,end=`${year}-12-31`,PAGE_SIZE=50,MAX_PAGES=20;
+// Pagina's van 500 (zoals lib/ebesluit-discovery.mjs) en altijd sections=OTHER (ebesluitZoekUrl): zonder die
+// parameter negeert eBesluit sinds 26-10-2026 het venster op zittingsdatum.
+const start=`${year}-01-01`,end=`${year}-12-31`,PAGE_SIZE=EBESLUIT_PAGE_SIZE,MAX_PAGES=20;
 
 async function get(path){
   const response=await fetch(BASE+path,{redirect:"error",signal:AbortSignal.timeout(30000),headers:{"User-Agent":UA,Referer:BASE+"/",Accept:"text/html"}});
@@ -26,15 +29,19 @@ function decisionFromText(text){
   return{code,title,...classification};
 }
 async function searchRows(keyword){
-  const all=new Map();let complete=false,pages=0;
+  const all=new Map();let complete=false,pages=0,total0=null;
   for(let page=0;page<MAX_PAGES;page++){
-    const query=new URLSearchParams({query:keyword,meetingDateStart:start,meetingDateEnd:end,page:String(page),pageSize:String(PAGE_SIZE)});
-    const rows=rowsFromSearch(await get("/zoeken?"+query));pages++;
-    if(!rows.length){complete=true;break}
+    const zoek=new URL(ebesluitZoekUrl({query:keyword,start,end,page,pageSize:PAGE_SIZE}));
+    const html=await get(zoek.pathname+zoek.search);pages++;
+    const total=page===0?resultCountFromSearch(html):total0;if(page===0)total0=total;
+    const rows=rowsFromSearch(html);
+    if(!rows.length){complete=total===null||all.size===total;break}
     const before=all.size;
     for(const row of rows)all.set(row.meetingId+"|"+row.id,row);
-    if(rows.length<PAGE_SIZE){complete=true;break}
-    if(all.size===before){complete=true;break}
+    // De volgorde kan per vraag verschillen: volledig alleen als het aantal unieke rijen het gemelde aantal haalt.
+    if(total!==null&&all.size>=total){complete=all.size===total;break}
+    if(total===null&&rows.length<PAGE_SIZE){complete=true;break}
+    if(all.size===before)break;
   }
   return{rows:[...all.values()],coverage:{keyword,pages,resultCount:all.size,complete}};
 }

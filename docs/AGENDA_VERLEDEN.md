@@ -12,6 +12,12 @@ in agenda staat, publiek blijft staan, maar verdwijnt dan naar verleden."
   op één regel, met een zoekveld en standaard alleen district Antwerpen (een vinkje toont ook de andere districten).
   De browser rekent "voorbij" met de dag van vandaag in Brussel: na middernacht schuift een punt vanzelf door.
 - De agenda linkt bovenaan ("Verleden") en onderaan (sectie "Verleden") naar /verleden/.
+- **In de agenda zelf** blijft een voorbij punt staan (besluit van 3 november 2026: "dat blijft gewoon zo staan in die
+  agenda, de tijd gaat verder… en als je dat openzet, staat dat op de huidige dag"): de lijst opent op vandaag, en
+  "← Eerdere dagen" boven vandaag bladert terug, een week per klik, met "Voorbij" bij elk punt (`site/agenda.js`,
+  `verledenDagenTemplate`). Dezelfde filters (district/stad, soort, straat) gelden; markten en werken staan zoals
+  altijd in hun eigen bundel. De browser laadt het verleden pas na de eerste weergave; lukt dat niet, dan blijft de
+  agenda zoals ze was.
 
 ## Hoe
 
@@ -36,9 +42,16 @@ dag; één record per regel) met een index `site/verleden/maanden.json` (aantal 
 
 ## Regels die blijven
 
-- **Nooit een parkeerverbod** (besluit van 3 november 2026, `lib/parkeer-historiek.mjs`): een parkeerverbod is geen
-  agendapunt, en een record dat er een is of op lijkt, wordt geweigerd. `validate:data`,
-  `tests/geen-parkeerhistoriek.test.mjs` en `tests/agenda-verleden.test.mjs` houden dat vast.
+- **Parkeerverboden staan erin** (besluit van 3 november 2026, ±14:15: "die moeten er wel in komen. Maar gewoon als
+  parkeerverbod, niet per se de reden. En het huisnummer mocht dan wel."), maar niet als agendapunt en zonder eigen
+  pagina: `site/verleden/parkeerverboden/<JJJJ-MM>.json` (maand van de laatste dag), uit de publieke-ruimtelaag van de
+  historiek (`site/history/live-layers.json`). Een record is `{ id, location, start, end }` (+ `weg`): altijd
+  "Parkeerverbod", de plaats in de vorm van `publiekParkeerAdres` (straat + exact huisnummer, anders straat + postcode),
+  nooit een reden, het woord verhuis of een naam (`parkeerRecordProblemen`). Op /verleden/ staan ze per dag samen
+  ("🅿️ 87 parkeerverboden liepen af", open te klappen), met een vinkje om ze te verbergen. `node
+  scripts/herstel-parkeerverleden.mjs` zette eenmalig alles wat de historiek sinds 1 oktober 2026 zag erin (5967);
+  oktober heeft vaak nog geen huisnummer, want de historiek bewaarde vóór 26 oktober alleen de straat. Geen import
+  van vóór de start (#222).
 - Privacy zoals de rest van de site: geen e-mail, telefoon, rekening, querystring of trackinglink (`privacyFindings`),
   nooit het woord verhuis (`noemtVerhuis`), geen link naar een ruw GIPOD-record. De plaats blijft zoals de agenda ze
   publiceerde, met het exacte huisnummer. Het verleden staat bewust niet onder `site/history/`: de historiek van de
@@ -52,7 +65,7 @@ die de site publiceerde in de git-geschiedenis: geen reconstructie, alleen wat p
 komen uit de feed van diezelfde commit. Een bronlink die de regels van vandaag niet haalt (3 trackinglinks uit een
 nieuwsbrief), viel weg; het punt bleef. Wat vóór 13 augustus 2026 voorbij was, had nooit een pagina en staat er niet in.
 
-`validate:data` kijkt na: elk record geldig en privacyveilig, geen parkeerverbod, de index klopt met de maanden, elk
+`validate:data` kijkt na: elk record geldig en privacyveilig, elk parkeerverbod in de publieke vorm, de index klopt met de maanden, elk
 record heeft zijn pagina en elke pagina een record. `scripts/test-deep-links.mjs` telt de pagina's
 (`eventPageCount` + `archivedEventPageCount` in het manifest) en de sitemap (met /verleden/).
 

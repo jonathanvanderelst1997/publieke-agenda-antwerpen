@@ -1,6 +1,5 @@
 // Een goedgekeurd parkeerverbod staat er waar exact (publiekParkeerAdres), live en in de opslag (regel van de eigenaar van
-// 26 oktober 2026: ook de straatbestanden houden het huisnummer; een historiek van parkeerverboden is er sinds
-// 3 november 2026 niet meer, besluit van de eigenaar). Verzonnen
+// 26 oktober 2026: ook de historiek en de straatbestanden houden het huisnummer). Verzonnen
 // straat, dossier en reden (vierde nakijkronde van 18 oktober 2026: hier stond een echte straat met bestaande huisnummers
 // naast een reden; een echte straat krijgt in de toetsen alleen huisnummer 999, tests/historiek-privacy.test.mjs).
 import test from "node:test";
@@ -32,7 +31,7 @@ const bron=(status="In effect")=>({
   Reden:"Proefreden (e2e)",
   Startdatum:Date.parse("2099-10-08T00:00:00Z"),Einddatum:Date.parse("2099-10-23T00:00:00Z"),
 });
-test("live en het straatbestand houden dezelfde exacte plaats, zonder reden; de historiek bewaart het niet", () => {
+test("live, het straatbestand en de historiek houden dezelfde exacte plaats, zonder reden", () => {
   const [rij]=collectPublicSpace({parkingFeatures:[{attributes:bron()}],postcodes:["2000"],straatnamen:namen});
   assert.equal(rij.location,"Proefkaai 18, 2000 Antwerpen");
   const kaarten=publicSpaceEntries([rij],{vandaag:"2099-10-13"});
@@ -40,8 +39,8 @@ test("live en het straatbestand houden dezelfde exacte plaats, zonder reden; de 
   const voorBestand=itemVoorStraat(rij,{laag:"publiekeRuimte"});
   assert.ok(voorBestand);
   assert.equal(voorBestand.location,"Proefkaai 18, 2000 Antwerpen");
-  assert.equal(compactPublicSpaceItem(rij),null);
-  assert.doesNotMatch(JSON.stringify(voorBestand),/Proefreden|"reason"/);
+  assert.equal(compactPublicSpaceItem(rij).location,"Proefkaai 18, 2000 Antwerpen");
+  for(const opgeslagen of [voorBestand,compactPublicSpaceItem(rij)])assert.doesNotMatch(JSON.stringify(opgeslagen),/Proefreden|"reason"/);
   assert.equal(adresZonderHuisnummer(rij.location,namen),straat);
 });
 test("alleen goedgekeurde publieke maatregelen van district Antwerpen tonen",()=>{
