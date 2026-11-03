@@ -20,6 +20,7 @@ import { HERKENNING_FILE, PATRONEN_FILE } from "../lib/evenement-herkenning-vali
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 import { ASIGN_EVENEMENTEN_SOURCE_ID, oudeTekstBijwerken, tekstUitFeiten } from "../lib/asign-evenementen-agenda.mjs";
 import { plekEnUurUitTekst } from "../lib/plek-uit-tekst.mjs";
+import { VASTE_ADRESSEN_FILE, itemMetVastAdres, validateVasteAdressen } from "../lib/vaste-adressen.mjs";
 
 export const FEED_HEADER = "// Gegenereerd door scripts/build-sources.mjs; niet met de hand wijzigen.";
 
@@ -32,10 +33,12 @@ export function readSources(rootDir) {
   // inzage-status.json is de nagekeken stand in het Inzageloket (site/inzage-status.js).
   // vaagheid.json is de vaagheidsmeting van de verversing (scripts/meet-vaagheid.mjs), geen bron; werk-vorm.json is de vaste
   // vorm per werk (site/werk-vorm.js).
+  // vaste-adressen.json is het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
   const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE, WERK_VORM_FILE];
   const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && !geenBron.includes(name)).sort();
   let status = null;
   let manualCheck = null;
+  let vasteAdressen = null;
   const documents = [];
   const problems = [];
   for (const name of names) {
@@ -63,6 +66,11 @@ export function readSources(rootDir) {
       manualCheck = json;
       continue;
     }
+    if (name === VASTE_ADRESSEN_FILE) {
+      for (const error of validateVasteAdressen(json)) problems.push(`${name}: ${error}`);
+      vasteAdressen = json;
+      continue;
+    }
     const expectedSourceId = name.replace(/\.json$/, "");
     // Een GIPOD-bron van vóór 17 oktober 2026 linkte per item naar de ruwe rij: in de feed komt de datasetfiche
     // (lib/source-feed.mjs, zonderRuweGipodBron). De verversing schrijft het bronbestand zelf opnieuw.
@@ -71,7 +79,7 @@ export function readSources(rootDir) {
     documents.push(document);
   }
   if (problems.length) throw new Error(`Ongeldige brondata:\n${problems.slice(0, 20).join("\n")}`);
-  return { status, documents, manualCheck };
+  return { status, documents, manualCheck, vasteAdressen };
 }
 
 function contractSignature(item) {
@@ -136,11 +144,14 @@ export function laadTekstBronnen(rootDir) {
   return { hand: lees(EVENEMENT_IDENTITEIT_FILE), auto: lees(HERKENNING_FILE), besluiten: Array.isArray(besluiten?.besluiten) ? besluiten.besluiten : [] };
 }
 
-export function buildFeed({ status, documents: bronnen, manualCheck = null, tekst = null }, handItems) {
-  // Plek en uur uit de tekst van een artikel zonder vaste plek (stap 7, lib/plek-uit-tekst.mjs).
+export function buildFeed({ status, documents: bronnen, manualCheck = null, tekst = null, vasteAdressen = null }, handItems) {
+  // Plek en uur uit de tekst van een artikel zonder vaste plek (stap 7, lib/plek-uit-tekst.mjs), en het officiële adres
+  // van een vaste plek die de bron alleen bij naam noemt (lib/vaste-adressen.mjs: "Provinciehuis Antwerpen").
   const documents = bronnen.map((document) => ({
     ...document,
-    items: document.items.map((item) => (document.sourceId === ASIGN_EVENEMENTEN_SOURCE_ID ? tekstBijDeBuild(item, tekst) : plekEnUurUitTekst(item, document.sourceId))),
+    items: document.items
+      .map((item) => (document.sourceId === ASIGN_EVENEMENTEN_SOURCE_ID ? tekstBijDeBuild(item, tekst) : plekEnUurUitTekst(item, document.sourceId)))
+      .map((item) => itemMetVastAdres(item, vasteAdressen)),
   }));
   const itemsBySource = Object.fromEntries(documents.map((document) => [document.sourceId, { scope: document.scope, items: document.items }]));
   const suppressions = documents.flatMap((document) => Array.isArray(document.suppressions) ? document.suppressions : []);

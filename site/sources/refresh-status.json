@@ -90,6 +90,7 @@
       "maxAgeHours": 48,
       "itemCount": 8,
       "errorCode": "bron_weigert_automatisch",
+      "errorSince": "2026-10-23T03:21:01.051Z",
       "upcomingCount": 5,
       "emptySince": null,
       "contentStatus": "ok"
@@ -103,6 +104,7 @@
       "maxAgeHours": 48,
       "itemCount": 4,
       "errorCode": "bron_weigert_automatisch",
+      "errorSince": "2026-10-23T03:21:01.051Z",
       "upcomingCount": 1,
       "emptySince": null,
       "contentStatus": "ok"
@@ -116,6 +118,7 @@
       "maxAgeHours": 48,
       "itemCount": 18,
       "errorCode": "bron_weigert_automatisch",
+      "errorSince": "2026-10-23T03:21:01.051Z",
       "upcomingCount": 16,
       "emptySince": null,
       "contentStatus": "ok"
@@ -181,6 +184,7 @@
       "maxAgeHours": 48,
       "itemCount": 26,
       "errorCode": "channel_bron_weigert_automatisch",
+      "errorSince": "2026-10-23T03:21:01.051Z",
       "upcomingCount": 21,
       "emptySince": null,
       "contentStatus": "ok"
@@ -194,6 +198,7 @@
       "maxAgeHours": 48,
       "itemCount": 5,
       "errorCode": "bron_weigert_automatisch",
+      "errorSince": "2026-10-23T03:21:01.051Z",
       "upcomingCount": 4,
       "emptySince": null,
       "contentStatus": "ok"

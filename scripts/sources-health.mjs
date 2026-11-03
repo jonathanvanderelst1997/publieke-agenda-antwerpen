@@ -4,8 +4,9 @@
 // vastgelegde versie. Een TIJDELIJKE fout (5xx, 429, time-out) met vorige data binnen maxAgeHours is
 // "stale": een waarschuwing, geen fout (sourceHealthOf in lib/fetch-util.mjs).
 // Een bron waarvan de site automatische toegang weigert (errorCode bron_weigert_automatisch) is "geweigerd":
-// een waarschuwing met uitleg, geen fout, zolang de vorige data binnen maxAgeHours valt. Daarna een fout,
-// met de ouderdom in de uitleg (sourceHealthOf in lib/fetch-util.mjs).
+// een melding, geen fout, hoe oud de vorige data ook is (sourceHealthOf in lib/fetch-util.mjs): de site toont de
+// komende items van de laatste goede lezing tot hun eigen datum. Eén melding per website, in gewone woorden:
+// "www.antwerpen.be weigert ons sinds 23-10-2026; de agenda toont de laatst bekende activiteiten".
 // Een bron die antwoordt maar al 3 kalenderdagen op rij niets komends levert (0 items of alleen voorbije), is
 // "leeg": ook een waarschuwing (oranje), geen fout (contentStatusOf in scripts/stale-policy.mjs). Op een
 // GitHub-runner komt er per lege bron een ::warning bij.
@@ -29,7 +30,7 @@ import { dropAllowed, isMainModule, isWeigeringCode, sourceHealthOf, suspiciousD
 import { brusselsDate } from "../lib/html-text.mjs";
 import { LIVE_HISTORY_FILE, LIVE_LAAG_MAX_UUR, liveLaagGezondheid } from "../lib/live-history.mjs";
 import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
-import { MAX_AGE_HOURS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
+import { MAX_AGE_HOURS, SOURCE_DEFINITIONS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
@@ -52,6 +53,38 @@ function readJson(file) {
   }
 }
 
+const dagMaandJaar = (instant) => {
+  const ms = Date.parse(instant ?? "");
+  if (!Number.isFinite(ms)) return null;
+  const [jaar, maand, dag] = brusselsDate(new Date(ms)).split("-");
+  return `${dag}-${maand}-${jaar}`;
+};
+
+// Eén zin per website die ons weigert, voor de eigenaar (sources:health, de job source-health en het alarm-issue):
+// sinds wanneer (de eerste geweigerde poging, errorSince; zonder errorSince de dag van de laatste goede lezing),
+// wat de agenda dan toont, en welke bronnen het raakt. Zonder tijdstippen of uren, zodat dezelfde toestand elke dag
+// dezelfde zin geeft (het alarm reageert maar één keer op dezelfde zin).
+export function weigeringsMeldingen(entries) {
+  const perHost = new Map();
+  for (const entry of entries) {
+    let host = "de website";
+    try {
+      host = new URL(SOURCE_DEFINITIONS[entry.sourceId]?.url ?? "").hostname || host;
+    } catch {
+      // onbekende bron: de algemene naam
+    }
+    perHost.set(host, [...(perHost.get(host) ?? []), entry]);
+  }
+  return [...perHost.entries()].sort(([a], [b]) => a.localeCompare(b)).map(([host, bronnen]) => {
+    const sinds = bronnen.map((entry) => entry.errorSince).filter((value) => Number.isFinite(Date.parse(value ?? ""))).sort()[0] ?? null;
+    const laatstGoed = bronnen.map((entry) => entry.retrievedAt).filter((value) => Number.isFinite(Date.parse(value ?? ""))).sort().at(-1) ?? null;
+    const ids = bronnen.map((entry) => entry.sourceId).sort().join(", ");
+    const begin = sinds ? ` sinds ${dagMaandJaar(sinds)}` : laatstGoed ? ` sinds de laatste goede lezing van ${dagMaandJaar(laatstGoed)}` : "";
+    const stand = laatstGoed ? ` (laatste goede lezing ${dagMaandJaar(laatstGoed)})` : "";
+    return `${host} weigert ons${begin}; de agenda toont de laatst bekende activiteiten${stand} tot hun eigen datum voorbij is. Nieuwe activiteiten van deze bronnen komen er pas bij als de stad de agenda weer toelaat of de gegevens als open data geeft. Bronnen: ${ids}.`;
+  });
+}
+
 // Geeft { lines, warnings, unhealthy, exitCode } terug; schrijft niets.
 export function checkHealth({ rootDir, at = Date.now(), env = process.env, baseline = null, baselineLabel = "HEAD" }) {
   const lines = [];
@@ -68,6 +101,7 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   const meldingen = [];
   const meld = (titel, tekst) => { warnings.push(tekst); meldingen.push({ titel, tekst }); };
   const asOfDay = brusselsDate(new Date(at));
+  const weigeringen = [];
   for (const entry of status.sources) {
     const fetched = sourceHealthOf(entry, at);
     const health = fetched === "ok" && contentStatusOf({ emptySince: entry.emptySince, today: asOfDay }) === "leeg" ? "leeg" : fetched;
@@ -76,22 +110,15 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
       const what = entry.itemCount ? `${entry.itemCount} items, allemaal voorbij` : "0 items";
       meld("Bron leeg", `${entry.sourceId}: sinds ${entry.emptySince} niets komends (${what})`);
     }
-    // De site weigert automatische toegang (lib/fetch-util.mjs, BRON_WEIGERT_CODE). Binnen maxAgeHours een
-    // melding met de uitleg, geen fout: niets aan onze kant lost dit op. Daarna telt de bron hierboven als
-    // fout, want de site verbergt haar items dan; de uitleg zegt hoe oud de laatste stand is.
-    if (entry.fetchStatus === "error" && isWeigeringCode(entry.errorCode)) {
-      const maxUren = Number.isFinite(entry.maxAgeHours) ? entry.maxAgeHours : 48;
-      const opgehaald = Date.parse(entry.retrievedAt ?? "");
-      const uren = Number.isFinite(opgehaald) ? Math.floor((at - opgehaald) / 3_600_000) : null;
-      const ouderdom = uren === null ? "zonder leesbare datum" : `${uren} uur oud`;
-      const waarom = `${entry.sourceId}: de website weigert automatische toegang ("Access Denied" aan de rand, geen storing bij ons); laatste geslaagde ophaling ${entry.retrievedAt ?? "-"} (${ouderdom}).`;
-      if (fetched === "geweigerd") meld("Bron weigert automatische toegang", `${waarom} Die stand blijft staan tot ze ${maxUren} uur oud is. Toegang terug vraagt iets van de stad.`);
-      else meld("Bron weigert automatische toegang, stand te oud", `${waarom} Dat is ouder dan ${maxUren} uur: de site toont de items van deze bron niet meer. Toegang terug vraagt iets van de stad.`);
-    }
+    // De site weigert automatische toegang (lib/fetch-util.mjs, BRON_WEIGERT_CODE): verzameld per website, één
+    // melding hieronder. Geen fout: niets aan onze kant lost dit op, en de site toont de laatst bekende stand.
+    if (entry.fetchStatus === "error" && isWeigeringCode(entry.errorCode)) weigeringen.push(entry);
     const coverage = entry.capped ? `capped=t/m ${entry.coverageUntil ?? "-"}` : "";
     const content = Number.isInteger(entry.upcomingCount) ? [`upcoming=${entry.upcomingCount}`, entry.emptySince ? `emptySince=${entry.emptySince}` : ""] : [];
     lines.push([entry.sourceId, health, entry.fetchStatus, `items=${entry.itemCount}`, ...content, `retrievedAt=${entry.retrievedAt ?? "-"}`, entry.errorCode ? `errorCode=${entry.errorCode}` : "", coverage].filter(Boolean).join("\t"));
   }
+
+  for (const tekst of weigeringsMeldingen(weigeringen)) meld("Bron weigert automatische toegang", tekst);
 
   // Afgeleide bronnen (lib/source-registry.mjs, AFGELEIDE_BRONNEN): de stap die ze afleidt, zet haar regel
   // in refresh-status.json (lib/afgeleide-bronstatus.mjs); dan telt ze hierboven mee zoals elke bron (een
@@ -188,6 +215,12 @@ if (isMainModule(import.meta.url)) {
   const ref = baselineFlag >= 0 ? args[baselineFlag + 1] : "HEAD";
   const baseline = args.includes("--no-baseline") ? null : gitBaseline(rootDir, ref);
   const result = checkHealth({ rootDir, at, baseline, baselineLabel: ref });
+  // --weigering: alleen de zinnen over websites die ons weigeren, één per regel (voor de job source-health en het
+  // alarm-issue in .github/workflows/refresh.yml). Altijd exitcode 0.
+  if (args.includes("--weigering")) {
+    for (const melding of result.meldingen ?? []) if (melding.titel === "Bron weigert automatische toegang") console.log(melding.tekst);
+    process.exit(0);
+  }
   for (const line of result.lines) console.log(line);
   // Oranje in de run van GitHub: een lege bron, een verouderde of ongeldige afgeleide bron en een live laag die niet
   // ververst raakte (met een goede stand van hoogstens 48 uur) zijn een melding, geen fout.

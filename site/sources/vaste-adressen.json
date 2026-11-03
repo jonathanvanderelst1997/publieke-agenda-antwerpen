@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "uitleg": "Vaste plekken die een bron alleen bij naam noemt (eBesluit: de zalen van de districtsraad en de raadscommissies), met het adres dat de eigenaar van de plek zelf publiceert. lib/vaste-adressen.mjs zet het adres achter de locatie van elk bronitem dat met zo'n naam begint en nog geen huisnummer heeft.",
+  "bijgewerkt": "2026-11-03",
+  "plekken": [
+    {
+      "naam": "Provinciehuis Antwerpen",
+      "herken": [
+        "Provinciehuis Antwerpen",
+        "Provinciehuis"
+      ],
+      "adres": "Koningin Elisabethlei 22, 2018 Antwerpen",
+      "bron": "https://www.provincieantwerpen.be/nl/neem-contact-met-ons-op"
+    },
+    {
+      "naam": "Districtshuis Antwerpen-Harmonie",
+      "herken": [
+        "Districtshuis Antwerpen",
+        "Districtshuis Harmonie"
+      ],
+      "adres": "Mechelsesteenweg 216, 2018 Antwerpen",
+      "bron": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nuttige-adressen/districtshuis-antwerpen-harmonie"
+    }
+  ]
+}

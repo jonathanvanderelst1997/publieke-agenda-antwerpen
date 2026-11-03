@@ -125,16 +125,6 @@
       scope: "district",
       check: { mustContain: ["buurtfeest", "inhuldiging"] },
     },
-    "district-furie-450": {
-      publisher: "District Antwerpen",
-      url: "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-eenmalig-meeslepend",
-      retrievedAt: "2026-11-03T21:15:00Z",
-      state: "verified",
-      note: "Officiële nieuwspagina van district Antwerpen: FURIE!, herdenking van de Spaanse Furie op woensdag 4 november 2026, 19 tot 20.30 uur, Grote Markt, gratis. Ook in de districtskalender (woe 4/11 om 19 uur, 2000 Antwerpen, Grote Markt). Overbrugging: de districtskalender is sinds 24-10-2026 niet meer zichtbaar omdat www.antwerpen.be automatische toegang weigert.",
-      officialPublic: true,
-      scope: "district",
-      check: { mustContain: ["FURIE!", "Grote Markt"] },
-    },
     "publiekeruimte-schoolstraat-vanhoenacker": {
       publisher: "District Antwerpen, team Publieke Ruimte",
       url: "https://www.antwerpen.be/publiekeruimte",
@@ -188,10 +178,6 @@
     {
       match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
       sourceId: "city-gaston-buurtfeest",
-    },
-    {
-      match: { title: "FURIE! 450 jaar later", dates: ["2026-11-04"] },
-      sourceId: "district-furie-450",
     },
     {
       match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },
@@ -470,13 +456,34 @@
     let slaMaxAgeHours = null;
     let recheckDueOn = null;
     let visibleThrough = null;
+    // Laatst bekende stand (besluit van de eigenaar van 3-11-2026: "ik wil terug alles werkend en erop hebben").
+    // Een bron die gelezen werd en een item niet meer heeft, schrapt het: het staat dan niet meer in haar bestand
+    // en komt hier nooit aan. Kon de bron NIET opnieuw gelezen worden (geweigerd, time-out, 403, een fout), dan
+    // blijven haar vorige items in het bronbestand staan (keepPreviousOnError in lib/fetch-util.mjs), met het
+    // moment van de laatste geslaagde lezing. Zo'n item blijft zichtbaar tot en met zijn eigen laatste dag
+    // (endDate, anders date), net als een handmatig item; voorbije items vallen weg zoals altijd.
+    let lastKnown = false;
+    let lastGoodReadAt = null;
     if (["current", "future"].includes(classification)) {
       let stale;
       if (isFeed) {
         slaMaxAgeHours = source.maxAgeHours;
-        const dueAt = Date.parse(sourceRetrievedAt) + slaMaxAgeHours * HOUR_MS;
-        recheckDueOn = brusselsDateOf(dueAt);
-        stale = !Number.isFinite(dueAt) || Date.parse(now) > dueAt;
+        // Alleen een echt moment van lezing (van het item of zijn bron), nooit de historische terugvaldatum.
+        const retrievedMs = Date.parse(item.retrievedAt ?? source?.retrievedAt ?? "");
+        const dueAt = retrievedMs + slaMaxAgeHours * HOUR_MS;
+        if (Number.isFinite(dueAt) && Date.parse(now) <= dueAt) {
+          recheckDueOn = brusselsDateOf(dueAt);
+          stale = false;
+        } else if (Number.isFinite(retrievedMs)) {
+          lastKnown = true;
+          lastGoodReadAt = new Date(retrievedMs).toISOString();
+          visibleThrough = lastDayOf(reconciled);
+          recheckDueOn = visibleThrough;
+          stale = false;
+        } else {
+          // Geen leesbaar moment van de laatste lezing: dicht, zoals vroeger.
+          stale = true;
+        }
       } else if (classificationBasis === "date") {
         visibleThrough = lastDayOf(reconciled);
         recheckDueOn = visibleThrough;
@@ -514,6 +521,10 @@
       slaMaxAgeHours,
       recheckDueOn,
       visibleThrough,
+      // Intern: de bron kon sinds lastGoodReadAt niet opnieuw gelezen worden; het item komt uit die laatste goede
+      // lezing. De site toont dat niet aan bezoekers (besluit van 18-10-2026); de eigenaar ziet het in het alarm.
+      lastKnown,
+      lastGoodReadAt,
       manualCheckStatus: manualCheck?.status ?? null,
     };
   }
