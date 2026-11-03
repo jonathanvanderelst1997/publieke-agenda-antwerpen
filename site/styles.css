@@ -673,6 +673,41 @@ a {
   margin: 4px 0 0;
 }
 
+/* Een eventpagina van een punt dat niet meer in de agenda staat (lib/eventpagina.mjs). */
+.event-summary .event-verleden {
+  background: #fff3d6;
+  border-left: 4px solid #8b5a11;
+  border-radius: 6px;
+  color: #4a3206;
+  font-weight: 700;
+  padding: 10px 12px;
+}
+
+/* Op de agenda zelf: de weg naar het verleden (/verleden/). */
+.agenda-verleden {
+  border-top: 3px solid var(--pa-line-strong, var(--deep));
+  display: grid;
+  gap: 8px;
+  padding-top: 14px;
+}
+
+.agenda-verleden h2 {
+  color: var(--pa-ink-strong, var(--deep));
+  font-size: 24px;
+  margin: 0;
+}
+
+.agenda-verleden p {
+  color: var(--pa-muted, var(--muted));
+  line-height: 1.55;
+  margin: 0;
+}
+
+.agenda-verleden a {
+  color: var(--pa-accent, inherit);
+  font-weight: 900;
+}
+
 .event-actions {
   display: flex;
   flex-wrap: wrap;

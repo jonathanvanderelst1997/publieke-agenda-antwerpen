@@ -98,8 +98,12 @@ zetten. Het bewijs is de binding, die de Gateway toetst.
 `lib/data-lane-paths.json` (komt uit de bronnen-PR `claude/agenda-bronnen`):
 
 ```json
-{"schemaVersion": 1, "allowed": ["<POSIX-ERE>", "..."], "deletableUnder": ["site/event/"]}
+{"schemaVersion": 1, "allowed": ["<POSIX-ERE>", "..."], "deletableUnder": ["site/straat/"]}
 ```
+
+Sinds 3 november 2026 staat `site/event/` niet meer in `deletableUnder`: een eventpagina blijft voor altijd op
+dezelfde URL, ook als het punt voorbij is (het verleden van de agenda, `docs/AGENDA_VERLEDEN.md`). Een verversing die
+toch een eventpagina wist, of een maand van `site/verleden/`, faalt dicht.
 
 Deze lijst wordt gelezen door:
 

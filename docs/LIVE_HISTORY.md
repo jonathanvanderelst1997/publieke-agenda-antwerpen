@@ -36,6 +36,12 @@ De code (`lib/parkeer-historiek.mjs`) haalt ze eruit bij elke verversing, ook ui
 
 De historiek bevat alleen velden die al publiek in de live kaarten mogen staan, en geen parkeerverboden (hierboven). Geen aanvrager, contactorganisatie, adminlink, ruwe geometrie of andere bronpayload wordt opgeslagen. Een werk staat erin in zijn vaste vorm (`site/werk-vorm.js`, `site/sources/werk-vorm.json`, docs/PUBLIC_SPACE_SOURCE_POLICY.md "Werken: adreskaart of gewone kaart"), met zijn huisnummer (regel van de eigenaar van 26 oktober 2026; dat die adressen blijvend in de git-geschiedenis staan, is aanvaard): een gewone kaart met de titel zoals de lijst hem toont, een adreskaart als "<soort> – <straat> <nummer>" zonder vrije tekst; nooit het woord verhuis. De verversing schrijft de vaste vorm vóór de historiek. De bestaande privacy-scan controleert zowel `live-layers.json` als baseline en alle dagshards in `validate:data`; de index bevat alleen datum, pad, aantal en digest.
 
+## Verleden van de agenda
+
+De historiek hierboven gaat over de live lagen (werken, innames, werfzones). De agendapunten zelf hebben een eigen
+verleden: `site/verleden/` en de pagina /verleden/ (`docs/AGENDA_VERLEDEN.md`). Wat ooit in de agenda stond, blijft
+daar publiek staan, met zijn eventpagina op dezelfde URL; nooit een parkeerverbod.
+
 ## Datalaan
 
 De data-lane laat uitsluitend `site/history/live-layers.json`, `site/history/archive/baseline.json`, `site/history/archive/index.json` en strikt benoemde `site/history/archive/YYYY-MM-DD.json`-shards toe. Historybestanden zijn niet verwijderbaar via `deletableUnder`: een gewone refresh kan nieuwe geschiedenis toevoegen of de actuele dag aanvullen, maar geen oude dagshard wissen.

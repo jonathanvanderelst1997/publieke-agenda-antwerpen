@@ -35,6 +35,14 @@ import {
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
 import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import {
+  VERLEDEN_DIR,
+  VERLEDEN_INDEX_FILE,
+  isVerledenMaandBestand,
+  validateVerledenIndex,
+  validateVerledenMaand,
+  verledenDigest,
+} from "../lib/agenda-verleden.mjs";
 import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
 import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 import { werkVormProblemen } from "../lib/werk-vorm-validatie.mjs";
@@ -248,6 +256,61 @@ if (historyParkeerverboden) problems.push(`site/history: ${historyParkeerverbode
 // De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
 if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
+// Het verleden van de agenda (lib/agenda-verleden.mjs, besluit van de eigenaar van 3 november 2026): elk record in
+// vorm en zonder privacyprobleem, geen enkel parkeerverbod, de index klopt met de maanden, en elk record heeft zijn
+// eventpagina (en omgekeerd: een eventpagina zonder record zou bij de volgende verversing niemand meer bijwerken).
+const verledenDir = path.join(rootDir, VERLEDEN_DIR);
+let verledenSamenvatting = null;
+if (fs.existsSync(verledenDir)) {
+  let verledenIndex = null;
+  try {
+    verledenIndex = JSON.parse(fs.readFileSync(path.join(rootDir, VERLEDEN_INDEX_FILE), "utf8"));
+    for (const error of validateVerledenIndex(verledenIndex)) problems.push(`${VERLEDEN_INDEX_FILE}: ${error}`);
+  } catch {
+    problems.push(`${VERLEDEN_INDEX_FILE}: ontbreekt of is geen geldige JSON`);
+  }
+  const verledenIds = new Set();
+  let verledenProblemen = 0;
+  const maanden = new Map();
+  for (const name of fs.readdirSync(verledenDir).sort()) {
+    if (name === "maanden.json" || name === "index.html") continue;
+    const relative = `${VERLEDEN_DIR}/${name}`;
+    if (!isVerledenMaandBestand(name)) {
+      problems.push(`${relative}: onverwacht bestand`);
+      continue;
+    }
+    let document;
+    try {
+      document = JSON.parse(fs.readFileSync(path.join(verledenDir, name), "utf8"));
+    } catch {
+      problems.push(`${relative}: geen geldige JSON`);
+      continue;
+    }
+    const fouten = [
+      ...validateVerledenMaand(document, name.slice(0, 7)),
+      ...parkeerverbodenInHistoriek(document).map((finding) => `parkeerverbod op ${finding.path}`),
+    ];
+    for (const fout of fouten) if (verledenProblemen++ < 50) problems.push(`${relative}: ${fout}`);
+    maanden.set(name.slice(0, 7), document);
+    for (const record of Array.isArray(document.items) ? document.items : []) {
+      if (verledenIds.has(record?.id)) problems.push(`${relative}: ${record.id} staat in twee maanden`);
+      verledenIds.add(record?.id);
+      if (record?.id && !fs.existsSync(path.join(rootDir, "site", "event", record.id, "index.html"))) problems.push(`${relative}: eventpagina van ${record.id} ontbreekt`);
+    }
+  }
+  if (verledenProblemen > 50) problems.push(`${VERLEDEN_DIR}: nog ${verledenProblemen - 50} problemen`);
+  for (const entry of verledenIndex?.maanden ?? []) {
+    const document = maanden.get(entry.maand);
+    if (!document) problems.push(`${VERLEDEN_INDEX_FILE}: maand ${entry.maand} ontbreekt`);
+    else if (entry.aantal !== document.items?.length || entry.digest !== verledenDigest(document.items ?? [])) problems.push(`${VERLEDEN_INDEX_FILE}: ${entry.maand} wijkt af`);
+  }
+  for (const maand of maanden.keys()) if (!(verledenIndex?.maanden ?? []).some((entry) => entry.maand === maand)) problems.push(`${VERLEDEN_DIR}/${maand}.json: niet in de index`);
+  const eventDir = path.join(rootDir, "site", "event");
+  const zonderRecord = fs.existsSync(eventDir) ? fs.readdirSync(eventDir, { withFileTypes: true }).filter((entry) => entry.isDirectory() && !verledenIds.has(entry.name)).map((entry) => entry.name) : [];
+  if (zonderRecord.length) problems.push(`site/event: ${zonderRecord.length} eventpagina's zonder record in het verleden (onder meer ${zonderRecord.slice(0, 3).join(", ")})`);
+  verledenSamenvatting = { items: verledenIds.size, maanden: maanden.size };
+}
+
 // Straatbestanden (P5, scripts/build-straat-snapshots.mjs): elk onder 100 kB, de radar onder 50 kB, de
 // index klopt met de bestanden, en dezelfde privacyscan als de historiek en de bronnen.
 const straatProblemen = straatBestandenProblemen(rootDir);
@@ -325,5 +388,5 @@ if (doorVerversing.length) signalen.push(`${doorVerversing.length} bestanden van
 
 for (const signaal of signalen) console.log(`::warning title=Data::${signaal}`);
 for (const problem of problems) console.error(problem);
-console.log(JSON.stringify({ result: problems.length ? "FAIL" : "PASS", problems: problems.length, signalen: signalen.length, sources: summary }));
+console.log(JSON.stringify({ result: problems.length ? "FAIL" : "PASS", problems: problems.length, signalen: signalen.length, sources: summary, ...(verledenSamenvatting ? { verleden: verledenSamenvatting } : {}) }));
 if (problems.length) process.exitCode = 1;

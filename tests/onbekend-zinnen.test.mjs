@@ -32,7 +32,7 @@ const BESTANDEN = [
   ...fs.readdirSync(path.join(root, "site")).filter((f) => f.endsWith(".js") && !GEBOUWD.has(f)).map((f) => `site/${f}`),
   "lib/asign-evenementen-agenda.mjs", "lib/parcours-herkenning.mjs", "lib/koopzondagen.mjs", "lib/ebesluit-evenementen.mjs",
   ...fs.readdirSync(path.join(root, "lib")).filter((f) => /^district-.*\.mjs$/.test(f)).map((f) => `lib/${f}`),
-  "scripts/build-agenda.mjs",
+  "scripts/build-agenda.mjs", "lib/eventpagina.mjs",
 ];
 // Technisch, nooit voor bewoners: een foutmelding over de vorm van een bronbestand.
 const TECHNISCH = [/\bonbekend veld\b/];

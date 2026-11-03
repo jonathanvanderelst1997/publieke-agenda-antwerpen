@@ -427,8 +427,9 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
   besluit verliest zo geen dagen. Een bijdrager die naar het primaire item wijst, rekt het niet op (één dag
   uit een dossier van weken maakt van een opening in de kalender geen evenement van weken).
 - Het samengevoegde item houdt de velden van de bron met voorrang en toont **alle** bronlinks.
-- Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het en
-  de build verwijdert de eventpagina.
+- Vervangt een feed-item een handmatig item, dan staat de hand-id in `supersedes`: de site verbergt het. Zijn
+  eventpagina blijft staan (het verleden van de agenda, `docs/AGENDA_VERLEDEN.md`): de build wist geen eventpagina
+  meer.
 
 ## Versheid
 

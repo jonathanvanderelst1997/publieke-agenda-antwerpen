@@ -85,6 +85,21 @@ test("repo: geen enkel parkeerverbod onder site/history (historiek, archief, rad
   assert.equal(fs.existsSync(path.join(repoRoot, "site", "history", "backfill", "asign-parking")), false);
 });
 
+// Het verleden van de agenda (site/verleden/, lib/agenda-verleden.mjs; besluit van dezelfde dag: wat ooit in de agenda stond,
+// blijft publiek) houdt agendapunten bij, nooit een parkeerverbod.
+test("repo: geen enkel parkeerverbod in het verleden van de agenda (site/verleden)", () => {
+  const dir = path.join(repoRoot, "site", "verleden");
+  const fouten = [];
+  for (const name of fs.existsSync(dir) ? fs.readdirSync(dir).filter((naam) => naam.endsWith(".json")) : []) {
+    const document = JSON.parse(fs.readFileSync(path.join(dir, name), "utf8"));
+    const aantal = parkeerverbodenInHistoriek(document).length + (document.items ?? []).filter((item) => /^(?:tijdelijk\s+)?parkeerverbod\b/i.test(String(item.title ?? "").trim())).length;
+    if (aantal) fouten.push(`site/verleden/${name}: ${aantal}`);
+  }
+  assert.deepEqual(fouten, []);
+  const spec = JSON.parse(fs.readFileSync(path.join(repoRoot, "lib", "data-lane-paths.json"), "utf8"));
+  assert.ok(spec.allowed.filter((pattern) => pattern.includes("verleden")).every((pattern) => !/park/i.test(pattern)));
+});
+
 test("repo: de radar telt alleen wat de historiek zonder parkeerverboden telt", () => {
   const live = JSON.parse(fs.readFileSync(path.join(repoRoot, "site", "history", "live-layers.json"), "utf8"));
   const radar = JSON.parse(fs.readFileSync(path.join(repoRoot, "site", "history", "radar.json"), "utf8"));

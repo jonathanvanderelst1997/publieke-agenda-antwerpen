@@ -183,6 +183,21 @@ body.agenda-focused {
   cursor: pointer;
 }
 .theme-toggle:hover { border-color: var(--pa-ink); }
+/* De weg naar het verleden (/verleden/), naast de knop donker/licht. */
+.hero-verleden {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--pa-line-strong);
+  background: var(--pa-surface);
+  color: var(--pa-ink);
+  font-size: 0.84rem;
+  font-weight: 650;
+  text-decoration: none;
+}
+.hero-verleden:hover { border-color: var(--pa-ink); }
 .agenda-count,
 .agenda-focused .agenda-count {
   color: var(--pa-ink);
