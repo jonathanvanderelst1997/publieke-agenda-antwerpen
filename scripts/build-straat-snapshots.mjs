@@ -38,6 +38,7 @@ import { fileURLToPath } from "node:url";
 import { USER_AGENT, isMainModule } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { itemVoorHistoriek, parkeerverbodInDistrict } from "../lib/historiek-privacy.mjs";
+import { isParkeerItem, isParkeerWijziging } from "../lib/parkeer-historiek.mjs";
 import {
   ADRES_LAGEN, BRONNEN_BESTAND, KRIMP_MAX_VERLIES, KRIMP_MINIMUM, MAX_RADAR_BYTES, MAX_STRAAT_BYTES, NOOIT, RADAR_BESTAND, RADAR_DAGEN, STRAAT_INDEX,
   PARKEERVERBOD_VERBAND, STRAAT_LAGEN, STRAAT_MAP, STRAAT_SCHEMA, aantalItems, itemZonderPandnummers, straatAdres, straatBestandenProblemen, straatItemPrivacy,
@@ -572,19 +573,21 @@ const TYPE = Object.freeze({ added: 1, changed: 2, removed: 3 });
 // De radar uit de live historiek: per straat (id|naam|postcode, zoals street-overview.js) en per
 // verversing het aantal nieuwe, gewijzigde en afgelopen items. Met dezelfde koppeling van een wijziging
 // aan een straat als street-overview.js vroeger in de browser deed (het huidige item, anders after/before).
+// Nooit een parkeerverbod (besluit van de eigenaar van 3 november 2026, lib/parkeer-historiek.mjs): ook als een oudere
+// historiek er nog een heeft, telt de radar het niet.
 export function bouwRadar(history, { dagen = RADAR_DAGEN } = {}) {
   const observedAt = typeof history?.observedAt === "string" ? history.observedAt : "";
   const lagen = {};
   for (const [naam, laag] of Object.entries(isObject(history?.layers) ? history.layers : {})) if (laag?.status) lagen[naam] = { status: laag.status, ...(laag.lastSuccessAt ? { sinds: laag.lastSuccessAt } : {}) };
   const huidig = new Map();
-  for (const laag of Object.values(isObject(history?.layers) ? history.layers : {})) for (const item of laag?.items || []) huidig.set(item.id, item);
+  for (const laag of Object.values(isObject(history?.layers) ? history.layers : {})) for (const item of laag?.items || []) if (!isParkeerItem(item)) huidig.set(item.id, item);
   const grens = Date.parse(observedAt) - dagen * 86_400_000;
   const perStraat = new Map();
   const runs = new Set();
   for (const change of Array.isArray(history?.changes) ? history.changes : []) {
     const wanneer = Date.parse(change?.observedAt || "");
     const type = TYPE[change?.type];
-    if (!Number.isFinite(wanneer) || !(wanneer >= grens) || !type) continue;
+    if (!Number.isFinite(wanneer) || !(wanneer >= grens) || !type || isParkeerWijziging(change)) continue;
     const item = huidig.get(change.id) || change.after || change.before;
     for (const s of item?.streets || []) {
       if (!s?.name) continue;

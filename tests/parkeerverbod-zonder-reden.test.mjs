@@ -1,7 +1,8 @@
 // Besluit van de eigenaar (18 oktober 2026): een parkeerverbod zegt DAT er een parkeerverbod is, WAAR exact en WANNEER,
 // en NOOIT waarom (verhuis, container, lift, ceremoniewagen, filmopname, evenement, werf ...). Niet in de titel, niet in
-// een zin, niet in de technische details, de districtslijst, de kaartjes, de historiek, de straatbestanden, de feed of de
-// eventpagina's. Intern mag de reden nog meetellen (een parkeerverbod bij zijn werfzone of evenement hangen), zolang ze
+// een zin, niet in de technische details, de districtslijst, de kaartjes, de straatbestanden, de feed of de eventpagina's.
+// De historiek bewaart sinds 3 november 2026 helemaal geen parkeerverbod meer (besluit van de eigenaar,
+// tests/geen-parkeerhistoriek.test.mjs); een oude historiek met de reden verliest het parkeerverbod. Intern mag de reden nog meetellen (een parkeerverbod bij zijn werfzone of evenement hangen), zolang ze
 // nergens publiek terechtkomt (site/adres-privacy.js). Streng: elke uitvoer, met verzonnen redenen en verzonnen straten.
 // Faalt zodra de reden ergens terugkomt (mutatieproef: de reden terug in de titel van publicSpaceEntry).
 import assert from "node:assert/strict";
@@ -19,7 +20,6 @@ import { kaartBronNoot } from "../site/kaart-bronnoot.js";
 import { bezoekersHint, bezoekersLinks } from "../site/bezoekers-bronnen.js";
 import { popupHtml } from "../site/kaart-lagen.js";
 import { compactPublicSpaceItem, updateLiveHistory } from "../lib/live-history.mjs";
-import { parkeerItemVoorHistoriek, parkeerWijzigingenVoorHistoriek } from "../lib/parkeer-historiek.mjs";
 import { archiefDagVoorPubliek, historiekPrivacyBevindingen, historiekVoorPubliek, itemVoorHistoriek } from "../lib/historiek-privacy.mjs";
 import { bundelAanvulling, bundelRijen, itemVoorStraat, schrijfStraatSnapshots } from "../scripts/build-straat-snapshots.mjs";
 import { STRAAT_INDEX, straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
@@ -155,18 +155,14 @@ test("de districtslijst (public-space-live.js) en de code: geen reden als titel,
   assert.deepEqual(treffers, []);
 });
 
-test("historiek: nieuwe items, de vorige stand en oude wijzigingen zonder reden; een andere reden is geen wijziging", () => {
+test("historiek: geen parkeerverbod, dus ook geen reden; een oude historiek met de reden verliest het parkeerverbod", () => {
   const T1 = "2099-03-10T03:00:00.000Z", T2 = "2099-03-11T03:00:00.000Z";
-  // Zoals de verversing ze ophaalt (scripts/refresh-live-history.mjs vraagt de reden niet eens op; hier wel, als proef).
+  // Zoals de verversing ze ophaalt (scripts/refresh-live-history.mjs vraagt de reden alleen intern op; hier wel, als proef).
   const items = (reden) => REDENEN.map(([r], i) => ({ ...liveItem(reden ?? r, { Locatienummer: `L${i}` }), streets: [PROEF] }));
-  for (const item of items()) {
-    const kort = compactPublicSpaceItem(item);
-    assert.equal(kort.title, "Parkeerverbod");
-    assert.equal("reason" in kort, false);
-  }
+  for (const item of items()) assert.equal(compactPublicSpaceItem(item), null);
   const eerst = updateLiveHistory(null, { observedAt: T1, worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: items() } });
-  // Zelfde parkeerverboden, andere reden: geen enkele wijziging.
   const daarna = updateLiveHistory(eerst, { observedAt: T2, worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: items("Container") } });
+  assert.deepEqual(daarna.layers.publicSpace.items, []);
   assert.deepEqual(daarna.changes, []);
   const tekst = JSON.stringify(daarna);
   for (const [reden, verraad] of REDENEN) zonderReden(tekst, reden, verraad);
@@ -187,15 +183,16 @@ test("historiek: nieuwe items, de vorige stand en oude wijzigingen zonder reden;
   assert.deepEqual([...new Set(historiekPrivacyBevindingen(doc).map((v) => v.code))], ["reden"], "de scan vindt de reden");
   const publiek = historiekVoorPubliek(doc);
   assert.deepEqual(historiekPrivacyBevindingen(publiek), []);
-  assert.deepEqual(publiek.changes.map((c) => [c.id, c.fields]), [["parking:P2", ["end"]], ["parking:P3", []]], "een wijziging van alleen de reden valt weg");
-  assert.equal(publiek.changes[1].before.title, "Parkeerverbod");
+  assert.deepEqual(publiek.layers.publicSpace.items, []);
+  assert.deepEqual(publiek.changes, [], "geen enkele wijziging van een parkeerverbod blijft");
   const dag = archiefDagVoorPubliek({ schemaVersion: 1, date: "2099-03-11", events: doc.changes });
-  assert.deepEqual(historiekPrivacyBevindingen(dag), []);
-  // De opkuis van lib/parkeer-historiek.mjs (voor de vorige stand in updateLiveHistory) doet hetzelfde.
-  assert.equal(parkeerItemVoorHistoriek(oud("P1", "Verhuis")).title, "Parkeerverbod");
-  assert.deepEqual(parkeerWijzigingenVoorHistoriek(doc.changes).map((c) => c.id), ["parking:P2", "parking:P3"]);
+  assert.deepEqual(dag.events, []);
+  // De vorige stand in updateLiveHistory: ook die verliest de parkeerverboden.
+  const volgende = updateLiveHistory(doc, { observedAt: "2099-03-12T03:00:00.000Z", worksResult: { ok: true, items: [] }, publicSpaceResult: { ok: true, items: [] } });
+  assert.deepEqual(volgende.changes, []);
+  // Het straatbestand (itemVoorHistoriek met `parkeer`) houdt de titel "Parkeerverbod".
   assert.equal(itemVoorHistoriek({ title: "Container", end: "x" }, { parkeer: true }).title, "Parkeerverbod");
-  for (const [reden, verraad] of REDENEN) { zonderReden(JSON.stringify(publiek), reden, verraad); zonderReden(JSON.stringify(dag), reden, verraad); }
+  for (const [reden, verraad] of REDENEN) { zonderReden(JSON.stringify(publiek), reden, verraad); zonderReden(JSON.stringify(dag), reden, verraad); zonderReden(JSON.stringify(volgende), reden, verraad); }
 });
 
 test("straatbestanden: nieuwe items, bundelrijen en een vorige stand zonder reden; de scan houdt een bestand met reden tegen", (t) => {

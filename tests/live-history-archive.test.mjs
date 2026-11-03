@@ -40,12 +40,14 @@ test("baseline wordt per laag één keer gezet en daarna nooit herschreven", () 
     observedAt: T2,
     layers: {
       works: { ...layer("work:2"), lastSuccessAt: T2 },
-      publicSpace: { ...layer("parking:1"), lastSuccessAt: T2 },
+      publicSpace: { status: "ok", lastSuccessAt: T2, items: [{ id: "iod:1" }, { id: "parking:1", kind: "parking" }] },
     },
   });
   assert.equal(second.layers.works.observedAt, T1);
   assert.equal(second.layers.works.items[0].id, "work:1");
   assert.equal(second.layers.publicSpace.observedAt, T2);
+  // Nooit een parkeerverbod in de baseline (besluit van de eigenaar van 3 november 2026).
+  assert.deepEqual(second.layers.publicSpace.items.map((item) => item.id), ["iod:1"]);
   assert.deepEqual(validateHistoryArchiveBaseline(second), []);
 });
 

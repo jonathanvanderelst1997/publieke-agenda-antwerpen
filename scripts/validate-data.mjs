@@ -35,6 +35,7 @@ import {
   validateHistoryArchiveIndex,
 } from "../lib/live-history-archive.mjs";
 import { historiekPrivacyBevindingen } from "../lib/historiek-privacy.mjs";
+import { parkeerverbodenInHistoriek } from "../lib/parkeer-historiek.mjs";
 import { straatBestandenProblemen } from "../lib/straat-bestanden.mjs";
 import { werkVormProblemen } from "../lib/werk-vorm-validatie.mjs";
 import { WERK_VORM_FILE } from "../site/werk-vorm.js";
@@ -223,6 +224,9 @@ const historyFiles = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatM
   return entry.isDirectory() ? historyFiles(target) : entry.name.endsWith(".json") ? [target] : [];
 });
 let historyPrivacyFindings = 0;
+// Geen enkel parkeerverbod onder site/history: niet in live-layers.json, baseline.json, een dagshard of een backfill
+// (besluit van de eigenaar van 3 november 2026: "er moet geen historie zijn van parkeerverboden", lib/parkeer-historiek.mjs).
+let historyParkeerverboden = 0;
 for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() : []) {
   const relative = path.relative(rootDir, file).split(path.sep).join("/");
   let document;
@@ -235,7 +239,12 @@ for (const file of fs.existsSync(historyDir) ? historyFiles(historyDir).sort() :
     problems.push(`${relative}: privacy ${finding.code} op ${finding.path}`);
     historyPrivacyFindings += 1;
   }
+  for (const finding of parkeerverbodenInHistoriek(document)) {
+    if (historyParkeerverboden < 50) problems.push(`${relative}: parkeerverbod op ${finding.path}`);
+    historyParkeerverboden += 1;
+  }
 }
+if (historyParkeerverboden) problems.push(`site/history: ${historyParkeerverboden} parkeerverboden; er hoort geen historiek van parkeerverboden te zijn; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 // De weg vooruit: de verversing kuist zelf op, en dit kan ook met de hand.
 if (historyPrivacyFindings) problems.push(`site/history: ${historyPrivacyFindings} privacybevindingen; oplossing: node scripts/opkuis-historiek-privacy.mjs --write`);
 
