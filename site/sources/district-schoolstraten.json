@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "portal_publiek10/MapServer/986: schoolstraten van district Antwerpen met venstertijden, per schooljaar en bij de start van een proef",
-  "retrievedAt": "2026-11-02T04:20:09.619Z",
+  "retrievedAt": "2026-11-03T04:22:36.549Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
@@ -36,7 +36,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -58,7 +58,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -80,7 +80,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -102,7 +102,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -124,7 +124,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -144,7 +144,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -166,7 +166,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -188,7 +188,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -210,7 +210,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -232,7 +232,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -254,7 +254,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -276,7 +276,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -298,7 +298,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -320,7 +320,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -342,7 +342,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -364,7 +364,7 @@
       "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -377,16 +377,16 @@
       "date": "2026-09-01",
       "endDate": "2027-06-30",
       "timeSlot": "Info",
-      "timeText": "op schooldagen: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-15.45",
+      "timeText": "op schooldagen: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-12.45",
       "location": "Jan Vanhoenackerstraat, 2000 Antwerpen",
       "postcodes": [
         "2000"
       ],
-      "info": "Schoolstraat aan GO! Muzische basisschool K’Do: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden: ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-15.45. Proefopstelling sinds 23 februari 2026.",
-      "infoUrl": "https://www.antwerpen.be/product/schoolstraten",
+      "info": "Schoolstraat aan GO! Muzische basisschool K’Do: op schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadarhek). Venstertijden volgens het onderbord in besluit (advies) 2026_DCAN_00022 van het districtscollege (12 januari 2026): ma, di, do, vr 8.20-8.45 en 15.10-15.35; wo 8.20-8.45 en 12.20-12.45. De kaartlaag van de stad vermeldt op woensdag 8.20-8.45 en 12.20-15.45; hier staan de uren van het onderbord. Proefopstelling sinds 23 februari 2026.",
+      "infoUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.6683.3380/agendapunten/26.0106.8305.9997",
       "kind": "activity",
       "sourceUrl": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986",
-      "retrievedAt": "2026-11-02T04:20:09.619Z",
+      "retrievedAt": "2026-11-03T04:22:36.549Z",
       "reviewRequired": false,
       "inDistrict": true
     }
