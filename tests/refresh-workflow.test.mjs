@@ -301,19 +301,26 @@ test("alarm: de reactie noemt de falende bronnen en lagen met hun foutcode, zoda
     assert.equal(reactie("weigering-2", weigering("2026-10-23T03:19:18.427Z", 284), { GH_VORIGE: vorigeWeigering }), null, "ander tijdstip, zelfde fout: geen reactie");
     const ander = reactie("ander", dag1.bron, { GH_VORIGE: vorige });
     assert.ok(ander && ander.includes("BRON district-ebesluit"), "een andere set fouten: wel een reactie");
-    // Een melding zonder fout (3-11-2026: een website weigert ons): een reactie in het eigen meldingsissue met de zin
-    // in gewone woorden, één keer; dezelfde zin geeft geen nieuwe reactie, en zonder fout geen alarm.
+    // Meldingen zonder fout (3 en 4-11-2026: een website weigert ons; een huisnummer ontbreekt): een reactie in het eigen
+    // meldingsissue, elke regel één keer. Regels die al in het issue staan, komen niet terug; een nieuwe regel wel, alleen.
     const zin = "www.antwerpen.be weigert ons sinds 23-10-2026; de agenda toont de laatst bekende activiteiten (laatste goede lezing 22-10-2026) tot hun eigen datum voorbij is. Bronnen: district-kalender.";
-    const groen = { R_HEALTH: "success", MELDING: zin };
+    const huis1 = "Huisnummer ontbreekt: 18-11-2026, Fun Games: Sporthal Proef, District Merksem (stad-districten)";
+    const huis2 = "Huisnummer ontbreekt: 20-11-2026, Lezing: Zaal Proef (district-kalender)";
+    const groen = { R_HEALTH: "success", MELDING: `${zin}\n${huis1}` };
     const m1 = reactie("melding-1", "", groen);
-    assert.ok(m1 && m1.startsWith(zin), m1);
-    assert.match(m1, /de site toont de laatst bekende activiteiten van deze bronnen tot hun eigen datum voorbij is/);
-    assert.match(m1, /^Kenmerk: \d+ \(dezelfde melding geeft geen nieuwe reactie\)$/m);
+    assert.ok(m1 && m1.startsWith(`${zin}\n${huis1}\n`), m1);
+    assert.match(m1, /de site toont de laatst bekende activiteiten van die bronnen tot hun eigen datum voorbij is/);
+    assert.match(m1, /Vul het adres aan in site\/sources\/vaste-adressen\.json/);
     assert.doesNotMatch(m1, /Alarm|faalde/);
     const vorigeMelding = path.join(temp, "vorige-melding.txt");
     fs.writeFileSync(vorigeMelding, m1);
-    assert.equal(reactie("melding-2", "", { ...groen, GH_VORIGE: vorigeMelding }), null, "dezelfde melding: geen nieuwe reactie");
-    assert.match(laatsteStdout, /Melding staat al in issue #42/);
+    assert.equal(reactie("melding-2", "", { ...groen, GH_VORIGE: vorigeMelding }), null, "dezelfde meldingen: geen nieuwe reactie");
+    assert.match(laatsteStdout, /Elke melding staat al in issue #42/);
+    // Een nieuwe activiteit zonder huisnummer: alleen die regel, niet opnieuw de weigering of de eerste activiteit.
+    const m3 = reactie("melding-3", "", { ...groen, MELDING: `${zin}\n${huis1}\n${huis2}`, GH_VORIGE: vorigeMelding });
+    assert.ok(m3 && m3.startsWith(`${huis2}\n`), m3);
+    assert.ok(!m3.includes(zin) && !m3.includes(huis1), m3);
+    assert.doesNotMatch(m3, /Een website die ons weigert/, "alleen de uitleg bij wat nieuw is");
     // Geen @-vermelding of opmaak uit de melding.
     const raarM = reactie("melding-raar", "", { R_HEALTH: "success", MELDING: "@iemand `x` <b>weigert</b> [y](z)" });
     assert.doesNotMatch(raarM, /[@`<>[\]]/);

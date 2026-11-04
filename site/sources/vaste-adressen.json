@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "uitleg": "Vaste plekken die een bron alleen bij naam noemt (eBesluit: de zalen van de districtsraad en de raadscommissies), met het adres dat de eigenaar van de plek zelf publiceert. lib/vaste-adressen.mjs zet het adres achter de locatie van elk bronitem dat met zo'n naam begint en nog geen huisnummer heeft.",
-  "bijgewerkt": "2026-11-03",
+  "uitleg": "Vaste plekken die een bron alleen bij naam of zonder huisnummer noemt (eBesluit: de zalen van de districtsraad en de raadscommissies; een lezing van vóór de huisnummerregel), met het adres dat een officiële pagina noemt: de eigenaar van de plek, het district of de open data van de stad. lib/vaste-adressen.mjs zet het adres bij elk bronitem waarvan de locatie met zo'n naam begint en nog geen huisnummer heeft.",
+  "bijgewerkt": "2026-11-04",
   "plekken": [
     {
       "naam": "Provinciehuis Antwerpen",
@@ -20,6 +20,23 @@
       ],
       "adres": "Mechelsesteenweg 216, 2018 Antwerpen",
       "bron": "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/nuttige-adressen/districtshuis-antwerpen-harmonie"
+    },
+    {
+      "naam": "De Groene Waterman",
+      "herken": [
+        "De Groene Waterman"
+      ],
+      "adres": "Wolstraat 7, 2000 Antwerpen",
+      "bron": "https://www.antwerpen.be/info/6accc80a332512dec219cdf5/heraanleg-jeruzalemstraat-engelse-beurs"
+    },
+    {
+      "naam": "Bibliotheek Permeke",
+      "herken": [
+        "Bibliotheek Permeke",
+        "Bib Permeke"
+      ],
+      "adres": "De Coninckplein 26, 2060 Antwerpen",
+      "bron": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Atlas/Atlas/MapServer/14"
     }
   ]
 }
