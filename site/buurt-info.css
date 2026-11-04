@@ -17,4 +17,13 @@
 .buurt-info-links { display: flex; flex-wrap: wrap; gap: 9px; }
 .buurt-info-links a { border: 1px solid var(--pa-line-strong); padding: 9px 12px; border-radius: 10px; font-size: .87rem; color: var(--pa-accent); font-weight: 700; text-decoration: none; }
 .buurt-info-links a:hover,.buurt-info-links a:focus-visible { text-decoration: underline; }
+.buurt-info-agenda { margin-top: 12px; }
+.buurt-info-agenda[hidden], .buurt-info-leeg[hidden] { display: none !important; }
+.buurt-info-agenda h4 { font-size: 1rem; margin: 12px 0 2px; color: var(--pa-ink-strong); }
+.buurt-info-uitleg, .buurt-info-leeg { font-size: .87rem; line-height: 1.5; color: var(--pa-muted); margin: 2px 0 6px; }
+.buurt-info-lijst { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 6px; }
+.buurt-info-lijst li { display: grid; gap: 2px; padding: 8px 10px; border: 1px solid var(--pa-line); border-radius: 12px; background: var(--pa-surface-2); }
+.buurt-info-lijst a { color: var(--pa-accent); font-weight: 750; text-decoration: none; }
+.buurt-info-lijst a:hover, .buurt-info-lijst a:focus-visible { text-decoration: underline; }
+.buurt-info-lijst span { font-size: .84rem; color: var(--pa-muted); }
 @media (max-width: 560px) { .buurt-info-kop { flex-direction: column; } .buurt-info-aantallen { grid-template-columns: repeat(3, minmax(0, 1fr)); } .buurt-info-aantallen span { font-size: .72rem; } }
