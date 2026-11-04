@@ -204,9 +204,10 @@ jobs:
           if [ -f site/sources/vaagheid.json ]; then cp site/sources/vaagheid.json "$out/vaagheid.json"; fi
           # De automatische controle van handmatige items (scripts/check-manual-sources.mjs).
           if [ -f site/sources/manual-check.json ]; then cp site/sources/manual-check.json "$out/manual-check.json"; fi
-          # Websites die ons weigeren, in één zin per website (scripts/sources-health.mjs --weigering), voor de job
-          # source-health en de melding in het alarm. Een fout hier houdt de verversing niet tegen.
-          node scripts/sources-health.mjs --no-baseline --weigering > "$out/weigering.txt" 2>/dev/null || : > "$out/weigering.txt"
+          # De meldingen voor de eigenaar (scripts/sources-health.mjs --melding): een website die ons weigert (één zin per
+          # website) en een komende activiteit in een gebouw zonder huisnummer (één regel per activiteit), voor de job
+          # source-health en het meldingsissue. Een fout hier houdt de verversing niet tegen.
+          node scripts/sources-health.mjs --no-baseline --melding > "$out/melding.txt" 2>/dev/null || : > "$out/melding.txt"
           if [ ! -s "$out/changes.txt" ]; then
             # Hoort niet te gebeuren: generatedAt verandert elke run.
             echo "::notice title=Geen wijziging::De verversing leverde geen enkele wijziging; er komt geen datatak."
@@ -548,7 +549,7 @@ jobs:
                 # De site weigert automatische toegang (Akamai "Access Denied"; zie BRON_WEIGERT_CODE in
                 # lib/fetch-util.mjs). Geen fout, hoe oud de vorige stand ook is: geen verversing lost dit op, en de
                 # site toont de komende items van de laatste goede lezing tot hun eigen datum (besluit van 3-11-2026).
-                # De melding staat één keer per website in weigering.txt (hieronder, en het alarm-issue).
+                # De melding staat één keer per website in melding.txt (hieronder, en het meldingsissue).
                 if [ "$kern" = "bron_weigert_automatisch" ]; then
                   echo "Bron ${id}: de website weigert automatische toegang (${code}); de agenda toont de laatst bekende stand (${retrieved})"
                 elif [[ $kern =~ ^http_(5[0-9][0-9]|429)$ || $kern =~ ^(timeout|network_error|source_timeout|refresh_budget_exhausted|body_read_failed)$ ]] \
@@ -626,12 +627,18 @@ jobs:
             if [ -n "${GITHUB_OUTPUT:-}" ]; then printf 'bron<<%s\n%s\n%s\n' "$eind" "$veilig" "$eind" >> "$GITHUB_OUTPUT"; fi
             if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then printf '### Bronstatus\n\n```text\n%s\n```\n' "$veilig" >> "$GITHUB_STEP_SUMMARY"; fi
           fi
-          # Websites die ons weigeren: één zin per website, uit de verversing (weigering.txt). Een melding, geen fout.
-          w="$RUNNER_TEMP/in/weigering.txt"
+          # Meldingen voor de eigenaar, uit de verversing (melding.txt): een website die ons weigert (één zin per website)
+          # en een komende activiteit in een gebouw zonder huisnummer (één regel per activiteit; ze staat wel op de site).
+          # Geen fout; hoogstens 40 regels.
+          w="$RUNNER_TEMP/in/melding.txt"
           if [ -s "$w" ]; then
-            melding=$(LC_ALL=C.UTF-8 sed -n '1,5p' "$w" | tr -d '`@<>[]|')
+            melding=$(LC_ALL=C.UTF-8 sed -n '1,40p' "$w" | tr -d '`@<>[]|')
             while IFS= read -r zin; do
-              [ -n "$zin" ] && echo "::warning title=Bron weigert automatische toegang::${zin}"
+              case "$zin" in
+                "") ;;
+                "Huisnummer ontbreekt: "*) echo "::warning title=Huisnummer ontbreekt::${zin#Huisnummer ontbreekt: }" ;;
+                *) echo "::warning title=Bron weigert automatische toegang::${zin}" ;;
+              esac
             done <<< "$melding"
             eindm="MELDING_EINDE_$(date +%s%N)"
             if [ -n "${GITHUB_OUTPUT:-}" ]; then printf 'melding<<%s\n%s\n%s\n' "$eindm" "$melding" "$eindm" >> "$GITHUB_OUTPUT"; fi
@@ -709,31 +716,45 @@ jobs:
           R_FRESH: ${{ needs.freshness.result }}
           # De regels die met BRON beginnen (job-output van source-health): welke bron of laag faalt, met haar foutcode.
           BRON: ${{ needs.source-health.outputs.bron }}
-          # Een website die ons weigert, in gewone woorden (job-output van source-health; geen fout).
+          # Meldingen in gewone woorden (job-output van source-health; geen fout): een website die ons weigert, een
+          # huisnummer dat ontbreekt.
           MELDING: ${{ needs.source-health.outputs.melding }}
         run: |
           set -euo pipefail
-          # Eerst de melding: een website die ons weigert (sinds 23-10-2026 www.antwerpen.be). Een eigen issue, één keer:
-          # dezelfde zin geeft geen nieuwe reactie (de zin heeft geen tijdstippen, alleen de dag waarop het begon).
-          # Een andere zin (een andere website, of de weigering begon opnieuw) geeft wel een reactie.
-          melding=$(printf '%s\n' "${MELDING:-}" | LC_ALL=C.UTF-8 tr -d '`@<>[]|' | sed -n '1,5p')
+          # Eerst de meldingen (geen fout), in een eigen issue: een website die ons weigert (sinds 23-10-2026
+          # www.antwerpen.be) en een komende activiteit in een gebouw zonder huisnummer. Elke regel komt maar één keer:
+          # alleen regels die nog nergens in het issue staan (body of een reactie), gaan in een nieuwe reactie. De regels
+          # hebben geen tijdstippen; dezelfde toestand geeft dus geen nieuwe reactie.
+          melding=$(printf '%s\n' "${MELDING:-}" | LC_ALL=C.UTF-8 tr -d '`@<>[]|' | sed -n '1,40p')
           if [ -n "${melding//[[:space:]]/}" ]; then
-            mtitel="Melding: een website weigert de agenda"
-            mkenmerk=$(printf '%s\n' "$melding" | cksum | cut -d' ' -f1)
-            mbody=$(printf '%s\n' "$melding" "" \
-              "De agenda blijft volledig voor wat er al bekend was: de site toont de laatst bekende activiteiten van deze bronnen tot hun eigen datum voorbij is. Nieuwe activiteiten van deze bronnen komen er pas bij als de stad de agenda weer toelaat (User-Agent publieke-agenda-antwerpen/1.0) of dezelfde gegevens als open data geeft. De agenda probeert niet om de weigering heen." \
-              "" "Sluit dit issue zodra de stad de agenda weer toelaat." "Kenmerk: ${mkenmerk} (dezelfde melding geeft geen nieuwe reactie)")
+            mtitel="Melding: publieke agenda"
             mnum=$(gh issue list --state open --search "\"${mtitel}\" in:title" --json number,title \
               --jq "map(select(.title == \"${mtitel}\")) | .[0].number // empty")
+            mvorige=""
             if [ -n "$mnum" ]; then
-              mvorige=$(gh issue view "$mnum" --json body,comments --jq '(.comments[-1].body // .body) // ""' 2>/dev/null || true)
-              if printf '%s' "$mvorige" | grep -qF "Kenmerk: ${mkenmerk} "; then
-                echo "Melding staat al in issue #${mnum}; geen nieuwe reactie."
-              else
-                gh issue comment "$mnum" --body "$mbody"
-              fi
+              mvorige=$(gh issue view "$mnum" --json body,comments --jq '([.body] + [.comments[].body]) | join("\n")' 2>/dev/null || true)
+            fi
+            nieuw=""
+            while IFS= read -r zin; do
+              [ -z "$zin" ] && continue
+              if ! printf '%s\n' "$mvorige" | grep -qxF -- "$zin"; then nieuw="${nieuw}${zin}"$'\n'; fi
+            done <<< "$melding"
+            if [ -z "$nieuw" ]; then
+              echo "Elke melding staat al in issue #${mnum}; geen nieuwe reactie."
             else
-              gh issue create --title "$mtitel" --body "$mbody"
+              uitleg=()
+              if printf '%s' "$nieuw" | grep -q " weigert ons"; then
+                uitleg+=("Een website die ons weigert: de agenda blijft volledig voor wat er al bekend was; de site toont de laatst bekende activiteiten van die bronnen tot hun eigen datum voorbij is. Nieuwe activiteiten van die bronnen komen er pas bij als de stad de agenda weer toelaat (User-Agent publieke-agenda-antwerpen/1.0) of dezelfde gegevens als open data geeft. De agenda probeert niet om de weigering heen.")
+              fi
+              if printf '%s' "$nieuw" | grep -q "^Huisnummer ontbreekt: "; then
+                uitleg+=("Huisnummer ontbreekt: de activiteit staat gewoon op de site. Vul het adres aan in site/sources/vaste-adressen.json, met de officiële pagina die het noemt; daarna staat het bij de volgende verversing op de site.")
+              fi
+              mbody=$(printf '%s\n' "${nieuw%$'\n'}" "" ${uitleg[@]+"${uitleg[@]}"} "" "Geen fout: de agenda toont alles. Elke regel komt hier maar één keer.")
+              if [ -n "$mnum" ]; then
+                gh issue comment "$mnum" --body "$mbody"
+              else
+                gh issue create --title "$mtitel" --body "$mbody"
+              fi
             fi
           fi
           # Alleen een melding, niets faalde: klaar.

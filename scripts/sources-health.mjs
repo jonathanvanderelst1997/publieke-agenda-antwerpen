@@ -32,6 +32,8 @@ import { LIVE_HISTORY_FILE, LIVE_LAAG_MAX_UUR, liveLaagGezondheid } from "../lib
 import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
 import { MAX_AGE_HOURS, SOURCE_DEFINITIONS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
+import { VASTE_ADRESSEN_FILE, ontbrekendeHuisnummers, plaatsKennis } from "../lib/vaste-adressen.mjs";
+import { loadHandAgendaItems } from "./agenda-source.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
 export function gitBaseline(rootDir, ref) {
@@ -52,6 +54,9 @@ function readJson(file) {
     return null;
   }
 }
+
+// De meldingen die naar het meldingsissue gaan (geen fout): een website die ons weigert, een huisnummer dat ontbreekt.
+export const MELDING_TITELS = Object.freeze(["Bron weigert automatische toegang", "Huisnummer ontbreekt"]);
 
 const dagMaandJaar = (instant) => {
   const ms = Date.parse(instant ?? "");
@@ -82,6 +87,40 @@ export function weigeringsMeldingen(entries) {
     const begin = sinds ? ` sinds ${dagMaandJaar(sinds)}` : laatstGoed ? ` sinds de laatste goede lezing van ${dagMaandJaar(laatstGoed)}` : "";
     const stand = laatstGoed ? ` (laatste goede lezing ${dagMaandJaar(laatstGoed)})` : "";
     return `${host} weigert ons${begin}; de agenda toont de laatst bekende activiteiten${stand} tot hun eigen datum voorbij is. Nieuwe activiteiten van deze bronnen komen er pas bij als de stad de agenda weer toelaat of de gegevens als open data geeft. Bronnen: ${ids}.`;
+  });
+}
+
+// "Huisnummer ontbreekt: 18-11-2026, <titel>: <locatie> (<bron>)", één regel per komende activiteit in een gebouw zonder
+// huisnummer (lib/vaste-adressen.mjs, ontbrekendeHuisnummers), uit de gebouwde feed (site/agenda-feed.js) en de
+// handmatige items. Zonder feed of geodata: geen regels. Zonder tijdstippen: dezelfde activiteit geeft elke dag dezelfde
+// regel, en het alarm-issue noemt ze maar één keer.
+export function huisnummerMeldingen(rootDir, today) {
+  const lees = (rel) => {
+    try {
+      return JSON.parse(fs.readFileSync(path.join(rootDir, rel), "utf8"));
+    } catch {
+      return null;
+    }
+  };
+  let feedItems = [];
+  try {
+    const tekst = fs.readFileSync(path.join(rootDir, "site", "agenda-feed.js"), "utf8");
+    feedItems = JSON.parse(tekst.slice(tekst.indexOf("=") + 1).trim().replace(/;$/, "")).items ?? [];
+  } catch {
+    return [];
+  }
+  let handItems = [];
+  try {
+    handItems = loadHandAgendaItems(rootDir);
+  } catch {
+    handItems = [];
+  }
+  const kennis = plaatsKennis({ straten: lees("site/geo/straten.json"), stratenStad: lees("site/geo/straten-stad.json"), wijken: lees("site/geo/wijken.geo.json") });
+  const vasteAdressen = lees(path.join("site", "sources", VASTE_ADRESSEN_FILE));
+  const veilig = (value) => String(value ?? "").replace(/[`@<>[\]|\r\n]+/g, " ").replace(/\s+/g, " ").trim();
+  return ontbrekendeHuisnummers([...feedItems, ...handItems], today, { vasteAdressen, kennis }).map((item) => {
+    const [jaar, maand, dag] = item.date.split("-");
+    return `Huisnummer ontbreekt: ${dag}-${maand}-${jaar}, ${veilig(item.title)}: ${veilig(item.location)} (${veilig(item.sourceId ?? "handmatig")})`;
   });
 }
 
@@ -119,6 +158,9 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   }
 
   for (const tekst of weigeringsMeldingen(weigeringen)) meld("Bron weigert automatische toegang", tekst);
+  // Een komende activiteit in een gebouw zonder huisnummer: ze staat gewoon op de site; deze melding zegt welke, zodat
+  // het adres aangevuld wordt (site/sources/vaste-adressen.json). Geen fout.
+  for (const tekst of huisnummerMeldingen(rootDir, asOfDay)) meld("Huisnummer ontbreekt", tekst);
 
   // Afgeleide bronnen (lib/source-registry.mjs, AFGELEIDE_BRONNEN): de stap die ze afleidt, zet haar regel
   // in refresh-status.json (lib/afgeleide-bronstatus.mjs); dan telt ze hierboven mee zoals elke bron (een
@@ -215,10 +257,11 @@ if (isMainModule(import.meta.url)) {
   const ref = baselineFlag >= 0 ? args[baselineFlag + 1] : "HEAD";
   const baseline = args.includes("--no-baseline") ? null : gitBaseline(rootDir, ref);
   const result = checkHealth({ rootDir, at, baseline, baselineLabel: ref });
-  // --weigering: alleen de zinnen over websites die ons weigeren, één per regel (voor de job source-health en het
-  // alarm-issue in .github/workflows/refresh.yml). Altijd exitcode 0.
-  if (args.includes("--weigering")) {
-    for (const melding of result.meldingen ?? []) if (melding.titel === "Bron weigert automatische toegang") console.log(melding.tekst);
+  // --melding: de meldingen voor de eigenaar, één per regel (voor de job source-health en het meldingsissue in
+  // .github/workflows/refresh.yml): websites die ons weigeren en activiteiten in een gebouw zonder huisnummer. Geen
+  // fouten. Altijd exitcode 0. (--weigering is de oude naam.)
+  if (args.includes("--melding") || args.includes("--weigering")) {
+    for (const melding of result.meldingen ?? []) if (MELDING_TITELS.includes(melding.titel)) console.log(melding.tekst);
     process.exit(0);
   }
   for (const line of result.lines) console.log(line);

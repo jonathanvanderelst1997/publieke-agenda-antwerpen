@@ -119,10 +119,11 @@ omweg, geen herhaling).
   activiteiten (laatste goede lezing 22-10-2026) tot hun eigen datum voorbij is. …". "Sinds" is de eerste geweigerde
   poging van de reeks: `lastError.since` in het bronbestand en `errorSince` in `refresh-status.json`
   (`keepPreviousOnError`, `errorSinceOf` in `lib/fetch-util.mjs`).
-- De verversing zet die zin in het artefact (`weigering.txt`, `npm run sources:health -- --weigering`); de job
+- De verversing zet die zin in het artefact (`melding.txt`, `npm run sources:health -- --melding`); de job
   `source-health` geeft hem door als job-output `melding` (een `::warning`, geen `BRON`-regel, geen rode run), en de
-  job `alarm` zet hem één keer in een eigen issue "Melding: een website weigert de agenda". Dezelfde zin geeft geen
-  nieuwe reactie (kenmerk); een andere zin (een andere website, of een nieuwe reeks) wel.
+  job `alarm` zet hem één keer in een eigen issue "Melding: publieke agenda" (samen met de lijst "Huisnummer
+  ontbreekt", zie hieronder). Elke regel komt daar maar één keer; een andere zin (een andere website, of een nieuwe
+  reeks) wel.
 - Een handmatig item op zo'n pagina blijft "onbereikbaar", nu met `httpStatus: 403` in plaats van `null`
   (`scripts/check-manual-sources.mjs`).
 - Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
@@ -912,6 +913,29 @@ van het UiTnetwerk krijgen misschien een gratis integratie. Er verandert niets i
   https://www.uitinvlaanderen.be/agenda/alle/antwerpen.
 - Paginagewicht, nagemeten met 1.900 synthetische events (3.799 kandidaten, 1.457 weggeschreven):
   `agenda-feed.js` 1,5 MB onverpakt; `npm run check` blijft groen.
+
+## Altijd het huisnummer, nooit tegengehouden
+
+Regel van de eigenaar (26-10-2026, herhaald op 4-11-2026): bij een activiteit altijd het exacte adres, met huisnummer.
+Een activiteit wordt daarvoor nooit tegengehouden (`lib/vaste-adressen.mjs`):
+
+1. **Aanvullen uit de lijst.** `site/sources/vaste-adressen.json` noemt vaste plekken met hun officiële adres en de
+   pagina die het noemt (de eigenaar van de plek, het district, of de open data van de stad op geodata.antwerpen.be).
+   `build:sources` zet het adres bij elk bronitem waarvan de locatie met zo'n naam begint en nog geen huisnummer heeft
+   (`metVastAdres`). Wat het adres al zegt, valt weg: "De Groene Waterman" met alleen de straat en de postcode (een
+   lezing van vóór de huisnummerregel van #218) wordt de plek met straat, nummer en postcode. Een bron die zelf een
+   adres in velden geeft (UiT: straat, postcode, gemeente), zet dat al in de locatie.
+2. **Anders gewoon publiceren, en melden.** Heeft een komende activiteit dan nog geen huisnummer en is de plek een
+   gebouw (geen straat, plein, markt, park, kaai of buurt; `plaatsSoort`, met de straatnamen en wijken van
+   `site/geo/`), dan staat ze gewoon op de site, en komt ze op de lijst "Huisnummer ontbreekt"
+   (`ontbrekendeHuisnummers`, `huisnummerMeldingen` in `scripts/sources-health.mjs`). Die regels gaan met de melding
+   over websites die ons weigeren mee in `melding.txt` (`npm run sources:health -- --melding`), de job-output `melding`
+   van `source-health` en het issue "Melding: publieke agenda". Elke regel komt daar maar één keer: de job `alarm` zet
+   alleen regels die nog nergens in het issue staan in een nieuwe reactie.
+3. **Aanvullen.** Een plek op de lijst krijgt haar adres door een regel in `vaste-adressen.json` (naam, de namen
+   waaraan ze herkend wordt, het adres en de officiële pagina). Openbare ruimte (markten, schoolstraten, werven,
+   pleinen) heeft geen huisnummer en komt niet op de lijst; een bron zonder plaats ("locatie via de officiële bron")
+   ook niet.
 
 ## Een tweede bron zolang www.antwerpen.be weigert
 

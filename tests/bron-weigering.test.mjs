@@ -128,7 +128,7 @@ test("keepPreviousOnError: lastError.since is de eerste mislukte poging van de r
 // verzonnen refresh-status.json; zie ook tests/refresh-workflow.test.mjs. Ontbreekt een van de drie (macOS heeft BSD
 // date), dan slaat de toets over in plaats van vals te falen.
 const stapKanDraaien = spawnSync("bash", ["-c", "command -v jq >/dev/null && date -u -d 2026-10-22T03:20:28Z +%s >/dev/null 2>&1"]).status === 0;
-test("de bronstatus in de workflow: een weigering is nooit een fout; de zin uit weigering.txt wordt één melding", { skip: stapKanDraaien ? false : "bash, jq of GNU date ontbreekt" }, () => {
+test("de bronstatus in de workflow: een weigering is nooit een fout; de zinnen uit melding.txt worden meldingen", { skip: stapKanDraaien ? false : "bash, jq of GNU date ontbreekt" }, () => {
   const stap = leesWerkstroom(workflow).get("source-health").steps.find((s) => s.name === "Elke bron gezond");
   assert.ok(stap?.run, "stap Elke bron gezond");
   const draai = (bronnen, weigering = null) => {
@@ -136,7 +136,7 @@ test("de bronstatus in de workflow: een weigering is nooit een fout; de zin uit 
     try {
       fs.mkdirSync(path.join(temp, "in"));
       fs.writeFileSync(path.join(temp, "in", "refresh-status.json"), JSON.stringify({ sources: bronnen }));
-      if (weigering !== null) fs.writeFileSync(path.join(temp, "in", "weigering.txt"), weigering);
+      if (weigering !== null) fs.writeFileSync(path.join(temp, "in", "melding.txt"), weigering);
       const sinds = new Date().toISOString();
       const lagen = [...LIVE_HISTORY_LAYERS.map((laag) => ["live-historiek", laag]), ...[...STRAAT_LAGEN.map(([naam]) => naam), "evenementen"].map((laag) => ["straatbestanden", laag])]
         .map(([bron, laag]) => ({ bron, laag, status: "ok", sinds, errorCode: null }));
@@ -164,11 +164,15 @@ test("de bronstatus in de workflow: een weigering is nooit een fout; de zin uit 
       assert.match(tekst, /de agenda toont de laatst bekende stand/);
     }
   }
-  // De zin uit weigering.txt: één ::warning en de job-output "melding" voor het alarm-issue.
-  const met = draai([fout("stad-koopzondagen", BRON_WEIGERT_CODE, oud)], `${zin}\n`);
+  // De zinnen uit melding.txt: elk één ::warning met de juiste titel, en samen de job-output "melding" voor het
+  // meldingsissue. Een huisnummer dat ontbreekt, is ook een melding, geen fout.
+  const huis = "Huisnummer ontbreekt: 18-11-2026, Fun Games: Sporthal Proef, District Merksem (stad-districten)";
+  const met = draai([fout("stad-koopzondagen", BRON_WEIGERT_CODE, oud)], `${zin}\n${huis}\n`);
+  assert.equal(met.code, 0, met.tekst);
   assert.equal((met.tekst.match(/::warning title=Bron weigert automatische toegang::/g) || []).length, 1, met.tekst);
   assert.ok(met.tekst.includes(`::warning title=Bron weigert automatische toegang::${zin}`), met.tekst);
-  assert.equal(met.melding, zin);
+  assert.ok(met.tekst.includes("::warning title=Huisnummer ontbreekt::18-11-2026, Fun Games: Sporthal Proef, District Merksem (stad-districten)"), met.tekst);
+  assert.equal(met.melding, `${zin}\n${huis}`);
   // Geen bestand of een leeg bestand: geen melding.
   assert.equal(draai([fout("stad-koopzondagen", BRON_WEIGERT_CODE, oud)]).melding, null);
   assert.equal(draai([fout("stad-koopzondagen", BRON_WEIGERT_CODE, oud)], "").melding, null);
