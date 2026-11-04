@@ -124,6 +124,14 @@ omweg, geen herhaling).
   job `alarm` zet hem één keer in een eigen issue "Melding: publieke agenda" (samen met de lijst "Huisnummer
   ontbreekt", zie hieronder). Elke regel komt daar maar één keer; een andere zin (een andere website, of een nieuwe
   reeks) wel.
+- Eén proef per verversing (sinds 5-11-2026, `weigeringOnthouden` in `lib/fetch-util.mjs`, in `refreshAll` van
+  `scripts/refresh-fetch.mjs`): de eerste weigering van een site is de proef van de dag. Elk later verzoek naar
+  dezelfde site in dezelfde verversing gaat niet meer de deur uit en faalt meteen met `bron_weigert_automatisch`.
+  Vroeger kreeg www.antwerpen.be elke ochtend een dozijn verzoeken die allemaal geweigerd werden (het nieuws van de
+  negen andere districten alleen al negen). Voor de bronnen verandert er niets: dezelfde foutcode, de vorige stand
+  blijft. De logregel `{"geweigerd":"www.antwerpen.be","nietVerstuurd":N}` zegt hoeveel verzoeken er niet vertrokken.
+  Een andere site (eBesluit, geodata, GIPOD) gaat gewoon door, en een gewone 403 zonder de weigeringspagina sluit
+  niets af. De volgende verversing proeft opnieuw; lukt dat, dan leest alles weer.
 - Een handmatig item op zo'n pagina blijft "onbereikbaar", nu met `httpStatus: 403` in plaats van `null`
   (`scripts/check-manual-sources.mjs`).
 - Toegang terug vraagt iets van de stad: de agenda (User-Agent `publieke-agenda-antwerpen/1.0`)
@@ -960,6 +968,32 @@ Nagekeken op 3-11-2026, met de gewone User-Agent van de agenda en zonder iets te
   zonder publieke bevestiging gaat nooit live (een uitnodiging kan besloten zijn).
 - **De echte oplossing vraagt iets van de stad:** de agenda (User-Agent `publieke-agenda-antwerpen/1.0`) toelaten op
   www.antwerpen.be, of dezelfde kalender als open data publiceren.
+
+Opnieuw nagekeken op 5-11-2026 (zelfde regels: gewone User-Agent, robots.txt gevolgd, niets omzeild):
+
+- **Wat de officiële open bronnen de komende 30 dagen (5-11 t/m 5-12-2026) in district Antwerpen kennen**, met echte
+  leesvragen: GIPOD 1.086 werken en grondwerken die lopen of beginnen (464 beginnen in die 30 dagen; volgens eigenaar
+  343 Fluvius, 289 stad of district, 209 telecom, 183 Vlaamse overheid, Lantis, Infrabel of Aquafin, 39 water-link,
+  6 De Lijn, 17 andere); A-Sign 2.727 dossiers met een parkeerverbod (1.643 beginnen in die 30 dagen) en 51 innames
+  van openbaar domein; eBesluit 4 openbare vergaderingen van districtsraad en raadscommissies. GIPOD-evenementen:
+  1.490 rijen, waarvan 1.479 markten of handel, 5 buiten het district en 6 geen uitdrukkelijk evenement, dus 0
+  agendapunten (zoals hierboven).
+  Fluvius en De Lijn hebben dus geen eigen bron nodig: hun werken staan al in GIPOD en dus in de werkenlaag.
+- **De Lijn** heeft wel een eigen open-data-API met omleidingen en storingen (data.delijn.be, gratis sleutel via
+  selfservice, Open Data Commons Attribution). Die vraagt een sleutel die de eigenaar zelf aanvraagt; er is nog geen
+  ophaler voor.
+- **Koopzondagen:** de wet van 20 juli 2026 (Belgisch Staatsblad 3 augustus 2026) schafte de verplichte wekelijkse
+  rustdag af. Het college stelde vast dat de afwijkingen op de rustdag van 2026 (besluit van 5 december 2025)
+  daarmee van rechtswege vervallen (eBesluit, besluit 2026_CBS_07405). Er komt dus geen nieuwe jaarlijst van
+  afwijkingen meer om als tweede bron te lezen; de lijst "Koopzondagen" op www.antwerpen.be is een stadslijst zonder
+  open-data-tegenhanger.
+- **eBesluit** vraagt de verwijzer van de site zelf (`Referer: https://ebesluit.antwerpen.be/`): zonder die kop
+  geeft een detail- of maandpagina een lege 403, met die kop een gewone 200. Alle eBesluit-bronnen sturen hem al mee
+  (`getHtml` in `lib/ebesluit-discovery.mjs`, `lib/ebesluit-meetings.mjs`).
+- **Nieuwsbrief van het district:** sinds 3-11-2026 komt hij weer binnen, maar hij linkt naar één pagina op
+  www.antwerpen.be. Die kan niet nagekeken worden, dus komt er niets van op de agenda (zie hieronder).
+- **UiTdatabank:** ongewijzigd. Productie kost 125 euro per jaar (excl. btw); de testomgeving is gratis maar heeft
+  geen echte gegevens. Gebruik is alleen niet-commercieel, met "UiTinVlaanderen" als bron bij elk item.
 
 ## Nieuwsbrieven via de Gateway
 
