@@ -26,10 +26,6 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstraat-schoolstr103-2026/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstraat-schoolstr107-2026/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026005943-2026-11-01/</loc></url>
-  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-11-03/</loc></url>
-  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-11-03/</loc></url>
-  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-11-03/</loc></url>
-  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026005960-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma13-2026-11-04/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma25-2026-11-04/</loc></url>
@@ -173,6 +169,7 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-12-01/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-12-01/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-12-01/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-ev-2026-dcan-00711-2026-12-01/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma13-2026-12-02/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma25-2026-12-02/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma6-2026-12-02/</loc></url>
@@ -254,7 +251,6 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma27-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma4-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004247-2026-12-19/</loc></url>
-  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004671-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026005880-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026006124-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma24-2026-12-20/</loc></url>
@@ -744,6 +740,9 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2027-05-04/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2027-05-04/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2027-05-04/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma13-2027-05-05/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma25-2027-05-05/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma6-2027-05-05/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-9097-7142/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-6247-0350/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-9868-2662/</loc></url>
@@ -806,6 +805,7 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004663-2026-10-12/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004667-2026-10-21/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004667-2026-10-22/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004671-2026-12-19/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004723-2026-10-12/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004734-2026-10-17/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026004828-2026-10-13/</loc></url>
@@ -900,6 +900,7 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-10-13/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-10-20/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-10-27/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma15-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma18-2026-10-02/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma18-2026-10-09/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma18-2026-10-16/</loc></url>
@@ -925,11 +926,13 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-10-13/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-10-20/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-10-27/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma22-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-09-29/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-10-06/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-10-13/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-10-20/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-10-27/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma23-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma24-2026-10-04/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma24-2026-10-11/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma24-2026-10-18/</loc></url>
@@ -999,6 +1002,7 @@
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/project-694bdb74d2ceb2ae395e520c-fase-1b-2026-10-12/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/project-694bdb74d2ceb2ae395e520c-fase-2a-2026-10-14/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19/</loc></url>
+  <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/reanimatielessen-2026-09-10/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/red-star-run-2026-08-30/</loc></url>
   <url><loc>https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13/</loc></url>

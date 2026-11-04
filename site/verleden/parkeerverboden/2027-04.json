@@ -21,5 +21,7 @@
 {"id":"parking:2026-068986|1206979","location":"Mechelsesteenweg 185–189, 2018 Antwerpen","start":"2027-04-05","end":"2027-04-23"},
 {"id":"parking:2025-049868|1047407","location":"Leopoldstraat 23–27, 2000 Antwerpen","start":"2026-12-18","end":"2027-04-28","weg":"2026-10-29"},
 {"id":"parking:2026-069212|1208073","location":"Godefriduskaai 54, 2000 Antwerpen","start":"2026-11-03","end":"2027-04-30"},
-{"id":"parking:2026-050634|1177879","location":"Lange Dijkstraat, 2060 Antwerpen","start":"2026-12-20","end":"2027-04-30"}
+{"id":"parking:2026-050634|1177879","location":"Lange Dijkstraat, 2060 Antwerpen","start":"2026-12-20","end":"2027-04-30"},
+{"id":"parking:2026-065644|1201770","location":"Reyndersstraat 10–14, 2000 Antwerpen","start":"2026-11-02","end":"2027-04-30"},
+{"id":"parking:2026-065644|1201769","location":"Reyndersstraat 27–39A, 2000 Antwerpen","start":"2026-11-02","end":"2027-04-30"}
 ]}

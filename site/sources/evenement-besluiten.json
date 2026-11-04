@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-03T04:23:59.799Z",
+  "generatedAt": "2026-11-04T04:20:51.981Z",
   "venster": {
-    "van": "2026-09-04",
-    "tot": "2027-03-03"
+    "van": "2026-09-05",
+    "tot": "2027-03-04"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,7 +17,7 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 45,
+    "besluiten": 46,
     "gelezen": 28,
     "teLezen": 0,
     "metDag": 25,
@@ -53,39 +53,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
-    },
-    {
-      "id": "26.0529.8160.2202",
-      "code": "2026_CBS_06366",
-      "soort": "evenement",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-04",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Walls Great Half 2026",
-      "organisator": null,
-      "dagen": [
-        "2026-09-20"
-      ],
-      "uren": {
-        "start": "10:00",
-        "einde": "13:00"
-      },
-      "plaats": "Kastanjedreef",
-      "straten": [
-        "Kastanjedreef"
-      ],
-      "postcodes": [
-        "2050"
-      ],
-      "inDistrict": true,
-      "opbouw": "2026-09-17",
-      "afbouw": "2026-09-21",
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.7127.8175/agendapunten/26.0529.8160.2202",
-      "leesversie": 3
     },
     {
       "id": "26.0903.2493.4379",
@@ -192,6 +159,29 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.3679.3389/agendapunten/26.0902.4943.7833"
+    },
+    {
+      "id": "26.0828.8235.3172",
+      "code": "2026_DCME_00160",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Merksem",
+      "zitting": "2026-09-10",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Halloween Survival Run 2026",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/26.0407.0460.7516/agendapunten/26.0828.8235.3172"
     },
     {
       "id": "26.0803.9898.9075",
@@ -452,6 +442,29 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.8956.3025/agendapunten/26.0908.3881.2343"
+    },
+    {
+      "id": "26.0904.8796.1108",
+      "code": "2026_DCDE_00266",
+      "soort": "evenement",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Deurne",
+      "zitting": "2026-09-14",
+      "gepubliceerd": true,
+      "gelezen": false,
+      "naam": "Deurne Griezelt",
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.1118.9388.8881/agendapunten/26.0904.8796.1108"
     },
     {
       "id": "26.0910.3062.6018",
@@ -1339,21 +1352,30 @@
       "status": "goedkeuring",
       "orgaan": "districtscollege Antwerpen",
       "zitting": "2026-11-02",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Wereldaidsdag 2026 – Verhalen die verbinden, stigma doorbreken",
       "organisator": "MAJESTIC VZW",
-      "dagen": [],
+      "dagen": [
+        "2026-12-01"
+      ],
       "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
+      "plaats": "Leuvenstraat 32, Komedieplaats 18, Hanzestedenplaats 1, 2000 Antwerpen",
+      "straten": [
+        "Hanzestedenplaats",
+        "Komedieplaats",
+        "Leuvenstraat"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
       "opbouw": null,
       "afbouw": null,
       "wijziging": null,
       "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0246.4565/agendapunten/26.1028.4364.6933"
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0246.4565/agendapunten/26.1028.4364.6933",
+      "leesversie": 3
     }
   ]
 }
