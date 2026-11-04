@@ -151,6 +151,23 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
 - Toetsen: `npm test` (zoeken, normaliseren, plekfilter, kalenderbalken) en `npm run test:e2e` (Playwright met
   Chromium tegen de lokale site, met vaste antwoorden voor de live bronnen; zonder browser wordt hij overgeslagen).
 
+## Weergave: in je buurt (evenementen, feesten en nieuws rond een straat)
+
+Wens van de eigenaar (4-11-2026). Bij een gekozen straat staat in het blok "In deze buurt" (`site/buurt-info.js`,
+`inJeBuurt` in `site/buurt-info-core.js`):
+
+- **Evenementen en feesten in je buurt**: de publieke agendapunten van de soort evenementen (ook buurtfeesten,
+  straatfeesten en speelstraten) van de komende 60 dagen, met een gekende plek (`site/geo/locaties.json`) tot ongeveer
+  500 m rond de straat (afstand tot het kader van de straat, nooit te klein), met hun afstand. Wat in de straat zelf
+  gebeurt, staat al in de lijst van de plek en komt hier niet dubbel. Een punt zonder gekende plek wordt nooit gegokt.
+- **Nieuws uit je buurt**: inspraak, infomomenten, projecten en nieuws van het district (`district-projecten`,
+  `district-nieuws`) die de straat of haar wijk noemen.
+- Alleen wat al als publiek agendapunt op de site staat, uit officiële bronnen. Sinds 23-10-2026 weigert
+  www.antwerpen.be ons (zie docs/AGENDA_SOURCES.md): het nieuws en de projecten van het district komen dan uit de laatst
+  bekende stand; nieuwe berichten komen pas als de stad de agenda weer toelaat. Evenementen komen ook uit eBesluit,
+  A-Sign en GIPOD, en uit UiTdatabank zodra er een sleutel is.
+- Een lege lijst zegt wat er nagekeken is. Het blok tekent ook als de browser het tekenen uitstelt (reserve na 400 ms).
+
 ## Weergave: in jouw buurt (kaart en wijken)
 
 Naast (of op gsm boven) het plekoverzicht staat de kaart (`site/neighborhood-map.js`, `site/neighborhood-core.js`):
