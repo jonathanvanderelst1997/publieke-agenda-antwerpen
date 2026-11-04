@@ -14,9 +14,14 @@
   "officialPublic": true,
   "method": "eBesluit Antwerpen: gepubliceerde districtsbesluiten voor foren en feestdagmarkten",
   "retrievedAt": "2026-11-03T04:20:01.130Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-v2|2026-2027|4|6",
+  "lastSuccessAt": "2026-11-03T04:20:01.130Z",
+  "lastError": {
+    "code": "search_incomplete",
+    "at": "2026-11-04T04:17:57.131Z"
+  },
   "items": [
     {
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7",

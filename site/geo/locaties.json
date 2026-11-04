@@ -95,16 +95,6 @@
    "postcode": "2060",
    "checkedOn": "2026-10-12"
   },
-  "de groene waterman wolstraat 2000 antwerpen": {
-   "point": [
-    4.40352,
-    51.22155
-   ],
-   "precision": "straat",
-   "street": "Wolstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-13"
-  },
   "de villegasstraat 2600 berchem": {
    "point": [
     4.42369,
@@ -124,6 +114,16 @@
    "street": "Desguinlei",
    "postcode": "2018",
    "checkedOn": "2026-10-05"
+  },
+  "districtshuis antwerpen zaal benoit mechelsesteenweg 216 2018 antwerpen": {
+   "point": [
+    4.41178,
+    51.20254
+   ],
+   "precision": "adres",
+   "street": "Mechelsesteenweg",
+   "postcode": "2018",
+   "checkedOn": "2026-11-04"
   },
   "ernest van dijckkaai jordaenskaai orteliuskaai en 5 andere straten": {
    "point": [
@@ -214,16 +214,6 @@
    "street": "Hanzestedenplaats",
    "postcode": "2000",
    "checkedOn": "2026-10-19"
-  },
-  "het centraal station koningin astridplein 27 2018 antwerpen": {
-   "point": [
-    4.42114,
-    51.21737
-   ],
-   "precision": "adres",
-   "street": "Koningin Astridplein",
-   "postcode": "2018",
-   "checkedOn": "2026-11-03"
   },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
@@ -365,6 +355,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
+  "leuvenstraat 32 komedieplaats 18 hanzestedenplaats 1 2000 antwerpen": {
+   "point": [
+    4.3898,
+    51.21139
+   ],
+   "precision": "adres",
+   "street": "Leuvenstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-04"
+  },
   "michel willemsplein antwerpen": {
    "point": [
     4.37472,
@@ -404,6 +404,16 @@
    "street": "Oudevaartplaats",
    "postcode": "2000",
    "checkedOn": "2026-10-05"
+  },
+  "provinciehuis antwerpen koningin elisabethlei 22 2018 antwerpen": {
+   "point": [
+    4.41022,
+    51.19938
+   ],
+   "precision": "adres",
+   "street": "Koningin Elisabethlei",
+   "postcode": "2018",
+   "checkedOn": "2026-11-04"
   },
   "rooiplein 2600 berchem": {
    "point": [
@@ -569,7 +579,7 @@
  "misses": {
   "2000 en 2018 antwerpen": "2026-10-24",
   "2060 antwerpen": "2026-11-02",
-  "a bib merksem parkweg 1": "2026-10-21",
+  "a bib merksem parkweg 1": "2026-11-04",
   "arenaplein 2100 deurne": "2026-11-02",
   "begijnenstraat 2000 antwerpen": "2026-10-24",
   "begijnenvest 2000 antwerpen": "2026-10-24",
@@ -584,7 +594,6 @@
   "district deurne locatie via de officiele bron": "2026-10-27",
   "district ekeren locatie via de officiele bron": "2026-11-02",
   "district wilrijk locatie via de officiele bron": "2026-11-02",
-  "districtshuis antwerpen zaal benoit": "2026-11-02",
   "duinstraat 2060 antwerpen": "2026-10-24",
   "durletstraat 2018 antwerpen": "2026-10-24",
   "grotebeerstraat 2018 antwerpen": "2026-10-24",
@@ -602,7 +611,6 @@
   "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-24",
   "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-24",
   "park gravenhof district hoboken plaats volgens het bericht": "2026-11-01",
-  "provinciehuis antwerpen": "2026-11-02",
   "scheldestraat 2000 antwerpen": "2026-10-24",
   "schijnpoortweg 2060 antwerpen": "2026-10-24",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-24",
