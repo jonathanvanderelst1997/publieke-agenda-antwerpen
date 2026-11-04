@@ -284,6 +284,9 @@ export function placeParam(place, index) {
   if (place.type === "postcode") return place.code;
   const clash = (index?.places || []).some((p) => p !== place && p.type !== place.type && p.compact === place.compact);
   const prefix = clash ? `${place.type}:` : "";
+  // Twee stukken straat met dezelfde naam én postcode (de straatas heeft er zo een paar, met een eigen id): de naam
+  // met postcode zou altijd het eerste stuk openen. Dan de vaste sleutel met het id, die resolvePlaceParam terugvindt.
+  if (place.type === "straat" && place.ambiguous && (index?.places || []).some((p) => p !== place && p.type === "straat" && p.name === place.name && p.postcode === place.postcode)) return place.key;
   if (place.type === "straat" && place.ambiguous) return `${prefix}${place.label} ${place.postcode}`;
   return `${prefix}${place.type === "straat" ? place.label : place.name}`;
 }
@@ -506,8 +509,13 @@ export const alleenWeekdagen = (row = {}) => row?.weekdaysOnly === true || /week
 // ---- soorten (de enige filterrij) ----
 // Elke chip bundelt een paar onderliggende soorten van agenda-uitgaan.js en de live lagen.
 export const KIND_GROUPS = Object.freeze([
-  Object.freeze({ key: "evenementen", label: "Evenementen", emoji: "🎉", cat: "festival", themes: Object.freeze(["festival", "neighborhood", "culture", "family", "parade", "sport", "flea", "shopping", "other"]) }),
+  Object.freeze({ key: "evenementen", label: "Evenementen & feesten", emoji: "🎉", cat: "festival", themes: Object.freeze(["festival", "neighborhood", "culture", "family", "parade", "sport", "flea", "shopping", "other"]) }),
   Object.freeze({ key: "werken", label: "Werken & verkeer", emoji: "🚧", cat: "works", themes: Object.freeze(["works", "publicSpace"]) }),
+  // Een eigen chip voor parkeerverboden (wens van de eigenaar van 4-11-2026: filteren op werken, parkeerverboden,
+  // evenementen …). Ze komen uit dezelfde live laag als de innames en werfzones (publicSpace, A-Sign); een kaartje van
+  // een parkeerverbod heeft groep "parkeerverboden" (publicSpaceEntry), de andere innames blijven bij werken. De soort
+  // publicSpace hoort bij werken (elke soort in één groep); `laadt` zegt welke laag deze chip ook nodig heeft.
+  Object.freeze({ key: "parkeerverboden", label: "Parkeerverboden", emoji: "🅿️", cat: "works", themes: Object.freeze([]), laadt: Object.freeze(["publicSpace"]) }),
   Object.freeze({ key: "inspraak", label: "Inspraak & info", emoji: "🗳️", cat: "admin", themes: Object.freeze(["admin", "info", "calls"]) }),
   Object.freeze({ key: "markten", label: "Markten", emoji: "🧺", cat: "markets", themes: Object.freeze(["markets"]) }),
   Object.freeze({ key: "raad", label: "Raad & commissies", emoji: "🏛️", cat: "meetings", themes: Object.freeze(["meetings"]) }),
@@ -515,7 +523,7 @@ export const KIND_GROUPS = Object.freeze([
 ]);
 export const DEFAULT_GROUPS = Object.freeze(["evenementen"]);
 // De live lagen (window.PUBLIC_AGENDA_LIVE_STREETS) achter het getal van een soort op de chips.
-export const GROEP_LIVE_LAGEN = Object.freeze({ werken: Object.freeze(["works", "publicSpace"]), vergunningen: Object.freeze(["permits", "terraces"]) });
+export const GROEP_LIVE_LAGEN = Object.freeze({ werken: Object.freeze(["works", "publicSpace"]), parkeerverboden: Object.freeze(["publicSpace"]), vergunningen: Object.freeze(["permits", "terraces"]) });
 // Laadde een live laag (of een deel ervan) niet: live.failed[laag] noemt dan de onderdelen (site/live-lagen.js), ook
 // als de laag haar items wel meldde (A-Sign plat: publicSpace = [] met mislukte onderdelen).
 export const laagMislukt = (failed, laag) => Array.isArray(failed?.[laag]) && failed[laag].length > 0;
@@ -523,7 +531,7 @@ export const laagMislukt = (failed, laag) => Array.isArray(failed?.[laag]) && fa
 // niets, en staat er geen getal; de site zegt niet waarom (besluit van 18-10-2026). Wat wel geteld is, blijft staan;
 // een echte 0 ook.
 export const chipGetal = (groep, n, failed = {}) => (!n && (GROEP_LIVE_LAGEN[groep] || []).some((laag) => laagMislukt(failed, laag)) ? undefined : n);
-export const themesForGroups = (groups) => KIND_GROUPS.filter((g) => groups.includes(g.key)).flatMap((g) => g.themes);
+export const themesForGroups = (groups) => [...new Set(KIND_GROUPS.filter((g) => groups.includes(g.key)).flatMap((g) => [...g.themes, ...(g.laadt || [])]))];
 export const groupOfTheme = (theme) => (KIND_GROUPS.find((g) => g.themes.includes(theme)) || KIND_GROUPS[0]).key;
 export function groupsForThemes(themes) {
   const set = new Set(themes);
@@ -2380,6 +2388,7 @@ export function publicSpaceEntry(row) {
   const wanneer = `Niet parkeren${uren ? (uren === "hele dag" ? ", de hele dag" : ` ${uren}`) : ""}${weekdagen ? ", alleen op weekdagen" : ""}.`;
   return {
     ...base,
+    group: "parkeerverboden",
     title: PARKEERVERBOD_TITEL,
     summary: wanneer,
     time: enkeleDag && uren && uren !== "hele dag" ? row.startTime : "",
@@ -2473,7 +2482,7 @@ export function terrasEntries(rows = []) {
 // mocht geen 9 terrassen meetellen. Zo ook een inname die geen evenement met publiek is (stickers, een
 // bord, een opname): die staat in de groep "evenementen", maar de tegel telt ze apart.
 export function summarize(entries, today) {
-  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0, terrassen: 0, innamesOpStraat: 0 };
+  const out = { evenementen: 0, werkenBezig: 0, werkenGepland: 0, parkeerverboden: 0, inspraak: 0, markten: 0, raad: 0, vergunningen: 0, terrassen: 0, innamesOpStraat: 0 };
   const seen = new Set();
   for (const entry of entries) {
     const key = entry.source === "agenda" ? `${entry.group}|${entry.title}|${entry.location}` : entry.uid;
@@ -2621,6 +2630,22 @@ export function plekWaar(place) {
 // Waarom leeg: alleen "de gekozen soorten" als de bewoner zelf soorten koos. Laadde een laag niet
 // (`onvolledig`), dan beweren we niet dat er niets gepland is: alleen dat er niets gevonden is, zonder te zeggen
 // dat iets niet laadde (besluit van 18-10-2026).
+// Wat een lege lijst nagekeken heeft, per soort die aanstaat, met de officiële bronnen (wens van de eigenaar van
+// 4-11-2026: een lege straat zegt wat er bekeken is). Het zegt niet of een bron faalde (besluit van 18-10-2026).
+const NAGEKEKEN = Object.freeze({
+  evenementen: "evenementen en feesten (districtskalender, districtsnieuws, eBesluit, evenementen op straat in A-Sign, GIPOD)",
+  werken: "werken en verkeersmaatregelen (GIPOD, A-Sign)",
+  parkeerverboden: "parkeerverboden (A-Sign)",
+  inspraak: "inspraak en info (projecten van het district)",
+  markten: "markten (GIPOD)",
+  raad: "districtsraad en commissies (eBesluit)",
+  vergunningen: "vergunningen en terrassen (open data van de stad)",
+});
+export function nagekekenTekst(groups = []) {
+  const aan = new Set(groups);
+  const delen = KIND_GROUPS.filter((g) => aan.has(g.key)).map((g) => NAGEKEKEN[g.key]).filter(Boolean);
+  return delen.length ? `Nagekeken: ${delen.join("; ")}.` : "";
+}
 export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 0, onvolledig = false } = {}) {
   if (!aantalSoorten) return "Je hebt alle soorten uitgezet.";
   if (gekozen) return onvolledig ? "Binnen de gekozen soorten is hier niets gevonden." : "Binnen de gekozen soorten staat hier niets gepland.";
@@ -2633,6 +2658,7 @@ export function legeStaatTekst({ place = null, gekozen = false, aantalSoorten = 
 const SOORT_WOORD = Object.freeze({
   evenementen: ["evenement", "evenementen"],
   werken: ["werk of verkeersmaatregel", "werken of verkeersmaatregelen"],
+  parkeerverboden: ["parkeerverbod", "parkeerverboden"],
   inspraak: ["item over inspraak of info", "items over inspraak of info"],
   markten: ["markt", "markten"],
   raad: ["vergadering van raad of commissie", "vergaderingen van raad of commissies"],
