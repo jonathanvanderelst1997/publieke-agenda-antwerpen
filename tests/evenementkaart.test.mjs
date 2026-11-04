@@ -162,22 +162,25 @@ test("jouw straat: op het parcours of alleen kruisend, als de verversing de stra
 
 test("een evenement op straat telt als evenement: groep, teller en filter", () => {
   const entries = publicSpaceEntries([...marathon, { id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-20", end: "2026-10-20" }], opties);
-  const ev = entries.filter((e) => e.group === "evenementen"), werk = entries.filter((e) => e.group === "werken");
+  const ev = entries.filter((e) => e.group === "evenementen"), parkeren = entries.filter((e) => e.group === "parkeerverboden");
   assert.equal(ev.length, 1); // 3 innames, 1 kaart
-  assert.equal(werk.length, 1);
+  // Een parkeerverbod heeft sinds 4-11-2026 een eigen chip en tegel (Parkeerverboden), niet meer bij werken.
+  assert.equal(parkeren.length, 1);
   const sum = summarize(entries, VANDAAG);
   assert.equal(sum.evenementen, 1);
-  assert.equal(sum.werkenGepland, 1);
+  assert.equal(sum.parkeerverboden, 1);
+  assert.equal(sum.werkenGepland, 0);
   // De chip "Evenementen" is de groep van deze kaart; zonder "Werken & verkeer" blijft ze zichtbaar.
   const alleenEvenementen = new Set(["evenementen"]);
   assert.deepEqual(entries.filter((e) => alleenEvenementen.has(e.group)).map((e) => e.title), ["TREK Antwerp Marathon"]);
   assert.ok(KIND_GROUPS.some((g) => g.key === "evenementen"));
 });
 
-test("plekoverzicht: vijfde tegel voor vergunningen, chips tellen kaarten, A-Sign laadt ook voor Evenementen", () => {
+test("plekoverzicht: tegels voor vergunningen en parkeerverboden, chips tellen kaarten, A-Sign laadt ook voor Evenementen", () => {
   const view = fs.readFileSync(path.join(root, "site", "place-view.js"), "utf8");
   assert.match(view, /tile\(summary\.vergunningen/);
-  assert.equal((view.match(/\$\{tile\(/g) || []).length, 5);
+  assert.match(view, /tile\(summary\.parkeerverboden/);
+  assert.equal((view.match(/\$\{tile\(/g) || []).length, 6);
   assert.match(view, /liveEntries\.filter\(\(entry\) => state\.groups\.has\(entry\.group\)\)/);
   assert.match(view, /new Set\(liveEntries\.filter\(\(e\) => e\.group === group\)\.map\(\(e\) => e\.uid\)\)\.size/);
   assert.match(view, /view\.wantsStreetEvents = state\.groups\.has\("evenementen"\)/);

@@ -12,7 +12,7 @@ import {
   periodeBadge, kortDatum, kortBereik, lopendKop, identiteitSamen, werfPerStuk,
   kaartSoort, lijstSleutel, lijstTelling, lijstUniversum, marktBundelEntry, telPerSoort, beperkingTekst, plekSubTekst, deelTekst,
   eenKaartPerDossier, dossiersVanAgendapunt, straatLijstenVoor, nietGoedgekeurdOp, samenWerven, bundelLijst, verrijkMetContext, agendaStraten, allePlaatsenVan,
-  chipGetal, laagMislukt, groupOfTheme,
+  chipGetal, laagMislukt, groupOfTheme, nagekekenTekst,
 } from "./place-core.js";
 import { onbekendZin } from "./onbekend-zinnen.js";
 import { isEvenementDossier } from "./kaart-uitleg.js";
@@ -49,7 +49,7 @@ const MODES = [["lijst", "Lijst"], ["tijdlijn", "14 dagen"], ["maand", "Maand"]]
 const LIJST_STAP = 150;
 // Met een straal: de soorten die een rij van een live laag telt "in en rond jouw straat" (een evenement op straat komt uit de
 // publieke ruimte). Voor onzekereSoorten in mountPlaceView.
-const STRAAL_LAAG_SOORTEN = Object.freeze({ works: ["werken"], publicSpace: ["werken", "evenementen"], permits: ["vergunningen"] });
+const STRAAL_LAAG_SOORTEN = Object.freeze({ works: ["werken"], publicSpace: ["werken", "parkeerverboden", "evenementen"], permits: ["vergunningen"] });
 // Een open kaart toont wat er gebeurt, waarom het in de agenda staat en wat er in het dossier staat.
 // Alleen wat over de bron zelf gaat, staat ingeklapt onder "Bron en dossier": "Organisator" (bij een
 // evenement op straat altijd "niet openbaar"; dat zegt de zin "Niet in de bron" al), het nummer en de codes.
@@ -439,7 +439,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // Met een straal: de live lagen achter het getal van een soort "in en rond jouw straat" (de tegels en de chips). Een
   // evenement op straat komt uit de publieke ruimte. De terrassen niet: die tellen altijd alleen in de straat zelf (zonder
   // punt of vorm, nearStreet in neighborhood-map.js), en de momentopname dekt de straat.
-  const STRAAL_LAGEN = Object.freeze({ evenementen: ["publicSpace"], werken: ["works", "publicSpace"], vergunningen: ["permits"] });
+  const STRAAL_LAGEN = Object.freeze({ evenementen: ["publicSpace"], werken: ["works", "publicSpace"], parkeerverboden: ["publicSpace"], vergunningen: ["permits"] });
   let snelBeurt = 0, districtBelofte = null, inzageBelofte = null;
   // De nagekeken stand van het Inzageloket (zoals permits-live.js): zonder die stand geen "bezwaar
   // indienen kan nu" bovenaan. Ontbreekt het bestand, dan zegt de kaart niets over een openbaar onderzoek.
@@ -666,6 +666,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     writeUrl();
     window.dispatchEvent(new CustomEvent("public-agenda:view-change"));
     cancelAnimationFrame(frame);
+    clearTimeout(reserve);
     render();
   }
   function writeUrl() {
@@ -903,7 +904,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
   // dan ook bij een getal dat geen 0 is een streepje, of "…" zolang het laadt (state.straalOnvolledig en state.straalLaadt
   // in collect(): nakijkronde 5 en 6 van 18-10-2026). Nooit een te laag getal onder "in en rond jouw straat".
   const tegelGetal = (n, group) => (state.straalLaadt?.has(group) ? "…" : state.straalOnvolledig?.has(group) ? "–"
-    : group === "werken" && !n && state.layersPending ? "…" : group === "werken" && !n && state.werkenOnvolledig ? "–"
+    : (group === "werken" || group === "parkeerverboden") && !n && state.layersPending ? "…" : (group === "werken" || group === "parkeerverboden") && !n && state.werkenOnvolledig ? "–"
       : group === "vergunningen" && !n && state.vergunningenBezig ? "…" : group === "vergunningen" && !n && state.vergunningenOnvolledig ? "–" : n);
   function renderPlace(summary, loading, week = null) {
     const place = state.place;
@@ -936,6 +937,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
         ${tile(summary.evenementen, `${summary.evenementen === 1 ? "evenement" : "evenementen"}${summary.innamesOpStraat ? ` (+ ${summary.innamesOpStraat} ${summary.innamesOpStraat === 1 ? "inname" : "innames"})` : ""}`, "cat-festival", "evenementen")}
         ${tile(summary.werkenBezig, "werken nu", "cat-works", "werken")}
         ${tile(summary.werkenGepland, "werken gepland", "cat-works pv-stat-planned", "werken")}
+        ${tile(summary.parkeerverboden, summary.parkeerverboden === 1 ? "parkeerverbod" : "parkeerverboden", "cat-works", "parkeerverboden")}
         ${tile(summary.inspraak, "inspraak & info", "cat-admin", "inspraak")}
         ${tile(summary.vergunningen, `${summary.vergunningen === 1 ? "vergunning" : "vergunningen"}${summary.terrassen ? ` (+ ${summary.terrassen} ${summary.terrassen === 1 ? "terras" : "terrassen"})` : ""}`, "cat-permits", "vergunningen")}
       </ul>
@@ -1180,6 +1182,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     for (const g of KIND_GROUPS) {
       let n = sumThemes(g.themes.filter((t) => t !== "publicSpace" && t !== "permits"));
       if (g.key === "werken" && !loadedLayer(live.works) && !loadedLayer(live.publicSpace)) { state.counts[g.key] = view.hasPlace || n ? n || undefined : undefined; continue; }
+      if (g.key === "parkeerverboden" && !loadedLayer(live.publicSpace)) { state.counts[g.key] = undefined; continue; }
       if (g.key === "vergunningen" && !loadedLayer(live.permits) && !loadedLayer(live.terraces)) { state.counts[g.key] = undefined; continue; }
       // Laadde een live laag van de soort (deels) niet, dan geen verzonnen 0 op de chip (chipGetal in place-core.js).
       state.counts[g.key] = chipGetal(g.key, n + kaarten(g.key), mislukt);
@@ -1205,7 +1208,7 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     const agendaWeek = !state.place ? [] : (Array.isArray(window.PUBLIC_AGENDA_PUBLIC_ITEMS) ? window.PUBLIC_AGENDA_PUBLIC_ITEMS : [])
       .filter((item) => String(item?.date || "").slice(0, 10) <= weekEinde)
       .map((item) => agendaEntry(item, item.category || "other"))
-      .filter((e) => (e.group === "evenementen" || e.group === "werken") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item))
+      .filter((e) => (e.group === "evenementen" || e.group === "werken" || e.group === "parkeerverboden") && overlaps(e, vandaag, weekEinde) && view.matchesStreet(e.item))
       .filter((e) => { const dossiers = dossiersVanAgendapunt(e.item); return !dossiers.length || !liveEntries.some((l) => dossiers.includes(l.id) && String(l.uid || "").startsWith("publicSpace:dossier:")); });
     // Een laag die de weekzin nodig heeft en die uit staat of er niet is: dan nooit "rustig". Nog onderweg
     // (loading) of mislukt (failed) zegt de zin elders; een geladen laag telt mee, ook als ze uit staat. Een
@@ -1579,7 +1582,8 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     // Lege staat met een laag die niet laadde: geen "niets gepland", maar ook geen melding dat iets faalt (besluit van
     // 18-10-2026, legeStaatTekst).
     const uitleg = eigenUitleg || legeStaatTekst({ place, gekozen: state.customized, aantalSoorten: state.groups.size, onvolledig: Boolean(state.onvolledig) });
-    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3><p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p><div class="pv-empty-tips">${tips.join("")}</div></div>`;
+    const nagekeken = nagekekenTekst([...state.groups]);
+    return `<div class="pv-empty"><div class="pv-empty-art" aria-hidden="true">🗓️</div><h3>Niets gevonden ${where}${period}</h3><p>${esc(uitleg)} ${place?.type === "straat" ? "Een straat is klein: in de buurt gebeurt vaak meer." : ""}</p>${nagekeken ? `<p class="pv-empty-bronnen">${esc(nagekeken)}</p>` : ""}<div class="pv-empty-tips">${tips.join("")}</div></div>`;
   }
   function renderList(entries, today, bundels = []) {
     const { from, to } = periodRange(state.period, today);
@@ -1960,9 +1964,19 @@ export async function mountPlaceView(view, { defaultThemes = [], allThemes = [] 
     window.PUBLIC_AGENDA_KAART = { teken, tel };
     window.dispatchEvent(new CustomEvent("public-agenda:kaart-items", { detail: window.PUBLIC_AGENDA_KAART }));
   }
-  let frame = 0, kaartOud = true;
+  let frame = 0, reserve = 0, kaartOud = true;
   // Een laag, de agenda of de kaart meldt iets nieuws: ook de kaart moet opnieuw (kaartOud, zie render()).
-  function schedule() { kaartOud = true; cancelAnimationFrame(frame); frame = requestAnimationFrame(render); }
+  // Met een reserve (4-11-2026, robuuste straatpagina): een browser die requestAnimationFrame uitstelt (een tab of
+  // venster op de achtergrond, sommige ingebouwde browsers) liet de plek op "worden live opgehaald…" staan terwijl de
+  // lagen al binnen waren. Na 400 ms tekent de reserve; wat eerst komt, tekent, één keer.
+  function schedule() {
+    kaartOud = true;
+    cancelAnimationFrame(frame);
+    clearTimeout(reserve);
+    const teken = () => { cancelAnimationFrame(frame); clearTimeout(reserve); render(); };
+    frame = requestAnimationFrame(teken);
+    reserve = setTimeout(teken, 400);
+  }
 
   // ---- signalen van de rest van de pagina ----
   window.addEventListener("public-agenda:agenda-view", (event) => { if (event.detail?.categoryCounts) state.agendaCounts = { ...event.detail.categoryCounts }; schedule(); });

@@ -132,8 +132,16 @@ Eén zoekbalk bovenaan (`site/place-view.js`, `site/place-core.js`, `site/place-
   altijd; het getal boven de lijst blijft dan alles en zegt erbij wat de lijst toont, ook in de tijdlijn en de maand
   (die tonen geen vergunningen en terrassen). Zonder plek (het hele district) blijft het de komende 30 dagen en de
   evenementen. De kaart tekent met een plek ook alles; alleen zonder plek houdt ze 600 per soort.
-- Eén rij soortchips (evenementen, werken & verkeer, inspraak & info, markten, raad, vergunningen) vervangt de
-  losse keuzelijsten. De volledige lijsten per laag, district/stad en de bronstatus staan ingeklapt onderaan.
+- Eén rij soortchips (evenementen & feesten, werken & verkeer, parkeerverboden, inspraak & info, markten, raad,
+  vergunningen) vervangt de losse keuzelijsten; de keuze staat in de link (`&soort=parkeerverboden,werken`). Sinds
+  4-11-2026 hebben parkeerverboden een eigen chip en tegel (ze komen uit A-Sign, zoals de innames en werfzones, die bij
+  werken blijven). Een oude link met `soort=werken` toont de werken zonder de parkeerverboden. De volledige lijsten per
+  laag, district/stad en de bronstatus staan ingeklapt onderaan.
+- Robuust (4-11-2026): elke plek heeft een deellink die precies die plek terug opent, ook een straat met een accent,
+  apostrof of cijfer, en de twee straten van de straatas met dezelfde naam én postcode (die krijgen hun vaste sleutel
+  `straat:<id>|<naam>|<postcode>`; `tests/place-core.test.mjs` toetst elke plek). Een lege lijst zegt wat er
+  nagekeken is ("Nagekeken: parkeerverboden (A-Sign)."; `nagekekenTekst`), nooit dat een bron faalde. Komt een live laag
+  binnen terwijl de browser het tekenen uitstelt (een tab op de achtergrond), dan tekent een reserve na 400 ms.
 - Deelbaar: `?plek=Kammenstraat`, `?plek=Zurenborg`, `?plek=2060` (met `&straal=500`, `&soort=…`,
   `&periode=…`, `&weergave=maand`). Alleen wat afwijkt van de vertrekstand staat in de link: met een plek dus geen
   `periode` voor "Alles", wel `&periode=maand` voor 30 dagen. Oude links met `straat=`, `wijk=` en `&periode=maand`

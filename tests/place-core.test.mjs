@@ -6,7 +6,7 @@ import {
   foldText, parseQuery, editDistance, buildPlaceIndex, searchPlaces, otherDistrictFor, placeParam, resolvePlaceParam,
   periodRange, monthWeeks, startOfWeek, layoutWeekBars, groupForList, overlaps, dayOf,
   agendaEntry, workEntry, publicSpaceEntry, publicSpaceEntries, werkEntries, summarize, KIND_GROUPS, DEFAULT_GROUPS, themesForGroups, groupsForThemes, groupOfTheme,
-  plekWaar, legeStaatTekst, voortgangTekst, dezeWeek, WEEK_LICHT,
+  plekWaar, legeStaatTekst, nagekekenTekst, voortgangTekst, dezeWeek, WEEK_LICHT,
 } from "../site/place-core.js";
 import { createAgendaView, DEFAULT_THEMES, VIEW_THEMES } from "../site/agenda-view.js";
 import { buildStreetList } from "../scripts/build-straten.mjs";
@@ -102,6 +102,30 @@ test("plek in de URL: leesbaar, deelbaar en terug te lezen", () => {
   assert.equal(resolvePlaceParam(index, ""), null);
 });
 
+// Wens van de eigenaar (4-11-2026): de straatpagina robuust. Elke plek (elke straat, ook met een accent, apostrof,
+// cijfer of een tweeling met dezelfde naam en postcode; elke wijk en postcode) heeft een deellink die via de URL
+// (searchParams, zoals de site hem schrijft en leest) precies die plek terug opent.
+test("elke plek heeft een stabiele deellink die via de URL precies die plek terug opent", () => {
+  let n = 0;
+  for (const place of index.places) {
+    const param = placeParam(place, index);
+    assert.ok(param, place.key);
+    const url = new URL("https://agenda.test/");
+    url.searchParams.set("plek", param);
+    const terug = resolvePlaceParam(index, new URL(url.toString()).searchParams.get("plek"));
+    assert.equal(terug, place, `${place.key} -> ${param}`);
+    n += 1;
+  }
+  assert.ok(n > 1600, `${n} plekken`);
+  // De tweelingen van de straatas (twee stukken met dezelfde naam en postcode) krijgen hun vaste sleutel.
+  const tweelingen = index.places.filter((p) => p.type === "straat" && index.places.some((q) => q !== p && q.type === "straat" && q.name === p.name && q.postcode === p.postcode));
+  assert.ok(tweelingen.length >= 2);
+  for (const p of tweelingen) assert.equal(placeParam(p, index), p.key);
+  // Een gewone naam blijft leesbaar.
+  assert.equal(placeParam(resolvePlaceParam(index, "Grétrystraat"), index), "Grétrystraat");
+  assert.equal(resolvePlaceParam(index, "D'Herbouvillekaai 2020")?.postcode, "2020");
+});
+
 test("periodes, weken en maandrooster", () => {
   assert.deepEqual(periodRange("week", "2026-10-06"), { from: "2026-10-06", to: "2026-10-12" });
   assert.equal(startOfWeek("2026-10-11"), "2026-10-05");
@@ -160,9 +184,13 @@ test("entries: agenda, GIPOD-werk en A-Sign in één vorm, zonder onveilige link
   assert.equal(work.sourceUrl, "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52");
   const sign = publicSpaceEntry({ id: "parking:1", kind: "parking", title: "Verhuis", start: "2026-10-09T22:00:00Z", end: "2026-10-10T21:59:00Z", streets: [{ name: "Kammenstraat" }] });
   assert.equal(sign.title, "Parkeerverbod");
+  // Een parkeerverbod heeft een eigen chip en tegel (4-11-2026); een andere inname blijft bij werken.
+  assert.equal(sign.group, "parkeerverboden");
+  assert.equal(publicSpaceEntry({ id: "inname:1", kind: "occupation", title: "Container", start: "2026-10-09T22:00:00Z", streets: [{ name: "Kammenstraat" }] }).group, "werken");
   const sum = summarize([agenda, { ...agenda, uid: "y" }, work, sign, manual], "2026-10-06");
   assert.equal(sum.evenementen, 1); // een reeks telt één keer
-  assert.equal(sum.werkenGepland, 2);
+  assert.equal(sum.werkenGepland, 1);
+  assert.equal(sum.parkeerverboden, 1);
   assert.equal(sum.werkenBezig, 1);
 });
 
@@ -173,6 +201,18 @@ test("soortgroepen dekken elke soort precies één keer", () => {
   assert.deepEqual(themesForGroups(DEFAULT_GROUPS).sort(), [...DEFAULT_THEMES, "other"].sort().filter((k, i, a) => a.indexOf(k) === i));
   assert.deepEqual(groupsForThemes(["works", "admin"]), ["werken", "inspraak"]);
   assert.equal(groupOfTheme("publicSpace"), "werken");
+  // De chip parkeerverboden laadt de laag van de publieke ruimte, ook als werken uit staat.
+  assert.deepEqual(themesForGroups(["parkeerverboden"]), ["publicSpace"]);
+  assert.deepEqual(themesForGroups(["werken", "parkeerverboden"]).sort(), ["publicSpace", "works"]);
+  assert.deepEqual(KIND_GROUPS.map((g) => g.key), ["evenementen", "werken", "parkeerverboden", "inspraak", "markten", "raad", "vergunningen"]);
+});
+
+test("een lege lijst zegt wat er nagekeken is, per soort die aanstaat, zonder te zeggen dat iets faalde", () => {
+  assert.equal(nagekekenTekst([]), "");
+  const tekst = nagekekenTekst(["parkeerverboden", "werken", "raad"]);
+  assert.match(tekst, /^Nagekeken: werken en verkeersmaatregelen \(GIPOD, A-Sign\); parkeerverboden \(A-Sign\); districtsraad en commissies \(eBesluit\)\.$/);
+  for (const g of KIND_GROUPS) assert.ok(nagekekenTekst([g.key]).startsWith("Nagekeken: "), g.key);
+  assert.doesNotMatch(nagekekenTekst(KIND_GROUPS.map((g) => g.key)), /faal|mislukt|fout|onbereikbaar/i);
 });
 
 test("plekfilter: postcode, straat en wijk via dezelfde filter voor alle lagen", () => {

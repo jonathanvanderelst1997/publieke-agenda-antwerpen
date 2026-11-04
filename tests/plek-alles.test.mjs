@@ -44,8 +44,8 @@ test("periode 'alles' heeft geen einde: niets staat bij 'later gepland', hoe ver
   assert.equal(telPerSoort(lijstUniversum(entries, VANDAAG)).totaal, 4);
 });
 
-test("alle soorten: elke soortgroep staat in KIND_GROUPS, ook raad, inspraak, markten, werken en vergunningen", () => {
-  assert.deepEqual(KIND_GROUPS.map((g) => g.key), ["evenementen", "werken", "inspraak", "markten", "raad", "vergunningen"]);
+test("alle soorten: elke soortgroep staat in KIND_GROUPS, ook raad, inspraak, markten, werken, parkeerverboden en vergunningen", () => {
+  assert.deepEqual(KIND_GROUPS.map((g) => g.key), ["evenementen", "werken", "parkeerverboden", "inspraak", "markten", "raad", "vergunningen"]);
   for (const thema of ["meetings", "admin", "info", "calls", "works", "publicSpace", "markets", "permits"]) assert.ok(KIND_GROUPS.some((g) => g.themes.includes(thema)), thema);
 });
 
