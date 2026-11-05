@@ -165,16 +165,6 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
-  "geelhandplaats 3 2060 antwerpen": {
-   "point": [
-    4.42998,
-    51.22268
-   ],
-   "precision": "adres",
-   "street": "Geelhandplaats",
-   "postcode": "2060",
-   "checkedOn": "2026-10-30"
-  },
   "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
    "point": [
     4.40467,
@@ -194,16 +184,6 @@
    "street": "Grote Kauwenberg",
    "postcode": "2000",
    "checkedOn": "2026-10-22"
-  },
-  "grote markt": {
-   "point": [
-    4.39989,
-    51.22107
-   ],
-   "precision": "straat",
-   "street": "Grote Markt",
-   "postcode": "2000",
-   "checkedOn": "2026-10-05"
   },
   "hanzestedenplaats bataviastraat bonapartedok en 27 andere straten": {
    "point": [
@@ -495,16 +475,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
-  "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
-   "point": [
-    4.39156,
-    51.23036
-   ],
-   "precision": "straat",
-   "street": "Thonetlaan",
-   "postcode": "2050",
-   "checkedOn": "2026-10-29"
-  },
   "timmerwerfstraat anneessensstraat artsen zonder grenzenstraat en 75 andere straten": {
    "point": [
     4.39102,
@@ -588,7 +558,7 @@
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-02",
   "constitutiestraat 2060 antwerpen": "2026-10-24",
   "demerstraat 2060 antwerpen": "2026-10-24",
-  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-10-22",
+  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-11-05",
   "district borgerhout locatie via de officiele bron": "2026-11-02",
   "district borsbeek locatie via de officiele bron": "2026-11-01",
   "district deurne locatie via de officiele bron": "2026-10-27",
