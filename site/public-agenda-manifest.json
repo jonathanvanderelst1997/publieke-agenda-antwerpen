@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-04T04:20:58.779Z",
-  "classificationAsOf": "2026-11-04",
-  "sourceCount": 898,
-  "count": 760,
-  "eventPageCount": 760,
-  "archivedEventPageCount": 274,
+  "candidateGeneratedAt": "2026-11-05T04:21:23.450Z",
+  "classificationAsOf": "2026-11-05",
+  "sourceCount": 897,
+  "count": 758,
+  "eventPageCount": 758,
+  "archivedEventPageCount": 279,
   "classifications": {
-    "expired": 138,
-    "current": 30,
+    "expired": 139,
+    "current": 28,
     "future": 730,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 113,
+    "district": 111,
     "stad": 647
   },
-  "feedGeneratedAt": "2026-11-04T04:20:58.779Z",
+  "feedGeneratedAt": "2026-11-05T04:21:23.450Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:22:32.636Z",
+      "retrievedAt": "2026-11-05T04:23:02.487Z",
       "state": "fresh"
     },
     {
@@ -31,27 +31,27 @@
       "scope": "district",
       "fetchStatus": "error",
       "retrievedAt": "2026-11-03T04:20:01.130Z",
-      "state": "fresh"
+      "state": "stale"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:20:51.981Z",
+      "retrievedAt": "2026-11-05T04:21:17.253Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:19:27.935Z",
+      "retrievedAt": "2026-11-05T04:19:55.081Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:17:49.662Z",
+      "retrievedAt": "2026-11-05T04:18:09.992Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:19:28.566Z",
+      "retrievedAt": "2026-11-05T04:19:55.705Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:17:40.154Z",
+      "retrievedAt": "2026-11-05T04:18:00.169Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:20:01.336Z",
+      "retrievedAt": "2026-11-05T04:20:27.045Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:20:01.336Z",
+      "retrievedAt": "2026-11-05T04:20:27.045Z",
       "state": "empty"
     },
     {
@@ -121,7 +121,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-04T04:19:56.299Z",
+      "retrievedAt": "2026-11-05T04:20:20.898Z",
       "state": "fresh"
     },
     {
@@ -132,7 +132,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "5625887959f3e9525832052d727a49ed7e810a5d4f104ee5eebdf83aa0b1e21b",
+  "digest": "ed8a0baf1dee84a98c0901379e40427de491f1576f89d092a5d48ce9a11732e8",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -164,11 +164,6 @@
     "Schoolstraat Jan Vanhoenackerstraat",
     "Evenement op het Blauwtorenplein: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Kristus-Koningplein",
-    "Woensdagmarkt Vosstraat",
-    "FURIE!",
-    "VertelFestival",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
@@ -880,6 +875,9 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Gemengde markt Frederik van Eedenplein",
+    "Gemengde markt Ten Eeckhovelei",
+    "Gemengde markt Dageraadplaats",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
