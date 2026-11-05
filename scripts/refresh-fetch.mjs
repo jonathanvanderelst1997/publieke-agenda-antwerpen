@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry, upcomingCount } from "../lib/fetch-util.mjs";
+import { SOURCE_TIMEOUT_CODE, deadlineFetch, errorCodeOf, isMainModule, readSourceDocument, serialize, statusEntry, upcomingCount, weigeringOnthouden } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { AFGELEIDE_BRON_IDS, FETCHERS } from "../lib/source-registry.mjs";
 import { validateRefreshStatus } from "../lib/source-feed.mjs";
@@ -107,6 +107,9 @@ export async function refreshAll({
 } = {}) {
   const statuses = [];
   const startedAt = now();
+  // Eén proef per site per verversing: na een weigering aan de rand gaat er naar die site niets meer
+  // (weigeringOnthouden in lib/fetch-util.mjs); de bronnen krijgen meteen dezelfde foutcode.
+  const rondeFetch = weigeringOnthouden(fetchImpl);
   for (const fetcher of fetchers) {
     const remaining = refreshBudgetMs - (now() - startedAt);
     const budgetMs = Math.min(fetcher.budgetMs ?? sourceBudgetMs, remaining);
@@ -116,7 +119,7 @@ export async function refreshAll({
       continue;
     }
     const fetcherStartedAt = now();
-    const outcome = await runWithinBudget(fetcher, { fetch: fetchImpl, clock, rootDir, env, log, ...(sleep ? { sleep } : {}) }, budgetMs, graceMs);
+    const outcome = await runWithinBudget(fetcher, { fetch: rondeFetch, clock, rootDir, env, log, ...(sleep ? { sleep } : {}) }, budgetMs, graceMs);
     const seconds = Math.round((now() - fetcherStartedAt) / 100) / 10;
     if (outcome.result && !outcome.timedOut) {
       log(JSON.stringify({ fetcher: fetcher.name, seconds }));
@@ -131,6 +134,7 @@ export async function refreshAll({
       statuses.push(...previousStatuses(rootDir, fetcher, code));
     }
   }
+  for (const weigering of rondeFetch.weigeringen()) log(JSON.stringify({ geweigerd: weigering.host, nietVerstuurd: weigering.overgeslagen }));
   const generated = clock();
   const today = brusselsDate(generated);
   const previous = previousStatusBySource(rootDir);

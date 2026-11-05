@@ -13,10 +13,11 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-import { BRON_WEIGERT_CODE, FetchError, errorSinceOf, fetchWithTimeout, isRandWeigering, isTransientErrorCode, isWeigeringCode, sourceHealthOf } from "../lib/fetch-util.mjs";
+import { BRON_WEIGERT_CODE, FetchError, errorSinceOf, fetchWithTimeout, isRandWeigering, isTransientErrorCode, isWeigeringCode, sourceHealthOf, statusEntry, weigeringOnthouden } from "../lib/fetch-util.mjs";
 import { LIVE_HISTORY_LAYERS } from "../lib/live-history.mjs";
 import { STRAAT_LAGEN } from "../lib/straat-bestanden.mjs";
 import { SOURCE_ID, run } from "../scripts/fetch-sources-koopzondagen.mjs";
+import { refreshAll } from "../scripts/refresh-fetch.mjs";
 import { leesWerkstroom } from "../scripts/refresh-droog.mjs";
 import { checkHealth, weigeringsMeldingen } from "../scripts/sources-health.mjs";
 
@@ -114,6 +115,75 @@ test("sources:health: ook weken later blijft een weigering een melding, met deze
   assert.match(zin(te), /^www\.antwerpen\.be weigert ons sinds 23-10-2026; de agenda toont de laatst bekende activiteiten/);
   // Zonder errorSince (een ouder bestand): de dag van de laatste goede lezing.
   assert.deepEqual(weigeringsMeldingen([{ ...regel, errorSince: undefined }]).map((t) => t.split(";")[0]), ["www.antwerpen.be weigert ons sinds de laatste goede lezing van 22-10-2026"]);
+});
+
+test("weigeringOnthouden: na de eerste weigering gaat er naar die site niets meer; andere sites en antwoorden gaan door", async () => {
+  const verzoeken = [];
+  const onthoudend = weigeringOnthouden(async (url) => {
+    verzoeken.push(String(url));
+    if (String(url).startsWith("https://www.antwerpen.be/")) return antwoord(AKAMAI, 403);
+    if (String(url).endsWith("/verboden")) return antwoord("<h1>Forbidden</h1>", 403);
+    return antwoord("{}", 200, "application/json");
+  });
+  await assert.rejects(fetchWithTimeout(onthoudend, "https://www.antwerpen.be/info/koopzondagen"), (error) => error.code === BRON_WEIGERT_CODE);
+  for (const pad of ["api/portaal/channel/1", "api/portaal/channel/2", "info/x"]) {
+    await assert.rejects(fetchWithTimeout(onthoudend, `https://www.antwerpen.be/${pad}`), (error) => error instanceof FetchError && error.code === BRON_WEIGERT_CODE);
+  }
+  // Een gewone 403 (zonder de weigeringspagina) is geen weigering van de site: die host blijft open.
+  assert.equal((await fetchWithTimeout(onthoudend, "https://ebesluit.antwerpen.be/verboden")).status, 403);
+  assert.equal((await fetchWithTimeout(onthoudend, "https://ebesluit.antwerpen.be/zittingen/lijst")).status, 200);
+  assert.equal((await fetchWithTimeout(onthoudend, "https://geodata.antwerpen.be/x")).status, 200);
+  assert.equal(verzoeken.filter((url) => url.startsWith("https://www.antwerpen.be/")).length, 1, "één proef, geen herhaling");
+  assert.deepEqual(onthoudend.weigeringen(), [{ host: "www.antwerpen.be", overgeslagen: 3 }]);
+});
+
+test("refreshAll: één verzoek per verversing naar een site die weigert; elke bron van die site krijgt de weigering als foutcode", async (t) => {
+  const root = makeRoot(t);
+  const verzoeken = [];
+  const echt = async (url) => {
+    verzoeken.push(String(url));
+    return String(url).startsWith("https://www.antwerpen.be/") ? antwoord(AKAMAI, 403) : antwoord("{}", 200, "application/json");
+  };
+  const bron = (sourceId, urls) => ({
+    name: sourceId,
+    sourceIds: [sourceId],
+    load: async () => ({
+      run: async ({ fetch }) => {
+        for (const url of urls) {
+          try {
+            await fetchWithTimeout(fetch, url);
+          } catch (error) {
+            return [statusEntry(sourceId, { fetchStatus: "error", errorCode: error.code })];
+          }
+        }
+        return [statusEntry(sourceId, { fetchStatus: "ok", retrievedAt: NOW.toISOString(), itemCount: 0 })];
+      },
+    }),
+  });
+  const logs = [];
+  const status = await refreshAll({
+    rootDir: root,
+    clock: () => NOW,
+    env: {},
+    log: (regel) => logs.push(regel),
+    fetch: echt,
+    fetchers: [
+      bron("district-kalender", ["https://www.antwerpen.be/api/portaal/content/page-content-by-uuid/a"]),
+      bron("district-vergaderingen", ["https://ebesluit.antwerpen.be/zittingen/lijst?month=11&year=2026"]),
+      bron("district-nieuws", ["https://www.antwerpen.be/api/portaal/channel/b"]),
+      bron("stad-koopzondagen", ["https://www.antwerpen.be/info/koopzondagen"]),
+    ],
+  });
+  assert.equal(verzoeken.filter((url) => url.startsWith("https://www.antwerpen.be/")).length, 1);
+  assert.ok(verzoeken.includes("https://ebesluit.antwerpen.be/zittingen/lijst?month=11&year=2026"), "een andere site wordt gewoon gelezen");
+  const per = Object.fromEntries(status.sources.map((regel) => [regel.sourceId, [regel.fetchStatus, regel.errorCode ?? null]]));
+  assert.deepEqual(per, {
+    "district-kalender": ["error", BRON_WEIGERT_CODE],
+    "district-nieuws": ["error", BRON_WEIGERT_CODE],
+    "district-vergaderingen": ["ok", null],
+    "stad-koopzondagen": ["error", BRON_WEIGERT_CODE],
+  });
+  assert.ok(logs.includes(JSON.stringify({ geweigerd: "www.antwerpen.be", nietVerstuurd: 2 })), logs.join("\n"));
 });
 
 test("keepPreviousOnError: lastError.since is de eerste mislukte poging van de reeks", () => {
