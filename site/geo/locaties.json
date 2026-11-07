@@ -15,6 +15,26 @@
    "postcode": "2030",
    "checkedOn": "2026-10-13"
   },
+  "begijnenstraat 2000 antwerpen": {
+   "point": [
+    4.40146,
+    51.21331
+   ],
+   "precision": "straat",
+   "street": "Begijnenstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
+  "begijnenvest 2000 antwerpen": {
+   "point": [
+    4.40592,
+    51.21093
+   ],
+   "precision": "straat",
+   "street": "Begijnenvest",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
   "belegstraat broederminstraat haantjeslei en 4 andere straten": {
    "point": [
     4.39532,
@@ -24,6 +44,26 @@
    "street": "Belegstraat",
    "postcode": "2018",
    "checkedOn": "2026-10-12"
+  },
+  "belgielei antoon van dyckstraat breughelstraat en 24 andere straten": {
+   "point": [
+    4.41401,
+    51.20293
+   ],
+   "precision": "straat",
+   "street": "Belgiëlei",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
+  },
+  "bervoetstraat 2000 antwerpen": {
+   "point": [
+    4.40217,
+    51.21203
+   ],
+   "precision": "straat",
+   "street": "Bervoetstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
   },
   "beukenlaan eglantierlaan floralienlaan en 6 andere straten": {
    "point": [
@@ -65,6 +105,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-15"
   },
+  "constitutiestraat 2060 antwerpen": {
+   "point": [
+    4.42712,
+    51.22001
+   ],
+   "precision": "straat",
+   "street": "Constitutiestraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
+  },
   "dageraadplaats": {
    "point": [
     4.42971,
@@ -105,6 +155,16 @@
    "postcode": "2600",
    "checkedOn": "2026-10-05"
   },
+  "demerstraat 2060 antwerpen": {
+   "point": [
+    4.42992,
+    51.23088
+   ],
+   "precision": "straat",
+   "street": "Demerstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
+  },
   "desguinlei 2020 antwerpen": {
    "point": [
     4.39973,
@@ -124,6 +184,26 @@
    "street": "Mechelsesteenweg",
    "postcode": "2018",
    "checkedOn": "2026-11-04"
+  },
+  "duinstraat 2060 antwerpen": {
+   "point": [
+    4.42764,
+    51.22223
+   ],
+   "precision": "straat",
+   "street": "Duinstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
+  },
+  "durletstraat 2018 antwerpen": {
+   "point": [
+    4.40507,
+    51.20235
+   ],
+   "precision": "straat",
+   "street": "Durletstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
   },
   "ernest van dijckkaai jordaenskaai orteliuskaai en 5 andere straten": {
    "point": [
@@ -185,6 +265,26 @@
    "postcode": "2000",
    "checkedOn": "2026-10-22"
   },
+  "grotebeerstraat 2018 antwerpen": {
+   "point": [
+    4.42943,
+    51.20864
+   ],
+   "precision": "straat",
+   "street": "Grotebeerstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
+  },
+  "halenstraat kant stuivenbergplein 2060 antwerpen": {
+   "point": [
+    4.43693,
+    51.22691
+   ],
+   "precision": "straat",
+   "street": "Halenstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
+  },
   "hanzestedenplaats bataviastraat bonapartedok en 27 andere straten": {
    "point": [
     4.405,
@@ -194,6 +294,16 @@
    "street": "Hanzestedenplaats",
    "postcode": "2000",
    "checkedOn": "2026-10-19"
+  },
+  "hertoginstraat 2018 antwerpen": {
+   "point": [
+    4.41117,
+    51.20835
+   ],
+   "precision": "straat",
+   "street": "Hertoginstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
   },
   "het oude badhuis stuivenbergplein 38": {
    "point": [
@@ -214,6 +324,16 @@
    "street": "Hofstraat",
    "postcode": "2000",
    "checkedOn": "2026-10-22"
+  },
+  "jacob jordaensstraat 2018 antwerpen": {
+   "point": [
+    4.41526,
+    51.20892
+   ],
+   "precision": "straat",
+   "street": "Jacob Jordaensstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
   },
   "jan vanhoenackerstraat 2000 antwerpen": {
    "point": [
@@ -325,6 +445,16 @@
    "postcode": "2060",
    "checkedOn": "2026-10-26"
   },
+  "lange riddersstraat 2000 antwerpen": {
+   "point": [
+    4.39666,
+    51.2162
+   ],
+   "precision": "straat",
+   "street": "Lange Riddersstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
   "lange sint annastraat bataviastraat bonapartedok en 28 andere straten": {
    "point": [
     4.41412,
@@ -335,6 +465,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
+  "lange van ruusbroecstraat 2018 antwerpen": {
+   "point": [
+    4.42946,
+    51.20882
+   ],
+   "precision": "straat",
+   "street": "Lange Van Ruusbroecstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
+  },
   "leuvenstraat 32 komedieplaats 18 hanzestedenplaats 1 2000 antwerpen": {
    "point": [
     4.3898,
@@ -344,6 +484,16 @@
    "street": "Leuvenstraat",
    "postcode": "2000",
    "checkedOn": "2026-11-04"
+  },
+  "louiza marialei 2018 antwerpen": {
+   "point": [
+    4.41276,
+    51.21314
+   ],
+   "precision": "straat",
+   "street": "Louiza-Marialei",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
   },
   "michel willemsplein antwerpen": {
    "point": [
@@ -385,6 +535,26 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
+  "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": {
+   "point": [
+    4.41387,
+    51.22334
+   ],
+   "precision": "straat",
+   "street": "Rodestraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
+  "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": {
+   "point": [
+    4.41377,
+    51.22582
+   ],
+   "precision": "straat",
+   "street": "Rijnpoortvest",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
   "provinciehuis antwerpen koningin elisabethlei 22 2018 antwerpen": {
    "point": [
     4.41022,
@@ -404,6 +574,26 @@
    "street": "Rooiplein",
    "postcode": "2600",
    "checkedOn": "2026-10-05"
+  },
+  "scheldestraat 2000 antwerpen": {
+   "point": [
+    4.39372,
+    51.21219
+   ],
+   "precision": "straat",
+   "street": "Scheldestraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-07"
+  },
+  "schijnpoortweg 2060 antwerpen": {
+   "point": [
+    4.43955,
+    51.22761
+   ],
+   "precision": "straat",
+   "street": "Schijnpoortweg",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
   },
   "sint franciscusplein 2170 merksem": {
    "point": [
@@ -505,6 +695,26 @@
    "postcode": "2018",
    "checkedOn": "2026-10-16"
   },
+  "van de wervestraat 2060 antwerpen": {
+   "point": [
+    4.41617,
+    51.2273
+   ],
+   "precision": "straat",
+   "street": "Van de Wervestraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-07"
+  },
+  "van immerseelstraat 2018 antwerpen": {
+   "point": [
+    4.42325,
+    51.21126
+   ],
+   "precision": "straat",
+   "street": "Van Immerseelstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-07"
+  },
   "vosstraat 2140 borgerhout": {
    "point": [
     4.45157,
@@ -547,52 +757,31 @@
   }
  },
  "misses": {
-  "2000 en 2018 antwerpen": "2026-10-24",
+  "2000 en 2018 antwerpen": "2026-11-07",
   "2060 antwerpen": "2026-11-02",
   "a bib merksem parkweg 1": "2026-11-04",
   "arenaplein 2100 deurne": "2026-11-02",
-  "begijnenstraat 2000 antwerpen": "2026-10-24",
-  "begijnenvest 2000 antwerpen": "2026-10-24",
-  "belgielei antoon van dyckstraat breughelstraat en 24 andere straten": "2026-10-24",
-  "bervoetstraat 2000 antwerpen": "2026-10-24",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-02",
-  "constitutiestraat 2060 antwerpen": "2026-10-24",
-  "demerstraat 2060 antwerpen": "2026-10-24",
   "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-11-05",
   "district borgerhout locatie via de officiele bron": "2026-11-02",
   "district borsbeek locatie via de officiele bron": "2026-11-01",
   "district deurne locatie via de officiele bron": "2026-10-27",
   "district ekeren locatie via de officiele bron": "2026-11-02",
   "district wilrijk locatie via de officiele bron": "2026-11-02",
-  "duinstraat 2060 antwerpen": "2026-10-24",
-  "durletstraat 2018 antwerpen": "2026-10-24",
-  "grotebeerstraat 2018 antwerpen": "2026-10-24",
-  "halenstraat kant stuivenbergplein 2060 antwerpen": "2026-10-24",
   "harmoniepark 1": "2026-11-02",
-  "hertoginstraat 2018 antwerpen": "2026-10-24",
-  "jacob jordaensstraat 2018 antwerpen": "2026-10-24",
-  "korte scholierstraat antwerpen": "2026-10-24",
-  "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-10-24",
-  "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-10-24",
-  "lange riddersstraat 2000 antwerpen": "2026-10-24",
-  "lange van ruusbroecstraat 2018 antwerpen": "2026-10-24",
-  "louiza marialei 2018 antwerpen": "2026-10-24",
-  "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-10-24",
-  "paardenmarkt tussen kleine kauwenberg inclusief kruispunt en rodestraat rijnpoortvest exclusief kruispunt 2000 antwerpen": "2026-10-24",
-  "paardenmarkt tussen rodestraat rijnpoortvest inclusief kruispunt en italielei 2000 antwerpen": "2026-10-24",
+  "korte scholierstraat antwerpen": "2026-11-07",
+  "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-07",
+  "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-07",
+  "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-07",
   "park gravenhof district hoboken plaats volgens het bericht": "2026-11-01",
-  "scheldestraat 2000 antwerpen": "2026-10-24",
-  "schijnpoortweg 2060 antwerpen": "2026-10-24",
-  "schijnpoortwegtunnel noord 2060 antwerpen": "2026-10-24",
-  "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-10-24",
+  "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-07",
+  "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
   "seefhoek 2060 antwerpen": "2026-10-30",
-  "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-10-24",
-  "speelweefselplan binnenstad 2000 antwerpen": "2026-10-24",
+  "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
+  "speelweefselplan binnenstad 2000 antwerpen": "2026-11-07",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-01",
   "ten eeckhovelei 2100 deurne": "2026-11-02",
   "toeristisch centrum antwerpen": "2026-11-02",
-  "van de wervestraat 2060 antwerpen": "2026-10-24",
-  "van immerseelstraat 2018 antwerpen": "2026-10-24",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-10-24"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"
  }
 }
