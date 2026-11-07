@@ -396,6 +396,23 @@ maandlijst `/zittingen/lijst?month=&year=` en de zittingspagina's werkten de hel
   onderdrukkingen raakt dat niet (een speelstratenbesluit wordt geen item, `civicCalendarFromDecision`); het aantal
   besluiten in `contentVersion` en `playStreetAttachments` wel.
 
+## eBesluit: bladeren verschuift, dus in helften (7-11-2026)
+
+Sinds `sections=OTHER` (#235, 3-11-2026) houdt `/zoeken` zich weer aan het venster op zittingsdatum. Maar een maand
+"markt" past dan niet in één pagina van 500: oktober 2026 gaf 1.220 treffers. En bladeren over pagina's is niet
+betrouwbaar: de volgorde verschilt per vraag. Op 7-11-2026 stond de laatste rij van pagina 2 op pagina 3 nog eens,
+dus bleven er 1.219 unieke rijen over voor 1.220 gemelde, en de zoekronde terecht onvolledig. Zo eindigde
+`district-ebesluit` vanaf 4-11-2026 elke nacht met `search_incomplete` (de vorige items bleven staan).
+
+Nu (`searchWindowGesplitst` in `lib/ebesluit-discovery.mjs`): na het jaar en het kwartaal wordt elke maand gezocht,
+en meldt eBesluit voor dat venster meer treffers dan één pagina houdt, dan wordt het niet doorbladerd maar in twee
+helften van hele dagen gezocht (`halveerVenster`), tot elk deel in één pagina past of één dag is. Een venster dat
+in één pagina paste en toch onvolledig is (of geen teller heeft), splitst niet en blijft onvolledig (fail-closed).
+Een serverfout stopt zoals altijd. Ook `district-ebesluit-evenementen` zoekt zijn maanden zo.
+
+Gemeten op 7-11-2026 (droog, vanaf een gewone verbinding): 2026 en 2027 volledig, "markt" 11.990 rijen over 93
+zoekpagina's, 167 verzoeken in 81 s van de 360 s, met dezelfde 4 besluiten en 9 items als de laatste geslaagde run.
+
 ## Tijdsbudget: een trage bron houdt de verversing niet tegen
 
 De job `refresh` stopt hard na 20 minuten; dan gaat er niets door, ook niet de gezonde bronnen.
