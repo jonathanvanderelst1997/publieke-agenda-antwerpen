@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  LIVE_HISTORY_MAX_CHANGES,
+  binnenPlafond,
   compactPublicSpaceItem,
   compactWorkItem,
   updateLiveHistory,
@@ -160,4 +162,42 @@ test("historiek: geen huisnummers meer, en de overgang maakt geen duizenden wijz
   assert.deepEqual(nieuw.changes.filter((c) => c.observedAt === T3), [], "geen 'changed' alleen omdat het huisnummer wegviel");
   assert.deepEqual(validateLiveHistory(nieuw), []);
   assert.doesNotMatch(JSON.stringify(nieuw), /26-26/);
+});
+
+// 6-11-2026: de 90 dagen wijzigingen werden er meer dan 20.000 (de parkeerverboden zitten er terug in, #235), en elke
+// verversing brak af op "live historiek ongeldig: te veel changes". Nu vallen de oudste verversingen in hun geheel weg
+// tot het past; ze staan blijvend in het archief.
+test("te veel wijzigingen: de oudste verversingen vallen in hun geheel weg, de nieuwe blijft", () => {
+  const RA = "2026-10-01T03:00:00.000Z", RB = "2026-10-02T03:00:00.000Z", NU = "2026-10-03T03:00:00.000Z";
+  const wijziging = (observedAt, n) => ({ observedAt, layer: "works", id: `work:${n}`, type: "added", fields: [], before: null, after: { id: `work:${n}` } });
+  const items = [work({ gipodId: 1 })].map(compactWorkItem);
+  const laag = { status: "ok", lastAttemptAt: RB, lastSuccessAt: RB, errorCode: null, count: items.length, digest: null, items };
+  const vorige = {
+    schemaVersion: 1, observedAt: RB, retentionDays: 90, baselineInitializedAt: RA,
+    layers: { works: laag, publicSpace: { ...laag, count: 0, items: [] } },
+    changes: [
+      ...Array.from({ length: 10_000 }, (_, i) => wijziging(RA, 100_000 + i)),
+      ...Array.from({ length: LIVE_HISTORY_MAX_CHANGES - 10_000 }, (_, i) => wijziging(RB, 200_000 + i)),
+    ],
+  };
+  // Drie nieuwe werken: samen 20.003 wijzigingen, dus valt de hele verversing RA weg (niet alleen drie ervan).
+  const nieuw = updateLiveHistory(vorige, {
+    observedAt: NU,
+    worksResult: { ok: true, items: [work({ gipodId: 1 }), work({ gipodId: 2 }), work({ gipodId: 3 }), work({ gipodId: 4 })] },
+    publicSpaceResult: { ok: true, items: [] },
+  });
+  assert.deepEqual(validateLiveHistory(nieuw), []);
+  assert.equal(nieuw.changes.filter((c) => c.observedAt === RA).length, 0);
+  assert.equal(nieuw.changes.filter((c) => c.observedAt === RB).length, LIVE_HISTORY_MAX_CHANGES - 10_000);
+  assert.deepEqual(nieuw.changes.filter((c) => c.observedAt === NU).map((c) => c.id), ["work:2", "work:3", "work:4"]);
+});
+
+test("binnenPlafond: past het, dan blijft alles; de wijzigingen van nu vallen nooit weg", () => {
+  const w = (observedAt, n) => ({ observedAt, id: String(n) });
+  const lijst = [w("a", 1), w("a", 2), w("b", 3), w("c", 4), w("c", 5)];
+  assert.equal(binnenPlafond(lijst, "c", 5), lijst);
+  assert.deepEqual(binnenPlafond(lijst, "c", 3).map((x) => x.id), ["3", "4", "5"]);
+  assert.deepEqual(binnenPlafond(lijst, "c", 2).map((x) => x.id), ["4", "5"]);
+  // Alleen de verversing van nu is al te veel: niets inkorten, validateLiveHistory weigert (fail-closed).
+  assert.equal(binnenPlafond(lijst, "c", 1), lijst);
 });
