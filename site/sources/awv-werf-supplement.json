@@ -14,16 +14,10 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-10-28T03:02:08.822Z",
-  "fetchStatus": "error",
+  "retrievedAt": "2026-11-07T14:54:12.036Z",
+  "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "2026-10-27",
-  "lastSuccessAt": "2026-10-28T03:02:08.822Z",
-  "lastError": {
-    "code": "timeout",
-    "at": "2026-11-05T04:21:17.237Z",
-    "since": "2026-11-03T04:23:59.788Z"
-  },
+  "contentVersion": "2026-11-06",
   "items": [
     {
       "gipodId": 12329796,
@@ -1448,7 +1442,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -1474,7 +1468,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -1506,76 +1500,6 @@
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
       "gewijzigd": "2026-10-21",
-      "innames": 1
-    },
-    {
-      "gipodId": 19069741,
-      "werfId": 53185,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Afschermende constructies",
-        "Bermen",
-        "Fietspaden",
-        "Geluidswerende constructies",
-        "Kunstwerken",
-        "Rijbaan incl. riolering",
-        "Signalisatie",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-02",
-      "endDate": "2026-11-03",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": true,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19069743,
-      "werfId": 53185,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Afschermende constructies",
-        "Bermen",
-        "Fietspaden",
-        "Geluidswerende constructies",
-        "Kunstwerken",
-        "Rijbaan incl. riolering",
-        "Signalisatie",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-03",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": true,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
       "innames": 1
     },
     {
@@ -1614,41 +1538,6 @@
       "innames": 1
     },
     {
-      "gipodId": 19069785,
-      "werfId": 53185,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Afschermende constructies",
-        "Bermen",
-        "Fietspaden",
-        "Geluidswerende constructies",
-        "Kunstwerken",
-        "Rijbaan incl. riolering",
-        "Signalisatie",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-02",
-      "endDate": "2026-11-03",
-      "innametypes": [
-        "Rijstrook 3,2"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
       "gipodId": 19069797,
       "werfId": 53185,
       "afdeling": "Antwerpen",
@@ -1676,41 +1565,6 @@
       ],
       "snelheidsbeperking": true,
       "doorsteek": true,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19069825,
-      "werfId": 53185,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Afschermende constructies",
-        "Bermen",
-        "Fietspaden",
-        "Geluidswerende constructies",
-        "Kunstwerken",
-        "Rijbaan incl. riolering",
-        "Signalisatie",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-03",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Rijstrook 3,2"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
       "bypass": [],
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
@@ -1789,70 +1643,6 @@
       "innames": 1
     },
     {
-      "gipodId": 19127292,
-      "werfId": 53349,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Bermen",
-        "Kunstwerken",
-        "Rijbaan excl. riolering",
-        "Rijbaan incl. riolering",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-04",
-      "endDate": "2026-11-05",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "alle verkeer"
-      ],
-      "lokaleOmleidingen": 1,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19127299,
-      "werfId": 53349,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Bermen",
-        "Kunstwerken",
-        "Rijbaan excl. riolering",
-        "Rijbaan incl. riolering",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-05",
-      "endDate": "2026-11-06",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "alle verkeer"
-      ],
-      "lokaleOmleidingen": 2,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
       "gipodId": 19127303,
       "werfId": 53349,
       "afdeling": "Antwerpen",
@@ -1879,70 +1669,6 @@
       "bypass": [],
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19127313,
-      "werfId": 53349,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Bermen",
-        "Kunstwerken",
-        "Rijbaan excl. riolering",
-        "Rijbaan incl. riolering",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-05",
-      "endDate": "2026-11-06",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "alle verkeer"
-      ],
-      "lokaleOmleidingen": 1,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19127319,
-      "werfId": 53349,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Bermen",
-        "Kunstwerken",
-        "Rijbaan excl. riolering",
-        "Rijbaan incl. riolering",
-        "Straatkolken"
-      ],
-      "fasen": [
-        "november"
-      ],
-      "date": "2026-11-05",
-      "endDate": "2026-11-06",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "alle verkeer"
-      ],
-      "lokaleOmleidingen": 1,
       "opUvRoute": false,
       "gewijzigd": "2026-04-15",
       "innames": 1
@@ -2002,7 +1728,7 @@
       ],
       "lokaleOmleidingen": 2,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-06",
+      "gewijzigd": "2026-11-04",
       "innames": 1
     },
     {
@@ -2600,7 +2326,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-08-17",
+      "gewijzigd": "2026-11-05",
       "innames": 1
     },
     {
@@ -2629,7 +2355,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-08-17",
+      "gewijzigd": "2026-11-05",
       "innames": 1
     },
     {
@@ -2657,7 +2383,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-08-17",
+      "gewijzigd": "2026-11-05",
       "innames": 1
     },
     {
@@ -2685,7 +2411,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-08-17",
+      "gewijzigd": "2026-11-05",
       "innames": 1
     },
     {
@@ -3048,6 +2774,31 @@
       "innames": 1
     },
     {
+      "gipodId": 20717029,
+      "werfId": 55722,
+      "afdeling": "Lantis",
+      "soort": [
+        "(Her)aanleg",
+        "Bermen",
+        "Rijbaan incl. riolering",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-09-28",
+      "endDate": "2027-06-01",
+      "innametypes": [],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-12",
+      "innames": 1
+    },
+    {
       "gipodId": 20790113,
       "werfId": 55810,
       "afdeling": "TO",
@@ -3132,32 +2883,6 @@
       "innames": 1
     },
     {
-      "gipodId": 20803773,
-      "werfId": 56263,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Herstelling",
-        "Rijbaan excl. riolering"
-      ],
-      "fasen": [],
-      "date": "2026-10-30",
-      "endDate": "2026-10-31",
-      "innametypes": [
-        "Rijstrook 2,1"
-      ],
-      "doorgang": [
-        "2 rijstroken"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
-      "innames": 1
-    },
-    {
       "gipodId": 20815080,
       "werfId": 47486,
       "afdeling": "Lantis",
@@ -3181,7 +2906,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -3209,93 +2934,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
-      "innames": 1
-    },
-    {
-      "gipodId": 20816530,
-      "werfId": 56300,
-      "afdeling": "Lantis",
-      "soort": [
-        "Herstelling",
-        "Signalisatie",
-        "Mobiel"
-      ],
-      "fasen": [
-        "Fase 1"
-      ],
-      "date": "2026-10-29",
-      "endDate": "2026-10-30",
-      "innametypes": [
-        "Rijstrook 1",
-        "Mobiele werf",
-        "Middenberm"
-      ],
-      "doorgang": [
-        "3 rijstroken"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-09",
-      "innames": 1
-    },
-    {
-      "gipodId": 20836194,
-      "werfId": 47486,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Signalisatie"
-      ],
-      "fasen": [],
-      "date": "2026-10-29",
-      "endDate": "2026-10-30",
-      "innametypes": [
-        "Rijstrook 2",
-        "Mobiele werf"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
-      "innames": 1
-    },
-    {
-      "gipodId": 20836196,
-      "werfId": 47486,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Signalisatie"
-      ],
-      "fasen": [],
-      "date": "2026-10-29",
-      "endDate": "2026-10-30",
-      "innametypes": [
-        "Rijstrook 1",
-        "Mobiele werf",
-        "Pechstrook"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -3322,7 +2961,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -3350,7 +2989,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -3377,7 +3016,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -3389,8 +3028,8 @@
         "Signalisatie"
       ],
       "fasen": [],
-      "date": "2026-11-12",
-      "endDate": "2026-11-13",
+      "date": "2026-11-13",
+      "endDate": "2026-11-14",
       "innametypes": [
         "Rijstrook 4,3,2",
         "Mobiele werf"
@@ -3404,7 +3043,7 @@
       "omleidingVoor": [],
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -3433,142 +3072,6 @@
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
       "gewijzigd": "2026-10-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 20866669,
-      "werfId": 51094,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "(Her)aanleg",
-        "Afschermende constructies",
-        "Bermen",
-        "Lussen en vergelijkbaar in de rijbaan",
-        "Parking",
-        "Rijbaan excl. riolering",
-        "Signalisatie",
-        "Straatkolken",
-        "Wegverlichting"
-      ],
-      "fasen": [],
-      "date": "2026-10-26",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Rijstrook 1"
-      ],
-      "doorgang": [
-        "1 rijstrook, versmald"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
-      "innames": 1
-    },
-    {
-      "gipodId": 20866927,
-      "werfId": 51094,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "(Her)aanleg",
-        "Afschermende constructies",
-        "Bermen",
-        "Lussen en vergelijkbaar in de rijbaan",
-        "Parking",
-        "Rijbaan excl. riolering",
-        "Signalisatie",
-        "Straatkolken",
-        "Wegverlichting"
-      ],
-      "fasen": [],
-      "date": "2026-10-26",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Rijstrook 2"
-      ],
-      "doorgang": [
-        "1 rijstrook, versmald"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
-      "innames": 1
-    },
-    {
-      "gipodId": 20866929,
-      "werfId": 51094,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "(Her)aanleg",
-        "Afschermende constructies",
-        "Bermen",
-        "Lussen en vergelijkbaar in de rijbaan",
-        "Parking",
-        "Rijbaan excl. riolering",
-        "Signalisatie",
-        "Straatkolken",
-        "Wegverlichting"
-      ],
-      "fasen": [],
-      "date": "2026-10-26",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": true,
-      "doorsteek": true,
-      "bypass": [],
-      "omleidingVoor": [
-        "voertuigen tot 3,5 ton",
-        "voertuigen boven 3,5 ton",
-        "voertuigen boven 7,5 ton"
-      ],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
-      "innames": 1
-    },
-    {
-      "gipodId": 20866931,
-      "werfId": 51094,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "(Her)aanleg",
-        "Afschermende constructies",
-        "Bermen",
-        "Lussen en vergelijkbaar in de rijbaan",
-        "Parking",
-        "Rijbaan excl. riolering",
-        "Signalisatie",
-        "Straatkolken",
-        "Wegverlichting"
-      ],
-      "fasen": [],
-      "date": "2026-10-26",
-      "endDate": "2026-11-04",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": true,
-      "doorsteek": true,
-      "bypass": [],
-      "omleidingVoor": [
-        "voertuigen tot 3,5 ton",
-        "voertuigen boven 3,5 ton",
-        "voertuigen boven 7,5 ton"
-      ],
-      "lokaleOmleidingen": 1,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-19",
       "innames": 1
     },
     {
@@ -3807,34 +3310,6 @@
       "innames": 1
     },
     {
-      "gipodId": 20868463,
-      "werfId": 56248,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Signalisatie",
-        "Mobiel"
-      ],
-      "fasen": [],
-      "date": "2026-10-29",
-      "endDate": "2026-10-30",
-      "innametypes": [
-        "Mobiele werf",
-        "Pechstrook"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-21",
-      "innames": 1
-    },
-    {
       "gipodId": 20876154,
       "werfId": 51363,
       "afdeling": "Antwerpen",
@@ -3857,35 +3332,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-21",
-      "innames": 1
-    },
-    {
-      "gipodId": 20883105,
-      "werfId": 56386,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Rijbaan excl. riolering"
-      ],
-      "fasen": [
-        "Fase 1"
-      ],
-      "date": "2026-10-27",
-      "endDate": "2026-10-28",
-      "innametypes": [
-        "Rijstrook 5"
-      ],
-      "doorgang": [
-        "4 rijstroken"
-      ],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-11-04",
       "innames": 1
     },
     {
@@ -3913,7 +3360,7 @@
       ],
       "lokaleOmleidingen": 2,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -4153,7 +3600,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
       "innames": 1
     },
     {
@@ -4181,7 +3628,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -4193,8 +3640,8 @@
         "Signalisatie"
       ],
       "fasen": [],
-      "date": "2026-11-12",
-      "endDate": "2026-11-13",
+      "date": "2026-11-13",
+      "endDate": "2026-11-14",
       "innametypes": [
         "Volledige rijbaan"
       ],
@@ -4209,7 +3656,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
@@ -4237,7 +3684,344 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-27",
+      "gewijzigd": "2026-10-29",
+      "innames": 1
+    },
+    {
+      "gipodId": 20923830,
+      "werfId": 56312,
+      "afdeling": "TO",
+      "soort": [
+        "(Her)aanleg",
+        "Kunstwerken"
+      ],
+      "fasen": [
+        "Fase 1"
+      ],
+      "date": "2026-11-25",
+      "endDate": "2026-11-26",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-29",
+      "innames": 1
+    },
+    {
+      "gipodId": 20925341,
+      "werfId": 47486,
+      "afdeling": "Lantis",
+      "soort": [
+        "(Her)aanleg",
+        "Signalisatie"
+      ],
+      "fasen": [],
+      "date": "2026-11-27",
+      "endDate": "2026-11-28",
+      "innametypes": [
+        "Rijstrook 2,1",
+        "Mobiele werf"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": true,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-29",
+      "innames": 1
+    },
+    {
+      "gipodId": 20925395,
+      "werfId": 47486,
+      "afdeling": "Lantis",
+      "soort": [
+        "(Her)aanleg",
+        "Signalisatie"
+      ],
+      "fasen": [],
+      "date": "2026-11-27",
+      "endDate": "2026-11-28",
+      "innametypes": [
+        "Rijstrook 3"
+      ],
+      "doorgang": [
+        "2 rijstroken"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-29",
+      "innames": 1
+    },
+    {
+      "gipodId": 20934330,
+      "werfId": 56415,
+      "afdeling": "AWV",
+      "soort": [
+        "Opmetingen en inspecties",
+        "Kunstwerken",
+        "Mobiel"
+      ],
+      "fasen": [
+        "Fase 1"
+      ],
+      "date": "2026-11-15",
+      "endDate": "2026-11-15",
+      "innametypes": [
+        "Rijstrook 1",
+        "Mobiele werf"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-30",
+      "innames": 1
+    },
+    {
+      "gipodId": 20934332,
+      "werfId": 56415,
+      "afdeling": "AWV",
+      "soort": [
+        "Opmetingen en inspecties",
+        "Kunstwerken",
+        "Mobiel"
+      ],
+      "fasen": [
+        "Fase 1"
+      ],
+      "date": "2026-11-15",
+      "endDate": "2026-11-15",
+      "innametypes": [
+        "Rijstrook 1",
+        "Mobiele werf"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-10-30",
+      "innames": 1
+    },
+    {
+      "gipodId": 20947437,
+      "werfId": 55681,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Andere",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-18",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Rijstrook 3,2,1",
+        "Mobiele werf"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": true,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961795,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961797,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961799,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Rijstrook 1",
+        "Mobiele werf"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961801,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961805,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20961807,
+      "werfId": 56457,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Signalisatie",
+        "Mobiel"
+      ],
+      "fasen": [],
+      "date": "2026-11-16",
+      "endDate": "2026-11-19",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-06",
       "innames": 1
     }
   ]
