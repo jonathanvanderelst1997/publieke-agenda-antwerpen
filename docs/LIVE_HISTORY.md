@@ -4,13 +4,27 @@ Stand: 28 september 2026.
 
 De publieke agenda heeft live browserlagen voor GIPOD-werken + gevalideerde hinder en voor bevestigde A-Sign-maatregelen (parkeerverboden, IOD, SGW). Alleen live tonen is onvoldoende om veranderingen te kunnen volgen. Daarom schrijft de dagelijkse dataverversing één compacte, privacyveilige historiek:
 
-- `site/history/live-layers.json` voor de actuele compacte snapshot en maximaal 90 dagen snelle wijzigingsevents;
+- `site/history/live-layers.json` voor de actuele compacte snapshot en de snelle wijzigingsevents van hoogstens 90 dagen, en hoogstens 20.000 (`LIVE_HISTORY_MAX_CHANGES`; zie "Plafond van de snelle wijzigingen" hieronder);
 - `site/history/archive/baseline.json` met de eerste succesvolle snapshot per laag;
 - `site/history/archive/YYYY-MM-DD.json` met blijvende operationele wijzigingsevents per Brusselse kalenderdag;
 - `site/history/archive/index.json` met aantallen en SHA-256-digests van alle aanwezige dagshards;
 - de eerste succesvolle run per laag is baseline en wordt niet nog eens als duizenden `added`-events gearchiveerd.
 
 De 90-dagengrens is dus alleen nog een snelle live-weergavelaag. Het archief zelf heeft geen tijdsretentie: eenmaal opgenomen dagshards worden door een gewone refresh niet verwijderd. Geschiedenis van vóór de eerste aantoonbaar succesvolle baseline wordt niet gereconstrueerd of verzonnen; latere backfill mag alleen uit controleerbare historische brondata komen.
+
+## Plafond van de snelle wijzigingen (7 november 2026)
+
+`live-layers.json` bewaart hoogstens 20.000 wijzigingen. Sinds de parkeerverboden terug in de historiek staan (#235)
+zijn dat er 300 tot 800 per verversing; 90 dagen past daar niet meer in. Op 5-11-2026 stonden er 19.200, en vanaf 6-11
+brak elke verversing af op "live historiek ongeldig: te veel changes": er kwam niets meer op de site, ook niet van de
+bronnen die wel gelezen werden.
+
+Nu vallen de oudste verversingen (alle wijzigingen met hetzelfde `observedAt`) in hun geheel weg tot het past
+(`binnenPlafond` in `lib/live-history.mjs`). De wijzigingen van de verversing zelf vallen nooit weg: zijn die alleen al
+meer dan 20.000, dan weigert `validateLiveHistory` de historiek zoals vroeger (een verdachte massa, fail-closed). Er gaat
+niets verloren: elke wijziging staat blijvend in het archief (`site/history/archive/<dag>.json`), en de radar en de
+straatkaart gebruiken alleen de laatste 7 dagen. Alleen de wijzigingen van 1-10-2026 staan niet als dag in het archief:
+dat was vóór en tijdens de eerste stand van het archief, en hun uitkomst is die eerste stand (`baseline.json`).
 
 ## Fail-closed
 
