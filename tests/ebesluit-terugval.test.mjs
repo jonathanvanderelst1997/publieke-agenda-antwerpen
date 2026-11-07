@@ -151,13 +151,15 @@ test("binnen de paginagrenzen: met 100 rijen per pagina wordt een venster helema
   assert.equal(volledig.rows.length, 300);
   assert.deepEqual(zoekGroottes(calls), [500, 500, 100, 100, 100]);
 
-  // Meer treffers dan 20 pagina's van 100 (2.500 in het venster): onvolledig, dan per maand (2.100 elk, ook te veel)
-  // en dus fail-closed onvolledig. De maanden beginnen meteen bij 100: geen geweigerde 500 meer.
+  // Meer treffers dan 20 pagina's van 100 (2.500 in het venster): onvolledig, dan per maand (2.100 elk, ook te veel),
+  // en per maand één keer in helften (searchWindowGesplitst). Die melden elk weer 2.100: deze nep-eBesluit houdt zich
+  // niet aan het venster, dus stopt het splitsen en blijft het fail-closed onvolledig. De maanden en hun helften
+  // beginnen meteen bij 100: geen geweigerde 500 meer.
   const calls2 = [];
   const teVeel = nepEbesluit({ calls: calls2, weigert: (n) => n === 500, zoek: (u) => pagina(u.searchParams.get("meetingDateStart") === "2026-10-01" && u.searchParams.get("meetingDateEnd") === "2026-11-30" ? 2500 : 2100, [1]) });
   const onvolledig = await searchKeyword(teVeel, "markt", { start: "2026-10-01", end: "2026-11-30" }, { retryDelayMs: 0, sleepImpl: noSleep });
   assert.equal(onvolledig.coverage.complete, false);
-  assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 100]);
+  assert.deepEqual(zoekGroottes(calls2), [500, 500, 100, 100, 100, 100, 100, 100, 100]);
 });
 
 // Nakijkbevinding (mutatieproef): zonder resultatenteller is een venster pas volledig als een pagina minder rijen geeft

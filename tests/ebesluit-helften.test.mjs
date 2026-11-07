@@ -42,8 +42,8 @@ test("een maand die niet in één pagina past en verschuift bij het bladeren: in
   assert.equal(r.rows.length, 31 * PER_DAG);
   assert.equal(new Set(r.rows.map((x) => x.id)).size, 31 * PER_DAG, "geen rij dubbel");
   // Elk deel dat uiteindelijk telt, past in één pagina van 500 en kost één vraag.
-  const helften = vragen.filter((v) => /^2026-10-(01|17)\|2026-10-(16|31)\|0$/.test(v));
-  assert.equal(helften.length, 2);
+  assert.ok(vragen.includes("2026-10-01|2026-10-16|0") && vragen.includes("2026-10-17|2026-10-31|0"), "de twee helften");
+  assert.ok(!vragen.some((v) => /^(2026-10-01\|2026-10-16|2026-10-17\|2026-10-31)\|[1-9]/.test(v)), "de helften worden niet doorbladerd");
   assert.ok(vragen.length <= 20, `begrensd aantal vragen (${vragen.length})`);
 });
 
@@ -53,6 +53,16 @@ test("een jaar: kwartaal, maand en dan helften; alle maanden volledig", async ()
   assert.equal(r.coverage.complete, true);
   assert.equal(r.rows.length, 365 * PER_DAG);
   assert.ok(vragen.every((v) => Number(v.split("|")[2]) < 20), "nooit voorbij de grens van 20 pagina's");
+});
+
+test("houdt eBesluit zich niet aan het venster (elke helft meldt evenveel), dan stopt het splitsen: onvolledig", async () => {
+  const vragen = [];
+  const r = await searchKeyword(async (url) => {
+    vragen.push(String(url));
+    return new Response(`<span class="result-count">1200 resultaten gevonden</span>${rij("r-1")}`, { status: 200 });
+  }, "markt", { start: "2026-10-01", end: "2026-10-31" }, { retryDelayMs: 0, sleepImpl: async () => {} });
+  assert.equal(r.coverage.complete, false);
+  assert.ok(vragen.length <= 10, `begrensd (${vragen.length} vragen), niet tot op elke dag`);
 });
 
 test("past het venster in één pagina en blijft het toch onvolledig, dan splitst het niet (fail-closed)", async () => {
