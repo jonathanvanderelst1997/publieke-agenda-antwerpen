@@ -14,7 +14,7 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-11-07T14:54:12.036Z",
+  "retrievedAt": "2026-11-08T01:35:13.675Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": "2026-11-06",
@@ -1634,37 +1634,6 @@
         "1 rijstrook"
       ],
       "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-04-15",
-      "innames": 1
-    },
-    {
-      "gipodId": 19127303,
-      "werfId": 53349,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Structureel onderhoud",
-        "Bermen",
-        "Kunstwerken",
-        "Rijbaan excl. riolering",
-        "Rijbaan incl. riolering",
-        "Straatkolken"
-      ],
-      "fasen": [],
-      "date": "2026-11-06",
-      "endDate": "2026-11-07",
-      "innametypes": [
-        "Rijstrook 1",
-        "Zijberm"
-      ],
-      "doorgang": [
-        "3 rijstroken"
-      ],
-      "snelheidsbeperking": false,
       "doorsteek": false,
       "bypass": [],
       "omleidingVoor": [],
@@ -3307,32 +3276,6 @@
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
       "gewijzigd": "2026-10-19",
-      "innames": 1
-    },
-    {
-      "gipodId": 20876154,
-      "werfId": 51363,
-      "afdeling": "Antwerpen",
-      "soort": [
-        "Herstelling",
-        "Kunstwerken"
-      ],
-      "fasen": [],
-      "date": "2026-11-06",
-      "endDate": "2026-11-07",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "alle verkeer"
-      ],
-      "lokaleOmleidingen": 1,
-      "opUvRoute": false,
-      "gewijzigd": "2026-11-04",
       "innames": 1
     },
     {

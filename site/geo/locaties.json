@@ -95,16 +95,6 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
-  "blauwtorenplein arenbergstraat armeduivelstraat en 66 andere straten": {
-   "point": [
-    4.40931,
-    51.21286
-   ],
-   "precision": "straat",
-   "street": "Blauwtorenplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-15"
-  },
   "constitutiestraat 2060 antwerpen": {
    "point": [
     4.42712,
@@ -355,16 +345,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-29"
   },
-  "kattendijkdok oostkaai amsterdamstraat bataviastraat en 28 andere straten": {
-   "point": [
-    4.4092,
-    51.23595
-   ],
-   "precision": "straat",
-   "street": "Kattendijkdok-Oostkaai",
-   "postcode": "2000",
-   "checkedOn": "2026-10-30"
-  },
   "kioskplaats 2660 hoboken": {
    "point": [
     4.35035,
@@ -505,15 +485,15 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
-  "ossenmarkt appelmansstraat augustijnenstraat en 38 andere straten": {
+  "nationalestraat arenbergstraat armeduivelstraat en 66 andere straten": {
    "point": [
-    4.4135,
-    51.22207
+    4.39937,
+    51.21648
    ],
    "precision": "straat",
-   "street": "Ossenmarkt",
+   "street": "Nationalestraat",
    "postcode": "2000",
-   "checkedOn": "2026-10-14"
+   "checkedOn": "2026-11-08"
   },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
@@ -665,6 +645,16 @@
    "postcode": "2000",
    "checkedOn": "2026-10-12"
   },
+  "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
+   "point": [
+    4.39156,
+    51.23036
+   ],
+   "precision": "straat",
+   "street": "Thonetlaan",
+   "postcode": "2050",
+   "checkedOn": "2026-11-08"
+  },
   "timmerwerfstraat anneessensstraat artsen zonder grenzenstraat en 75 andere straten": {
    "point": [
     4.39102,
@@ -724,6 +714,16 @@
    "street": "Vosstraat",
    "postcode": "2140",
    "checkedOn": "2026-10-05"
+  },
+  "waalsekaai gentplaats gillisplaats en 7 andere straten": {
+   "point": [
+    4.38819,
+    51.20919
+   ],
+   "precision": "straat",
+   "street": "Waalsekaai",
+   "postcode": "2000",
+   "checkedOn": "2026-11-08"
   },
   "wim saerensplein 2100 deurne": {
    "point": [

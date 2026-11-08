@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-07T14:54:20.734Z",
-  "classificationAsOf": "2026-11-07",
-  "sourceCount": 900,
-  "count": 760,
-  "eventPageCount": 760,
-  "archivedEventPageCount": 291,
+  "candidateGeneratedAt": "2026-11-08T01:35:40.758Z",
+  "classificationAsOf": "2026-11-08",
+  "sourceCount": 897,
+  "count": 756,
+  "eventPageCount": 756,
+  "archivedEventPageCount": 295,
   "classifications": {
-    "expired": 140,
-    "current": 29,
-    "future": 731,
+    "expired": 141,
+    "current": 31,
+    "future": 725,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 113,
-    "stad": 647
+    "district": 111,
+    "stad": 645
   },
-  "feedGeneratedAt": "2026-11-07T14:54:20.734Z",
+  "feedGeneratedAt": "2026-11-08T01:35:40.758Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:56:02.594Z",
+      "retrievedAt": "2026-11-08T01:37:15.162Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:51:42.782Z",
+      "retrievedAt": "2026-11-08T01:32:56.022Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:54:14.601Z",
+      "retrievedAt": "2026-11-08T01:35:35.009Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:53:41.203Z",
+      "retrievedAt": "2026-11-08T01:34:43.394Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:51:35.325Z",
+      "retrievedAt": "2026-11-08T01:32:49.937Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:53:42.046Z",
+      "retrievedAt": "2026-11-08T01:34:43.836Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:51:25.638Z",
+      "retrievedAt": "2026-11-08T01:32:41.261Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:54:11.598Z",
+      "retrievedAt": "2026-11-08T01:35:13.456Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:54:11.598Z",
+      "retrievedAt": "2026-11-08T01:35:13.456Z",
       "state": "empty"
     },
     {
@@ -121,7 +121,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-07T14:54:07.240Z",
+      "retrievedAt": "2026-11-08T01:35:09.044Z",
       "state": "fresh"
     },
     {
@@ -132,7 +132,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "8d705e2ed090b4d9f2089dc92be705096fdc8504bcf6a10cd7a286d16de3507b",
+  "digest": "b5af7d1200ead036b279ffa9c018730942fc39d15b154319d71b716e64011053",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -164,10 +164,6 @@
     "Schoolstraat Jan Vanhoenackerstraat",
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
-    "Gemengde markt en exotische markt Oudevaartplaats",
-    "Evenement op de Ossenmarkt: route van 3,5 km",
-    "Evenement op de Kattendijkdok-Oostkaai: route van 6,1 km",
-    "Stanneke",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
