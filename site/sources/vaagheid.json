@@ -1,18 +1,18 @@
 {
  "schema": "vaagheid/1",
- "vandaag": "2026-11-08",
- "invoer": "85ee6a1d1db34c3c",
+ "vandaag": "2026-11-09",
+ "invoer": "93176a7cacb15d59",
  "code": "c5f45b7d45f6c108",
  "agenda": {
-  "items": 756,
-  "vaag": 44,
-  "aandeel": 5.8,
+  "items": 753,
+  "vaag": 42,
+  "aandeel": 5.6,
   "perPatroon": {
-   "wie-onbekend": 52,
-   "uur-onbekend": 31,
+   "wie-onbekend": 50,
+   "uur-onbekend": 29,
    "generieke-titel": 18,
    "datum-bij-benadering": 14,
-   "plek-via-bron": 14,
+   "plek-via-bron": 12,
    "uren-periode-onbekend": 8,
    "vermoedelijk": 7,
    "info-leeg": 2,
@@ -42,11 +42,6 @@
      "uren-periode-onbekend": 5
     }
    },
-   "stad-markten": {
-    "items": 623,
-    "vaag": 0,
-    "patronen": {}
-   },
    "district-ebesluit-evenementen": {
     "items": 4,
     "vaag": 3,
@@ -56,16 +51,10 @@
      "plek-alleen-postcode": 1
     }
    },
-   "stad-districten": {
-    "items": 19,
-    "vaag": 14,
-    "patronen": {
-     "wie-onbekend": 19,
-     "plek-via-bron": 14,
-     "uur-onbekend": 5,
-     "info-leeg": 2,
-     "uren-periode-onbekend": 1
-    }
+   "stad-markten": {
+    "items": 622,
+    "vaag": 0,
+    "patronen": {}
    },
    "district-vergaderingen": {
     "items": 39,
@@ -78,6 +67,17 @@
     "patronen": {
      "wie-onbekend": 4,
      "plek-alleen-postcode": 1
+    }
+   },
+   "stad-districten": {
+    "items": 17,
+    "vaag": 12,
+    "patronen": {
+     "wie-onbekend": 17,
+     "plek-via-bron": 12,
+     "uur-onbekend": 3,
+     "info-leeg": 2,
+     "uren-periode-onbekend": 1
     }
    },
    "stad-koopzondagen": {
@@ -94,8 +94,8 @@
   },
   "verboden": {},
   "zonderMarkten": {
-   "items": 133,
-   "vaag": 44
+   "items": 131,
+   "vaag": 42
   },
   "district": {
    "items": 111,
@@ -103,15 +103,15 @@
   }
  },
  "eventpaginas": {
-  "items": 756,
-  "vaag": 51,
-  "aandeel": 6.7,
+  "items": 753,
+  "vaag": 49,
+  "aandeel": 6.5,
   "perPatroon": {
-   "uur-niet-in-bron": 43,
+   "uur-niet-in-bron": 41,
    "generieke-titel": 18,
    "naam-stad-niet": 16,
    "datum-bij-benadering": 14,
-   "plek-via-bron": 14,
+   "plek-via-bron": 12,
    "vermoedelijk": 7,
    "naam-onbekend": 2
   },
@@ -139,11 +139,6 @@
      "naam-onbekend": 2
     }
    },
-   "stad-markten": {
-    "items": 623,
-    "vaag": 0,
-    "patronen": {}
-   },
    "district-ebesluit-evenementen": {
     "items": 4,
     "vaag": 4,
@@ -151,13 +146,10 @@
      "uur-niet-in-bron": 4
     }
    },
-   "stad-districten": {
-    "items": 19,
-    "vaag": 14,
-    "patronen": {
-     "plek-via-bron": 14,
-     "uur-niet-in-bron": 6
-    }
+   "stad-markten": {
+    "items": 622,
+    "vaag": 0,
+    "patronen": {}
    },
    "district-vergaderingen": {
     "items": 39,
@@ -168,6 +160,14 @@
     "items": 4,
     "vaag": 0,
     "patronen": {}
+   },
+   "stad-districten": {
+    "items": 17,
+    "vaag": 12,
+    "patronen": {
+     "plek-via-bron": 12,
+     "uur-niet-in-bron": 4
+    }
    },
    "stad-koopzondagen": {
     "items": 4,
@@ -186,9 +186,9 @@
   "verboden": {}
  },
  "straten": {
-  "items": 449,
+  "items": 448,
   "vaag": 246,
-  "aandeel": 54.8,
+  "aandeel": 54.9,
   "perPatroon": {
    "periode-onbekend": 160,
    "start-werken-onbekend": 53,
@@ -289,10 +289,10 @@
     "losseVaag": 0
    },
    "agenda:stad-markten": {
-    "items": 53,
+    "items": 52,
     "vaag": 0,
     "patronen": {},
-    "losse": 53,
+    "losse": 52,
     "losseVaag": 0
    }
   },
@@ -310,11 +310,11 @@
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 412,
+   "kaarten": 411,
    "vaag": 218
   },
   "losse": {
-   "kaarten": 264,
+   "kaarten": 263,
    "vaag": 65
   },
   "ingeklapt": {
@@ -393,9 +393,9 @@
     "ingeklapt": 3
    },
    "Sint-Jansvliet": {
-    "kaarten": 44,
+    "kaarten": 43,
     "vaag": 12,
-    "losseKaarten": 36,
+    "losseKaarten": 35,
     "losseVaag": 4,
     "ingeklapt": 1
    },
@@ -535,12 +535,12 @@
   }
  },
  "buiten": {
-  "items": 63,
-  "vaag": 26,
-  "aandeel": 41.3,
+  "items": 59,
+  "vaag": 22,
+  "aandeel": 37.3,
   "perPatroon": {
-   "plek-niet-in-bron": 26,
-   "uur-niet-in-bron": 11
+   "plek-niet-in-bron": 22,
+   "uur-niet-in-bron": 7
   },
   "perGroep": {
    "stad-markten": {
@@ -549,11 +549,11 @@
     "patronen": {}
    },
    "stad-districten": {
-    "items": 32,
-    "vaag": 26,
+    "items": 28,
+    "vaag": 22,
     "patronen": {
-     "plek-niet-in-bron": 26,
-     "uur-niet-in-bron": 11
+     "plek-niet-in-bron": 22,
+     "uur-niet-in-bron": 7
     }
    }
   },
@@ -578,12 +578,12 @@
     "vaag": 1
    },
    "Vosstraat": {
-    "items": 7,
-    "vaag": 5
+    "items": 6,
+    "vaag": 4
    },
    "Generaal De Wetstraat": {
-    "items": 7,
-    "vaag": 5
+    "items": 6,
+    "vaag": 4
    },
    "Herentalsebaan": {
     "items": 4,
@@ -610,16 +610,16 @@
     "vaag": 0
    },
    "Statiestraat": {
-    "items": 4,
-    "vaag": 3
+    "items": 3,
+    "vaag": 2
    },
    "Bredabaan": {
     "items": 5,
     "vaag": 0
    },
    "Kristus-Koningplein": {
-    "items": 4,
-    "vaag": 3
+    "items": 3,
+    "vaag": 2
    },
    "Botermarkt": {
     "items": 2,
@@ -629,27 +629,27 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "a5fd8b9a86d387b9",
+   "invoer": "85ee6a1d1db34c3c",
    "code": "c5f45b7d45f6c108"
   },
   "agenda": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": -0.2,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": -0.2,
    "gestegen": []
   },
   "straten": {
    "ok": true,
-   "stijging": -0.4,
+   "stijging": 0.1,
    "gestegen": []
   },
   "buiten": {
    "ok": true,
-   "stijging": -1.8,
+   "stijging": -4,
    "gestegen": []
   }
  }

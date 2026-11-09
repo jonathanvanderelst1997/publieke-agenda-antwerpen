@@ -14,7 +14,7 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-11-08T01:35:13.675Z",
+  "retrievedAt": "2026-11-09T03:52:01.296Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": "2026-11-06",
@@ -2875,7 +2875,7 @@
       ],
       "lokaleOmleidingen": 1,
       "opUvRoute": false,
-      "gewijzigd": "2026-10-29",
+      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {
