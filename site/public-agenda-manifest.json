@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-08T01:35:40.758Z",
-  "classificationAsOf": "2026-11-08",
-  "sourceCount": 897,
-  "count": 756,
-  "eventPageCount": 756,
-  "archivedEventPageCount": 295,
+  "candidateGeneratedAt": "2026-11-09T03:52:18.908Z",
+  "classificationAsOf": "2026-11-09",
+  "sourceCount": 896,
+  "count": 753,
+  "eventPageCount": 753,
+  "archivedEventPageCount": 300,
   "classifications": {
-    "expired": 141,
-    "current": 31,
-    "future": 725,
+    "expired": 143,
+    "current": 29,
+    "future": 724,
     "review_required": 0
   },
   "scopeCounts": {
     "district": 111,
-    "stad": 645
+    "stad": 642
   },
-  "feedGeneratedAt": "2026-11-08T01:35:40.758Z",
+  "feedGeneratedAt": "2026-11-09T03:52:18.908Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:37:15.162Z",
+      "retrievedAt": "2026-11-09T03:53:56.788Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:32:56.022Z",
+      "retrievedAt": "2026-11-09T03:49:15.736Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:35:35.009Z",
+      "retrievedAt": "2026-11-09T03:52:13.033Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:34:43.394Z",
+      "retrievedAt": "2026-11-09T03:51:29.598Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:32:49.937Z",
+      "retrievedAt": "2026-11-09T03:49:07.759Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:34:43.836Z",
+      "retrievedAt": "2026-11-09T03:51:30.113Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:32:41.261Z",
+      "retrievedAt": "2026-11-09T03:48:56.556Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:35:13.456Z",
+      "retrievedAt": "2026-11-09T03:52:00.910Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:35:13.456Z",
+      "retrievedAt": "2026-11-09T03:52:00.910Z",
       "state": "empty"
     },
     {
@@ -121,7 +121,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-08T01:35:09.044Z",
+      "retrievedAt": "2026-11-09T03:51:55.280Z",
       "state": "fresh"
     },
     {
@@ -132,7 +132,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "b5af7d1200ead036b279ffa9c018730942fc39d15b154319d71b716e64011053",
+  "digest": "904763ae672b85641f7dd6a2e9d536eb450ad1a096393b676de6b8ae8b61f34a",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -164,12 +164,7 @@
     "Schoolstraat Jan Vanhoenackerstraat",
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
-    "Biomarkt Falconplein",
-    "Markt voor klein antiek Sint-Jansvliet",
-    "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Futsal Project Seefhoek",
-    "Stanneke",
-    "Ontdek de pracht van Muisbroek tijdens de EkeRun!",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
     "Raadscommissie Antwerpen",
@@ -876,6 +871,8 @@
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
+    "Gemengde markt Kioskplaats",
+    "Gemengde markt Arenaplein",
     "Bijzondere raadscommissie algemeen beleid, publieke ruimte, mobiliteit, parken en groenvoorziening",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
