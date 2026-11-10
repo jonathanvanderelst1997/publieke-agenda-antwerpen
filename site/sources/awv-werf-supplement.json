@@ -14,10 +14,10 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-11-09T03:52:01.296Z",
+  "retrievedAt": "2026-11-10T04:22:35.837Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "2026-11-06",
+  "contentVersion": "2026-11-09",
   "items": [
     {
       "gipodId": 12329796,
@@ -3965,6 +3965,770 @@
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
       "gewijzigd": "2026-11-06",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968844,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "april"
+      ],
+      "date": "2027-04-08",
+      "endDate": "2027-04-09",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968846,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "november"
+      ],
+      "date": "2027-11-03",
+      "endDate": "2027-11-04",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968848,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "april"
+      ],
+      "date": "2027-04-07",
+      "endDate": "2027-04-08",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968850,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "juni"
+      ],
+      "date": "2027-06-10",
+      "endDate": "2027-07-11",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968852,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "september"
+      ],
+      "date": "2027-09-09",
+      "endDate": "2027-09-10",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968854,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "februari"
+      ],
+      "date": "2027-02-04",
+      "endDate": "2027-02-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968856,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "september"
+      ],
+      "date": "2027-09-08",
+      "endDate": "2027-09-09",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968858,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "november"
+      ],
+      "date": "2027-11-04",
+      "endDate": "2027-11-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968861,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "februari"
+      ],
+      "date": "2027-02-04",
+      "endDate": "2027-02-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968863,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "april"
+      ],
+      "date": "2027-04-08",
+      "endDate": "2027-04-09",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968865,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "februari"
+      ],
+      "date": "2027-02-03",
+      "endDate": "2027-02-04",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968867,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "juni"
+      ],
+      "date": "2027-06-09",
+      "endDate": "2027-06-10",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968869,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "september"
+      ],
+      "date": "2027-09-09",
+      "endDate": "2027-09-10",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968871,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "november"
+      ],
+      "date": "2027-11-04",
+      "endDate": "2027-11-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968873,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "juni"
+      ],
+      "date": "2027-06-10",
+      "endDate": "2027-07-11",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968875,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [],
+      "date": "2027-06-11",
+      "endDate": "2027-06-12",
+      "innametypes": [
+        "Rijstrook 1",
+        "Zijberm"
+      ],
+      "doorgang": [
+        "3 rijstroken"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968879,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "april"
+      ],
+      "date": "2027-04-08",
+      "endDate": "2027-04-09",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968881,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "februari"
+      ],
+      "date": "2027-02-04",
+      "endDate": "2027-02-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968883,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [],
+      "date": "2027-11-05",
+      "endDate": "2027-11-06",
+      "innametypes": [
+        "Rijstrook 1",
+        "Zijberm"
+      ],
+      "doorgang": [
+        "3 rijstroken"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968885,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [],
+      "date": "2027-02-05",
+      "endDate": "2027-02-06",
+      "innametypes": [
+        "Rijstrook 1",
+        "Zijberm"
+      ],
+      "doorgang": [
+        "3 rijstroken"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968887,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "juni"
+      ],
+      "date": "2027-06-10",
+      "endDate": "2027-07-11",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968889,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "november"
+      ],
+      "date": "2027-11-04",
+      "endDate": "2027-11-05",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 1,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20968891,
+      "werfId": 56210,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Structureel onderhoud",
+        "Bermen",
+        "Kunstwerken",
+        "Rijbaan excl. riolering",
+        "Rijbaan incl. riolering",
+        "Straatkolken"
+      ],
+      "fasen": [
+        "september"
+      ],
+      "date": "2027-09-09",
+      "endDate": "2027-09-10",
+      "innametypes": [
+        "Volledige rijbaan"
+      ],
+      "doorgang": [],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [
+        "alle verkeer"
+      ],
+      "lokaleOmleidingen": 2,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
+      "innames": 1
+    },
+    {
+      "gipodId": 20969292,
+      "werfId": 56556,
+      "afdeling": "Antwerpen",
+      "soort": [
+        "Opmetingen en inspecties",
+        "Bomen",
+        "Wegverlichting",
+        "Mobiel"
+      ],
+      "fasen": [
+        "Fase 1"
+      ],
+      "date": "2026-12-01",
+      "endDate": "2026-12-01",
+      "innametypes": [
+        "Mobiele werf",
+        "Pechstrook"
+      ],
+      "doorgang": [
+        "1 rijstrook"
+      ],
+      "snelheidsbeperking": false,
+      "doorsteek": false,
+      "bypass": [],
+      "omleidingVoor": [],
+      "lokaleOmleidingen": 0,
+      "opUvRoute": false,
+      "gewijzigd": "2026-11-09",
       "innames": 1
     }
   ]
