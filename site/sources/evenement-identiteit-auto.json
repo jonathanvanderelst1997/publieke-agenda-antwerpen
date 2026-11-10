@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "generatedAt": "2026-11-10T04:24:50.309Z",
+ "generatedAt": "2026-11-10T04:40:16.331Z",
  "bijgewerkt": "2026-11-10",
  "uitleg": "Automatisch herkend bij elke verversing (lib/parcours-herkenning.mjs), alleen voor dossiers zonder handfiche in evenement-identiteit.json. Niet met de hand nagekeken. 'zeker' alleen met een bron die dag en plek noemt; methode en signalen zeggen waarop elke fiche steunt.",
  "samenvatting": {"dossiers":379,"metHandfiche":11,"automatisch":368,"zeker":5,"waarschijnlijk":53,"alleenKaartzin":310,"perMethode":{"kalender":1,"gipod":0,"organisator":0,"besluit":2,"foorlijst":2,"markt":1,"patroon":0,"regels":52,"kaart":310},"bronFouten":[]},

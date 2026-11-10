@@ -13892,6 +13892,1648 @@
         "streetDistanceMeters": 3,
         "hindrance": null
       }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2025-002899|30885",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2025-002899|30885",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-03-16T06:00:00.000Z",
+        "end": "2026-11-30T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2025-002899",
+        "detail": "Fase 30885",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2025-005523|35303",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2025-005523|35303",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-08-17T05:00:00.000Z",
+        "end": "2026-11-13T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2025-005523",
+        "detail": "Fase 35303",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2025-005523|35305",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2025-005523|35305",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-14T06:00:00.000Z",
+        "end": "2026-12-18T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2025-005523",
+        "detail": "Fase 35305",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2025-005523|39954",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2025-005523|39954",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-12-01T08:00:00.000Z",
+        "end": "2026-12-01T14:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2025-005523",
+        "detail": "Fase 39954",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-000839|41881",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-000839|41881",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-12T06:00:00.000Z",
+        "end": "2026-11-12T13:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-000839",
+        "detail": "Fase 41881",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-000839|41882",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-000839|41882",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-18T06:00:00.000Z",
+        "end": "2026-11-18T13:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-000839",
+        "detail": "Fase 41882",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-000839|41883",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-000839|41883",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-19T06:00:00.000Z",
+        "end": "2026-11-19T13:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-000839",
+        "detail": "Fase 41883",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-002256|33671",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-002256|33671",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-19T06:00:00.000Z",
+        "end": "2026-11-20T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-002256",
+        "detail": "Fase 33671",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-002256|33672",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-002256|33672",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-05-19T05:00:00.000Z",
+        "end": "2026-11-18T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-002256",
+        "detail": "Fase 33672",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-002998|36567",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-002998|36567",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-02T06:00:00.000Z",
+        "end": "2026-11-10T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-002998",
+        "detail": "Fase 36567",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-002998|41895",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-002998|41895",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-10T06:00:00.000Z",
+        "end": "2026-11-13T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-002998",
+        "detail": "Fase 41895",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-002998|41896",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-002998|41896",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-13T06:00:00.000Z",
+        "end": "2026-11-18T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-002998",
+        "detail": "Fase 41896",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-003821|36378",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-003821|36378",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-07-30T05:00:00.000Z",
+        "end": "2026-12-04T17:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-003821",
+        "detail": "Fase 36378",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-003821|41209",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-003821|41209",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-12T08:00:00.000Z",
+        "end": "2026-11-12T14:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-003821",
+        "detail": "Fase 41209",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-003821|41210",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-003821|41210",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-18T08:00:00.000Z",
+        "end": "2026-11-18T14:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-003821",
+        "detail": "Fase 41210",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-003821|41717",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-003821|41717",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-12-02T06:00:00.000Z",
+        "end": "2026-12-02T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-003821",
+        "detail": "Fase 41717",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-004010|36766",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-004010|36766",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-09-05T05:00:00.000Z",
+        "end": "2026-11-30T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-004010",
+        "detail": "Fase 36766",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-004010|36767",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-13T16:00:00.000Z",
+        "start": "2026-10-31T05:00:00.000Z"
+      },
+      "after": {
+        "end": "2026-12-04T16:00:00.000Z",
+        "start": "2026-12-01T06:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-004672|38202",
+      "type": "changed",
+      "fields": [
+        "end"
+      ],
+      "before": {
+        "end": "2026-11-28T16:00:00.000Z"
+      },
+      "after": {
+        "end": "2027-02-27T16:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-005126|38995",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-005126|38995",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-09-28T04:00:00.000Z",
+        "end": "2026-11-27T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-005126",
+        "detail": "Fase 38995",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-005127|38996",
+      "type": "changed",
+      "fields": [
+        "end"
+      ],
+      "before": {
+        "end": "2026-11-10T16:00:00.000Z"
+      },
+      "after": {
+        "end": "2026-11-12T16:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-005127|38997",
+      "type": "changed",
+      "fields": [
+        "start"
+      ],
+      "before": {
+        "start": "2026-11-10T06:00:00.000Z"
+      },
+      "after": {
+        "start": "2026-11-12T06:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-005659|39881",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-005659|39881",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-21T21:00:00.000Z",
+        "end": "2026-11-23T04:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-005659",
+        "detail": "Fase 39881",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006034|40552",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006034|40552",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-24T06:00:00.000Z",
+        "end": "2026-11-26T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006034",
+        "detail": "Fase 40552",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006034|41341",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006034|41341",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-26T06:00:00.000Z",
+        "end": "2026-11-26T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006034",
+        "detail": "Fase 41341",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006059|40631",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006059|40631",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-10T06:00:00.000Z",
+        "end": "2026-11-10T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006059",
+        "detail": "Fase 40631",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006059|40632",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006059|40632",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-21T06:00:00.000Z",
+        "end": "2026-11-21T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006059",
+        "detail": "Fase 40632",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006059|40633",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006059|40633",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-23T06:00:00.000Z",
+        "end": "2026-12-18T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006059",
+        "detail": "Fase 40633",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006281|41040",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006281|41040",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-23T06:00:00.000Z",
+        "end": "2026-11-24T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006281",
+        "detail": "Fase 41040",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006356|41276",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-006356|41276",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-25T06:00:00.000Z",
+        "end": "2026-11-25T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006356",
+        "detail": "Fase 41276",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006356|41277",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-006356|41277",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-11-26T06:00:00.000Z",
+        "end": "2026-11-29T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006356",
+        "detail": "Fase 41277",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006356|41278",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-006356|41278",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-30T06:00:00.000Z",
+        "end": "2026-11-30T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006356",
+        "detail": "Fase 41278",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006427|41424",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-12-11T16:00:00.000Z",
+        "start": "2026-11-30T06:00:00.000Z"
+      },
+      "after": {
+        "end": "2027-03-12T16:00:00.000Z",
+        "start": "2027-03-01T06:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006427|41425",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-12-18T16:00:00.000Z",
+        "start": "2026-12-11T16:00:00.000Z"
+      },
+      "after": {
+        "end": "2027-03-19T16:00:00.000Z",
+        "start": "2027-03-12T16:00:00.000Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006455|41480",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006455|41480",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-30T06:00:00.000Z",
+        "end": "2026-12-04T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006455",
+        "detail": "Fase 41480",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006486|41571",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006486|41571",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-30T06:00:00.000Z",
+        "end": "2026-12-07T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006486",
+        "detail": "Fase 41571",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006518|41650",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006518|41650",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-30T06:00:00.000Z",
+        "end": "2026-11-30T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006518",
+        "detail": "Fase 41650",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006519|41658",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006519|41658",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-30T06:00:00.000Z",
+        "end": "2026-12-03T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006519",
+        "detail": "Fase 41658",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006519|41659",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006519|41659",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-12-03T16:00:00.000Z",
+        "end": "2026-12-07T06:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006519",
+        "detail": "Fase 41659",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006519|41661",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006519|41661",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-12-07T06:00:00.000Z",
+        "end": "2026-12-09T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006519",
+        "detail": "Fase 41661",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006566|41724",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "sgw:GW2026-006566|41724",
+        "kind": "sgw",
+        "kindLabel": "Werfzone",
+        "title": "Werfzone",
+        "location": "",
+        "start": "2026-12-02T06:00:00.000Z",
+        "end": "2026-12-16T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006566",
+        "detail": "Fase 41724",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:14245255",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-10-01T05:00:00Z",
+          "end": "2026-12-18T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-09T16:00:00Z",
+          "end": "2026-12-18T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:15636253",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:15636253",
+        "gipodId": 15636253,
+        "title": "2018 ANTWERPEN BELEGSTRAAT E, G, OV Klantaansluiting, Initiatief Regio (lengte: 872m)",
+        "status": "In uitvoering",
+        "start": "2026-05-05T22:01:00Z",
+        "end": "2026-11-09T22:59:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet;klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit;Olie, gas, chemicaliën;Openbare verlichting"
+        ],
+        "streets": [
+          {
+            "id": "292",
+            "name": "Belegstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:19551465",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Geen doorgang voor voetgangers"
+          ],
+          "start": "2026-08-25T05:00:00Z",
+          "end": "2027-01-27T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Geen doorgang voor voetgangers"
+          ],
+          "start": "2026-11-10T06:00:00Z",
+          "end": "2027-01-27T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:19928298",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:19928298",
+        "gipodId": 19928298,
+        "title": "Nutswerken met een hoogtewerker – Groendalstraat 1",
+        "status": "Concreet gepland",
+        "start": "2027-05-11T22:00:00Z",
+        "end": "2027-05-18T22:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1046",
+            "name": "Groendalstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 3,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20159502",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20159502",
+        "gipodId": 20159502,
+        "title": "2018 - Antwerpen - Generaal Lemanstraat 47 - enkel één koppelput GAS (dus AWV gaat niet nodig zijn voor slechts een koppelput daardoor geen plan met km punten gemaakt)",
+        "status": "Concreet gepland",
+        "start": "2026-11-03T23:00:00Z",
+        "end": "2026-11-09T23:00:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "969",
+            "name": "Generaal Lemanstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 90,
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Afgesloten in 1 rijrichting",
+            "Beperkte doorgang voor voetgangers"
+          ],
+          "start": "2026-11-03T23:00:00Z",
+          "end": "2026-11-09T22:59:00Z"
+        }
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20210731",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers"
+          ],
+          "start": "2026-10-26T05:00:00Z",
+          "end": "2026-11-09T19:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20351181",
+      "type": "changed",
+      "fields": [
+        "title"
+      ],
+      "before": {
+        "title": "Werk in openbaar domein – Kammenstraat 49–60"
+      },
+      "after": {
+        "title": "Werk in openbaar domein – Kammenstraat 49–53"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20395131",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20395131",
+        "gipodId": 20395131,
+        "title": "2060 ANTWERPEN GASSTRAAT OV, Gemeente overgenomen (Verledding)",
+        "status": "In uitvoering",
+        "start": "2026-10-14T22:01:00Z",
+        "end": "2026-11-09T22:59:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Openbare verlichting"
+        ],
+        "streets": [
+          {
+            "id": "828",
+            "name": "Everaertsstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 1,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20417980",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers"
+          ],
+          "start": "2026-09-28T05:00:00Z",
+          "end": "2026-11-09T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20527157",
+      "type": "changed",
+      "fields": [
+        "start"
+      ],
+      "before": {
+        "start": "2026-11-08T23:00:00Z"
+      },
+      "after": {
+        "start": "2026-11-09T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20527160",
+      "type": "changed",
+      "fields": [
+        "start"
+      ],
+      "before": {
+        "start": "2026-11-08T23:00:00Z"
+      },
+      "after": {
+        "start": "2026-11-09T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20527163",
+      "type": "changed",
+      "fields": [
+        "start"
+      ],
+      "before": {
+        "start": "2026-11-08T23:00:00Z"
+      },
+      "after": {
+        "start": "2026-11-09T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20527165",
+      "type": "changed",
+      "fields": [
+        "start"
+      ],
+      "before": {
+        "start": "2026-11-08T23:00:00Z"
+      },
+      "after": {
+        "start": "2026-11-09T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20553715",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20553715",
+        "gipodId": 20553715,
+        "title": "2018 Antwerpen - Korte Lozanastraat - Plaatsen leidingen - 0m",
+        "status": "In uitvoering",
+        "start": "2026-11-09T00:00:00Z",
+        "end": "2026-11-09T21:59:00Z",
+        "owner": "Proximus Area 2.1",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1628",
+            "name": "Korte Lozanastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20635569",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-10-06T05:00:00Z",
+          "end": "2026-11-10T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-11-10T06:00:00Z",
+          "end": "2026-11-10T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20676285",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20676285",
+        "gipodId": 20676285,
+        "title": "2018 Antwerpen Mechelsesteenweg 207 werken distributieleiding)",
+        "status": "In uitvoering",
+        "start": "2026-09-16T10:00:00Z",
+        "end": "2026-11-09T14:00:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 23,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20742394",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor fietsers",
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor gemotoriseerd verkeer",
+            "Vermindering van rijstroken"
+          ],
+          "start": "2026-11-02T05:00:00Z",
+          "end": "2026-12-18T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor fietsers",
+            "Beperkte doorgang voor voetgangers",
+            "Vermindering van rijstroken"
+          ],
+          "start": "2026-11-09T05:00:00Z",
+          "end": "2026-12-18T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20756244",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20756244",
+        "gipodId": 20756244,
+        "title": "2060 Antwerpen Matigheidstraat 30 werken distributieleiding)",
+        "status": "In uitvoering",
+        "start": "2026-09-29T14:00:00Z",
+        "end": "2026-11-09T16:00:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1963",
+            "name": "Matigheidstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20817157",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20817157",
+        "gipodId": 20817157,
+        "title": "Nieuwe aansluiting op het telecomnet – Verbindingsdok-Westkaai 2",
+        "status": "In uitvoering",
+        "start": "2026-11-09T00:00:00Z",
+        "end": "2026-11-09T21:59:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "3014",
+            "name": "Verbindingsdok-Westkaai",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20861598",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20861598",
+        "gipodId": 20861598,
+        "title": "2018 ANTWERPEN, RUBENSLEI 30",
+        "status": "Concreet gepland",
+        "start": "2026-11-02T01:00:00Z",
+        "end": "2026-11-09T21:00:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "2490",
+            "name": "Rubenslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20861599",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20861599",
+        "gipodId": 20861599,
+        "title": "2018 ANTWERPEN, RUBENSLEI 30",
+        "status": "Concreet gepland",
+        "start": "2026-11-02T01:00:00Z",
+        "end": "2026-11-09T21:00:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "2490",
+            "name": "Rubenslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20872769",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20872769",
+        "gipodId": 20872769,
+        "title": "2060 Antwerpen Handelstraat 12 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-09T08:00:00Z",
+        "end": "2026-11-09T12:18:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Riolering"
+        ],
+        "streets": [
+          {
+            "id": "1107",
+            "name": "Handelstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 20,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20911166",
+      "type": "changed",
+      "fields": [
+        "title"
+      ],
+      "before": {
+        "title": "Wegenwerken – IJzerlaan 29–31"
+      },
+      "after": {
+        "title": "Wegenwerken – IJzerlaan"
+      }
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20921609",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20921609",
+        "gipodId": 20921609,
+        "title": "Nieuwe aansluiting op het telecomnet – Van Stralenstraat 68",
+        "status": "In uitvoering",
+        "start": "2026-11-02T23:00:00Z",
+        "end": "2026-11-09T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "2984",
+            "name": "Van Stralenstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20964923",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20964923",
+        "gipodId": 20964923,
+        "title": "2020 Antwerpen Waarlooshofstraat 14 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-09T08:00:00Z",
+        "end": "2026-11-09T12:00:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Riolering"
+        ],
+        "streets": [
+          {
+            "id": "3128",
+            "name": "Waarlooshofstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 14,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-10T04:38:45.477Z",
+      "layer": "works",
+      "id": "work:20969245",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20969245",
+        "gipodId": 20969245,
+        "title": "Nieuwe aansluiting op het telecomnet",
+        "status": "In uitvoering",
+        "start": "2026-11-08T23:00:00Z",
+        "end": "2026-11-09T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting;(her)aanleg"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [],
+        "streetResolution": "ambiguous",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      },
+      "after": null
     }
   ]
 }

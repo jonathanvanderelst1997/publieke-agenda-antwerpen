@@ -1,7 +1,7 @@
 {
   "schema": "public-agenda-event-contract-report/v1",
   "counts": {
-    "events": 897,
+    "events": 900,
     "errors": 0,
     "warnings": 109,
     "unconfirmedStart": 109
@@ -545,12 +545,12 @@
     },
     {
       "code": "unconfirmed_start",
-      "index": 881,
+      "index": 884,
       "id": "ebesluit-ev-2026-dcan-00656-2027-05-30"
     },
     {
       "code": "unconfirmed_start",
-      "index": 886,
+      "index": 889,
       "id": "project-608fe3749dc6b9660910da8b-fase-4-2027-06-21"
     }
   ]

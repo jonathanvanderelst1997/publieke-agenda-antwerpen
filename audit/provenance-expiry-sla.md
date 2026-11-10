@@ -1,11 +1,11 @@
 # Bronprovenance- en verval-SLA-matrix
 
-Status: lokale audit, niet gepubliceerd. Classificatie op 2026-11-10; geverifieerde bronsnapshot 2026-11-10T04:23:04.633Z.
+Status: lokale audit, niet gepubliceerd. Classificatie op 2026-11-10; geverifieerde bronsnapshot 2026-11-10T04:38:45.460Z.
 
-- Bronitems: 897
-- Fail-closed lokale kandidaat: 754
-- Classificaties: current=30, expired=143, future=724
-- SLA-statussen: expired_not_public=143, fresh_verified=754
+- Bronitems: 900
+- Fail-closed lokale kandidaat: 757
+- Classificaties: current=30, expired=143, future=727
+- SLA-statussen: expired_not_public=143, fresh_verified=757
 
 Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen zijn hercontroletermijn is publiceerbaar in de lokale kandidaat. Verlopen, onzekere en stale items blijven fail-closed.
 
@@ -890,21 +890,24 @@ Alleen een huidig/toekomstig item met een officiële geverifieerde bron binnen z
 | 877 | markt-ma22-2027-05-11 | 2027-05-11 | future | stad-markten | verified | 2 | 2026-11-12 | fresh_verified | ja |
 | 878 | markt-ma23-2027-05-11 | 2027-05-11 | future | stad-markten | verified | 2 | 2026-11-12 | fresh_verified | ja |
 | 879 | district-vergadering-ebesluit-26-0803-9097-7142 | 2027-05-11 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 880 | district-vergadering-ebesluit-26-0803-6247-0350 | 2027-05-18 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 881 | district-vergadering-ebesluit-26-0803-9868-2662 | 2027-05-24 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 882 | ebesluit-ev-2026-dcan-00656-2027-05-30 | 2027-05-30 | future | district-ebesluit-evenementen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 883 | district-vergadering-ebesluit-26-0803-0206-9221 | 2027-06-14 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 884 | district-vergadering-ebesluit-26-0803-0482-8879 | 2027-06-15 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 885 | district-vergadering-ebesluit-26-0803-9473-5974 | 2027-06-16 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 886 | district-vergadering-ebesluit-26-0803-0707-9850 | 2027-06-21 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 887 | project-608fe3749dc6b9660910da8b-fase-4-2027-06-21 | 2027-06-21 | future | district-projecten | verified | - | 2028-03-31 | fresh_verified | ja |
-| 888 | district-vergadering-ebesluit-26-0803-0067-7787 | 2027-09-13 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 889 | district-vergadering-ebesluit-26-0803-3744-1378 | 2027-09-14 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 890 | district-vergadering-ebesluit-26-0803-4516-0936 | 2027-09-20 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 891 | district-vergadering-ebesluit-26-0803-7810-5822 | 2027-10-11 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 892 | district-vergadering-ebesluit-26-0803-4589-4036 | 2027-10-12 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 893 | district-vergadering-ebesluit-26-0803-7712-4452 | 2027-10-13 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 894 | district-vergadering-ebesluit-26-0803-1832-6348 | 2027-10-18 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 895 | district-vergadering-ebesluit-26-0803-0100-3733 | 2027-11-15 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 896 | district-vergadering-ebesluit-26-0803-9687-9063 | 2027-11-16 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
-| 897 | district-vergadering-ebesluit-26-0803-1208-8803 | 2027-11-22 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 880 | markt-ma13-2027-05-12 | 2027-05-12 | future | stad-markten | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 881 | markt-ma25-2027-05-12 | 2027-05-12 | future | stad-markten | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 882 | markt-ma6-2027-05-12 | 2027-05-12 | future | stad-markten | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 883 | district-vergadering-ebesluit-26-0803-6247-0350 | 2027-05-18 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 884 | district-vergadering-ebesluit-26-0803-9868-2662 | 2027-05-24 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 885 | ebesluit-ev-2026-dcan-00656-2027-05-30 | 2027-05-30 | future | district-ebesluit-evenementen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 886 | district-vergadering-ebesluit-26-0803-0206-9221 | 2027-06-14 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 887 | district-vergadering-ebesluit-26-0803-0482-8879 | 2027-06-15 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 888 | district-vergadering-ebesluit-26-0803-9473-5974 | 2027-06-16 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 889 | district-vergadering-ebesluit-26-0803-0707-9850 | 2027-06-21 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 890 | project-608fe3749dc6b9660910da8b-fase-4-2027-06-21 | 2027-06-21 | future | district-projecten | verified | - | 2028-03-31 | fresh_verified | ja |
+| 891 | district-vergadering-ebesluit-26-0803-0067-7787 | 2027-09-13 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 892 | district-vergadering-ebesluit-26-0803-3744-1378 | 2027-09-14 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 893 | district-vergadering-ebesluit-26-0803-4516-0936 | 2027-09-20 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 894 | district-vergadering-ebesluit-26-0803-7810-5822 | 2027-10-11 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 895 | district-vergadering-ebesluit-26-0803-4589-4036 | 2027-10-12 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 896 | district-vergadering-ebesluit-26-0803-7712-4452 | 2027-10-13 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 897 | district-vergadering-ebesluit-26-0803-1832-6348 | 2027-10-18 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 898 | district-vergadering-ebesluit-26-0803-0100-3733 | 2027-11-15 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 899 | district-vergadering-ebesluit-26-0803-9687-9063 | 2027-11-16 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
+| 900 | district-vergadering-ebesluit-26-0803-1208-8803 | 2027-11-22 | future | district-vergaderingen | verified | 2 | 2026-11-12 | fresh_verified | ja |
