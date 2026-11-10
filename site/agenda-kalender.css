@@ -1,0 +1,185 @@
+/* De agenda om te volgen (/kalender/, site/kalender/index.html). Dezelfde kleuren en maten als het verleden. */
+.kalender-pagina {
+  background: var(--pa-bg);
+  color: var(--pa-ink);
+  display: grid;
+  gap: 22px;
+  margin: 0 auto;
+  max-width: 920px;
+  min-height: 100vh;
+  padding: 32px clamp(16px, 4vw, 56px) 56px;
+}
+
+body:has(.kalender-pagina) {
+  background: var(--pa-bg);
+}
+
+.kalender-kop h1 {
+  color: var(--pa-ink-strong);
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.05;
+  margin: 0;
+}
+
+.kalender-pagina h2 {
+  color: var(--pa-ink-strong);
+  font-size: 22px;
+  margin: 0;
+}
+
+.kalender-pagina p,
+.kalender-pagina li {
+  line-height: 1.55;
+}
+
+.kalender-kop p,
+.kalender-hoofd > p,
+.kalender-meer > p {
+  color: var(--pa-muted);
+  margin: 10px 0 0;
+}
+
+.kalender-hoofd,
+.kalender-uitleg,
+.kalender-meer,
+.kalender-noot {
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line);
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  padding: 18px 20px;
+}
+
+.kalender-hoofd {
+  border: 2px solid var(--pa-accent);
+}
+
+.kalender-knoppen,
+.kalender-acties {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kalender-knop {
+  align-items: center;
+  background: var(--pa-surface);
+  border: 1px solid var(--pa-line-strong);
+  border-radius: 999px;
+  color: var(--pa-ink);
+  cursor: pointer;
+  display: inline-flex;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 14px;
+  text-decoration: none;
+}
+
+.kalender-knop:hover {
+  border-color: var(--pa-ink);
+}
+
+.kalender-knop[hidden] {
+  display: none;
+}
+
+.kalender-knop-hoofd {
+  background: var(--pa-accent);
+  border-color: var(--pa-accent);
+  color: var(--pa-accent-ink);
+  font-size: 1rem;
+}
+
+.kalender-knop-hoofd:hover {
+  border-color: var(--pa-ink);
+}
+
+.kalender-link {
+  display: grid;
+  gap: 6px;
+}
+
+.kalender-link label {
+  color: var(--pa-muted);
+  font-size: 0.9rem;
+}
+
+.kalender-link div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kalender-link input {
+  background: var(--pa-bg);
+  border: 1px solid var(--pa-line-strong);
+  border-radius: 8px;
+  color: var(--pa-ink);
+  flex: 1 1 260px;
+  font: inherit;
+  font-size: 0.9rem;
+  min-width: 0;
+  padding: 9px 12px;
+}
+
+.kalender-uitleg details {
+  border-top: 1px solid var(--pa-line);
+  padding-top: 10px;
+}
+
+.kalender-uitleg summary {
+  color: var(--pa-ink-strong);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.kalender-uitleg ol {
+  margin: 10px 0 0;
+  padding-left: 22px;
+}
+
+.kalender-lijst {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.kalender-feed {
+  align-items: center;
+  border-top: 1px solid var(--pa-line);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  justify-content: space-between;
+  padding: 12px 0;
+}
+
+.kalender-feed-tekst {
+  display: grid;
+  flex: 1 1 280px;
+  gap: 2px;
+}
+
+.kalender-feed-tekst strong {
+  color: var(--pa-ink-strong);
+}
+
+.kalender-feed-tekst span {
+  color: var(--pa-muted);
+  font-size: 0.9rem;
+}
+
+.kalender-noot ul {
+  margin: 0;
+  padding-left: 22px;
+}
+
+.kalender-gekopieerd {
+  border-color: var(--pa-accent);
+}

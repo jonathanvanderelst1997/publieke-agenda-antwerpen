@@ -43,6 +43,11 @@ services:
       - path: /geo/locaties.json
         name: Cache-Control
         value: public, max-age=300, must-revalidate
+      # De kalenderfeeds (lib/kalenderfeed.mjs) en hun uitlegpagina: een agenda die volgt, vraagt om de paar uur na en
+      # krijgt een 304 zolang de verversing niets veranderde.
+      - path: /kalender/*
+        name: Cache-Control
+        value: public, max-age=300, must-revalidate
       # De icoontjes veranderen bijna nooit.
       - path: /favicon.*
         name: Cache-Control

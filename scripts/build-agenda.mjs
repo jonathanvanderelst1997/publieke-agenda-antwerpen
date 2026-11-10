@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { loadExpandedAgendaItems, loadRefreshEngine } from "./agenda-source.mjs";
 import { GIPOD_BRON, GIPOD_METADATA_URL, gipodLink } from "../site/gipod-bron.js";
 import { bouwEventpagina } from "../lib/eventpagina.mjs";
+import { KALENDER_DIR, bouwKalenderfeeds, validateKalenderfeed } from "../lib/kalenderfeed.mjs";
 import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
 import {
   PARKEER_VERLEDEN_DIR,
@@ -187,6 +188,23 @@ const archiefPaginas = verleden.records.filter((record) => !verleden.actueleIds.
 const wezen = fs.readdirSync(eventPagesDir, { withFileTypes: true }).filter((entry) => entry.isDirectory() && !recordsPerId.has(entry.name));
 if (wezen.length) console.error(`verleden: ${wezen.length} eventpagina's zonder record (blijven staan): ${wezen.slice(0, 5).map((entry) => entry.name).join(", ")}`);
 
+// De agenda om te volgen (lib/kalenderfeed.mjs, uitleg op /kalender/): elk publiek punt zoals zijn eventpagina het toont,
+// plus wat de laatste maand voorbij ging. Een vaste set bestanden; de databaan mag ze bijwerken (lib/data-lane-paths.json).
+const kalender = bouwKalenderfeeds({
+  actueel: result.publicItems.map((item) => ({ item, record: recordVanItem(item), pagina: verleden.actueleIds.has(item.id) })),
+  verleden: verleden.records.filter((record) => !verleden.actueleIds.has(record.id)),
+  asOf,
+  generatedAt: engine.config.generatedAt,
+});
+for (const { id, problemen } of kalender.geweigerd) {
+  console.error(`kalender: ${id} in geen enkele feed (${problemen.slice(0, 3).join("; ")})`);
+}
+for (const feed of kalender.feeds) {
+  const controle = validateKalenderfeed(feed.tekst);
+  if (!controle.valid) throw new Error(`Kalenderfeed ${feed.bestand} is ongeldig: ${controle.fouten.slice(0, 3).join("; ")}`);
+  schrijfAlsAnders(path.join(rootDir, KALENDER_DIR, feed.bestand), feed.tekst);
+}
+
 const manifest = {
   schemaVersion: 2,
   state: "published-release",
@@ -227,6 +245,7 @@ fs.writeFileSync(
 const sitemapUrls = [
   "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "https://mijn-publieke-agenda-voor-district.onrender.com/verleden/",
+  "https://mijn-publieke-agenda-voor-district.onrender.com/kalender/",
   ...[...actuelePaginas.map((item) => item.id), ...archiefPaginas].map((id) =>
     `https://mijn-publieke-agenda-voor-district.onrender.com/event/${encodeURIComponent(id)}/`
   ),
@@ -238,4 +257,4 @@ ${sitemapUrls.map((url) => `  <url><loc>${escapeHtml(url)}</loc></url>`).join("\
 `;
 fs.writeFileSync(path.join(siteDir, "sitemap.xml"), sitemap, "utf8");
 
-console.log(JSON.stringify({ count: manifest.count, eventPageCount: manifest.eventPageCount, archivedEventPageCount: manifest.archivedEventPageCount, verleden: verledenIndex.aantal, classifications: manifest.classifications, digest }, null, 2));
+console.log(JSON.stringify({ count: manifest.count, eventPageCount: manifest.eventPageCount, archivedEventPageCount: manifest.archivedEventPageCount, verleden: verledenIndex.aantal, kalender: Object.fromEntries(kalender.feeds.map((feed) => [feed.slug, feed.aantal])), classifications: manifest.classifications, digest }, null, 2));

@@ -31,6 +31,8 @@ const POSITIVES = [
   "audit/provenance-expiry-sla.md",
   "site/public-agenda-manifest.json",
   "site/sitemap.xml",
+  "site/kalender/agenda.ics",
+  "site/kalender/wekelijkse-markten.ics",
   "EVENT_CONTRACT_REPORT.json",
 ];
 const NEGATIVES = [
@@ -69,11 +71,17 @@ const NEGATIVES = [
   "site/verleden/parkeerverboden/2026-13.json",
   "site/agenda-verleden.js",
   "audit/provenance-source-snapshot-20260928.json",
+  // De kalenderfeeds zijn data (lib/kalenderfeed.mjs), hun uitlegpagina en wat ernaast staat niet.
+  "site/kalender/index.html",
+  "site/kalender/Agenda.ics",
+  "site/kalender/agenda.ics.js",
+  "site/kalender/sub/agenda.ics",
+  "site/agenda-kalender.js",
 ];
 
 test("de lijst met toegelaten paden parseert en heeft de afgesproken vorm", () => {
   assert.equal(spec.schemaVersion, 1);
-  assert.equal(spec.allowed.length, 18);
+  assert.equal(spec.allowed.length, 19);
   // De parkeerverboden die de site zelf zag, staan in de historiek en in het verleden (site/verleden/parkeerverboden/);
   // een backfill van vóór de start niet.
   assert.ok(spec.allowed.every((pattern) => !/backfill/.test(pattern) || !/park/i.test(pattern)), "geen pad voor een backfill van parkeerverboden");

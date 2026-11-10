@@ -235,11 +235,16 @@
     return validation;
   }
 
+  // escapeText, foldLine en uidForItem gebruikt ook de abonneerbare kalenderfeed (lib/kalenderfeed.mjs): een punt heeft
+  // in de feed dezelfde UID als in zijn losse .ics, en dezelfde regels voor escapen en vouwen.
   return {
     buildIndividualIcs,
     downloadIndividualIcs,
+    escapeText,
     filenameForItem,
+    foldLine,
     isRawGipodRecord,
+    uidForItem,
     validateIndividualIcs,
   };
 });

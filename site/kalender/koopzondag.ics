@@ -1,0 +1,94 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Koopzondag
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Koopzondag
+DESCRIPTION:Koopzondag in district Antwerpen\, uit de publieke agenda\, met
+  de officiële bron.
+X-WR-CALDESC:Koopzondag in district Antwerpen\, uit de publieke agenda\, me
+ t de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/koopzondag.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VEVENT
+UID:koopzondag-2026-12-06@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261206
+DTEND;VALUE=DATE:20261207
+SUMMARY:Koopzondag
+LOCATION:Toeristisch centrum Antwerpen
+DESCRIPTION:Koopzondag in het toeristische stadscentrum volgens de lijst va
+ n stad Antwerpen. De stad noemt geen uren\; zie de officiële pagina.\nOp 
+ de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.co
+ m/event/koopzondag-2026-12-06/\nKoopzondagen: https://www.antwerpen.be/inf
+ o/koopzondagen\nBron: stad Antwerpen\, koopzondagen (Vlaamse gratis open d
+ ata licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/koopzonda
+ g-2026-12-06/
+CATEGORIES:Koopzondag
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:koopzondag-2026-12-13@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261213
+DTEND;VALUE=DATE:20261214
+SUMMARY:Koopzondag
+LOCATION:Toeristisch centrum Antwerpen
+DESCRIPTION:Koopzondag in het toeristische stadscentrum volgens de lijst va
+ n stad Antwerpen. De stad noemt geen uren\; zie de officiële pagina.\nOp 
+ de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.co
+ m/event/koopzondag-2026-12-13/\nKoopzondagen: https://www.antwerpen.be/inf
+ o/koopzondagen\nBron: stad Antwerpen\, koopzondagen (Vlaamse gratis open d
+ ata licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/koopzonda
+ g-2026-12-13/
+CATEGORIES:Koopzondag
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:koopzondag-2026-12-20@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261220
+DTEND;VALUE=DATE:20261221
+SUMMARY:Koopzondag
+LOCATION:Toeristisch centrum Antwerpen
+DESCRIPTION:Koopzondag in het toeristische stadscentrum volgens de lijst va
+ n stad Antwerpen. De stad noemt geen uren\; zie de officiële pagina.\nOp 
+ de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.co
+ m/event/koopzondag-2026-12-20/\nKoopzondagen: https://www.antwerpen.be/inf
+ o/koopzondagen\nBron: stad Antwerpen\, koopzondagen (Vlaamse gratis open d
+ ata licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/koopzonda
+ g-2026-12-20/
+CATEGORIES:Koopzondag
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:koopzondag-2026-12-27@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261227
+DTEND;VALUE=DATE:20261228
+SUMMARY:Koopzondag
+LOCATION:Toeristisch centrum Antwerpen
+DESCRIPTION:Koopzondag in het toeristische stadscentrum volgens de lijst va
+ n stad Antwerpen. De stad noemt geen uren\; zie de officiële pagina.\nOp 
+ de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.co
+ m/event/koopzondag-2026-12-27/\nKoopzondagen: https://www.antwerpen.be/inf
+ o/koopzondagen\nBron: stad Antwerpen\, koopzondagen (Vlaamse gratis open d
+ ata licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/koopzonda
+ g-2026-12-27/
+CATEGORIES:Koopzondag
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

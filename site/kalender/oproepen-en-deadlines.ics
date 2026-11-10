@@ -1,0 +1,19 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Oproepen & deadlines
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Oproepen & deadlin
+ es
+DESCRIPTION:Oproepen & deadlines in district Antwerpen\, uit de publieke ag
+ enda\, met de officiële bron.
+X-WR-CALDESC:Oproepen & deadlines in district Antwerpen\, uit de publieke a
+ genda\, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/oproepen-en-deadlines.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+END:VCALENDAR

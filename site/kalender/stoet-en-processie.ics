@@ -1,0 +1,73 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Stoet & processie
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Stoet & processie
+DESCRIPTION:Stoet & processie in district Antwerpen\, uit de publieke agend
+ a\, met de officiële bron.
+X-WR-CALDESC:Stoet & processie in district Antwerpen\, uit de publieke agen
+ da\, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/stoet-en-processie.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VEVENT
+UID:asign-ev-et2026001197-2026-11-14@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261114
+DTEND;VALUE=DATE:20261115
+SUMMARY:Vermoedelijk een stoet in de Hofstraat (aanvraag\, nog niet goedgek
+ eurd)
+LOCATION:Hofstraat\, Ernest Van Dijckkaai\, Gildekamersstraat en 10 andere 
+ straten
+DESCRIPTION:Verkeersvrije zone in 7 straten: onder meer Ernest Van Dijckkaa
+ i\, Gildekamersstraat\, Hofstraat\, Oude Beurs. Opbouw vanaf donderdag 12 
+ november. Soort vermoed via de omschrijving in het dossier\, wat vroeger o
+ p dezelfde plek gebeurde en het studentencharter\; niet bevestigd. Een naa
+ m komt er pas als een besluit\, een kalender of de organisator hem noemt. 
+ Evenementendossier ET2026001197 van de stad (A-Sign)\, laatst gewijzigd op
+  19 oktober 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aanvr
+ aag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, dan 
+ verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publieke-
+ agenda-voor-district.onrender.com/event/asign-ev-et2026001197-2026-11-14/\
+ nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata.a
+ ntwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: dist
+ rict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026001197-2026-11-14/
+CATEGORIES:Stoet & processie
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2025003100-2026-11-21@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261121
+DTEND;VALUE=DATE:20261122
+SUMMARY:Optocht van de Nobele Orde van de Papegay (50 jaar)
+LOCATION:Sint-Jacobstraat\, Groenkerkhofstraat\, Groenplaats en 7 andere st
+ raten
+DESCRIPTION:Parcours door 10 straten: onder meer Groenkerkhofstraat\, Groen
+ plaats\, Grote Markt\, Lange Klarenstraat. Naam met de hand nagekeken bij 
+ een publieke bron. Evenementendossier ET2025003100 van de stad (A-Sign)\, 
+ laatst gewijzigd op 30 september 2026: aanvraag nog niet goedgekeurd.\nWan
+ neer: optocht van 15 tot 15.30 uur\nOp de publieke agenda: https://mijn-pu
+ blieke-agenda-voor-district.onrender.com/event/asign-ev-et2025003100-2026-
+ 11-21/\nEvenementen op straat (dossiers van de stad in A-Sign): https://ge
+ odata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nMee
+ r info bij de organisator: https://ordonobilis.eu/agenda-investituur-2026/
+ \nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open da
+ ta licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2025003100-2026-11-21/
+CATEGORIES:Stoet & processie
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

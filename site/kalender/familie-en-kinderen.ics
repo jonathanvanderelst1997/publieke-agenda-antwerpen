@@ -1,0 +1,81 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Familie & kinderen
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Familie & kinderen
+DESCRIPTION:Familie & kinderen in district Antwerpen\, uit de publieke agen
+ da\, met de officiële bron.
+X-WR-CALDESC:Familie & kinderen in district Antwerpen\, uit de publieke age
+ nda\, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/familie-en-kinderen.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a779-2026-10-18@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261018T110000
+DTEND;TZID=Europe/Brussels:20261018T160000
+SUMMARY:Familiedag in Permeke
+LOCATION:Bib Permeke
+DESCRIPTION:Samen genieten van een voorstelling\, samenspeel- en leestijd e
+ n iets lekkers. Kom om 11 of om 14 uur naar KINTSUGI (8+)\, over verlies\,
+  rouw en troost. Prijs: GRATIS\nWanneer: 11 tot 16 uur\nOp de publieke age
+ nda: https://mijn-publieke-agenda-voor-district.onrender.com/event/distric
+ t-kal-6a746a7ff4182b8edf63a779-2026-10-18/\nDistrictskalender: https://www
+ .antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antw
+ erpen\nMeer info bij de organisator: https://antwerpen.bibliotheek.be/perm
+ eke\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open
+  data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a779-2026-10-18/
+CATEGORIES:Familie & kinderen
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ebesluit-ev-2026-cbs-07135-2026-10-31@mijn-publieke-agenda-voor-distric
+ t.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261031
+DTEND;VALUE=DATE:20261101
+SUMMARY:Wolf Halloween
+LOCATION:Wolf Food Market te Godefriduskaai 30\, 2000 Antwerpen
+DESCRIPTION:Toelating voor een muziekactiviteit door het college van burgem
+ eester en schepenen (zitting van 9 oktober). Organisatie: Wolf Food Market
+  nv.\nWanneer: Geen uur gevonden\; zie de officiële bron.\nOp de publieke
+  agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/ebe
+ sluit-ev-2026-cbs-07135-2026-10-31/\nEvenementen volgens besluiten van sta
+ d en district (eBesluit): https://ebesluit.antwerpen.be/zittingen/25.0918.
+ 8152.4657/agendapunten/26.0924.4719.9964\nBron: district Antwerpen – bro
+ n stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-cbs-07135-2026-10-31/
+CATEGORIES:Familie & kinderen
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

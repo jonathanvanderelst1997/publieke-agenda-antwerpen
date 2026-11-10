@@ -1,0 +1,868 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Werken & hinder
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Werken & hinder
+DESCRIPTION:Werken & hinder in district Antwerpen\, uit de publieke agenda\
+ , met de officiële bron.
+X-WR-CALDESC:Werken & hinder in district Antwerpen\, uit de publieke agenda
+ \, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/werken-en-hinder.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VEVENT
+UID:project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260501
+DTEND;VALUE=DATE:20270621
+SUMMARY:Heraanleg Paardenmarkt: fase 4 (Paardenmarkt tussen Kleine Kauwenbe
+ rg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispun
+ t))
+LOCATION:Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rod
+ estraat - Rijnpoortvest (exclusief kruispunt)\, 2000 Antwerpen
+DESCRIPTION:Fase 4 van het project "Heraanleg Paardenmarkt": Paardenmarkt t
+ ussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortves
+ t (exclusief kruispunt). Periode volgens de projectpagina: mei 2026 tot vo
+ orjaar 2027 (data bij benadering).\nWanneer: mei 2026 tot voorjaar 2027 (d
+ ata bij benadering)\nOp de publieke agenda: https://mijn-publieke-agenda-v
+ oor-district.onrender.com/event/project-5d725f47b628f03ea317d3b8-fase-4-20
+ 26-05-01/\nProjecten van het district: inspraak en fasen: https://www.antw
+ erpen.be/info/5d725f47b628f03ea317d3b8/heraanleg-paardenmarkt\nBron: distr
+ ict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5
+ d725f47b628f03ea317d3b8-fase-4-2026-05-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-5d725f47b628f03ea317d3b8-fase-5-2026-08-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20270401
+SUMMARY:Heraanleg Paardenmarkt: fase 5 (Paardenmarkt tussen Rodestraat - Ri
+ jnpoortvest (inclusief kruispunt) en Italiëlei)
+LOCATION:Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispun
+ t) en Italiëlei\, 2000 Antwerpen
+DESCRIPTION:Fase 5 van het project "Heraanleg Paardenmarkt": Paardenmarkt t
+ ussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei. Peri
+ ode volgens de projectpagina: augustus 2026 tot maart 2027 (data bij benad
+ ering).\nWanneer: augustus 2026 tot maart 2027 (data bij benadering)\nOp d
+ e publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com
+ /event/project-5d725f47b628f03ea317d3b8-fase-5-2026-08-01/\nProjecten van 
+ het district: inspraak en fasen: https://www.antwerpen.be/info/5d725f47b62
+ 8f03ea317d3b8/heraanleg-paardenmarkt\nBron: district Antwerpen – bron st
+ ad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5
+ d725f47b628f03ea317d3b8-fase-5-2026-08-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-5ebcee18901c1f55f320daf0-fase-4b-2026-08-01@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260801
+DTEND;VALUE=DATE:20270101
+SUMMARY:Heraanleg Balansstraat & Lange Elzenstraat: fase 4b (Ondergrondse p
+ ersing Lange Elzenstraat)
+LOCATION:Ondergrondse persing Lange Elzenstraat\, 2018 Antwerpen
+DESCRIPTION:Fase 4b van het project "Heraanleg Balansstraat & Lange Elzenst
+ raat": Ondergrondse persing Lange Elzenstraat. Periode volgens de projectp
+ agina: augustus 2026 tot december 2026 (data bij benadering).\nWanneer: au
+ gustus 2026 tot december 2026 (data bij benadering)\nOp de publieke agenda
+ : https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5e
+ bcee18901c1f55f320daf0-fase-4b-2026-08-01/\nProjecten van het district: in
+ spraak en fasen: https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/he
+ raanleg-balansstraat-lange-elzenstraat\nBron: district Antwerpen – bron 
+ stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5
+ ebcee18901c1f55f320daf0-fase-4b-2026-08-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-608fe3749dc6b9660910da8b-fase-2-2026-08-03@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260803
+DTEND;VALUE=DATE:20270401
+SUMMARY:Heraanleg Osystraat\, Van de Wervestraat\, Van Maerlantstraat\, Vio
+ lierstraat en Vondelstraat: fase 2 (Van Maerlantstraat + Vondelstraat)
+LOCATION:Van Maerlantstraat + Vondelstraat\, 2060 Antwerpen
+DESCRIPTION:Fase 2 van het project "Heraanleg Osystraat\, Van de Wervestraa
+ t\, Van Maerlantstraat\, Violierstraat en Vondelstraat": Van Maerlantstraa
+ t + Vondelstraat. Periode volgens de projectpagina: augustus 2026 - begin 
+ 2027 (data bij benadering).\nWanneer: augustus 2026 - begin 2027 (data bij
+  benadering)\nOp de publieke agenda: https://mijn-publieke-agenda-voor-dis
+ trict.onrender.com/event/project-608fe3749dc6b9660910da8b-fase-2-2026-08-0
+ 3/\nProjecten van het district: inspraak en fasen: https://www.antwerpen.b
+ e/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-van-de-wervestraat-van
+ -maerlantstraat-violierstraat-en-vondelstraat\nBron: district Antwerpen 
+ – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 08fe3749dc6b9660910da8b-fase-2-2026-08-03/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-5ebcee18901c1f55f320daf0-fase-6b-2026-08-10@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260810
+DTEND;VALUE=DATE:20270401
+SUMMARY:Heraanleg Balansstraat & Lange Elzenstraat: fase 6b (Lange Elzenstr
+ aat van de Desguinlei tot en met het kruispunt met de Coebergerstraat)
+LOCATION:Lange Elzenstraat van de Desguinlei tot en met het kruispunt met d
+ e Coebergerstraat\, 2018 Antwerpen
+DESCRIPTION:Fase 6b van het project "Heraanleg Balansstraat & Lange Elzenst
+ raat": Lange Elzenstraat van de Desguinlei tot en met het kruispunt met de
+  Coebergerstraat. Periode volgens de projectpagina: midden augustus 2026 t
+ ot eind maart 2027 (data bij benadering).\nWanneer: midden augustus 2026 t
+ ot eind maart 2027 (data bij benadering)\nOp de publieke agenda: https://m
+ ijn-publieke-agenda-voor-district.onrender.com/event/project-5ebcee18901c1
+ f55f320daf0-fase-6b-2026-08-10/\nProjecten van het district: inspraak en f
+ asen: https://www.antwerpen.be/info/5ebcee18901c1f55f320daf0/heraanleg-bal
+ ansstraat-lange-elzenstraat\nBron: district Antwerpen – bron stad Antwer
+ pen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5
+ ebcee18901c1f55f320daf0-fase-6b-2026-08-10/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-69d4e01eff0ca8b3330b381c-fase-2-2026-09-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270201
+SUMMARY:Werken Halenstraat & Schijnpoortweg: fase 2 (Schijnpoortwegtunnel n
+ oord)
+LOCATION:Schijnpoortwegtunnel noord\, 2060 Antwerpen
+DESCRIPTION:Fase 2 van het project "Werken Halenstraat & Schijnpoortweg": S
+ chijnpoortwegtunnel noord. Periode volgens de projectpagina: september 202
+ 6 - januari 2027 (data bij benadering).\nWanneer: september 2026 - januari
+  2027 (data bij benadering)\nOp de publieke agenda: https://mijn-publieke-
+ agenda-voor-district.onrender.com/event/project-69d4e01eff0ca8b3330b381c-f
+ ase-2-2026-09-01/\nProjecten van het district: inspraak en fasen: https://
+ www.antwerpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpo
+ ortweg\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis o
+ pen data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 9d4e01eff0ca8b3330b381c-fase-2-2026-09-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr005-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Hertoginstraat
+LOCATION:Hertoginstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan Koninklijk Lyceum Antwerpen: op schooldagen is
+  de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsl
+ uiting met 1 slagboom). Venstertijden: ma\, di\, do\, vr 8.00-8.15\, 8.50-
+ 9.05\, 15.10-15.25 en 16.00-16.15\; wo 8.00-8.15\, 8.50-9.05\, 11.50-12.05
+  en 12.40-12.55. Definitief sinds 18 januari 2018.\nWanneer: op schooldage
+ n: ma\, di\, do\, vr 8.00-8.15\, 8.50-9.05\, 15.10-15.25 en 16.00-16.15\; 
+ wo 8.00-8.15\, 8.50-9.05\, 11.50-12.05 en 12.40-12.55\nOp de publieke agen
+ da: https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolst
+ raat-schoolstr005-2026/\nSchoolstraten: https://geodata.antwerpen.be/arcgi
+ ssql/rest/services/P_Portal/portal_publiek10/MapServer/986\nMeer info bij 
+ de organisator: https://www.antwerpen.be/product/schoolstraten\nBron: dist
+ rict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr005-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr007-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Durletstraat
+LOCATION:Durletstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan De Sterrenkijker: op schooldagen is de straat 
+ tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 
+ 1 slagboom). Venstertijden: ma\, di\, wo\, do\, vr 8.25-8.50. Definitief s
+ inds 10 maart 2023.\nWanneer: op schooldagen: ma\, di\, wo\, do\, vr 8.25-
+ 8.50\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.on
+ render.com/event/schoolstraat-schoolstr007-2026/\nSchoolstraten: https://g
+ eodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapS
+ erver/986\nMeer info bij de organisator: https://www.antwerpen.be/product/
+ schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse g
+ ratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr007-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr017-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Bervoetstraat
+LOCATION:Bervoetstraat\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan Sint Ludgardis: op schooldagen is de straat ti
+ jdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 
+ slagboom). Venstertijden: ma\, di\, do\, vr 8.00-8.30 en 15.15-15.35\; wo 
+ 8.00-8.30 en 12.00-12.20. Definitief sinds 31 maart 2023.\nWanneer: op sch
+ ooldagen: ma\, di\, do\, vr 8.00-8.30 en 15.15-15.35\; wo 8.00-8.30 en 12.
+ 00-12.20\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distric
+ t.onrender.com/event/schoolstraat-schoolstr017-2026/\nSchoolstraten: https
+ ://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/
+ MapServer/986\nMeer info bij de organisator: https://www.antwerpen.be/prod
+ uct/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vlaam
+ se gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr017-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr018-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Constitutiestraat
+LOCATION:Constitutiestraat\, 2060 Antwerpen
+DESCRIPTION:Schoolstraat aan De Evenaar: op schooldagen is de straat tijden
+ s de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 slag
+ boom). Venstertijden: ma\, di\, do\, vr 8.00-8.30 en 14.55-15.25\; wo 8.00
+ -8.30 en 11.55-12.25. Definitief.\nWanneer: op schooldagen: ma\, di\, do\,
+  vr 8.00-8.30 en 14.55-15.25\; wo 8.00-8.30 en 11.55-12.25\nOp de publieke
+  agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/sch
+ oolstraat-schoolstr018-2026/\nSchoolstraten: https://geodata.antwerpen.be/
+ arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986\nMeer info
+  bij de organisator: https://www.antwerpen.be/product/schoolstraten\nBron:
+  district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data lice
+ ntie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr018-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr023-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Duinstraat
+LOCATION:Duinstraat\, 2060 Antwerpen
+DESCRIPTION:Schoolstraat aan Stedelijke basisschool Het Atelier: op schoold
+ agen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkee
+ r (afsluiting met 1 nadarhek). Venstertijden: ma\, di\, do\, vr 8.30-8.45 
+ en 15.20-15.35\; wo 8.30-8.45 en 12.20-12.35. Definitief sinds 3 december 
+ 2021.\nWanneer: op schooldagen: ma\, di\, do\, vr 8.30-8.45 en 15.20-15.35
+ \; wo 8.30-8.45 en 12.20-12.35\nOp de publieke agenda: https://mijn-publie
+ ke-agenda-voor-district.onrender.com/event/schoolstraat-schoolstr023-2026/
+ \nSchoolstraten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Po
+ rtal/portal_publiek10/MapServer/986\nMeer info bij de organisator: https:/
+ /www.antwerpen.be/product/schoolstraten\nBron: district Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr023-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr024-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Korte Scholierstraat
+LOCATION:Korte Scholierstraat\, Antwerpen
+DESCRIPTION:Schoolstraat aan Stedelijke Kleuterschool Eureka: op schooldage
+ n is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (
+ afsluiting met 1 slagboom). Venstertijden: ma\, di\, do\, vr 8.00-9.00 en 
+ 15.00-16.00\; wo 8.00-9.00 en 12.00-13.00. Definitief sinds 3 december 202
+ 1.\nWanneer: op schooldagen: ma\, di\, do\, vr 8.00-9.00 en 15.00-16.00\; 
+ wo 8.00-9.00 en 12.00-13.00\nOp de publieke agenda: https://mijn-publieke-
+ agenda-voor-district.onrender.com/event/schoolstraat-schoolstr024-2026/\nS
+ choolstraten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Porta
+ l/portal_publiek10/MapServer/986\nMeer info bij de organisator: https://ww
+ w.antwerpen.be/product/schoolstraten\nBron: district Antwerpen – bron st
+ ad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr024-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr032-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Scheldestraat
+LOCATION:Scheldestraat\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan Vrije Basisschool Rudolf Steiner-Hibernia: op 
+ schooldagen is de straat tijdens de venstertijden dicht voor gemotoriseerd
+  verkeer (afsluiting met 1 nadarhek). Venstertijden: ma\, di\, do\, vr 8.0
+ 0-8.30 en 15.00-15.30\; wo 8.00-8.30 en 12.20-12.50. Definitief.\nWanneer:
+  op schooldagen: ma\, di\, do\, vr 8.00-8.30 en 15.00-15.30\; wo 8.00-8.30
+  en 12.20-12.50\nOp de publieke agenda: https://mijn-publieke-agenda-voor-
+ district.onrender.com/event/schoolstraat-schoolstr032-2026/\nSchoolstraten
+ : https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_pub
+ liek10/MapServer/986\nMeer info bij de organisator: https://www.antwerpen.
+ be/product/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen
+  (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr032-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr033-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Louiza-Marialei
+LOCATION:Louiza-Marialei\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan Ignatiaanse scholen Antwerpen: op schooldagen 
+ is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (af
+ sluiting met 1 nadarhek). Venstertijden: ma\, di\, do\, vr 8.30-8.45 en 15
+ .10-15.45\; wo 8.30-8.45 en 12.05-12.35. Definitief sinds 3 december 2021.
+ \nWanneer: op schooldagen: ma\, di\, do\, vr 8.30-8.45 en 15.10-15.45\; wo
+  8.30-8.45 en 12.05-12.35\nOp de publieke agenda: https://mijn-publieke-ag
+ enda-voor-district.onrender.com/event/schoolstraat-schoolstr033-2026/\nSch
+ oolstraten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/
+ portal_publiek10/MapServer/986\nMeer info bij de organisator: https://www.
+ antwerpen.be/product/schoolstraten\nBron: district Antwerpen – bron stad
+  Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr033-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr037-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Demerstraat
+LOCATION:Demerstraat\, 2060 Antwerpen
+DESCRIPTION:Schoolstraat aan Vrije basisschool 't Spoor: op schooldagen is 
+ de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afslu
+ iting met 1 slagboom). Venstertijden: ma\, di\, do\, vr 8.05-8.35 en 15.00
+ -15.30\; wo 8.05-8.35 en 11.55-12.25. Definitief sinds 3 december 2021.\nW
+ anneer: op schooldagen: ma\, di\, do\, vr 8.05-8.35 en 15.00-15.30\; wo 8.
+ 05-8.35 en 11.55-12.25\nOp de publieke agenda: https://mijn-publieke-agend
+ a-voor-district.onrender.com/event/schoolstraat-schoolstr037-2026/\nSchool
+ straten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/por
+ tal_publiek10/MapServer/986\nMeer info bij de organisator: https://www.ant
+ werpen.be/product/schoolstraten\nBron: district Antwerpen – bron stad An
+ twerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr037-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr050-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Jacob Jordaensstraat
+LOCATION:Jacob Jordaensstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan De Wegwijzer: op schooldagen is de straat tijd
+ ens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 sl
+ agboom). Venstertijden: ma\, di\, do\, vr 8.15-8.45 en 15.15-15.45\; wo 8.
+ 15-8.45 en 12.10-12.40. Definitief sinds 20 januari 2023.\nWanneer: op sch
+ ooldagen: ma\, di\, do\, vr 8.15-8.45 en 15.15-15.45\; wo 8.15-8.45 en 12.
+ 10-12.40\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distric
+ t.onrender.com/event/schoolstraat-schoolstr050-2026/\nSchoolstraten: https
+ ://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/
+ MapServer/986\nMeer info bij de organisator: https://www.antwerpen.be/prod
+ uct/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vlaam
+ se gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr050-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr051-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Begijnenvest
+LOCATION:Begijnenvest\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan Sint-Lievenscollege: op schooldagen is de stra
+ at tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting m
+ et 1 slagboom). Venstertijden: ma\, di\, do\, vr 8.00-8.30 en 15.15-15.45\
+ ; wo 8.00-8.30 en 12.05-12.30. Definitief sinds 20 januari 2023.\nWanneer:
+  op schooldagen: ma\, di\, do\, vr 8.00-8.30 en 15.15-15.45\; wo 8.00-8.30
+  en 12.05-12.30\nOp de publieke agenda: https://mijn-publieke-agenda-voor-
+ district.onrender.com/event/schoolstraat-schoolstr051-2026/\nSchoolstraten
+ : https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_pub
+ liek10/MapServer/986\nMeer info bij de organisator: https://www.antwerpen.
+ be/product/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen
+  (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr051-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr054-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Van Immerseelstraat
+LOCATION:Van Immerseelstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan Vrije basisschool Benoth Jerusalem: op schoold
+ agen is de straat tijdens de venstertijden dicht voor gemotoriseerd verkee
+ r (afsluiting met 1 slagboom). Venstertijden: ma\, wo 8.05-8.30 en 15.35-1
+ 6.00\; di\, do 8.05-8.30 en 16.00-16.25\; vr 8.05-8.30 en 12.00-12.25. Def
+ initief sinds 29 maart 2024.\nWanneer: op schooldagen: ma\, wo 8.05-8.30 e
+ n 15.35-16.00\; di\, do 8.05-8.30 en 16.00-16.25\; vr 8.05-8.30 en 12.00-1
+ 2.25\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.on
+ render.com/event/schoolstraat-schoolstr054-2026/\nSchoolstraten: https://g
+ eodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/MapS
+ erver/986\nMeer info bij de organisator: https://www.antwerpen.be/product/
+ schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse g
+ ratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr054-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr058-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Lange Van Ruusbroecstraat
+LOCATION:Lange Van Ruusbroecstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan Jesode Hatora Beth Jacob: op schooldagen is de
+  straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluit
+ ing met 1 nadarhek). Venstertijden: ma\, di\, wo\, do 8.00-8.20 en 16.00-1
+ 6.20\; vr 8.00-8.20. Definitief sinds 7 maart 2025.\nWanneer: op schooldag
+ en: ma\, di\, wo\, do 8.00-8.20 en 16.00-16.20\; vr 8.00-8.20\nOp de publi
+ eke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/
+ schoolstraat-schoolstr058-2026/\nSchoolstraten: https://geodata.antwerpen.
+ be/arcgissql/rest/services/P_Portal/portal_publiek10/MapServer/986\nMeer i
+ nfo bij de organisator: https://www.antwerpen.be/product/schoolstraten\nBr
+ on: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data l
+ icentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr058-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr060-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Grotebeerstraat
+LOCATION:Grotebeerstraat\, 2018 Antwerpen
+DESCRIPTION:Schoolstraat aan GVBS De Brug: op schooldagen is de straat tijd
+ ens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 sl
+ agboom). Venstertijden: ma\, di\, do\, vr 7.55-8.30 en 15.10-15.40\; wo 7.
+ 55-8.30 en 11.55-12.25. Definitief sinds 27 januari 2025.\nWanneer: op sch
+ ooldagen: ma\, di\, do\, vr 7.55-8.30 en 15.10-15.40\; wo 7.55-8.30 en 11.
+ 55-12.25\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distric
+ t.onrender.com/event/schoolstraat-schoolstr060-2026/\nSchoolstraten: https
+ ://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek10/
+ MapServer/986\nMeer info bij de organisator: https://www.antwerpen.be/prod
+ uct/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vlaam
+ se gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr060-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr102-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Begijnenstraat
+LOCATION:Begijnenstraat\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan Muzische Academie GO!: op schooldagen is de st
+ raat tijdens de venstertijden dicht voor gemotoriseerd verkeer (afsluiting
+  met 1 nadarhek). Venstertijden: ma\, di\, do\, vr 8.10-8.30 en 15.15-15.3
+ 5\; wo 8.10-8.30 en 12.00-12.20. Proefopstelling sinds 3 november 2025.\nW
+ anneer: op schooldagen: ma\, di\, do\, vr 8.10-8.30 en 15.15-15.35\; wo 8.
+ 10-8.30 en 12.00-12.20\nOp de publieke agenda: https://mijn-publieke-agend
+ a-voor-district.onrender.com/event/schoolstraat-schoolstr102-2026/\nSchool
+ straten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/por
+ tal_publiek10/MapServer/986\nMeer info bij de organisator: https://www.ant
+ werpen.be/product/schoolstraten\nBron: district Antwerpen – bron stad An
+ twerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr102-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr103-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Lange Riddersstraat
+LOCATION:Lange Riddersstraat\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan SB Musica: op schooldagen is de straat tijdens
+  de venstertijden dicht voor gemotoriseerd verkeer (afsluiting met 1 nadar
+ hek). Venstertijden: ma\, di\, do\, vr 8.25-8.45 en 15.25-15.45\; wo 8.25-
+ 8.45 en 12.15-12.35. Proefopstelling sinds 3 november 2025.\nWanneer: op s
+ chooldagen: ma\, di\, do\, vr 8.25-8.45 en 15.25-15.45\; wo 8.25-8.45 en 1
+ 2.15-12.35\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distr
+ ict.onrender.com/event/schoolstraat-schoolstr103-2026/\nSchoolstraten: htt
+ ps://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek1
+ 0/MapServer/986\nMeer info bij de organisator: https://www.antwerpen.be/pr
+ oduct/schoolstraten\nBron: district Antwerpen – bron stad Antwerpen (Vla
+ amse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr103-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:schoolstraat-schoolstr107-2026@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260901
+DTEND;VALUE=DATE:20270701
+SUMMARY:Schoolstraat Jan Vanhoenackerstraat
+LOCATION:Jan Vanhoenackerstraat\, 2000 Antwerpen
+DESCRIPTION:Schoolstraat aan GO! Muzische basisschool K’Do: op schooldage
+ n is de straat tijdens de venstertijden dicht voor gemotoriseerd verkeer (
+ afsluiting met 1 nadarhek). Venstertijden volgens het onderbord in besluit
+  (advies) 2026_DCAN_00022 van het districtscollege (12 januari 2026): ma\,
+  di\, do\, vr 8.20-8.45 en 15.10-15.35\; wo 8.20-8.45 en 12.20-12.45. De k
+ aartlaag van de stad vermeldt op woensdag 8.20-8.45 en 12.20-15.45\; hier 
+ staan de uren van het onderbord. Proefopstelling sinds 23 februari 2026.\n
+ Wanneer: op schooldagen: ma\, di\, do\, vr 8.20-8.45 en 15.10-15.35\; wo 8
+ .20-8.45 en 12.20-12.45\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/schoolstraat-schoolstr107-2026/\nSchoo
+ lstraten: https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/po
+ rtal_publiek10/MapServer/986\nMeer info bij de organisator: https://ebeslu
+ it.antwerpen.be/zittingen/25.0902.6683.3380/agendapunten/26.0106.8305.9997
+ \nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open da
+ ta licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/schoolstr
+ aat-schoolstr107-2026/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-694bdb74d2ceb2ae395e520c-fase-1a-2026-10-05@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261013
+SUMMARY:Vergroening Matigheidstraat & Spaarstraat: fase 1A (Spaarstraat)
+LOCATION:Spaarstraat\, 2060 Antwerpen
+DESCRIPTION:Fase 1A van het project "Vergroening Matigheidstraat & Spaarstr
+ aat": Spaarstraat. Periode volgens de projectpagina: 5 tot en met 12 oktob
+ er 2026.\nWanneer: 5 tot en met 12 oktober 2026\nOp de publieke agenda: ht
+ tps://mijn-publieke-agenda-voor-district.onrender.com/event/project-694bdb
+ 74d2ceb2ae395e520c-fase-1a-2026-10-05/\nProjecten van het district: inspra
+ ak en fasen: https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/vergro
+ ening-matigheidstraat-spaarstraat\nBron: district Antwerpen – bron stad 
+ Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 94bdb74d2ceb2ae395e520c-fase-1a-2026-10-05/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-694bdb74d2ceb2ae395e520c-fase-1b-2026-10-12@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261012
+DTEND;VALUE=DATE:20261015
+SUMMARY:Vergroening Matigheidstraat & Spaarstraat: fase 1B (Spaarstraat)
+LOCATION:Spaarstraat\, 2060 Antwerpen
+DESCRIPTION:Fase 1B van het project "Vergroening Matigheidstraat & Spaarstr
+ aat": Spaarstraat. Periode volgens de projectpagina: 12 tot en met 14 okto
+ ber 2026.\nWanneer: 12 tot en met 14 oktober 2026\nOp de publieke agenda: 
+ https://mijn-publieke-agenda-voor-district.onrender.com/event/project-694b
+ db74d2ceb2ae395e520c-fase-1b-2026-10-12/\nProjecten van het district: insp
+ raak en fasen: https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/verg
+ roening-matigheidstraat-spaarstraat\nBron: district Antwerpen – bron sta
+ d Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 94bdb74d2ceb2ae395e520c-fase-1b-2026-10-12/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-694bdb74d2ceb2ae395e520c-fase-2a-2026-10-14@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261014
+DTEND;VALUE=DATE:20261020
+SUMMARY:Vergroening Matigheidstraat & Spaarstraat: fase 2A (Matigheidstraat
+ )
+LOCATION:Matigheidstraat\, 2060 Antwerpen
+DESCRIPTION:Fase 2A van het project "Vergroening Matigheidstraat & Spaarstr
+ aat": Matigheidstraat. Periode volgens de projectpagina: 14 tot en met 19 
+ oktober 2026.\nWanneer: 14 tot en met 19 oktober 2026\nOp de publieke agen
+ da: https://mijn-publieke-agenda-voor-district.onrender.com/event/project-
+ 694bdb74d2ceb2ae395e520c-fase-2a-2026-10-14/\nProjecten van het district: 
+ inspraak en fasen: https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/
+ vergroening-matigheidstraat-spaarstraat\nBron: district Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 94bdb74d2ceb2ae395e520c-fase-2a-2026-10-14/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261019
+DTEND;VALUE=DATE:20261024
+SUMMARY:Vergroening Matigheidstraat & Spaarstraat: fase 2B (Matigheidstraat
+ )
+LOCATION:Matigheidstraat\, 2060 Antwerpen
+DESCRIPTION:Fase 2B van het project "Vergroening Matigheidstraat & Spaarstr
+ aat": Matigheidstraat. Periode volgens de projectpagina: 19 tot en met 23 
+ oktober 2026.\nWanneer: 19 tot en met 23 oktober 2026\nOp de publieke agen
+ da: https://mijn-publieke-agenda-voor-district.onrender.com/event/project-
+ 694bdb74d2ceb2ae395e520c-fase-2b-2026-10-19/\nProjecten van het district: 
+ inspraak en fasen: https://www.antwerpen.be/info/694bdb74d2ceb2ae395e520c/
+ vergroening-matigheidstraat-spaarstraat\nBron: district Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 94bdb74d2ceb2ae395e520c-fase-2b-2026-10-19/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-608fe3749dc6b9660910da8b-fase-3-2027-01-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270923
+SUMMARY:Heraanleg Osystraat\, Van de Wervestraat\, Van Maerlantstraat\, Vio
+ lierstraat en Vondelstraat: fase 3 (Sint-Jansplein + Van de Wervestraat (t
+ ot aan Cassiersstraat))
+LOCATION:Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat)\, 206
+ 0 Antwerpen
+DESCRIPTION:Fase 3 van het project "Heraanleg Osystraat\, Van de Wervestraa
+ t\, Van Maerlantstraat\, Violierstraat en Vondelstraat": Sint-Jansplein + 
+ Van de Wervestraat (tot aan Cassiersstraat). Periode volgens de projectpag
+ ina: begin 2027 - zomer 2027 (data bij benadering).\nWanneer: begin 2027 -
+  zomer 2027 (data bij benadering)\nOp de publieke agenda: https://mijn-pub
+ lieke-agenda-voor-district.onrender.com/event/project-608fe3749dc6b9660910
+ da8b-fase-3-2027-01-01/\nProjecten van het district: inspraak en fasen: ht
+ tps://www.antwerpen.be/info/608fe3749dc6b9660910da8b/heraanleg-osystraat-v
+ an-de-wervestraat-van-maerlantstraat-violierstraat-en-vondelstraat\nBron: 
+ district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licen
+ tie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 08fe3749dc6b9660910da8b-fase-3-2027-01-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-65af88d5bcb6dfe17b56eb18-fase-3-2027-01-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270501
+SUMMARY:Heraanleg Oostenstraat: fase 3 (Tussen kruispunt met de Lange Van R
+ uusbroecstraat en Arendstraat)
+LOCATION:Tussen kruispunt met de Lange Van Ruusbroecstraat en Arendstraat\,
+  2018 Antwerpen
+DESCRIPTION:Fase 3 van het project "Heraanleg Oostenstraat": Tussen kruispu
+ nt met de Lange Van Ruusbroecstraat en Arendstraat. Periode volgens de pro
+ jectpagina: januari 2027 - april 2027 (data bij benadering).\nWanneer: jan
+ uari 2027 - april 2027 (data bij benadering)\nOp de publieke agenda: https
+ ://mijn-publieke-agenda-voor-district.onrender.com/event/project-65af88d5b
+ cb6dfe17b56eb18-fase-3-2027-01-01/\nProjecten van het district: inspraak e
+ n fasen: https://www.antwerpen.be/info/65af88d5bcb6dfe17b56eb18/heraanleg-
+ oostenstraat\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gr
+ atis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 5af88d5bcb6dfe17b56eb18-fase-3-2027-01-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-69d4e01eff0ca8b3330b381c-fase-3-2027-01-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270501
+SUMMARY:Werken Halenstraat & Schijnpoortweg: fase 3 (Schijnpoortwegtunnel z
+ uid)
+LOCATION:Schijnpoortwegtunnel zuid\, 2060 Antwerpen
+DESCRIPTION:Fase 3 van het project "Werken Halenstraat & Schijnpoortweg": S
+ chijnpoortwegtunnel zuid. Periode volgens de projectpagina: januari 2027 -
+  april 2027 (data bij benadering).\nWanneer: januari 2027 - april 2027 (da
+ ta bij benadering)\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/project-69d4e01eff0ca8b3330b381c-fase-3-202
+ 7-01-01/\nProjecten van het district: inspraak en fasen: https://www.antwe
+ rpen.be/info/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg\nB
+ ron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data 
+ licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 9d4e01eff0ca8b3330b381c-fase-3-2027-01-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270301
+DTEND;VALUE=DATE:20270401
+SUMMARY:Werken Halenstraat & Schijnpoortweg: fase 0\, deel 2 (Halenstraat (
+ kant Stuivenbergplein))
+LOCATION:Halenstraat (kant Stuivenbergplein)\, 2060 Antwerpen
+DESCRIPTION:Fase 0\, deel 2 van het project "Werken Halenstraat & Schijnpoo
+ rtweg": Halenstraat (kant Stuivenbergplein). Periode volgens de projectpag
+ ina: maart 2027 (data bij benadering).\nWanneer: maart 2027 (data bij bena
+ dering)\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district
+ .onrender.com/event/project-69d4e01eff0ca8b3330b381c-fase-0-2027-03-01/\nP
+ rojecten van het district: inspraak en fasen: https://www.antwerpen.be/inf
+ o/69d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg\nBron: distri
+ ct Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 9d4e01eff0ca8b3330b381c-fase-0-2027-03-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270301
+DTEND;VALUE=DATE:20270501
+SUMMARY:Werken Halenstraat & Schijnpoortweg: fase 4 (Schijnpoortweg)
+LOCATION:Schijnpoortweg\, 2060 Antwerpen
+DESCRIPTION:Fase 4 van het project "Werken Halenstraat & Schijnpoortweg": S
+ chijnpoortweg. Periode volgens de projectpagina: maart 2027 - april 2027 (
+ data bij benadering).\nWanneer: maart 2027 - april 2027 (data bij benaderi
+ ng)\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onr
+ ender.com/event/project-69d4e01eff0ca8b3330b381c-fase-4-2027-03-01/\nProje
+ cten van het district: inspraak en fasen: https://www.antwerpen.be/info/69
+ d4e01eff0ca8b3330b381c/werken-halenstraat-schijnpoortweg\nBron: district A
+ ntwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 9d4e01eff0ca8b3330b381c-fase-4-2027-03-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01@mijn-publieke-agend
+ a-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270401
+DTEND;VALUE=DATE:20280101
+SUMMARY:Heraanleg Balansstraat & Lange Elzenstraat: fase 6c (Lange Elzenstr
+ aat van de Beuckerstraat tot het kruispunt met de Balansstraat)
+LOCATION:Lange Elzenstraat van de Beuckerstraat tot het kruispunt met de Ba
+ lansstraat\, 2018 Antwerpen
+DESCRIPTION:Fase 6c van het project "Heraanleg Balansstraat & Lange Elzenst
+ raat": Lange Elzenstraat van de Beuckerstraat tot het kruispunt met de Bal
+ ansstraat. Periode volgens de projectpagina: april 2027 tot december 2027 
+ (data bij benadering).\nWanneer: april 2027 tot december 2027 (data bij be
+ nadering)\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distri
+ ct.onrender.com/event/project-5ebcee18901c1f55f320daf0-fase-6c-2027-04-01/
+ \nProjecten van het district: inspraak en fasen: https://www.antwerpen.be/
+ info/5ebcee18901c1f55f320daf0/heraanleg-balansstraat-lange-elzenstraat\nBr
+ on: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data l
+ icentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-5
+ ebcee18901c1f55f320daf0-fase-6c-2027-04-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-65af88d5bcb6dfe17b56eb18-fase-4-2027-04-01@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270401
+DTEND;VALUE=DATE:20270801
+SUMMARY:Heraanleg Oostenstraat: fase 4 (Tussen Lange Van Ruusbroecstraat en
+  Arendstraat)
+LOCATION:Tussen Lange Van Ruusbroecstraat en Arendstraat\, 2018 Antwerpen
+DESCRIPTION:Fase 4 van het project "Heraanleg Oostenstraat": Tussen Lange V
+ an Ruusbroecstraat en Arendstraat. Periode volgens de projectpagina: april
+  2027 - juli 2027 (data bij benadering).\nWanneer: april 2027 - juli 2027 
+ (data bij benadering)\nOp de publieke agenda: https://mijn-publieke-agenda
+ -voor-district.onrender.com/event/project-65af88d5bcb6dfe17b56eb18-fase-4-
+ 2027-04-01/\nProjecten van het district: inspraak en fasen: https://www.an
+ twerpen.be/info/65af88d5bcb6dfe17b56eb18/heraanleg-oostenstraat\nBron: dis
+ trict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie
+ )
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 5af88d5bcb6dfe17b56eb18-fase-4-2027-04-01/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-608fe3749dc6b9660910da8b-fase-4-2027-06-21@mijn-publieke-agenda
+ -voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20270621
+DTEND;VALUE=DATE:20280401
+SUMMARY:Heraanleg Osystraat\, Van de Wervestraat\, Van Maerlantstraat\, Vio
+ lierstraat en Vondelstraat: fase 4 (Van de Wervestraat)
+LOCATION:Van de Wervestraat\, 2060 Antwerpen
+DESCRIPTION:Fase 4 van het project "Heraanleg Osystraat\, Van de Wervestraa
+ t\, Van Maerlantstraat\, Violierstraat en Vondelstraat": Van de Wervestraa
+ t. Periode volgens de projectpagina: zomer 2027 - begin 2028 (data bij ben
+ adering).\nWanneer: zomer 2027 - begin 2028 (data bij benadering)\nOp de p
+ ublieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/ev
+ ent/project-608fe3749dc6b9660910da8b-fase-4-2027-06-21/\nProjecten van het
+  district: inspraak en fasen: https://www.antwerpen.be/info/608fe3749dc6b9
+ 660910da8b/heraanleg-osystraat-van-de-wervestraat-van-maerlantstraat-violi
+ erstraat-en-vondelstraat\nBron: district Antwerpen – bron stad Antwerpen
+  (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ 08fe3749dc6b9660910da8b-fase-4-2027-06-21/
+CATEGORIES:Werken & hinder
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

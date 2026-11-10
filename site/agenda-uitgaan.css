@@ -183,7 +183,8 @@ body.agenda-focused {
   cursor: pointer;
 }
 .theme-toggle:hover { border-color: var(--pa-ink); }
-/* De weg naar het verleden (/verleden/), naast de knop donker/licht. */
+/* De weg naar het verleden (/verleden/) en naar de agenda om te volgen (/kalender/), naast de knop donker/licht. */
+.hero-kalender,
 .hero-verleden {
   display: inline-flex;
   align-items: center;
@@ -198,6 +199,8 @@ body.agenda-focused {
   text-decoration: none;
 }
 .hero-verleden:hover { border-color: var(--pa-ink); }
+.hero-kalender { gap: 6px; border-color: var(--pa-accent); color: var(--pa-accent); }
+.hero-kalender:hover { border-color: var(--pa-ink); color: var(--pa-ink); }
 .agenda-count,
 .agenda-focused .agenda-count {
   color: var(--pa-ink);
