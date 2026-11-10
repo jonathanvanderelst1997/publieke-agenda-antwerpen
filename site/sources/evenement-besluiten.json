@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-09T03:52:13.033Z",
+  "generatedAt": "2026-11-10T04:22:57.817Z",
   "venster": {
-    "van": "2026-09-10",
-    "tot": "2027-03-09"
+    "van": "2026-09-11",
+    "tot": "2027-03-10"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,7 +17,7 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 47,
+    "besluiten": 46,
     "gelezen": 26,
     "teLezen": 0,
     "metDag": 23,
@@ -53,29 +53,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
-    },
-    {
-      "id": "26.0828.8235.3172",
-      "code": "2026_DCME_00160",
-      "soort": "evenement",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Merksem",
-      "zitting": "2026-09-10",
-      "gepubliceerd": true,
-      "gelezen": false,
-      "naam": "Halloween Survival Run 2026",
-      "organisator": null,
-      "dagen": [],
-      "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": false,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/26.0407.0460.7516/agendapunten/26.0828.8235.3172"
     },
     {
       "id": "26.0803.9898.9075",
