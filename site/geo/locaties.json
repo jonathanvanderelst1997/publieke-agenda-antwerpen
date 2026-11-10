@@ -325,6 +325,16 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
+  "jan van gentstraat van der sweepstraat en de gerlachekaai": {
+   "point": [
+    4.38704,
+    51.20618
+   ],
+   "precision": "straat",
+   "street": "Jan van Gentstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-10"
+  },
   "jan vanhoenackerstraat 2000 antwerpen": {
    "point": [
     4.38363,

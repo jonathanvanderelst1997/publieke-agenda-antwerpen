@@ -1,10 +1,10 @@
 {
  "schema": "vaagheid/1",
  "vandaag": "2026-11-10",
- "invoer": "4a952145bd422b52",
+ "invoer": "5963b89edac1593e",
  "code": "c5f45b7d45f6c108",
  "agenda": {
-  "items": 754,
+  "items": 757,
   "vaag": 43,
   "aandeel": 5.7,
   "perPatroon": {
@@ -52,7 +52,7 @@
     }
    },
    "stad-markten": {
-    "items": 623,
+    "items": 626,
     "vaag": 0,
     "patronen": {}
    },
@@ -103,7 +103,7 @@
   }
  },
  "eventpaginas": {
-  "items": 754,
+  "items": 757,
   "vaag": 50,
   "aandeel": 6.6,
   "perPatroon": {
@@ -147,7 +147,7 @@
     }
    },
    "stad-markten": {
-    "items": 623,
+    "items": 626,
     "vaag": 0,
     "patronen": {}
    },
@@ -186,13 +186,13 @@
   "verboden": {}
  },
  "straten": {
-  "items": 445,
-  "vaag": 246,
+  "items": 447,
+  "vaag": 247,
   "aandeel": 55.3,
   "perPatroon": {
    "periode-onbekend": 160,
    "start-werken-onbekend": 53,
-   "wat-zegt-stad-niet": 41,
+   "wat-zegt-stad-niet": 42,
    "uur-onbekend": 38,
    "generieke-titel": 33,
    "stand-onduidelijk": 26,
@@ -219,10 +219,10 @@
     "losseVaag": 33
    },
    "publicSpace:parking": {
-    "items": 32,
+    "items": 33,
     "vaag": 0,
     "patronen": {},
-    "losse": 32,
+    "losse": 33,
     "losseVaag": 0
    },
    "permits": {
@@ -237,13 +237,13 @@
     "losseVaag": 1
    },
    "publicSpace:sgw": {
-    "items": 39,
-    "vaag": 33,
+    "items": 40,
+    "vaag": 34,
     "patronen": {
-     "wat-zegt-stad-niet": 33
+     "wat-zegt-stad-niet": 34
     },
-    "losse": 19,
-    "losseVaag": 13
+    "losse": 20,
+    "losseVaag": 14
    },
    "terraces": {
     "items": 160,
@@ -297,9 +297,9 @@
    }
   },
   "detail": {
-   "metOntbreekt": 294,
+   "metOntbreekt": 295,
    "meerDanEen": 89,
-   "zinnen": 448,
+   "zinnen": 449,
    "perPatroon": {
     "niet-in-de-bron": 68,
     "huisnummers-niet-gepubliceerd": 34,
@@ -310,12 +310,12 @@
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 407,
-   "vaag": 217
+   "kaarten": 409,
+   "vaag": 218
   },
   "losse": {
-   "kaarten": 259,
-   "vaag": 64
+   "kaarten": 261,
+   "vaag": 65
   },
   "ingeklapt": {
    "regels": 24,
@@ -400,17 +400,17 @@
     "ingeklapt": 1
    },
    "Kammenstraat": {
-    "kaarten": 24,
+    "kaarten": 25,
     "vaag": 10,
-    "losseKaarten": 15,
+    "losseKaarten": 16,
     "losseVaag": 1,
     "ingeklapt": 2
    },
    "Isabella Brantstraat": {
-    "kaarten": 3,
-    "vaag": 0,
-    "losseKaarten": 3,
-    "losseVaag": 0,
+    "kaarten": 4,
+    "vaag": 1,
+    "losseKaarten": 4,
+    "losseVaag": 1,
     "ingeklapt": 0
    },
    "Maria-Henriëttalei": {
@@ -629,22 +629,22 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "93176a7cacb15d59",
+   "invoer": "4a952145bd422b52",
    "code": "c5f45b7d45f6c108"
   },
   "agenda": {
    "ok": true,
-   "stijging": 0.1,
+   "stijging": 0,
    "gestegen": []
   },
   "eventpaginas": {
    "ok": true,
-   "stijging": 0.1,
+   "stijging": 0,
    "gestegen": []
   },
   "straten": {
    "ok": true,
-   "stijging": 0.4,
+   "stijging": 0,
    "gestegen": []
   },
   "buiten": {
