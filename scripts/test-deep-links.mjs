@@ -73,8 +73,10 @@ assert.equal(actuelePaginas, manifest.eventPageCount, 'every public event page l
 const robots = await readFile(new URL('../site/robots.txt', import.meta.url), 'utf8')
 const sitemap = await readFile(new URL('../site/sitemap.xml', import.meta.url), 'utf8')
 assert.match(robots, /Sitemap: https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/sitemap\.xml/)
-assert.equal((sitemap.match(/<url>/g) ?? []).length, manifest.eventPageCount + (manifest.archivedEventPageCount ?? 0) + 2)
+assert.equal((sitemap.match(/<url>/g) ?? []).length, manifest.eventPageCount + (manifest.archivedEventPageCount ?? 0) + 3)
 assert.match(sitemap, /<loc>https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/verleden\/<\/loc>/)
+// De uitleg om de agenda te volgen (site/kalender/index.html, lib/kalenderfeed.mjs).
+assert.match(sitemap, /<loc>https:\/\/mijn-publieke-agenda-voor-district\.onrender\.com\/kalender\/<\/loc>/)
 assert.match(source, /aria-pressed/)
 assert.match(source, /aria-controls/)
 assert.match(source, /aria-hidden="true"/)

@@ -1,0 +1,118 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Sport
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Sport
+DESCRIPTION:Sport in district Antwerpen\, uit de publieke agenda\, met de o
+ fficiële bron.
+X-WR-CALDESC:Sport in district Antwerpen\, uit de publieke agenda\, met de 
+ officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/sport.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a777-2026-10-10@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261010T110000
+DTEND;TZID=Europe/Brussels:20261010T183000
+SUMMARY:Linkeroever Criterium
+LOCATION:Poisson Pilote\, Beatrijslaan 32
+DESCRIPTION:Het allereerste wielercriterium op Linkeroever! Koers mee of mo
+ edig de renners aan tijdens 3 jeugd-\, 1 vrouwen- en 2 mannenreeksen. Volg
+  de Ronde van Lombardije en het WK Gravel voor vrouwen op groot scherm en 
+ blijf nadien hangen voor de dj’s. Prijs: €15\nWanneer: 11 tot 18.30 uu
+ r\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onren
+ der.com/event/district-kal-6a746a7ff4182b8edf63a777-2026-10-10/\nDistricts
+ kalender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-belee
+ f-je-in-district-antwerpen\nBron: district Antwerpen – bron stad Antwerp
+ en (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a777-2026-10-10/
+CATEGORIES:Sport
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2026001217-2026-10-18@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261018T090000
+DURATION:PT1H
+SUMMARY:TREK Antwerp Marathon
+LOCATION:Rijnkaai\, Kattendijkbrug\, Adriaan Brouwerstraat en 144 andere st
+ raten
+DESCRIPTION:Parcours door 146 straten: onder meer Adriaan Brouwerstraat\, A
+ nkerrui\, Appelmansstraat\, Arthur Goemaerelei. Opbouw vanaf maandag 12 ok
+ tober\, afbraak tot dinsdag 20 oktober. Organisatie: Golazo Sport nv. Naam
+  met de hand nagekeken bij een publieke bron. Evenementendossier ET2026001
+ 217 van de stad (A-Sign)\, laatst gewijzigd op 5 augustus 2026: aanvraag g
+ oedgekeurd.\nWanneer: start marathon en 10 km om 9 uur\, halve marathon om
+  14 uur\; de finish sluit om 18 uur\nOp de publieke agenda: https://mijn-p
+ ublieke-agenda-voor-district.onrender.com/event/asign-ev-et2026001217-2026
+ -10-18/\nEvenementen op straat (dossiers van de stad in A-Sign): https://g
+ eodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nEv
+ enementen volgens besluiten van stad en district (eBesluit): https://ebesl
+ uit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0908.1145.793
+ 6\nMeer info bij de organisator: https://antwerpmarathon.com/nl/het-parcou
+ rs/\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open
+  data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026001217-2026-10-18/
+CATEGORIES:Sport
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2026000445-2026-11-15@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Vermoedelijk een loopwedstrijd of loop in de Timmerwerfstraat (aanv
+ raag\, nog niet goedgekeurd)
+LOCATION:Timmerwerfstraat\, Anneessensstraat\, Artsen zonder Grenzenstraat 
+ en 75 andere straten
+DESCRIPTION:Parcours door 76 straten: onder meer Anneessensstraat\, Artsen 
+ zonder Grenzenstraat\, Baron Joostensstraat\, Bervoetstraat. Verkeersvrije
+  zone in 4 straten: Gillisplaats\, Timmerwerfstraat\, Vlaamsekaai en Waals
+ ekaai. Opbouw vanaf donderdag 12 november\, afbraak tot maandag 16 novembe
+ r. Evenementendossier ET2026000445 van de stad (A-Sign)\, laatst gewijzigd
+  op 6 oktober 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aan
+ vraag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, da
+ n verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/asign-ev-et2026000445-2026-11-15
+ /\nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata
+ .antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: di
+ strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
+ e)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026000445-2026-11-15/
+CATEGORIES:Sport
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

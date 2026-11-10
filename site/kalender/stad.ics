@@ -1,0 +1,624 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Stad Antwerpen
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Stad Antwerpen
+DESCRIPTION:Wat de stad publiceert voor de andere districten (de knop Stad 
+ Antwerpen op de site)\, zonder de wekelijkse markten.
+X-WR-CALDESC:Wat de stad publiceert voor de andere districten (de knop Stad
+  Antwerpen op de site)\, zonder de wekelijkse markten.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/stad.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-
+ 13@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261013
+DTEND;VALUE=DATE:20261014
+SUMMARY:Nationale Sluitingsprijs komt door Berendrecht
+LOCATION:District Berendrecht-Zandvliet-Lillo\, locatie via de officiële b
+ ron
+DESCRIPTION:De laatste wielerwedstrijd van het seizoen is steevast de Natio
+ nale Sluitingsprijs Putte-Kapellen. Supporters kunnen de wielrenners ook i
+ n ons district aanmoedigen.\nWanneer: Uur via de officiële bron\nOp de pu
+ blieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/eve
+ nt/stad-news-berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-
+ 13/\nNieuws van de andere districten: https://www.antwerpen.be/info/633571
+ 41fca03f428619a8cc/nationale-sluitingsprijs-komt-door-berendrecht\nBron: d
+ istricten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open 
+ data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -berendrecht-zandvliet-lillo-63357141fca03f428619a8cc-2026-10-13/
+CATEGORIES:Sport
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15@mijn-publiek
+ e-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261015T193000
+DURATION:PT1H
+SUMMARY:VOLZET - Lezing | Hoe het lichaam onthoudt wat je zelf vergeten ben
+ t – Tom De Prest
+LOCATION:District Wilrijk\, locatie via de officiële bron
+DESCRIPTION:Wanneer: 19.30 uur\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/stad-news-wilrijk-648d2efc50afea
+ 0013656346-t0r3-2026-10-15/\nNieuws van de andere districten: https://www.
+ antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs
+ -in-de-wilrijkse-bibliotheek\nBron: districten van stad Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261017
+DTEND;VALUE=DATE:20261018
+SUMMARY:Groeidag
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Vergroen mee je buurt.\nWanneer: Geen uur gevonden\; zie de off
+ iciële bron.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-di
+ strict.onrender.com/event/stad-news-borgerhout-66d6eef576ce660545139265-t0
+ r11-2026-10-17/\nNieuws van de andere districten: https://www.antwerpen.be
+ /info/66d6eef576ce660545139265/najaar-2026-save-the-date\nMeer info bij de
+  organisator: https://www.antwerpen.be/nl/overzicht/district-borgerhout/bo
+ rgerbouwers/groeidagen-in-borgerhout-gratis-geveltuintjes-tegelwippen-win-
+ een-groeistraat-en-meer\nBron: districten van stad Antwerpen – bron stad
+  Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17/
+CATEGORIES:Buurt & straat
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22@mijn-publiek
+ e-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261022T200000
+DURATION:PT1H
+SUMMARY:De eenzaamheid van de priemgetallen – Paolo Giordano
+LOCATION:District Wilrijk\, locatie via de officiële bron
+DESCRIPTION:Wanneer: 20.00 uur\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/stad-news-wilrijk-648d2efc50afea
+ 0013656346-t1r0-2026-10-22/\nNieuws van de andere districten: https://www.
+ antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs
+ -in-de-wilrijkse-bibliotheek\nBron: districten van stad Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-68c42eae7c39f4977a6df487-2026-10-23@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261023
+DTEND;VALUE=DATE:20261024
+SUMMARY:23/10 | Nacht van de jeugdbeweging
+LOCATION:District Merksem\, locatie via de officiële bron
+DESCRIPTION:Vier mee de vele Merksemse jeugdbewegingen op de Nacht van de j
+ eugdbeweging in jongerencentrum Bouckenborgh.\nWanneer: Geen uur gevonden\
+ ; zie de officiële bron.\nOp de publieke agenda: https://mijn-publieke-ag
+ enda-voor-district.onrender.com/event/stad-news-merksem-68c42eae7c39f4977a
+ 6df487-2026-10-23/\nNieuws van de andere districten: https://www.antwerpen
+ .be/info/68c42eae7c39f4977a6df487/23-10-nacht-van-de-jeugdbeweging\nBron: 
+ districten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open
+  data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-68c42eae7c39f4977a6df487-2026-10-23/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-10-23@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261023T093000
+DURATION:PT1H
+SUMMARY:Digitaal sterker met gratis infosessies
+LOCATION:A-bib Merksem\, Parkweg 1
+DESCRIPTION:Ontdek de nieuwe themaworkshops die het district dit najaar org
+ aniseert in A-bib Merksem. Ontdek hoe digitale toepassingen je kunnen help
+ en\, bescherm je tegen online gevaren en meer!\nWanneer: 9.30 uur\nOp de p
+ ublieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/ev
+ ent/stad-news-merksem-699c648e7c39f43c7a20d062-2026-10-23/\nNieuws van de 
+ andere districten: https://www.antwerpen.be/info/699c648e7c39f43c7a20d062/
+ digitaal-sterker-met-gratis-infosessies\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-699c648e7c39f43c7a20d062-2026-10-23/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261106
+DTEND;VALUE=DATE:20261107
+SUMMARY:Stanneke
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Theatervoorstelling en expo over wielerlegende Stan Ockers.\nOp
+  de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.c
+ om/event/stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06/\n
+ Nieuws van de andere districten: https://www.antwerpen.be/info/66d6eef576c
+ e660545139265/najaar-2026-save-the-date\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261107
+DTEND;VALUE=DATE:20261108
+SUMMARY:Stanneke
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Theatervoorstelling en expo over wielerlegende Stan Ockers.\nOp
+  de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.c
+ om/event/stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07/\n
+ Nieuws van de andere districten: https://www.antwerpen.be/info/66d6eef576c
+ e660545139265/najaar-2026-save-the-date\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Stanneke
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Theatervoorstelling en expo over wielerlegende Stan Ockers.\nOp
+  de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.c
+ om/event/stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08/\n
+ Nieuws van de andere districten: https://www.antwerpen.be/info/66d6eef576c
+ e660545139265/najaar-2026-save-the-date\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08@mijn-publieke-agen
+ da-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261108
+DTEND;VALUE=DATE:20261109
+SUMMARY:Ontdek de pracht van Muisbroek tijdens de EkeRun!
+LOCATION:District Ekeren\, locatie via de officiële bron
+DESCRIPTION:Wij zijn opnieuw klaar voor de EkeRun! Jij ook?\nOp de publieke
+  agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/sta
+ d-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08/\nNieuws van de andere d
+ istricten: https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-d
+ e-pracht-van-muisbroek-tijdens-de-ekerun\nBron: districten van stad Antwer
+ pen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -ekeren-6ab3c7cb44947433802d848e-2026-11-08/
+CATEGORIES:Sport
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-berendrecht-zandvliet-lillo-561cec28aea8a744228b45cb-2026-11-
+ 11@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261111
+DTEND;VALUE=DATE:20261112
+SUMMARY:Herdenking van Wapenstilstand
+LOCATION:District Berendrecht-Zandvliet-Lillo\, locatie via de officiële b
+ ron
+DESCRIPTION:Op 11 november herdenkt het district het einde van de Eerste We
+ reldoorlog\, en de (oorlogs)slachtoffers van latere oorlogen\, met 3 cerem
+ onies.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.
+ onrender.com/event/stad-news-berendrecht-zandvliet-lillo-561cec28aea8a7442
+ 28b45cb-2026-11-11/\nNieuws van de andere districten: https://www.antwerpe
+ n.be/info/561cec28aea8a744228b45cb/herdenking-van-wapenstilstand\nBron: di
+ stricten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open d
+ ata licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -berendrecht-zandvliet-lillo-561cec28aea8a744228b45cb-2026-11-11/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-deurne-670e4c5276ce668584728824-2026-11-11@mijn-publieke-agen
+ da-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261111T104500
+DURATION:PT1H
+SUMMARY:Deurne herdenkt Wapenstilstand
+LOCATION:District Deurne\, locatie via de officiële bron
+DESCRIPTION:Op woensdag 11 november staat district Deurne stil bij de herde
+ nking van de Wapenstilstand. De plechtigheid start om 10.45 uur aan het Mo
+ nument der Gesneuvelden aan het Sterckshof. Het districtssbestuur van Deur
+ ne houdt een gelegenheidstoespraak en Erik Colman en Julien Van Noten bren
+ gen een…\nWanneer: vanaf 10.45 uur\nOp de publieke agenda: https://mijn-
+ publieke-agenda-voor-district.onrender.com/event/stad-news-deurne-670e4c52
+ 76ce668584728824-2026-11-11/\nNieuws van de andere districten: https://www
+ .antwerpen.be/info/670e4c5276ce668584728824/deurne-herdenkt-wapenstilstand
+ \nBron: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse gra
+ tis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -deurne-670e4c5276ce668584728824-2026-11-11/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-5bd16d8c2d2a3c75b55b3f48-2026-11-11@mijn-publieke-
+ agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261111T110000
+DURATION:PT1H
+SUMMARY:11 novemberplechtigheid Borgerhout
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Traditioneel is er op begraafplaats Silsburg de herdenking van 
+ het einde van Wereldoorlog I op Wapenstilstandsdag.\nWanneer: om 11 uur (S
+ amenkomst om 10.30 uur)\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/stad-news-borgerhout-5bd16d8c2d2a3c75b
+ 55b3f48-2026-11-11/\nNieuws van de andere districten: https://www.antwerpe
+ n.be/info/5bd16d8c2d2a3c75b55b3f48/11-novemberplechtigheid-borgerhout\nBro
+ n: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis o
+ pen data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-5bd16d8c2d2a3c75b55b3f48-2026-11-11/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261113
+DTEND;VALUE=DATE:20261114
+SUMMARY:Stanneke
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Theatervoorstelling en expo over wielerlegende Stan Ockers.\nOp
+  de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.c
+ om/event/stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13/\n
+ Nieuws van de andere districten: https://www.antwerpen.be/info/66d6eef576c
+ e660545139265/najaar-2026-save-the-date\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-13@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261113T093000
+DURATION:PT1H
+SUMMARY:Digitaal sterker met gratis infosessies
+LOCATION:A-bib Merksem\, Parkweg 1
+DESCRIPTION:Ontdek de nieuwe themaworkshops die het district dit najaar org
+ aniseert in A-bib Merksem. Ontdek hoe digitale toepassingen je kunnen help
+ en\, bescherm je tegen online gevaren en meer!\nWanneer: 9.30 uur\nOp de p
+ ublieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/ev
+ ent/stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-13/\nNieuws van de 
+ andere districten: https://www.antwerpen.be/info/699c648e7c39f43c7a20d062/
+ digitaal-sterker-met-gratis-infosessies\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-699c648e7c39f43c7a20d062-2026-11-13/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Kunstendag voor kinderen
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Kunstendag voor kinderen: meer dan 15 activiteiten op verschill
+ ende locaties.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-d
+ istrict.onrender.com/event/stad-news-borgerhout-66d6eef576ce660545139265-t
+ 0r14-2026-11-15/\nNieuws van de andere districten: https://www.antwerpen.b
+ e/info/66d6eef576ce660545139265/najaar-2026-save-the-date\nMeer info bij d
+ e organisator: https://www.antwerpen.be/nl/overzicht/district-borgerhout/n
+ ieuws/kunstendag-voor-kinderen-in-borgerhout\nBron: districten van stad An
+ twerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15@mijn-publieke-ag
+ enda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261115T110000
+DTEND;TZID=Europe/Brussels:20261115T170000
+SUMMARY:Zondag 15 november | Kunstendag voor Kinderen
+LOCATION:District Borsbeek\, locatie via de officiële bron
+DESCRIPTION:Elk jaar op de 3de zondag van november vindt in heel Vlaanderen
+  Kunstendag voor Kinderen plaats\, ook in Borsbeek! Ontdek in dit artikel 
+ wat er allemaal te beleven valt.\nWanneer: van 11 tot 17 uur\nOp de publie
+ ke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/s
+ tad-news-borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15/\nNieuws van de ande
+ re districten: https://www.antwerpen.be/info/68ef69f1d2ceb2c2044ce884/kuns
+ tendag-voor-kinderen-1\nBron: districten van stad Antwerpen – bron stad 
+ Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18@mijn-publieke-agen
+ da-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+SUMMARY:Ontdek jouw artisieke talent tijdens de Week van de Senior met Mokt
+ amee Senior
+LOCATION:District Ekeren\, locatie via de officiële bron
+DESCRIPTION:Ben je 65-plus en heb je zin om iets nieuws te ontdekken? Maak 
+ tijdens Moktamee Senior kennis met Academie Ekeren en beleef een inspirere
+ nde voormiddag vol creativiteit\, ontmoeting en plezier.\nWanneer: 9 tot 1
+ 2 uur\, met aansluitend een toonmoment\nOp de publieke agenda: https://mij
+ n-publieke-agenda-voor-district.onrender.com/event/stad-news-ekeren-6a75cd
+ f1f4182ba23458859c-2026-11-18/\nNieuws van de andere districten: https://w
+ ww.antwerpen.be/info/6a75cdf1f4182ba23458859c/ontdek-jouw-artisieke-talent
+ -tijdens-de-week-van-de-senior-met-moktamee-senior\nBron: districten van s
+ tad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -ekeren-6a75cdf1f4182ba23458859c-2026-11-18/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18@mijn-publieke-agen
+ da-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261118
+DTEND;VALUE=DATE:20261119
+SUMMARY:Creatieve senioren gezocht!
+LOCATION:District Ekeren\, locatie via de officiële bron
+DESCRIPTION:Tijdens de week van de senior zoeken we creatieve senioren. Sen
+ ioren die hun werk tentoon willen stellen\, professioneel of niet. Iederee
+ n is welkom. We moedigen ook iedere 65-plusser aan om zijn of haar talent 
+ te ontdekken. Lees dus zeker verder!\nWanneer: 9 tot 12 uur\, met aansluit
+ end een toonmoment\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/stad-news-ekeren-6abbb552340ee700472dd1df-2
+ 026-11-18/\nNieuws van de andere districten: https://www.antwerpen.be/info
+ /6abbb552340ee700472dd1df/creatieve-senioren-gezocht\nBron: districten van
+  stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie
+ )
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -ekeren-6abbb552340ee700472dd1df-2026-11-18/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261118T130000
+DTEND;TZID=Europe/Brussels:20261118T160000
+SUMMARY:Plezier verzekerd op de Fun Games
+LOCATION:Sporthal De Rode Loop\, District Merksem (plaats volgens het beric
+ ht)
+DESCRIPTION:Klaar voor actie en creativiteit? Tijdens de Fun Games beleven 
+ kinderen van 8 tot 13 jaar een gratis namiddag vol speel- en sportplezier 
+ in sporthal De Rode Loop.\nWanneer: van 13 tot 16 uur\nOp de publieke agen
+ da: https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-new
+ s-merksem-6a97c90144947476b56a9e02-2026-11-18/\nNieuws van de andere distr
+ icten: https://www.antwerpen.be/info/6a97c90144947476b56a9e02/plezier-verz
+ ekerd-op-de-fun-games\nBron: districten van stad Antwerpen – bron stad A
+ ntwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-6a97c90144947476b56a9e02-2026-11-18/
+CATEGORIES:Sport
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19@mijn-publiek
+ e-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261119T200000
+DURATION:PT1H
+SUMMARY:VOLZET - Zwarte september – Sandro Veronesi
+LOCATION:District Wilrijk\, locatie via de officiële bron
+DESCRIPTION:Wanneer: 20.00 uur\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/stad-news-wilrijk-648d2efc50afea
+ 0013656346-t1r1-2026-11-19/\nNieuws van de andere districten: https://www.
+ antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs
+ -in-de-wilrijkse-bibliotheek\nBron: districten van stad Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-20@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261120T093000
+DURATION:PT1H
+SUMMARY:Digitaal sterker met gratis infosessies
+LOCATION:A-bib Merksem\, Parkweg 1
+DESCRIPTION:Ontdek de nieuwe themaworkshops die het district dit najaar org
+ aniseert in A-bib Merksem. Ontdek hoe digitale toepassingen je kunnen help
+ en\, bescherm je tegen online gevaren en meer!\nWanneer: 9.30 uur\nOp de p
+ ublieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/ev
+ ent/stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-20/\nNieuws van de 
+ andere districten: https://www.antwerpen.be/info/699c648e7c39f43c7a20d062/
+ digitaal-sterker-met-gratis-infosessies\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-699c648e7c39f43c7a20d062-2026-11-20/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261128T140000
+DTEND;TZID=Europe/Brussels:20261128T163000
+SUMMARY:Feest voor de Sint
+LOCATION:Park Gravenhof\, District Hoboken (plaats volgens het bericht)
+DESCRIPTION:Sinterklaas meert met zijn stoomboot vol cadeautjes en zijn tro
+ uwe pieten aan bij het veer. Wacht hem vol spanning op in de Leo Bosschart
+ laan en trek vervolgens mee naar park Gravenhof voor een onvergetelijke Si
+ nterklaasshow.\nWanneer: van 14 tot 16.30 uur\nOp de publieke agenda: http
+ s://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news-hoboke
+ n-654a17da22c9bd00182b3d04-2026-11-28/\nNieuws van de andere districten: h
+ ttps://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint\n
+ Bron: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse grati
+ s open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -hoboken-654a17da22c9bd00182b3d04-2026-11-28/
+CATEGORIES:Familie & kinderen
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261128T140000
+DTEND;TZID=Europe/Brussels:20261128T170000
+SUMMARY:Groot sintdorp op 22 november in centrum Wilrijk
+LOCATION:District Wilrijk\, locatie via de officiële bron
+DESCRIPTION:Hij komt\, hij komt: Sinterklaas bezoekt op zaterdag 28 novembe
+ r het Wilrijkse gemeenschapscentrum! Reden genoeg voor de jeugddienst om e
+ en groot Sintfeest te bouwen boordevol speelpret.\nWanneer: van 14 tot 17 
+ uur\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onr
+ ender.com/event/stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28/\nNi
+ euws van de andere districten: https://www.antwerpen.be/info/635a8e3d01664
+ 4c31f2f509a/groot-sintdorp-op-22-november-in-centrum-wilrijk\nBron: distri
+ cten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data 
+ licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -wilrijk-635a8e3d016644c31f2f509a-2026-11-28/
+CATEGORIES:Familie & kinderen
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10@mijn-publiek
+ e-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261210T200000
+DURATION:PT1H
+SUMMARY:Het leugenachtige leven van volwassenen – Elena Ferrante
+LOCATION:District Wilrijk\, locatie via de officiële bron
+DESCRIPTION:Wanneer: 20.00 uur\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/stad-news-wilrijk-648d2efc50afea
+ 0013656346-t1r2-2026-12-10/\nNieuws van de andere districten: https://www.
+ antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs
+ -in-de-wilrijkse-bibliotheek\nBron: districten van stad Antwerpen – bron
+  stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11@mijn-pub
+ lieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261211
+DTEND;VALUE=DATE:20261214
+SUMMARY:Bohoho's warm winterfeest
+LOCATION:District Borgerhout\, locatie via de officiële bron
+DESCRIPTION:Cultuur en animatie in Borgerhoutse winkelstraten.\nOp de publi
+ eke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/
+ stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11/\nNieuws va
+ n de andere districten: https://www.antwerpen.be/info/66d6eef576ce66054513
+ 9265/najaar-2026-save-the-date\nBron: districten van stad Antwerpen – br
+ on stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11/
+CATEGORIES:Familie & kinderen
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-12-18@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261218T093000
+DURATION:PT1H
+SUMMARY:Digitaal sterker met gratis infosessies
+LOCATION:A-bib Merksem\, Parkweg 1
+DESCRIPTION:Ontdek de nieuwe themaworkshops die het district dit najaar org
+ aniseert in A-bib Merksem. Ontdek hoe digitale toepassingen je kunnen help
+ en\, bescherm je tegen online gevaren en meer!\nWanneer: 9.30 uur\nOp de p
+ ublieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/ev
+ ent/stad-news-merksem-699c648e7c39f43c7a20d062-2026-12-18/\nNieuws van de 
+ andere districten: https://www.antwerpen.be/info/699c648e7c39f43c7a20d062/
+ digitaal-sterker-met-gratis-infosessies\nBron: districten van stad Antwerp
+ en – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
+ -merksem-699c648e7c39f43c7a20d062-2026-12-18/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,212 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Cultuur
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Cultuur
+DESCRIPTION:Cultuur in district Antwerpen\, uit de publieke agenda\, met de
+  officiële bron.
+X-WR-CALDESC:Cultuur in district Antwerpen\, uit de publieke agenda\, met d
+ e officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/cultuur.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a766-2026-09-09@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20260909
+DTEND;VALUE=DATE:20261023
+SUMMARY:Humans of Antwerp
+LOCATION:CO Nova\, Schijfstraat 105\, 2020 Antwerpen
+DESCRIPTION:Humans of Antwerp maakte 9 videoportretten van Kielse senioren.
+  Tijdens de opendeurweek van Nova kan je de expo voor het eerst bekijken e
+ n beluisteren. Prijs: GRATIS\nWanneer: Geen uur gevonden\; zie de officië
+ le bron.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distric
+ t.onrender.com/event/district-kal-6a746a7ff4182b8edf63a766-2026-09-09/\nDi
+ strictskalender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wa
+ t-beleef-je-in-district-antwerpen\nMeer info bij de organisator: https://n
+ ova.antwerpen.be/humans-of-antwerp\nBron: district Antwerpen – bron stad
+  Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a766-2026-09-09/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:poetische-rimpelingen-2026-06-29-2026-10-10-66473414@mijn-publieke-agen
+ da-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261010T140000
+DURATION:PT1H
+SUMMARY:Poëtische Rimpelingen
+LOCATION:Regattawijk\, Linkeroever
+DESCRIPTION:Regattawandeling met poëzie op zaterdag 10 oktober 2026 om 14 
+ uur. Publieke kalender van Maand van de Voetganger\, in samenwerking met 2
+ 050 Literair\, Citaat op Straat en district Antwerpen. Deelname 5 euro\; e
+ xacte vertrekplaats via de organisator.\nWanneer: start om 14 uur\; exacte
+  vertrekplaats volgt bij de organisator\nOp de publieke agenda: https://mi
+ jn-publieke-agenda-voor-district.onrender.com/event/poetische-rimpelingen-
+ 2026-06-29-2026-10-10-66473414/\nOfficiële bron: https://maandvandevoetga
+ nger.be/actie/wandelen-met-woorden-poetische-rimpelingen/\nBron: district 
+ Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/poetische
+ -rimpelingen-2026-06-29-2026-10-10-66473414/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a76b-2026-10-23@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261023T150000
+DURATION:PT1H
+SUMMARY:Vrijdagen van de Poëzie
+LOCATION:Harmoniepark 1
+DESCRIPTION:Je maandelijkse date met een dichter. Gastheer Piet Piryns gaat
+  in gesprek met een bekende Nederlandstalige auteur over poëzie die begee
+ stert. Op 23 oktober verwachten we Tania Verhelst en op 20 november Jeroen
+  Theunissen. Prijs: €5 / GRATIS (VT)\nWanneer: 15 uur\nOp de publieke ag
+ enda: https://mijn-publieke-agenda-voor-district.onrender.com/event/distri
+ ct-kal-6a746a7ff4182b8edf63a76b-2026-10-23/\nDistrictskalender: https://ww
+ w.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-ant
+ werpen\nMeer info bij de organisator: https://www.antwerpen.be/info/69bcf7
+ a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie\nBron
+ : district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data lic
+ entie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a76b-2026-10-23/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a77d-2026-11-04@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261104T190000
+DURATION:PT1H
+SUMMARY:FURIE!
+LOCATION:Grote Markt
+DESCRIPTION:Herdenk de Spaanse Furie die exact 450 jaar geleden plaatsvond 
+ op de Grote Markt. Bereid je voor op een unieke en meeslepende herdenking.
+  Een éénmalig totaalspektakel boordevol verrassingen. Prijs: GRATIS\nWan
+ neer: om 19 uur\nOp de publieke agenda: https://mijn-publieke-agenda-voor-
+ district.onrender.com/event/district-kal-6a746a7ff4182b8edf63a77d-2026-11-
+ 04/\nDistrictskalender: https://www.antwerpen.be/info/5efb0477b118f7b19c62
+ 7b69/wat-beleef-je-in-district-antwerpen\nEvenementen op straat (dossiers 
+ van de stad in A-Sign): https://geodata.antwerpen.be/arcgissql/rest/servic
+ es/P_ASign/ASign/MapServer/22\nMeer info bij de organisator: https://www.a
+ ntwerpen.be/nl/overzicht/district-antwerpen-1/nieuws/furie-450-jaar-later-
+ eenmalig-meeslepend\nBron: district Antwerpen – bron stad Antwerpen (Vla
+ amse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a77d-2026-11-04/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a77e-2026-11-10@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261110T140000
+DURATION:PT1H
+SUMMARY:Verlangen naar verbinding
+LOCATION:Het Oude Badhuis\, Stuivenbergplein 38
+DESCRIPTION:Een voorstelling over verlangen naar verbinding en erbij horen.
+  Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over 
+ wat het betekent om ergens bij te horen\, over het gevoel van verbinding e
+ n het ontbreken daarvan. Prijs: GRATIS\nWanneer: 14 uur\n10 november\, 14
+ –15 uur\, Het Oude Badhuis. Gratis\, vooraf inschrijven per e-mail bij h
+ et district.\nInschrijven per e-mail bij district Antwerpen.\nOp de publie
+ ke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/d
+ istrict-kal-6a746a7ff4182b8edf63a77e-2026-11-10/\nDistrictskalender: https
+ ://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-distric
+ t-antwerpen\nDistrictsnieuws: https://www.antwerpen.be/info/68e7c5577c39f4
+ 0ba84cf2b2/voorstelling-verlangen-naar-verbinding-op-10-november\nBron: di
+ strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
+ e)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a77e-2026-11-10/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a76b-2026-11-20@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261120T150000
+DURATION:PT1H
+SUMMARY:Vrijdagen van de Poëzie
+LOCATION:Harmoniepark 1
+DESCRIPTION:Je maandelijkse date met een dichter. Gastheer Piet Piryns gaat
+  in gesprek met een bekende Nederlandstalige auteur over poëzie die begee
+ stert. Op 23 oktober verwachten we Tania Verhelst en op 20 november Jeroen
+  Theunissen. Prijs: €5 / GRATIS (VT)\nWanneer: 15 uur\nTickets voor deze
+  datum officieel bevestigd.\nTickets bestellen op officieel bevestigde pag
+ ina: https://cid.recreatex.be/Tickets/Detail.aspx?code=CID-STA-20261120&la
+ nguage=NL&smallmenu=1\nOp de publieke agenda: https://mijn-publieke-agenda
+ -voor-district.onrender.com/event/district-kal-6a746a7ff4182b8edf63a76b-20
+ 26-11-20/\nDistrictskalender: https://www.antwerpen.be/info/5efb0477b118f7
+ b19c627b69/wat-beleef-je-in-district-antwerpen\nMeer info bij de organisat
+ or: https://www.antwerpen.be/info/69bcf7a1ff0ca8917752fe74/vrijdagen-van-d
+ e-poezie-in-districtshuis-harmonie\nBron: district Antwerpen – bron stad
+  Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a76b-2026-11-20/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-6a746a7ff4182b8edf63a780-2026-11-26@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261126T180000
+DTEND;TZID=Europe/Brussels:20261126T210000
+SUMMARY:Noorderlicht
+LOCATION:2060 Antwerpen
+DESCRIPTION:en avond die met muziek\, beeld en woord licht brengt in Antwer
+ pen Noord. Ga mee op stap en geniet onder weg van de vele artistieke verra
+ ssingen in het thema ‘Adem mee’. Prijs: GRATIS\nWanneer: 18 tot 21 uur
+ \nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onrend
+ er.com/event/district-kal-6a746a7ff4182b8edf63a780-2026-11-26/\nDistrictsk
+ alender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef
+ -je-in-district-antwerpen\nEvenementen op straat (dossiers van de stad in 
+ A-Sign): https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASig
+ n/MapServer/22\nMeer info bij de organisator: https://www.facebook.com/Par
+ adeNoorderlicht\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse
+  gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-6a746a7ff4182b8edf63a780-2026-11-26/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

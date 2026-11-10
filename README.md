@@ -202,6 +202,33 @@ Naast (of op gsm boven) het plekoverzicht staat de kaart (`site/neighborhood-map
   en vallen bij een wijkfilter weg.
 - In de URL: zie `?plek=` hierboven.
 
+## Volg in je agenda (kalenderfeed)
+
+Bouwrij lijst 23, punt 10. De knop "Volg in je agenda" in de kop opent `/kalender/` (`site/kalender/index.html`,
+`site/agenda-kalender.js`, `site/agenda-kalender.css`): de agenda om te volgen in de agenda van je iPhone, Google of
+Outlook, met de uitleg per toestel. Naast de losse `.ics` per activiteit (`site/agenda-ics.js`, een momentopname)
+staat er nu een feed die je agenda zelf opnieuw ophaalt.
+
+- De feeds maakt `npm run build` (`scripts/build-agenda.mjs`, `lib/kalenderfeed.mjs`) in `site/kalender/<slug>.ics`,
+  te volgen als `https://` of `webcal://`, bv. `webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/agenda.ics`:
+  `agenda` (alles in district Antwerpen, behalve de wekelijkse markten), `uitgaan` (de standaardweergave), één per
+  soortknop (`cultuur`, `wekelijkse-markten`, `raad-en-commissies` …) en `stad` (de andere districten). De adressen staan
+  vast in `SOORT_SLUGS`; een knop die van naam verandert, breekt geen abonnement. Een wijk heeft geen eigen feed: of een
+  punt in een wijk ligt, beslist de site pas in de browser.
+- Elk punt heeft dezelfde vaste UID als in zijn losse `.ics` (de stabiele id): een ander uur, een andere plaats of een
+  punt dat wegvalt, komt bij de volgende verversing vanzelf in de agenda van de bewoner. Een uur op één dag krijgt zijn
+  einde uit de tijdtekst ("8 tot 13 uur"), anders één uur; meerdaags of zonder uur staat het er de hele dag. Wat de
+  laatste 31 dagen voorbij ging (`site/verleden/`), blijft erin.
+- Dezelfde regels als de rest van de site: de plaats precies zoals de site ze toont, met het exacte huisnummer; nooit
+  een reden, het woord verhuis, contactgegevens of een naam na een dossiercode (`verledenRecordProblemen`,
+  `naamNaCodeWeg`); niets van N-VA of een andere partij (dezelfde partijnamen en -domeinen als de Gateway); een activiteit
+  van de provincie alleen met de link, met wat er over inschrijven gezegd is, en nooit als ze volzet is; een aanvraag
+  die de stad nog niet goedkeurde als voorlopig (`STATUS:TENTATIVE`); geen UiTdatabank. Wat niet door de poort komt, staat
+  in geen enkele feed; de build meldt het met codes.
+- De feeds zijn data: de dagelijkse verversing werkt ze bij (`lib/data-lane-paths.json`). Render bewaart ze vijf minuten
+  (`render.yaml`); een agenda vraagt om de zes uur na (`REFRESH-INTERVAL`).
+- Toetsen: `tests/kalenderfeed.test.mjs`.
+
 ## Latere uitbreiding: UiTdatabank
 
 De ophaler voor UiTdatabank (`scripts/fetch-sources-uit.mjs`) staat klaar maar is bewust niet ingeschakeld:

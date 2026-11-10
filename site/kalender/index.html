@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="nl-BE">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Volg de publieke agenda van District Antwerpen in de agenda van je iPhone, Google of Outlook: nieuwe activiteiten en wijzigingen komen vanzelf mee." />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta name="robots" content="index,follow" />
+    <meta name="color-scheme" content="light dark" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="nl_BE" />
+    <meta property="og:title" content="Volg in je agenda | Mijn publieke agenda voor District Antwerpen" />
+    <meta property="og:description" content="Wat er te doen is in District Antwerpen, vanzelf in je eigen agenda." />
+    <meta property="og:url" content="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/" />
+    <meta name="twitter:card" content="summary" />
+    <link rel="canonical" href="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/" />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      // Donker/licht: dezelfde keuze als op de agenda (site/index.html).
+      try {
+        const savedTheme = window.localStorage.getItem("agenda-thema");
+        if (savedTheme === "dark" || savedTheme === "light") document.documentElement.dataset.theme = savedTheme;
+      } catch {
+        /* Zonder opslag volgt de pagina gewoon het toestel. */
+      }
+    </script>
+    <title>Volg in je agenda | Mijn publieke agenda voor District Antwerpen</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/agenda-uitgaan.css" />
+    <link rel="stylesheet" href="/agenda-verleden.css" />
+    <link rel="stylesheet" href="/agenda-kalender.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Ga naar de uitleg</a>
+    <!--
+      De agenda om te volgen (lib/kalenderfeed.mjs). De feeds zelf maakt de build (scripts/build-agenda.mjs) in
+      site/kalender/<slug>.ics; deze pagina legt uit hoe je ze volgt. tests/kalenderfeed.test.mjs houdt de lijst hieronder
+      gelijk met de feeds die de build maakt.
+    -->
+    <main id="main-content" class="kalender-pagina">
+      <a class="verleden-terug" href="/">← Terug naar de publieke agenda</a>
+      <header class="kalender-kop">
+        <h1>Volg de agenda in je eigen agenda</h1>
+        <p>
+          Abonneer je één keer, en wat er in district Antwerpen te doen is, staat vanzelf in de agenda van je gsm of
+          computer. Komt er iets bij, verandert een uur of een plaats, of valt een activiteit weg, dan past je agenda zich
+          aan. Je hoeft je nergens te registreren.
+        </p>
+      </header>
+
+      <section class="kalender-hoofd" aria-labelledby="kalender-alles">
+        <h2 id="kalender-alles">Alles in district Antwerpen</h2>
+        <p>
+          Elke activiteit die deze agenda toont, met het uur, de plaats en de officiële bron. De wekelijkse markten staan in
+          een eigen agenda, verderop.
+        </p>
+        <div class="kalender-knoppen" data-kalender-feed="agenda">
+          <a class="kalender-knop kalender-knop-hoofd" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/agenda.ics"><span aria-hidden="true">📅</span> Volg in je agenda</a>
+          <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fagenda.ics" target="_blank" rel="noreferrer">Google Agenda</a>
+          <a class="kalender-knop" href="https://outlook.live.com/calendar/0/addfromweb?url=https%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fagenda.ics&amp;name=Mijn%20publieke%20agenda%20District%20Antwerpen" target="_blank" rel="noreferrer">Outlook.com</a>
+          <a class="kalender-knop" href="https://outlook.office.com/calendar/0/addfromweb?url=https%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fagenda.ics&amp;name=Mijn%20publieke%20agenda%20District%20Antwerpen" target="_blank" rel="noreferrer">Outlook van je werk of school</a>
+        </div>
+        <div class="kalender-link">
+          <label for="kalender-link-agenda">Of kopieer de link en plak hem in je agenda</label>
+          <div>
+            <input id="kalender-link-agenda" type="text" readonly value="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/agenda.ics" />
+            <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/agenda.ics" hidden>Kopieer link</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="kalender-uitleg" aria-labelledby="kalender-hoe">
+        <h2 id="kalender-hoe">Zo voeg je hem toe</h2>
+        <details>
+          <summary>iPhone of iPad</summary>
+          <ol>
+            <li>Tik hierboven op <strong>Volg in je agenda</strong> en daarna op <strong>Abonneer</strong>.</li>
+            <li>Kies eventueel een kleur en tik op <strong>Voeg toe</strong>. De agenda staat nu in de app Agenda.</li>
+            <li>
+              Gebeurt er niets? Kopieer de link en ga naar Instellingen › Apps › Agenda › Agenda-accounts › Voeg account
+              toe › Andere › Voeg agenda-abonnement toe (op een oudere iPhone: Instellingen › Agenda › Accounts). Plak de
+              link en tik op Volgende en daarna op Bewaar.
+            </li>
+          </ol>
+        </details>
+        <details>
+          <summary>Google Agenda en Android</summary>
+          <ol>
+            <li>
+              Op een computer: klik hierboven op <strong>Google Agenda</strong> en bevestig met Toevoegen. Of open Google
+              Agenda, klik naast Andere agenda's op +, kies Via URL, plak de link en klik op Agenda toevoegen.
+            </li>
+            <li>
+              De app Google Agenda op een gsm kan zelf geen link toevoegen. Doe het één keer op een computer: daarna staat
+              de agenda ook op je gsm. Zie je hem niet, zet hem dan aan in de app, bij Instellingen.
+            </li>
+            <li>Google haalt een gevolgde agenda zelf opnieuw op; een wijziging kan er een paar uur over doen.</li>
+          </ol>
+        </details>
+        <details>
+          <summary>Outlook</summary>
+          <ol>
+            <li>
+              Outlook.com of Outlook op het web: klik hierboven op <strong>Outlook.com</strong> of
+              <strong>Outlook van je werk of school</strong> en bevestig. Of ga in de agenda naar Agenda toevoegen ›
+              Abonneren via internet, plak de link, geef een naam en klik op Importeren.
+            </li>
+            <li>Outlook op Windows: ga in de agenda naar Agenda toevoegen › Van internet, plak de link en bevestig.</li>
+            <li>De app Outlook op je gsm toont de agenda vanzelf zodra hij in je Outlook-account staat.</li>
+          </ol>
+        </details>
+      </section>
+
+      <section class="kalender-meer" aria-labelledby="kalender-soorten">
+        <h2 id="kalender-soorten">Liever alleen een deel?</h2>
+        <p>
+          Elke soort activiteit heeft een eigen agenda, zoals de knoppen op de site. Volg er zoveel je wil: ze werken op
+          dezelfde manier. Op een iPhone tik je op Volg, met Google Agenda op Google, en voor Outlook kopieer je de link.
+        </p>
+        <ul class="kalender-lijst">
+          <li class="kalender-feed" data-kalender-feed="uitgaan">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">✨</span> Uitgaan &amp; evenementen</strong>
+              <span>Wat de site standaard toont: feesten, buurt en straat, cultuur, familie, stoeten, sport, rommelmarkten en koopzondagen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/uitgaan.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fuitgaan.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/uitgaan.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="feest-en-festival">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🎉</span> Feest &amp; festival</strong>
+              <span>Feesten, festivals, kermissen en kerstmarkten.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/feest-en-festival.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Ffeest-en-festival.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/feest-en-festival.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="buurt-en-straat">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🏘️</span> Buurt &amp; straat</strong>
+              <span>Buurtfeesten, speelstraten, evenementen op straat en buurtacties.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/buurt-en-straat.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fbuurt-en-straat.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/buurt-en-straat.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="cultuur">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🎭</span> Cultuur</strong>
+              <span>Voorstellingen, concerten, tentoonstellingen, lezingen en herdenkingen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/cultuur.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fcultuur.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/cultuur.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="familie-en-kinderen">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🧸</span> Familie &amp; kinderen</strong>
+              <span>Activiteiten voor gezinnen en kinderen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/familie-en-kinderen.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Ffamilie-en-kinderen.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/familie-en-kinderen.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="stoet-en-processie">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🥁</span> Stoet &amp; processie</strong>
+              <span>Stoeten, optochten en processies.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/stoet-en-processie.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fstoet-en-processie.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/stoet-en-processie.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="sport">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🏃</span> Sport</strong>
+              <span>Wedstrijden, sportdagen en loopjes.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/sport.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fsport.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/sport.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="rommelmarkt-en-braderie">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🛍️</span> Rommelmarkt &amp; braderie</strong>
+              <span>Rommelmarkten, braderieën en garageverkopen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/rommelmarkt-en-braderie.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Frommelmarkt-en-braderie.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/rommelmarkt-en-braderie.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="koopzondag">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🛒</span> Koopzondag</strong>
+              <span>De koopzondagen in district Antwerpen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/koopzondag.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fkoopzondag.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/koopzondag.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="raad-en-commissies">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🏛️</span> Raad &amp; commissies</strong>
+              <span>De openbare zittingen van de districtsraad en zijn commissies.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/raad-en-commissies.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fraad-en-commissies.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/raad-en-commissies.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="infomomenten-en-vorming">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">💬</span> Infomomenten &amp; vorming</strong>
+              <span>Infomomenten, workshops en vormingen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/infomomenten-en-vorming.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Finfomomenten-en-vorming.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/infomomenten-en-vorming.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="inspraak-en-bevraging">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🗳️</span> Inspraak &amp; bevraging</strong>
+              <span>Bevragingen, enquêtes en inspraakperiodes.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/inspraak-en-bevraging.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Finspraak-en-bevraging.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/inspraak-en-bevraging.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="oproepen-en-deadlines">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">📣</span> Oproepen &amp; deadlines</strong>
+              <span>Oproepen en uiterste data, bijvoorbeeld om iets aan te vragen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/oproepen-en-deadlines.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Foproepen-en-deadlines.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/oproepen-en-deadlines.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="werken-en-hinder">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🚧</span> Werken &amp; hinder</strong>
+              <span>Werken en verkeersmaatregelen uit de agenda, over hun hele periode.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/werken-en-hinder.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fwerken-en-hinder.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/werken-en-hinder.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="wekelijkse-markten">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🧺</span> Wekelijkse markten</strong>
+              <span>Elke marktdag van de wekelijkse markten in district Antwerpen.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/wekelijkse-markten.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fwekelijkse-markten.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/wekelijkse-markten.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="overig">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">✨</span> Overig</strong>
+              <span>Wat in geen andere soort past.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/overig.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Foverig.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/overig.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+          <li class="kalender-feed" data-kalender-feed="stad">
+            <div class="kalender-feed-tekst">
+              <strong><span aria-hidden="true">🏙️</span> Stad Antwerpen</strong>
+              <span>Wat de stad publiceert voor de andere districten (de knop Stad Antwerpen op de site), zonder de wekelijkse markten.</span>
+            </div>
+            <div class="kalender-acties">
+              <a class="kalender-knop" href="webcal://mijn-publieke-agenda-voor-district.onrender.com/kalender/stad.ics">Volg</a>
+              <a class="kalender-knop" href="https://calendar.google.com/calendar/render?cid=webcal%3A%2F%2Fmijn-publieke-agenda-voor-district.onrender.com%2Fkalender%2Fstad.ics" target="_blank" rel="noreferrer">Google</a>
+              <button type="button" class="kalender-knop" data-kalender-kopieer="https://mijn-publieke-agenda-voor-district.onrender.com/kalender/stad.ics" hidden>Kopieer link</button>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <section class="kalender-noot" aria-labelledby="kalender-goed">
+        <h2 id="kalender-goed">Goed om te weten</h2>
+        <ul>
+          <li>Bij elke activiteit staan de officiële bron en een link naar haar pagina op deze site.</li>
+          <li>
+            Een aanvraag die de stad nog niet goedkeurde, staat erin als voorlopig, met “aanvraag” in de titel. Wordt ze
+            goedgekeurd, dan past je agenda zich aan; valt ze weg, dan verdwijnt ze.
+          </li>
+          <li>Wat voorbij is, blijft nog een maand in je agenda staan.</li>
+          <li>De agenda wordt elke ochtend ververst; je eigen agenda haalt de wijzigingen daarna zelf op.</li>
+          <li>Wil je hem niet meer volgen, verwijder dan de agenda in je agenda-app. Je eigen afspraken blijven staan.</li>
+        </ul>
+      </section>
+    </main>
+    <script src="/agenda-kalender.js"></script>
+  </body>
+</html>

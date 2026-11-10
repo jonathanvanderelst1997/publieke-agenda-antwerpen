@@ -1,0 +1,939 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Raad & commissies
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Raad & commissies
+DESCRIPTION:Raad & commissies in district Antwerpen\, uit de publieke agend
+ a\, met de officiële bron.
+X-WR-CALDESC:Raad & commissies in district Antwerpen\, uit de publieke agen
+ da\, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/raad-en-commissies.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-0536-7110@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261012T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 0536-7110/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.0536.7110\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-0536-7110/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-0530-1252@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261014T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - Zaal Benoit
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 0530-1252/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.0530.1252\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-0530-1252/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-1314-2515@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261019T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 1314-2515/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.1314.2515\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-1314-2515/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-6457-7477@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261109T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 6457-7477/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.6457.7477\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-6457-7477/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-7211-0891@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261116T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 7211-0891/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.7211.0891\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-7211-0891/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-5334-4877@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261117T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - Zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 5334-4877/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.5334.4877\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-5334-4877/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-1004-4303-5550@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261118T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-1004-
+ 4303-5550/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.1004.4303.5550\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-1004-4303-5550/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-2205-4185@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261207T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 2205-4185/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.2205.4185\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-2205-4185/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-1742-1734@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261208T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - Zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 1742-1734/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.1742.1734\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-1742-1734/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-5790-9429@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261209T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - Zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 5790-9429/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.5790.9429\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-5790-9429/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-25-0722-5555-7312@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20261214T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-25-0722-
+ 5555-7312/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/25.0722.5555.7312\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-25-0722-5555-7312/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9864-8481@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270111T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9864-8481/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9864.8481\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9864-8481/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-8144-9278@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270112T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 8144-9278/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.8144.9278\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-8144-9278/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-8363-2671@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270118T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 8363-2671/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.8363.2671\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-8363-2671/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-5376-9061@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270215T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 5376-9061/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.5376.9061\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-5376-9061/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-5361-0770@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270216T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 5361-0770/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.5361.0770\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-5361-0770/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-7898-7479@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270217T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 7898-7479/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.7898.7479\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-7898-7479/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-6167-5172@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270222T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 6167-5172/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.6167.5172\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-6167-5172/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-3153-5861@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270315T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 3153-5861/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.3153.5861\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-3153-5861/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-2334-4527@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270316T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 2334-4527/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.2334.4527\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-2334-4527/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-1517-2364@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270322T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 1517-2364/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.1517.2364\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-1517-2364/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-6385-2922@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270412T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 6385-2922/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.6385.2922\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-6385-2922/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-2478-5655@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270413T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 2478-5655/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.2478.5655\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-2478-5655/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-8272-7642@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270414T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 8272-7642/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.8272.7642\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-8272-7642/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9862-3908@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270419T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9862-3908/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9862.3908\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9862-3908/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9097-7142@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270511T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9097-7142/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9097.7142\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9097-7142/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-6247-0350@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270518T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 6247-0350/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.6247.0350\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-6247-0350/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9868-2662@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270524T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9868-2662/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9868.2662\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9868-2662/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-0206-9221@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270614T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 0206-9221/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.0206.9221\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-0206-9221/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-0482-8879@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270615T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 0482-8879/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.0482.8879\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-0482-8879/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9473-5974@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270616T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9473-5974/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9473.5974\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9473-5974/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-0707-9850@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270621T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 0707-9850/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.0707.9850\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-0707-9850/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-0067-7787@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270913T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 0067-7787/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.0067.7787\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-0067-7787/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-3744-1378@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270914T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 3744-1378/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.3744.1378\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-3744-1378/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-4516-0936@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20270920T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 4516-0936/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.4516.0936\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-4516-0936/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-7810-5822@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271011T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 7810-5822/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.7810.5822\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-7810-5822/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-4589-4036@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271012T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
+ ie\, evenementen en feestelijkheden\, veiligheid en erfgoed
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 4589-4036/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.4589.4036\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-4589-4036/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-7712-4452@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271013T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
+ isme\, jeugd\, senioren\, wijkwerking\, dierenwelzijn\, participatie en Bu
+ rgerbegroting
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 7712-4452/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.7712.4452\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-7712-4452/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-1832-6348@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271018T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 1832-6348/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.1832.6348\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-1832-6348/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-0100-3733@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271115T200000
+DURATION:PT1H
+SUMMARY:Raadscommissie Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 0100-3733/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.0100.3733\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-0100-3733/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-9687-9063@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271116T200000
+DURATION:PT1H
+SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
+ iteit\, parken en groenvoorziening
+LOCATION:Districtshuis Antwerpen - zaal Benoit\, Mechelsesteenweg 216\, 201
+ 8 Antwerpen
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 9687-9063/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.9687.9063\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-9687-9063/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-vergadering-ebesluit-26-0803-1208-8803@mijn-publieke-agenda-vo
+ or-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;TZID=Europe/Brussels:20271122T200000
+DURATION:PT1H
+SUMMARY:Districtsraad Antwerpen
+LOCATION:Provinciehuis Antwerpen\, Koningin Elisabethlei 22\, 2018 Antwerpe
+ n
+DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
+ lender.\nWanneer: 20:00\nOp de publieke agenda: https://mijn-publieke-agen
+ da-voor-district.onrender.com/event/district-vergadering-ebesluit-26-0803-
+ 1208-8803/\nDistrictsraad en raadscommissies: https://ebesluit.antwerpen.b
+ e/zittingen/26.0803.1208.8803\nBron: district Antwerpen – bron stad Antw
+ erpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ vergadering-ebesluit-26-0803-1208-8803/
+CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR

@@ -1,0 +1,65 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Mijn Publieke Agenda District Antwerpen//Kalenderfeed//NL
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+NAME:Mijn publieke agenda District Antwerpen – Inspraak & bevraging
+X-WR-CALNAME:Mijn publieke agenda District Antwerpen – Inspraak & bevragi
+ ng
+DESCRIPTION:Inspraak & bevraging in district Antwerpen\, uit de publieke ag
+ enda\, met de officiële bron.
+X-WR-CALDESC:Inspraak & bevraging in district Antwerpen\, uit de publieke a
+ genda\, met de officiële bron.
+X-WR-TIMEZONE:Europe/Brussels
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/kalender/
+SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
+ lender/inspraak-en-bevraging.ics
+REFRESH-INTERVAL;VALUE=DURATION:PT6H
+X-PUBLISHED-TTL:PT6H
+BEGIN:VEVENT
+UID:bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2
+ 026-11-01@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261005
+DTEND;VALUE=DATE:20261102
+SUMMARY:Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat
+LOCATION:Jan Vanhoenackerstraat\, 2000 Antwerpen
+DESCRIPTION:De schoolstraat aan basisschool K'do in de Jan Vanhoenackerstra
+ at loopt als proef. Team Publieke Ruimte van district Antwerpen vraagt buu
+ rtbewoners\, ouders en school hoe ze de proefperiode ervaren. De enquête 
+ staat open tot en met 1 november 2026\; meer info via www.antwerpen.be/pub
+ liekeruimte.\nWanneer: enquête invullen tot en met 1 november 2026\nOp de
+  publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/
+ event/bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-0
+ 5-2026-11-01/\nOfficiële bron: https://www.antwerpen.be/publiekeruimte\nB
+ ron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data 
+ licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/bevraging
+ -proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2026-11-01/
+CATEGORIES:Inspraak & bevraging
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:project-6abbbb7f332512009f4367fe-bevraging-2026-11-15@mijn-publieke-age
+ nda-voor-district.local
+DTSTAMP:20261110T043845Z
+DTSTART;VALUE=DATE:20261115
+DTEND;VALUE=DATE:20261116
+SUMMARY:Bevraging: Speelweefselplan Binnenstad
+LOCATION:Speelweefselplan Binnenstad\, 2000 Antwerpen
+DESCRIPTION:District Antwerpen vraagt je mening over het project "Speelweef
+ selplan Binnenstad". Invullen kan tot en met 15 november 2026\; de link st
+ aat op de projectpagina.\nWanneer: invullen tot en met 15 november 2026\nO
+ p de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.
+ com/event/project-6abbbb7f332512009f4367fe-bevraging-2026-11-15/\nProjecte
+ n van het district: inspraak en fasen: https://www.antwerpen.be/info/6abbb
+ b7f332512009f4367fe/speelweefselplan-binnenstad\nBron: district Antwerpen 
+ – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/project-6
+ abbbb7f332512009f4367fe-bevraging-2026-11-15/
+CATEGORIES:Inspraak & bevraging
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+END:VCALENDAR
