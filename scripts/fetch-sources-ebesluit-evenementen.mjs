@@ -2,7 +2,10 @@
 // muziekactiviteiten en het Districtsfonds rond vandaag (zittingsdatum -60/+120 dagen), leest alleen
 // nieuwe ids en schrijft:
 //   - site/sources/evenement-besluiten.json: de gelezen besluiten (cache en invoer voor de koppelstap);
-//   - site/sources/district-ebesluit-evenementen.json: agendapunten met een plaats in het district.
+//   - site/sources/district-ebesluit-evenementen.json: agendapunten met een plaats in het district;
+//   - site/sources/stad-ebesluit-evenementen.json: agendapunten uit collegebesluiten met een plaats in een ander
+//     district van de stad (groep "stad"). Dezelfde zoekronde, geen extra zoekvragen; alleen die collegebesluiten
+//     worden nu ook gelezen (hoogstens een handvol per week, binnen dezelfde grenzen van 100 pagina's en 150 s).
 // Gratis en zonder AI (lib/ebesluit-evenementen.mjs). Hoogstens 1 verzoek per seconde naar eBesluit.
 // Een fout bij het zoeken houdt beide bestanden zoals ze waren (fetchStatus "error"). Eén besluit dat de
 // vorm- of privacycontrole niet haalt, wordt opgekuist of valt weg; de rest wordt gewoon geschreven.
@@ -13,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import {
   EBESLUIT_EVENEMENTEN_SOURCE_ID,
   EVENEMENT_BESLUITEN_FILE,
+  STAD_EBESLUIT_EVENEMENTEN_SOURCE_ID,
   LEESVERSIE,
   agendapuntenUitBesluiten,
   besluitenDocument,
@@ -25,6 +29,9 @@ import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 
 export const SOURCE_ID = EBESLUIT_EVENEMENTEN_SOURCE_ID;
+export const STAD_SOURCE_ID = STAD_EBESLUIT_EVENEMENTEN_SOURCE_ID;
+// Per bron de groep van haar agendapunten (agendapuntenUitBesluiten).
+const BRONNEN = Object.freeze([[SOURCE_ID, "district"], [STAD_SOURCE_ID, "stad"]]);
 
 const besluitenPad = (rootDir) => path.join(rootDir, "site", "sources", EVENEMENT_BESLUITEN_FILE);
 
@@ -48,7 +55,9 @@ function leesStraten(rootDir) {
 }
 
 export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, dryRun = false, log = console.log, sleep } = {}) {
-  const previous = readSourceDocument(rootDir, SOURCE_ID);
+  const vorigeDocumenten = new Map(BRONNEN.map(([sourceId]) => [sourceId, readSourceDocument(rootDir, sourceId)]));
+  // Een fout houdt beide bronbestanden zoals ze waren (en het besluitenbestand ook).
+  const houdVorige = (code, at) => BRONNEN.map(([sourceId]) => keepPreviousOnError(rootDir, sourceId, vorigeDocumenten.get(sourceId), code, { dryRun, at }));
   const vorig = leesBesluiten(rootDir);
   const now = clock(), retrievedAt = now.toISOString(), today = brusselsDate(now);
   let result;
@@ -69,7 +78,7 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   } catch (error) {
     const code = errorCodeOf(error);
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: code }));
-    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, code, { dryRun, at: retrievedAt })];
+    return houdVorige(code, retrievedAt);
   }
 
   // Eén besluit met een "@", een huisnummer of een vreemde vorm legt de bron niet weken stil: het wordt
@@ -82,25 +91,26 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   if (fouten.length) {
     // Alleen een fout in het bestand zelf (niet in één besluit): liever de vorige stand.
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: "invalid_output", fouten: fouten.slice(0, 3) }));
-    return [keepPreviousOnError(rootDir, SOURCE_ID, previous, "invalid_output", { dryRun, at: retrievedAt })];
+    return houdVorige("invalid_output", retrievedAt);
   }
-  const screened = screenItems(agendapuntenUitBesluiten(besluiten.besluiten, { today, retrievedAt }));
-  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, herleesRest: result.herleesRest, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, rejected: screened.rejected };
+  const perBron = BRONNEN.map(([sourceId, groep]) => [sourceId, screenItems(agendapuntenUitBesluiten(besluiten.besluiten, { today, retrievedAt, groep }))]);
+  const [, screened] = perBron[0], [, stad] = perBron[1];
+  const counts = { besluiten: besluiten.besluiten.length, gelezen: result.gelezen, teLezen: result.teLezen, herleesRest: result.herleesRest, detailFouten: result.detailFouten, opgekuist: bruikbaar.opgekuist, weggelaten: bruikbaar.weggelaten, items: screened.items.length, stadItems: stad.items.length, rejected: screened.rejected, stadRejected: stad.rejected };
   if (dryRun) {
     log(JSON.stringify({ source: SOURCE_ID, dryRun: true, ...counts }));
-    return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length })];
+    return perBron.map(([sourceId, gezeefd]) => statusEntry(sourceId, { fetchStatus: "ok", retrievedAt, itemCount: gezeefd.items.length }));
   }
-  const document = writeSourceDocument(rootDir, SOURCE_ID, sourceDocument(SOURCE_ID, {
+  const documenten = perBron.map(([sourceId, gezeefd]) => writeSourceDocument(rootDir, sourceId, sourceDocument(sourceId, {
     retrievedAt,
     fetchStatus: "ok",
-    contentVersion: `ebesluit-evenementen-v${LEESVERSIE}|${result.venster.start}|${besluiten.samenvatting.gelezen}|${screened.items.length}`,
-    items: screened.items,
-  }));
+    contentVersion: `ebesluit-evenementen-v${LEESVERSIE}|${result.venster.start}|${besluiten.samenvatting.gelezen}|${gezeefd.items.length}`,
+    items: gezeefd.items,
+  })));
   const file = besluitenPad(rootDir);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, serialize(besluiten), "utf8");
-  log(JSON.stringify({ source: SOURCE_ID, ...counts, items: document.items.length }));
-  return [statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: document.items.length })];
+  log(JSON.stringify({ source: SOURCE_ID, ...counts, items: documenten[0].items.length, stadItems: documenten[1].items.length }));
+  return documenten.map((document) => statusEntry(document.sourceId, { fetchStatus: "ok", retrievedAt, itemCount: document.items.length }));
 }
 
 if (isMainModule(import.meta.url)) {

@@ -114,7 +114,7 @@ const VOORVOEGSELS = [
   ["markt-", "stad-markten"], ["foor-", "district-foren"], ["asign-ev-", "district-asign-evenementen"], ["district-kal-", "district-kalender"],
   ["district-news-", "district-nieuws"], ["district-vergadering-", "district-vergaderingen"], ["stad-news-", "stad-districten"],
   ["koopzondag-", "stad-koopzondagen"], ["project-", "district-projecten"], ["schoolstraat-", "district-schoolstraten"],
-  ["ebesluit-ev-", "district-ebesluit-evenementen"], ["ebesluit-", "district-ebesluit"],
+  ["ebesluit-ev-", "district-ebesluit-evenementen"], ["stad-ebesluit-ev-", "stad-ebesluit-evenementen"], ["ebesluit-", "district-ebesluit"],
 ];
 
 const huidig = new Set(fs.existsSync(path.join(rootDir, "site", "event"))

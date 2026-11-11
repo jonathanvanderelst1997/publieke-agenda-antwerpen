@@ -28,10 +28,10 @@ import {
   zoekRijen,
   zoekVenster,
 } from "../lib/ebesluit-evenementen.mjs";
-import { validateSourceDocument } from "../lib/source-feed.mjs";
+import { sourceDocument, validateSourceDocument } from "../lib/source-feed.mjs";
 import { FETCHERS } from "../lib/source-registry.mjs";
 import { readSources } from "../scripts/build-sources.mjs";
-import { SOURCE_ID, run } from "../scripts/fetch-sources-ebesluit-evenementen.mjs";
+import { SOURCE_ID, STAD_SOURCE_ID, run } from "../scripts/fetch-sources-ebesluit-evenementen.mjs";
 
 const fixtureDir = path.join(path.dirname(fileURLToPath(import.meta.url)), "fixtures", "ebesluit-evenementen");
 const fixture = (name) => fs.readFileSync(path.join(fixtureDir, name), "utf8");
@@ -532,7 +532,8 @@ test("register en bouw: de bron draait als laatste en het besluitenbestand is ge
   const root = makeRoot(t);
   await runOnce(root, nepEbesluit());
   const { documents } = readSources(root);
-  assert.deepEqual(documents.map((d) => d.sourceId), [SOURCE_ID]);
+  assert.deepEqual(documents.map((d) => d.sourceId), [SOURCE_ID, STAD_SOURCE_ID]);
+  assert.deepEqual(FETCHERS.at(-1).sourceIds, [SOURCE_ID, STAD_SOURCE_ID]);
 });
 
 // ---------- herstellingen na de nakijkronde (B1 tot B5) ----------
@@ -683,4 +684,81 @@ test("B5: een publieke instelling mag organisator zijn, een privépersoon niet",
   assert.ok(ev.wordtAgendapunt(stad));
   const doc = { schemaVersion: 1, bron: "https://ebesluit.antwerpen.be/", methode: "x", leesversie: 2, generatedAt: NOW.toISOString(), venster: { van: "2026-08-11", tot: "2027-02-07" }, zoektermen: [], samenvatting: {}, besluiten: [stad] };
   assert.deepEqual(validateEvenementBesluiten(doc), []);
+});
+
+// ---------- de andere districten (stad-ebesluit-evenementen) ----------
+// Zolang www.antwerpen.be automatische lezers weigert (sinds 23-10-2026), komen de activiteiten van de andere
+// districten ook uit de collegebesluiten: dezelfde zoekronde, groep "stad".
+
+test("inAnderDistrict: alleen een collegebesluit met een plaats in een ander district van de stad", () => {
+  const b = (extra) => besluit({ inDistrict: false, postcodes: [], straten: [], ...extra });
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Proefplein, 2140 Borgerhout", postcodes: ["2140"] })), true);
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Rivierenhof in Deurne" })), true, "de naam van het district volstaat");
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Spoor Oost" })), true);
+  // Een buurgemeente, een postcode buiten de stad of van district Antwerpen: nee.
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Proeflaan 1, 2640 Mortsel", postcodes: ["2640"] })), false);
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Proefpark in Edegem" })), false);
+  assert.equal(ev.inAnderDistrict(b({ plaats: "Proefplein, 2000 Antwerpen", postcodes: ["2000"] })), false);
+  // Een besluit van een ander districtscollege wordt niet gelezen (vorm niet nagekeken), dus ook geen agendapunt.
+  assert.equal(ev.inAnderDistrict(b({ orgaan: "districtscollege Deurne", plaats: "Proefplein, 2100 Deurne", postcodes: ["2100"] })), false);
+  // In district Antwerpen, of onbekend: nee.
+  assert.equal(ev.inAnderDistrict(besluit()), false);
+  assert.equal(ev.inAnderDistrict(b({ inDistrict: null, plaats: "Antwerpen" })), false);
+});
+
+test("agendapunten per groep: het district en de andere districten apart, nooit dubbel", () => {
+  const borgerhout = besluit({ id: "26.2.1", code: "2026_CBS_09201", naam: "Proefbal Borgerhout", organisator: "Proefbal vzw", plaats: "Proefsingel 28-30, 2140 Borgerhout", straten: [], postcodes: ["2140"], inDistrict: false, dagen: ["2026-11-14"] });
+  const deurne = besluit({ id: "26.2.2", code: "2026_CBS_09202", soort: "evenement", naam: "Proefschijn 2026", organisator: null, plaats: "Rivierenhof in Deurne", straten: [], postcodes: [], inDistrict: false, dagen: ["2026-10-28", "2026-10-29", "2026-10-30"] });
+  const mortsel = besluit({ id: "26.2.3", code: "2026_CBS_09203", naam: "Proefmortsel", plaats: "Proeflaan 1, 2640 Mortsel", straten: [], postcodes: ["2640"], inDistrict: false });
+  const ander = besluit({ id: "26.2.4", code: "2026_DCDE_09204", orgaan: "districtscollege Deurne", naam: "Proefdeurne", plaats: "Proefplein, 2100 Deurne", straten: [], postcodes: ["2100"], inDistrict: false });
+  const alle = [besluit(), borgerhout, deurne, mortsel, ander];
+  const opties = { today: TODAY, retrievedAt: NOW.toISOString() };
+  const district = agendapuntenUitBesluiten(alle, opties);
+  const stad = agendapuntenUitBesluiten(alle, { ...opties, groep: "stad" });
+  assert.deepEqual(district.map((i) => i.externalId), ["2026_CBS_09105"]);
+  assert.deepEqual(stad.map((i) => [i.id, i.date, i.endDate, i.location, i.inDistrict]), [
+    ["stad-ebesluit-ev-2026-cbs-09202-2026-10-28", "2026-10-28", "2026-10-30", "Rivierenhof in Deurne", false],
+    ["stad-ebesluit-ev-2026-cbs-09201-2026-11-14", "2026-11-14", null, "Proefsingel 28-30, 2140 Borgerhout", false],
+  ]);
+  assert.match(stad[1].info, /^Toelating voor een muziekactiviteit door het college van burgemeester en schepenen/);
+  // Een muziekactiviteit zonder organisator met rechtsvorm blijft ook in de andere districten weg.
+  assert.deepEqual(agendapuntenUitBesluiten([{ ...borgerhout, organisator: null }], { ...opties, groep: "stad" }), []);
+  const document = sourceDocument("stad-ebesluit-evenementen", { retrievedAt: NOW.toISOString(), fetchStatus: "ok", items: stad });
+  assert.deepEqual(validateSourceDocument(document, { expectedSourceId: "stad-ebesluit-evenementen" }), []);
+  assert.equal(document.scope, "stad");
+});
+
+test("verversing: een collegebesluit in een ander district wordt gelezen en komt in stad-ebesluit-evenementen", async (t) => {
+  const root = makeRoot(t);
+  const extraRijen = zoekRij({ id: "26.0901.0201.0201", titel: "2026_CBS_09201 - Toelating muziekactiviteit - Proefbal vzw, voor Proefbal Borgerhout, Proefsingel 28-30, 2140 Borgerhout. Dossiernummer MUZA2026/996/EM - Goedkeuring" });
+  const calls = [];
+  const statussen = await runOnce(root, nepEbesluit({ calls, extraRijen, extraDetails: { "26.0901.0201.0201": "muziek-ander-district.html" } }));
+  assert.deepEqual(statussen.map((s) => [s.sourceId, s.fetchStatus, s.itemCount]), [[SOURCE_ID, "ok", 3], [STAD_SOURCE_ID, "ok", 1]]);
+  // Gelezen: het collegebesluit in Borgerhout wel, het besluit van het districtscollege Deurne (fixture) niet.
+  const gelezen = calls.filter((u) => u.pathname !== "/zoeken").map((u) => u.pathname.split("/").pop());
+  assert.ok(gelezen.includes("26.0901.0201.0201"));
+  assert.ok(!gelezen.includes("26.0901.0003.0003"));
+  const stad = readJson(root, `${STAD_SOURCE_ID}.json`);
+  assert.deepEqual(stad.items.map((i) => [i.title, i.date, i.timeSlot, i.location, i.postcodes]), [["Proefbal Borgerhout", "2026-11-14", "14:00", "Proefsingel 28-30, 2140 Borgerhout", ["2140"]]]);
+  assert.deepEqual(validateSourceDocument(stad, { expectedSourceId: STAD_SOURCE_ID }), []);
+  // Nooit het adres of het KBO-nummer van de aanvrager.
+  assert.ok(!JSON.stringify(stad).includes("Proefweg 98"));
+  assert.ok(!JSON.stringify(stad).includes("0987.654.322"));
+  // In het district verandert niets.
+  assert.ok(!readJson(root, `${SOURCE_ID}.json`).items.some((i) => i.title === "Proefbal Borgerhout"));
+  // Beide bronnen gaan mee in de feed, elk in hun eigen groep.
+  const { documents } = readSources(root);
+  assert.deepEqual(documents.map((d) => [d.sourceId, d.scope]), [[SOURCE_ID, "district"], [STAD_SOURCE_ID, "stad"]]);
+});
+
+test("een fout bij het zoeken laat ook stad-ebesluit-evenementen staan", async (t) => {
+  const root = makeRoot(t);
+  const extraRijen = zoekRij({ id: "26.0901.0201.0201", titel: "2026_CBS_09201 - Toelating muziekactiviteit - Proefbal vzw, voor Proefbal Borgerhout, Proefsingel 28-30, 2140 Borgerhout. Dossiernummer MUZA2026/996/EM - Goedkeuring" });
+  await runOnce(root, nepEbesluit({ extraRijen, extraDetails: { "26.0901.0201.0201": "muziek-ander-district.html" } }));
+  const voor = readJson(root, `${STAD_SOURCE_ID}.json`);
+  const statussen = await runOnce(root, nepEbesluit({ zoekStatus: 500 }), { clock: () => new Date("2026-10-11T04:00:00Z") });
+  assert.deepEqual(statussen.map((s) => [s.sourceId, s.fetchStatus, s.errorCode, s.itemCount]), [[SOURCE_ID, "error", "search_http_500", 3], [STAD_SOURCE_ID, "error", "search_http_500", 1]]);
+  const na = readJson(root, `${STAD_SOURCE_ID}.json`);
+  assert.deepEqual(na.items, voor.items);
+  assert.deepEqual(validateSourceDocument(na, { expectedSourceId: STAD_SOURCE_ID }), []);
 });
