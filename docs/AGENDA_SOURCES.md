@@ -1037,8 +1037,7 @@ Opnieuw nagekeken op 5-11-2026 (zelfde regels: gewone User-Agent, robots.txt gev
 - **UiTdatabank:** ongewijzigd. Productie kost 125 euro per jaar (excl. btw); de testomgeving is gratis maar heeft
   geen echte gegevens. Gebruik is alleen niet-commercieel, met "UiTinVlaanderen" als bron bij elk item.
 
-Opnieuw nagekeken op 11-11-2026 (zelfde regels; eerst robots.txt, daarna alleen lezen). Per weggevallen bron en wat de
-stad zou kunnen doen: `docs/KNELPUNTEN-STAD-2026-11-11.md`.
+Opnieuw nagekeken op 11-11-2026 (zelfde regels; eerst robots.txt, daarna alleen lezen).
 
 - **Nieuw actief:** `stad-ebesluit-evenementen` (zie "De andere districten" hierboven).
 - **Nog altijd geweigerd (403 "Access Denied"):** www.antwerpen.be (ook `robots.txt`), visit.antwerpen.be en
