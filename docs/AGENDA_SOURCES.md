@@ -16,6 +16,7 @@ automatische bron gaat voor.
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
+| `stad-ebesluit-evenementen` | stad | evenementen in de 9 andere districten met een besluit van het college | **afgeleid uit dezelfde zoekronde** als `district-ebesluit-evenementen` (eBesluit), geen extra zoekvragen; een tweede bron zolang www.antwerpen.be weigert (zie "De andere districten" onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel. De bronlink is de GIPOD-datasetfiche, geen link per rij |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
 | `stad-uit` | stad | activiteiten in de 15 postcodes van de stad | UiTdatabank Search API v3 (betalend); **uit zolang er geen sleutel is**: wacht op de beslissing van de eigenaar (sleutel kost geld; zie onder) |
@@ -756,6 +757,30 @@ laatste in `npm run refresh:fetch`, gratis en zonder AI:
   periode van de twee. Een besluit zonder overeenkomend dossier blijft een eigen agendapunt. De koppelstap
   "besluit" in de parcoursherkenning zelf (P3b) is er nog niet.
 
+### De andere districten (`stad-ebesluit-evenementen`, sinds 11-11-2026)
+
+Zolang www.antwerpen.be automatische lezers weigert (sinds 23-10-2026), komen er geen nieuwe activiteiten van de negen
+andere districten meer binnen via `stad-districten`. Dezelfde zoekronde van eBesluit levert ook besluiten van het
+college van burgemeester en schepenen over evenementen in die districten (in oktober 2026 onder meer de Jaarmarkt van
+Hoboken, de Reuzenstoet in Borgerhout en De Grote Schijn in het Rivierenhof). Die worden nu een tweede bron, in de groep
+`stad`:
+
+- **Welke besluiten:** dezelfde soorten en regels als hierboven (goedgekeurd, gelezen, met dag(en), naam en plaats; een
+  muziekactiviteit alleen met een organisator met rechtsvorm of een publieke instelling), maar met een plaats in een
+  ander district van de stad (`inAnderDistrict` in `lib/ebesluit-evenementen.mjs`): een postcode van de stad buiten
+  district Antwerpen, of de naam van een ander district (Berchem, Borgerhout, Deurne, Merksem, Ekeren, Wilrijk, Hoboken,
+  Berendrecht, Zandvliet, Lillo, Borsbeek, Spoor Oost). Een postcode of naam van een buurgemeente (Mortsel, Edegem,
+  Schoten, Zwijndrecht) telt niet.
+- **Alleen het college:** een besluit van een ander districtscollege wordt niet gelezen: de vorm van die pagina's is
+  niet nagekeken. Een collegebesluit met een ander district in de titel wordt nu wel gelezen (vroeger alleen wat in het
+  district kon liggen); dat zijn er een handvol per maand, binnen dezelfde grenzen (100 pagina's, 150 s, 1 per seconde).
+- **Uitvoer:** `site/sources/stad-ebesluit-evenementen.json`, ids `stad-ebesluit-ev-<code>-<dag>`, `inDistrict: false`.
+  Een fout bij het zoeken houdt beide bronbestanden (en `evenement-besluiten.json`) zoals ze waren.
+- **Geen extra zoekvragen:** dezelfde fetcher (`scripts/fetch-sources-ebesluit-evenementen.mjs`, `sourceIds` in
+  `lib/source-registry.mjs`). Het bestand ontstaat bij de eerste verversing (`bootstrapOptional`).
+- Gemeten op 11-11-2026 met de gewone User-Agent: 46 besluiten, 1 komend agendapunt in een ander district (De Grote
+  Schijn 2026, Rivierenhof, tot 22 november); in district Antwerpen 11.
+
 ## Evenementen op straat uit A-Sign (`district-asign-evenementen`)
 
 Op straat lopen veel meer evenementen dan er in de kalenders staan: de evenementendossiers van de stad
@@ -1011,6 +1036,25 @@ Opnieuw nagekeken op 5-11-2026 (zelfde regels: gewone User-Agent, robots.txt gev
   www.antwerpen.be. Die kan niet nagekeken worden, dus komt er niets van op de agenda (zie hieronder).
 - **UiTdatabank:** ongewijzigd. Productie kost 125 euro per jaar (excl. btw); de testomgeving is gratis maar heeft
   geen echte gegevens. Gebruik is alleen niet-commercieel, met "UiTinVlaanderen" als bron bij elk item.
+
+Opnieuw nagekeken op 11-11-2026 (zelfde regels; eerst robots.txt, daarna alleen lezen). Per weggevallen bron en wat de
+stad zou kunnen doen: `docs/KNELPUNTEN-STAD-2026-11-11.md`.
+
+- **Nieuw actief:** `stad-ebesluit-evenementen` (zie "De andere districten" hierboven).
+- **Nog altijd geweigerd (403 "Access Denied"):** www.antwerpen.be (ook `robots.txt`), visit.antwerpen.be en
+  www.antwerpenmorgen.be; www.districtantwerpen.be stuurt door naar www.antwerpen.be.
+- **Werkt, maar niet zonder toestemming:** de agenda van de bibliotheken (antwerpen.bibliotheek.be) staat open in
+  `robots.txt` en elke activiteit heeft een schema.org Event met datum en adres, maar de gebruiksvoorwaarden verbieden
+  hergebruik van de gegevens zonder schriftelijke toestemming van Cultuurconnect of de bibliotheek. Niet ingebouwd.
+  UiTinVlaanderen laat de activiteitenpagina's toe in `robots.txt`, maar de gegevens zijn van publiq (betalende Search
+  API); niet ingebouwd.
+- **Verboden in robots.txt:** de webversie van de nieuwsbrieven (nieuwsbrief.antwerpen.be: `Disallow: /`) en de kalender
+  van de provincie (www.provincieantwerpen.be: `Disallow: /nl/kalender`).
+- **Werkt, levert weinig:** De Grote Verbinding (Lantis, degroteverbinding.be) heeft een JSON-lijst van komende
+  "doe mee"-momenten (7 op 11-11-2026, vooral jobevents en doorlopend aanbod), zonder gedocumenteerde API;
+  burgerbegroting.be noemt alleen de jaarfasen. Niet ingebouwd.
+- **Geen activiteitenkalender:** het open-dataportaal van de stad (zoektermen evenement, activiteit, agenda,
+  koopzondag, inspraak), data.europa.eu en de Vlaamse catalogus.
 
 ## Nieuwsbrieven via de Gateway
 
