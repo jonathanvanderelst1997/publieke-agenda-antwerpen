@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-10T04:38:45.460Z",
-  "classificationAsOf": "2026-11-10",
-  "sourceCount": 900,
-  "count": 757,
-  "eventPageCount": 757,
-  "archivedEventPageCount": 303,
+  "candidateGeneratedAt": "2026-11-12T16:31:47.956Z",
+  "classificationAsOf": "2026-11-12",
+  "sourceCount": 906,
+  "count": 758,
+  "eventPageCount": 758,
+  "archivedEventPageCount": 318,
   "classifications": {
-    "expired": 143,
-    "current": 30,
-    "future": 727,
+    "expired": 148,
+    "current": 28,
+    "future": 730,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 111,
-    "stad": 646
+    "district": 113,
+    "stad": 645
   },
-  "feedGeneratedAt": "2026-11-10T04:38:45.460Z",
+  "feedGeneratedAt": "2026-11-12T16:31:47.956Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:40:16.331Z",
+      "retrievedAt": "2026-11-12T16:33:59.942Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:55.017Z",
+      "retrievedAt": "2026-11-12T16:27:54.150Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:37.843Z",
+      "retrievedAt": "2026-11-12T16:31:30.333Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:02.809Z",
+      "retrievedAt": "2026-11-12T16:30:14.366Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:42.902Z",
+      "retrievedAt": "2026-11-12T16:27:45.096Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:03.788Z",
+      "retrievedAt": "2026-11-12T16:30:15.243Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:32.271Z",
+      "retrievedAt": "2026-11-12T16:27:34.535Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:33.668Z",
+      "retrievedAt": "2026-11-12T16:30:45.468Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:33.668Z",
+      "retrievedAt": "2026-11-12T16:30:45.468Z",
       "state": "empty"
     },
     {
@@ -109,6 +109,13 @@
       "fetchStatus": "error",
       "retrievedAt": "2026-10-22T03:19:55.478Z",
       "state": "stale"
+    },
+    {
+      "sourceId": "stad-ebesluit-evenementen",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-11-12T16:31:30.333Z",
+      "state": "fresh"
     },
     {
       "sourceId": "stad-koopzondagen",
@@ -121,7 +128,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:29.027Z",
+      "retrievedAt": "2026-11-12T16:30:40.489Z",
       "state": "fresh"
     },
     {
@@ -132,7 +139,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "f8f6897ae3c6dcb9baeeecd0032308762386ff4c81316e348c4c6938812c657d",
+  "digest": "c8fce465c65748e8d71b19ddf522b9a20232562a7bcfa60c7340c26e2bc02afd",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -162,23 +169,10 @@
     "Schoolstraat Begijnenstraat",
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
+    "De Grote Schijn 2026",
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "Gemengde markt Sint-Franciscusplein",
-    "Gemengde markt Rooiplein",
-    "Gemengde markt Bist",
-    "Verlangen naar verbinding",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Kristus-Koningplein",
-    "Woensdagmarkt Vosstraat",
-    "Deurne herdenkt Wapenstilstand",
-    "11 novemberplechtigheid Borgerhout",
-    "Vermoedelijk een markt op het Theaterplein",
-    "Herdenking van Wapenstilstand",
-    "Gemengde markt Frederik van Eedenplein",
-    "Gemengde markt Ten Eeckhovelei",
-    "Gemengde markt Dageraadplaats",
     "100Y - NMBS",
     "Gemengde markt Michel Willemsplein",
     "Gemengde markt Sint-Jansplein",
@@ -198,7 +192,7 @@
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Zondag 15 november | Kunstendag voor Kinderen",
     "Vermoedelijk een markt op het De Coninckplein",
-    "Vermoedelijk een loopwedstrijd of loop in de Timmerwerfstraat",
+    "Antwerp Urban Trail 2026. Golazo sports NV",
     "Evenement in de Floraliënlaan: parcours door 2 straten",
     "Bevraging: Speelweefselplan Binnenstad",
     "Kunstendag voor kinderen",
@@ -236,7 +230,6 @@
     "Gemengde markt De Villegasstraat",
     "Optocht van de Nobele Orde van de Papegay (50 jaar)",
     "Najaarsfoor Sint-Jansplein",
-    "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -266,6 +259,7 @@
     "Gemengde markt De Villegasstraat",
     "Feest voor de Sint",
     "Groot sintdorp op 22 november in centrum Wilrijk",
+    "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -274,6 +268,7 @@
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
     "Evenement op de Ernest Van Dijckkaai: verkeersvrije zone in 6 straten",
+    "Holly doet dienst",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
@@ -358,6 +353,7 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "UCI Wereldbeker Veldrijden",
     "Evenement op het Koningin Astridplein: route van 2,1 km",
     "Evenement in de Thonetlaan: verkeersvrije zone in 5 straten",
     "Evenement in Grote Goddaard: route van 1,9 km",
@@ -403,11 +399,14 @@
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
     "Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten",
+    "NYE Vaag XL",
+    "Eindejaarsvuurwerk 2026-2027",
     "Gemengde markt Michel Willemsplein",
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
     "Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten",
+    "NYE Vaag XL",
     "Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat: fase 3 (Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat))",
     "Heraanleg Oostenstraat: fase 3 (Tussen kruispunt met de Lange Van Ruusbroecstraat en Arendstraat)",
     "Werken Halenstraat & Schijnpoortweg: fase 3 (Schijnpoortwegtunnel zuid)",
@@ -878,6 +877,15 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Gemengde markt Frederik van Eedenplein",
+    "Gemengde markt Ten Eeckhovelei",
+    "Gemengde markt Dageraadplaats",
+    "Gemengde markt Michel Willemsplein",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Botermarkt",
+    "Gemengde markt Zillebekelaan",
+    "Gemengde markt Laar (Borgerhout)",
+    "Gemengde markt Desguinlei",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
     "Futsal Project Seefhoek",
