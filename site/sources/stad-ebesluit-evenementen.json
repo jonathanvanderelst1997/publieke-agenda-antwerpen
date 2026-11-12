@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "stad-ebesluit-evenementen",
+  "scope": "stad",
+  "publisher": "Stad Antwerpen / eBesluit Antwerpen",
+  "attribution": {
+    "text": "Bron: eBesluit Antwerpen",
+    "url": "https://ebesluit.antwerpen.be/"
+  },
+  "url": "https://ebesluit.antwerpen.be/",
+  "allowedHosts": [
+    "ebesluit.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "eBesluit Antwerpen: goedgekeurde collegebesluiten over evenementen en muziekactiviteiten met een plaats in een ander district van de stad, gelezen met vaste zinpatronen",
+  "retrievedAt": "2026-11-12T22:35:22.299Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": "ebesluit-evenementen-v3|2026-09-13|31|1",
+  "items": [
+    {
+      "id": "stad-ebesluit-ev-2026-cbs-07413-2026-10-28",
+      "externalId": "2026_CBS_07413",
+      "title": "De Grote Schijn 2026",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-10-28",
+      "endDate": "2026-11-22",
+      "timeSlot": "17:00",
+      "timeText": "17.00 tot 23.00 uur",
+      "location": "Rivierenhof in Deurne",
+      "postcodes": [],
+      "info": "Goedgekeurd door het college van burgemeester en schepenen (zitting van 16 oktober). Opbouw vanaf 19 oktober, afbouw tot 29 november.",
+      "kind": "activity",
+      "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.3056.4944/agendapunten/26.0918.0080.3419",
+      "retrievedAt": "2026-11-12T22:35:22.299Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    }
+  ]
+}
