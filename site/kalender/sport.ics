@@ -34,32 +34,9 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:district-kal-6a746a7ff4182b8edf63a777-2026-10-10@mijn-publieke-agenda-v
- oor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261010T110000
-DTEND;TZID=Europe/Brussels:20261010T183000
-SUMMARY:Linkeroever Criterium
-LOCATION:Poisson Pilote\, Beatrijslaan 32
-DESCRIPTION:Het allereerste wielercriterium op Linkeroever! Koers mee of mo
- edig de renners aan tijdens 3 jeugd-\, 1 vrouwen- en 2 mannenreeksen. Volg
-  de Ronde van Lombardije en het WK Gravel voor vrouwen op groot scherm en 
- blijf nadien hangen voor de dj’s. Prijs: €15\nWanneer: 11 tot 18.30 uu
- r\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onren
- der.com/event/district-kal-6a746a7ff4182b8edf63a777-2026-10-10/\nDistricts
- kalender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-belee
- f-je-in-district-antwerpen\nBron: district Antwerpen – bron stad Antwerp
- en (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
- kal-6a746a7ff4182b8edf63a777-2026-10-10/
-CATEGORIES:Sport
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:asign-ev-et2026001217-2026-10-18@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261018T090000
 DURATION:PT1H
 SUMMARY:TREK Antwerp Marathon
@@ -89,7 +66,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026000445-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Vermoedelijk een loopwedstrijd of loop in de Timmerwerfstraat (aanv

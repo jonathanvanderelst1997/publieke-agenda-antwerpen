@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-10T04:38:45.460Z",
-  "classificationAsOf": "2026-11-10",
-  "sourceCount": 900,
-  "count": 757,
-  "eventPageCount": 757,
-  "archivedEventPageCount": 303,
+  "candidateGeneratedAt": "2026-11-12T10:26:25.996Z",
+  "classificationAsOf": "2026-11-12",
+  "sourceCount": 903,
+  "count": 755,
+  "eventPageCount": 755,
+  "archivedEventPageCount": 315,
   "classifications": {
-    "expired": 143,
+    "expired": 148,
     "current": 30,
-    "future": 727,
+    "future": 725,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 111,
-    "stad": 646
+    "district": 108,
+    "stad": 647
   },
-  "feedGeneratedAt": "2026-11-10T04:38:45.460Z",
+  "feedGeneratedAt": "2026-11-12T10:26:25.996Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:40:16.331Z",
+      "retrievedAt": "2026-11-12T10:28:16.088Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:55.017Z",
+      "retrievedAt": "2026-11-12T10:22:59.806Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
-      "fetchStatus": "ok",
+      "fetchStatus": "error",
       "retrievedAt": "2026-11-10T04:38:37.843Z",
-      "state": "fresh"
+      "state": "stale"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:02.809Z",
+      "retrievedAt": "2026-11-12T10:25:17.726Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:42.902Z",
+      "retrievedAt": "2026-11-12T10:22:43.630Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:03.788Z",
+      "retrievedAt": "2026-11-12T10:25:18.494Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:35:32.271Z",
+      "retrievedAt": "2026-11-12T10:22:33.577Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:33.668Z",
+      "retrievedAt": "2026-11-12T10:25:48.299Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:33.668Z",
+      "retrievedAt": "2026-11-12T10:25:48.299Z",
       "state": "empty"
     },
     {
@@ -108,6 +108,13 @@
       "scope": "stad",
       "fetchStatus": "error",
       "retrievedAt": "2026-10-22T03:19:55.478Z",
+      "state": "stale"
+    },
+    {
+      "sourceId": "stad-ebesluit-evenementen",
+      "scope": "stad",
+      "fetchStatus": "error",
+      "retrievedAt": null,
       "state": "stale"
     },
     {
@@ -121,7 +128,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-10T04:38:29.027Z",
+      "retrievedAt": "2026-11-12T10:25:43.703Z",
       "state": "fresh"
     },
     {
@@ -132,7 +139,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "f8f6897ae3c6dcb9baeeecd0032308762386ff4c81316e348c4c6938812c657d",
+  "digest": "14e02c7e97efcd36327c1f2ec3cd111e1c3f358c3f371d8a7dc77efdefc0b1ec",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -165,17 +172,6 @@
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "Gemengde markt Sint-Franciscusplein",
-    "Gemengde markt Rooiplein",
-    "Gemengde markt Bist",
-    "Verlangen naar verbinding",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Kristus-Koningplein",
-    "Woensdagmarkt Vosstraat",
-    "Deurne herdenkt Wapenstilstand",
-    "11 novemberplechtigheid Borgerhout",
-    "Vermoedelijk een markt op het Theaterplein",
-    "Herdenking van Wapenstilstand",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
@@ -236,7 +232,6 @@
     "Gemengde markt De Villegasstraat",
     "Optocht van de Nobele Orde van de Papegay (50 jaar)",
     "Najaarsfoor Sint-Jansplein",
-    "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -266,6 +261,7 @@
     "Gemengde markt De Villegasstraat",
     "Feest voor de Sint",
     "Groot sintdorp op 22 november in centrum Wilrijk",
+    "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -878,6 +874,15 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Gemengde markt Frederik van Eedenplein",
+    "Gemengde markt Ten Eeckhovelei",
+    "Gemengde markt Dageraadplaats",
+    "Gemengde markt Michel Willemsplein",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Botermarkt",
+    "Gemengde markt Zillebekelaan",
+    "Gemengde markt Laar (Borgerhout)",
+    "Gemengde markt Desguinlei",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
     "Futsal Project Seefhoek",

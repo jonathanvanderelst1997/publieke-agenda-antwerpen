@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-0536-7110@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261012T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -56,7 +56,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-0530-1252@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261014T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -78,7 +78,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-1314-2515@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261019T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -98,7 +98,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-6457-7477@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261109T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -119,7 +119,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-7211-0891@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261116T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -140,7 +140,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-5334-4877@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261117T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -162,7 +162,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-1004-4303-5550@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261118T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -184,7 +184,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-2205-4185@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261207T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -205,7 +205,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-1742-1734@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261208T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -228,7 +228,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-5790-9429@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261209T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -250,7 +250,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-25-0722-5555-7312@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261214T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -271,7 +271,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9864-8481@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270111T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -292,7 +292,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-8144-9278@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270112T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -314,7 +314,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-8363-2671@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270118T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -335,7 +335,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-5376-9061@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270215T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -356,7 +356,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-5361-0770@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270216T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -379,7 +379,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-7898-7479@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270217T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -401,7 +401,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-6167-5172@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270222T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -422,7 +422,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-3153-5861@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270315T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -443,7 +443,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-2334-4527@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270316T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -465,7 +465,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-1517-2364@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270322T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -486,7 +486,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-6385-2922@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270412T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -507,7 +507,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-2478-5655@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270413T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -529,7 +529,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-8272-7642@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270414T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -552,7 +552,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9862-3908@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270419T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -573,7 +573,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9097-7142@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270511T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -595,7 +595,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-6247-0350@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270518T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -616,7 +616,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9868-2662@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270524T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -637,7 +637,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-0206-9221@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270614T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -658,7 +658,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-0482-8879@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270615T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -681,7 +681,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9473-5974@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270616T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -703,7 +703,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-0707-9850@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270621T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -724,7 +724,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-0067-7787@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270913T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -745,7 +745,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-3744-1378@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270914T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -767,7 +767,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-4516-0936@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20270920T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -788,7 +788,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-7810-5822@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271011T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -809,7 +809,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-4589-4036@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271012T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie cultuur\, sport\, financiën\, communicat
@@ -831,7 +831,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-7712-4452@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271013T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie lokale economie\, markten en foren\, toer
@@ -854,7 +854,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-1832-6348@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271018T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen
@@ -875,7 +875,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-0100-3733@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271115T200000
 DURATION:PT1H
 SUMMARY:Raadscommissie Antwerpen
@@ -896,7 +896,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-9687-9063@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271116T200000
 DURATION:PT1H
 SUMMARY:Bijzondere raadscommissie algemeen beleid\, publieke ruimte\, mobil
@@ -918,7 +918,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-vergadering-ebesluit-26-0803-1208-8803@mijn-publieke-agenda-vo
  or-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20271122T200000
 DURATION:PT1H
 SUMMARY:Districtsraad Antwerpen

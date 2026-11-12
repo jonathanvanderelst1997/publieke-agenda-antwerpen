@@ -14,9 +14,14 @@
   "officialPublic": true,
   "method": "eBesluit Antwerpen: goedgekeurde besluiten over evenementen, muziekactiviteiten en het Districtsfonds met een plaats in district Antwerpen, gelezen met vaste zinpatronen",
   "retrievedAt": "2026-11-10T04:38:37.843Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "ebesluit-evenementen-v3|2026-09-11|26|6",
+  "lastSuccessAt": "2026-11-10T04:38:37.843Z",
+  "lastError": {
+    "code": "search_http_503",
+    "at": "2026-11-12T10:26:01.744Z"
+  },
   "items": [
     {
       "id": "ebesluit-ev-2026-dcan-00656-2026-11-08",

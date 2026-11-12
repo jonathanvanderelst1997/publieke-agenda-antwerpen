@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a766-2026-09-09@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;VALUE=DATE:20260909
 DTEND;VALUE=DATE:20261023
 SUMMARY:Humans of Antwerp
@@ -57,32 +57,9 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:poetische-rimpelingen-2026-06-29-2026-10-10-66473414@mijn-publieke-agen
- da-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261010T140000
-DURATION:PT1H
-SUMMARY:Poëtische Rimpelingen
-LOCATION:Regattawijk\, Linkeroever
-DESCRIPTION:Regattawandeling met poëzie op zaterdag 10 oktober 2026 om 14 
- uur. Publieke kalender van Maand van de Voetganger\, in samenwerking met 2
- 050 Literair\, Citaat op Straat en district Antwerpen. Deelname 5 euro\; e
- xacte vertrekplaats via de organisator.\nWanneer: start om 14 uur\; exacte
-  vertrekplaats volgt bij de organisator\nOp de publieke agenda: https://mi
- jn-publieke-agenda-voor-district.onrender.com/event/poetische-rimpelingen-
- 2026-06-29-2026-10-10-66473414/\nOfficiële bron: https://maandvandevoetga
- nger.be/actie/wandelen-met-woorden-poetische-rimpelingen/\nBron: district 
- Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/poetische
- -rimpelingen-2026-06-29-2026-10-10-66473414/
-CATEGORIES:Cultuur
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-10-23@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261023T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -107,7 +84,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77d-2026-11-04@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261104T190000
 DURATION:PT1H
 SUMMARY:FURIE!
@@ -133,7 +110,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77e-2026-11-10@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261110T140000
 DURATION:PT1H
 SUMMARY:Verlangen naar verbinding
@@ -141,16 +118,13 @@ LOCATION:Het Oude Badhuis\, Stuivenbergplein 38
 DESCRIPTION:Een voorstelling over verlangen naar verbinding en erbij horen.
   Lus vzw ging de voorbije jaren met verschillende men sen in gesprek over 
  wat het betekent om ergens bij te horen\, over het gevoel van verbinding e
- n het ontbreken daarvan. Prijs: GRATIS\nWanneer: 14 uur\n10 november\, 14
- –15 uur\, Het Oude Badhuis. Gratis\, vooraf inschrijven per e-mail bij h
- et district.\nInschrijven per e-mail bij district Antwerpen.\nOp de publie
- ke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/d
- istrict-kal-6a746a7ff4182b8edf63a77e-2026-11-10/\nDistrictskalender: https
- ://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-distric
- t-antwerpen\nDistrictsnieuws: https://www.antwerpen.be/info/68e7c5577c39f4
- 0ba84cf2b2/voorstelling-verlangen-naar-verbinding-op-10-november\nBron: di
- strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
- e)
+ n het ontbreken daarvan. Prijs: GRATIS\nWanneer: 14 uur\nOp de publieke ag
+ enda: https://mijn-publieke-agenda-voor-district.onrender.com/event/distri
+ ct-kal-6a746a7ff4182b8edf63a77e-2026-11-10/\nDistrictskalender: https://ww
+ w.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-ant
+ werpen\nDistrictsnieuws: https://www.antwerpen.be/info/68e7c5577c39f40ba84
+ cf2b2/voorstelling-verlangen-naar-verbinding-op-10-november\nBron: distric
+ t Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
  kal-6a746a7ff4182b8edf63a77e-2026-11-10/
 CATEGORIES:Cultuur
@@ -160,7 +134,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-11-20@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261120T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -187,7 +161,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a780-2026-11-26@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T102625Z
 DTSTART;TZID=Europe/Brussels:20261126T180000
 DTEND;TZID=Europe/Brussels:20261126T210000
 SUMMARY:Noorderlicht

@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "stad-ebesluit-evenementen",
+  "scope": "stad",
+  "publisher": "Stad Antwerpen / eBesluit Antwerpen",
+  "attribution": {
+    "text": "Bron: eBesluit Antwerpen",
+    "url": "https://ebesluit.antwerpen.be/"
+  },
+  "url": "https://ebesluit.antwerpen.be/",
+  "allowedHosts": [
+    "ebesluit.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "eBesluit Antwerpen: goedgekeurde collegebesluiten over evenementen en muziekactiviteiten met een plaats in een ander district van de stad, gelezen met vaste zinpatronen",
+  "retrievedAt": null,
+  "fetchStatus": "error",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "lastSuccessAt": null,
+  "lastError": {
+    "code": "search_http_503",
+    "at": "2026-11-12T10:26:01.744Z"
+  },
+  "items": []
+}

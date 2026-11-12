@@ -295,16 +295,6 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
-  "het oude badhuis stuivenbergplein 38": {
-   "point": [
-    4.43234,
-    51.22708
-   ],
-   "precision": "adres",
-   "street": "Stuivenbergplein",
-   "postcode": "2060",
-   "checkedOn": "2026-10-05"
-  },
   "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
    "point": [
     4.40116,
@@ -645,16 +635,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-02"
   },
-  "theaterplein": {
-   "point": [
-    4.41058,
-    51.21419
-   ],
-   "precision": "straat",
-   "street": "Theaterplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
    "point": [
     4.39156,
@@ -772,10 +752,8 @@
   "a bib merksem parkweg 1": "2026-11-04",
   "arenaplein 2100 deurne": "2026-11-02",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-02",
-  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-11-05",
   "district borgerhout locatie via de officiele bron": "2026-11-02",
   "district borsbeek locatie via de officiele bron": "2026-11-01",
-  "district deurne locatie via de officiele bron": "2026-11-10",
   "district ekeren locatie via de officiele bron": "2026-11-02",
   "district wilrijk locatie via de officiele bron": "2026-11-02",
   "harmoniepark 1": "2026-11-02",
