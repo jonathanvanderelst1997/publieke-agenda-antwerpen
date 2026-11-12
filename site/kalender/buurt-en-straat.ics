@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:asign-ev-et2025006984-2026-10-03@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261003
 DTEND;VALUE=DATE:20261019
 SUMMARY:Najaarsfoor Dageraadplaats
@@ -59,31 +59,9 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:buurtfeest-gaston-burssenslaan-hanegraefstraat-2026-10-10@mijn-publieke
- -agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261010T140000
-DTEND;TZID=Europe/Brussels:20261010T170000
-SUMMARY:Buurtfeest Gaston Burssenslaan en Hanegraefstraat
-LOCATION:Gaston Burssenslaan en Hanegraefstraat\, 2050 Antwerpen
-DESCRIPTION:Feestelijke opening van de vernieuwde straten. Gratis buurtfees
- t met officiële inhuldiging om 14 uur\, mobiele muziekact van 14.30 tot 1
- 6.30 uur\, glittertattoo van 14 tot 17 uur\, wafels en drank.\nWanneer: 14
-  tot 17 uur\nOp de publieke agenda: https://mijn-publieke-agenda-voor-dist
- rict.onrender.com/event/buurtfeest-gaston-burssenslaan-hanegraefstraat-202
- 6-10-10/\nOfficiële bron: https://www.antwerpen.be/info/6149b6f0305f459e3
- 13c07cc/voorontwerp-heraanleg-gaston-burssenslaan\nBron: district Antwerpe
- n – bron stad Antwerpen (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/buurtfees
- t-gaston-burssenslaan-hanegraefstraat-2026-10-10/
-CATEGORIES:Buurt & straat
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:asign-ev-et2026003847-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit in de Kleine Kauwenberg
@@ -109,7 +87,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003943-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit in de Sloepenweg
@@ -133,7 +111,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004318-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit in de Vekestraat
@@ -159,7 +137,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004379-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit op het Theaterplein
@@ -183,7 +161,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004597-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit op de Ossenmarkt
@@ -208,7 +186,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004663-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit op de Singel
@@ -233,7 +211,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004723-2026-10-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261012
 DTEND;VALUE=DATE:20261013
 SUMMARY:Vermoedelijk een studentenactiviteit op de Stadswaag
@@ -257,7 +235,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003793-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit op het Steenplein
@@ -282,7 +260,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003803-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit in Nieuw-zuid
@@ -306,7 +284,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004331-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit in de Lindendreef
@@ -332,7 +310,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004828-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit op het Falconplein
@@ -357,7 +335,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004952-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit op het Hendrik Conscienceplein
@@ -384,7 +362,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005479-2026-10-13@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261013
 DTEND;VALUE=DATE:20261014
 SUMMARY:Vermoedelijk een studentenactiviteit op het Theaterplein
@@ -410,7 +388,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004212-2026-10-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 SUMMARY:Vermoedelijk een studentenactiviteit op de Stadswaag
@@ -436,7 +414,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004312-2026-10-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 SUMMARY:Vermoedelijk een studentenactiviteit in de Raapstraat
@@ -461,7 +439,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004318-2026-10-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 SUMMARY:Vermoedelijk een studentenactiviteit in de Vekestraat
@@ -487,7 +465,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004654-2026-10-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 SUMMARY:Vermoedelijk een studentenactiviteit op de Veemarkt
@@ -511,7 +489,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004952-2026-10-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261014
 DTEND;VALUE=DATE:20261015
 SUMMARY:Vermoedelijk een studentenactiviteit op het Hendrik Conscienceplein
@@ -538,7 +516,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004496-2026-10-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 SUMMARY:Vermoedelijk een studentenactiviteit op de Hanzestedenplaats
@@ -562,7 +540,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004643-2026-10-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 SUMMARY:Vermoedelijk een studentenactiviteit op de Groenplaats
@@ -589,7 +567,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005441-2026-10-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261015
 DTEND;VALUE=DATE:20261016
 SUMMARY:Vermoedelijk een studentenactiviteit in Nieuw-zuid
@@ -613,7 +591,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003067-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Evenement in de Carnotstraat: lus van 3\,4 km
@@ -640,7 +618,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003354-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Vermoedelijk een winkelevenement op de Meir
@@ -664,7 +642,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004544-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Vermoedelijk een winkelevenement op de Teniersplaats
@@ -689,7 +667,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004648-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:AAAntwerp: shoppingdag Allure
@@ -715,7 +693,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004734-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Heropening Anselmostraat
@@ -743,7 +721,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005103-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Evenement in de Miraeusstraat: verkeersvrije zone in 2 straten
@@ -769,7 +747,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005554-2026-10-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Evenement in de Kronenburgstraat: lus van 4\,7 km
@@ -797,7 +775,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025007162-2026-10-18@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261018
 DTEND;VALUE=DATE:20261019
 SUMMARY:Evenement in de Amsterdamstraat: verkeersvrije zone in 17 straten
@@ -826,7 +804,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004380-2026-10-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261019
 DTEND;VALUE=DATE:20261020
 SUMMARY:Vermoedelijk een studentenactiviteit op de Sint-Michielskaai
@@ -850,7 +828,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004982-2026-10-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261019
 DTEND;VALUE=DATE:20261020
 SUMMARY:Vermoedelijk een studentenactiviteit in Nieuw-zuid
@@ -874,7 +852,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004253-2026-10-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 SUMMARY:Vermoedelijk een studentenactiviteit op de Sint-Nicolaasplaats
@@ -900,7 +878,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004449-2026-10-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 SUMMARY:Vermoedelijk een studentenactiviteit op het Theaterplein
@@ -927,7 +905,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005362-2026-10-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 SUMMARY:Vermoedelijk een studentenactiviteit op de Stadswaag
@@ -951,7 +929,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005960-2026-10-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261020
 DTEND;VALUE=DATE:20261021
 SUMMARY:Evenement in de Kleine Kauwenberg: parcours door 5 straten
@@ -979,7 +957,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004667-2026-10-21@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261021
 DTEND;VALUE=DATE:20261022
 SUMMARY:Vermoedelijk een studentenactiviteit op de Grote Markt
@@ -1005,7 +983,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026003377-2026-10-22@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261022
 DTEND;VALUE=DATE:20261023
 SUMMARY:Vermoedelijk een studentenactiviteit op het Sint-Jansplein
@@ -1029,7 +1007,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004461-2026-10-22@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261022
 DTEND;VALUE=DATE:20261023
 SUMMARY:Vermoedelijk een studentenactiviteit in de Quellinstraat
@@ -1054,7 +1032,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004667-2026-10-22@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261022
 DTEND;VALUE=DATE:20261023
 SUMMARY:Vermoedelijk een studentenactiviteit op de Grote Markt
@@ -1080,7 +1058,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025005965-2026-10-23@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261023
 DTEND;VALUE=DATE:20261024
 SUMMARY:Evenement op het Theaterplein: verkeersvrije zone in 2 straten
@@ -1107,7 +1085,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005154-2026-10-25@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261025
 DTEND;VALUE=DATE:20261026
 SUMMARY:Evenement in de Van Campstraat: verkeersvrije zone in 2 straten
@@ -1133,7 +1111,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004329-2026-10-27@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261027
 DTEND;VALUE=DATE:20261028
 SUMMARY:Vermoedelijk een studentenactiviteit in de Pieter Coeckelaan
@@ -1158,7 +1136,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004449-2026-10-27@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261027
 DTEND;VALUE=DATE:20261028
 SUMMARY:Vermoedelijk een studentenactiviteit op het Theaterplein
@@ -1185,7 +1163,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005074-2026-10-27@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261027
 DTEND;VALUE=DATE:20261028
 SUMMARY:Vermoedelijk een studentenactiviteit op de Hanzestedenplaats
@@ -1212,7 +1190,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004413-2026-10-29@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261029
 DTEND;VALUE=DATE:20261030
 SUMMARY:Vermoedelijk een studentenactiviteit in Nieuw-zuid
@@ -1236,7 +1214,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005416-2026-10-29@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261029
 DTEND;VALUE=DATE:20261030
 SUMMARY:Vermoedelijk een studentenactiviteit in Viaduct-Dam
@@ -1260,7 +1238,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005698-2026-10-31@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 SUMMARY:Vermoedelijk een buurtfeest in de Brugstraat
@@ -1285,7 +1263,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005713-2026-10-31@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261031
 DTEND;VALUE=DATE:20261101
 SUMMARY:Vermoedelijk een buurtfeest in de Dahliastraat
@@ -1310,7 +1288,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005943-2026-11-01@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261101
 DTEND;VALUE=DATE:20261121
 SUMMARY:Evenement in de Nationalestraat: parcours door 69 straten (aanvraag
@@ -1341,7 +1319,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005960-2026-11-03@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261103
 DTEND;VALUE=DATE:20261125
 SUMMARY:Evenement in de Grote Kauwenberg: parcours door 5 straten (aanvraag
@@ -1372,7 +1350,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005676-2026-11-07@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261107
 DTEND;VALUE=DATE:20261108
 SUMMARY:Evenement op de Ossenmarkt: route van 3\,5 km
@@ -1399,7 +1377,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006134-2026-11-07@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261107
 DTEND;VALUE=DATE:20261108
 SUMMARY:Evenement op de Kattendijkdok-Oostkaai: route van 6\,1 km
@@ -1426,7 +1404,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006141-2026-11-12@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261112T190000
 DTEND;TZID=Europe/Brussels:20261112T235900
 SUMMARY:100Y - NMBS
@@ -1451,7 +1429,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005665-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Evenement in de Floraliënlaan: parcours door 2 straten (aanvraag\,
@@ -1479,7 +1457,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005298-2026-11-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261117
 DTEND;VALUE=DATE:20261118
 SUMMARY:Evenement in de Lange Sint-Annastraat: lus van 4\,8 km (aanvraag\, 
@@ -1509,7 +1487,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004615-2026-11-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261120
 DTEND;VALUE=DATE:20261121
 SUMMARY:Vermoedelijk een schoolactiviteit in de Belegstraat
@@ -1533,7 +1511,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006985-2026-11-21@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261121
 DTEND;VALUE=DATE:20261214
 SUMMARY:Najaarsfoor Sint-Jansplein
@@ -1556,11 +1534,11 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:asign-ev-et2026006109-2026-11-21@mijn-publieke-agenda-voor-district.loc
+UID:asign-ev-et2026006109-2026-11-28@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
-DTSTART;VALUE=DATE:20261121
-DTEND;VALUE=DATE:20261122
+DTSTAMP:20261112T124426Z
+DTSTART;VALUE=DATE:20261128
+DTEND;VALUE=DATE:20261129
 SUMMARY:Evenement op het Koningin Astridplein: lus van 4\,0 km (aanvraag\, 
  nog niet goedgekeurd)
 LOCATION:Koningin Astridplein\, Appelmansstraat\, Breydelstraat en 20 ander
@@ -1571,16 +1549,16 @@ DESCRIPTION:Parcours door 23 straten: onder meer Appelmansstraat\, Breydels
  gt met zekerheid welk evenement er die dag op die plek is. Komt er een bes
  luit (meestal 2 tot 6 weken vooraf) of een aankondiging\, dan verschijnt d
  e naam hier vanzelf. Evenementendossier ET2026006109 van de stad (A-Sign)\
- , laatst gewijzigd op 25 oktober 2026: aanvraag nog niet goedgekeurd.\nLet
+ , laatst gewijzigd op 9 november 2026: aanvraag nog niet goedgekeurd.\nLet
   op: dit is een aanvraag die de stad nog niet goedkeurde. Wordt ze geweige
  rd of afgelast\, dan verdwijnt ze uit je agenda.\nOp de publieke agenda: h
  ttps://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et20
- 26006109-2026-11-21/\nEvenementen op straat (dossiers van de stad in A-Sig
+ 26006109-2026-11-28/\nEvenementen op straat (dossiers van de stad in A-Sig
  n): https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/Map
  Server/22\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse grati
  s open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
- et2026006109-2026-11-21/
+ et2026006109-2026-11-28/
 CATEGORIES:Buurt & straat
 STATUS:TENTATIVE
 TRANSP:TRANSPARENT
@@ -1588,7 +1566,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005499-2026-11-29@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:Evenement in de Beukenlaan: lus van 10\,1 km (aanvraag\, nog niet g
@@ -1616,7 +1594,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006250-2026-11-29@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261129
 DTEND;VALUE=DATE:20261130
 SUMMARY:Evenement op de Waalsekaai: lus van 1\,8 km (aanvraag\, nog niet go
@@ -1645,7 +1623,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005928-2026-11-30@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261130
 DTEND;VALUE=DATE:20261201
 SUMMARY:Evenement op de Ernest Van Dijckkaai: verkeersvrije zone in 6 strat
@@ -1675,7 +1653,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006728-2026-12-04@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261204
 DTEND;VALUE=DATE:20270104
 SUMMARY:Winterkermis Koningin Astridplein
@@ -1700,7 +1678,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026000222-2026-12-04@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261204
 DTEND;VALUE=DATE:20270104
 SUMMARY:Winter in Antwerpen
@@ -1727,7 +1705,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005821-2026-12-06@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261206
 DTEND;VALUE=DATE:20261207
 SUMMARY:Evenement in de Argentiniëlaan: parcours door 26 straten (aanvraag
@@ -1757,7 +1735,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006044-2026-12-10@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261210
 DTEND;VALUE=DATE:20261211
 SUMMARY:Evenement in de Lamorinièrestraat: route van 900 m (aanvraag\, nog
@@ -1787,7 +1765,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006061-2026-12-10@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261210
 DTEND;VALUE=DATE:20261211
 SUMMARY:Evenement in de Belgiëlei: lus van 7\,9 km (aanvraag\, nog niet go
@@ -1817,7 +1795,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006095-2026-12-10@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261210
 DTEND;VALUE=DATE:20261211
 SUMMARY:Evenement in de Lange Beeldekensstraat: route van 2\,5 km (aanvraag
@@ -1847,7 +1825,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005967-2026-12-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261217
 DTEND;VALUE=DATE:20261218
 SUMMARY:Evenement op de Hanzestedenplaats: route van 2\,0 km (aanvraag\, no
@@ -1877,7 +1855,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004247-2026-12-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261219
 DTEND;VALUE=DATE:20261220
 SUMMARY:Evenement op het Koningin Astridplein: route van 2\,1 km (aanvraag\
@@ -1907,7 +1885,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004671-2026-12-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261219
 DTEND;VALUE=DATE:20261220
 SUMMARY:Evenement in de Thonetlaan: verkeersvrije zone in 5 straten (aanvra
@@ -1938,7 +1916,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026005880-2026-12-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261219
 DTEND;VALUE=DATE:20261220
 SUMMARY:Evenement in Grote Goddaard: route van 1\,9 km (aanvraag\, nog niet
@@ -1968,7 +1946,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026006124-2026-12-19@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261219
 DTEND;VALUE=DATE:20261220
 SUMMARY:Vermoedelijk een wandeling in de Beukenlaan (aanvraag\, nog niet go
@@ -1995,7 +1973,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026004301-2026-12-27@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261227
 DTEND;VALUE=DATE:20261228
 SUMMARY:Rendierfeesten 2026
@@ -2020,7 +1998,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025007265-2026-12-31@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten
@@ -2048,9 +2026,35 @@ STATUS:TENTATIVE
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:asign-ev-et2026005091-2026-12-31@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261112T124426Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:NYE Vaag XL
+LOCATION:Koningin Astridplein
+DESCRIPTION:Evenement op donderdag 31 december 2026 en vrijdag 1 januari 20
+ 27. Opbouw vanaf dinsdag 29 december\, afbraak tot zaterdag 2 januari 2027
+ . Organisatie: Soul bv. Naam automatisch herkend via een besluit van de st
+ ad of het district (zelfde dag en straat). Evenementendossier ET2026005091
+  van de stad (A-Sign)\, laatst gewijzigd op 2 september 2026: aanvraag nog
+  niet goedgekeurd.\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/asign-ev-et2026005091-2026-12-31/\nEvenemen
+ ten op straat (dossiers van de stad in A-Sign): https://geodata.antwerpen.
+ be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nEvenementen volgens
+  besluiten van stad en district (eBesluit): https://ebesluit.antwerpen.be/
+ zittingen/25.0918.2599.1753/agendapunten/26.1027.4878.2099\nBron: district
+  Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026005091-2026-12-31/
+CATEGORIES:Buurt & straat
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:asign-ev-et2025007265-2027-01-01@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20270101
 DTEND;VALUE=DATE:20270102
 SUMMARY:Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten
@@ -2078,27 +2082,57 @@ STATUS:TENTATIVE
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:asign-ev-et2026005091-2027-01-01@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261112T124426Z
+DTSTART;VALUE=DATE:20270101
+DTEND;VALUE=DATE:20270102
+SUMMARY:NYE Vaag XL (aanvraag\, nog niet goedgekeurd)
+LOCATION:Koningin Astridplein
+DESCRIPTION:Evenement op donderdag 31 december 2026 en vrijdag 1 januari 20
+ 27. Opbouw vanaf dinsdag 29 december\, afbraak tot zaterdag 2 januari 2027
+ . Organisatie: Soul bv. Naam automatisch herkend via een besluit van de st
+ ad of het district (zelfde dag en straat). Evenementendossier ET2026005091
+  van de stad (A-Sign)\, laatst gewijzigd op 2 september 2026: aanvraag nog
+  niet goedgekeurd.\nLet op: dit is een aanvraag die de stad nog niet goedk
+ eurde. Wordt ze geweigerd of afgelast\, dan verdwijnt ze uit je agenda.\nO
+ p de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.
+ com/event/asign-ev-et2026005091-2027-01-01/\nEvenementen op straat (dossie
+ rs van de stad in A-Sign): https://geodata.antwerpen.be/arcgissql/rest/ser
+ vices/P_ASign/ASign/MapServer/22\nMeer info bij de organisator: https://eb
+ esluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1027.4878.
+ 2099\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis ope
+ n data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026005091-2027-01-01/
+CATEGORIES:Buurt & straat
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:asign-ev-et2026006274-2027-01-06@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;VALUE=DATE:20270106
 DTEND;VALUE=DATE:20270107
 SUMMARY:Evenement in de Jan van Gentstraat: route van 550 m (aanvraag\, nog
   niet goedgekeurd)
-LOCATION:Jan van Gentstraat\, Van der Sweepstraat en De Gerlachekaai
-DESCRIPTION:Parcours door 2 straten: Jan van Gentstraat en Van der Sweepstr
- aat. Het dossier noemt geen naam\, en geen besluit\, kalender\, nieuwsberi
- cht of organisatoragenda die we nakijken\, zegt met zekerheid welk eveneme
- nt er die dag op die plek is. Komt er een besluit (meestal 2 tot 6 weken v
- ooraf) of een aankondiging\, dan verschijnt de naam hier vanzelf. Evenemen
- tendossier ET2026006274 van de stad (A-Sign)\, laatst gewijzigd op 7 novem
- ber 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aanvraag die 
- de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, dan verdwijn
- t ze uit je agenda.\nOp de publieke agenda: https://mijn-publieke-agenda-v
- oor-district.onrender.com/event/asign-ev-et2026006274-2027-01-06/\nEveneme
- nten op straat (dossiers van de stad in A-Sign): https://geodata.antwerpen
- .be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: district Ant
- werpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+LOCATION:Jan van Gentstraat\, Cockerillkaai\, De Gerlachekaai en 2 andere s
+ traten
+DESCRIPTION:Parcours door 5 straten: Cockerillkaai\, De Gerlachekaai\, Gent
+ plaats\, Jan van Gentstraat en Van der Sweepstraat. Het dossier noemt geen
+  naam\, en geen besluit\, kalender\, nieuwsbericht of organisatoragenda di
+ e we nakijken\, zegt met zekerheid welk evenement er die dag op die plek i
+ s. Komt er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging\
+ , dan verschijnt de naam hier vanzelf. Evenementendossier ET2026006274 van
+  de stad (A-Sign)\, laatst gewijzigd op 7 november 2026: aanvraag nog niet
+  goedgekeurd.\nLet op: dit is een aanvraag die de stad nog niet goedkeurde
+ . Wordt ze geweigerd of afgelast\, dan verdwijnt ze uit je agenda.\nOp de 
+ publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/e
+ vent/asign-ev-et2026006274-2027-01-06/\nEvenementen op straat (dossiers va
+ n de stad in A-Sign): https://geodata.antwerpen.be/arcgissql/rest/services
+ /P_ASign/ASign/MapServer/22\nBron: district Antwerpen – bron stad Antwer
+ pen (Vlaamse gratis open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
  et2026006274-2027-01-06/
 CATEGORIES:Buurt & straat

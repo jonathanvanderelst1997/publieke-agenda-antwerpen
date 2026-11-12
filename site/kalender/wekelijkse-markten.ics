@@ -34,65 +34,8 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:markt-ma24-2026-10-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261011T080000
-DTEND;TZID=Europe/Brussels:20261011T160000
-SUMMARY:Biomarkt Falconplein
-LOCATION:Falconplein\, 2000 Antwerpen
-DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
- neer: 8 tot 16 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
- or-district.onrender.com/event/markt-ma24-2026-10-11/\nBron: GIPOD (Digita
- al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
- dc-41a0-b5ae-796a84a20b52\nBron: GIPOD\, Digitaal Vlaanderen\, en marktlij
- st stad Antwerpen (Modellicentie Gratis Hergebruik v1.0)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma2
- 4-2026-10-11/
-CATEGORIES:Wekelijkse markten
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:markt-ma10-2026-10-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261011T090000
-DTEND;TZID=Europe/Brussels:20261011T170000
-SUMMARY:Markt voor klein antiek Sint-Jansvliet
-LOCATION:Sint-Jansvliet\, 2000 Antwerpen
-DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
- neer: 9 tot 17 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
- or-district.onrender.com/event/markt-ma10-2026-10-11/\nBron: GIPOD (Digita
- al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
- dc-41a0-b5ae-796a84a20b52\nBron: GIPOD\, Digitaal Vlaanderen\, en marktlij
- st stad Antwerpen (Modellicentie Gratis Hergebruik v1.0)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma1
- 0-2026-10-11/
-CATEGORIES:Wekelijkse markten
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:markt-ma26-2026-10-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261011T090000
-DTEND;TZID=Europe/Brussels:20261011T140000
-SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
-LOCATION:Oudevaartplaats - Blauwtorenplein\, 2000 Antwerpen
-DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
- neer: 9 tot 14 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
- or-district.onrender.com/event/markt-ma26-2026-10-11/\nBron: GIPOD (Digita
- al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
- dc-41a0-b5ae-796a84a20b52\nBron: GIPOD\, Digitaal Vlaanderen\, en marktlij
- st stad Antwerpen (Modellicentie Gratis Hergebruik v1.0)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma2
- 6-2026-10-11/
-CATEGORIES:Wekelijkse markten
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:markt-ma19-2026-10-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261015T080000
 DTEND;TZID=Europe/Brussels:20261015T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -113,7 +56,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-10-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261015T080000
 DTEND;TZID=Europe/Brussels:20261015T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -134,7 +77,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-10-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261016T080000
 DTEND;TZID=Europe/Brussels:20261016T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -155,7 +98,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-10-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261016T113000
 DTEND;TZID=Europe/Brussels:20261016T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -176,7 +119,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-10-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261017T080000
 DTEND;TZID=Europe/Brussels:20261017T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -197,7 +140,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-10-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261018T080000
 DTEND;TZID=Europe/Brussels:20261018T160000
 SUMMARY:Biomarkt Falconplein
@@ -218,7 +161,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-10-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261018T090000
 DTEND;TZID=Europe/Brussels:20261018T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -239,7 +182,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-10-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261018T090000
 DTEND;TZID=Europe/Brussels:20261018T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -260,7 +203,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-10-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261021T080000
 DTEND;TZID=Europe/Brussels:20261021T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -281,7 +224,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-10-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261022T080000
 DTEND;TZID=Europe/Brussels:20261022T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -302,7 +245,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-10-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261022T080000
 DTEND;TZID=Europe/Brussels:20261022T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -323,7 +266,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-10-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261023T080000
 DTEND;TZID=Europe/Brussels:20261023T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -344,7 +287,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-10-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261023T113000
 DTEND;TZID=Europe/Brussels:20261023T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -365,7 +308,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-10-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261024T080000
 DTEND;TZID=Europe/Brussels:20261024T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -386,7 +329,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-10-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261025T080000
 DTEND;TZID=Europe/Brussels:20261025T160000
 SUMMARY:Biomarkt Falconplein
@@ -407,7 +350,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-10-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261025T090000
 DTEND;TZID=Europe/Brussels:20261025T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -428,7 +371,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-10-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261025T090000
 DTEND;TZID=Europe/Brussels:20261025T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -449,7 +392,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-10-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261028T080000
 DTEND;TZID=Europe/Brussels:20261028T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -470,7 +413,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-10-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261029T080000
 DTEND;TZID=Europe/Brussels:20261029T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -491,7 +434,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-10-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261029T080000
 DTEND;TZID=Europe/Brussels:20261029T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -512,7 +455,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-10-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261030T080000
 DTEND;TZID=Europe/Brussels:20261030T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -533,7 +476,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-10-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261030T113000
 DTEND;TZID=Europe/Brussels:20261030T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -554,7 +497,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-10-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261031T080000
 DTEND;TZID=Europe/Brussels:20261031T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -575,7 +518,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-11-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261101T080000
 DTEND;TZID=Europe/Brussels:20261101T160000
 SUMMARY:Biomarkt Falconplein
@@ -597,7 +540,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-11-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261101T090000
 DTEND;TZID=Europe/Brussels:20261101T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -619,7 +562,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-11-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261101T090000
 DTEND;TZID=Europe/Brussels:20261101T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -640,7 +583,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261104T080000
 DTEND;TZID=Europe/Brussels:20261104T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -661,7 +604,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-11-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261105T080000
 DTEND;TZID=Europe/Brussels:20261105T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -682,7 +625,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-11-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261105T080000
 DTEND;TZID=Europe/Brussels:20261105T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -703,7 +646,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261106T080000
 DTEND;TZID=Europe/Brussels:20261106T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -724,7 +667,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-11-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261106T113000
 DTEND;TZID=Europe/Brussels:20261106T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -745,7 +688,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-11-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261107T080000
 DTEND;TZID=Europe/Brussels:20261107T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -766,7 +709,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-11-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261108T080000
 DTEND;TZID=Europe/Brussels:20261108T160000
 SUMMARY:Biomarkt Falconplein
@@ -787,7 +730,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-11-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261108T090000
 DTEND;TZID=Europe/Brussels:20261108T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -808,7 +751,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-11-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261108T090000
 DTEND;TZID=Europe/Brussels:20261108T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -829,7 +772,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261111T080000
 DTEND;TZID=Europe/Brussels:20261111T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -850,50 +793,8 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:markt-ma19-2026-11-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261112T080000
-DTEND;TZID=Europe/Brussels:20261112T130000
-SUMMARY:Gemengde markt Frederik van Eedenplein
-LOCATION:Frederik van Eedenplein\, 2050 Antwerpen
-DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
- neer: 8 tot 13 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
- or-district.onrender.com/event/markt-ma19-2026-11-12/\nBron: GIPOD (Digita
- al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
- dc-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www.antwe
- rpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\nBron:
-  GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modellicentie
-  Gratis Hergebruik v1.0)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma1
- 9-2026-11-12/
-CATEGORIES:Wekelijkse markten
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
-UID:markt-ma8-2026-11-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261112T080000
-DTEND;TZID=Europe/Brussels:20261112T130000
-SUMMARY:Gemengde markt Dageraadplaats
-LOCATION:Dageraadplaats\, 2018 Antwerpen
-DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
- neer: 8 tot 13 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
- or-district.onrender.com/event/markt-ma8-2026-11-12/\nBron: GIPOD (Digitaa
- l Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cad
- c-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www.antwer
- pen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\nBron: 
- GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modellicentie 
- Gratis Hergebruik v1.0)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma8
- -2026-11-12/
-CATEGORIES:Wekelijkse markten
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:markt-ma13-2026-11-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261113T080000
 DTEND;TZID=Europe/Brussels:20261113T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -914,7 +815,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-11-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261113T113000
 DTEND;TZID=Europe/Brussels:20261113T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -935,7 +836,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-11-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261114T080000
 DTEND;TZID=Europe/Brussels:20261114T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -956,7 +857,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-11-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261115T080000
 DTEND;TZID=Europe/Brussels:20261115T160000
 SUMMARY:Biomarkt Falconplein
@@ -977,7 +878,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-11-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261115T090000
 DTEND;TZID=Europe/Brussels:20261115T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -998,7 +899,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-11-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261115T090000
 DTEND;TZID=Europe/Brussels:20261115T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1019,7 +920,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261118T080000
 DTEND;TZID=Europe/Brussels:20261118T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1040,7 +941,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-11-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261119T080000
 DTEND;TZID=Europe/Brussels:20261119T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -1061,7 +962,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-11-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261119T080000
 DTEND;TZID=Europe/Brussels:20261119T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -1082,7 +983,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261120T080000
 DTEND;TZID=Europe/Brussels:20261120T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1103,7 +1004,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-11-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261120T113000
 DTEND;TZID=Europe/Brussels:20261120T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -1124,7 +1025,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-11-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261121T080000
 DTEND;TZID=Europe/Brussels:20261121T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -1145,7 +1046,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-11-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261122T080000
 DTEND;TZID=Europe/Brussels:20261122T160000
 SUMMARY:Biomarkt Falconplein
@@ -1166,7 +1067,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-11-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261122T090000
 DTEND;TZID=Europe/Brussels:20261122T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -1187,7 +1088,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-11-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261122T090000
 DTEND;TZID=Europe/Brussels:20261122T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1208,7 +1109,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261125T080000
 DTEND;TZID=Europe/Brussels:20261125T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1229,7 +1130,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-11-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261126T080000
 DTEND;TZID=Europe/Brussels:20261126T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -1250,7 +1151,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-11-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261126T080000
 DTEND;TZID=Europe/Brussels:20261126T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -1271,7 +1172,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-11-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261127T080000
 DTEND;TZID=Europe/Brussels:20261127T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1292,7 +1193,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-11-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261127T113000
 DTEND;TZID=Europe/Brussels:20261127T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -1313,7 +1214,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-11-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261128T080000
 DTEND;TZID=Europe/Brussels:20261128T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -1334,7 +1235,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-11-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261129T080000
 DTEND;TZID=Europe/Brussels:20261129T160000
 SUMMARY:Biomarkt Falconplein
@@ -1355,7 +1256,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-11-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261129T090000
 DTEND;TZID=Europe/Brussels:20261129T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -1376,7 +1277,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-11-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261129T090000
 DTEND;TZID=Europe/Brussels:20261129T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1397,7 +1298,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261202T080000
 DTEND;TZID=Europe/Brussels:20261202T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1418,7 +1319,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-12-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261203T080000
 DTEND;TZID=Europe/Brussels:20261203T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -1439,7 +1340,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-12-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261203T080000
 DTEND;TZID=Europe/Brussels:20261203T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -1460,7 +1361,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261204T080000
 DTEND;TZID=Europe/Brussels:20261204T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1481,7 +1382,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-12-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261204T113000
 DTEND;TZID=Europe/Brussels:20261204T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -1502,7 +1403,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-12-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261205T080000
 DTEND;TZID=Europe/Brussels:20261205T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -1523,7 +1424,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-12-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261206T080000
 DTEND;TZID=Europe/Brussels:20261206T160000
 SUMMARY:Biomarkt Falconplein
@@ -1544,7 +1445,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-12-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261206T090000
 DTEND;TZID=Europe/Brussels:20261206T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -1565,7 +1466,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-12-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261206T090000
 DTEND;TZID=Europe/Brussels:20261206T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1586,7 +1487,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261209T080000
 DTEND;TZID=Europe/Brussels:20261209T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1607,7 +1508,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-12-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261210T080000
 DTEND;TZID=Europe/Brussels:20261210T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -1628,7 +1529,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-12-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261210T080000
 DTEND;TZID=Europe/Brussels:20261210T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -1649,7 +1550,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261211T080000
 DTEND;TZID=Europe/Brussels:20261211T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1670,7 +1571,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-12-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261211T113000
 DTEND;TZID=Europe/Brussels:20261211T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -1691,7 +1592,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-12-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261212T080000
 DTEND;TZID=Europe/Brussels:20261212T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -1712,7 +1613,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-12-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261213T080000
 DTEND;TZID=Europe/Brussels:20261213T160000
 SUMMARY:Biomarkt Falconplein
@@ -1733,7 +1634,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-12-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261213T090000
 DTEND;TZID=Europe/Brussels:20261213T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -1754,7 +1655,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-12-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261213T090000
 DTEND;TZID=Europe/Brussels:20261213T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1775,7 +1676,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261216T080000
 DTEND;TZID=Europe/Brussels:20261216T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1796,7 +1697,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-12-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261217T080000
 DTEND;TZID=Europe/Brussels:20261217T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -1817,7 +1718,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-12-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261217T080000
 DTEND;TZID=Europe/Brussels:20261217T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -1838,7 +1739,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261218T080000
 DTEND;TZID=Europe/Brussels:20261218T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1859,7 +1760,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2026-12-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261218T113000
 DTEND;TZID=Europe/Brussels:20261218T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -1880,7 +1781,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-12-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261219T080000
 DTEND;TZID=Europe/Brussels:20261219T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -1901,7 +1802,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-12-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261220T080000
 DTEND;TZID=Europe/Brussels:20261220T160000
 SUMMARY:Biomarkt Falconplein
@@ -1922,7 +1823,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-12-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261220T090000
 DTEND;TZID=Europe/Brussels:20261220T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -1943,7 +1844,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-12-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261220T090000
 DTEND;TZID=Europe/Brussels:20261220T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -1964,7 +1865,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261223T080000
 DTEND;TZID=Europe/Brussels:20261223T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -1985,7 +1886,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-12-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261224T080000
 DTEND;TZID=Europe/Brussels:20261224T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2006,7 +1907,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-12-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261224T080000
 DTEND;TZID=Europe/Brussels:20261224T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2027,7 +1928,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2026-12-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261226T080000
 DTEND;TZID=Europe/Brussels:20261226T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2048,7 +1949,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2026-12-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261227T080000
 DTEND;TZID=Europe/Brussels:20261227T160000
 SUMMARY:Biomarkt Falconplein
@@ -2069,7 +1970,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2026-12-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261227T090000
 DTEND;TZID=Europe/Brussels:20261227T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2090,7 +1991,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2026-12-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261227T090000
 DTEND;TZID=Europe/Brussels:20261227T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -2111,7 +2012,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2026-12-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261230T080000
 DTEND;TZID=Europe/Brussels:20261230T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2132,7 +2033,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2026-12-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261231T080000
 DTEND;TZID=Europe/Brussels:20261231T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2153,7 +2054,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2026-12-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20261231T080000
 DTEND;TZID=Europe/Brussels:20261231T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2174,7 +2075,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-01-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270102T080000
 DTEND;TZID=Europe/Brussels:20270102T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2195,7 +2096,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-01-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270103T080000
 DTEND;TZID=Europe/Brussels:20270103T160000
 SUMMARY:Biomarkt Falconplein
@@ -2216,7 +2117,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-01-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270103T090000
 DTEND;TZID=Europe/Brussels:20270103T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2237,7 +2138,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-01-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270103T090000
 DTEND;TZID=Europe/Brussels:20270103T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -2258,7 +2159,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270106T080000
 DTEND;TZID=Europe/Brussels:20270106T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2279,7 +2180,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-01-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270107T080000
 DTEND;TZID=Europe/Brussels:20270107T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2300,7 +2201,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-01-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270107T080000
 DTEND;TZID=Europe/Brussels:20270107T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2321,7 +2222,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270108T080000
 DTEND;TZID=Europe/Brussels:20270108T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2342,7 +2243,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-01-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270108T113000
 DTEND;TZID=Europe/Brussels:20270108T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -2363,7 +2264,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-01-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270109T080000
 DTEND;TZID=Europe/Brussels:20270109T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2384,7 +2285,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-01-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270110T080000
 DTEND;TZID=Europe/Brussels:20270110T160000
 SUMMARY:Biomarkt Falconplein
@@ -2405,7 +2306,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-01-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270110T090000
 DTEND;TZID=Europe/Brussels:20270110T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2426,7 +2327,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-01-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270110T090000
 DTEND;TZID=Europe/Brussels:20270110T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -2447,7 +2348,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270113T080000
 DTEND;TZID=Europe/Brussels:20270113T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2468,7 +2369,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-01-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270114T080000
 DTEND;TZID=Europe/Brussels:20270114T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2489,7 +2390,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-01-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270114T080000
 DTEND;TZID=Europe/Brussels:20270114T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2510,7 +2411,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270115T080000
 DTEND;TZID=Europe/Brussels:20270115T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2531,7 +2432,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-01-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270115T113000
 DTEND;TZID=Europe/Brussels:20270115T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -2552,7 +2453,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-01-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270116T080000
 DTEND;TZID=Europe/Brussels:20270116T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2573,7 +2474,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-01-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270117T080000
 DTEND;TZID=Europe/Brussels:20270117T160000
 SUMMARY:Biomarkt Falconplein
@@ -2594,7 +2495,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-01-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270117T090000
 DTEND;TZID=Europe/Brussels:20270117T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2615,7 +2516,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-01-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270117T090000
 DTEND;TZID=Europe/Brussels:20270117T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -2636,7 +2537,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270120T080000
 DTEND;TZID=Europe/Brussels:20270120T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2657,7 +2558,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-01-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270121T080000
 DTEND;TZID=Europe/Brussels:20270121T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2678,7 +2579,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-01-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270121T080000
 DTEND;TZID=Europe/Brussels:20270121T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2699,7 +2600,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270122T080000
 DTEND;TZID=Europe/Brussels:20270122T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2720,7 +2621,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-01-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270122T113000
 DTEND;TZID=Europe/Brussels:20270122T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -2741,7 +2642,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-01-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270123T080000
 DTEND;TZID=Europe/Brussels:20270123T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2762,7 +2663,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-01-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270124T080000
 DTEND;TZID=Europe/Brussels:20270124T160000
 SUMMARY:Biomarkt Falconplein
@@ -2783,7 +2684,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-01-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270124T090000
 DTEND;TZID=Europe/Brussels:20270124T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2804,7 +2705,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-01-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270124T090000
 DTEND;TZID=Europe/Brussels:20270124T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -2825,7 +2726,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270127T080000
 DTEND;TZID=Europe/Brussels:20270127T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2846,7 +2747,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-01-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270128T080000
 DTEND;TZID=Europe/Brussels:20270128T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -2867,7 +2768,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-01-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270128T080000
 DTEND;TZID=Europe/Brussels:20270128T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -2888,7 +2789,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-01-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270129T080000
 DTEND;TZID=Europe/Brussels:20270129T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -2909,7 +2810,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-01-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270129T113000
 DTEND;TZID=Europe/Brussels:20270129T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -2930,7 +2831,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-01-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270130T080000
 DTEND;TZID=Europe/Brussels:20270130T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -2951,7 +2852,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-01-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270131T080000
 DTEND;TZID=Europe/Brussels:20270131T160000
 SUMMARY:Biomarkt Falconplein
@@ -2972,7 +2873,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-01-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270131T090000
 DTEND;TZID=Europe/Brussels:20270131T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -2993,7 +2894,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-01-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270131T090000
 DTEND;TZID=Europe/Brussels:20270131T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3014,7 +2915,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270203T080000
 DTEND;TZID=Europe/Brussels:20270203T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3035,7 +2936,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-02-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270204T080000
 DTEND;TZID=Europe/Brussels:20270204T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -3056,7 +2957,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-02-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270204T080000
 DTEND;TZID=Europe/Brussels:20270204T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -3077,7 +2978,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270205T080000
 DTEND;TZID=Europe/Brussels:20270205T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3098,7 +2999,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-02-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270205T113000
 DTEND;TZID=Europe/Brussels:20270205T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -3119,7 +3020,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-02-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270206T080000
 DTEND;TZID=Europe/Brussels:20270206T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -3140,7 +3041,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-02-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270207T080000
 DTEND;TZID=Europe/Brussels:20270207T160000
 SUMMARY:Biomarkt Falconplein
@@ -3161,7 +3062,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-02-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270207T090000
 DTEND;TZID=Europe/Brussels:20270207T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -3182,7 +3083,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-02-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270207T090000
 DTEND;TZID=Europe/Brussels:20270207T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3203,7 +3104,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270210T080000
 DTEND;TZID=Europe/Brussels:20270210T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3224,7 +3125,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-02-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270211T080000
 DTEND;TZID=Europe/Brussels:20270211T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -3245,7 +3146,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-02-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270211T080000
 DTEND;TZID=Europe/Brussels:20270211T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -3266,7 +3167,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270212T080000
 DTEND;TZID=Europe/Brussels:20270212T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3287,7 +3188,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-02-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270212T113000
 DTEND;TZID=Europe/Brussels:20270212T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -3308,7 +3209,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-02-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270213T080000
 DTEND;TZID=Europe/Brussels:20270213T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -3329,7 +3230,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-02-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270214T080000
 DTEND;TZID=Europe/Brussels:20270214T160000
 SUMMARY:Biomarkt Falconplein
@@ -3350,7 +3251,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-02-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270214T090000
 DTEND;TZID=Europe/Brussels:20270214T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -3371,7 +3272,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-02-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270214T090000
 DTEND;TZID=Europe/Brussels:20270214T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3392,7 +3293,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270217T080000
 DTEND;TZID=Europe/Brussels:20270217T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3413,7 +3314,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-02-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270218T080000
 DTEND;TZID=Europe/Brussels:20270218T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -3434,7 +3335,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-02-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270218T080000
 DTEND;TZID=Europe/Brussels:20270218T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -3455,7 +3356,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270219T080000
 DTEND;TZID=Europe/Brussels:20270219T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3476,7 +3377,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-02-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270219T113000
 DTEND;TZID=Europe/Brussels:20270219T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -3497,7 +3398,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-02-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270220T080000
 DTEND;TZID=Europe/Brussels:20270220T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -3518,7 +3419,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-02-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270221T080000
 DTEND;TZID=Europe/Brussels:20270221T160000
 SUMMARY:Biomarkt Falconplein
@@ -3539,7 +3440,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-02-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270221T090000
 DTEND;TZID=Europe/Brussels:20270221T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -3560,7 +3461,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-02-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270221T090000
 DTEND;TZID=Europe/Brussels:20270221T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3581,7 +3482,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270224T080000
 DTEND;TZID=Europe/Brussels:20270224T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3602,7 +3503,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-02-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270225T080000
 DTEND;TZID=Europe/Brussels:20270225T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -3623,7 +3524,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-02-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270225T080000
 DTEND;TZID=Europe/Brussels:20270225T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -3644,7 +3545,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-02-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270226T080000
 DTEND;TZID=Europe/Brussels:20270226T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3665,7 +3566,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-02-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270226T113000
 DTEND;TZID=Europe/Brussels:20270226T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -3686,7 +3587,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-02-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270227T080000
 DTEND;TZID=Europe/Brussels:20270227T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -3707,7 +3608,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-02-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270228T080000
 DTEND;TZID=Europe/Brussels:20270228T160000
 SUMMARY:Biomarkt Falconplein
@@ -3728,7 +3629,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-02-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270228T090000
 DTEND;TZID=Europe/Brussels:20270228T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -3749,7 +3650,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-02-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270228T090000
 DTEND;TZID=Europe/Brussels:20270228T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3770,7 +3671,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270303T080000
 DTEND;TZID=Europe/Brussels:20270303T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3791,7 +3692,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-03-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270304T080000
 DTEND;TZID=Europe/Brussels:20270304T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -3812,7 +3713,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-03-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270304T080000
 DTEND;TZID=Europe/Brussels:20270304T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -3833,7 +3734,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270305T080000
 DTEND;TZID=Europe/Brussels:20270305T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3854,7 +3755,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-03-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270305T113000
 DTEND;TZID=Europe/Brussels:20270305T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -3875,7 +3776,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-03-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270306T080000
 DTEND;TZID=Europe/Brussels:20270306T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -3896,7 +3797,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-03-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270307T080000
 DTEND;TZID=Europe/Brussels:20270307T160000
 SUMMARY:Biomarkt Falconplein
@@ -3917,7 +3818,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-03-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270307T090000
 DTEND;TZID=Europe/Brussels:20270307T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -3938,7 +3839,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-03-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270307T090000
 DTEND;TZID=Europe/Brussels:20270307T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -3959,7 +3860,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270310T080000
 DTEND;TZID=Europe/Brussels:20270310T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -3980,7 +3881,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-03-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270311T080000
 DTEND;TZID=Europe/Brussels:20270311T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4001,7 +3902,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-03-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270311T080000
 DTEND;TZID=Europe/Brussels:20270311T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4022,7 +3923,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270312T080000
 DTEND;TZID=Europe/Brussels:20270312T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4043,7 +3944,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-03-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270312T113000
 DTEND;TZID=Europe/Brussels:20270312T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -4064,7 +3965,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-03-13@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270313T080000
 DTEND;TZID=Europe/Brussels:20270313T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -4085,7 +3986,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-03-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270314T080000
 DTEND;TZID=Europe/Brussels:20270314T160000
 SUMMARY:Biomarkt Falconplein
@@ -4106,7 +4007,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-03-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270314T090000
 DTEND;TZID=Europe/Brussels:20270314T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -4127,7 +4028,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-03-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270314T090000
 DTEND;TZID=Europe/Brussels:20270314T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -4148,7 +4049,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270317T080000
 DTEND;TZID=Europe/Brussels:20270317T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4169,7 +4070,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-03-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270318T080000
 DTEND;TZID=Europe/Brussels:20270318T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4190,7 +4091,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-03-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270318T080000
 DTEND;TZID=Europe/Brussels:20270318T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4211,7 +4112,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270319T080000
 DTEND;TZID=Europe/Brussels:20270319T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4232,7 +4133,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-03-19@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270319T113000
 DTEND;TZID=Europe/Brussels:20270319T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -4253,7 +4154,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-03-20@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270320T080000
 DTEND;TZID=Europe/Brussels:20270320T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -4274,7 +4175,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-03-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270321T080000
 DTEND;TZID=Europe/Brussels:20270321T160000
 SUMMARY:Biomarkt Falconplein
@@ -4295,7 +4196,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-03-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270321T090000
 DTEND;TZID=Europe/Brussels:20270321T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -4316,7 +4217,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-03-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270321T090000
 DTEND;TZID=Europe/Brussels:20270321T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -4337,7 +4238,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270324T080000
 DTEND;TZID=Europe/Brussels:20270324T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4358,7 +4259,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-03-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270325T080000
 DTEND;TZID=Europe/Brussels:20270325T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4379,7 +4280,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-03-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270325T080000
 DTEND;TZID=Europe/Brussels:20270325T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4400,7 +4301,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270326T080000
 DTEND;TZID=Europe/Brussels:20270326T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4421,7 +4322,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-03-26@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270326T113000
 DTEND;TZID=Europe/Brussels:20270326T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -4442,7 +4343,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-03-27@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270327T080000
 DTEND;TZID=Europe/Brussels:20270327T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -4463,7 +4364,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-03-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270328T080000
 DTEND;TZID=Europe/Brussels:20270328T160000
 SUMMARY:Biomarkt Falconplein
@@ -4484,7 +4385,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-03-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270328T090000
 DTEND;TZID=Europe/Brussels:20270328T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -4505,7 +4406,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-03-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270328T090000
 DTEND;TZID=Europe/Brussels:20270328T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -4526,7 +4427,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-03-31@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270331T080000
 DTEND;TZID=Europe/Brussels:20270331T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4547,7 +4448,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-04-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270401T080000
 DTEND;TZID=Europe/Brussels:20270401T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4568,7 +4469,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-04-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270401T080000
 DTEND;TZID=Europe/Brussels:20270401T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4589,7 +4490,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270402T080000
 DTEND;TZID=Europe/Brussels:20270402T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4610,7 +4511,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-04-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270402T113000
 DTEND;TZID=Europe/Brussels:20270402T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -4631,7 +4532,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-04-03@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270403T080000
 DTEND;TZID=Europe/Brussels:20270403T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -4652,7 +4553,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-04-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270404T080000
 DTEND;TZID=Europe/Brussels:20270404T160000
 SUMMARY:Biomarkt Falconplein
@@ -4673,7 +4574,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-04-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270404T090000
 DTEND;TZID=Europe/Brussels:20270404T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -4694,7 +4595,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-04-04@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270404T090000
 DTEND;TZID=Europe/Brussels:20270404T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -4715,7 +4616,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270407T080000
 DTEND;TZID=Europe/Brussels:20270407T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4736,7 +4637,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-04-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270408T080000
 DTEND;TZID=Europe/Brussels:20270408T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4757,7 +4658,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-04-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270408T080000
 DTEND;TZID=Europe/Brussels:20270408T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4778,7 +4679,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270409T080000
 DTEND;TZID=Europe/Brussels:20270409T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4799,7 +4700,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-04-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270409T113000
 DTEND;TZID=Europe/Brussels:20270409T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -4820,7 +4721,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-04-10@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270410T080000
 DTEND;TZID=Europe/Brussels:20270410T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -4841,7 +4742,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-04-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270411T080000
 DTEND;TZID=Europe/Brussels:20270411T160000
 SUMMARY:Biomarkt Falconplein
@@ -4862,7 +4763,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-04-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270411T090000
 DTEND;TZID=Europe/Brussels:20270411T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -4883,7 +4784,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-04-11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270411T090000
 DTEND;TZID=Europe/Brussels:20270411T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -4904,7 +4805,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-14@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270414T080000
 DTEND;TZID=Europe/Brussels:20270414T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4925,7 +4826,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-04-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270415T080000
 DTEND;TZID=Europe/Brussels:20270415T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -4946,7 +4847,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-04-15@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270415T080000
 DTEND;TZID=Europe/Brussels:20270415T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -4967,7 +4868,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270416T080000
 DTEND;TZID=Europe/Brussels:20270416T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -4988,7 +4889,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-04-16@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270416T113000
 DTEND;TZID=Europe/Brussels:20270416T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -5009,7 +4910,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-04-17@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270417T080000
 DTEND;TZID=Europe/Brussels:20270417T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -5030,7 +4931,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-04-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270418T080000
 DTEND;TZID=Europe/Brussels:20270418T160000
 SUMMARY:Biomarkt Falconplein
@@ -5051,7 +4952,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-04-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270418T090000
 DTEND;TZID=Europe/Brussels:20270418T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -5072,7 +4973,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-04-18@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270418T090000
 DTEND;TZID=Europe/Brussels:20270418T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -5093,7 +4994,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-21@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270421T080000
 DTEND;TZID=Europe/Brussels:20270421T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5114,7 +5015,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-04-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270422T080000
 DTEND;TZID=Europe/Brussels:20270422T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -5135,7 +5036,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-04-22@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270422T080000
 DTEND;TZID=Europe/Brussels:20270422T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -5156,7 +5057,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270423T080000
 DTEND;TZID=Europe/Brussels:20270423T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5177,7 +5078,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-04-23@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270423T113000
 DTEND;TZID=Europe/Brussels:20270423T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -5198,7 +5099,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-04-24@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270424T080000
 DTEND;TZID=Europe/Brussels:20270424T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -5219,7 +5120,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-04-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270425T080000
 DTEND;TZID=Europe/Brussels:20270425T160000
 SUMMARY:Biomarkt Falconplein
@@ -5240,7 +5141,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-04-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270425T090000
 DTEND;TZID=Europe/Brussels:20270425T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -5261,7 +5162,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-04-25@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270425T090000
 DTEND;TZID=Europe/Brussels:20270425T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -5282,7 +5183,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-28@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270428T080000
 DTEND;TZID=Europe/Brussels:20270428T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5303,7 +5204,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-04-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270429T080000
 DTEND;TZID=Europe/Brussels:20270429T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -5324,7 +5225,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-04-29@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270429T080000
 DTEND;TZID=Europe/Brussels:20270429T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -5345,7 +5246,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-04-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270430T080000
 DTEND;TZID=Europe/Brussels:20270430T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5366,7 +5267,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-04-30@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270430T113000
 DTEND;TZID=Europe/Brussels:20270430T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -5387,7 +5288,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-05-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270501T080000
 DTEND;TZID=Europe/Brussels:20270501T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -5408,7 +5309,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-05-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270502T080000
 DTEND;TZID=Europe/Brussels:20270502T160000
 SUMMARY:Biomarkt Falconplein
@@ -5429,7 +5330,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-05-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270502T090000
 DTEND;TZID=Europe/Brussels:20270502T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -5450,7 +5351,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-05-02@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270502T090000
 DTEND;TZID=Europe/Brussels:20270502T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -5471,7 +5372,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-05-05@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270505T080000
 DTEND;TZID=Europe/Brussels:20270505T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5492,7 +5393,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma19-2027-05-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270506T080000
 DTEND;TZID=Europe/Brussels:20270506T130000
 SUMMARY:Gemengde markt Frederik van Eedenplein
@@ -5513,7 +5414,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma8-2027-05-06@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270506T080000
 DTEND;TZID=Europe/Brussels:20270506T130000
 SUMMARY:Gemengde markt Dageraadplaats
@@ -5534,7 +5435,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-05-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270507T080000
 DTEND;TZID=Europe/Brussels:20270507T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5555,7 +5456,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma5-2027-05-07@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270507T113000
 DTEND;TZID=Europe/Brussels:20270507T163000
 SUMMARY:Gemengde markt Desguinlei
@@ -5576,7 +5477,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma20-2027-05-08@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270508T080000
 DTEND;TZID=Europe/Brussels:20270508T160000
 SUMMARY:Gemengde markt en exotische markt Oudevaartplaats
@@ -5597,7 +5498,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma24-2027-05-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270509T080000
 DTEND;TZID=Europe/Brussels:20270509T160000
 SUMMARY:Biomarkt Falconplein
@@ -5618,7 +5519,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma10-2027-05-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270509T090000
 DTEND;TZID=Europe/Brussels:20270509T170000
 SUMMARY:Markt voor klein antiek Sint-Jansvliet
@@ -5639,7 +5540,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma26-2027-05-09@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270509T090000
 DTEND;TZID=Europe/Brussels:20270509T140000
 SUMMARY:Gemengde markt\, vogelenmarkt Oudevaartplaats - Blauwtorenplein
@@ -5660,7 +5561,7 @@ TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:markt-ma13-2027-05-12@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261112T124426Z
 DTSTART;TZID=Europe/Brussels:20270512T080000
 DTEND;TZID=Europe/Brussels:20270512T130000
 SUMMARY:Gemengde markt Sint-Jansplein
@@ -5675,6 +5576,90 @@ DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
   Gratis Hergebruik v1.0)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma1
  3-2027-05-12/
+CATEGORIES:Wekelijkse markten
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:markt-ma19-2027-05-13@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261112T124426Z
+DTSTART;TZID=Europe/Brussels:20270513T080000
+DTEND;TZID=Europe/Brussels:20270513T130000
+SUMMARY:Gemengde markt Frederik van Eedenplein
+LOCATION:Frederik van Eedenplein\, 2050 Antwerpen
+DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
+ neer: 8 tot 13 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/markt-ma19-2027-05-13/\nBron: GIPOD (Digita
+ al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
+ dc-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www.antwe
+ rpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\nBron:
+  GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modellicentie
+  Gratis Hergebruik v1.0)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma1
+ 9-2027-05-13/
+CATEGORIES:Wekelijkse markten
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:markt-ma8-2027-05-13@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261112T124426Z
+DTSTART;TZID=Europe/Brussels:20270513T080000
+DTEND;TZID=Europe/Brussels:20270513T130000
+SUMMARY:Gemengde markt Dageraadplaats
+LOCATION:Dageraadplaats\, 2018 Antwerpen
+DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
+ neer: 8 tot 13 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/markt-ma8-2027-05-13/\nBron: GIPOD (Digitaa
+ l Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cad
+ c-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www.antwer
+ pen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\nBron: 
+ GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modellicentie 
+ Gratis Hergebruik v1.0)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma8
+ -2027-05-13/
+CATEGORIES:Wekelijkse markten
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:markt-ma13-2027-05-14@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261112T124426Z
+DTSTART;TZID=Europe/Brussels:20270514T080000
+DTEND;TZID=Europe/Brussels:20270514T130000
+SUMMARY:Gemengde markt Sint-Jansplein
+LOCATION:Sint-Jansplein\, 2060 Antwerpen
+DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
+ neer: 8 tot 13 uur\nOp de publieke agenda: https://mijn-publieke-agenda-vo
+ or-district.onrender.com/event/markt-ma13-2027-05-14/\nBron: GIPOD (Digita
+ al Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-ca
+ dc-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www.antwe
+ rpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\nBron:
+  GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modellicentie
+  Gratis Hergebruik v1.0)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma1
+ 3-2027-05-14/
+CATEGORIES:Wekelijkse markten
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:markt-ma5-2027-05-14@mijn-publieke-agenda-voor-district.local
+DTSTAMP:20261112T124426Z
+DTSTART;TZID=Europe/Brussels:20270514T113000
+DTEND;TZID=Europe/Brussels:20270514T163000
+SUMMARY:Gemengde markt Desguinlei
+LOCATION:Desguinlei\, 2020 Antwerpen
+DESCRIPTION:Openbare markt van stad Antwerpen. Marktdag volgens GIPOD.\nWan
+ neer: 11.30 tot 16.30 uur\nOp de publieke agenda: https://mijn-publieke-ag
+ enda-voor-district.onrender.com/event/markt-ma5-2027-05-14/\nBron: GIPOD (
+ Digitaal Vlaanderen): https://metadata.vlaanderen.be/srv/api/records/2b4b3
+ bb7-cadc-41a0-b5ae-796a84a20b52\nMeer info bij de organisator: https://www
+ .antwerpen.be/info/5c065842a67793326b260661/markten-in-district-antwerpen\
+ nBron: GIPOD\, Digitaal Vlaanderen\, en marktlijst stad Antwerpen (Modelli
+ centie Gratis Hergebruik v1.0)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/markt-ma5
+ -2027-05-14/
 CATEGORIES:Wekelijkse markten
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
