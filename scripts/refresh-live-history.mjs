@@ -33,6 +33,8 @@ import { verzamelStraatBronnen } from "./build-straat-snapshots.mjs";
 import { metRegisterNummers, vormNaVerversing, werkVormDocument, werkenVoorDeSite } from "../site/werk-vorm.js";
 import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { gepubliceerdeWerkIds, leesWerkVorm, schrijfWerkVorm } from "../lib/werk-vorm-bestand.mjs";
+import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
+import { schrijfParkeerHuisnummers, telParkeerHuisnummers } from "../lib/parkeer-huisnummers.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -401,6 +403,19 @@ export async function refreshLiveHistory({
     fs.writeFileSync(archiveDayFile, `${JSON.stringify(dayDocument, null, 2)}\n`, "utf8");
   }
   for (const [target, document] of olderDays) fs.writeFileSync(target, `${JSON.stringify(document, null, 2)}\n`, "utf8");
+
+  // Parkeerverboden zonder huisnummer: tellen waarom (lib/parkeer-huisnummers.mjs). Alleen nu kan dat: het adres van de
+  // bron staat nergens in de repo. In het bestand en in de log (publiek) alleen codes en aantallen, nooit een straat, een
+  // nummer of een reden. Laadde de laag niet, dan blijft de vorige telling staan. Faalt het, dan gaat de verversing door.
+  try {
+    if (publicSpaceResult.ok && history.layers.publicSpace.status === "ok") {
+      const telling = telParkeerHuisnummers({ items: history.layers.publicSpace.items, parkingFeatures: publicSpaceResult.features?.parking, straatnamen: officieleStraatnamen(), observedAt });
+      schrijfParkeerHuisnummers({ rootDir, document: telling });
+      log(JSON.stringify({ parkeerHuisnummers: { totaal: telling.totaal, metNummer: telling.metNummer, zonderNummer: telling.zonderNummer, redenen: telling.redenen } }));
+    }
+  } catch (error) {
+    log(JSON.stringify({ parkeerHuisnummers: "niet gelukt", soort: error?.name || "Error" }));
+  }
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
 

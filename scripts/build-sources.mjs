@@ -16,6 +16,7 @@ import { EVENEMENT_IDENTITEIT_FILE } from "../lib/evenement-identiteit-validatie
 import { INZAGE_STATUS_FILE } from "../site/inzage-status.js";
 import { WERK_VORM_FILE } from "../site/werk-vorm.js";
 import { VAAGHEID_FILE } from "../lib/vaagheid.mjs";
+import { PARKEER_HUISNUMMERS_FILE } from "../lib/parkeer-huisnummers-validatie.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE } from "../lib/evenement-herkenning-validatie.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 import { ASIGN_EVENEMENTEN_SOURCE_ID, oudeTekstBijwerken, tekstUitFeiten } from "../lib/asign-evenementen-agenda.mjs";
@@ -34,7 +35,8 @@ export function readSources(rootDir) {
   // vaagheid.json is de vaagheidsmeting van de verversing (scripts/meet-vaagheid.mjs), geen bron; werk-vorm.json is de vaste
   // vorm per werk (site/werk-vorm.js).
   // vaste-adressen.json is het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
-  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE, WERK_VORM_FILE];
+  // parkeer-huisnummers.json telt waarom een parkeerverbod geen huisnummer heeft (lib/parkeer-huisnummers.mjs), geen bron.
+  const geenBron = [KAART_UITLEG_FILE, EVENEMENT_IDENTITEIT_FILE, INZAGE_STATUS_FILE, HERKENNING_FILE, PATRONEN_FILE, VAAGHEID_FILE, WERK_VORM_FILE, PARKEER_HUISNUMMERS_FILE];
   const names = fs.readdirSync(sourcesDir).filter((name) => name.endsWith(".json") && !geenBron.includes(name)).sort();
   let status = null;
   let manualCheck = null;
