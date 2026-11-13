@@ -34,32 +34,9 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:district-kal-6a746a7ff4182b8edf63a777-2026-10-10@mijn-publieke-agenda-v
- oor-district.local
-DTSTAMP:20261110T043845Z
-DTSTART;TZID=Europe/Brussels:20261010T110000
-DTEND;TZID=Europe/Brussels:20261010T183000
-SUMMARY:Linkeroever Criterium
-LOCATION:Poisson Pilote\, Beatrijslaan 32
-DESCRIPTION:Het allereerste wielercriterium op Linkeroever! Koers mee of mo
- edig de renners aan tijdens 3 jeugd-\, 1 vrouwen- en 2 mannenreeksen. Volg
-  de Ronde van Lombardije en het WK Gravel voor vrouwen op groot scherm en 
- blijf nadien hangen voor de dj’s. Prijs: €15\nWanneer: 11 tot 18.30 uu
- r\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onren
- der.com/event/district-kal-6a746a7ff4182b8edf63a777-2026-10-10/\nDistricts
- kalender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-belee
- f-je-in-district-antwerpen\nBron: district Antwerpen – bron stad Antwerp
- en (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
- kal-6a746a7ff4182b8edf63a777-2026-10-10/
-CATEGORIES:Sport
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:asign-ev-et2026001217-2026-10-18@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261113T035541Z
 DTSTART;TZID=Europe/Brussels:20261018T090000
 DURATION:PT1H
 SUMMARY:TREK Antwerp Marathon
@@ -89,30 +66,30 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2026000445-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261110T043845Z
+DTSTAMP:20261113T035541Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
-SUMMARY:Vermoedelijk een loopwedstrijd of loop in de Timmerwerfstraat (aanv
- raag\, nog niet goedgekeurd)
+SUMMARY:Antwerp Urban Trail 2026. Golazo sports NV
 LOCATION:Timmerwerfstraat\, Anneessensstraat\, Artsen zonder Grenzenstraat 
  en 75 andere straten
 DESCRIPTION:Parcours door 76 straten: onder meer Anneessensstraat\, Artsen 
  zonder Grenzenstraat\, Baron Joostensstraat\, Bervoetstraat. Verkeersvrije
   zone in 4 straten: Gillisplaats\, Timmerwerfstraat\, Vlaamsekaai en Waals
  ekaai. Opbouw vanaf donderdag 12 november\, afbraak tot maandag 16 novembe
- r. Evenementendossier ET2026000445 van de stad (A-Sign)\, laatst gewijzigd
-  op 6 oktober 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aan
- vraag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, da
- n verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publiek
- e-agenda-voor-district.onrender.com/event/asign-ev-et2026000445-2026-11-15
- /\nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata
- .antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: di
- strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
- e)
+ r. Naam uit een goedgekeurd besluit in eBesluit (zelfde dag en plaats). Ev
+ enementendossier ET2026000445 van de stad (A-Sign)\, laatst gewijzigd op 6
+  oktober 2026: aanvraag nog niet goedgekeurd.\nOp de publieke agenda: http
+ s://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et20260
+ 00445-2026-11-15/\nEvenementen op straat (dossiers van de stad in A-Sign):
+  https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapSer
+ ver/22\nEvenementen volgens besluiten van stad en district (eBesluit): htt
+ ps://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.091
+ 5.3298.5098\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gra
+ tis open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
  et2026000445-2026-11-15/
 CATEGORIES:Sport
-STATUS:TENTATIVE
+STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR
