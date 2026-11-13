@@ -295,15 +295,15 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
-  "het oude badhuis stuivenbergplein 38": {
+  "het centraal station koningin astridplein 27 2018 antwerpen": {
    "point": [
-    4.43234,
-    51.22708
+    4.42114,
+    51.21737
    ],
    "precision": "adres",
-   "street": "Stuivenbergplein",
-   "postcode": "2060",
-   "checkedOn": "2026-10-05"
+   "street": "Koningin Astridplein",
+   "postcode": "2018",
+   "checkedOn": "2026-11-13"
   },
   "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
    "point": [
@@ -495,6 +495,16 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
+  "montignystraat 3 fransenplaats 1 2018 antwerpen": {
+   "point": [
+    4.39267,
+    51.20511
+   ],
+   "precision": "adres",
+   "street": "Montignystraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-13"
+  },
   "nationalestraat arenbergstraat armeduivelstraat en 66 andere straten": {
    "point": [
     4.39937,
@@ -645,16 +655,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-02"
   },
-  "theaterplein": {
-   "point": [
-    4.41058,
-    51.21419
-   ],
-   "precision": "straat",
-   "street": "Theaterplein",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
    "point": [
     4.39156,
@@ -772,26 +772,28 @@
   "a bib merksem parkweg 1": "2026-11-04",
   "arenaplein 2100 deurne": "2026-11-02",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-02",
-  "district berendrecht zandvliet lillo locatie via de officiele bron": "2026-11-05",
   "district borgerhout locatie via de officiele bron": "2026-11-02",
   "district borsbeek locatie via de officiele bron": "2026-11-01",
-  "district deurne locatie via de officiele bron": "2026-11-10",
   "district ekeren locatie via de officiele bron": "2026-11-02",
   "district wilrijk locatie via de officiele bron": "2026-11-02",
   "harmoniepark 1": "2026-11-02",
+  "kastanjedreef 2050 antwerpen": "2026-11-13",
   "korte scholierstraat antwerpen": "2026-11-07",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-07",
   "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-07",
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-07",
   "park gravenhof district hoboken plaats volgens het bericht": "2026-11-01",
+  "rivierenhof in deurne": "2026-11-13",
+  "scheldekaaien zuid 2000 antwerpen": "2026-11-13",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-07",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
-  "seefhoek 2060 antwerpen": "2026-10-30",
+  "seefhoek 2060 antwerpen": "2026-11-13",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
   "speelweefselplan binnenstad 2000 antwerpen": "2026-11-07",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-01",
   "ten eeckhovelei 2100 deurne": "2026-11-02",
   "toeristisch centrum antwerpen": "2026-11-02",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07",
+  "versschillende locaties in de binnenstad": "2026-11-13"
  }
 }
