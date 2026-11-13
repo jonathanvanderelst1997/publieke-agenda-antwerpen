@@ -63,6 +63,39 @@ huisnummer mocht dan wel." Het "geen historie" ging alleen over een import van v
   geen huisnummer: de historiek bewaarde toen alleen de straat;
 - `tests/parkeerhistoriek.test.mjs` houdt dat vast.
 
+## Parkeerverboden zonder huisnummer: waarom (13 november 2026)
+
+Regel van de eigenaar: altijd het exacte huisnummer, ook bij een verhuis; het woord verhuis, de reden en namen nooit.
+Toch stonden er op 13 november 2026 van de 2.378 bewaarde parkeerverboden 339 zonder huisnummer. Uitgezocht, alleen
+gelezen, met laag 20 van A-Sign ernaast (dezelfde vraag als de verversing, zonder de reden):
+
+- **Nu: de stad geeft er geen.** Bij elk van die 339 schrijft de stad zelf "0-0" waar het nummer hoort ("Xstraat 0-0
+  2000 Antwerpen"). De laag heeft geen ander veld met een nummer; alleen de lijn op de kaart zegt waar het is. De keten
+  verloor er geen enkel: de 2.352 parkeerverboden die nog in de bron stonden, kwamen er opnieuw precies zo uit.
+- **Vroeger: de opslag haalde het weg.** Tot 26 oktober 2026 bewaarde de historiek alleen de straat. In het verleden
+  van de agenda (`site/verleden/parkeerverboden/`) staan daardoor 3.020 parkeerverboden zonder nummer die de site zelf
+  zag sinds 1 oktober en die afliepen of uit de bron verdwenen vóór die regel; de stad heeft hun adres nog (2.722 met
+  een nummer, 298 met "0-0"). Aanvullen is een keuze van de eigenaar: er komt geen parkeerverbod bij, alleen het nummer
+  van wat de site al zag. Niet gebouwd.
+- **Eén vorm kende de regel niet:** een nummer met een nul ervoor ("Xstraat 01-5"). Dat is hersteld
+  (`nummerVanBron` in `site/adres-privacy.js`).
+
+De bewaarde stand kan dat niet zelf zeggen: het adres van de bron staat nergens in de repo. Daarom telt de verversing
+het op het moment dat ze de bron leest (`telParkeerHuisnummers` in `lib/parkeer-huisnummers.mjs`, aangeroepen in
+`scripts/refresh-live-history.mjs`) en schrijft ze `site/sources/parkeer-huisnummers.json`:
+
+- alleen vaste sleutels, gehele aantallen en één tijdstip (`validateParkeerHuisnummers` in
+  `lib/parkeer-huisnummers-validatie.mjs`): nooit een straat, een nummer, een dossier, een reden of een naam, ook niet
+  in de log;
+- per parkeerverbod zonder nummer één code: `bron_zonder_nummer` (de stad geeft er geen), of eigen verlies:
+  `vorm_niet_herkend`, `straat_niet_officieel`, `verboden_woord`, `niet_bewaard`; `bron_onbekend` als het adres van de
+  bron niet te lezen is;
+- laadde de publieke-ruimtelaag niet, dan blijft de vorige telling staan (met haar eigen tijdstip);
+- `npm run sources:health` toont de telling als één regel. Eigen verlies hoort nul te zijn; is het dat niet, dan komt er
+  een waarschuwing ("Parkeerverbod zonder huisnummer"). Nooit een fout: de verversing gaat door.
+
+`tests/parkeer-huisnummers.test.mjs` houdt dat vast.
+
 ## Datalaan
 
 De data-lane laat uitsluitend `site/history/live-layers.json`, `site/history/archive/baseline.json`, `site/history/archive/index.json` en strikt benoemde `site/history/archive/YYYY-MM-DD.json`-shards toe. Historybestanden zijn niet verwijderbaar via `deletableUnder`: een gewone refresh kan nieuwe geschiedenis toevoegen of de actuele dag aanvullen, maar geen oude dagshard wissen.

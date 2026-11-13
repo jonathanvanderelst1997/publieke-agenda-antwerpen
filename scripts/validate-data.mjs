@@ -12,6 +12,7 @@ import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/e
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
 import { VASTE_ADRESSEN_FILE, validateVasteAdressen } from "../lib/vaste-adressen.mjs";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
+import { PARKEER_HUISNUMMERS_FILE, validateParkeerHuisnummers } from "../lib/parkeer-huisnummers-validatie.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
 import { ruweGipodLinksIn } from "../site/gipod-bron.js";
@@ -93,6 +94,11 @@ if (!fs.existsSync(sourcesDir)) {
     if (name === WERK_VORM_FILE) continue;
     if (name === VAAGHEID_FILE) {
       for (const error of validateVaagheid(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    // Waarom een parkeerverbod geen huisnummer heeft, in aantallen (lib/parkeer-huisnummers-validatie.mjs), geen bron.
+    if (name === PARKEER_HUISNUMMERS_FILE) {
+      for (const error of validateParkeerHuisnummers(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     // Het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
