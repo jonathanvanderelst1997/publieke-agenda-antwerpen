@@ -13,10 +13,10 @@
   ],
   "officialPublic": true,
   "method": "eBesluit Antwerpen: goedgekeurde collegebesluiten over evenementen en muziekactiviteiten met een plaats in een ander district van de stad, gelezen met vaste zinpatronen",
-  "retrievedAt": "2026-11-13T03:55:24.654Z",
+  "retrievedAt": "2026-11-14T04:22:42.023Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "ebesluit-evenementen-v3|2026-09-14|31|1",
+  "contentVersion": "ebesluit-evenementen-v3|2026-09-15|29|1",
   "items": [
     {
       "id": "stad-ebesluit-ev-2026-cbs-07413-2026-10-28",
@@ -33,7 +33,7 @@
       "info": "Goedgekeurd door het college van burgemeester en schepenen (zitting van 16 oktober). Opbouw vanaf 19 oktober, afbouw tot 29 november.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.3056.4944/agendapunten/26.0918.0080.3419",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": false
     }

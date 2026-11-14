@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "observedAt": "2026-11-14T04:22:50.437Z",
+  "totaal": 2382,
+  "metNummer": 2053,
+  "zonderNummer": 329,
+  "redenen": {
+    "bron_zonder_nummer": 329,
+    "vorm_niet_herkend": 0,
+    "straat_niet_officieel": 0,
+    "verboden_woord": 0,
+    "niet_bewaard": 0,
+    "bron_onbekend": 0
+  }
+}

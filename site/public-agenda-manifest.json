@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-13T03:55:41.513Z",
-  "classificationAsOf": "2026-11-13",
-  "sourceCount": 906,
-  "count": 758,
-  "eventPageCount": 758,
-  "archivedEventPageCount": 319,
+  "candidateGeneratedAt": "2026-11-14T04:22:50.418Z",
+  "classificationAsOf": "2026-11-14",
+  "sourceCount": 911,
+  "count": 761,
+  "eventPageCount": 761,
+  "archivedEventPageCount": 327,
   "classifications": {
-    "expired": 148,
-    "current": 36,
-    "future": 722,
+    "expired": 150,
+    "current": 33,
+    "future": 728,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 113,
-    "stad": 645
+    "district": 120,
+    "stad": 641
   },
-  "feedGeneratedAt": "2026-11-13T03:55:41.513Z",
+  "feedGeneratedAt": "2026-11-14T04:22:50.418Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:57:28.712Z",
+      "retrievedAt": "2026-11-14T04:24:37.718Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:52:41.764Z",
+      "retrievedAt": "2026-11-14T04:18:44.417Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:54:37.864Z",
+      "retrievedAt": "2026-11-14T04:21:47.946Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:52:33.260Z",
+      "retrievedAt": "2026-11-14T04:18:37.820Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:54:38.776Z",
+      "retrievedAt": "2026-11-14T04:21:48.921Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:52:24.013Z",
+      "retrievedAt": "2026-11-14T04:18:28.008Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:55:08.260Z",
+      "retrievedAt": "2026-11-14T04:22:18.657Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:55:08.260Z",
+      "retrievedAt": "2026-11-14T04:22:18.657Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "state": "fresh"
     },
     {
@@ -128,7 +128,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-13T03:55:03.950Z",
+      "retrievedAt": "2026-11-14T04:22:14.119Z",
       "state": "fresh"
     },
     {
@@ -139,7 +139,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "72a1678193793b52a1d0b9a826c8e72e656de28fd878f3319949f2f45ec91a4e",
+  "digest": "e760337df43e435aa347200439ba0aefd277bd082add17722e864e554ea0aace",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -174,14 +174,6 @@
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "Gemengde markt Michel Willemsplein",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Botermarkt",
-    "Gemengde markt Zillebekelaan",
-    "Gemengde markt Laar (Borgerhout)",
-    "Digitaal sterker met gratis infosessies",
-    "Gemengde markt Desguinlei",
-    "Stanneke",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
@@ -291,6 +283,8 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "Evenement in de Floraliënlaan: lus van 200 m",
+    "Evenement op het Koningin Astridplein: parcours door 64 straten",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -299,14 +293,17 @@
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
     "Raadscommissie Antwerpen",
+    "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",
+    "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
     "Bijzondere raadscommissie cultuur, sport, financiën, communicatie, evenementen en feestelijkheden, veiligheid en erfgoed",
+    "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
@@ -314,12 +311,14 @@
     "Evenement in de Lamorinièrestraat: route van 900 m",
     "Evenement in de Belgiëlei: lus van 7,9 km",
     "Evenement in de Lange Beeldekensstraat: route van 2,5 km",
+    "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Gemengde markt Michel Willemsplein",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
     "Gemengde markt Desguinlei",
+    "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Bohoho's warm winterfeest",
     "Gemengde markt Wim Saerensplein",
     "Gemengde markt en exotische markt Oudevaartplaats",
@@ -886,6 +885,10 @@
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
     "Gemengde markt Desguinlei",
+    "Gemengde markt Wim Saerensplein",
+    "Gemengde markt en exotische markt Oudevaartplaats",
+    "Markt voor voeding, bloemen en planten Kioskplaats",
+    "Gemengde markt De Villegasstraat",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
     "Futsal Project Seefhoek",

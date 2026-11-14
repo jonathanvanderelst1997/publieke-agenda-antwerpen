@@ -13,10 +13,10 @@
   ],
   "officialPublic": true,
   "method": "eBesluit Antwerpen: goedgekeurde besluiten over evenementen, muziekactiviteiten en het Districtsfonds met een plaats in district Antwerpen, gelezen met vaste zinpatronen",
-  "retrievedAt": "2026-11-13T03:55:24.654Z",
+  "retrievedAt": "2026-11-14T04:22:42.023Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "ebesluit-evenementen-v3|2026-09-14|31|10",
+  "contentVersion": "ebesluit-evenementen-v3|2026-09-15|29|10",
   "items": [
     {
       "id": "ebesluit-ev-2026-dcan-00656-2026-11-08",
@@ -35,7 +35,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 12 oktober). Organisatie: Futsal Project Seefhoek vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1001.9208.0507",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -54,7 +54,7 @@
       "info": "Goedgekeurd door het college van burgemeester en schepenen (zitting van 6 november). Opbouw vanaf 12 november, afbouw tot 16 november.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.0915.3298.5098",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -76,7 +76,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 21 september). Organisatie: To Be vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -97,7 +97,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 9 november). Organisatie: Monty vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.7945.8773/agendapunten/26.1028.4570.7466",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -118,7 +118,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 2 november). Organisatie: MAJESTIC VZW.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.0246.4565/agendapunten/26.1028.4364.6933",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -139,7 +139,7 @@
       "info": "Toelating voor een muziekactiviteit door het college van burgemeester en schepenen (zitting van 6 november). Organisatie: Renners In Aantocht vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1027.0199.0037",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -160,7 +160,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 24 augustus). Organisatie: Parole vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -181,7 +181,7 @@
       "info": "Toelating voor een muziekactiviteit door het college van burgemeester en schepenen (zitting van 6 november). Organisatie: Soul bv.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1027.4878.2099",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -202,7 +202,7 @@
       "info": "Toelating voor een muziekactiviteit door het college van burgemeester en schepenen (zitting van 6 november). Organisatie: Stad Antwerpen.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1020.5647.2045",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     },
@@ -223,7 +223,7 @@
       "info": "Gesteund door het Districtsfonds: beleef je buurt! (besluit van het districtscollege van district Antwerpen van 12 oktober). Organisatie: Futsal Project Seefhoek vzw.",
       "kind": "activity",
       "sourceUrl": "https://ebesluit.antwerpen.be/zittingen/25.0902.1984.8754/agendapunten/26.1001.9208.0507",
-      "retrievedAt": "2026-11-13T03:55:24.654Z",
+      "retrievedAt": "2026-11-14T04:22:42.023Z",
       "reviewRequired": false,
       "inDistrict": true
     }
