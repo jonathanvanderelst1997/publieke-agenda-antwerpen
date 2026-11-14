@@ -19,7 +19,7 @@ X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
 UID:bevraging-proefperiode-schoolstraat-jan-vanhoenackerstraat-2026-10-05-2
  026-11-01@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261113T035541Z
+DTSTAMP:20261114T042250Z
 DTSTART;VALUE=DATE:20261005
 DTEND;VALUE=DATE:20261102
 SUMMARY:Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat
@@ -43,7 +43,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:project-6abbbb7f332512009f4367fe-bevraging-2026-11-15@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261113T035541Z
+DTSTAMP:20261114T042250Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Bevraging: Speelweefselplan Binnenstad

@@ -13,5 +13,5 @@
 {"id":"parking:2026-061051|1193873","location":"Limastraat, 2000 Antwerpen","start":"2027-09-13","end":"2027-09-13"},
 {"id":"parking:2025-054912|1055238","location":"Sint-Paulusstraat 32–40, 2000 Antwerpen","start":"2027-09-01","end":"2027-09-15"},
 {"id":"parking:2025-054912|1130493","location":"Sint-Paulusstraat 35–43, 2000 Antwerpen","start":"2027-09-01","end":"2027-09-15"},
-{"id":"parking:2025-077930|1089592","location":"Plantinkaai 24–27, 2000 Antwerpen","start":"2027-05-15","end":"2027-09-30"}
+{"id":"parking:2025-077930|1089592","location":"Plantinkaai 24–27, 2000 Antwerpen","start":"2027-05-15","end":"2027-09-30","weg":"2026-11-14"}
 ]}

@@ -295,16 +295,6 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
-  "het centraal station koningin astridplein 27 2018 antwerpen": {
-   "point": [
-    4.42114,
-    51.21737
-   ],
-   "precision": "adres",
-   "street": "Koningin Astridplein",
-   "postcode": "2018",
-   "checkedOn": "2026-11-13"
-  },
   "hofstraat ernest van dijckkaai gildekamersstraat en 10 andere straten": {
    "point": [
     4.40116,
@@ -325,7 +315,7 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
-  "jan van gentstraat van der sweepstraat en de gerlachekaai": {
+  "jan van gentstraat cockerillkaai de gerlachekaai en 2 andere straten": {
    "point": [
     4.38704,
     51.20618
@@ -333,7 +323,7 @@
    "precision": "straat",
    "street": "Jan van Gentstraat",
    "postcode": "2000",
-   "checkedOn": "2026-11-10"
+   "checkedOn": "2026-11-14"
   },
   "jan vanhoenackerstraat 2000 antwerpen": {
    "point": [
@@ -793,7 +783,6 @@
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-01",
   "ten eeckhovelei 2100 deurne": "2026-11-02",
   "toeristisch centrum antwerpen": "2026-11-02",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07",
-  "versschillende locaties in de binnenstad": "2026-11-13"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"
  }
 }
