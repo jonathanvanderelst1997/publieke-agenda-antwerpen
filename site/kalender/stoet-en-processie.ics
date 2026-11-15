@@ -18,11 +18,10 @@ X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
 UID:asign-ev-et2026001197-2026-11-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261114T042250Z
+DTSTAMP:20261115T042645Z
 DTSTART;VALUE=DATE:20261114
 DTEND;VALUE=DATE:20261115
-SUMMARY:Vermoedelijk een stoet in de Hofstraat (aanvraag\, nog niet goedgek
- eurd)
+SUMMARY:Vermoedelijk een stoet in de Hofstraat
 LOCATION:Hofstraat\, Ernest Van Dijckkaai\, Gildekamersstraat en 10 andere 
  straten
 DESCRIPTION:Verkeersvrije zone in 7 straten: onder meer Ernest Van Dijckkaa
@@ -31,23 +30,22 @@ DESCRIPTION:Verkeersvrije zone in 7 straten: onder meer Ernest Van Dijckkaa
  p dezelfde plek gebeurde en het studentencharter\; niet bevestigd. Een naa
  m komt er pas als een besluit\, een kalender of de organisator hem noemt. 
  Evenementendossier ET2026001197 van de stad (A-Sign)\, laatst gewijzigd op
-  19 oktober 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aanvr
- aag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, dan 
- verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publieke-
- agenda-voor-district.onrender.com/event/asign-ev-et2026001197-2026-11-14/\
- nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata.a
- ntwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: dist
- rict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+  19 oktober 2026: aanvraag nog niet goedgekeurd.\nOp de publieke agenda: h
+ ttps://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et20
+ 26001197-2026-11-14/\nEvenementen op straat (dossiers van de stad in A-Sig
+ n): https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/Map
+ Server/22\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse grati
+ s open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
  et2026001197-2026-11-14/
 CATEGORIES:Stoet & processie
-STATUS:TENTATIVE
+STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025003100-2026-11-21@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261114T042250Z
+DTSTAMP:20261115T042645Z
 DTSTART;VALUE=DATE:20261121
 DTEND;VALUE=DATE:20261122
 SUMMARY:Optocht van de Nobele Orde van de Papegay (50 jaar)
