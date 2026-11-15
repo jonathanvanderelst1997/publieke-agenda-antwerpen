@@ -15,9 +15,14 @@
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
   "retrievedAt": "2026-11-14T04:22:18.962Z",
-  "fetchStatus": "ok",
+  "fetchStatus": "error",
   "maxAgeHours": 48,
   "contentVersion": "2026-11-13",
+  "lastSuccessAt": "2026-11-14T04:22:18.962Z",
+  "lastError": {
+    "code": "timeout",
+    "at": "2026-11-15T04:26:35.924Z"
+  },
   "items": [
     {
       "gipodId": 12329796,

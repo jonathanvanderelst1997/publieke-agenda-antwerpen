@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-14T04:22:50.418Z",
-  "classificationAsOf": "2026-11-14",
-  "sourceCount": 911,
-  "count": 761,
-  "eventPageCount": 761,
-  "archivedEventPageCount": 327,
+  "candidateGeneratedAt": "2026-11-15T04:26:45.345Z",
+  "classificationAsOf": "2026-11-15",
+  "sourceCount": 909,
+  "count": 759,
+  "eventPageCount": 759,
+  "archivedEventPageCount": 332,
   "classifications": {
     "expired": 150,
-    "current": 33,
-    "future": 728,
+    "current": 37,
+    "future": 722,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 120,
-    "stad": 641
+    "district": 119,
+    "stad": 640
   },
-  "feedGeneratedAt": "2026-11-14T04:22:50.418Z",
+  "feedGeneratedAt": "2026-11-15T04:26:45.345Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:24:37.718Z",
+      "retrievedAt": "2026-11-15T04:28:35.061Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:18:44.417Z",
-      "state": "fresh"
+      "retrievedAt": "2026-11-15T04:21:25.241Z",
+      "state": "empty"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:22:42.023Z",
+      "retrievedAt": "2026-11-15T04:26:35.936Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:21:47.946Z",
+      "retrievedAt": "2026-11-15T04:24:40.181Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:18:37.820Z",
+      "retrievedAt": "2026-11-15T04:21:18.070Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:21:48.921Z",
+      "retrievedAt": "2026-11-15T04:24:40.829Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:18:28.008Z",
+      "retrievedAt": "2026-11-15T04:21:07.971Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:22:18.657Z",
+      "retrievedAt": "2026-11-15T04:25:10.629Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:22:18.657Z",
+      "retrievedAt": "2026-11-15T04:25:10.629Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:22:42.023Z",
+      "retrievedAt": "2026-11-15T04:26:35.936Z",
       "state": "fresh"
     },
     {
@@ -128,7 +128,7 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-14T04:22:14.119Z",
+      "retrievedAt": "2026-11-15T04:25:06.053Z",
       "state": "fresh"
     },
     {
@@ -139,7 +139,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "e760337df43e435aa347200439ba0aefd277bd082add17722e864e554ea0aace",
+  "digest": "47fdc9440814ea89a968a13d08ad96eaafb3fca3b3d81ef0d1745aeca82ec8d9",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -174,11 +174,6 @@
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "Gemengde markt Wim Saerensplein",
-    "Gemengde markt en exotische markt Oudevaartplaats",
-    "Markt voor voeding, bloemen en planten Kioskplaats",
-    "Gemengde markt De Villegasstraat",
-    "Vermoedelijk een stoet in de Hofstraat",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -889,6 +884,9 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "Biomarkt Falconplein",
+    "Markt voor klein antiek Sint-Jansvliet",
+    "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
     "Futsal Project Seefhoek",
