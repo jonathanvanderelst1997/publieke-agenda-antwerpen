@@ -34,6 +34,7 @@ import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mj
 import { MAX_AGE_HOURS, SOURCE_DEFINITIONS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
 import { VASTE_ADRESSEN_FILE, ontbrekendeHuisnummers, plaatsKennis } from "../lib/vaste-adressen.mjs";
+import { HUISNUMMERS_AUTO_FILE, samenAdressen, watOntbreekt } from "../lib/huisnummer-uit-bron.mjs";
 import { loadHandAgendaItems } from "./agenda-source.mjs";
 import { contentStatusOf } from "./stale-policy.mjs";
 
@@ -95,6 +96,9 @@ export function weigeringsMeldingen(entries) {
 // huisnummer (lib/vaste-adressen.mjs, ontbrekendeHuisnummers), uit de gebouwde feed (site/agenda-feed.js) en de
 // handmatige items. Zonder feed of geodata: geen regels. Zonder tijdstippen: dezelfde activiteit geeft elke dag dezelfde
 // regel, en het alarm-issue noemt ze maar één keer.
+// Een adres dat de verversing zelf in de open data van de stad vond (site/sources/huisnummers-auto.json,
+// lib/huisnummer-uit-bron.mjs) telt mee; zocht ze en vond ze niets eenduidigs, dan zegt de regel wat er ontbreekt
+// ("(stad-districten; niet in de open data van de stad)").
 export function huisnummerMeldingen(rootDir, today) {
   const lees = (rel) => {
     try {
@@ -116,12 +120,14 @@ export function huisnummerMeldingen(rootDir, today) {
   } catch {
     handItems = [];
   }
+  const auto = lees(path.join("site", "sources", HUISNUMMERS_AUTO_FILE));
   const kennis = plaatsKennis({ straten: lees("site/geo/straten.json"), stratenStad: lees("site/geo/straten-stad.json"), wijken: lees("site/geo/wijken.geo.json") });
-  const vasteAdressen = lees(path.join("site", "sources", VASTE_ADRESSEN_FILE));
+  const vasteAdressen = samenAdressen(lees(path.join("site", "sources", VASTE_ADRESSEN_FILE)), auto);
   const veilig = (value) => String(value ?? "").replace(/[`@<>[\]|\r\n]+/g, " ").replace(/\s+/g, " ").trim();
   return ontbrekendeHuisnummers([...feedItems, ...handItems], today, { vasteAdressen, kennis }).map((item) => {
     const [jaar, maand, dag] = item.date.split("-");
-    return `Huisnummer ontbreekt: ${dag}-${maand}-${jaar}, ${veilig(item.title)}: ${veilig(item.location)} (${veilig(item.sourceId ?? "handmatig")})`;
+    const reden = watOntbreekt(item.location, auto, kennis);
+    return `Huisnummer ontbreekt: ${dag}-${maand}-${jaar}, ${veilig(item.title)}: ${veilig(item.location)} (${veilig(item.sourceId ?? "handmatig")}${reden ? `; ${reden}` : ""})`;
   });
 }
 
@@ -160,7 +166,8 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
 
   for (const tekst of weigeringsMeldingen(weigeringen)) meld("Bron weigert automatische toegang", tekst);
   // Een komende activiteit in een gebouw zonder huisnummer: ze staat gewoon op de site; deze melding zegt welke, zodat
-  // het adres aangevuld wordt (site/sources/vaste-adressen.json). Geen fout.
+  // het adres aangevuld wordt (site/sources/vaste-adressen.json), als de verversing het niet zelf eenduidig in de open
+  // data van de stad vond (site/sources/huisnummers-auto.json). Geen fout.
   for (const tekst of huisnummerMeldingen(rootDir, asOfDay)) meld("Huisnummer ontbreekt", tekst);
 
   // Afgeleide bronnen (lib/source-registry.mjs, AFGELEIDE_BRONNEN): de stap die ze afleidt, zet haar regel

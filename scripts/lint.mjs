@@ -95,6 +95,9 @@ const javascriptFiles = [
   "tests/works-awv-supplement.test.mjs",
   "tests/works-losse-hinder.test.mjs",
   "tests/gipod-geen-ruwe-links.test.mjs",
+  "lib/huisnummer-uit-bron.mjs",
+  "scripts/vul-huisnummers.mjs",
+  "tests/huisnummer-uit-bron.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).

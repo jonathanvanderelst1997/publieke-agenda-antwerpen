@@ -747,7 +747,7 @@ jobs:
                 uitleg+=("Een website die ons weigert: de agenda blijft volledig voor wat er al bekend was; de site toont de laatst bekende activiteiten van die bronnen tot hun eigen datum voorbij is. Nieuwe activiteiten van die bronnen komen er pas bij als de stad de agenda weer toelaat (User-Agent publieke-agenda-antwerpen/1.0) of dezelfde gegevens als open data geeft. De agenda probeert niet om de weigering heen.")
               fi
               if printf '%s' "$nieuw" | grep -q "^Huisnummer ontbreekt: "; then
-                uitleg+=("Huisnummer ontbreekt: de activiteit staat gewoon op de site. Vul het adres aan in site/sources/vaste-adressen.json, met de officiële pagina die het noemt; daarna staat het bij de volgende verversing op de site.")
+                uitleg+=("Huisnummer ontbreekt: de activiteit staat gewoon op de site. De verversing zoekt het adres eerst zelf in de open data van de stad (geodata.antwerpen.be) en vult het in als die precies één adres geeft; na de bron staat wat er dan ontbreekt. Vul het adres aan in site/sources/vaste-adressen.json, met de officiële pagina die het noemt; daarna staat het bij de volgende verversing op de site.")
               fi
               mbody=$(printf '%s\n' "${nieuw%$'\n'}" "" ${uitleg[@]+"${uitleg[@]}"} "" "Geen fout: de agenda toont alles. Elke regel komt hier maar één keer.")
               if [ -n "$mnum" ]; then

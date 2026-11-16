@@ -11,6 +11,7 @@ import { KAART_UITLEG_FILE, validateKaartUitleg } from "../lib/kaart-uitleg-vali
 import { EVENEMENT_IDENTITEIT_FILE, validateEvenementIdentiteit } from "../lib/evenement-identiteit-validatie.mjs";
 import { INZAGE_STATUS_FILE, valideerInzageStatus } from "../site/inzage-status.js";
 import { VASTE_ADRESSEN_FILE, validateVasteAdressen } from "../lib/vaste-adressen.mjs";
+import { HUISNUMMERS_AUTO_FILE, validateHuisnummersAuto } from "../lib/huisnummer-uit-bron.mjs";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
 import { PARKEER_HUISNUMMERS_FILE, validateParkeerHuisnummers } from "../lib/parkeer-huisnummers-validatie.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
@@ -104,6 +105,11 @@ if (!fs.existsSync(sourcesDir)) {
     // Het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
     if (name === VASTE_ADRESSEN_FILE) {
       for (const error of validateVasteAdressen(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    // De adressen en parken die de verversing zelf in de open data van de stad vond (lib/huisnummer-uit-bron.mjs), geen bron.
+    if (name === HUISNUMMERS_AUTO_FILE) {
+      for (const error of validateHuisnummersAuto(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     if (name === INZAGE_STATUS_FILE) {
