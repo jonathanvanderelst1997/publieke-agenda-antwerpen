@@ -26,8 +26,8 @@ Zie [REFRESH_PROCESS.md](REFRESH_PROCESS.md) voor de classificaties en rollbackp
 ## Automatische bronnen
 
 De agenda vult zich uit de districtskalender, het districtsnieuws, het nieuws van de andere districten, de
-markten uit GIPOD, de koopzondagen van de stad, UiTdatabank (alleen met een sleutel) en herverifieerde
-nieuwsbriefsignalen. District en stad zijn twee aparte groepen. Zie
+activiteiten in de persberichten van de stad (pers.antwerpen.be), de markten uit GIPOD, de koopzondagen van de stad,
+UiTdatabank (alleen met een sleutel) en herverifieerde nieuwsbriefsignalen. District en stad zijn twee aparte groepen. Zie
 [docs/AGENDA_SOURCES.md](docs/AGENDA_SOURCES.md).
 
 Ontbreekt bij een activiteit in een gebouw het huisnummer, dan zoekt de verversing het adres zelf in de open data

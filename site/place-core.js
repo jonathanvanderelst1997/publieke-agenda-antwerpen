@@ -1486,7 +1486,7 @@ const NIET_ALS_CONTEXT = new Set(["stad-uit"]);
 const BRON_KORT = Object.freeze({
   "district-asign-evenementen": "A-Sign", "district-ebesluit-evenementen": "eBesluit", "stad-ebesluit-evenementen": "eBesluit", "district-ebesluit": "eBesluit", "district-kalender": "districtskalender",
   "district-nieuws": "districtsnieuws", "district-foren": "district Antwerpen", "district-projecten": "district Antwerpen", "stad-markten": "GIPOD",
-  "stad-districten": "nieuws van de districten", "mail-district": "nieuwsbrief van het district", "mail-stad": "nieuwsbrief van de stad", "stad-koopzondagen": "stad Antwerpen",
+  "stad-districten": "nieuws van de districten", "stad-persberichten": "persbericht van de stad", "mail-district": "nieuwsbrief van het district", "mail-stad": "nieuwsbrief van de stad", "stad-koopzondagen": "stad Antwerpen",
 });
 const isDossierKaart = (e) => String(e?.uid || "").startsWith("publicSpace:dossier:");
 // Een parkeerverbod met de reden "evenement" (live, alleen intern), of uit de ochtendstand met de sleutel van het

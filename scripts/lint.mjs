@@ -98,6 +98,10 @@ const javascriptFiles = [
   "lib/huisnummer-uit-bron.mjs",
   "scripts/vul-huisnummers.mjs",
   "tests/huisnummer-uit-bron.test.mjs",
+  "lib/politiek.mjs",
+  "lib/stad-persberichten.mjs",
+  "scripts/fetch-sources-stad-persberichten.mjs",
+  "tests/stad-persberichten.test.mjs",
 ];
 
 // De vaste lijst, en daarbij elk site/*.js (scripts/js-controle.mjs).
