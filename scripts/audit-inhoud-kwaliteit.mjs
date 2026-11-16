@@ -3,6 +3,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import {ruwGipodRecord} from "../site/gipod-bron.js";
+import {meetVooruitblikPerMaand} from "../lib/dekking-horizon.mjs";
 const clean=x=>String(x??"").trim();
 const valideDatum=d=>typeof d==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(d)&&!Number.isNaN(Date.parse(d+"T12:00:00Z"))&&new Date(d+"T12:00:00Z").toISOString().slice(0,10)===d;
 export function technischeLink(link){
@@ -39,7 +40,8 @@ export function controleerAgendaInhoud({feed={},werken={},status={}}={}){
  for(const b of bronnen){if(b.fetchStatus==="error")metrieken.bronFouten++;if(b.fetchStatus==="skipped_no_key")metrieken.bronZonderSleutel++}
  const teksten={technischeLinkZonderBezoekerslink:"kaarten zonder bezoekerslink",onbekendeUren:"evenementen zonder bevestigd uur",onzekereTitels:"onzekere eventtitels",algemeneLocatie:"items met vage locatie",werkenZonderOmschrijving:"werken zonder omschrijving",werkenZonderSoort:"werken zonder soort",bronFouten:"bronnen met fout",bronZonderSleutel:"bronnen zonder configuratie"};
  for(const [key,titel]of Object.entries(teksten))if(metrieken[key])signalen.push(`${metrieken[key]} ${titel}`);
- return {ok:!fouten.length,fouten:[...new Set(fouten)],signalen,metrieken};
+ return {ok:!fouten.length,fouten:[...new Set(fouten)],signalen,metrieken,
+   vooruitblik:meetVooruitblikPerMaand(items,feed.classificationAsOf)};
 }
 export function leesInhoudBronnen(root){
  const script=fs.readFileSync(path.join(root,"site/agenda-feed.js"),"utf8");
@@ -51,9 +53,15 @@ export function leesInhoudBronnen(root){
 }
 export function logInhoudRapport(report,{log=console.log,error=console.error,summary=process.env.GITHUB_STEP_SUMMARY}={}){
  log("Inhoudskwaliteit",JSON.stringify(report.metrieken));
+ log("Vooruitblik per maand (bekende gegevens, geen volledigheidsgarantie)",JSON.stringify(report.vooruitblik?.maanden??[]));
  for(const s of report.signalen)log(`::warning title=Agenda-inhoud::${s}`);
  for(const s of report.fouten)error(`::error title=Agenda-inhoud::${s}`);
  if(summary)fs.appendFileSync(summary,["### Agenda-inhoud: dagelijkse automatische controle","","| Gegeven | Aantal |","|---|---:|",
-   ...Object.entries(report.metrieken).map(([k,v])=>`| ${k} | ${v} |`),"",...report.signalen.map(s=>`- Aandachtspunt: ${s}`),
+   ...Object.entries(report.metrieken).map(([k,v])=>`| ${k} | ${v} |`),"",
+   "### Vooruitblik per maand (bekende gegevens, geen volledigheidsgarantie)","",
+   "| Maand | Totaal | Zonder weekmarkten | District | Stad | Bronnen |",
+   "|---|---:|---:|---:|---:|---:|",
+   ...(report.vooruitblik?.maanden??[]).map(m=>`| ${m.maand} | ${m.totaal} | ${m.zonderMarkten} | ${m.district} | ${m.stad} | ${m.bronnen} |`),
+   "",...report.signalen.map(s=>`- Aandachtspunt: ${s}`),
    ...report.fouten.map(s=>`- Fout: ${s}`),""].join("\n"));
 }
