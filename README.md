@@ -30,6 +30,10 @@ markten uit GIPOD, de koopzondagen van de stad, UiTdatabank (alleen met een sleu
 nieuwsbriefsignalen. District en stad zijn twee aparte groepen. Zie
 [docs/AGENDA_SOURCES.md](docs/AGENDA_SOURCES.md).
 
+Ontbreekt bij een activiteit in een gebouw het huisnummer, dan zoekt de verversing het adres zelf in de open data
+van de stad (geodata.antwerpen.be) en vult het alleen in als die precies één adres geeft
+(`npm run refresh:huisnummers`; zie [docs/AGENDA_SOURCES.md](docs/AGENDA_SOURCES.md), "Altijd het huisnummer").
+
 ```bash
 npm run refresh        # bronnen ophalen en alles opnieuw bouwen
 npm run validate:data  # schema's, hosts en privacyscan

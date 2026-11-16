@@ -975,17 +975,37 @@ Een activiteit wordt daarvoor nooit tegengehouden (`lib/vaste-adressen.mjs`):
    (`metVastAdres`). Wat het adres al zegt, valt weg: "De Groene Waterman" met alleen de straat en de postcode (een
    lezing van vóór de huisnummerregel van #218) wordt de plek met straat, nummer en postcode. Een bron die zelf een
    adres in velden geeft (UiT: straat, postcode, gemeente), zet dat al in de locatie.
-2. **Anders gewoon publiceren, en melden.** Heeft een komende activiteit dan nog geen huisnummer en is de plek een
+2. **Vanzelf aanvullen uit de open data van de stad** (wens van de eigenaar van 16-11-2026, issue #262;
+   `lib/huisnummer-uit-bron.mjs`, `npm run refresh:huisnummers`, in `npm run refresh` meteen na het ophalen). Staat een
+   komende activiteit dan nog in een gebouw zonder huisnummer, dan zoekt de verversing de naam van de plek (het deel
+   vóór de eerste komma, zonder "in <district>") letterlijk op in de open data van stad Antwerpen op
+   geodata.antwerpen.be: sporthallen, cultuur-, erfgoed- en jeugdlocaties, concertzalen, bibliotheken en de zaalzoeker
+   (Gratis Open Data Licentie, "bron stad Antwerpen"). Alleen als die naam daar precies één adres heeft, met een
+   huisnummer, een officiële straat van de stad (`site/geo/straten-stad.json`) en een postcode die de activiteit zelf
+   niet tegenspreekt, komt het adres in `site/sources/huisnummers-auto.json`; `build:sources` zet het dan achter de
+   plek, zoals een adres uit de vaste lijst (die gaat voor). Een naam die alleen zo begint ("Sporthal X 2" voor
+   "Sporthal X") telt niet. Bij twijfel (twee adressen, geen huisnummer, een andere postcode, een straat die de stad
+   niet kent) vult het niets in: de plek komt dan onder `nagekeken`, en de melding hieronder zegt wat er ontbreekt.
+   - Lezen: alleen van geodata.antwerpen.be (`magLezen`), met de gewone naam van de agenda, na robots.txt (die site
+     heeft er geen), één verzoek per laag met een pauze ertussen, en alleen als er iets te zoeken is. Sites die
+     automatisch lezen weigeren (www.antwerpen.be, api.basisregisters.vlaanderen.be, visit.antwerpen.be,
+     www.districtantwerpen.be) worden nooit gevraagd; een weigering stopt het lezen. Faalt een laag, dan blijft het
+     vorige bestand staan (een onvolledige lezing kan een tweede adres missen) en loopt de verversing gewoon door.
+   - Een gevonden adres blijft in het bestand zolang de activiteit komt; daarna valt het vanzelf weg.
+3. **Anders gewoon publiceren, en melden.** Heeft een komende activiteit dan nog geen huisnummer en is de plek een
    gebouw (geen straat, plein, markt, park, kaai of buurt; `plaatsSoort`, met de straatnamen en wijken van
    `site/geo/`), dan staat ze gewoon op de site, en komt ze op de lijst "Huisnummer ontbreekt"
-   (`ontbrekendeHuisnummers`, `huisnummerMeldingen` in `scripts/sources-health.mjs`). Die regels gaan met de melding
+   (`ontbrekendeHuisnummers`, `huisnummerMeldingen` in `scripts/sources-health.mjs`), met na de bron wat de open data
+   van de stad niet gaf ("(stad-districten; niet in de open data van de stad)"). Die regels gaan met de melding
    over websites die ons weigeren mee in `melding.txt` (`npm run sources:health -- --melding`), de job-output `melding`
    van `source-health` en het issue "Melding: publieke agenda". Elke regel komt daar maar één keer: de job `alarm` zet
    alleen regels die nog nergens in het issue staan in een nieuwe reactie.
-3. **Aanvullen.** Een plek op de lijst krijgt haar adres door een regel in `vaste-adressen.json` (naam, de namen
-   waaraan ze herkend wordt, het adres en de officiële pagina). Openbare ruimte (markten, schoolstraten, werven,
-   pleinen) heeft geen huisnummer en komt niet op de lijst; een bron zonder plaats ("locatie via de officiële bron")
-   ook niet.
+4. **Met de hand aanvullen.** Een plek op de lijst krijgt haar adres door een regel in `vaste-adressen.json` (naam, de
+   namen waaraan ze herkend wordt, het adres en de officiële pagina). Openbare ruimte (markten, schoolstraten, werven,
+   pleinen, kaaien, wijken) heeft geen huisnummer en komt niet op de lijst; een bron zonder plaats ("locatie via de
+   officiële bron") ook niet. Een officiële straatnaam met "en" erin ("Plantin en Moretuslei") blijft één straat, en
+   "<plek> in <district of wijk>" ("Rivierenhof in Deurne", een wijk van de stad) is een plek in dat gebied (issue
+   #262: zulke routes, kaaien en wijken kwamen ten onrechte op de lijst).
 
 ## Een tweede bron zolang www.antwerpen.be weigert
 
