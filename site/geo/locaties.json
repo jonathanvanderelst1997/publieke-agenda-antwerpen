@@ -665,16 +665,6 @@
    "postcode": "2050",
    "checkedOn": "2026-11-08"
   },
-  "timmerwerfstraat anneessensstraat artsen zonder grenzenstraat en 75 andere straten": {
-   "point": [
-    4.39102,
-    51.21273
-   ],
-   "precision": "straat",
-   "street": "Timmerwerfstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "tussen kruispunt met de lange van ruusbroecstraat en arendstraat 2018 antwerpen": {
    "point": [
     4.42757,
@@ -768,15 +758,14 @@
  },
  "misses": {
   "2000 en 2018 antwerpen": "2026-11-07",
-  "2060 antwerpen": "2026-11-02",
+  "2060 antwerpen": "2026-11-16",
   "a bib merksem parkweg 1": "2026-11-04",
-  "arenaplein 2100 deurne": "2026-11-02",
-  "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-02",
-  "district borgerhout locatie via de officiele bron": "2026-11-02",
-  "district borsbeek locatie via de officiele bron": "2026-11-15",
-  "district ekeren locatie via de officiele bron": "2026-11-02",
-  "district wilrijk locatie via de officiele bron": "2026-11-02",
-  "harmoniepark 1": "2026-11-02",
+  "arenaplein 2100 deurne": "2026-11-16",
+  "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-16",
+  "district borgerhout locatie via de officiele bron": "2026-11-16",
+  "district ekeren locatie via de officiele bron": "2026-11-16",
+  "district wilrijk locatie via de officiele bron": "2026-11-16",
+  "harmoniepark 1": "2026-11-16",
   "kastanjedreef 2050 antwerpen": "2026-11-13",
   "korte scholierstraat antwerpen": "2026-11-07",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-07",
@@ -789,10 +778,9 @@
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
   "seefhoek 2060 antwerpen": "2026-11-13",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
-  "speelweefselplan binnenstad 2000 antwerpen": "2026-11-07",
   "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-15",
-  "ten eeckhovelei 2100 deurne": "2026-11-02",
-  "toeristisch centrum antwerpen": "2026-11-02",
+  "ten eeckhovelei 2100 deurne": "2026-11-16",
+  "toeristisch centrum antwerpen": "2026-11-16",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"
  }
 }

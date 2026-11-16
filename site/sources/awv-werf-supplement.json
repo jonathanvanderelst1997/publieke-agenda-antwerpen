@@ -14,15 +14,10 @@
   ],
   "officialPublic": true,
   "method": "AWV WFS Werf_Innames en Werf_Lokale_omleidingen: bevestigde innames met GIPOD-id die de districtsgrens raken en vandaag nog lopen of komen; vaste velden, tekst alleen via een woordenlijst",
-  "retrievedAt": "2026-11-14T04:22:18.962Z",
-  "fetchStatus": "error",
+  "retrievedAt": "2026-11-16T04:21:45.011Z",
+  "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": "2026-11-13",
-  "lastSuccessAt": "2026-11-14T04:22:18.962Z",
-  "lastError": {
-    "code": "timeout",
-    "at": "2026-11-15T04:26:35.924Z"
-  },
   "items": [
     {
       "gipodId": 12329796,
@@ -2607,60 +2602,6 @@
       "innames": 1
     },
     {
-      "gipodId": 20836390,
-      "werfId": 47486,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Signalisatie"
-      ],
-      "fasen": [],
-      "date": "2026-11-13",
-      "endDate": "2026-11-14",
-      "innametypes": [
-        "Rijstrook 2,1",
-        "Mobiele werf"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-30",
-      "innames": 1
-    },
-    {
-      "gipodId": 20836392,
-      "werfId": 47486,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Signalisatie"
-      ],
-      "fasen": [],
-      "date": "2026-11-13",
-      "endDate": "2026-11-14",
-      "innametypes": [
-        "Rijstrook 4,3,2",
-        "Mobiele werf"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-30",
-      "innames": 1
-    },
-    {
       "gipodId": 20853985,
       "werfId": 56337,
       "afdeling": "TO",
@@ -3056,34 +2997,6 @@
       "innames": 1
     },
     {
-      "gipodId": 20913167,
-      "werfId": 47486,
-      "afdeling": "Lantis",
-      "soort": [
-        "(Her)aanleg",
-        "Signalisatie"
-      ],
-      "fasen": [],
-      "date": "2026-11-13",
-      "endDate": "2026-11-14",
-      "innametypes": [
-        "Volledige rijbaan"
-      ],
-      "doorgang": [],
-      "snelheidsbeperking": true,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [
-        "voertuigen tot 3,5 ton",
-        "voertuigen boven 3,5 ton",
-        "voertuigen boven 7,5 ton"
-      ],
-      "lokaleOmleidingen": 1,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-30",
-      "innames": 1
-    },
-    {
       "gipodId": 20923830,
       "werfId": 56312,
       "afdeling": "TO",
@@ -3162,66 +3075,6 @@
       "lokaleOmleidingen": 0,
       "opUvRoute": false,
       "gewijzigd": "2026-10-29",
-      "innames": 1
-    },
-    {
-      "gipodId": 20934330,
-      "werfId": 56415,
-      "afdeling": "AWV",
-      "soort": [
-        "Opmetingen en inspecties",
-        "Kunstwerken",
-        "Mobiel"
-      ],
-      "fasen": [
-        "Fase 1"
-      ],
-      "date": "2026-11-15",
-      "endDate": "2026-11-15",
-      "innametypes": [
-        "Rijstrook 1",
-        "Mobiele werf"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-30",
-      "innames": 1
-    },
-    {
-      "gipodId": 20934332,
-      "werfId": 56415,
-      "afdeling": "AWV",
-      "soort": [
-        "Opmetingen en inspecties",
-        "Kunstwerken",
-        "Mobiel"
-      ],
-      "fasen": [
-        "Fase 1"
-      ],
-      "date": "2026-11-15",
-      "endDate": "2026-11-15",
-      "innametypes": [
-        "Rijstrook 1",
-        "Mobiele werf"
-      ],
-      "doorgang": [
-        "1 rijstrook"
-      ],
-      "snelheidsbeperking": false,
-      "doorsteek": false,
-      "bypass": [],
-      "omleidingVoor": [],
-      "lokaleOmleidingen": 0,
-      "opUvRoute": false,
-      "gewijzigd": "2026-10-30",
       "innames": 1
     },
     {

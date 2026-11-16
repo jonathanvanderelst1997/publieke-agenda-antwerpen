@@ -34,30 +34,9 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:stad-news-wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15@mijn-publiek
- e-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
-DTSTART;TZID=Europe/Brussels:20261015T193000
-DURATION:PT1H
-SUMMARY:VOLZET - Lezing | Hoe het lichaam onthoudt wat je zelf vergeten ben
- t – Tom De Prest
-LOCATION:District Wilrijk\, locatie via de officiële bron
-DESCRIPTION:Wanneer: 19.30 uur\nOp de publieke agenda: https://mijn-publiek
- e-agenda-voor-district.onrender.com/event/stad-news-wilrijk-648d2efc50afea
- 0013656346-t0r3-2026-10-15/\nNieuws van de andere districten: https://www.
- antwerpen.be/info/648d2efc50afea0013656346/lezingen-workshops-en-leesclubs
- -in-de-wilrijkse-bibliotheek\nBron: districten van stad Antwerpen – bron
-  stad Antwerpen (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
- -wilrijk-648d2efc50afea0013656346-t0r3-2026-10-15/
-CATEGORIES:Cultuur
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Groeidag
@@ -80,7 +59,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261022T200000
 DURATION:PT1H
 SUMMARY:De eenzaamheid van de priemgetallen – Paolo Giordano
@@ -100,7 +79,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-68c42eae7c39f4977a6df487-2026-10-23@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261023
 DTEND;VALUE=DATE:20261024
 SUMMARY:23/10 | Nacht van de jeugdbeweging
@@ -122,7 +101,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-10-23@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261023T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -144,7 +123,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-ebesluit-ev-2026-cbs-07413-2026-10-28@mijn-publieke-agenda-voor-di
  strict.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261028
 DTEND;VALUE=DATE:20261123
 SUMMARY:De Grote Schijn 2026
@@ -165,7 +144,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261106
 DTEND;VALUE=DATE:20261107
 SUMMARY:Stanneke
@@ -185,7 +164,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261107
 DTEND;VALUE=DATE:20261108
 SUMMARY:Stanneke
@@ -205,7 +184,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20261109
 SUMMARY:Stanneke
@@ -225,7 +204,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20261109
 SUMMARY:Ontdek de pracht van Muisbroek tijdens de EkeRun!
@@ -245,7 +224,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-berendrecht-zandvliet-lillo-561cec28aea8a744228b45cb-2026-11-
  11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:Herdenking van Wapenstilstand
@@ -268,7 +247,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-deurne-670e4c5276ce668584728824-2026-11-11@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261111T104500
 DURATION:PT1H
 SUMMARY:Deurne herdenkt Wapenstilstand
@@ -292,7 +271,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-5bd16d8c2d2a3c75b55b3f48-2026-11-11@mijn-publieke-
  agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261111T110000
 DURATION:PT1H
 SUMMARY:11 novemberplechtigheid Borgerhout
@@ -314,7 +293,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261113
 DTEND;VALUE=DATE:20261114
 SUMMARY:Stanneke
@@ -334,7 +313,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-13@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261113T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -356,7 +335,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Kunstendag voor kinderen
@@ -378,7 +357,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15@mijn-publieke-ag
  enda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261115T110000
 DTEND;TZID=Europe/Brussels:20261115T170000
 SUMMARY:Zondag 15 november | Kunstendag voor Kinderen
@@ -400,7 +379,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 SUMMARY:Ontdek jouw artisieke talent tijdens de Week van de Senior met Mokt
@@ -424,7 +403,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 SUMMARY:Creatieve senioren gezocht!
@@ -448,7 +427,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261118T130000
 DTEND;TZID=Europe/Brussels:20261118T160000
 SUMMARY:Plezier verzekerd op de Fun Games
@@ -471,7 +450,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261119T200000
 DURATION:PT1H
 SUMMARY:VOLZET - Zwarte september – Sandro Veronesi
@@ -491,7 +470,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-20@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261120T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -513,7 +492,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261128T140000
 DTEND;TZID=Europe/Brussels:20261128T163000
 SUMMARY:Feest voor de Sint
@@ -536,7 +515,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261128T140000
 DTEND;TZID=Europe/Brussels:20261128T170000
 SUMMARY:Groot sintdorp op 22 november in centrum Wilrijk
@@ -559,7 +538,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261210T200000
 DURATION:PT1H
 SUMMARY:Het leugenachtige leven van volwassenen – Elena Ferrante
@@ -579,7 +558,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;VALUE=DATE:20261211
 DTEND;VALUE=DATE:20261214
 SUMMARY:Bohoho's warm winterfeest
@@ -599,7 +578,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-12-18@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261115T042645Z
+DTSTAMP:20261116T042259Z
 DTSTART;TZID=Europe/Brussels:20261218T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
