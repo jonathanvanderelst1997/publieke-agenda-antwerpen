@@ -16,6 +16,7 @@ automatische bron gaat voor.
 | `district-schoolstraten` | district | de schoolstraten met venstertijden, en de start van een proef | `P_Portal/portal_publiek10/MapServer/986` van geodata.antwerpen.be, één verzoek per ronde; geen sleutel (zie onder) |
 | `district-projecten` | district | inspraak- en infomomenten, bevragingen en fasen van projecten in de publieke ruimte | de projectpagina's van district Antwerpen via de publieke portaal-API (`contentType=9`), hoogstens 6 verzoeken met 1 s ertussen (zie onder) |
 | `stad-districten` | stad | nieuwsartikels van de 9 andere districten | de publieke nieuwskanalen (`lib/district-channels.mjs`), één verzoek per kanaal met 3 s ertussen; dezelfde regels als `district-nieuws`, plus een activiteitentabel en één blok "Titel + datum" (zie onder) |
+| `stad-persberichten` | stad | de activiteiten die de stad zelf aankondigt in haar persberichten, in alle districten (met `inDistrict`) | de persruimte van de stad (pers.antwerpen.be): eerst robots.txt, dan de RSS-feed met de tien laatste persberichten en elk persbericht, minstens 5 s ertussen, met de naam `ProjectBrain-bronnenlezer/1.0`; een tweede weg zolang www.antwerpen.be weigert (zie "Persberichten van de stad" onder) |
 | `stad-ebesluit-evenementen` | stad | evenementen in de 9 andere districten met een besluit van het college | **afgeleid uit dezelfde zoekronde** als `district-ebesluit-evenementen` (eBesluit), geen extra zoekvragen; een tweede bron zolang www.antwerpen.be weigert (zie "De andere districten" onder) |
 | `stad-markten` | stad | de openbare markten van de stad, eerstvolgende marktdag per markt | GIPOD (Digitaal Vlaanderen, OGC API Features, `INNAME_PUNT`), verrijkt met de marktlijst van geodata.antwerpen.be; geen sleutel. De bronlink is de GIPOD-datasetfiche, geen link per rij |
 | `stad-koopzondagen` | stad | de komende koopzondagen van de stad | de publieke infopagina https://www.antwerpen.be/info/koopzondagen (HTML, lijst "Koopzondagen in <jaar>"), één verzoek per ronde; geen sleutel |
@@ -446,11 +447,12 @@ Daarom draait `scripts/refresh-fetch.mjs` elke fetcher binnen een tijdsbudget:
 - Ook samen: dezelfde datum en hetzelfde uur met dezelfde detailpagina op www.antwerpen.be, of een titel
   (minstens 8 tekens) die volledig in de andere staat.
 - Ook samen: een item dat zelf zegt over welk item van een andere bron het gaat (`sameAs`, een lijst ids).
-  Alleen `district-asign-evenementen` zet dat veld, berekend met de echte vorm van het dossier (zie onder);
+  `district-asign-evenementen` zet dat veld, berekend met de echte vorm van het dossier (zie onder), en
+  `stad-persberichten` voor een activiteit die een andere bron al heeft (zie "Persberichten van de stad");
   het geldt ook bij een andere postcodelijst en gaat niet mee naar de site.
 - Nooit samen (buiten `sameAs`): twee items met verschillende, niet-lege postcodelijsten.
 - Voorrang: `district-kalender` > `district-nieuws` > `district-vergaderingen` > `district-gipod-evenementen` >
-  `stad-districten` > `stad-markten` > `stad-koopzondagen` > `district-ebesluit` > `district-asign-evenementen` >
+  `stad-persberichten` > `stad-districten` > `stad-markten` > `stad-koopzondagen` > `district-ebesluit` > `district-asign-evenementen` >
   `district-ebesluit-evenementen` > `stad-uit` > `mail-district` > `mail-stad` > de rest (alfabetisch) > handmatig.
 - Een samengevoegd item neemt `fasen` en `straten` over van een bron die ze heeft (de kalender kent het uur,
   het dossier de fasen en de straten). De feed (`site/agenda-feed.js`) draagt die twee velden niet: de site
@@ -555,6 +557,57 @@ verversing nooit vallen; lukt het niet, dan blijft het vorige `manual-check.json
   "Stad Antwerpen, locatie via de officiële bron" zonder postcode.
 - `inDistrict` is `true` alleen als de postcodes van het item bij district Antwerpen horen.
 - Gemeten op 28-09-2026: 152 artikels, 25 komende activiteiten in de 9 kanalen samen.
+
+## Persberichten van de stad (`stad-persberichten`)
+
+Sinds 23-10-2026 weigert www.antwerpen.be elke automatische lezer: de districtskalender, het districtsnieuws en het
+nieuws van de andere districten komen niet meer binnen. De persruimte van de stad (pers.antwerpen.be) laat lezen wel
+toe: robots.txt verbiedt alleen in- en uitschrijven, en er is een RSS-feed met de tien laatste persberichten. Een
+persbericht noemt vaak zelf de activiteiten die het aankondigt, per district met een dag, een uur en een adres (het
+persbericht over Sinterklaas van 16-11-2026). Code: `lib/stad-persberichten.mjs` (lezen, puur) en
+`scripts/fetch-sources-stad-persberichten.mjs` (ophalen).
+
+- **Lezen, beleefd en eerlijk.** Elke ronde eerst robots.txt. Verbiedt het de feed (of alles), of is het niet te
+  lezen, dan wordt er niets gelezen en blijft de vorige stand (`robots_verbiedt`, `robots_http_<code>`). Daarna de feed
+  en elk persbericht uit de feed dat robots.txt toelaat: zo een twaalftal verzoeken per ronde, minstens 5 s ertussen (een
+  grotere `Crawl-delay` gaat voor), altijd met dezelfde naam `ProjectBrain-bronnenlezer/1.0 (persoonlijke lezer voor
+  een gebruiker)`. Alleen de persruimte zelf: een omleiding of link naar elders (www.antwerpen.be) wordt nooit gevolgd.
+  Een weigering stopt het lezen; er wordt niets omzeild.
+- **De feed toont alleen de tien laatste.** Een activiteit uit een ouder persbericht blijft staan tot haar laatste dag
+  voorbij is. Een persbericht dat nog in de feed staat, wordt elke ronde opnieuw gelezen, zodat een wijziging (volzet)
+  meekomt. Lukt één persbericht niet, dan blijven alleen zijn vorige activiteiten staan (`bericht_<code>`).
+- **Een activiteit, bij twijfel niets.** Per stuk (de blokken onder één kop, meestal een district; zonder kop het hele
+  persbericht) hoogstens één activiteit, alleen met:
+  - precies één korte regel die met een datum begint ("Zaterdag 28 november van 14 tot 16.30 uur"), met één dag of één
+    aaneengesloten periode ("zaterdag 5 en zondag 6 december"). Twee datumregels, een andere dag in een andere korte
+    regel (een inschrijvingsdatum), een dag vóór het persbericht of een weekdag die niet klopt: niets;
+  - een plaats: een regel met een straat en een huisnummer, of "Waar:"/"Locatie:"/"Plaats:"/"Adres:", of
+    "<plek>, <district>". Zonder huisnummer zoekt de verversing het nummer daarna zelf in de open data van de stad (zie
+    "Altijd het huisnummer"). Geen plaats (een stoepbezoek aan huis): niets;
+  - een district dat vaststaat, uit de kop, de plaats of de straat (de straatas in `site/geo/`), zonder tegenspraak;
+  - een uur, of een woord dat zegt dat het een activiteit voor het publiek is (feest, voorstelling, markt, stoet ...).
+  Het uur komt uit de datumregel of de enige korte regel met een uur; meer uren ("om 10.30 uur en 14 uur") blijven in
+  `timeText`. De titel is die van het persbericht, met de kop erbij als het er meer dan één aankondigt ("... (Berchem)").
+  De info zegt alleen waar het vandaan komt, of je moet inschrijven en of het volzet is; de link is de eerste link voor
+  meer informatie die niet naar de persruimte gaat, zonder vraag of anker.
+- **Nooit.** Een persbericht over een zitting van raad of college (eBesluit heeft die al), over een beleidsbeslissing,
+  een investering of een controle, of dat een partij noemt (`lib/politiek.mjs`, dezelfde lijst als de kalenderfeeds):
+  niets van N-VA en geen andere politiek. Een blok met een perscontact, een verantwoordelijke, een mailadres of een
+  telefoonnummer wordt overgeslagen vóór er iets uit gelezen wordt; een titel, kop of plaats met een mandaat (schepen,
+  burgemeester, gedeputeerde ...) of het woord verhuis geeft geen activiteit. De inleiding en de auteur worden nooit
+  overgenomen.
+- **De provincie.** Een activiteit van de provincie (het woord provincie of provinciaal, of een link naar
+  provincieantwerpen.be) komt er alleen op met een link en als het persbericht zegt of je moet inschrijven; is ze
+  volzet, dan niet. Een andere activiteit die volzet is, komt er wel op, met "Volzet volgens het persbericht.".
+  Nagekeken wordt wat het persbericht zegt: de kalender van de provincie zelf verbiedt robots.txt (`/nl/kalender`).
+- **Geen dubbel.** Staat dezelfde activiteit al in een andere bron (overlappende dag, en hetzelfde adres, of in hetzelfde
+  district hetzelfde uur of dezelfde straat met een gedeeld inhoudswoord zoals "Sint"), dan krijgt het item `sameAs` met
+  de id daarvan: de feed toont één punt, met beide bronnen. Met voorrang vóór `stad-districten` (dat zolang
+  www.antwerpen.be weigert vaak alleen "District X, locatie via de officiële bron" heeft) en na de bronnen van district
+  Antwerpen zelf. Staat ze al als handmatig item op de site, of in een nieuwer persbericht, dan valt ze weg.
+- Groep `stad`, met `inDistrict` per activiteit; geen krimpgrens (nul aankondigingen is normaal). Het bronbestand
+  ontstaat bij de eerste verversing; `node scripts/fetch-sources-stad-persberichten.mjs --dry-run` leest zonder te
+  schrijven en toont per activiteit dag, uur, district en titel.
 
 ## Markten (`stad-markten`)
 
@@ -1056,6 +1109,9 @@ Opnieuw nagekeken op 5-11-2026 (zelfde regels: gewone User-Agent, robots.txt gev
   www.antwerpen.be. Die kan niet nagekeken worden, dus komt er niets van op de agenda (zie hieronder).
 - **UiTdatabank:** ongewijzigd. Productie kost 125 euro per jaar (excl. btw); de testomgeving is gratis maar heeft
   geen echte gegevens. Gebruik is alleen niet-commercieel, met "UiTinVlaanderen" als bron bij elk item.
+
+Op 16-11-2026: de persruimte van de stad (pers.antwerpen.be) laat automatisch lezen toe en heeft een feed met de tien
+laatste persberichten. Nieuw actief: `stad-persberichten` (zie "Persberichten van de stad" hierboven).
 
 Opnieuw nagekeken op 11-11-2026 (zelfde regels; eerst robots.txt, daarna alleen lezen).
 
