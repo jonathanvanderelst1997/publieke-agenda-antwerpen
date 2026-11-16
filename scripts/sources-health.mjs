@@ -29,6 +29,7 @@ import { fileURLToPath } from "node:url";
 import { dropAllowed, isMainModule, isWeigeringCode, sourceHealthOf, suspiciousDrop } from "../lib/fetch-util.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { LIVE_HISTORY_FILE, LIVE_LAAG_MAX_UUR, liveLaagGezondheid } from "../lib/live-history.mjs";
+import { PARKEER_HUISNUMMERS_FILE, parkeerHuisnummerStand } from "../lib/parkeer-huisnummers-validatie.mjs";
 import { AFGELEIDE_BRONNEN, AFGELEIDE_BRON_IDS } from "../lib/source-registry.mjs";
 import { MAX_AGE_HOURS, SOURCE_DEFINITIONS, SOURCE_IDS, shrinkGuardFor, sourceFileName, validateRefreshStatus, validateSourceDocument } from "../lib/source-feed.mjs";
 import { STRAAT_INDEX, straatIndexStand } from "../lib/straat-bestanden.mjs";
@@ -216,6 +217,17 @@ export function checkHealth({ rootDir, at = Date.now(), env = process.env, basel
   lines.push(straat.regel, ...straat.fouten);
   unhealthy += straat.fouten.length;
   for (const tekst of straat.waarschuwingen) meld("Straatbestanden", tekst);
+
+  // Parkeerverboden zonder huisnummer (lib/parkeer-huisnummers.mjs): de telling van de laatste verversing, in aantallen.
+  // Geeft de stad er geen ("0-0"), dan is dat alleen een regel. Had de bron een nummer en bewaart de agenda het niet, dan
+  // is dat een waarschuwing (regel van de eigenaar van 26 oktober 2026: altijd het exacte huisnummer). Geen fout: de
+  // verversing gaat door. Zonder bestand (vóór de eerste verversing met deze telling): niets.
+  const huisnummers = readJson(path.join(rootDir, "site", "sources", PARKEER_HUISNUMMERS_FILE));
+  if (huisnummers) {
+    const stand = parkeerHuisnummerStand(huisnummers);
+    lines.push(stand.regel);
+    if (stand.waarschuwing) meld("Parkeerverbod zonder huisnummer", stand.waarschuwing);
+  }
 
   if (baseline) {
     const today = brusselsDate(new Date(at));

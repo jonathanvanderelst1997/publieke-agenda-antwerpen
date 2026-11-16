@@ -106,11 +106,16 @@ function zonderNummerwoord(straat){
 //   "Xstraat 12 bus 3"             -> "Xstraat 12" (nooit een bus: die is een woning, geen plaats op straat)
 //   "Xstraat 1-400"                -> "Xstraat 1–400": een bereik over (bijna) de hele straat is wat de bron zegt.
 //   "Xstraat 12-0", "Xstraat 0-12" -> "Xstraat 12" (een 0 is geen nummer, het andere wel; "Xstraat 0-0" blijft zonder nummer)
+//   "Xstraat 01-5", "Xstraat 012-014" -> "Xstraat 1–5", "Xstraat 12–14" (een nul vóór een nummer hoort er niet bij;
+//                                     meting van 13 november 2026: de stad schrijft die vorm soms, en het nummer viel
+//                                     dan weg. "Xstraat 00-00" blijft zonder nummer, "Xstraat 10-105" blijft zoals het is)
 // Geen nummer ("Onbekend-Onbekend", "nvt-nvt", "hoek-hoek") of iets anders dan nummers: "" (de kaart toont de straat).
 const NR=/^([1-9]\d{0,3})([a-z]{0,3})$/i;
 const nrVolgorde=(a,b)=>Number(NR.exec(a)[1])-Number(NR.exec(b)[1])||NR.exec(a)[2].toLowerCase().localeCompare(NR.exec(b)[2].toLowerCase());
 function nummerVanBron(deel){
-  const t=deel.replace(/\s*\(\d{4}\)\s*/g," ").replace(/\s+bus\s*[\w-]+$/i,"").replace(/\s+/g," ").trim();
+  const t=deel.replace(/\s*\(\d{4}\)\s*/g," ").replace(/\s+bus\s*[\w-]+$/i,"").replace(/\s+/g," ").trim()
+    // Nullen vóór een nummer weg ("01" is 1); een nul ín of achter een nummer ("10", "105") en een losse 0 blijven.
+    .replace(/(^|[^\d])0+(?=[1-9])/g,"$1");
   if(!t)return"";
   if(/[/+,&]|\sen\s/i.test(t)){
     const lijst=[...new Map(t.split(/\s*(?:[/+,&]|\ben\b)\s*/i).map((n)=>[n.toLowerCase(),n])).values()];
