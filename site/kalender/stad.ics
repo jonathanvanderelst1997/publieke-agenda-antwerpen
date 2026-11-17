@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r11-2026-10-17@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261017
 DTEND;VALUE=DATE:20261018
 SUMMARY:Groeidag
@@ -59,7 +59,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r0-2026-10-22@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261022T200000
 DURATION:PT1H
 SUMMARY:De eenzaamheid van de priemgetallen – Paolo Giordano
@@ -79,7 +79,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-68c42eae7c39f4977a6df487-2026-10-23@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261023
 DTEND;VALUE=DATE:20261024
 SUMMARY:23/10 | Nacht van de jeugdbeweging
@@ -101,7 +101,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-10-23@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261023T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -123,7 +123,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-ebesluit-ev-2026-cbs-07413-2026-10-28@mijn-publieke-agenda-voor-di
  strict.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261028
 DTEND;VALUE=DATE:20261123
 SUMMARY:De Grote Schijn 2026
@@ -144,7 +144,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-06@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261106
 DTEND;VALUE=DATE:20261107
 SUMMARY:Stanneke
@@ -164,7 +164,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-07@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261107
 DTEND;VALUE=DATE:20261108
 SUMMARY:Stanneke
@@ -184,7 +184,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-08@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20261109
 SUMMARY:Stanneke
@@ -204,7 +204,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6ab3c7cb44947433802d848e-2026-11-08@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20261109
 SUMMARY:Ontdek de pracht van Muisbroek tijdens de EkeRun!
@@ -224,7 +224,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-berendrecht-zandvliet-lillo-561cec28aea8a744228b45cb-2026-11-
  11@mijn-publieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:Herdenking van Wapenstilstand
@@ -247,7 +247,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-deurne-670e4c5276ce668584728824-2026-11-11@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261111T104500
 DURATION:PT1H
 SUMMARY:Deurne herdenkt Wapenstilstand
@@ -271,7 +271,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-5bd16d8c2d2a3c75b55b3f48-2026-11-11@mijn-publieke-
  agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261111T110000
 DURATION:PT1H
 SUMMARY:11 novemberplechtigheid Borgerhout
@@ -293,7 +293,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r13-2026-11-13@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261113
 DTEND;VALUE=DATE:20261114
 SUMMARY:Stanneke
@@ -313,7 +313,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-13@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261113T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -335,7 +335,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r14-2026-11-15@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Kunstendag voor kinderen
@@ -357,7 +357,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borsbeek-68ef69f1d2ceb2c2044ce884-2026-11-15@mijn-publieke-ag
  enda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261115T110000
 DTEND;TZID=Europe/Brussels:20261115T170000
 SUMMARY:Zondag 15 november | Kunstendag voor Kinderen
@@ -379,7 +379,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6a75cdf1f4182ba23458859c-2026-11-18@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 SUMMARY:Ontdek jouw artisieke talent tijdens de Week van de Senior met Mokt
@@ -403,7 +403,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-ekeren-6abbb552340ee700472dd1df-2026-11-18@mijn-publieke-agen
  da-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261118
 DTEND;VALUE=DATE:20261119
 SUMMARY:Creatieve senioren gezocht!
@@ -427,12 +427,11 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-6a97c90144947476b56a9e02-2026-11-18@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261118T130000
 DTEND;TZID=Europe/Brussels:20261118T160000
 SUMMARY:Plezier verzekerd op de Fun Games
-LOCATION:Sporthal De Rode Loop\, District Merksem (plaats volgens het beric
- ht)
+LOCATION:Sporthal De Rode Loop\, Rodeloopstraat 2\, 2170 Merksem
 DESCRIPTION:Klaar voor actie en creativiteit? Tijdens de Fun Games beleven 
  kinderen van 8 tot 13 jaar een gratis namiddag vol speel- en sportplezier 
  in sporthal De Rode Loop.\nWanneer: van 13 tot 16 uur\nOp de publieke agen
@@ -450,7 +449,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r1-2026-11-19@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261119T200000
 DURATION:PT1H
 SUMMARY:VOLZET - Zwarte september – Sandro Veronesi
@@ -470,7 +469,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-11-20@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261120T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
@@ -490,55 +489,125 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28@mijn-publieke-age
- nda-voor-district.local
-DTSTAMP:20261116T042259Z
-DTSTART;TZID=Europe/Brussels:20261128T140000
-DTEND;TZID=Europe/Brussels:20261128T163000
-SUMMARY:Feest voor de Sint
-LOCATION:Park Gravenhof\, District Hoboken (plaats volgens het bericht)
-DESCRIPTION:Sinterklaas meert met zijn stoomboot vol cadeautjes en zijn tro
- uwe pieten aan bij het veer. Wacht hem vol spanning op in de Leo Bosschart
- laan en trek vervolgens mee naar park Gravenhof voor een onvergetelijke Si
- nterklaasshow.\nWanneer: van 14 tot 16.30 uur\nOp de publieke agenda: http
- s://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news-hoboke
- n-654a17da22c9bd00182b3d04-2026-11-28/\nNieuws van de andere districten: h
- ttps://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-sint\n
- Bron: districten van stad Antwerpen – bron stad Antwerpen (Vlaamse grati
- s open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
- -hoboken-654a17da22c9bd00182b3d04-2026-11-28/
-CATEGORIES:Familie & kinderen
+UID:stad-pers-93a038d699-ekeren-2026-11-28@mijn-publieke-agenda-voor-distri
+ ct.local
+DTSTAMP:20261117T042310Z
+DTSTART;TZID=Europe/Brussels:20261128T133000
+DURATION:PT1H
+SUMMARY:Hij komt\, hij komt in de Antwerpse districten (Ekeren)
+LOCATION:Stoet van Kristus-Koningplein naar Kasteel Veltwijck (Veltwijcklaa
+ n 27)\, 2180 Ekeren
+DESCRIPTION:Aangekondigd in een persbericht van stad Antwerpen van 16-11-20
+ 26. Meer informatie via de link.\nWanneer: om 13.30 uur\nOp de publieke ag
+ enda: https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-p
+ ers-93a038d699-ekeren-2026-11-28/\nPersberichten van de stad (activiteiten
+  die de stad zelf aankondigt): https://pers.antwerpen.be/hij-komt-hij-komt
+ -in-de-antwerpse-districten-lk9vfr\nMeer info bij de organisator: https://
+ www.antwerpen.be/nl/overzicht/district-ekeren-1/nieuws/welkom-in-ekeren-si
+ nterklaas\nBron: persberichten van stad Antwerpen (pers.antwerpen.be)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers
+ -93a038d699-ekeren-2026-11-28/
+CATEGORIES:Stoet & processie
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28@mijn-publieke-age
- nda-voor-district.local
-DTSTAMP:20261116T042259Z
+UID:stad-pers-93a038d699-hoboken-2026-11-28@mijn-publieke-agenda-voor-distr
+ ict.local
+DTSTAMP:20261117T042310Z
+DTSTART;TZID=Europe/Brussels:20261128T140000
+DTEND;TZID=Europe/Brussels:20261128T163000
+SUMMARY:Hij komt\, hij komt in de Antwerpse districten (Hoboken)
+LOCATION:Veerpont (einde Leo Bosschartlaan) en Gravenhof (Louisalei 7)\, 26
+ 60 Hoboken
+DESCRIPTION:Aangekondigd in een persbericht van stad Antwerpen van 16-11-20
+ 26. Meer informatie via de link.\nWanneer: van 14 tot 16.30 uur\nOp de pub
+ lieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/even
+ t/stad-pers-93a038d699-hoboken-2026-11-28/\nPersberichten van de stad (act
+ iviteiten die de stad zelf aankondigt): https://pers.antwerpen.be/hij-komt
+ -hij-komt-in-de-antwerpse-districten-lk9vfr\nNieuws van de andere district
+ en: https://www.antwerpen.be/info/654a17da22c9bd00182b3d04/feest-voor-de-s
+ int\nMeer info bij de organisator: https://gravenhof.antwerpen.be/aankomst
+ -sinterklaas\nBron: persberichten van stad Antwerpen (pers.antwerpen.be)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers
+ -93a038d699-hoboken-2026-11-28/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-pers-93a038d699-wilrijk-2026-11-28@mijn-publieke-agenda-voor-distr
+ ict.local
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261128T140000
 DTEND;TZID=Europe/Brussels:20261128T170000
-SUMMARY:Groot sintdorp op 22 november in centrum Wilrijk
-LOCATION:District Wilrijk\, locatie via de officiële bron
-DESCRIPTION:Hij komt\, hij komt: Sinterklaas bezoekt op zaterdag 28 novembe
- r het Wilrijkse gemeenschapscentrum! Reden genoeg voor de jeugddienst om e
- en groot Sintfeest te bouwen boordevol speelpret.\nWanneer: van 14 tot 17 
- uur\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onr
- ender.com/event/stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28/\nNi
- euws van de andere districten: https://www.antwerpen.be/info/635a8e3d01664
- 4c31f2f509a/groot-sintdorp-op-22-november-in-centrum-wilrijk\nBron: distri
- cten van stad Antwerpen – bron stad Antwerpen (Vlaamse gratis open data 
- licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-news
- -wilrijk-635a8e3d016644c31f2f509a-2026-11-28/
-CATEGORIES:Familie & kinderen
+SUMMARY:Hij komt\, hij komt in de Antwerpse districten (Wilrijk)
+LOCATION:Bist en gemeenschapscentrum (Bist 1)\, 2610 Wilrijk
+DESCRIPTION:Aangekondigd in een persbericht van stad Antwerpen van 16-11-20
+ 26. Meer informatie via de link.\nWanneer: van 14 tot 17 uur\nOp de publie
+ ke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/s
+ tad-pers-93a038d699-wilrijk-2026-11-28/\nPersberichten van de stad (activi
+ teiten die de stad zelf aankondigt): https://pers.antwerpen.be/hij-komt-hi
+ j-komt-in-de-antwerpse-districten-lk9vfr\nNieuws van de andere districten:
+  https://www.antwerpen.be/info/635a8e3d016644c31f2f509a/groot-sintdorp-op-
+ 22-november-in-centrum-wilrijk\nMeer info bij de organisator: https://www.
+ antwerpen.be/info/635a8e3d016644c31f2f509a/groot-sintdorp-op-30-november-i
+ n-centrum-wilrijk\nBron: persberichten van stad Antwerpen (pers.antwerpen.
+ be)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers
+ -93a038d699-wilrijk-2026-11-28/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-pers-93a038d699-berchem-2026-12-02@mijn-publieke-agenda-voor-distr
+ ict.local
+DTSTAMP:20261117T042310Z
+DTSTART;TZID=Europe/Brussels:20261202T150000
+DTEND;TZID=Europe/Brussels:20261202T163000
+SUMMARY:Hij komt\, hij komt in de Antwerpse districten (Berchem)
+LOCATION:Winterbar Park West\, Rooiplein 6\, Berchem
+DESCRIPTION:Aangekondigd in een persbericht van stad Antwerpen van 16-11-20
+ 26.\nWanneer: van 15 tot 16.30 uur\nOp de publieke agenda: https://mijn-pu
+ blieke-agenda-voor-district.onrender.com/event/stad-pers-93a038d699-berche
+ m-2026-12-02/\nPersberichten van de stad (activiteiten die de stad zelf aa
+ nkondigt): https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-dis
+ tricten-lk9vfr\nBron: persberichten van stad Antwerpen (pers.antwerpen.be)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers
+ -93a038d699-berchem-2026-12-02/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:stad-pers-93a038d699-berendrecht-zandvliet-lillo-2026-12-06@mijn-publie
+ ke-agenda-voor-district.local
+DTSTAMP:20261117T042310Z
+DTSTART;TZID=Europe/Brussels:20261206T103000
+DURATION:PT1H
+SUMMARY:Hij komt\, hij komt in de Antwerpse districten (Berendrecht-Zandvli
+ et-Lillo)
+LOCATION:Vrijetijdscentrum De Schelde\, De Keyserhoeve 66\, Zandvliet
+DESCRIPTION:Aangekondigd in een persbericht van stad Antwerpen van 16-11-20
+ 26. Inschrijven nodig. Volzet volgens het persbericht. Meer informatie via
+  de link.\nWanneer: om 10.30 uur en 14 uur\nOp de publieke agenda: https:/
+ /mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers-93a038d69
+ 9-berendrecht-zandvliet-lillo-2026-12-06/\nPersberichten van de stad (acti
+ viteiten die de stad zelf aankondigt): https://pers.antwerpen.be/hij-komt-
+ hij-komt-in-de-antwerpse-districten-lk9vfr\nMeer info bij de organisator: 
+ https://vrijetijdscentrumdeschelde.antwerpen.be/pietenfabriek\nBron: persb
+ erichten van stad Antwerpen (pers.antwerpen.be)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/stad-pers
+ -93a038d699-berendrecht-zandvliet-lillo-2026-12-06/
+CATEGORIES:Overig
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-wilrijk-648d2efc50afea0013656346-t1r2-2026-12-10@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261210T200000
 DURATION:PT1H
 SUMMARY:Het leugenachtige leven van volwassenen – Elena Ferrante
@@ -558,7 +627,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-borgerhout-66d6eef576ce660545139265-t0r15-2026-12-11@mijn-pub
  lieke-agenda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;VALUE=DATE:20261211
 DTEND;VALUE=DATE:20261214
 SUMMARY:Bohoho's warm winterfeest
@@ -578,7 +647,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:stad-news-merksem-699c648e7c39f43c7a20d062-2026-12-18@mijn-publieke-age
  nda-voor-district.local
-DTSTAMP:20261116T042259Z
+DTSTAMP:20261117T042310Z
 DTSTART;TZID=Europe/Brussels:20261218T093000
 DURATION:PT1H
 SUMMARY:Digitaal sterker met gratis infosessies
