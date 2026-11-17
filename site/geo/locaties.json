@@ -95,6 +95,16 @@
    "postcode": "2610",
    "checkedOn": "2026-10-05"
   },
+  "bist en gemeenschapscentrum bist 1 2610 wilrijk": {
+   "point": [
+    4.39391,
+    51.16923
+   ],
+   "precision": "adres",
+   "street": "Bist",
+   "postcode": "2610",
+   "checkedOn": "2026-11-17"
+  },
   "constitutiestraat 2060 antwerpen": {
    "point": [
     4.42712,
@@ -655,6 +665,26 @@
    "postcode": "2000",
    "checkedOn": "2026-11-02"
   },
+  "sporthal de rode loop rodeloopstraat 2 2170 merksem": {
+   "point": [
+    4.44249,
+    51.25034
+   ],
+   "precision": "adres",
+   "street": "Rodeloopstraat",
+   "postcode": "2170",
+   "checkedOn": "2026-11-17"
+  },
+  "stoet van kristus koningplein naar kasteel veltwijck veltwijcklaan 27 2180 ekeren": {
+   "point": [
+    4.42454,
+    51.27634
+   ],
+   "precision": "adres",
+   "street": "Veltwijcklaan",
+   "postcode": "2180",
+   "checkedOn": "2026-11-17"
+  },
   "thonetlaan august vermeylenlaan esmoreitlaan en 7 andere straten": {
    "point": [
     4.39156,
@@ -705,6 +735,16 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
+  "veerpont einde leo bosschartlaan en gravenhof louisalei 7 2660 hoboken": {
+   "point": [
+    4.34802,
+    51.17671
+   ],
+   "precision": "adres",
+   "street": "Louisalei",
+   "postcode": "2660",
+   "checkedOn": "2026-11-17"
+  },
   "vosstraat 2140 borgerhout": {
    "point": [
     4.45157,
@@ -714,6 +754,16 @@
    "street": "Vosstraat",
    "postcode": "2140",
    "checkedOn": "2026-10-05"
+  },
+  "vrijetijdscentrum de schelde de keyserhoeve 66 zandvliet": {
+   "point": [
+    4.31168,
+    51.35928
+   ],
+   "precision": "adres",
+   "street": "De Keyserhoeve",
+   "postcode": "2040",
+   "checkedOn": "2026-11-17"
   },
   "waalsekaai gentplaats gillisplaats en 7 andere straten": {
    "point": [
@@ -734,6 +784,16 @@
    "street": "Wim Saerensplein",
    "postcode": "2100",
    "checkedOn": "2026-10-05"
+  },
+  "winterbar park west rooiplein 6 berchem": {
+   "point": [
+    4.43624,
+    51.18538
+   ],
+   "precision": "adres",
+   "street": "Rooiplein",
+   "postcode": "2600",
+   "checkedOn": "2026-11-17"
   },
   "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
    "point": [
@@ -771,14 +831,12 @@
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-07",
   "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-07",
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-07",
-  "park gravenhof district hoboken plaats volgens het bericht": "2026-11-15",
   "rivierenhof in deurne": "2026-11-13",
   "scheldekaaien zuid 2000 antwerpen": "2026-11-13",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-07",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
   "seefhoek 2060 antwerpen": "2026-11-13",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
-  "sporthal de rode loop district merksem plaats volgens het bericht": "2026-11-15",
   "ten eeckhovelei 2100 deurne": "2026-11-16",
   "toeristisch centrum antwerpen": "2026-11-16",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"

@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "stad-persberichten",
+  "scope": "stad",
+  "publisher": "Stad Antwerpen (persruimte)",
+  "attribution": {
+    "text": "Bron: persberichten van stad Antwerpen (pers.antwerpen.be)",
+    "url": "https://pers.antwerpen.be/"
+  },
+  "url": "https://pers.antwerpen.be/",
+  "allowedHosts": [
+    "pers.antwerpen.be"
+  ],
+  "officialPublic": true,
+  "method": "pers.antwerpen.be: robots.txt, de RSS-feed met de tien laatste persberichten en elk persbericht, 5 s ertussen; alleen de activiteiten die een persbericht zelf aankondigt, met één datum, een plaats en een district, zonder politiek of persoonsgegevens",
+  "retrievedAt": "2026-11-17T04:21:33.693Z",
+  "fetchStatus": "ok",
+  "maxAgeHours": 48,
+  "contentVersion": null,
+  "items": [
+    {
+      "id": "stad-pers-93a038d699-ekeren-2026-11-28",
+      "externalId": "hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "title": "Hij komt, hij komt in de Antwerpse districten (Ekeren)",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-28",
+      "endDate": null,
+      "timeSlot": "13:30",
+      "timeText": "om 13.30 uur",
+      "location": "Stoet van Kristus-Koningplein naar Kasteel Veltwijck (Veltwijcklaan 27), 2180 Ekeren",
+      "postcodes": [
+        "2180"
+      ],
+      "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026. Meer informatie via de link.",
+      "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-ekeren-1/nieuws/welkom-in-ekeren-sinterklaas",
+      "kind": "activity",
+      "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    },
+    {
+      "id": "stad-pers-93a038d699-hoboken-2026-11-28",
+      "externalId": "hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "title": "Hij komt, hij komt in de Antwerpse districten (Hoboken)",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-28",
+      "endDate": null,
+      "timeSlot": "14:00",
+      "timeText": "van 14 tot 16.30 uur",
+      "location": "Veerpont (einde Leo Bosschartlaan) en Gravenhof (Louisalei 7), 2660 Hoboken",
+      "postcodes": [
+        "2660"
+      ],
+      "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026. Meer informatie via de link.",
+      "infoUrl": "https://gravenhof.antwerpen.be/aankomst-sinterklaas",
+      "kind": "activity",
+      "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
+      "reviewRequired": false,
+      "inDistrict": false,
+      "sameAs": [
+        "stad-news-hoboken-654a17da22c9bd00182b3d04-2026-11-28"
+      ]
+    },
+    {
+      "id": "stad-pers-93a038d699-wilrijk-2026-11-28",
+      "externalId": "hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "title": "Hij komt, hij komt in de Antwerpse districten (Wilrijk)",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-11-28",
+      "endDate": null,
+      "timeSlot": "14:00",
+      "timeText": "van 14 tot 17 uur",
+      "location": "Bist en gemeenschapscentrum (Bist 1), 2610 Wilrijk",
+      "postcodes": [
+        "2610"
+      ],
+      "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026. Meer informatie via de link.",
+      "infoUrl": "https://www.antwerpen.be/info/635a8e3d016644c31f2f509a/groot-sintdorp-op-30-november-in-centrum-wilrijk",
+      "kind": "activity",
+      "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
+      "reviewRequired": false,
+      "inDistrict": false,
+      "sameAs": [
+        "stad-news-wilrijk-635a8e3d016644c31f2f509a-2026-11-28"
+      ]
+    },
+    {
+      "id": "stad-pers-93a038d699-berchem-2026-12-02",
+      "externalId": "hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "title": "Hij komt, hij komt in de Antwerpse districten (Berchem)",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-02",
+      "endDate": null,
+      "timeSlot": "15:00",
+      "timeText": "van 15 tot 16.30 uur",
+      "location": "Winterbar Park West, Rooiplein 6, Berchem",
+      "postcodes": [
+        "2600"
+      ],
+      "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026.",
+      "kind": "activity",
+      "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    },
+    {
+      "id": "stad-pers-93a038d699-berendrecht-zandvliet-lillo-2026-12-06",
+      "externalId": "hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "title": "Hij komt, hij komt in de Antwerpse districten (Berendrecht-Zandvliet-Lillo)",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-06",
+      "endDate": null,
+      "timeSlot": "10:30",
+      "timeText": "om 10.30 uur en 14 uur",
+      "location": "Vrijetijdscentrum De Schelde, De Keyserhoeve 66, Zandvliet",
+      "postcodes": [
+        "2040"
+      ],
+      "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026. Inschrijven nodig. Volzet volgens het persbericht. Meer informatie via de link.",
+      "infoUrl": "https://vrijetijdscentrumdeschelde.antwerpen.be/pietenfabriek",
+      "kind": "activity",
+      "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
+      "reviewRequired": false,
+      "inDistrict": false
+    }
+  ]
+}

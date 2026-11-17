@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "uitleg": "Automatisch aangevuld bij de verversing (scripts/vul-huisnummers.mjs, lib/huisnummer-uit-bron.mjs): het adres van een plek die een activiteit zonder huisnummer noemt, uit de open data van stad Antwerpen op geodata.antwerpen.be (Gratis Open Data Licentie, bron stad Antwerpen), alleen als de bron precies één adres geeft. nagekeken: plekken waarvoor de bron geen eenduidig adres gaf. Niet met de hand aanpassen; een vast adres hoort in vaste-adressen.json.",
+  "bijgewerkt": "2026-11-17",
+  "plekken": [
+    {
+      "naam": "Sporthal De Rode Loop",
+      "herken": [
+        "Sporthal De Rode Loop"
+      ],
+      "adres": "Rodeloopstraat 2, 2170 Merksem",
+      "bron": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Portal/portal_publiek6/MapServer/643"
+    }
+  ],
+  "nagekeken": []
+}

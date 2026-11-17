@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-16T04:22:59.583Z",
-  "classificationAsOf": "2026-11-16",
-  "sourceCount": 905,
-  "count": 752,
-  "eventPageCount": 752,
-  "archivedEventPageCount": 341,
+  "candidateGeneratedAt": "2026-11-17T04:23:10.596Z",
+  "classificationAsOf": "2026-11-17",
+  "sourceCount": 909,
+  "count": 756,
+  "eventPageCount": 756,
+  "archivedEventPageCount": 346,
   "classifications": {
     "expired": 153,
-    "current": 31,
-    "future": 721,
+    "current": 33,
+    "future": 723,
     "review_required": 0
   },
   "scopeCounts": {
     "district": 115,
-    "stad": 637
+    "stad": 641
   },
-  "feedGeneratedAt": "2026-11-16T04:22:59.583Z",
+  "feedGeneratedAt": "2026-11-17T04:23:10.596Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:24:58.308Z",
+      "retrievedAt": "2026-11-17T04:24:47.237Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:17:44.607Z",
+      "retrievedAt": "2026-11-17T04:17:50.226Z",
       "state": "empty"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:22:49.652Z",
+      "retrievedAt": "2026-11-17T04:23:00.722Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:21:14.049Z",
+      "retrievedAt": "2026-11-17T04:21:07.986Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:17:34.977Z",
+      "retrievedAt": "2026-11-17T04:17:40.558Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:21:14.852Z",
+      "retrievedAt": "2026-11-17T04:21:08.536Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:17:25.075Z",
+      "retrievedAt": "2026-11-17T04:17:31.274Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:21:44.779Z",
+      "retrievedAt": "2026-11-17T04:22:38.012Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:21:44.779Z",
+      "retrievedAt": "2026-11-17T04:22:38.012Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:22:49.652Z",
+      "retrievedAt": "2026-11-17T04:23:00.722Z",
       "state": "fresh"
     },
     {
@@ -128,7 +128,14 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-16T04:21:40.094Z",
+      "retrievedAt": "2026-11-17T04:22:33.126Z",
+      "state": "fresh"
+    },
+    {
+      "sourceId": "stad-persberichten",
+      "scope": "stad",
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-11-17T04:21:33.693Z",
       "state": "fresh"
     },
     {
@@ -139,7 +146,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "3854744a5f801de22426419a980fc6b281b8f219de21dfdf1ea38c581e10f83a",
+  "digest": "e5a0f0570f94c0e10e0647f8b442b3ae20fdeed481c560e230cecfbdfbf4de67",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -174,9 +181,6 @@
     "Evenement in de Nationalestraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "Gemengde markt Kioskplaats",
-    "Gemengde markt Arenaplein",
-    "Districtsraad Antwerpen",
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
@@ -235,8 +239,9 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
-    "Feest voor de Sint",
-    "Groot sintdorp op 22 november in centrum Wilrijk",
+    "Hij komt, hij komt in de Antwerpse districten (Ekeren)",
+    "Hij komt, hij komt in de Antwerpse districten (Hoboken)",
+    "Hij komt, hij komt in de Antwerpse districten (Wilrijk)",
     "Evenement op het Koningin Astridplein: lus van 4,0 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
@@ -254,6 +259,7 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Hij komt, hij komt in de Antwerpse districten (Berchem)",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Ten Eeckhovelei",
     "Gemengde markt Dageraadplaats",
@@ -274,6 +280,7 @@
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
+    "Hij komt, hij komt in de Antwerpse districten (Berendrecht-Zandvliet-Lillo)",
     "Evenement in de Argentiniëlaan: parcours door 26 straten",
     "Koopzondag",
     "Gemengde markt Kioskplaats",
@@ -283,6 +290,7 @@
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
+    "Vermoedelijk Kerst op UA CGB (Fabiant)",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",
     "Evenement in de Plantin en Moretuslei: route van 250 m",
     "Gemengde markt Sint-Jansplein",
@@ -880,6 +888,9 @@
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
+    "Gemengde markt Sint-Franciscusplein",
+    "Gemengde markt Rooiplein",
+    "Gemengde markt Bist",
     "Raadscommissie Antwerpen",
     "Districtsraad Antwerpen",
     "Futsal Project Seefhoek",
