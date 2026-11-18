@@ -13,3 +13,12 @@
 .works-live-loose{margin-top:18px;padding:14px;border:1px dashed #d9b98f;border-radius:12px;background:#fff}.works-live-loose[hidden]{display:none}.works-live-loose h3{margin:0 0 6px;font-size:16px}.works-live-loose p{margin:0 0 8px;color:#66584c;font-size:13px;line-height:1.45}.works-live-loose ul{margin:0;padding-left:18px;display:grid;gap:6px;font-size:13px;line-height:1.45}.works-live-loose a{color:#96500b;font-weight:700}.works-live-loose .works-live-loose-bron{margin:8px 0 0}
 @media(max-width:760px){.works-live{padding:16px}.works-live-header,.works-live-card header,.works-live-card footer{flex-direction:column}.works-live-summary{text-align:left;min-width:0}.works-live-controls,.works-live-card dl{grid-template-columns:1fr}.works-live-owner{white-space:normal}}
 .works-live-bron{margin:10px 0 0;font-size:13px}.works-live-bron[hidden]{display:none}.works-live-bron a{color:#96500b;font-weight:700}
+
+/* Nieuwe werven deze week (site/werven-nieuw.js) */
+.werven-nieuw-lijsten{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(min(100%,22rem),1fr))}
+.werven-nieuw-lijst h3{margin:.25rem 0}
+.werven-nieuw-aantal{font-size:.85em;font-weight:600;opacity:.75}
+.werven-nieuw-lijst ul{list-style:none;margin:.5rem 0;padding:0;display:grid;gap:.5rem}
+.werven-nieuw-werf{display:grid;gap:.1rem;padding:.5rem .75rem;border-radius:.5rem;background:rgba(127,127,127,.08)}
+.werven-nieuw-werf span{overflow-wrap:anywhere}
+.werven-nieuw-leeg{opacity:.75}

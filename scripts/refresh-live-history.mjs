@@ -35,6 +35,7 @@ import { KAART_UITLEG_FILE } from "../lib/kaart-uitleg-validatie.mjs";
 import { gepubliceerdeWerkIds, leesWerkVorm, schrijfWerkVorm } from "../lib/werk-vorm-bestand.mjs";
 import { officieleStraatnamen } from "../lib/parkeer-historiek.mjs";
 import { schrijfParkeerHuisnummers, telParkeerHuisnummers } from "../lib/parkeer-huisnummers.mjs";
+import { schrijfWervenNieuw } from "../lib/werven-nieuw.mjs";
 
 const GIPOD_ORIGIN = "https://geo.api.vlaanderen.be";
 const GIPOD_BBOX = "4.300791,51.175458,4.444331,51.313629";
@@ -415,6 +416,15 @@ export async function refreshLiveHistory({
     }
   } catch (error) {
     log(JSON.stringify({ parkeerHuisnummers: "niet gelukt", soort: error?.name || "Error" }));
+  }
+
+  // De nieuwe werven van de laatste zeven dagen (lib/werven-nieuw.mjs), uit het archief dat hierboven geschreven werd. Laadde
+  // de werkenlaag niet, dan blijft het vorige bestand staan; faalt het, dan gaat de verversing door. In de log alleen aantallen.
+  try {
+    const werven = schrijfWervenNieuw({ rootDir, observedAt, worksLayer: history.layers.works });
+    log(JSON.stringify({ wervenNieuw: werven.geschreven ? { nieuw: werven.nieuw, begint: werven.begint } : werven.reden }));
+  } catch (error) {
+    log(JSON.stringify({ wervenNieuw: "niet gelukt", soort: error?.name || "Error" }));
   }
 
   await schrijfKaartUitleg({ rootDir, works: worksResult, publicSpace: publicSpaceResult, streetFeatures: streets?.features, fetch: fetchImpl, clock, log });
