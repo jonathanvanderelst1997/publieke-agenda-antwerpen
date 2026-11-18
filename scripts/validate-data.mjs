@@ -14,6 +14,7 @@ import { VASTE_ADRESSEN_FILE, validateVasteAdressen } from "../lib/vaste-adresse
 import { HUISNUMMERS_AUTO_FILE, validateHuisnummersAuto } from "../lib/huisnummer-uit-bron.mjs";
 import { VAAGHEID_FILE, validateVaagheid } from "../lib/vaagheid.mjs";
 import { PARKEER_HUISNUMMERS_FILE, validateParkeerHuisnummers } from "../lib/parkeer-huisnummers-validatie.mjs";
+import { WERVEN_NIEUW_FILE, validateWervenNieuw } from "../lib/werven-nieuw.mjs";
 import { HERKENNING_FILE, PATRONEN_FILE, validateHerkenning, validatePatronen } from "../lib/evenement-herkenning-validatie.mjs";
 import { SOURCE_DEFINITIONS, SOURCE_IDS, privacyFindings, validateRefreshStatus, validateSourceDocument, zonderRuweGipodBron } from "../lib/source-feed.mjs";
 import { ruweGipodLinksIn } from "../site/gipod-bron.js";
@@ -100,6 +101,11 @@ if (!fs.existsSync(sourcesDir)) {
     // Waarom een parkeerverbod geen huisnummer heeft, in aantallen (lib/parkeer-huisnummers-validatie.mjs), geen bron.
     if (name === PARKEER_HUISNUMMERS_FILE) {
       for (const error of validateParkeerHuisnummers(json)) problems.push(`${name}: ${error}`);
+      continue;
+    }
+    // De nieuwe werven van de laatste zeven dagen (lib/werven-nieuw.mjs), geen bron.
+    if (name === WERVEN_NIEUW_FILE) {
+      for (const error of validateWervenNieuw(json)) problems.push(`${name}: ${error}`);
       continue;
     }
     // Het officiële adres van vaste plekken (lib/vaste-adressen.mjs), geen bron.
