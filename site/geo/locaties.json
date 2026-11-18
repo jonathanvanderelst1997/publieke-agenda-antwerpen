@@ -65,6 +65,16 @@
    "postcode": "2000",
    "checkedOn": "2026-11-07"
   },
+  "beukenlaan 12 2020 antwerpen": {
+   "point": [
+    4.40545,
+    51.18292
+   ],
+   "precision": "adres",
+   "street": "Beukenlaan",
+   "postcode": "2020",
+   "checkedOn": "2026-11-18"
+  },
   "beukenlaan eglantierlaan floralienlaan en 6 andere straten": {
    "point": [
     4.409,
@@ -104,6 +114,16 @@
    "street": "Bist",
    "postcode": "2610",
    "checkedOn": "2026-11-17"
+  },
+  "blancefloerlaan 100 2050 antwerpen": {
+   "point": [
+    4.3468,
+    51.22059
+   ],
+   "precision": "adres",
+   "street": "Blancefloerlaan",
+   "postcode": "2050",
+   "checkedOn": "2026-11-18"
   },
   "constitutiestraat 2060 antwerpen": {
    "point": [
@@ -195,6 +215,16 @@
    "postcode": "2060",
    "checkedOn": "2026-11-07"
   },
+  "duinstraat 76 2020 en 2060 antwerpen": {
+   "point": [
+    4.42979,
+    51.22215
+   ],
+   "precision": "adres",
+   "street": "Duinstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-18"
+  },
   "durletstraat 2018 antwerpen": {
    "point": [
     4.40507,
@@ -244,6 +274,16 @@
    "street": "Frederik van Eedenplein",
    "postcode": "2050",
    "checkedOn": "2026-10-05"
+  },
+  "groenenborgerlaan": {
+   "point": [
+    4.41532,
+    51.17692
+   ],
+   "precision": "straat",
+   "street": "Groenenborgerlaan",
+   "postcode": "2610",
+   "checkedOn": "2026-11-18"
   },
   "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
    "point": [
@@ -444,16 +484,6 @@
    "street": "Lange Riddersstraat",
    "postcode": "2000",
    "checkedOn": "2026-11-07"
-  },
-  "lange sint annastraat bataviastraat bonapartedok en 28 andere straten": {
-   "point": [
-    4.41412,
-    51.22146
-   ],
-   "precision": "straat",
-   "street": "Lange Sint-Annastraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
   },
   "lange van ruusbroecstraat 2018 antwerpen": {
    "point": [
@@ -819,7 +849,7 @@
  "misses": {
   "2000 en 2018 antwerpen": "2026-11-07",
   "2060 antwerpen": "2026-11-16",
-  "a bib merksem parkweg 1": "2026-11-04",
+  "a bib merksem parkweg 1": "2026-11-18",
   "arenaplein 2100 deurne": "2026-11-16",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-16",
   "district borgerhout locatie via de officiele bron": "2026-11-16",

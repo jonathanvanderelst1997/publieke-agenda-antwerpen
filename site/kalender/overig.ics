@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:asign-ev-et2025006107-2026-10-18@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261018
 DTEND;VALUE=DATE:20261019
 SUMMARY:Vermoedelijk een markt op het De Coninckplein
@@ -60,7 +60,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;TZID=Europe/Brussels:20261103T190000
 DTEND;TZID=Europe/Brussels:20261103T210000
 SUMMARY:Inspraakmoment: Heraanleg Jeruzalemstraat & Engelse Beurs
@@ -82,7 +82,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2026-11-08@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20270110
 SUMMARY:Futsal Project Seefhoek
@@ -104,7 +104,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025005359-2026-11-11@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:Vermoedelijk een markt op het Theaterplein
@@ -128,7 +128,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006108-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Vermoedelijk een markt op het De Coninckplein
@@ -152,7 +152,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00607-2026-11-27@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20261130
 SUMMARY:To Be Antwerp - kunstroute
@@ -172,9 +172,30 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:ebesluit-ev-2026-dcan-00729-2026-11-28@mijn-publieke-agenda-voor-distri
+ ct.local
+DTSTAMP:20261118T042545Z
+DTSTART;VALUE=DATE:20261128
+DTEND;VALUE=DATE:20261129
+SUMMARY:Winter Wonderland Katrinahof 2026
+LOCATION:Blancefloerlaan 100\, 2050 Antwerpen
+DESCRIPTION:Gesteund door het Districtsfonds: beleef je buurt! (besluit van
+  het districtscollege van district Antwerpen van 16 november).\nOp de publ
+ ieke agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event
+ /ebesluit-ev-2026-dcan-00729-2026-11-28/\nEvenementen volgens besluiten va
+ n stad en district (eBesluit): https://ebesluit.antwerpen.be/zittingen/25.
+ 0902.0482.4469/agendapunten/26.1103.9424.5516\nBron: district Antwerpen 
+ – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-dcan-00729-2026-11-28/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00720-2026-11-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261130
 DTEND;VALUE=DATE:20261220
 SUMMARY:Holly doet dienst
@@ -196,7 +217,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00711-2026-12-01@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261201
 DTEND;VALUE=DATE:20261202
 SUMMARY:Wereldaidsdag 2026 – Verhalen die verbinden\, stigma doorbreken
@@ -219,7 +240,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07833-2026-12-19@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;TZID=Europe/Brussels:20261219T110000
 DTEND;TZID=Europe/Brussels:20261219T190000
 SUMMARY:UCI Wereldbeker Veldrijden
@@ -241,7 +262,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006109-2026-12-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261220
 DTEND;VALUE=DATE:20261221
 SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
@@ -268,7 +289,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07835-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Eindejaarsvuurwerk 2026-2027
@@ -287,9 +308,36 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:asign-ev-et2026004820-2027-01-17@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261118T042545Z
+DTSTART;VALUE=DATE:20270117
+DTEND;VALUE=DATE:20270118
+SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
+ goedgekeurd)
+LOCATION:De Coninckplein
+DESCRIPTION:Soort vermoed via de omschrijving in het dossier\, wat vroeger 
+ op dezelfde plek gebeurde en het studentencharter\; niet bevestigd. Een na
+ am komt er pas als een besluit\, een kalender of de organisator hem noemt.
+  Evenementendossier ET2026004820 van de stad (A-Sign)\, laatst gewijzigd o
+ p 19 augustus 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aan
+ vraag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, da
+ n verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publiek
+ e-agenda-voor-district.onrender.com/event/asign-ev-et2026004820-2027-01-17
+ /\nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata
+ .antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: di
+ strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
+ e)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026004820-2027-01-17/
+CATEGORIES:Overig
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2027-05-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261117T042310Z
+DTSTAMP:20261118T042545Z
 DTSTART;VALUE=DATE:20270530
 DTEND;VALUE=DATE:20270531
 SUMMARY:Futsal Project Seefhoek
@@ -304,6 +352,28 @@ DESCRIPTION:Gesteund door het Districtsfonds: beleef je buurt! (besluit van
  atis open data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
  ev-2026-dcan-00656-2027-05-30/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ebesluit-ev-2026-dcan-00727-2027-08-31@mijn-publieke-agenda-voor-distri
+ ct.local
+DTSTAMP:20261118T042545Z
+DTSTART;VALUE=DATE:20270831
+DTEND;VALUE=DATE:20270901
+SUMMARY:The Next Move
+LOCATION:Duinstraat 76\, 2020 en 2060 Antwerpen
+DESCRIPTION:Gesteund door het Districtsfonds: beleef je buurt! (besluit van
+  het districtscollege van district Antwerpen van 16 november). Organisatie
+ : 99 PERFORMANCE VZW.\nOp de publieke agenda: https://mijn-publieke-agenda
+ -voor-district.onrender.com/event/ebesluit-ev-2026-dcan-00727-2027-08-31/\
+ nEvenementen volgens besluiten van stad en district (eBesluit): https://eb
+ esluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1102.7798.
+ 0797\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis ope
+ n data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-dcan-00727-2027-08-31/
 CATEGORIES:Overig
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT

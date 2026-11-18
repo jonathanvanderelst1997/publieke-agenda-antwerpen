@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-17T04:23:00.722Z",
+  "generatedAt": "2026-11-18T04:25:32.879Z",
   "venster": {
-    "van": "2026-09-18",
-    "tot": "2027-03-17"
+    "van": "2026-09-19",
+    "tot": "2027-03-18"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 46,
-    "gelezen": 29,
+    "besluiten": 44,
+    "gelezen": 30,
     "teLezen": 0,
-    "metDag": 24,
-    "inDistrict": 21,
-    "agendapunten": 18
+    "metDag": 25,
+    "inDistrict": 24,
+    "agendapunten": 21
   },
   "besluiten": [
     {
@@ -53,68 +53,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
-    },
-    {
-      "id": "26.0910.3062.6018",
-      "code": "2026_CBS_06618",
-      "soort": "muziek",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-18",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Afterwork Reuzekesstoet",
-      "organisator": "Boelaer Handelaer vzw",
-      "dagen": [
-        "2026-09-25"
-      ],
-      "uren": {
-        "start": "16:00",
-        "einde": "23:00"
-      },
-      "plaats": "Vosstraat, 2140 Borgerhout",
-      "straten": [],
-      "postcodes": [
-        "2140"
-      ],
-      "inDistrict": false,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.3197.4508/agendapunten/26.0910.3062.6018",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0910.7493.1635",
-      "code": "2026_CBS_06619",
-      "soort": "muziek",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-18",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Mariaburgse Feesten 2026",
-      "organisator": "Wijkwerking Mariaburg vzw",
-      "dagen": [
-        "2026-09-27"
-      ],
-      "uren": {
-        "start": "13:00",
-        "einde": "19:00"
-      },
-      "plaats": "Van De Weyngaertplein, 2180 Ekeren",
-      "straten": [],
-      "postcodes": [
-        "2180"
-      ],
-      "inDistrict": false,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.3197.4508/agendapunten/26.0910.7493.1635",
-      "leesversie": 3
     },
     {
       "id": "26.0915.9651.3659",
@@ -1304,21 +1242,92 @@
       "status": "goedkeuring",
       "orgaan": "districtscollege Antwerpen",
       "zitting": "2026-11-16",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
-      "organisator": null,
-      "dagen": [],
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "The Next Move",
+      "organisator": "99 PERFORMANCE VZW",
+      "dagen": [
+        "2026-11-23",
+        "2026-11-24",
+        "2026-11-25",
+        "2026-11-26",
+        "2026-11-27",
+        "2026-11-28",
+        "2026-11-29",
+        "2026-11-30",
+        "2026-12-01",
+        "2026-12-02",
+        "2026-12-03",
+        "2026-12-04",
+        "2026-12-05",
+        "2026-12-06",
+        "2026-12-07",
+        "2026-12-08",
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11",
+        "2026-12-12",
+        "2026-12-13",
+        "2026-12-14",
+        "2026-12-15",
+        "2026-12-16",
+        "2026-12-17",
+        "2026-12-18",
+        "2026-12-19",
+        "2026-12-20",
+        "2026-12-21",
+        "2026-12-22",
+        "2026-12-23",
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-27",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-01-02",
+        "2027-01-03",
+        "2027-01-04",
+        "2027-01-05",
+        "2027-01-06",
+        "2027-01-07",
+        "2027-01-08",
+        "2027-01-09",
+        "2027-01-10",
+        "2027-01-11",
+        "2027-01-12",
+        "2027-01-13",
+        "2027-01-14",
+        "2027-01-15",
+        "2027-01-16",
+        "2027-01-17",
+        "2027-01-18",
+        "2027-01-19",
+        "2027-01-20",
+        "2027-01-21",
+        "2027-01-22",
+        "2027-01-23",
+        "2027-01-24",
+        "2027-08-31"
+      ],
       "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
+      "plaats": "Duinstraat 76, 2020 en 2060 Antwerpen",
+      "straten": [
+        "Duinstraat"
+      ],
+      "postcodes": [
+        "2020",
+        "2060"
+      ],
+      "inDistrict": true,
       "opbouw": null,
       "afbouw": null,
       "wijziging": null,
       "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1102.7798.0797"
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1102.7798.0797",
+      "leesversie": 3
     },
     {
       "id": "26.1102.2794.3302",
@@ -1327,21 +1336,28 @@
       "status": "goedkeuring",
       "orgaan": "districtscollege Antwerpen",
       "zitting": "2026-11-16",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "10 minuten duisternis",
       "organisator": "Follie vzw",
-      "dagen": [],
+      "dagen": [
+        "2026-12-19"
+      ],
       "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
+      "plaats": "Beukenlaan 12, 2020 Antwerpen",
+      "straten": [
+        "Beukenlaan"
+      ],
+      "postcodes": [
+        "2020"
+      ],
+      "inDistrict": true,
       "opbouw": null,
       "afbouw": null,
       "wijziging": null,
       "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1102.2794.3302"
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1102.2794.3302",
+      "leesversie": 3
     },
     {
       "id": "26.1103.9424.5516",
@@ -1350,21 +1366,28 @@
       "status": "goedkeuring",
       "orgaan": "districtscollege Antwerpen",
       "zitting": "2026-11-16",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Winter Wonderland Katrinahof 2026",
       "organisator": null,
-      "dagen": [],
+      "dagen": [
+        "2026-11-28"
+      ],
       "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
+      "plaats": "Blancefloerlaan 100, 2050 Antwerpen",
+      "straten": [
+        "Blancefloerlaan"
+      ],
+      "postcodes": [
+        "2050"
+      ],
+      "inDistrict": true,
       "opbouw": null,
       "afbouw": null,
       "wijziging": null,
       "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1103.9424.5516"
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1103.9424.5516",
+      "leesversie": 3
     },
     {
       "id": "26.1103.3026.0968",
