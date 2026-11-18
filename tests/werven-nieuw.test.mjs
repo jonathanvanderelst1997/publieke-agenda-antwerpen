@@ -79,11 +79,12 @@ test("het blok op de site: ontsnapt, met de datasetfiche als enige link en nooit
 test("periodeTekst: begin en einde in Brussel, het jaar alleen als het einde in een ander jaar valt", () => {
   assert.equal(periodeTekst("2026-11-16T06:00:00Z", "2026-11-20T16:00:00Z"), "van ma 16 nov tot vr 20 nov");
   assert.equal(periodeTekst("2026-11-09T23:00:00Z", "2027-01-31T22:59:00Z"), "van di 10 nov tot 31 jan 2027");
-  assert.equal(periodeTekst("", ""), "periode niet gepubliceerd");
+  assert.equal(periodeTekst("", ""), "datum niet gepubliceerd");
 });
 
-test("schrijfWervenNieuw: uit het archief op schijf; zonder werkenlaag blijft het vorige bestand staan", () => {
+test("schrijfWervenNieuw: uit het archief op schijf; zonder werkenlaag blijft het vorige bestand staan", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "werven-nieuw-"));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const archief = path.join(root, "site", "history", "archive");
   fs.mkdirSync(archief, { recursive: true });
   fs.writeFileSync(path.join(archief, "baseline.json"), JSON.stringify(baseline));

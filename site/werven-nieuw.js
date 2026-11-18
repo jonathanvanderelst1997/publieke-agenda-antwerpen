@@ -5,6 +5,7 @@
 // aangekondigd was. Per werf de titel, de straat met het huisnummer, de periode en de status. Geen opdrachtgever, geen
 // contactgegevens en geen link naar een ruw GIPOD-record (site/gipod-bron.js): één bronvermelding met de datasetfiche.
 import {GIPOD_BRON,GIPOD_METADATA_URL} from "./gipod-bron.js";
+import {onbekendZin} from "./onbekend-zinnen.js";
 
 export const WERVEN_NIEUW_BESTAND="/sources/werven-nieuw.json";
 export const WERVEN_EERST=12;
@@ -19,12 +20,12 @@ export function periodeTekst(begin,einde){
   const t=dagTekst(einde,{jaar:anderJaar});
   if(b&&t)return`van ${b} tot ${t}`;
   if(b)return`vanaf ${b}`;
-  return t?`tot ${t}`:"periode niet gepubliceerd";
+  return t?`tot ${t}`:onbekendZin("datum");
 }
 const dagLabel=(dag)=>dagTekst(`${dag}T12:00:00Z`);
 
 export function werfHtml(w){
-  const straat=(w.straten||[]).join(" · ")||"straat niet gekend";
+  const straat=(w.straten||[]).join(" · ")||onbekendZin("plek");
   return`<li class="werven-nieuw-werf"><strong>${esc(straat)}</strong><span>${esc(w.titel)}</span><small>${esc(periodeTekst(w.begin,w.einde))}${w.status?` · ${esc(w.status)}`:""}</small></li>`;
 }
 
