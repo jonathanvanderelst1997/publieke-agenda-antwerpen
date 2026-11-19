@@ -271,6 +271,9 @@ const kennis = plaatsKennis({ straten: leesGeo("straten.json"), stratenStad: lee
 test("issue #262: een route, een kaai en een wijk zijn openbare ruimte, geen gebouw", () => {
   // Een officiële straatnaam met "en" erin blijft één straat ("Plantin" telde los als gebouw).
   assert.equal(plaatsSoort("Plantin en Moretuslei, Provinciestraat en Rolwagenstraat", kennis), "openbare_ruimte");
+  // Ook midden in een opsomming met "en" (19-11-2026, de route van A-Sign in een andere volgorde).
+  assert.equal(plaatsSoort("Rolwagenstraat, Plantin en Moretuslei en Provinciestraat", kennis), "openbare_ruimte");
+  assert.equal(plaatsSoort("Provinciestraat en Plantin en Moretuslei", kennis), "openbare_ruimte");
   // Kaaien in het meervoud.
   assert.equal(plaatsSoort("Scheldekaaien Zuid, 2000 Antwerpen", kennis), "openbare_ruimte");
   // "<plek> in <district>": de wijk Rivierenhof in Deurne (wijkindeling van de stad).
