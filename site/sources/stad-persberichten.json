@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "pers.antwerpen.be: robots.txt, de RSS-feed met de tien laatste persberichten en elk persbericht, 5 s ertussen; alleen de activiteiten die een persbericht zelf aankondigt, met één datum, een plaats en een district, zonder politiek of persoonsgegevens",
-  "retrievedAt": "2026-11-18T04:24:04.297Z",
+  "retrievedAt": "2026-11-19T19:42:50.205Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,
@@ -36,7 +36,7 @@
       "infoUrl": "https://www.antwerpen.be/nl/overzicht/district-ekeren-1/nieuws/welkom-in-ekeren-sinterklaas",
       "kind": "activity",
       "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
-      "retrievedAt": "2026-11-18T04:24:04.297Z",
+      "retrievedAt": "2026-11-19T19:42:50.205Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -58,7 +58,7 @@
       "infoUrl": "https://gravenhof.antwerpen.be/aankomst-sinterklaas",
       "kind": "activity",
       "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
-      "retrievedAt": "2026-11-18T04:24:04.297Z",
+      "retrievedAt": "2026-11-19T19:42:50.205Z",
       "reviewRequired": false,
       "inDistrict": false,
       "sameAs": [
@@ -83,7 +83,7 @@
       "infoUrl": "https://www.antwerpen.be/info/635a8e3d016644c31f2f509a/groot-sintdorp-op-30-november-in-centrum-wilrijk",
       "kind": "activity",
       "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
-      "retrievedAt": "2026-11-18T04:24:04.297Z",
+      "retrievedAt": "2026-11-19T19:42:50.205Z",
       "reviewRequired": false,
       "inDistrict": false,
       "sameAs": [
@@ -107,7 +107,7 @@
       "info": "Aangekondigd in een persbericht van stad Antwerpen van 16-11-2026.",
       "kind": "activity",
       "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
-      "retrievedAt": "2026-11-18T04:24:04.297Z",
+      "retrievedAt": "2026-11-19T19:42:50.205Z",
       "reviewRequired": false,
       "inDistrict": false
     },
@@ -129,7 +129,7 @@
       "infoUrl": "https://vrijetijdscentrumdeschelde.antwerpen.be/pietenfabriek",
       "kind": "activity",
       "sourceUrl": "https://pers.antwerpen.be/hij-komt-hij-komt-in-de-antwerpse-districten-lk9vfr",
-      "retrievedAt": "2026-11-18T04:24:04.297Z",
+      "retrievedAt": "2026-11-19T19:42:50.205Z",
       "reviewRequired": false,
       "inDistrict": false
     }

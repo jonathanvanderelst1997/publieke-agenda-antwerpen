@@ -65,16 +65,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-07"
   },
-  "beukenlaan 12 2020 antwerpen": {
-   "point": [
-    4.40545,
-    51.18292
-   ],
-   "precision": "adres",
-   "street": "Beukenlaan",
-   "postcode": "2020",
-   "checkedOn": "2026-11-18"
-  },
   "beukenlaan eglantierlaan floralienlaan en 6 andere straten": {
    "point": [
     4.409,
@@ -275,6 +265,16 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
+  "gallifortlei antwerpen": {
+   "point": [
+    4.46624,
+    51.22593
+   ],
+   "precision": "straat",
+   "street": "Gallifortlei",
+   "postcode": "2100",
+   "checkedOn": "2026-11-19"
+  },
   "groenenborgerlaan": {
    "point": [
     4.41532,
@@ -474,6 +474,16 @@
    "street": "Lange Beeldekensstraat",
    "postcode": "2060",
    "checkedOn": "2026-10-26"
+  },
+  "lange koepoortstraat korte koepoortstraat en jeruzalemstraat": {
+   "point": [
+    4.40253,
+    51.22295
+   ],
+   "precision": "straat",
+   "street": "Lange Koepoortstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-19"
   },
   "lange riddersstraat 2000 antwerpen": {
    "point": [
@@ -695,16 +705,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-02"
   },
-  "sporthal de rode loop rodeloopstraat 2 2170 merksem": {
-   "point": [
-    4.44249,
-    51.25034
-   ],
-   "precision": "adres",
-   "street": "Rodeloopstraat",
-   "postcode": "2170",
-   "checkedOn": "2026-11-17"
-  },
   "stoet van kristus koningplein naar kasteel veltwijck veltwijcklaan 27 2180 ekeren": {
    "point": [
     4.42454,
@@ -795,16 +795,6 @@
    "postcode": "2040",
    "checkedOn": "2026-11-17"
   },
-  "waalsekaai gentplaats gillisplaats en 7 andere straten": {
-   "point": [
-    4.38819,
-    51.20919
-   ],
-   "precision": "straat",
-   "street": "Waalsekaai",
-   "postcode": "2000",
-   "checkedOn": "2026-11-08"
-  },
   "wim saerensplein 2100 deurne": {
    "point": [
     4.47742,
@@ -853,7 +843,6 @@
   "arenaplein 2100 deurne": "2026-11-16",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-16",
   "district borgerhout locatie via de officiele bron": "2026-11-16",
-  "district ekeren locatie via de officiele bron": "2026-11-16",
   "district wilrijk locatie via de officiele bron": "2026-11-16",
   "harmoniepark 1": "2026-11-16",
   "kastanjedreef 2050 antwerpen": "2026-11-13",
@@ -867,8 +856,8 @@
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
   "seefhoek 2060 antwerpen": "2026-11-13",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
-  "ten eeckhovelei 2100 deurne": "2026-11-16",
   "toeristisch centrum antwerpen": "2026-11-16",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07"
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07",
+  "wekelijkse openbare veiling antwerpen": "2026-11-19"
  }
 }
