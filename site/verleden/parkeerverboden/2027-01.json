@@ -97,8 +97,10 @@
 {"id":"parking:2026-060715|1193470","location":"Terliststraat, 2018 Antwerpen","start":"2027-01-11","end":"2027-01-12"},
 {"id":"parking:2026-060715|1193471","location":"Van Leriusstraat, 2018 Antwerpen","start":"2027-01-11","end":"2027-01-12"},
 {"id":"parking:2026-071120|1211742","location":"Victor Driessensstraat 20–24, 2018 Antwerpen","start":"2027-01-13","end":"2027-01-13"},
+{"id":"parking:2026-064057|1198574","location":"Orteliuskaai 1–2, 2000 Antwerpen","start":"2027-01-14","end":"2027-01-14"},
+{"id":"parking:2026-064057|1198575","location":"Orteliuskaai 4, 2000 Antwerpen","start":"2027-01-14","end":"2027-01-14"},
 {"id":"parking:2026-072137|1213322","location":"Sint-Jacobsmarkt 59A–71A, 2000 Antwerpen","start":"2026-11-26","end":"2027-01-14"},
-{"id":"parking:2026-070068|1210171","location":"Korte Leemstraat 31–41, 2018 Antwerpen","start":"2026-10-26","end":"2027-01-15"},
+{"id":"parking:2026-070068|1210171","location":"Korte Leemstraat 31–41, 2018 Antwerpen","start":"2026-10-26","end":"2027-01-15","weg":"2026-11-19"},
 {"id":"parking:2026-065397|1201447","location":"Korte Leemstraat, 2018 Antwerpen","start":"2026-10-19","end":"2027-01-15","weg":"2026-10-22"},
 {"id":"parking:2026-074664|1217037","location":"Sint-Pietersvliet 11, 2000 Antwerpen","start":"2026-11-16","end":"2027-01-15"},
 {"id":"parking:2026-049621|1176275","location":"Tabakvest 1–3, 2000 Antwerpen","start":"2026-09-07","end":"2027-01-15"},
@@ -140,7 +142,9 @@
 {"id":"parking:2026-043619|1166704","location":"Generaal Belliardstraat 22–24, 2000 Antwerpen","start":"2027-01-25","end":"2027-01-29"},
 {"id":"parking:2026-043619|1166702","location":"Generaal Belliardstraat 33–38, 2000 Antwerpen","start":"2027-01-25","end":"2027-01-29"},
 {"id":"parking:2026-071739|1212677","location":"Keizerstraat 34–38, 2000 Antwerpen","start":"2027-01-11","end":"2027-01-29"},
+{"id":"parking:2026-076080|1219071","location":"Lombardenstraat 22, 2000 Antwerpen","start":"2026-11-23","end":"2027-01-29"},
 {"id":"parking:2026-074336|1216528","location":"Ludwig Burchardstraat 43, 2050 Antwerpen","start":"2026-11-27","end":"2027-01-29"},
+{"id":"parking:2026-076080|1219070","location":"Nationalestraat 17–19, 2000 Antwerpen","start":"2026-11-23","end":"2027-01-29"},
 {"id":"parking:2025-039052|1030607","location":"Schulstraat 46–56, 2018 Antwerpen","start":"2025-07-08","end":"2027-01-29"},
 {"id":"parking:2025-039052|1030608","location":"Schulstraat 50A–61, 2018 Antwerpen","start":"2025-07-08","end":"2027-01-29"},
 {"id":"parking:2026-047375|1172630","location":"Sint-Willibrordusstraat 31, 2060 Antwerpen","start":"2026-08-20","end":"2027-01-29"},
@@ -163,5 +167,7 @@
 {"id":"parking:2026-013020|1117058","location":"Meistraat 5a, 2000 Antwerpen","start":"2026-03-18","end":"2027-01-31"},
 {"id":"parking:2026-074465|1216722","location":"Sint-Bernardsesteenweg 260, 2020 Antwerpen","start":"2026-11-18","end":"2027-01-31"},
 {"id":"parking:2026-069827|1208388","location":"Van Stralenstraat 1–5, 2060 Antwerpen","start":"2026-11-10","end":"2027-01-31","weg":"2026-11-04"},
-{"id":"parking:2026-072142|1213331","location":"Van Stralenstraat 1–5, 2060 Antwerpen","start":"2026-11-10","end":"2027-01-31"}
+{"id":"parking:2026-072142|1213331","location":"Van Stralenstraat 1–5, 2060 Antwerpen","start":"2026-11-10","end":"2027-01-31"},
+{"id":"parking:2026-074942|1217407","location":"Verlatstraat 16–18, 2000 Antwerpen","start":"2026-11-24","end":"2027-01-31"},
+{"id":"parking:2026-074942|1217408","location":"Verlatstraat 5–17, 2000 Antwerpen","start":"2026-11-24","end":"2027-01-31"}
 ]}
