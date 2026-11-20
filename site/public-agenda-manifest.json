@@ -1,57 +1,57 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-19T19:44:26.257Z",
-  "classificationAsOf": "2026-11-19",
+  "candidateGeneratedAt": "2026-11-20T04:25:06.597Z",
+  "classificationAsOf": "2026-11-20",
   "sourceCount": 936,
-  "count": 780,
-  "eventPageCount": 780,
-  "archivedEventPageCount": 393,
+  "count": 779,
+  "eventPageCount": 779,
+  "archivedEventPageCount": 394,
   "classifications": {
-    "expired": 156,
-    "current": 29,
-    "future": 751,
+    "expired": 157,
+    "current": 38,
+    "future": 741,
     "review_required": 0
   },
   "scopeCounts": {
     "district": 112,
-    "stad": 668
+    "stad": 667
   },
-  "feedGeneratedAt": "2026-11-19T19:44:26.257Z",
+  "feedGeneratedAt": "2026-11-20T04:25:06.597Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:46:26.012Z",
+      "retrievedAt": "2026-11-20T04:26:56.808Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-ebesluit",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:39:03.457Z",
+      "retrievedAt": "2026-11-20T04:19:23.836Z",
       "state": "empty"
     },
     {
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:44:17.121Z",
+      "retrievedAt": "2026-11-20T04:24:55.814Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:42:24.261Z",
+      "retrievedAt": "2026-11-20T04:23:00.690Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:38:55.976Z",
+      "retrievedAt": "2026-11-20T04:19:15.101Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:42:25.026Z",
+      "retrievedAt": "2026-11-20T04:23:01.411Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:38:43.832Z",
+      "retrievedAt": "2026-11-20T04:19:05.130Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:43:58.073Z",
+      "retrievedAt": "2026-11-20T04:24:33.868Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:43:58.073Z",
+      "retrievedAt": "2026-11-20T04:24:33.868Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:44:17.121Z",
+      "retrievedAt": "2026-11-20T04:24:55.814Z",
       "state": "fresh"
     },
     {
@@ -128,14 +128,14 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:43:53.480Z",
+      "retrievedAt": "2026-11-20T04:24:29.142Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-persberichten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-19T19:42:50.205Z",
+      "retrievedAt": "2026-11-20T04:23:26.629Z",
       "state": "fresh"
     },
     {
@@ -146,7 +146,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "69a0e806d83f5a81badc05caed0e803c532b8d74b215ec82953d67796ed8ef4e",
+  "digest": "c28bd9560c2a4f3641afc19209fba4562c06127bcc4bfeebaf5c849e0144aa7b",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -178,10 +178,9 @@
     "Schoolstraat Jan Vanhoenackerstraat",
     "100Y - NMBS",
     "De Grote Schijn 2026",
-    "Evenement in de Nationalestraat: parcours door 69 straten",
+    "Evenement in de Kammenstraat: parcours door 69 straten",
     "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
-    "VOLZET - Zwarte september – Sandro Veronesi",
     "Gemengde markt Michel Willemsplein",
     "VRIJDAGMARKT Wekelijkse openbare veiling",
     "Gemengde markt Sint-Jansplein",
