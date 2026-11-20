@@ -265,7 +265,7 @@
    "postcode": "2050",
    "checkedOn": "2026-10-05"
   },
-  "gallifortlei antwerpen": {
+  "gallifortlei 2100 deurne": {
    "point": [
     4.46624,
     51.22593
@@ -273,7 +273,7 @@
    "precision": "straat",
    "street": "Gallifortlei",
    "postcode": "2100",
-   "checkedOn": "2026-11-19"
+   "checkedOn": "2026-11-20"
   },
   "groenenborgerlaan": {
    "point": [
@@ -475,16 +475,6 @@
    "postcode": "2060",
    "checkedOn": "2026-10-26"
   },
-  "lange koepoortstraat korte koepoortstraat en jeruzalemstraat": {
-   "point": [
-    4.40253,
-    51.22295
-   ],
-   "precision": "straat",
-   "street": "Lange Koepoortstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-11-19"
-  },
   "lange riddersstraat 2000 antwerpen": {
    "point": [
     4.39666,
@@ -534,6 +524,16 @@
    "street": "Michel Willemsplein",
    "postcode": "2610",
    "checkedOn": "2026-10-05"
+  },
+  "montebellostraat": {
+   "point": [
+    4.40883,
+    51.20825
+   ],
+   "precision": "straat",
+   "street": "Montebellostraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-20"
   },
   "montignystraat 3 fransenplaats 1 2018 antwerpen": {
    "point": [
@@ -595,16 +595,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-07"
   },
-  "plantin en moretuslei provinciestraat en rolwagenstraat": {
-   "point": [
-    4.43215,
-    51.20919
-   ],
-   "precision": "straat",
-   "street": "Plantin en Moretuslei",
-   "postcode": "2018",
-   "checkedOn": "2026-11-15"
-  },
   "provinciehuis antwerpen koningin elisabethlei 22 2018 antwerpen": {
    "point": [
     4.41022,
@@ -614,6 +604,16 @@
    "street": "Koningin Elisabethlei",
    "postcode": "2018",
    "checkedOn": "2026-11-04"
+  },
+  "rolwagenstraat plantin en moretuslei en provinciestraat": {
+   "point": [
+    4.42641,
+    51.20899
+   ],
+   "precision": "straat",
+   "street": "Rolwagenstraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-20"
   },
   "rooiplein 2600 berchem": {
    "point": [
@@ -644,6 +644,16 @@
    "street": "Schijnpoortweg",
    "postcode": "2060",
    "checkedOn": "2026-11-07"
+  },
+  "sint catharinaplein auguste oleffestraat sint bernardsesteenweg en 1 andere straten": {
+   "point": [
+    4.38016,
+    51.19289
+   ],
+   "precision": "straat",
+   "street": "Sint-Catharinaplein",
+   "postcode": "2020",
+   "checkedOn": "2026-11-20"
   },
   "sint franciscusplein 2170 merksem": {
    "point": [
@@ -858,6 +868,6 @@
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
   "toeristisch centrum antwerpen": "2026-11-16",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07",
-  "wekelijkse openbare veiling antwerpen": "2026-11-19"
+  "wekelijkse openbare veiling 2000 antwerpen": "2026-11-20"
  }
 }

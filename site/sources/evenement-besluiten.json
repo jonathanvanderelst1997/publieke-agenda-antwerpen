@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-19T19:44:17.121Z",
+  "generatedAt": "2026-11-20T04:24:55.814Z",
   "venster": {
-    "van": "2026-09-20",
-    "tot": "2027-03-19"
+    "van": "2026-09-21",
+    "tot": "2027-03-20"
   },
   "zoektermen": [
     "Evenementen",
