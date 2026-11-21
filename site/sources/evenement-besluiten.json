@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-20T04:24:55.814Z",
+  "generatedAt": "2026-11-21T04:25:15.480Z",
   "venster": {
-    "van": "2026-09-21",
-    "tot": "2027-03-20"
+    "van": "2026-09-22",
+    "tot": "2027-03-21"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 44,
-    "gelezen": 30,
+    "besluiten": 43,
+    "gelezen": 28,
     "teLezen": 0,
-    "metDag": 25,
-    "inDistrict": 24,
-    "agendapunten": 21
+    "metDag": 23,
+    "inDistrict": 22,
+    "agendapunten": 19
   },
   "besluiten": [
     {
@@ -55,29 +55,6 @@
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.4086.9111/agendapunten/26.0817.0256.1639"
     },
     {
-      "id": "26.0915.9651.3659",
-      "code": "2026_DCAN_00606",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-09-21",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
-      "organisator": null,
-      "dagen": [],
-      "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0915.9651.3659"
-    },
-    {
       "id": "26.0911.9405.4945",
       "code": "2026_DCAN_00607",
       "soort": "districtsfonds",
@@ -106,67 +83,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0911.1397.5991",
-      "code": "2026_DCAN_00608",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-09-21",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "2060 United Feest!",
-      "organisator": "2026 United vzw",
-      "dagen": [
-        "2026-10-03"
-      ],
-      "uren": null,
-      "plaats": "Schoolplak, 2060 Antwerpen",
-      "straten": [
-        "Schoolplak"
-      ],
-      "postcodes": [
-        "2060"
-      ],
-      "inDistrict": true,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.1397.5991",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0918.1193.3542",
-      "code": "2026_DRAN_00184",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtsraad Antwerpen",
-      "zitting": "2026-09-21",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Heropening Anselmostraat",
-      "organisator": "Winkeliersvereniging de Anselmostraat vzw",
-      "dagen": [
-        "2026-10-17"
-      ],
-      "uren": null,
-      "plaats": "Anselmostraat, Lange Lozanastraat, 2018 Antwerpen",
-      "straten": [
-        "Anselmostraat",
-        "Lange Lozanastraat"
-      ],
-      "postcodes": [
-        "2018"
-      ],
-      "inDistrict": true,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0722.0739.2900/agendapunten/26.0918.1193.3542",
       "leesversie": 3
     },
     {
@@ -1411,6 +1327,52 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1103.3026.0968"
+    },
+    {
+      "id": "26.1117.7678.5978",
+      "code": "2026_DCAN_00743",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-23",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0848.6954/agendapunten/26.1117.7678.5978"
+    },
+    {
+      "id": "26.1116.2667.0849",
+      "code": "2026_DCAN_00744",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-23",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "SAAMO Antwerpen vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0848.6954/agendapunten/26.1116.2667.0849"
     }
   ]
 }
