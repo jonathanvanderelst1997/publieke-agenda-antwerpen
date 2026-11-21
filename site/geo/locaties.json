@@ -35,16 +35,6 @@
    "postcode": "2000",
    "checkedOn": "2026-11-07"
   },
-  "belegstraat broederminstraat haantjeslei en 4 andere straten": {
-   "point": [
-    4.39532,
-    51.20495
-   ],
-   "precision": "straat",
-   "street": "Belegstraat",
-   "postcode": "2018",
-   "checkedOn": "2026-10-12"
-  },
   "belgielei antoon van dyckstraat breughelstraat en 24 andere straten": {
    "point": [
     4.41401,
@@ -545,16 +535,6 @@
    "postcode": "2018",
    "checkedOn": "2026-11-13"
   },
-  "nationalestraat arenbergstraat armeduivelstraat en 66 andere straten": {
-   "point": [
-    4.39937,
-    51.21648
-   ],
-   "precision": "straat",
-   "street": "Nationalestraat",
-   "postcode": "2000",
-   "checkedOn": "2026-11-08"
-  },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
     4.40911,
@@ -847,27 +827,26 @@
   }
  },
  "misses": {
-  "2000 en 2018 antwerpen": "2026-11-07",
+  "2000 en 2018 antwerpen": "2026-11-21",
   "2060 antwerpen": "2026-11-16",
   "a bib merksem parkweg 1": "2026-11-18",
   "arenaplein 2100 deurne": "2026-11-16",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-16",
   "district borgerhout locatie via de officiele bron": "2026-11-16",
   "district wilrijk locatie via de officiele bron": "2026-11-16",
-  "harmoniepark 1": "2026-11-16",
   "kastanjedreef 2050 antwerpen": "2026-11-13",
-  "korte scholierstraat antwerpen": "2026-11-07",
-  "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-07",
-  "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-07",
-  "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-07",
+  "korte scholierstraat antwerpen": "2026-11-21",
+  "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-21",
+  "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-21",
+  "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-21",
   "rivierenhof in deurne": "2026-11-13",
   "scheldekaaien zuid 2000 antwerpen": "2026-11-13",
-  "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-07",
-  "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-07",
+  "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-21",
+  "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-21",
   "seefhoek 2060 antwerpen": "2026-11-13",
-  "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-07",
+  "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-21",
   "toeristisch centrum antwerpen": "2026-11-16",
-  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-07",
+  "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-21",
   "wekelijkse openbare veiling 2000 antwerpen": "2026-11-20"
  }
 }
