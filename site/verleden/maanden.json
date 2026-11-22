@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "sinds": "2026-08-13",
-  "bijgewerkt": "2026-11-21",
-  "aantal": 1177,
+  "bijgewerkt": "2026-11-22",
+  "aantal": 1180,
   "maanden": [
     {
       "maand": "2026-06",
@@ -32,7 +32,7 @@
     {
       "maand": "2026-12",
       "aantal": 160,
-      "digest": "ee879f37bb808e00b39eb6c44beeeac369235835295b1cad1c0e0208d5e39b57"
+      "digest": "a390cb8bbfb1d06fb93a78d65b5710797b9beeb412d183dd299cb03819f7b4de"
     },
     {
       "maand": "2027-01",
@@ -56,8 +56,8 @@
     },
     {
       "maand": "2027-05",
-      "aantal": 85,
-      "digest": "2cefa727a42014287ddf439af47c3ffca01393ba6ad8762c7e4d871ad01b8531"
+      "aantal": 88,
+      "digest": "c995cadebf252210047f23c62a33a02f33c332041143bbce94bc0b96ca94c5d1"
     },
     {
       "maand": "2027-06",
