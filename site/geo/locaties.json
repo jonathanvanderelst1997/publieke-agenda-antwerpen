@@ -645,16 +645,6 @@
    "postcode": "2170",
    "checkedOn": "2026-10-05"
   },
-  "sint jacobstraat groenkerkhofstraat groenplaats en 7 andere straten": {
-   "point": [
-    4.40991,
-    51.22055
-   ],
-   "precision": "straat",
-   "street": "Sint-Jacobstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-12"
-  },
   "sint jansplein 2060 antwerpen": {
    "point": [
     4.41789,

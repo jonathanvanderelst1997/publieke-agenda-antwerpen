@@ -1,0 +1,5614 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-22",
+  "events": [
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "iod:ET2025006049|DEMOLITION|iodet_270642",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "iod:ET2025006049|DEMOLITION|iodet_270642",
+        "kind": "iod",
+        "kindLabel": "Inname openbaar domein",
+        "title": "Inname",
+        "location": "",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "aanvraag_goedgekeurd",
+        "reference": "ET2025006049",
+        "detail": "Fase Afbraak",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "iod:ET2025006049|EVENT|iodet_270643",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "iod:ET2025006049|EVENT|iodet_270643",
+        "kind": "iod",
+        "kindLabel": "Inname openbaar domein",
+        "title": "Inname",
+        "location": "",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "aanvraag_goedgekeurd",
+        "reference": "ET2025006049",
+        "detail": "Fase Evenement",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "iod:ET2025006907|EVENT|iodet_207589",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "iod:ET2025006907|EVENT|iodet_207589",
+        "kind": "iod",
+        "kindLabel": "Inname openbaar domein",
+        "title": "Inname",
+        "location": "",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "aanvraag_goedgekeurd",
+        "reference": "ET2025006907",
+        "detail": "Fase Evenement",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-055952|1186156",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-055952|1186156",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Nationalestraat 123–139, 2000 Antwerpen",
+        "start": "2026-11-09T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-055952",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2102",
+            "name": "Nationalestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-063820|1198230",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-063820|1198230",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Hopland 2–14, 2000 Antwerpen",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-063820",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1224",
+            "name": "Hopland",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-064898|1199900",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-064898|1199900",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Frankrijklei, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-064898",
+        "detail": "",
+        "streets": [
+          {
+            "id": "879",
+            "name": "Frankrijklei",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-064899|1199901",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-064899|1199901",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Congresstraat 28–34, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-064899",
+        "detail": "",
+        "streets": [
+          {
+            "id": "546",
+            "name": "Congresstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065358|1201402",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065358|1201402",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lamorinièrestraat 204–208, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-065358",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1723",
+            "name": "Lamorinièrestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-065750|1201915",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-065750|1201915",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Marnixstraat 24–26, 2060 Antwerpen",
+        "start": "2026-10-12T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-065750",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1958",
+            "name": "Marnixstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066517|1203024",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066517|1203024",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Olijftakstraat 6, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066517",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2147",
+            "name": "Olijftakstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-066897|1203757",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-066897|1203757",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Anselmostraat 23–27, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-066897",
+        "detail": "",
+        "streets": [
+          {
+            "id": "197",
+            "name": "Anselmostraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-067600|1204771",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-067600|1204771",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Fourmentstraat 30–34, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-067600",
+        "detail": "",
+        "streets": [
+          {
+            "id": "873",
+            "name": "Fourmentstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068149|1205624",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068149|1205624",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Wipstraat 17–25, 2018 Antwerpen",
+        "start": "2026-11-18T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-068149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3232",
+            "name": "Wipstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068149|1205625",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068149|1205625",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Bosduifstraat 14–20, 2018 Antwerpen",
+        "start": "2026-11-18T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-068149",
+        "detail": "",
+        "streets": [
+          {
+            "id": "412",
+            "name": "Bosduifstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-068434|1206143",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-068434|1206143",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Pacificatiestraat 27–35, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-068434",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2226",
+            "name": "Pacificatiestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069221|1207333",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069221|1207333",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lindeboomstraat 22–28, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069221",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1837",
+            "name": "Lindeboomstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-069534|1207985",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-069534|1207985",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Markgravelei 150–158, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-069534",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1951",
+            "name": "Markgravelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-070284|1210508",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-070284|1210508",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Herderstraat 6–8, 2060 Antwerpen",
+        "start": "2026-11-02T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-070284",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1170",
+            "name": "Herderstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-070500|1210872",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-070500|1210872",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Bosmanslei 35, 2018 Antwerpen",
+        "start": "2026-10-30T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-070500",
+        "detail": "",
+        "streets": [
+          {
+            "id": "415",
+            "name": "Bosmanslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-070532|1210907",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-070532|1210907",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Tentoonstellingslaan 24–26, 2020 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-070532",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2798",
+            "name": "Tentoonstellingslaan",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-070983|1211510",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-070983|1211510",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Lobroekstraat 177, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-070983",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1743",
+            "name": "Lange Lobroekstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-070983|1212114",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-070983|1212114",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Lobroekstraat 165–173, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-070983",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1743",
+            "name": "Lange Lobroekstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071088|1211669",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071088|1211669",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Zonnewijzerstraat, 2018 Antwerpen",
+        "start": "2026-11-09T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-071088",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3296",
+            "name": "Zonnewijzerstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071315|1212073",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071315|1212073",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Putlei 44, 2018 Antwerpen",
+        "start": "2026-10-30T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-071315",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2973",
+            "name": "Van Putlei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071421|1212253",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071421|1212253",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Haantjeslei 126–130, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-071421",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1086",
+            "name": "Haantjeslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071630|1212513",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071630|1212513",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Welvaartstraat 45–49, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-071630",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3171",
+            "name": "Welvaartstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071847|1212816",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071847|1212816",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Jules De Bruyckerstraat 1–5, 2020 Antwerpen",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-071847",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1391",
+            "name": "Jules De Bruyckerstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-071999|1213055",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-071999|1213055",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Jan Van Rijswijcklaan 85–87, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-071999",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1323",
+            "name": "Jan Van Rijswijcklaan",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072104|1213282",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072104|1213282",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Jan Van Rijswijcklaan 96–98, 2018 Antwerpen",
+        "start": "2026-11-09T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-072104",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1323",
+            "name": "Jan Van Rijswijcklaan",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072352|1213727",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072352|1213727",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Cuylitsstraat 2–8, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-072352",
+        "detail": "",
+        "streets": [
+          {
+            "id": "577",
+            "name": "Cuylitsstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072395|1213776",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072395|1213776",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Grotebeerstraat 73–77, 2018 Antwerpen",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-072395",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1069",
+            "name": "Grotebeerstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072786|1214236",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072786|1214236",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lambermontplaats 28–29, 2000 Antwerpen",
+        "start": "2026-11-06T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-072786",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1715",
+            "name": "Lambermontplaats",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072815|1214278",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072815|1214278",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Kapucinessenstraat 40–42, 2000 Antwerpen",
+        "start": "2026-11-16T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-072815",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1435",
+            "name": "Kapucinessenstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072953|1214454",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072953|1214454",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ballaarstraat 6–12, 2018 Antwerpen",
+        "start": "2026-11-16T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-072953",
+        "detail": "",
+        "streets": [
+          {
+            "id": "260",
+            "name": "Ballaarstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072961|1214465",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072961|1214465",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Charlottalei 1–5, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-072961",
+        "detail": "",
+        "streets": [
+          {
+            "id": "520",
+            "name": "Charlottalei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072981|1214487",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072981|1214487",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Dolfijnstraat, 2018 Antwerpen",
+        "start": "2026-11-18T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-072981",
+        "detail": "",
+        "streets": [
+          {
+            "id": "697",
+            "name": "Dolfijnstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-072984|1214490",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-072984|1214490",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Maatsstraat 32–42, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-072984",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1913",
+            "name": "Maatsstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-073567|1215379",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-073567|1215379",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ieperstraat 14–20, 2018 Antwerpen",
+        "start": "2026-11-09T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-073567",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1245",
+            "name": "Ieperstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-073791|1215708",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-073791|1215708",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Zeilstraat 16–20, 2060 Antwerpen",
+        "start": "2026-11-16T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-073791",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3274",
+            "name": "Zeilstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074016|1216014",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074016|1216014",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Stadionstraat 70–78, 2020 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074016",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2713",
+            "name": "Stadionstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074087|1216097",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074087|1216097",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Columbiastraat 60–72, 2030 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074087",
+        "detail": "",
+        "streets": [
+          {
+            "id": "539",
+            "name": "Columbiastraat",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074439|1216688",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074439|1216688",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Koningstraat 7–13, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074439",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1597",
+            "name": "Koningstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074545|1216853",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074545|1216853",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Korte Altaarstraat, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074545",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1611",
+            "name": "Korte Altaarstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074697|1217090",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074697|1217090",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Camille Huysmanslaan 45B, 2020 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074697",
+        "detail": "",
+        "streets": [
+          {
+            "id": "500",
+            "name": "Camille Huysmanslaan",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074760|1217192",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074760|1217192",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Oranjestraat 114–120, 2060 Antwerpen",
+        "start": "2026-11-18T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-074760",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2174",
+            "name": "Oranjestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074772|1217210",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074772|1217210",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Moonsstraat 30–34, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074772",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2064",
+            "name": "Moonsstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074842|1217288",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074842|1217288",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Mechelsesteenweg 204–206, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074842",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074848|1217294",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074848|1217294",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Dambruggestraat 96–102, 2060 Antwerpen",
+        "start": "2026-11-18T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "In effect",
+        "reference": "2026-074848",
+        "detail": "",
+        "streets": [
+          {
+            "id": "583",
+            "name": "Dambruggestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074872|1217323",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074872|1217323",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Haringrodestraat 52–54, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074872",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1117",
+            "name": "Haringrodestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074873|1217324",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074873|1217324",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Eycklei 2–3, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074873",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2941",
+            "name": "Van Eycklei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074890|1217343",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074890|1217343",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Italiëlei 24–32, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074890",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1270",
+            "name": "Italiëlei",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-074971|1217444",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-074971|1217444",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Arthur Goemaerelei 46–48, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-074971",
+        "detail": "",
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075001|1217487",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075001|1217487",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Mechelsesteenweg 216, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075001",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075121|1217709",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075121|1217709",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Elzenstraat 44–46, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075121",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1734",
+            "name": "Lange Elzenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075303|1217959",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075303|1217959",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Kasteelstraat 50–54, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075303",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1472",
+            "name": "Kasteelstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075432|1218151",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075432|1218151",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Ballaarstraat 93–99, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075432",
+        "detail": "",
+        "streets": [
+          {
+            "id": "260",
+            "name": "Ballaarstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075456|1218183",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075456|1218183",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lambermontstraat 17–25, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075456",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1716",
+            "name": "Lambermontstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075517|1218247",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075517|1218247",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Steenbokstraat 26–28, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075517",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2729",
+            "name": "Steenbokstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075546|1218277",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075546|1218277",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Sint-Michielskaai 13–14, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075546",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2646",
+            "name": "Sint-Michielskaai",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075581|1218318",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075581|1218318",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Mechelsesteenweg 137–141, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075581",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075614|1218354",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075614|1218354",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Bosmanslei 19, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075614",
+        "detail": "",
+        "streets": [
+          {
+            "id": "415",
+            "name": "Bosmanslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075635|1218376",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075635|1218376",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Limburgstraat 70–80, 2020 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075635",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1835",
+            "name": "Limburgstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075786|1218649",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075786|1218649",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Willem Klooslaan 16–18, 2050 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075786",
+        "detail": "",
+        "streets": [
+          {
+            "id": "3205",
+            "name": "Willem Klooslaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075811|1218683",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075811|1218683",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Van Ruusbroecstraat 87, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075811",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1756",
+            "name": "Lange Van Ruusbroecstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075811|1218686",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075811|1218686",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Lange Van Ruusbroecstraat 76, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075811",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1756",
+            "name": "Lange Van Ruusbroecstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075910|1218808",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075910|1218808",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Edward Pecherstraat 23–29, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075910",
+        "detail": "",
+        "streets": [
+          {
+            "id": "761",
+            "name": "Edward Pecherstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-075968|1218895",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-075968|1218895",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Rudolfstraat 42–56, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-075968",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2493",
+            "name": "Rudolfstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076016|1218985",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076016|1218985",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Geertstraat 79–81, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076016",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2942",
+            "name": "Van Geertstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076050|1219025",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076050|1219025",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Landbouwstraat 41–45, 2020 Antwerpen",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076050",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1724",
+            "name": "Landbouwstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076143|1219169",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076143|1219169",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Tweelingenstraat 92–98, 2018 Antwerpen",
+        "start": "2026-11-20T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076143",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2875",
+            "name": "Tweelingenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076223|1219280",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076223|1219280",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Hemelstraat 31–37, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076223",
+        "detail": "",
+        "streets": [
+          {
+            "id": "1150",
+            "name": "Hemelstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076397|1219516",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076397|1219516",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Prekersstraat 41–51, 2000 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076397",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2357",
+            "name": "Prekersstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076581|1219766",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076581|1219766",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Van Stralenstraat 38–42, 2060 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076581",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2984",
+            "name": "Van Stralenstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "parking:2026-076715|1219932",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "parking:2026-076715|1219932",
+        "kind": "parking",
+        "kindLabel": "Parkeerverbod",
+        "title": "Parkeerverbod",
+        "location": "Rubenslei 28A, 2018 Antwerpen",
+        "start": "2026-11-21T00:00:00.000Z",
+        "end": "2026-11-21T00:00:00.000Z",
+        "status": "Goedgekeurd",
+        "reference": "2026-076715",
+        "detail": "",
+        "streets": [
+          {
+            "id": "2490",
+            "name": "Rubenslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 0
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-005757|40046",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-005757|40046",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-20T17:00:00.000Z",
+        "end": "2026-11-21T04:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-005757",
+        "detail": "Fase 40046",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006059|40632",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-006059|40632",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-21T06:00:00.000Z",
+        "end": "2026-11-21T16:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006059",
+        "detail": "Fase 40632",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "publicSpace",
+      "id": "sgw:GW2026-006193|40871",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "sgw:GW2026-006193|40871",
+        "kind": "sgw",
+        "kindLabel": "Omleiding + Werfzone",
+        "title": "Omleiding + Werfzone",
+        "location": "",
+        "start": "2026-11-21T09:00:00.000Z",
+        "end": "2026-11-21T11:00:00.000Z",
+        "status": "vergund",
+        "reference": "GW2026-006193",
+        "detail": "Fase 40871",
+        "streets": [],
+        "streetResolution": "unresolved",
+        "streetDistanceMeters": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:15636253",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:15636253",
+        "gipodId": 15636253,
+        "title": "2018 ANTWERPEN BELEGSTRAAT E, G, OV Klantaansluiting, Initiatief Regio (lengte: 872m)",
+        "status": "In uitvoering",
+        "start": "2026-05-05T22:01:00Z",
+        "end": "2026-11-20T22:59:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet;klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit;Olie, gas, chemicaliën;Openbare verlichting"
+        ],
+        "streets": [
+          {
+            "id": "292",
+            "name": "Belegstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:17190864",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2027-03-05T16:00:00Z",
+        "start": "2026-11-22T06:00:00Z"
+      },
+      "after": {
+        "end": "2027-03-06T16:00:00Z",
+        "start": "2026-11-23T06:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:17921839",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:17921839",
+        "gipodId": 17921839,
+        "title": "2018 ANTWERPEN ARTHUR GOEMAERELEI OV, Gemeente overgenomen (Verledding) (lengte: 1137m)",
+        "status": "In uitvoering",
+        "start": "2026-09-30T22:01:00Z",
+        "end": "2026-11-20T22:59:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Openbare verlichting"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 0,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:17985259",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2027-02-24T16:00:00Z",
+        "start": "2026-11-22T06:00:00Z"
+      },
+      "after": {
+        "end": "2027-02-25T16:00:00Z",
+        "start": "2026-11-23T06:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:17987254",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-30T16:00:00Z",
+        "start": "2026-11-22T06:00:00Z"
+      },
+      "after": {
+        "end": "2026-12-01T16:00:00Z",
+        "start": "2026-11-23T06:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:17991607",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:17991607",
+        "gipodId": 17991607,
+        "title": "2018 Antwerpen - (Antwerpen) - Haringrodestraat - 35 - werken aan nutsleiding - 186m.",
+        "status": "In uitvoering",
+        "start": "2026-08-26T04:21:00Z",
+        "end": "2026-11-20T16:00:00Z",
+        "owner": "Wyre",
+        "ownerGroup": "Telecom / kabel",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1117",
+            "name": "Haringrodestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 153,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:18179049",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2027-05-24T04:00:00Z",
+        "start": "2026-11-20T20:00:00Z"
+      },
+      "after": {
+        "end": "2027-05-25T04:00:00Z",
+        "start": "2026-11-21T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:18179051",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2027-05-24T04:00:00Z",
+        "start": "2026-11-20T20:00:00Z"
+      },
+      "after": {
+        "end": "2027-05-25T04:00:00Z",
+        "start": "2026-11-21T20:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:18718733",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2028-05-22T15:00:00Z",
+        "start": "2026-11-22T06:00:00Z"
+      },
+      "after": {
+        "end": "2028-05-23T15:00:00Z",
+        "start": "2026-11-23T06:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:18830831",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-11-14T06:00:00Z",
+          "end": "2027-02-03T14:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2027-02-03T08:00:00Z",
+          "end": "2027-02-03T14:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:19181363",
+      "type": "changed",
+      "fields": [
+        "end"
+      ],
+      "before": {
+        "end": "2026-11-22T16:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-23T16:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:19831058",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-19T06:00:00Z",
+          "end": "2027-07-09T15:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-21T06:00:00Z",
+          "end": "2027-07-09T15:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20492197",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20492197",
+        "gipodId": 20492197,
+        "title": "2018 ANTWERPEN HAANTJESLEI OV, Gemeente overgenomen (Verledding)",
+        "status": "In uitvoering",
+        "start": "2026-11-11T23:01:00Z",
+        "end": "2026-11-20T22:59:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "exact_snapshot",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Openbare verlichting"
+        ],
+        "streets": [
+          {
+            "id": "217510",
+            "name": "Harmoniepark",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 19,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20572609",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20572609",
+        "gipodId": 20572609,
+        "title": "2018 Antwerpen - (Antwerpen) - Mechelsesteenweg - 66 - werken aan nutsleiding - 13m.",
+        "status": "Concreet gepland",
+        "start": "2026-11-16T06:00:00Z",
+        "end": "2026-11-20T16:00:00Z",
+        "owner": "Wyre",
+        "ownerGroup": "Telecom / kabel",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Versmalde rijstroken"
+          ],
+          "start": "2026-11-22T23:00:00Z",
+          "end": "2026-11-25T22:59:00Z"
+        }
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20619832",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20619832",
+        "gipodId": 20619832,
+        "title": "2000 Antwerpen - Lange Riddersstraat – Wegeniswerken",
+        "status": "Concreet gepland",
+        "start": "2026-11-08T23:00:00Z",
+        "end": "2026-11-20T23:00:00Z",
+        "owner": "Stad Antwerpen - Stadsontwikkeling",
+        "ownerGroup": "Stad Antwerpen",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "toplaag;voetpadvernieuwing;fundering;(her)aanleg"
+        ],
+        "occupancyTypes": [
+          "Wegeniswerken"
+        ],
+        "streets": [
+          {
+            "id": "1748",
+            "name": "Lange Riddersstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": {
+          "severe": true,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Geen doorgang voor fietsers",
+            "Geen doorgang voor gemotoriseerd verkeer"
+          ],
+          "start": "2026-11-30T06:00:00Z",
+          "end": "2026-11-30T16:00:00Z"
+        }
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20700173",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20700173",
+        "gipodId": 20700173,
+        "title": "2030 Antwerpen - Azobestraat 3 - Azobestraat trenching in open sleuf - kruising Vrieskaai door middel van een doorsteek in open sleuf.",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T23:00:00Z",
+        "end": "2026-11-20T23:00:00Z",
+        "owner": "Eurofiber CAS-VOS",
+        "ownerGroup": "Telecom / kabel",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "253",
+            "name": "Azobestraat",
+            "postcode": "2030"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20759538",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Versmalde rijstroken"
+          ],
+          "start": "2026-11-06T06:00:00Z",
+          "end": "2027-04-30T15:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers",
+            "Versmalde rijstroken"
+          ],
+          "start": "2026-11-21T06:00:00Z",
+          "end": "2027-04-30T15:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20792713",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20841207",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor fietsers",
+            "Beperkte doorgang voor voetgangers"
+          ],
+          "start": "2026-11-20T06:00:00Z",
+          "end": "2026-11-24T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor fietsers",
+            "Beperkte doorgang voor voetgangers"
+          ],
+          "start": "2026-11-23T06:00:00Z",
+          "end": "2026-11-24T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20854222",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20854222",
+        "gipodId": 20854222,
+        "title": "Inname – Jan van Lierstraat",
+        "status": "In uitvoering",
+        "start": "2026-11-21T09:00:00Z",
+        "end": "2026-11-21T11:00:00Z",
+        "owner": "Stad Antwerpen",
+        "ownerGroup": "Stad Antwerpen",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Inname"
+        ],
+        "streets": [
+          {
+            "id": "1321",
+            "name": "Jan van Lierstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 3,
+        "hindrance": {
+          "severe": false,
+          "consequences": [
+            "Beperkte doorgang voor voetgangers"
+          ],
+          "start": "2026-11-21T09:00:00Z",
+          "end": "2026-11-21T11:00:00Z"
+        }
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20860909",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-27T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-30T21:00:00Z",
+        "start": "2026-11-23T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20867545",
+      "type": "changed",
+      "fields": [
+        "hindrance"
+      ],
+      "before": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-11-20T06:00:00Z",
+          "end": "2026-11-23T16:00:00Z"
+        }
+      },
+      "after": {
+        "hindrance": {
+          "severe": false,
+          "consequences": [],
+          "start": "2026-11-23T06:00:00Z",
+          "end": "2026-11-23T16:00:00Z"
+        }
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20879044",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20888118",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20888118",
+        "gipodId": 20888118,
+        "title": "2060 ANTWERPEN, KERKSTRAAT 59",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius Site Antwerpen",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "1514",
+            "name": "Kerkstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20892487",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20892487",
+        "gipodId": 20892487,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Van Meterenkaai 1",
+        "status": "Concreet gepland",
+        "start": "2026-11-24T01:00:00Z",
+        "end": "2026-12-01T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "2964",
+            "name": "Van Meterenkaai",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20933474",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20933474",
+        "gipodId": 20933474,
+        "title": "Nieuwe aansluiting op het gasnet – Kloosterstraat 181",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "1569",
+            "name": "Kloosterstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20935195",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20938415",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20939838",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20939838",
+        "gipodId": 20939838,
+        "title": "2060 Antwerpen Van Stralenstraat 1 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-20T08:00:00Z",
+        "end": "2026-11-20T16:30:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "2984",
+            "name": "Van Stralenstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 16,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20945229",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20945229",
+        "gipodId": 20945229,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Kampioenstraat 3",
+        "status": "Concreet gepland",
+        "start": "2026-12-31T01:00:00Z",
+        "end": "2027-01-07T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "1417",
+            "name": "Kampioenstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20945386",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-25T21:00:00Z",
+        "start": "2026-11-18T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20952186",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20952186",
+        "gipodId": 20952186,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Lamorinièrestraat 246",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "1723",
+            "name": "Lamorinièrestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20964671",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20964671",
+        "gipodId": 20964671,
+        "title": "2000 Antwerpen - (Antwerpen) - Kasteelstraat - 55 - werken aan nutsleiding - 3m.",
+        "status": "Concreet gepland",
+        "start": "2026-11-20T06:00:00Z",
+        "end": "2026-11-20T16:00:00Z",
+        "owner": "Wyre",
+        "ownerGroup": "Telecom / kabel",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1472",
+            "name": "Kasteelstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20972149",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20972149",
+        "gipodId": 20972149,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Albrecht Dürerstraat 22",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "159",
+            "name": "Albrecht Dürerstraat",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20972150",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:20972150",
+        "gipodId": 20972150,
+        "title": "Nieuwe aansluiting op het gasnet – Albrecht Dürerstraat 22",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "159",
+            "name": "Albrecht Dürerstraat",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20972418",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20972418",
+        "gipodId": 20972418,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 61",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "736",
+            "name": "Duboisstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20972419",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20972419",
+        "gipodId": 20972419,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 71",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "736",
+            "name": "Duboisstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20972425",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20972425",
+        "gipodId": 20972425,
+        "title": "Nieuwe aansluiting op het gasnet – Duboisstraat 71",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "736",
+            "name": "Duboisstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20988224",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20988224",
+        "gipodId": 20988224,
+        "title": "Nutswerken met een hoogtewerker – Pyckestraat 54",
+        "status": "In uitvoering",
+        "start": "2026-11-17T23:00:00Z",
+        "end": "2026-11-24T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2385",
+            "name": "Pyckestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20990096",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20990096",
+        "gipodId": 20990096,
+        "title": "Werken aan gas en elektriciteit – Sint-Antoniusstraat 28",
+        "status": "In uitvoering",
+        "start": "2026-11-13T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit;Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "2611",
+            "name": "Sint-Antoniusstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20990394",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20990394",
+        "gipodId": 20990394,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 33",
+        "status": "Concreet gepland",
+        "start": "2026-11-14T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20990397",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20990397",
+        "gipodId": 20990397,
+        "title": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 33",
+        "status": "Concreet gepland",
+        "start": "2026-11-14T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20994591",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20994599",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20995095",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20995095",
+        "gipodId": 20995095,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Dambruggestraat 332",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "583",
+            "name": "Dambruggestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20995096",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20995096",
+        "gipodId": 20995096,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Essenstraat 13",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "816",
+            "name": "Essenstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 3,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20995274",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20995274",
+        "gipodId": 20995274,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Bosmanslei 5",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-20T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "415",
+            "name": "Bosmanslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20995373",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20995373",
+        "gipodId": 20995373,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Trapstraat 27",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "2852",
+            "name": "Trapstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:20995374",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:20995374",
+        "gipodId": 20995374,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Trapstraat 29",
+        "status": "Concreet gepland",
+        "start": "2026-11-15T01:00:00Z",
+        "end": "2026-11-21T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "2852",
+            "name": "Trapstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21003836",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-25T21:00:00Z",
+        "start": "2026-11-18T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21003837",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-25T21:00:00Z",
+        "start": "2026-11-18T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21003840",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-25T21:00:00Z",
+        "start": "2026-11-18T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21003841",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-25T21:00:00Z",
+        "start": "2026-11-18T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21007202",
+      "type": "changed",
+      "fields": [
+        "end"
+      ],
+      "before": {
+        "end": "2026-11-24T12:06:00Z"
+      },
+      "after": {
+        "end": "2026-11-24T16:12:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21011367",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-20T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-27T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21025582",
+      "type": "changed",
+      "fields": [
+        "end",
+        "start"
+      ],
+      "before": {
+        "end": "2026-11-26T21:00:00Z",
+        "start": "2026-11-21T01:00:00Z"
+      },
+      "after": {
+        "end": "2026-11-28T21:00:00Z",
+        "start": "2026-11-22T01:00:00Z"
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21028053",
+      "type": "removed",
+      "fields": [],
+      "before": {
+        "id": "work:21028053",
+        "gipodId": 21028053,
+        "title": "2018 Antwerpen Lange Lozanastraat 2 werken distributieleiding)",
+        "status": "In uitvoering",
+        "start": "2026-11-20T09:54:00Z",
+        "end": "2026-11-20T16:00:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "1744",
+            "name": "Lange Lozanastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      },
+      "after": null
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031397",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031397",
+        "gipodId": 21031397,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 35",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031398",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031398",
+        "gipodId": 21031398,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 41",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031399",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031399",
+        "gipodId": 21031399,
+        "title": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 35",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031400",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031400",
+        "gipodId": 21031400,
+        "title": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 41",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "220",
+            "name": "Arthur Goemaerelei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031471",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031471",
+        "gipodId": 21031471,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Durletstraat 9",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031472",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031472",
+        "gipodId": 21031472,
+        "title": "Nieuwe aansluiting op het gasnet – Durletstraat 9",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T01:00:00Z",
+        "end": "2026-11-27T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031473",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031473",
+        "gipodId": 21031473,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Durletstraat 17",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031474",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031474",
+        "gipodId": 21031474,
+        "title": "Nieuwe aansluiting op het gasnet – Durletstraat 17",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031475",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031475",
+        "gipodId": 21031475,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Durletstraat 29",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031476",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031476",
+        "gipodId": 21031476,
+        "title": "Nieuwe aansluiting op het gasnet – Durletstraat 29",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031477",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031477",
+        "gipodId": 21031477,
+        "title": "Nieuwe aansluiting op het elektriciteitsnet – Durletstraat 33",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21031478",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21031478",
+        "gipodId": 21031478,
+        "title": "Nieuwe aansluiting op het gasnet – Durletstraat 33",
+        "status": "Concreet gepland",
+        "start": "2026-11-23T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "740",
+            "name": "Durletstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032275",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032275",
+        "gipodId": 21032275,
+        "title": "2018 Antwerpen Brederodestraat 180 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-21T15:48:00Z",
+        "end": "2026-11-21T23:48:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "453",
+            "name": "Brederodestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 14,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032286",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032286",
+        "gipodId": 21032286,
+        "title": "Nutswerken met een hoogtewerker – Britselei 38",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "469",
+            "name": "Britselei",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 21,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032314",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032314",
+        "gipodId": 21032314,
+        "title": "Nutswerken met een hoogtewerker – Duboisstraat 8",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "736",
+            "name": "Duboisstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 16,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032338",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032338",
+        "gipodId": 21032338,
+        "title": "2018 Antwerpen Rolwagenstraat 58 werken distributieleiding)",
+        "status": "Concreet gepland",
+        "start": "2026-11-22T08:00:00Z",
+        "end": "2026-11-22T16:00:00Z",
+        "owner": "Water-link",
+        "ownerGroup": "water-link",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Water"
+        ],
+        "streets": [
+          {
+            "id": "2465",
+            "name": "Rolwagenstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032340",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032340",
+        "gipodId": 21032340,
+        "title": "Nutswerken met een hoogtewerker – Mechelsesteenweg 75",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032357",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032357",
+        "gipodId": 21032357,
+        "title": "Nutswerken met een hoogtewerker – Waterhoenlaan 17",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "3153",
+            "name": "Waterhoenlaan",
+            "postcode": "2050"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032380",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032380",
+        "gipodId": 21032380,
+        "title": "Nutswerken met een hoogtewerker – Fourmentstraat 3",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "873",
+            "name": "Fourmentstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032391",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032391",
+        "gipodId": 21032391,
+        "title": "Werken aan gas en elektriciteit – Lange Klarenstraat 33",
+        "status": "In uitvoering",
+        "start": "2026-11-21T01:00:00Z",
+        "end": "2026-11-30T21:00:00Z",
+        "owner": "Fluvius",
+        "ownerGroup": "Fluvius",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "distributienet"
+        ],
+        "occupancyTypes": [
+          "Elektriciteit;Olie, gas, chemicaliën"
+        ],
+        "streets": [
+          {
+            "id": "1739",
+            "name": "Lange Klarenstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032406",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032406",
+        "gipodId": 21032406,
+        "title": "Nutswerken met een hoogtewerker – Pothoekstraat 90",
+        "status": "Concreet gepland",
+        "start": "2026-11-25T23:00:00Z",
+        "end": "2026-12-02T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2348",
+            "name": "Pothoekstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032496",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032496",
+        "gipodId": 21032496,
+        "title": "Nutswerken met een hoogtewerker – Peter Benoitstraat 46",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2288",
+            "name": "Peter Benoitstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032513",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032513",
+        "gipodId": 21032513,
+        "title": "Nutswerken met een hoogtewerker – Haantjeslei 91",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1086",
+            "name": "Haantjeslei",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032522",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032522",
+        "gipodId": 21032522,
+        "title": "Nutswerken met een hoogtewerker – Oudevaartplaats 58",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2210",
+            "name": "Oudevaartplaats",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 9,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032528",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032528",
+        "gipodId": 21032528,
+        "title": "Nutswerken met een hoogtewerker – Oudekerkstraat 20",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2203",
+            "name": "Oudekerkstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 9,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032534",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032534",
+        "gipodId": 21032534,
+        "title": "Nieuwe aansluiting op het telecomnet – Maatsstraat 42",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1913",
+            "name": "Maatsstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032539",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032539",
+        "gipodId": 21032539,
+        "title": "Nutswerken met een hoogtewerker – Van Maerlantstraat 15",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2962",
+            "name": "Van Maerlantstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032548",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032548",
+        "gipodId": 21032548,
+        "title": "Nutswerken met een hoogtewerker – Schoytestraat 78",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2577",
+            "name": "Schoytestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032551",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032551",
+        "gipodId": 21032551,
+        "title": "Nutswerken met een hoogtewerker – Clementinastraat 65",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "528",
+            "name": "Clementinastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032554",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032554",
+        "gipodId": 21032554,
+        "title": "Nieuwe aansluiting op het telecomnet – Kloosterstraat 44",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "1569",
+            "name": "Kloosterstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032555",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032555",
+        "gipodId": 21032555,
+        "title": "Nieuwe aansluiting op het telecomnet – Aalmoezenierstraat 33",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [
+          "klantaansluiting"
+        ],
+        "occupancyTypes": [
+          "Telecom"
+        ],
+        "streets": [
+          {
+            "id": "123",
+            "name": "Aalmoezenierstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032574",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032574",
+        "gipodId": 21032574,
+        "title": "Nutswerken met een hoogtewerker – De Bosschaertstraat 67",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "598",
+            "name": "De Bosschaertstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032584",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032584",
+        "gipodId": 21032584,
+        "title": "Nutswerken met een hoogtewerker – Robert Molsstraat 26",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2451",
+            "name": "Robert Molsstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032601",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032601",
+        "gipodId": 21032601,
+        "title": "Nutswerken met een hoogtewerker – Harmoniestraat 26",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1119",
+            "name": "Harmoniestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032610",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032610",
+        "gipodId": 21032610,
+        "title": "Nutswerken met een hoogtewerker – Bollandusstraat 6",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "391",
+            "name": "Bollandusstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032623",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032623",
+        "gipodId": 21032623,
+        "title": "Nutswerken met een hoogtewerker – Steenhouwersvest 16",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2731",
+            "name": "Steenhouwersvest",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032651",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032651",
+        "gipodId": 21032651,
+        "title": "Nutswerken met een hoogtewerker – Montignystraat 169",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2062",
+            "name": "Montignystraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 10,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032663",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032663",
+        "gipodId": 21032663,
+        "title": "Nutswerken met een hoogtewerker – Ballaarstraat 91",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "260",
+            "name": "Ballaarstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032686",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032686",
+        "gipodId": 21032686,
+        "title": "Nutswerken met een hoogtewerker – Lange Lozanastraat 118",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1744",
+            "name": "Lange Lozanastraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032692",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032692",
+        "gipodId": 21032692,
+        "title": "Nutswerken met een hoogtewerker – Abdijstraat 222",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "127",
+            "name": "Abdijstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032695",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032695",
+        "gipodId": 21032695,
+        "title": "Nutswerken met een hoogtewerker – Gasstraat 97",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "941",
+            "name": "Gasstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "official_address_match",
+        "streetDistanceMeters": 7,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032697",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032697",
+        "gipodId": 21032697,
+        "title": "Nutswerken met een hoogtewerker – Mechelsesteenweg 12",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1977",
+            "name": "Mechelsesteenweg",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 13,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032698",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032698",
+        "gipodId": 21032698,
+        "title": "Nutswerken met een hoogtewerker – Riemstraat 49",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2431",
+            "name": "Riemstraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 14,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032700",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032700",
+        "gipodId": 21032700,
+        "title": "Nutswerken met een hoogtewerker – Van Breestraat 15",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2912",
+            "name": "Van Breestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 9,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032704",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032704",
+        "gipodId": 21032704,
+        "title": "Nutswerken met een hoogtewerker – Perenstraat 20",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2282",
+            "name": "Perenstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 4,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032708",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032708",
+        "gipodId": 21032708,
+        "title": "Nutswerken met een hoogtewerker – Gemeentestraat 7",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "959",
+            "name": "Gemeentestraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032712",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032712",
+        "gipodId": 21032712,
+        "title": "Nutswerken met een hoogtewerker – Willem Eekelersstraat 11",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "3202",
+            "name": "Willem Eekelersstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 5,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032714",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032714",
+        "gipodId": 21032714,
+        "title": "Nutswerken met een hoogtewerker – Julius De Geyterstraat 203",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1399",
+            "name": "Julius De Geyterstraat",
+            "postcode": "2020"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 11,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032716",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032716",
+        "gipodId": 21032716,
+        "title": "Nutswerken met een hoogtewerker – Stijfselrui 16",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2750",
+            "name": "Stijfselrui",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 3,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032721",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032721",
+        "gipodId": 21032721,
+        "title": "Nutswerken met een hoogtewerker – Pacificatiestraat 3",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2226",
+            "name": "Pacificatiestraat",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 9,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032725",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032725",
+        "gipodId": 21032725,
+        "title": "Nutswerken met een hoogtewerker – Korte Van Bloerstraat 6",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1640",
+            "name": "Korte Van Bloerstraat",
+            "postcode": "2060"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 9,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032731",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032731",
+        "gipodId": 21032731,
+        "title": "Nutswerken met een hoogtewerker – Paleisstraat 15",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2228",
+            "name": "Paleisstraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 15,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032732",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032732",
+        "gipodId": 21032732,
+        "title": "Nutswerken met een hoogtewerker – Statiestraat 12",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "2725",
+            "name": "Statiestraat",
+            "postcode": "2018"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 6,
+        "hindrance": null
+      }
+    },
+    {
+      "observedAt": "2026-11-22T04:24:45.365Z",
+      "layer": "works",
+      "id": "work:21032735",
+      "type": "added",
+      "fields": [],
+      "before": null,
+      "after": {
+        "id": "work:21032735",
+        "gipodId": 21032735,
+        "title": "Nutswerken met een hoogtewerker – Italiëlei 81",
+        "status": "Concreet gepland",
+        "start": "2026-11-26T23:00:00Z",
+        "end": "2026-12-03T23:00:00Z",
+        "owner": "Proximus",
+        "ownerGroup": "Proximus",
+        "boundaryConfidence": "point_inside_new",
+        "workTypes": [],
+        "occupancyTypes": [
+          "Hoogtewerker;Nutswerken"
+        ],
+        "streets": [
+          {
+            "id": "1270",
+            "name": "Italiëlei",
+            "postcode": "2000"
+          }
+        ],
+        "streetResolution": "nearest_official_axis",
+        "streetDistanceMeters": 8,
+        "hindrance": null
+      }
+    }
+  ]
+}
