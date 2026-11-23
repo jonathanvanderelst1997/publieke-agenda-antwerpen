@@ -1,14 +1,14 @@
 {
  "schema": "vaagheid/1",
- "vandaag": "2026-11-22",
- "invoer": "e7a788a05f1c59fa",
+ "vandaag": "2026-11-23",
+ "invoer": "2a00c7c9bde023a6",
  "code": "348269faa2b9e9ce",
  "agenda": {
-  "items": 770,
+  "items": 768,
   "vaag": 35,
-  "aandeel": 4.5,
+  "aandeel": 4.6,
   "perPatroon": {
-   "wie-onbekend": 38,
+   "wie-onbekend": 37,
    "uur-onbekend": 29,
    "generieke-titel": 19,
    "datum-bij-benadering": 14,
@@ -42,13 +42,6 @@
      "vermoedelijk": 4
     }
    },
-   "stad-ebesluit-evenementen": {
-    "items": 1,
-    "vaag": 0,
-    "patronen": {
-     "wie-onbekend": 1
-    }
-   },
    "district-ebesluit-evenementen": {
     "items": 9,
     "vaag": 6,
@@ -60,7 +53,7 @@
     }
    },
    "stad-markten": {
-    "items": 649,
+    "items": 648,
     "vaag": 0,
     "patronen": {}
    },
@@ -108,7 +101,7 @@
   },
   "verboden": {},
   "zonderMarkten": {
-   "items": 121,
+   "items": 120,
    "vaag": 35
   },
   "district": {
@@ -117,7 +110,7 @@
   }
  },
  "eventpaginas": {
-  "items": 770,
+  "items": 768,
   "vaag": 44,
   "aandeel": 5.7,
   "perPatroon": {
@@ -153,11 +146,6 @@
      "naam-onbekend": 1
     }
    },
-   "stad-ebesluit-evenementen": {
-    "items": 1,
-    "vaag": 0,
-    "patronen": {}
-   },
    "district-ebesluit-evenementen": {
     "items": 9,
     "vaag": 8,
@@ -166,7 +154,7 @@
     }
    },
    "stad-markten": {
-    "items": 649,
+    "items": 648,
     "vaag": 0,
     "patronen": {}
    },
@@ -210,14 +198,14 @@
   "verboden": {}
  },
  "straten": {
-  "items": 426,
-  "vaag": 226,
-  "aandeel": 53.1,
+  "items": 422,
+  "vaag": 223,
+  "aandeel": 52.8,
   "perPatroon": {
    "periode-onbekend": 160,
    "start-werken-onbekend": 53,
-   "wat-zegt-stad-niet": 30,
    "generieke-titel": 29,
+   "wat-zegt-stad-niet": 27,
    "stand-onduidelijk": 25,
    "uur-onbekend": 25,
    "doel-onbekend": 4,
@@ -259,13 +247,13 @@
     "losseVaag": 3
    },
    "publicSpace:sgw": {
-    "items": 33,
-    "vaag": 26,
+    "items": 30,
+    "vaag": 23,
     "patronen": {
-     "wat-zegt-stad-niet": 26
+     "wat-zegt-stad-niet": 23
     },
-    "losse": 21,
-    "losseVaag": 14
+    "losse": 24,
+    "losseVaag": 17
    },
    "terraces": {
     "items": 160,
@@ -312,17 +300,17 @@
     "losseVaag": 0
    },
    "agenda:stad-markten": {
-    "items": 53,
+    "items": 52,
     "vaag": 0,
     "patronen": {},
-    "losse": 53,
+    "losse": 52,
     "losseVaag": 0
    }
   },
   "detail": {
-   "metOntbreekt": 278,
+   "metOntbreekt": 275,
    "meerDanEen": 84,
-   "zinnen": 419,
+   "zinnen": 416,
    "perPatroon": {
     "niet-in-de-bron": 66,
     "huisnummers-niet-gepubliceerd": 38,
@@ -331,16 +319,16 @@
   },
   "verboden": {},
   "uniek": {
-   "kaarten": 397,
-   "vaag": 204
+   "kaarten": 395,
+   "vaag": 203
   },
   "losse": {
-   "kaarten": 250,
-   "vaag": 54
+   "kaarten": 252,
+   "vaag": 57
   },
   "ingeklapt": {
-   "regels": 21,
-   "kaarten": 176,
+   "regels": 18,
+   "kaarten": 170,
    "perSoort": {
     "aanvragen": {
      "regels": 2,
@@ -351,8 +339,8 @@
      "kaarten": 159
     },
     "werfzones": {
-     "regels": 6,
-     "kaarten": 12
+     "regels": 3,
+     "kaarten": 6
     }
    }
   },
@@ -379,18 +367,18 @@
     "ingeklapt": 1
    },
    "Meir": {
-    "kaarten": 34,
-    "vaag": 15,
-    "losseKaarten": 22,
-    "losseVaag": 5,
-    "ingeklapt": 3
+    "kaarten": 33,
+    "vaag": 14,
+    "losseKaarten": 23,
+    "losseVaag": 6,
+    "ingeklapt": 2
    },
    "Groenplaats": {
-    "kaarten": 42,
-    "vaag": 34,
-    "losseKaarten": 12,
-    "losseVaag": 4,
-    "ingeklapt": 2
+    "kaarten": 41,
+    "vaag": 33,
+    "losseKaarten": 13,
+    "losseVaag": 5,
+    "ingeklapt": 1
    },
    "Grote Markt": {
     "kaarten": 41,
@@ -414,18 +402,18 @@
     "ingeklapt": 2
    },
    "Sint-Jansvliet": {
-    "kaarten": 43,
+    "kaarten": 42,
     "vaag": 12,
-    "losseKaarten": 35,
+    "losseKaarten": 34,
     "losseVaag": 4,
     "ingeklapt": 1
    },
    "Kammenstraat": {
-    "kaarten": 20,
-    "vaag": 9,
-    "losseKaarten": 12,
-    "losseVaag": 1,
-    "ingeklapt": 2
+    "kaarten": 19,
+    "vaag": 8,
+    "losseKaarten": 13,
+    "losseVaag": 2,
+    "ingeklapt": 1
    },
    "Isabella Brantstraat": {
     "kaarten": 8,
@@ -650,12 +638,12 @@
  },
  "vergelijking": {
   "vorige": {
-   "invoer": "8ef640b384769985",
+   "invoer": "e7a788a05f1c59fa",
    "code": "348269faa2b9e9ce"
   },
   "agenda": {
    "ok": true,
-   "stijging": 0,
+   "stijging": 0.1,
    "gestegen": []
   },
   "eventpaginas": {
@@ -665,7 +653,7 @@
   },
   "straten": {
    "ok": true,
-   "stijging": 0,
+   "stijging": -0.3,
    "gestegen": []
   },
   "buiten": {

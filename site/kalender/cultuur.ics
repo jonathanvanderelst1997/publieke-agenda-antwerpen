@@ -34,32 +34,9 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:district-kal-6a746a7ff4182b8edf63a766-2026-09-09@mijn-publieke-agenda-v
- oor-district.local
-DTSTAMP:20261122T042445Z
-DTSTART;VALUE=DATE:20260909
-DTEND;VALUE=DATE:20261023
-SUMMARY:Humans of Antwerp
-LOCATION:CO Nova\, Schijfstraat 105\, 2020 Antwerpen
-DESCRIPTION:Humans of Antwerp maakte 9 videoportretten van Kielse senioren.
-  Tijdens de opendeurweek van Nova kan je de expo voor het eerst bekijken e
- n beluisteren. Prijs: GRATIS\nWanneer: Geen uur gevonden\; zie de officië
- le bron.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-distric
- t.onrender.com/event/district-kal-6a746a7ff4182b8edf63a766-2026-09-09/\nDi
- strictskalender: https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wa
- t-beleef-je-in-district-antwerpen\nMeer info bij de organisator: https://n
- ova.antwerpen.be/humans-of-antwerp\nBron: district Antwerpen – bron stad
-  Antwerpen (Vlaamse gratis open data licentie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
- kal-6a746a7ff4182b8edf63a766-2026-09-09/
-CATEGORIES:Cultuur
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-10-23@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261122T042445Z
+DTSTAMP:20261123T042841Z
 DTSTART;TZID=Europe/Brussels:20261023T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -84,7 +61,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77d-2026-11-04@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261122T042445Z
+DTSTAMP:20261123T042841Z
 DTSTART;TZID=Europe/Brussels:20261104T190000
 DURATION:PT1H
 SUMMARY:FURIE!
@@ -110,7 +87,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77e-2026-11-10@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261122T042445Z
+DTSTAMP:20261123T042841Z
 DTSTART;TZID=Europe/Brussels:20261110T140000
 DURATION:PT1H
 SUMMARY:Verlangen naar verbinding
@@ -134,7 +111,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-11-20@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261122T042445Z
+DTSTAMP:20261123T042841Z
 DTSTART;TZID=Europe/Brussels:20261120T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -159,7 +136,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a780-2026-11-26@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261122T042445Z
+DTSTAMP:20261123T042841Z
 DTSTART;TZID=Europe/Brussels:20261126T180000
 DTEND;TZID=Europe/Brussels:20261126T210000
 SUMMARY:Noorderlicht
