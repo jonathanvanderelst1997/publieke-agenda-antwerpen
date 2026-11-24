@@ -7,7 +7,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { vragenAanDeStad, vragenMarkdown } from "../lib/vragen-aan-de-stad.mjs";
+import { agendaEvenementen, vragenAanDeStad, vragenMarkdown } from "../lib/vragen-aan-de-stad.mjs";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const lees = (p) => JSON.parse(fs.readFileSync(path.join(root, p), "utf8"));
@@ -35,8 +35,10 @@ const isMain = process.argv[1] && fs.realpathSync(process.argv[1]) === fileURLTo
 if (isMain) {
   const vandaag = arg("--vandaag") || new Intl.DateTimeFormat("en-CA", { timeZone: "Europe/Brussels" }).format(new Date());
   const uitleg = lees("site/sources/kaart-uitleg.json");
+  // Ook de evenementen van de agenda (de parcours door het district), niet alleen die van de kaart.
+  const agenda = agendaEvenementen(lees("site/sources/district-asign-evenementen.json").items);
   const vragen = vragenAanDeStad({
-    evenementen: uitleg.evenementen, werken: uitleg.werken, rijen: werfzoneRijen(),
+    evenementen: { ...agenda, ...uitleg.evenementen }, werken: uitleg.werken, rijen: werfzoneRijen(),
     hand: lees("site/sources/evenement-identiteit.json"), auto: lees("site/sources/evenement-identiteit-auto.json"), vandaag,
   });
   const uit = path.join(root, arg("--uit") || "docs/VRAGEN_AAN_DE_STAD.md");

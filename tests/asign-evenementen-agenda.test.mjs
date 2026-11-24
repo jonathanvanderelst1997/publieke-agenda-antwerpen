@@ -283,6 +283,31 @@ test("twee dossiers bij hetzelfde evenement worden één agendapunt met de beste
   assert.equal(koppelBesluiten([alleenOpbouw, lang], [{ ...besluit, straten: ["Proefstraat"], plaats: "Proefstraat" }]).size, 0);
 });
 
+test("een handfiche die een besluit als bron noemt, koppelt dat besluit aan haar dossier, ook als de straat van het besluit niet op het parcours ligt", () => {
+  const bron = "https://ebesluit.antwerpen.be/zittingen/9.9/agendapunten/9.9.9.9.1";
+  const besluit = { id: "9.9.9.9.1", code: "2099_CBS_00009", soort: "muziek", status: "goedkeuring", orgaan: "College van burgemeester en schepenen", zitting: "2026-09-20", gepubliceerd: true, gelezen: true, naam: "Proefcross", organisator: "Proefclub vzw", dagen: ["2026-10-18"], uren: { start: "11:00", einde: "19:00" }, plaats: "Testdreef", straten: ["Testdreef"], postcodes: ["2050"], inDistrict: true, opbouw: null, afbouw: null, wijziging: null, vervangt: [], bron };
+  const f = feit("ET2099000090", { beginStraat: "Proefkaai", kernStraten: ["Proefkaai"], zone: ["Proefkaai", "Voorbeeldlaan", "Schetsstraat"] });
+  const ander = feit("ET2099000091", { beginStraat: "Elders", kernStraten: ["Elders"], langs: ["Elders", "Verderop"] });
+  // Zonder handfiche: de Testdreef ligt niet op het parcours, dus geen koppeling (zoals vroeger).
+  assert.equal(koppelBesluiten([f, ander], [besluit]).size, 0);
+  const handBronnen = (dossier) => (dossier === "ET2099000090" ? [bron, "https://www.example.org/proefcross"] : []);
+  const k = koppelBesluiten([f, ander], [besluit], { handBronnen });
+  assert.deepEqual([...k.keys()], ["ET2099000090"]);
+  // Twee dossiers die hetzelfde besluit noemen: twijfel, geen koppeling.
+  assert.equal(koppelBesluiten([f, ander], [besluit], { handBronnen: () => [bron] }).size, 0);
+  // Geen gemeenschappelijke dag: geen koppeling.
+  assert.equal(koppelBesluiten([f], [{ ...besluit, dagen: ["2026-10-25"] }], { handBronnen }).size, 0);
+  // In de agenda: de naam uit de handfiche, en het agendapunt van het besluit valt samen (sameAs).
+  const hand = { dossiers: { ET2099000090: fiche({ zekerheid: "zeker", naam: "Proefcross Linkeroever", bron: [bron], link: bron }) } };
+  const besluitItems = [{ id: "ebesluit-ev-2099-cbs-00009-2026-10-18", externalId: "2099_CBS_00009", date: "2026-10-18", endDate: null }];
+  const { items } = bouw({ feiten: [f], hand, besluiten: [besluit], besluitItems });
+  assert.deepEqual(titels(items), ["Proefcross Linkeroever"]);
+  assert.deepEqual(items[0].sameAs, ["ebesluit-ev-2099-cbs-00009-2026-10-18"]);
+  // Een handfiche "onbekend" koppelt niets.
+  const onbekend = { dossiers: { ET2099000090: fiche({ bron: [bron] }) } };
+  assert.equal(bouw({ feiten: [f], hand: onbekend, besluiten: [besluit], besluitItems }).items[0]?.sameAs, undefined);
+});
+
 test("uren: de handfiche gaat voor op het besluit; zonder handfiche het besluit; anders de automatische fiche", () => {
   const besluit = { uren: { start: "09:00", einde: "17:00" }, dagen: ["2026-10-18"] };
   const hand = fiche({ zekerheid: "zeker", naam: "Proefmarathon", uren: "start om 9 uur, finish sluit om 18 uur" });

@@ -6,7 +6,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { plekEnUurUitTekst, plekkenUitTekst, urenUitTekst } from "../lib/plek-uit-tekst.mjs";
-import { vragenAanDeStad, vragenMarkdown } from "../lib/vragen-aan-de-stad.mjs";
+import { agendaEvenementen, vragenAanDeStad, vragenMarkdown } from "../lib/vragen-aan-de-stad.mjs";
 import { agendaEntry, publicSpaceEntries, publicSpaceEntry, verrijkMetContext } from "../site/place-core.js";
 import { vaagheidVanKaart } from "../lib/vaagheid.mjs";
 
@@ -225,4 +225,20 @@ test("vragen aan de stad: zonder naam of zonder doel, de meeste straten eerst; g
   assert.match(md, /\| 1 \| werfzone \| GW2099-000001 \| 4 \|/);
   assert.match(md, /Wat is evenementendossier ET2099000011 \(stoet\)\? Naam, uren, organisator\?/);
   assert.doesNotMatch(md, /Proefplein \d/);
+});
+
+test("vragen aan de stad: ook de evenementen van de agenda, niet alleen die van de kaart", () => {
+  const items = [
+    { externalId: "ET2099000020", date: "2099-03-10", endDate: null, title: "Evenement in de Proeflei: lus van 7,9 km", straten: ["Proeflei", "Tweedestraat"], feiten: { dossier: "ET2099000020" } },
+    { externalId: "ET2099000021", date: "2099-03-11", endDate: null, title: "Proeffeest", straten: ["Proefplein"], feiten: { dossier: "ET2099000021", besluit: "2099_CBS_00001" } },
+    { externalId: "ET2099000022", date: "2099-03-12", endDate: null, title: "Evenement op de Proefkaai", straten: ["Proefkaai"], feiten: { dossier: "ET2099000022" } },
+    { externalId: "ET2099000022", date: "2099-03-13", endDate: null, title: "Evenement op de Proefkaai", straten: ["Derdestraat"], feiten: { dossier: "ET2099000022" } },
+    { externalId: "geen-dossier", date: "2099-03-12", title: "Iets anders", straten: ["Proefkaai"] },
+  ];
+  const agenda = agendaEvenementen(items);
+  assert.deepEqual(Object.keys(agenda).sort(), ["ET2099000020", "ET2099000021", "ET2099000022"]);
+  assert.deepEqual(agenda.ET2099000022, { start: "2099-03-12", eind: "2099-03-13", soort: "", straten: ["Derdestraat", "Proefkaai"], gekoppeld: null });
+  assert.deepEqual(agenda.ET2099000021.gekoppeld, { titel: "Proeffeest" });
+  const vragen = vragenAanDeStad({ evenementen: agenda, vandaag: VANDAAG });
+  assert.deepEqual(vragen.map((v) => v.dossier).sort(), ["ET2099000020", "ET2099000022"], "een naam uit een besluit is geen vraag meer");
 });

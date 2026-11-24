@@ -1,6 +1,6 @@
 {
  "schemaVersion": 1,
- "bijgewerkt": "2026-10-12",
+ "bijgewerkt": "2026-11-24",
  "uitleg": "Wie of wat achter een evenementendossier van de stad (A-Sign) zit, met de publieke bron. Met de hand nagekeken; zie REFRESH_PROCESS.md. Alleen publieke feiten, geen namen van personen en geen huisnummers.",
  "dossiers": {
   "ET2025003100": {
@@ -11,6 +11,24 @@
    "watMerkJe": "Een stoet te voet met een doedelzakband (Red Hackle Pipe Band), tussen 15 en 15.30 uur, en daarna een vendelgroet op de Grote Markt. Afsluitingen of parkeerverboden staan niet in het dossier.",
    "link": "https://ordonobilis.eu/agenda-investituur-2026/", "linkLabel": "", "linkUitleg": "Het volledige programma staat in de agenda (pdf) op die pagina.", "extraLinks": [], "binnenDistrict": true,
    "bron": ["https://ordonobilis.eu/wp-content/uploads/2026/09/Agenda-investituur-2026-NL.pdf", "https://ordonobilis.eu/agenda-investituur-2026/", "https://ordonobilis.eu/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-10"
+  },
+  "ET2025006109": {
+   "zekerheid": "zeker", "naam": "Strip- en boekenplein", "soort": "strip- en boekenmarkt met muziek aan bibliotheek Permeke, elke derde zondag van de maand", "organisator": "",
+   "reden": "",
+   "dagen": ["2026-12-20"], "uren": "", "urenNoot": "De edities van juni, juli en augustus 2026 liepen van 10 tot 16 uur (kalender van district Antwerpen); voor deze editie noemt geen bron een uur.",
+   "waar": "Op het De Coninckplein bij bibliotheek Permeke.",
+   "watMerkJe": "Kramen op het plein en parkeerverboden in de Pijlstraat en de Lange Beeldekensstraat, met opbouw en afbraak op dezelfde dag.",
+   "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "linkLabel": "Kalender van district Antwerpen", "linkUitleg": "De kalender toonde de edities van juni tot augustus 2026, tussen de andere activiteiten van het district.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2025007265": {
+   "zekerheid": "zeker", "naam": "Eindejaarsvuurwerk 2026-2027", "soort": "vuurwerk van de stad op oudejaarsavond aan de Scheldekaaien Zuid, met muziek", "organisator": "Stad Antwerpen",
+   "reden": "",
+   "dagen": ["2026-12-31", "2027-01-01"], "uren": "", "urenNoot": "Het besluit van het college noemt geen uur.",
+   "waar": "Aan de Scheldekaaien Zuid, met een verkeersvrije zone over de kaaien en de straten van het Zuid en het historisch centrum ernaast.",
+   "watMerkJe": "Een verkeersvrije zone in 59 straten rond de kaaien, een parkeerverbod op de parking Steendok, een fietsenparking en een EHBO-tent. De opbouw begint op zaterdag 26 december, de afbraak loopt tot dinsdag 5 januari.",
+   "link": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1020.5647.2045", "linkLabel": "Besluit van het college (eBesluit)", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1020.5647.2045", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   },
   "ET2026000222": {
    "zekerheid": "zeker", "naam": "Winter in Antwerpen", "soort": "eindejaarsevenement van de stad, met een kerstmarkt en eetstanden op de Grote Markt, de Groenplaats en de Suikerrui", "organisator": "",
@@ -185,6 +203,17 @@
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
    "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
   },
+  "ET2026004671": {
+   "zekerheid": "zeker", "naam": "UCI Wereldbeker Veldrijden Antwerpen", "soort": "veldrit van de wereldbeker voor elite vrouwen en elite mannen", "organisator": "Renners In Aantocht vzw",
+   "reden": "",
+   "dagen": ["2026-12-19"], "uren": "elite vrouwen om 13.40 uur, elite mannen om 15.10 uur", "urenNoot": "Het college gaf toelating voor muziek van 11 tot 19 uur (besluit van 6 november 2026). De starturen komen van een wielerkalender (Velora), niet van de organisator.",
+   "waar": "Op Linkeroever, met start en aankomst aan de Thonetlaan en een parcours met zand langs de Schelde. Het besluit van het college noemt de Kastanjedreef.",
+   "watMerkJe": "Op de wedstrijddag een verkeersvrije zone in de Thonetlaan, de Esmoreitlaan, de Gloriantlaan, de August Vermeylenlaan en op het Thomas Morusplein, en parkeerverboden onder meer op de parking aan de Kastanjedreef. De opbouw begint op vrijdag 4 december, de afbraak loopt tot woensdag 23 december.",
+   "link": "https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1027.0199.0037", "linkLabel": "Besluit van het college (eBesluit)", "linkUitleg": "",
+   "extraLinks": [{ "label": "Programma met starturen (Velora)", "url": "https://veloracycling.com/races/uci-cyclo-cross-world-cup-4-antwerpen-2026" }],
+   "binnenDistrict": true,
+   "bron": ["https://ebesluit.antwerpen.be/zittingen/25.0918.2599.1753/agendapunten/26.1027.0199.0037", "https://veloracycling.com/races/uci-cyclo-cross-world-cup-4-antwerpen-2026", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
   "ET2026004779": {
    "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
    "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit in het Rivierenhof of Park Groot Schijn op 11 oktober.",
@@ -193,6 +222,15 @@
    "watMerkJe": "Een opstelling op de Parkweg bij het kasteel (tijdens de opbouw) en activiteit op de parkpaden. Parkeerverboden, afsluitingen of omleidingen staan niet in het dossier.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
    "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026004820": {
+   "zekerheid": "zeker", "naam": "Strip- en boekenplein", "soort": "strip- en boekenmarkt met muziek aan bibliotheek Permeke, elke derde zondag van de maand", "organisator": "",
+   "reden": "",
+   "dagen": ["2027-01-17"], "uren": "", "urenNoot": "De edities van juni, juli en augustus 2026 liepen van 10 tot 16 uur (kalender van district Antwerpen); voor deze editie noemt geen bron een uur.",
+   "waar": "Op het De Coninckplein bij bibliotheek Permeke.",
+   "watMerkJe": "Kramen op het plein en parkeerverboden in de Pijlstraat en de Lange Beeldekensstraat, met opbouw en afbraak op dezelfde dag.",
+   "link": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "linkLabel": "Kalender van district Antwerpen", "linkUitleg": "De kalender toonde de edities van juni tot augustus 2026, tussen de andere activiteiten van het district.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   },
   "ET2026004916": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een Sinterklaasstoet in Ekeren, van het Kristus-Koningplein naar Kasteel Veltwijck", "organisator": "",
@@ -276,13 +314,13 @@
    "bron": ["https://stuvent.be/wp-content/uploads/2026/08/Studentencharter-26-27-leesversie-1.pdf", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-11"
   },
   "ET2026005499": {
-   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
-   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke bron noemt een activiteit op deze route.",
-   "dagen": ["2026-11-29"], "uren": "", "urenNoot": "",
-   "waar": "Een lus van ongeveer 10 km met start en aankomst op de Beukenlaan bij Kasteel Den Brandt: door het Middelheimpark tot aan de Groenenborgerlaan, door de villawijk tot aan de Kruishofstraat en de Vogelzanglaan, en via het Nachtegalenpark terug.",
-   "watMerkJe": "Een kleine opstelling op de Beukenlaan, met opbouw en afbraak op dezelfde dag. Afsluitingen of parkeerverboden staan niet in het dossier.",
-   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
-   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-10-10"
+   "zekerheid": "zeker", "naam": "Spot On! Park Run & Walk", "soort": "loop en wandeling van 5 of 10 km door het Nachtegalenpark, een inzamelactie voor Kom op tegen Kanker", "organisator": "Spot On!, een team van de 100 km-run van Kom op tegen Kanker",
+   "reden": "",
+   "dagen": ["2026-11-29"], "uren": "lopers starten om 10.30 uur; wandelaars vertrekken vrij tussen 10.30 en 14.30 uur", "urenNoot": "",
+   "waar": "Start en aankomst aan de ingang van het Nachtegalenpark aan de Beukenlaan; de lus van ongeveer 10 km loopt door het Nachtegalenpark, Middelheim en Den Brandt.",
+   "watMerkJe": "Lopers en wandelaars in en rond het Nachtegalenpark, en een kleine opstelling aan de Beukenlaan, met opbouw en afbraak op dezelfde dag. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "https://www.komoptegenkanker.be/de-100km-run/acties/82637784-77aa-4916-bafe-0b39823bd7f3", "linkLabel": "", "linkUitleg": "Inschrijven kan op die pagina.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.komoptegenkanker.be/de-100km-run/acties/82637784-77aa-4916-bafe-0b39823bd7f3", "https://running.life/en/event/spot-on-park-run-walk", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   },
   "ET2026005502": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een welkomstactiviteit van studenten (zoals een dril): een tocht te voet langs zeven stops met opdrachten", "organisator": "",
@@ -355,6 +393,35 @@
    "watMerkJe": "Lopers in de parken. Waar het parcours de Marneflaan oversteekt, is een stuk verkeersvrij met parkeerverbod. In district Antwerpen merk je er niets van.",
    "link": "https://www.antwerpen.be/nl/overzicht/district-hoboken-1/nieuws/de-52ste-jaak-schram-parkloop-op-naar-2660-kilometer", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
    "bron": ["https://www.antwerpen.be/nl/overzicht/district-hoboken-1/nieuws/de-52ste-jaak-schram-parkloop-op-naar-2660-kilometer"], "bijgewerkt": "2026-10-09"
+  },
+  "ET2026005821": {
+   "zekerheid": "zeker", "naam": "Herfsttochten – Walk 2 Gether-tocht", "soort": "wandeltocht van 4, 7, 12, 18 of 25 km door de Luchtbal en het groen van Ekeren", "organisator": "Merksemse Wandelclub De Stroboeren vzw",
+   "reden": "",
+   "dagen": ["2026-12-06"], "uren": "vertrekken van 8 tot 15 uur; laatste aankomst om 17 uur", "urenNoot": "",
+   "waar": "Start aan school Maria Boodschap in de Perustraat op de Luchtbal; de routes lopen door de Luchtbal en langs de Oude Landen, het Rozemaaipark, Hof ter Bist, de Bospolder en de Muisbroek in Ekeren.",
+   "watMerkJe": "Wandelaars op de routes tussen 8 en 17 uur, en voorbehouden parkeerplaatsen op zaterdag 5 en zondag 6 december. Afsluitingen staan niet in het dossier.",
+   "link": "https://wandel.be/wandelkalender/8561", "linkLabel": "", "linkUitleg": "",
+   "extraLinks": [{ "label": "De tocht in de wandelkalender van walking.life", "url": "https://walking.life/nl/event/herfsttochten-walk-2-gether-tocht-merksem" }],
+   "binnenDistrict": true,
+   "bron": ["https://wandel.be/wandelkalender/8561", "https://walking.life/nl/event/herfsttochten-walk-2-gether-tocht-merksem", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026005988": {
+   "zekerheid": "zeker", "naam": "Kerst op UA: Campus Groenenborger", "soort": "kerstmoment van studenten met hapjes en warme dranken op Campus Groenenborger", "organisator": "Fabiant, de studentenvereniging voor Biologie en Milieuwetenschappen van de Universiteit Antwerpen",
+   "reden": "",
+   "dagen": ["2026-12-08"], "uren": "12 tot 14 uur", "urenNoot": "De pagina van de Universiteit Antwerpen noemt woensdag 9 december voor de kerstmarkt op Campus Groenenborger; de organisator en het dossier van de stad noemen dinsdag 8 december.",
+   "waar": "Op Campus Groenenborger aan de Groenenborgerlaan.",
+   "watMerkJe": "Een kleine inname aan de Groenenborgerlaan, over de middag. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "https://www.fabiantua.com/activiteiten", "linkLabel": "", "linkUitleg": "De pagina toont alle activiteiten van Fabiant.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.fabiantua.com/activiteiten", "https://www.uantwerpen.be/nl/studentenleven/vrije-tijd-en-engagement/studentenverenigingen/studentenevents/kerstopuantwerpen/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006109": {
+   "zekerheid": "waarschijnlijk", "naam": "", "soort": "een kirtan: religieuze samenzang met muziek, op een parcours door de binnenstad", "organisator": "",
+   "reden": "Het dossier zelf noemt het een kirtan; in mei 2025 stond er al een dossier met dezelfde omschrijving in A-Sign. Geen publieke aankondiging noemt een naam, een organisator of uren.",
+   "dagen": ["2026-11-28"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 4 km vanaf het Koningin Astridplein door de binnenstad, langs onder meer de De Keyserlei, de Meir, de Groenplaats, de Grote Markt, de Suikerrui en de Sint-Jansvliet.",
+   "watMerkJe": "Deelnemers op het parcours op zaterdag 28 november. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   }
  }
 }

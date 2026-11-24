@@ -229,8 +229,10 @@ test("identiteitsbestand: geldig, publiek en zonder persoonsgegevens", async () 
   assert.deepEqual(validateEvenementIdentiteit(IDENTITEIT), []);
   assert.deepEqual(privacyFindings(IDENTITEIT), []);
   // 38 uit de identificatierondes, plus Winter in Antwerpen (12-10-2026: de naam staat alleen in besluiten over
-  // een bestek en de standplaatsen, met dezelfde periode en pleinen als het dossier).
-  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 39);
+  // een bestek en de standplaatsen, met dezelfde periode en pleinen als het dossier). Plus 7 uit de ronde van
+  // 24-11-2026 (de evenementen zonder naam in de agenda: veldrit, eindejaarsvuurwerk, wandeltocht, twee keer het
+  // Strip- en boekenplein, Kerst op UA en een kirtan).
+  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 46);
   const fout = structuredClone(IDENTITEIT);
   fout.dossiers.ET2026001217.link = "https://example.org/?mail=x";
   fout.dossiers.ET2026001217.waar = "Start aan Voorbeeldstraat 12";
