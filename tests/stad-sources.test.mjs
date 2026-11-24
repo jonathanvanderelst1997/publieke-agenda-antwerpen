@@ -264,6 +264,9 @@ test("markttitels en plaatsnamen", () => {
   assert.deepEqual(marketTitle("BOTERMARKT\nGemengde markt"), { title: "Gemengde markt Botermarkt", place: "Botermarkt" });
   assert.equal(marketTitle("voeding, bloemen en planten\nKIOSKPLAATS").title, "Markt voor voeding, bloemen en planten Kioskplaats");
   assert.equal(marketTitle("Woensdagmarkt Vosstraat").title, "Woensdagmarkt Vosstraat");
+  // Eén regel met de plaats in hoofdletters vooraan (GIPOD 21016653): de plaats is het plein, niet de soort.
+  assert.deepEqual(marketTitle("VRIJDAGMARKT Wekelijkse openbare veiling"), { title: "Wekelijkse openbare veiling Vrijdagmarkt", place: "Vrijdagmarkt" });
+  assert.deepEqual(marketTitle("GEMENGDE MARKT"), { title: "Gemengde Markt", place: "" });
   assert.equal(placeName("FREDERIK VAN EEDENPLEIN"), "Frederik van Eedenplein");
   assert.equal(placeName("OUDEVAARTPLAATS - BLAUWTORENPLEIN"), "Oudevaartplaats - Blauwtorenplein");
   assert.equal(placeName("Laar (Borgerhout)"), "Laar (Borgerhout)");
