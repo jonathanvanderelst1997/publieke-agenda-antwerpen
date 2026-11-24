@@ -113,6 +113,15 @@
    "link": "https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-de-pracht-van-muisbroek-tijdens-de-ekerun", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": false,
    "bron": ["https://www.antwerpen.be/info/6ab3c7cb44947433802d848e/ontdek-de-pracht-van-muisbroek-tijdens-de-ekerun"], "bijgewerkt": "2026-10-12"
   },
+  "ET2026004247": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier noemt alleen een startplaats aan het Koningin Astridplein en een eindpunt aan de Hanzestedenplaats. Geen besluit of publieke aankondiging noemt een activiteit op zaterdag 19 december.",
+   "dagen": ["2026-12-19"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 2,1 km van het Koningin Astridplein via de Italiëlei en de dokken van het Eilandje naar de Hanzestedenplaats bij het MAS.",
+   "watMerkJe": "Een start aan het Koningin Astridplein en een eindpunt aan de Hanzestedenplaats. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
   "ET2026004253": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een studentendoop met een stoet te voet naar het Droogdokkenpark", "organisator": "",
    "reden": "Het dossier spreekt van een doop en een stoet. De stoet vertrekt op de Sint-Nicolaasplaats en eindigt aan de Belvédère in het Droogdokkenpark, een officiële doopplaats. Dezelfde stoet stond ook in een dossier van 14 oktober 2025. Welke vereniging het is, is niet publiek.",
@@ -405,6 +414,42 @@
    "binnenDistrict": true,
    "bron": ["https://wandel.be/wandelkalender/8561", "https://walking.life/nl/event/herfsttochten-walk-2-gether-tocht-merksem", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   },
+  "ET2026005880": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen besluit of publieke aankondiging noemt een activiteit op deze route op zaterdag 19 december.",
+   "dagen": ["2026-12-19"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 1,9 km van de Grote Goddaard via het Hendrik Conscienceplein, de Groenplaats en de Meir naar de De Keyserlei.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026005928": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier noemt alleen de plaatsen: een verkeersvrije zone op de kaaien en parkeerverboden aan een universiteitscampus en een kantoorgebouw van de Vlaamse overheid. Geen besluit of publieke aankondiging noemt een activiteit op maandag 30 november.",
+   "dagen": ["2026-11-30"], "uren": "", "urenNoot": "",
+   "waar": "Een verkeersvrije zone op de Scheldekaaien (onder meer de Jordaenskaai, de Ernest Van Dijckkaai en de Plantinkaai), met parkeerverboden aan Campus Drie Eiken in Wilrijk en in de Lange Kievitstraat.",
+   "watMerkJe": "Een verkeersvrije zone op de kaaien en parkeerverboden op de twee andere plaatsen, alleen op maandag 30 november.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026005960": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen besluit of publieke aankondiging noemt een activiteit op deze straten van 3 tot 24 november. In oktober 2023, 2024 en 2025 lagen hier studentenactiviteiten (kroegentochten en fuiven) in A-Sign, elk met een eigen dossier van één dag.",
+   "dagen": ["2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06", "2026-11-07", "2026-11-08", "2026-11-09", "2026-11-10", "2026-11-11", "2026-11-12", "2026-11-13", "2026-11-14", "2026-11-15", "2026-11-16", "2026-11-17", "2026-11-18", "2026-11-19", "2026-11-20", "2026-11-21", "2026-11-22", "2026-11-23", "2026-11-24"], "uren": "", "urenNoot": "",
+   "waar": "Drie parcourslijnen van samen ongeveer 550 m in de Grote en de Kleine Kauwenberg, de Lange Winkelstraat, de Prinsstraat en de Vekestraat (Universiteitsbuurt).",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026005967": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen publieke aankondiging noemt een activiteit op deze route op donderdag 17 december. Het besluit voor 2 jaar Wolf, die dag aan de Godefriduskaai, gaat over muziek en noemt geen parcours.",
+   "dagen": ["2026-12-17"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 2 km van de Hanzestedenplaats bij het MAS over de kaaien van het Eilandje naar het Falconplein, door 30 straten.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
   "ET2026005988": {
    "zekerheid": "zeker", "naam": "Kerst op UA: Campus Groenenborger", "soort": "kerstmoment van studenten met hapjes en warme dranken op Campus Groenenborger", "organisator": "Fabiant, de studentenvereniging voor Biologie en Milieuwetenschappen van de Universiteit Antwerpen",
    "reden": "",
@@ -414,12 +459,86 @@
    "link": "https://www.fabiantua.com/activiteiten", "linkLabel": "", "linkUitleg": "De pagina toont alle activiteiten van Fabiant.", "extraLinks": [], "binnenDistrict": true,
    "bron": ["https://www.fabiantua.com/activiteiten", "https://www.uantwerpen.be/nl/studentenleven/vrije-tijd-en-engagement/studentenverenigingen/studentenevents/kerstopuantwerpen/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   },
+  "ET2026006044": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen besluit of publieke aankondiging noemt een activiteit op deze route op donderdag 10 december.",
+   "dagen": ["2026-12-10"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 900 m vanaf de Lamorinièrestraat over de Lange Leemstraat, de Jules Bordetstraat, de Artsen zonder Grenzenstraat, het Paradeplein, het Regine Beerplein en het Wachthuisplein (Haringrode).",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006061": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving, en geen besluit of publieke aankondiging noemt een activiteit op deze lus op donderdag 10 december. Op 17 december 2025 lag een deels gelijke lus in A-Sign, ook zonder omschrijving.",
+   "dagen": ["2026-12-10"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 7,9 km met begin en einde aan de Belgiëlei, door 27 straten: onder meer de Lange Kievitstraat, de Mercatorstraat, de Van Breestraat, de Simonsstraat, de Mechelsesteenweg, de Plantin en Moretuslei en de Lamorinièrestraat.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006095": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving. Dezelfde route stond op 21 december 2023, 19 december 2024 en 11 december 2025 in A-Sign, telkens op een donderdag en zonder omschrijving; geen besluit of publieke aankondiging noemt de activiteit.",
+   "dagen": ["2026-12-10"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 2,5 km van de Lange Beeldekensstraat naar de Kerkstraat en het Willibrordusplein, door 17 straten van Stuivenberg.",
+   "watMerkJe": "Een parkeerverbod in de Pastorijstraat op donderdag 10 december. Afsluitingen staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
   "ET2026006109": {
    "zekerheid": "waarschijnlijk", "naam": "", "soort": "een kirtan: religieuze samenzang met muziek, op een parcours door de binnenstad", "organisator": "",
    "reden": "Het dossier zelf noemt het een kirtan; in mei 2025 stond er al een dossier met dezelfde omschrijving in A-Sign. Geen publieke aankondiging noemt een naam, een organisator of uren.",
    "dagen": ["2026-11-28"], "uren": "", "urenNoot": "",
    "waar": "Een lus van ongeveer 4 km vanaf het Koningin Astridplein door de binnenstad, langs onder meer de De Keyserlei, de Meir, de Groenplaats, de Grote Markt, de Suikerrui en de Sint-Jansvliet.",
    "watMerkJe": "Deelnemers op het parcours op zaterdag 28 november. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006201": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier heeft geen naam of omschrijving. Dezelfde lus lag in november 2024, 2025 en 2026 in A-Sign bij loopwedstrijden met korte en lange rondes, en op 7 december 2025 zonder omschrijving; geen besluit of publieke kalender noemt een activiteit op 5 december.",
+   "dagen": ["2026-12-05"], "uren": "", "urenNoot": "",
+   "waar": "Een lus van ongeveer 200 m aan de Vogelzanglaan, bij de Floraliënlaan en de Middelheimlaan.",
+   "watMerkJe": "Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006274": {
+   "zekerheid": "waarschijnlijk", "naam": "Zegening van de wateren aan de Schelde (Theofanie)", "soort": "orthodoxe processie van de kerk naar de Scheldekaai op Theofanie (Driekoningen), waar de priester het water zegent en een kruis in de Schelde werpt", "organisator": "Grieks-orthodoxe parochie van de Boodschap aan de Moeder Gods in Antwerpen",
+   "reden": "De Grieks-orthodoxe parochie van Antwerpen trekt na de liturgie van Theofanie (6 januari) te voet naar de Schelde naast haar kerk om het water te zegenen (orthodoxia.be, 2023 en 2024). Dezelfde route stond op 6 januari 2024, 5 januari 2025 en 6 januari 2026 in A-Sign. Het dossier noemt zelf geen naam, en voor 2027 is er nog geen aankondiging.",
+   "dagen": ["2027-01-06"], "uren": "", "urenNoot": "Na de liturgie in de kerk; een uur staat nergens publiek.",
+   "waar": "Van de Jan van Gentstraat via de Gentplaats en de Van der Sweepstraat naar de Scheldekaai (de Cockerillkaai en de De Gerlachekaai), samen ongeveer 550 m.",
+   "watMerkJe": "Een stoet te voet van de kerk naar de Scheldekaai op woensdag 6 januari. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "https://orthodoxia.be/nl/2024/01/10/het-feest-van-de-theofanie-in-de-grootste-haven-van-belgie/", "linkLabel": "", "linkUitleg": "Verslag van het aartsbisdom over Theofanie 2024 in Antwerpen; voor 2027 is er nog geen aankondiging.",
+   "extraLinks": [{ "label": "Verslag van de zegening van de wateren in 2023", "url": "https://orthodoxia.be/nl/2023/01/18/zegening-van-de-wateren-in-de-grootste-haven-van-het-land/" }],
+   "binnenDistrict": true,
+   "bron": ["https://orthodoxia.be/nl/2024/01/10/het-feest-van-de-theofanie-in-de-grootste-haven-van-belgie/", "https://orthodoxia.be/nl/2023/01/18/zegening-van-de-wateren-in-de-grootste-haven-van-het-land/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006315": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier zegt alleen dat de wegwijzers naar de tram en de tramhaltes worden aangekleed. Het besluit over Winter in Antwerpen noemt dit parcours niet.",
+   "dagen": ["2026-12-05", "2026-12-06", "2026-12-07", "2026-12-08", "2026-12-09", "2026-12-10", "2026-12-11", "2026-12-12", "2026-12-13", "2026-12-14", "2026-12-15", "2026-12-16", "2026-12-17", "2026-12-18", "2026-12-19", "2026-12-20", "2026-12-21", "2026-12-22", "2026-12-23", "2026-12-24", "2026-12-25", "2026-12-26", "2026-12-27"], "uren": "", "urenNoot": "",
+   "waar": "Drie parcourslijnen van samen ongeveer 9,2 km vanaf het Koningin Astridplein, door 64 straten: onder meer de De Keyserlei, de Meir, de Groenplaats, de Nationalestraat, de Kloosterstraat, de kaaien en het Eilandje.",
+   "watMerkJe": "Aangeklede wegwijzers en tramhaltes langs het parcours van 5 tot 27 december; de opbouw begint op maandag 30 november en de afbraak loopt tot zondag 3 januari. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006416": {
+   "zekerheid": "waarschijnlijk", "naam": "Kerst op UA: Stadscampus", "soort": "kerstmarkt van studentenverenigingen met warme dranken, muziek en een fotohoek op de Stadscampus", "organisator": "studentenverenigingen van de Universiteit Antwerpen (Unifac)",
+   "reden": "De Universiteit Antwerpen noemt donderdag 10 december voor Kerst op UA op de Stadscampus (Unifac). Het dossier is die dag een kleine inname op de Ossenmarkt, midden op de Stadscampus; in december 2024 en 2025 stond er een gelijke inname op dezelfde plek. Het dossier noemt zelf geen naam, en de pagina noemt geen plek op de campus of uur.",
+   "dagen": ["2026-12-10"], "uren": "", "urenNoot": "De pagina van de Universiteit Antwerpen noemt geen uur.",
+   "waar": "Op de Ossenmarkt, midden op de Stadscampus van de Universiteit Antwerpen.",
+   "watMerkJe": "Een kleine inname op de Ossenmarkt op donderdag 10 december. Afsluitingen of parkeerverboden staan niet in het dossier.",
+   "link": "https://www.uantwerpen.be/nl/studentenleven/vrije-tijd-en-engagement/studentenverenigingen/studentenevents/kerstopuantwerpen/", "linkLabel": "", "linkUitleg": "De pagina toont Kerst op UA op alle campussen; de Stadscampus is op donderdag 10 december.", "extraLinks": [], "binnenDistrict": true,
+   "bron": ["https://www.uantwerpen.be/nl/studentenleven/vrije-tijd-en-engagement/studentenverenigingen/studentenevents/kerstopuantwerpen/", "https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
+  },
+  "ET2026006450": {
+   "zekerheid": "onbekend", "naam": "", "soort": "", "organisator": "",
+   "reden": "Het dossier noemt alleen een adres op het Sint-Catharinaplein, en geen besluit of publieke aankondiging noemt een activiteit op maandag 11 januari.",
+   "dagen": ["2027-01-11"], "uren": "", "urenNoot": "",
+   "waar": "Een route van ongeveer 700 m van het Sint-Catharinaplein via de Auguste Oleffestraat en de Sint-Bernardsesteenweg naar de Richard Baseleerstraat (Kiel).",
+   "watMerkJe": "Een inname en een parkeerverbod op het Sint-Catharinaplein, met opbouw en afbraak op dezelfde dag.",
    "link": "", "linkLabel": "", "linkUitleg": "", "extraLinks": [], "binnenDistrict": true,
    "bron": ["https://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22"], "bijgewerkt": "2026-11-24"
   }

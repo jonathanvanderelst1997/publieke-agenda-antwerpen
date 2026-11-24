@@ -231,8 +231,10 @@ test("identiteitsbestand: geldig, publiek en zonder persoonsgegevens", async () 
   // 38 uit de identificatierondes, plus Winter in Antwerpen (12-10-2026: de naam staat alleen in besluiten over
   // een bestek en de standplaatsen, met dezelfde periode en pleinen als het dossier). Plus 7 uit de ronde van
   // 24-11-2026 (de evenementen zonder naam in de agenda: veldrit, eindejaarsvuurwerk, wandeltocht, twee keer het
-  // Strip- en boekenplein, Kerst op UA en een kirtan).
-  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 46);
+  // Strip- en boekenplein, Kerst op UA en een kirtan). Plus 13 uit de tweede ronde van 24-11-2026: 2 met een naam die
+  // waarschijnlijk is (Theofanie aan de Schelde, Kerst op UA op de Stadscampus) en 11 die onbekend blijven, met wat er
+  // nagekeken is in `reden`.
+  assert.equal(Object.keys(IDENTITEIT.dossiers).length, 59);
   const fout = structuredClone(IDENTITEIT);
   fout.dossiers.ET2026001217.link = "https://example.org/?mail=x";
   fout.dossiers.ET2026001217.waar = "Start aan Voorbeeldstraat 12";
