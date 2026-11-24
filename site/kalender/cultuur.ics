@@ -34,34 +34,9 @@ RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
 END:STANDARD
 END:VTIMEZONE
 BEGIN:VEVENT
-UID:district-kal-6a746a7ff4182b8edf63a76b-2026-10-23@mijn-publieke-agenda-v
- oor-district.local
-DTSTAMP:20261123T042841Z
-DTSTART;TZID=Europe/Brussels:20261023T150000
-DURATION:PT1H
-SUMMARY:Vrijdagen van de Poëzie
-LOCATION:Harmoniepark 1
-DESCRIPTION:Je maandelijkse date met een dichter. Gastheer Piet Piryns gaat
-  in gesprek met een bekende Nederlandstalige auteur over poëzie die begee
- stert. Op 23 oktober verwachten we Tania Verhelst en op 20 november Jeroen
-  Theunissen. Prijs: €5 / GRATIS (VT)\nWanneer: 15 uur\nOp de publieke ag
- enda: https://mijn-publieke-agenda-voor-district.onrender.com/event/distri
- ct-kal-6a746a7ff4182b8edf63a76b-2026-10-23/\nDistrictskalender: https://ww
- w.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-ant
- werpen\nMeer info bij de organisator: https://www.antwerpen.be/info/69bcf7
- a1ff0ca8917752fe74/vrijdagen-van-de-poezie-in-districtshuis-harmonie\nBron
- : district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data lic
- entie)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
- kal-6a746a7ff4182b8edf63a76b-2026-10-23/
-CATEGORIES:Cultuur
-STATUS:CONFIRMED
-TRANSP:TRANSPARENT
-END:VEVENT
-BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77d-2026-11-04@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261104T190000
 DURATION:PT1H
 SUMMARY:FURIE!
@@ -87,7 +62,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77e-2026-11-10@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261110T140000
 DURATION:PT1H
 SUMMARY:Verlangen naar verbinding
@@ -111,7 +86,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-11-20@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261120T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -136,7 +111,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a780-2026-11-26@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261126T180000
 DTEND;TZID=Europe/Brussels:20261126T210000
 SUMMARY:Noorderlicht

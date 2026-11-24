@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261103T190000
 DTEND;TZID=Europe/Brussels:20261103T210000
 SUMMARY:Inspraakmoment: Heraanleg Jeruzalemstraat & Engelse Beurs
@@ -58,7 +58,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2026-11-08@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20270110
 SUMMARY:Futsal Project Seefhoek
@@ -80,7 +80,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025005359-2026-11-11@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:Vermoedelijk een markt op het Theaterplein
@@ -104,7 +104,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006108-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Vermoedelijk een markt op het De Coninckplein
@@ -128,7 +128,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00607-2026-11-27@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20261130
 SUMMARY:To Be Antwerp - kunstroute
@@ -150,7 +150,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00729-2026-11-28@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261128
 DTEND;VALUE=DATE:20261129
 SUMMARY:Winter Wonderland Katrinahof 2026
@@ -171,7 +171,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00720-2026-11-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261130
 DTEND;VALUE=DATE:20261220
 SUMMARY:Holly doet dienst
@@ -193,7 +193,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00711-2026-12-01@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261201
 DTEND;VALUE=DATE:20261202
 SUMMARY:Wereldaidsdag 2026 – Verhalen die verbinden\, stigma doorbreken
@@ -214,9 +214,30 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:ebesluit-ev-2026-cbs-08112-2026-12-17@mijn-publieke-agenda-voor-distric
+ t.local
+DTSTAMP:20261124T042710Z
+DTSTART;VALUE=DATE:20261217
+DTEND;VALUE=DATE:20261218
+SUMMARY:2 jaar Wolf
+LOCATION:Wolf Food Market te Godefriduskaai 30\, 2000 Antwerpen
+DESCRIPTION:Toelating voor een muziekactiviteit door het college van burgem
+ eester en schepenen (zitting van 20 november). Organisatie: Wolf Food Mark
+ et nv.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.
+ onrender.com/event/ebesluit-ev-2026-cbs-08112-2026-12-17/\nEvenementen vol
+ gens besluiten van stad en district (eBesluit): https://ebesluit.antwerpen
+ .be/zittingen/25.0918.4547.0463/agendapunten/26.1106.9754.3643\nBron: dist
+ rict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-cbs-08112-2026-12-17/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07833-2026-12-19@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;TZID=Europe/Brussels:20261219T110000
 DTEND;TZID=Europe/Brussels:20261219T190000
 SUMMARY:UCI Wereldbeker Veldrijden
@@ -238,7 +259,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006109-2026-12-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261220
 DTEND;VALUE=DATE:20261221
 SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
@@ -265,7 +286,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07835-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Eindejaarsvuurwerk 2026-2027
@@ -284,9 +305,72 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:ebesluit-ev-2026-cbs-08113-2026-12-31@mijn-publieke-agenda-voor-distric
+ t.local
+DTSTAMP:20261124T042710Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:Oud op Nieuw
+LOCATION:Wolf Food Market te Godefriduskaai 30\, 2000 Antwerpen
+DESCRIPTION:Toelating voor een muziekactiviteit door het college van burgem
+ eester en schepenen (zitting van 20 november). Organisatie: Wolf Food Mark
+ et nv.\nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.
+ onrender.com/event/ebesluit-ev-2026-cbs-08113-2026-12-31/\nEvenementen vol
+ gens besluiten van stad en district (eBesluit): https://ebesluit.antwerpen
+ .be/zittingen/25.0918.4547.0463/agendapunten/26.1106.1381.3717\nBron: dist
+ rict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-cbs-08113-2026-12-31/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ebesluit-ev-2026-cbs-08114-2026-12-31@mijn-publieke-agenda-voor-distric
+ t.local
+DTSTAMP:20261124T042710Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:Coming Soon NY
+LOCATION:Archipel\, Slachthuislaan 23\, 2060 Antwerpen
+DESCRIPTION:Toelating voor een muziekactiviteit door het college van burgem
+ eester en schepenen (zitting van 20 november). Organisatie: Archipel vzw.\
+ nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onrende
+ r.com/event/ebesluit-ev-2026-cbs-08114-2026-12-31/\nEvenementen volgens be
+ sluiten van stad en district (eBesluit): https://ebesluit.antwerpen.be/zit
+ tingen/25.0918.4547.0463/agendapunten/26.1106.9239.0733\nBron: district An
+ twerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-cbs-08114-2026-12-31/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:ebesluit-ev-2026-cbs-08115-2026-12-31@mijn-publieke-agenda-voor-distric
+ t.local
+DTSTAMP:20261124T042710Z
+DTSTART;VALUE=DATE:20261231
+DTEND;VALUE=DATE:20270101
+SUMMARY:New Year at China Star
+LOCATION:restaurant China Star\, Van Wesenbekestraat 31-33\, 2060 Antwerpen
+DESCRIPTION:Toelating voor een muziekactiviteit door het college van burgem
+ eester en schepenen (zitting van 20 november). Organisatie: Avonduur vzw.\
+ nOp de publieke agenda: https://mijn-publieke-agenda-voor-district.onrende
+ r.com/event/ebesluit-ev-2026-cbs-08115-2026-12-31/\nEvenementen volgens be
+ sluiten van stad en district (eBesluit): https://ebesluit.antwerpen.be/zit
+ tingen/25.0918.4547.0463/agendapunten/26.1109.9834.1015\nBron: district An
+ twerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
+ ev-2026-cbs-08115-2026-12-31/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:asign-ev-et2026004820-2027-01-17@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20270117
 DTEND;VALUE=DATE:20270118
 SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
@@ -313,7 +397,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2027-05-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20270530
 DTEND;VALUE=DATE:20270531
 SUMMARY:Futsal Project Seefhoek
@@ -335,7 +419,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00727-2027-08-31@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261123T042841Z
+DTSTAMP:20261124T042710Z
 DTSTART;VALUE=DATE:20270831
 DTEND;VALUE=DATE:20270901
 SUMMARY:The Next Move
