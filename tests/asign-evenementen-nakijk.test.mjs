@@ -312,3 +312,17 @@ test("venster: een evenementdag op precies VOORUIT_DAGEN dagen telt nog mee, een
   assert.deepEqual(items.map((i) => i.date), [VANDAAG, dag(60)]);
   assert.equal(tellers.buitenVenster, 1);
 });
+
+// ---------- Een vermoede naam uit de handfiche klinkt niet zekerder dan de titel ----------
+
+test("handfiche: een zekere naam is nagekeken, een waarschijnlijke naam is een vermoeden in titel én uitleg", () => {
+  const f = feit("ET2099100040", { langs: ["Proefstraat", "Voorbeeldlaan"] });
+  const info = (hand) => bouw({ feiten: [f], hand: { dossiers: { ET2099100040: hand } }, auto: null }).items[0];
+  const zeker = info(fiche({ zekerheid: "zeker", naam: "Proefloop van de Wijk" }));
+  assert.equal(zeker.title, "Proefloop van de Wijk");
+  assert.match(zeker.info, /Naam met de hand nagekeken bij een publieke bron\./);
+  const vermoed = info(fiche({ zekerheid: "waarschijnlijk", naam: "Proefloop van de Wijk" }));
+  assert.equal(vermoed.title, "Vermoedelijk Proefloop van de Wijk");
+  assert.match(vermoed.info, /Naam vermoed uit een publieke bron, met de hand nagezocht; niet bevestigd\./);
+  assert.doesNotMatch(vermoed.info, /Naam met de hand nagekeken/);
+});
