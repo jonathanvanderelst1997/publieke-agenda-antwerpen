@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-23T04:28:17.350Z",
+  "generatedAt": "2026-11-24T04:26:50.463Z",
   "venster": {
-    "van": "2026-09-24",
-    "tot": "2027-03-23"
+    "van": "2026-09-25",
+    "tot": "2027-03-24"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 43,
-    "gelezen": 28,
+    "besluiten": 49,
+    "gelezen": 34,
     "teLezen": 0,
-    "metDag": 23,
-    "inDistrict": 22,
-    "agendapunten": 19
+    "metDag": 28,
+    "inDistrict": 27,
+    "agendapunten": 23
   },
   "besluiten": [
     {
@@ -1327,6 +1327,182 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0482.4469/agendapunten/26.1103.3026.0968"
+    },
+    {
+      "id": "26.1106.9754.3643",
+      "code": "2026_CBS_08112",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "2 jaar Wolf",
+      "organisator": "Wolf Food Market nv",
+      "dagen": [
+        "2026-12-17"
+      ],
+      "uren": null,
+      "plaats": "Wolf Food Market te Godefriduskaai 30, 2000 Antwerpen",
+      "straten": [
+        "Godefriduskaai"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1106.9754.3643",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1106.1381.3717",
+      "code": "2026_CBS_08113",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Oud op Nieuw",
+      "organisator": "Wolf Food Market nv",
+      "dagen": [
+        "2026-12-31"
+      ],
+      "uren": null,
+      "plaats": "Wolf Food Market te Godefriduskaai 30, 2000 Antwerpen",
+      "straten": [
+        "Godefriduskaai"
+      ],
+      "postcodes": [
+        "2000"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1106.1381.3717",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1106.9239.0733",
+      "code": "2026_CBS_08114",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Coming Soon NY",
+      "organisator": "Archipel vzw",
+      "dagen": [
+        "2026-12-31"
+      ],
+      "uren": null,
+      "plaats": "Archipel, Slachthuislaan 23, 2060 Antwerpen",
+      "straten": [
+        "Slachthuislaan"
+      ],
+      "postcodes": [
+        "2060"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1106.9239.0733",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1109.9834.1015",
+      "code": "2026_CBS_08115",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "New Year at China Star",
+      "organisator": "Avonduur vzw",
+      "dagen": [
+        "2026-12-31"
+      ],
+      "uren": null,
+      "plaats": "restaurant China Star, Van Wesenbekestraat 31-33, 2060 Antwerpen",
+      "straten": [
+        "Van Wesenbekestraat"
+      ],
+      "postcodes": [
+        "2060"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1109.9834.1015",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1106.0265.4580",
+      "code": "2026_CBS_08116",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Christmas Charity Dinner",
+      "organisator": "Cobra House bv",
+      "dagen": [],
+      "uren": null,
+      "plaats": "in Cobra House, Markgravelei 95, 2018 Antwerpen",
+      "straten": [
+        "Markgravelei"
+      ],
+      "postcodes": [
+        "2018"
+      ],
+      "inDistrict": true,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1106.0265.4580",
+      "leesversie": 3
+    },
+    {
+      "id": "26.1109.7711.2513",
+      "code": "2026_CBS_08117",
+      "soort": "muziek",
+      "status": "goedkeuring",
+      "orgaan": "college van burgemeester en schepenen",
+      "zitting": "2026-11-20",
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "Oud op Nieuw",
+      "organisator": null,
+      "dagen": [
+        "2026-12-31"
+      ],
+      "uren": null,
+      "plaats": "lokaal Ganzenhof, Bullesteeg, 2040 Berendrecht",
+      "straten": [],
+      "postcodes": [
+        "2040"
+      ],
+      "inDistrict": false,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.4547.0463/agendapunten/26.1109.7711.2513",
+      "leesversie": 3
     },
     {
       "id": "26.1117.7678.5978",
