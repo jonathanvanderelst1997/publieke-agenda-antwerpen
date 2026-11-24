@@ -3,7 +3,7 @@
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-11-24",
   "sourceItemCount": 932,
-  "sourceDigest": "5c5a5570ab47114126d93b51261e2f2ded75bdd95ad2854949056b5a681258ea",
+  "sourceDigest": "59807c2ff6f18ac896ce8133151cd64e0bd4839e57f244e61d366b974399bfbd",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -410,7 +410,7 @@
     },
     {
       "id": "asign-ev-et2025006109-2026-12-20",
-      "title": "Vermoedelijk een markt op het De Coninckplein",
+      "title": "Strip- en boekenplein",
       "eventDate": "2026-12-20",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -449,7 +449,7 @@
     },
     {
       "id": "asign-ev-et2025007265-2026-12-31",
-      "title": "Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten",
+      "title": "Eindejaarsvuurwerk 2026-2027",
       "eventDate": "2026-12-31",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -462,7 +462,7 @@
     },
     {
       "id": "asign-ev-et2025007265-2027-01-01",
-      "title": "Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten",
+      "title": "Eindejaarsvuurwerk 2026-2027",
       "eventDate": "2027-01-01",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -514,7 +514,7 @@
     },
     {
       "id": "asign-ev-et2026004671-2026-12-19",
-      "title": "Evenement in de Thonetlaan: verkeersvrije zone in 5 straten",
+      "title": "UCI Wereldbeker Veldrijden Antwerpen",
       "eventDate": "2026-12-19",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -527,7 +527,7 @@
     },
     {
       "id": "asign-ev-et2026004820-2027-01-17",
-      "title": "Vermoedelijk een markt op het De Coninckplein",
+      "title": "Strip- en boekenplein",
       "eventDate": "2027-01-17",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -579,7 +579,7 @@
     },
     {
       "id": "asign-ev-et2026005499-2026-11-29",
-      "title": "Evenement in de Beukenlaan: lus van 10,1 km",
+      "title": "Spot On! Park Run & Walk",
       "eventDate": "2026-11-29",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -592,7 +592,7 @@
     },
     {
       "id": "asign-ev-et2026005821-2026-12-06",
-      "title": "Evenement in de Argentiniëlaan: parcours door 26 straten",
+      "title": "Herfsttochten – Walk 2 Gether-tocht",
       "eventDate": "2026-12-06",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -657,7 +657,7 @@
     },
     {
       "id": "asign-ev-et2026005988-2026-12-08",
-      "title": "Vermoedelijk Kerst op UA CGB (Fabiant)",
+      "title": "Kerst op UA: Campus Groenenborger",
       "eventDate": "2026-12-08",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -709,7 +709,7 @@
     },
     {
       "id": "asign-ev-et2026006109-2026-11-28",
-      "title": "Evenement op het Koningin Astridplein: lus van 4,0 km",
+      "title": "Vermoedelijk een kirtan op het Koningin Astridplein",
       "eventDate": "2026-11-28",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -748,7 +748,7 @@
     },
     {
       "id": "asign-ev-et2026006274-2027-01-06",
-      "title": "Evenement in de Jan van Gentstraat: route van 550 m",
+      "title": "Vermoedelijk Zegening van de wateren aan de Schelde (Theofanie)",
       "eventDate": "2027-01-06",
       "classification": "future",
       "classificationAsOf": "2026-11-24",
@@ -774,7 +774,7 @@
     },
     {
       "id": "asign-ev-et2026006416-2026-12-10",
-      "title": "Evenement in de Rolwagenstraat: route van 250 m",
+      "title": "Vermoedelijk Kerst op UA: Stadscampus",
       "eventDate": "2026-12-10",
       "classification": "future",
       "classificationAsOf": "2026-11-24",

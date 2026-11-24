@@ -4,8 +4,8 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-11-24",
-  "sourceDigest": "5c5a5570ab47114126d93b51261e2f2ded75bdd95ad2854949056b5a681258ea",
-  "matrixDigest": "5c5a5570ab47114126d93b51261e2f2ded75bdd95ad2854949056b5a681258ea",
+  "sourceDigest": "59807c2ff6f18ac896ce8133151cd64e0bd4839e57f244e61d366b974399bfbd",
+  "matrixDigest": "59807c2ff6f18ac896ce8133151cd64e0bd4839e57f244e61d366b974399bfbd",
   "counts": {
     "add": 0,
     "change": 0,
@@ -202,8 +202,8 @@
     {
       "id": "asign-ev-et2025006109-2026-12-20",
       "action": "unchanged",
-      "sourceDigest": "5cea4f51a01882e603eef3ce9769fb69ebc0717e99059d0cf3833e0db2c5716d",
-      "matrixDigest": "5cea4f51a01882e603eef3ce9769fb69ebc0717e99059d0cf3833e0db2c5716d"
+      "sourceDigest": "54d0f7c078607e1bfb98ea376510bc6a32ed0a5ac86eb2b008c526e2088a55bc",
+      "matrixDigest": "54d0f7c078607e1bfb98ea376510bc6a32ed0a5ac86eb2b008c526e2088a55bc"
     },
     {
       "id": "asign-ev-et2025006728-2026-12-04",
@@ -220,14 +220,14 @@
     {
       "id": "asign-ev-et2025007265-2026-12-31",
       "action": "unchanged",
-      "sourceDigest": "a880cb0482b01da1c7ba635d9138884fa02ef0bf71bad96ffcd130dbb8eadc51",
-      "matrixDigest": "a880cb0482b01da1c7ba635d9138884fa02ef0bf71bad96ffcd130dbb8eadc51"
+      "sourceDigest": "352bd5ebab13f91b624078a47161407dcc607574a28205902c0982353b242355",
+      "matrixDigest": "352bd5ebab13f91b624078a47161407dcc607574a28205902c0982353b242355"
     },
     {
       "id": "asign-ev-et2025007265-2027-01-01",
       "action": "unchanged",
-      "sourceDigest": "bcc0c7497929e828bf941c41f08c1d1cab11782b79e92e71aa6631c67355c1f6",
-      "matrixDigest": "bcc0c7497929e828bf941c41f08c1d1cab11782b79e92e71aa6631c67355c1f6"
+      "sourceDigest": "7d7b9094deae5028510b3cbeed0f360fffa44012b5f7e8cf2b74231c0a905200",
+      "matrixDigest": "7d7b9094deae5028510b3cbeed0f360fffa44012b5f7e8cf2b74231c0a905200"
     },
     {
       "id": "asign-ev-et2026000222-2026-12-04",
@@ -250,14 +250,14 @@
     {
       "id": "asign-ev-et2026004671-2026-12-19",
       "action": "unchanged",
-      "sourceDigest": "3f4964a5b15965bc1971ba7aeaa898c808602489f5b6e4a1795d59ba4b5c27e3",
-      "matrixDigest": "3f4964a5b15965bc1971ba7aeaa898c808602489f5b6e4a1795d59ba4b5c27e3"
+      "sourceDigest": "ce9f04fcc0fffe6272cf07b57775911208d2496b2022ac464f93ff94f6d07454",
+      "matrixDigest": "ce9f04fcc0fffe6272cf07b57775911208d2496b2022ac464f93ff94f6d07454"
     },
     {
       "id": "asign-ev-et2026004820-2027-01-17",
       "action": "unchanged",
-      "sourceDigest": "5b492d9c60a23be159d06bad587e22fba2c6ee41de8e1c9eea564fb539f29ce9",
-      "matrixDigest": "5b492d9c60a23be159d06bad587e22fba2c6ee41de8e1c9eea564fb539f29ce9"
+      "sourceDigest": "2ed16ef7183db889ab8b555c453d0295b7cf9fa3e39bcbc4acf91fa3fae79246",
+      "matrixDigest": "2ed16ef7183db889ab8b555c453d0295b7cf9fa3e39bcbc4acf91fa3fae79246"
     },
     {
       "id": "asign-ev-et2026005091-2026-12-31",
@@ -280,14 +280,14 @@
     {
       "id": "asign-ev-et2026005499-2026-11-29",
       "action": "unchanged",
-      "sourceDigest": "fb56ea7ce44c8ef182fc0542634f5adc540852fce6255387da1d7d0db27eb50f",
-      "matrixDigest": "fb56ea7ce44c8ef182fc0542634f5adc540852fce6255387da1d7d0db27eb50f"
+      "sourceDigest": "8c044ef8496c44f8afd7a90cd28436a66b18eeb051510c57c8955981cf55042d",
+      "matrixDigest": "8c044ef8496c44f8afd7a90cd28436a66b18eeb051510c57c8955981cf55042d"
     },
     {
       "id": "asign-ev-et2026005821-2026-12-06",
       "action": "unchanged",
-      "sourceDigest": "33f4179fbf963d892011ba63ff3af19ff5d19bc2fb1d65ec31dfb48f67ddf95a",
-      "matrixDigest": "33f4179fbf963d892011ba63ff3af19ff5d19bc2fb1d65ec31dfb48f67ddf95a"
+      "sourceDigest": "4e4e2c490f3a1748423fa110866a6e0376d768285cfc369b0e9cd66b73f1a69c",
+      "matrixDigest": "4e4e2c490f3a1748423fa110866a6e0376d768285cfc369b0e9cd66b73f1a69c"
     },
     {
       "id": "asign-ev-et2026005880-2026-12-19",
@@ -316,8 +316,8 @@
     {
       "id": "asign-ev-et2026005988-2026-12-08",
       "action": "unchanged",
-      "sourceDigest": "7a7f80d06df2065ac5953fec4413b7c58aa6928ca1134d4a6fb030c4e995c9bb",
-      "matrixDigest": "7a7f80d06df2065ac5953fec4413b7c58aa6928ca1134d4a6fb030c4e995c9bb"
+      "sourceDigest": "ebe137e53362196542ce945f5b810c08063b9195a90418cced3dd811e39c5e54",
+      "matrixDigest": "ebe137e53362196542ce945f5b810c08063b9195a90418cced3dd811e39c5e54"
     },
     {
       "id": "asign-ev-et2026006044-2026-12-10",
@@ -340,8 +340,8 @@
     {
       "id": "asign-ev-et2026006109-2026-11-28",
       "action": "unchanged",
-      "sourceDigest": "4e3a8353467218941afb9279994725b00ddafa5ba8cc8caee7c1b9596f47860d",
-      "matrixDigest": "4e3a8353467218941afb9279994725b00ddafa5ba8cc8caee7c1b9596f47860d"
+      "sourceDigest": "85c53ac700503c9fba8d0bf5bf9dfc3d854b163c132ab9f67ec3c6476a412f58",
+      "matrixDigest": "85c53ac700503c9fba8d0bf5bf9dfc3d854b163c132ab9f67ec3c6476a412f58"
     },
     {
       "id": "asign-ev-et2026006124-2026-12-19",
@@ -358,8 +358,8 @@
     {
       "id": "asign-ev-et2026006274-2027-01-06",
       "action": "unchanged",
-      "sourceDigest": "21aed7d4208ff164b5495ae64b13676f26dce567455a8d6c3848a511bf93bbcb",
-      "matrixDigest": "21aed7d4208ff164b5495ae64b13676f26dce567455a8d6c3848a511bf93bbcb"
+      "sourceDigest": "25344e8702d75d9063a74a111f89b79dd0f921952addf966cc2e88be23e2475d",
+      "matrixDigest": "25344e8702d75d9063a74a111f89b79dd0f921952addf966cc2e88be23e2475d"
     },
     {
       "id": "asign-ev-et2026006315-2026-12-05",
@@ -370,8 +370,8 @@
     {
       "id": "asign-ev-et2026006416-2026-12-10",
       "action": "unchanged",
-      "sourceDigest": "967b5df0d0d49afcfadaa4b7e7e35f42d6e2f3d7713a59687fdf458846688e39",
-      "matrixDigest": "967b5df0d0d49afcfadaa4b7e7e35f42d6e2f3d7713a59687fdf458846688e39"
+      "sourceDigest": "eb5d64b78239e0d5eea145e860668c9d20b7bec74c4a7dac2b9c10867e32427d",
+      "matrixDigest": "eb5d64b78239e0d5eea145e860668c9d20b7bec74c4a7dac2b9c10867e32427d"
     },
     {
       "id": "asign-ev-et2026006450-2027-01-11",

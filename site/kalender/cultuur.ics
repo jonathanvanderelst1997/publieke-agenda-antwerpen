@@ -135,4 +135,35 @@ CATEGORIES:Cultuur
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2026005967-2026-12-17@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261124T042710Z
+DTSTART;VALUE=DATE:20261217
+DTEND;VALUE=DATE:20261218
+SUMMARY:Evenement op de Hanzestedenplaats: route van 2\,0 km (aanvraag\, no
+ g niet goedgekeurd)
+LOCATION:Hanzestedenplaats\, Bataviastraat\, Bonapartedok en 27 andere stra
+ ten
+DESCRIPTION:Parcours door 30 straten: onder meer Bataviastraat\, Bonaparted
+ ok\, Entrepotkaai\, Entrepotplaats. Naam onbekend. Het dossier heeft geen 
+ naam of omschrijving\, en geen publieke aankondiging noemt een activiteit 
+ op deze route op donderdag 17 december. Het besluit voor 2 jaar Wolf\, die
+  dag aan de Godefriduskaai\, gaat over muziek en noemt geen parcours. Komt
+  er een besluit (meestal 2 tot 6 weken vooraf) of een aankondiging\, dan v
+ erschijnt de naam hier vanzelf. Evenementendossier ET2026005967 van de sta
+ d (A-Sign)\, laatst gewijzigd op 14 oktober 2026: aanvraag nog niet goedge
+ keurd.\nLet op: dit is een aanvraag die de stad nog niet goedkeurde. Wordt
+  ze geweigerd of afgelast\, dan verdwijnt ze uit je agenda.\nOp de publiek
+ e agenda: https://mijn-publieke-agenda-voor-district.onrender.com/event/as
+ ign-ev-et2026005967-2026-12-17/\nEvenementen op straat (dossiers van de st
+ ad in A-Sign): https://geodata.antwerpen.be/arcgissql/rest/services/P_ASig
+ n/ASign/MapServer/22\nBron: district Antwerpen – bron stad Antwerpen (Vl
+ aamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026005967-2026-12-17/
+CATEGORIES:Cultuur
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR
