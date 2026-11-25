@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-24T04:26:50.463Z",
+  "generatedAt": "2026-11-25T04:26:34.898Z",
   "venster": {
-    "van": "2026-09-25",
-    "tot": "2027-03-24"
+    "van": "2026-09-26",
+    "tot": "2027-03-25"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 49,
-    "gelezen": 34,
+    "besluiten": 46,
+    "gelezen": 32,
     "teLezen": 0,
-    "metDag": 28,
-    "inDistrict": 27,
-    "agendapunten": 23
+    "metDag": 26,
+    "inDistrict": 26,
+    "agendapunten": 22
   },
   "besluiten": [
     {
@@ -83,93 +83,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0812.6529.1272",
-      "code": "2026_CBS_06883",
-      "soort": "evenement",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-25",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Ecodroom 2026",
-      "organisator": "provincie Antwerpen",
-      "dagen": [
-        "2026-10-04"
-      ],
-      "uren": {
-        "start": "12:00",
-        "einde": "18:00"
-      },
-      "plaats": "Rivierenhof in Deurne",
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": false,
-      "opbouw": "2026-10-02",
-      "afbouw": "2026-10-05",
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0812.6529.1272"
-    },
-    {
-      "id": "26.0827.5504.5947",
-      "code": "2026_CBS_06884",
-      "soort": "evenement",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-25",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Antwerp Urban Walk 2026",
-      "organisator": null,
-      "dagen": [
-        "2026-10-04"
-      ],
-      "uren": null,
-      "plaats": "verschillende locaties in de binnenstad",
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": true,
-      "opbouw": "2026-10-02",
-      "afbouw": "2026-10-04",
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0827.5504.5947",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0908.1145.7936",
-      "code": "2026_CBS_06885",
-      "soort": "evenement",
-      "status": "goedkeuring",
-      "orgaan": "college van burgemeester en schepenen",
-      "zitting": "2026-09-25",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Antwerp Marathon 2026",
-      "organisator": "Golazo Sport nv",
-      "dagen": [
-        "2026-10-18"
-      ],
-      "uren": {
-        "start": "09:00",
-        "einde": "17:00"
-      },
-      "plaats": "Rijnkaai",
-      "straten": [
-        "Rijnkaai"
-      ],
-      "postcodes": [
-        "2000"
-      ],
-      "inDistrict": true,
-      "opbouw": "2026-10-12",
-      "afbouw": "2026-10-21",
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0918.9700.1215/agendapunten/26.0908.1145.7936",
       "leesversie": 3
     },
     {
@@ -1534,21 +1447,59 @@
       "status": "goedkeuring",
       "orgaan": "districtscollege Antwerpen",
       "zitting": "2026-11-23",
-      "gepubliceerd": false,
-      "gelezen": false,
-      "naam": null,
+      "gepubliceerd": true,
+      "gelezen": true,
+      "naam": "De Warmste Wijk 2026",
       "organisator": "SAAMO Antwerpen vzw",
-      "dagen": [],
+      "dagen": [
+        "2026-12-08",
+        "2026-12-09",
+        "2026-12-10",
+        "2026-12-11",
+        "2026-12-12",
+        "2026-12-13",
+        "2026-12-14",
+        "2026-12-15",
+        "2026-12-16",
+        "2026-12-17",
+        "2026-12-18",
+        "2026-12-19",
+        "2026-12-20",
+        "2026-12-21",
+        "2026-12-22",
+        "2026-12-23",
+        "2026-12-24",
+        "2026-12-25",
+        "2026-12-26",
+        "2026-12-27",
+        "2026-12-28",
+        "2026-12-29",
+        "2026-12-30",
+        "2026-12-31",
+        "2027-01-01",
+        "2027-01-02",
+        "2027-01-03",
+        "2027-01-04",
+        "2027-01-05",
+        "2027-01-06",
+        "2027-01-07",
+        "2027-01-08"
+      ],
       "uren": null,
-      "plaats": null,
-      "straten": [],
-      "postcodes": [],
-      "inDistrict": null,
+      "plaats": "Schijfstraat 105, 2020 Antwerpen",
+      "straten": [
+        "Schijfstraat"
+      ],
+      "postcodes": [
+        "2020"
+      ],
+      "inDistrict": true,
       "opbouw": null,
       "afbouw": null,
       "wijziging": null,
       "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0848.6954/agendapunten/26.1116.2667.0849"
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0848.6954/agendapunten/26.1116.2667.0849",
+      "leesversie": 3
     }
   ]
 }

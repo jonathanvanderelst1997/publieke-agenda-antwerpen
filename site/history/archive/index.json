@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "baselineInitializedAt": "2026-10-01T11:42:02.040Z",
-  "lastObservedAt": "2026-11-24T04:27:10.456Z",
+  "lastObservedAt": "2026-11-25T04:26:47.634Z",
   "days": [
     {
       "date": "2026-10-02",
@@ -296,6 +296,12 @@
       "file": "site/history/archive/2026-11-24.json",
       "count": 635,
       "digest": "3d261a11e5ac776cd34892dad0c9196a091b6af1c26c3947068bfcaa195730df"
+    },
+    {
+      "date": "2026-11-25",
+      "file": "site/history/archive/2026-11-25.json",
+      "count": 755,
+      "digest": "05d9e5ec22f812597feeec2c541a86d0350dab99e9ab4d6d10f32a817f6a696c"
     }
   ]
 }

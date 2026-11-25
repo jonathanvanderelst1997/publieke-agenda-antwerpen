@@ -295,16 +295,6 @@
    "postcode": "2000",
    "checkedOn": "2026-10-21"
   },
-  "grote kauwenberg kleine kauwenberg lange winkelstraat en 2 andere straten": {
-   "point": [
-    4.41142,
-    51.22306
-   ],
-   "precision": "straat",
-   "street": "Grote Kauwenberg",
-   "postcode": "2000",
-   "checkedOn": "2026-10-22"
-  },
   "grotebeerstraat 2018 antwerpen": {
    "point": [
     4.42943,
@@ -634,6 +624,16 @@
    "street": "Scheldestraat",
    "postcode": "2000",
    "checkedOn": "2026-11-07"
+  },
+  "schijfstraat 105 2020 antwerpen": {
+   "point": [
+    4.37308,
+    51.19068
+   ],
+   "precision": "adres",
+   "street": "Schijfstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-11-25"
   },
   "schijnpoortweg 2060 antwerpen": {
    "point": [
