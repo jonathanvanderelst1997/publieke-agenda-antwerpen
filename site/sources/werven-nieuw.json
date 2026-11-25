@@ -1,14 +1,14 @@
 {
   "schemaVersion": 1,
-  "observedAt": "2026-11-24T04:27:10.456Z",
-  "van": "2026-11-18",
-  "tot": "2026-11-24",
+  "observedAt": "2026-11-25T04:26:47.634Z",
+  "van": "2026-11-19",
+  "tot": "2026-11-25",
   "bron": {
     "label": "Bron: GIPOD (Digitaal Vlaanderen)",
     "url": "https://metadata.vlaanderen.be/srv/api/records/2b4b3bb7-cadc-41a0-b5ae-796a84a20b52"
   },
-  "aantalNieuw": 393,
-  "aantalBegint": 224,
+  "aantalNieuw": 363,
+  "aantalBegint": 209,
   "nieuw": [
     {
       "id": "work:20308983",
@@ -20,182 +20,6 @@
       "einde": "2026-11-25T16:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:20759538",
-      "titel": "Werk in openbaar domein",
-      "straten": [
-        "Falconrui"
-      ],
-      "begin": "2026-11-06T06:00:00Z",
-      "einde": "2027-04-30T15:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:20794716",
-      "titel": "Nieuwe aansluiting op het telecomnet – Britselei 44",
-      "straten": [
-        "Britselei 44"
-      ],
-      "begin": "2026-11-16T23:00:00Z",
-      "einde": "2026-12-16T23:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21009948",
-      "titel": "Nutswerken met een hoogtewerker – Paleisstraat 88",
-      "straten": [
-        "Paleisstraat 88"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-30T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:20952811",
-      "titel": "2170 Antwerpen - Groenendaallaan - Plaatsen leidingen - 0m",
-      "straten": [
-        "Groenendaallaan"
-      ],
-      "begin": "2026-11-18T00:00:00Z",
-      "einde": "2026-11-25T00:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21003834",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 15",
-      "straten": [
-        "Hockeystraat 15"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003835",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 15",
-      "straten": [
-        "Hockeystraat 15"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003838",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 23",
-      "straten": [
-        "Hockeystraat 23"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003839",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 23",
-      "straten": [
-        "Hockeystraat 23"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003829",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 3",
-      "straten": [
-        "Hockeystraat 3"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003830",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 5",
-      "straten": [
-        "Hockeystraat 5"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003831",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 5",
-      "straten": [
-        "Hockeystraat 5"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003832",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 7",
-      "straten": [
-        "Hockeystraat 7"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003833",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 7",
-      "straten": [
-        "Hockeystraat 7"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003714",
-      "titel": "Nieuwe aansluiting op het gasnet – Magdalenastraat 1",
-      "straten": [
-        "Magdalenastraat 1"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:18015708",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Reyndersstraat 6",
-      "straten": [
-        "Reyndersstraat 6"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21007202",
-      "titel": "2018 Antwerpen Jan Van Rijswijcklaan 155 werken distributieleiding)",
-      "straten": [
-        "Jan Van Rijswijcklaan 155"
-      ],
-      "begin": "2026-11-18T08:00:00Z",
-      "einde": "2026-11-24T16:12:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:21022053",
@@ -218,28 +42,6 @@
       "einde": "2026-11-25T23:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21004130",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 57",
-      "straten": [
-        "Duboisstraat 57"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21004131",
-      "titel": "Nieuwe aansluiting op het gasnet – Duboisstraat 57",
-      "straten": [
-        "Duboisstraat 57"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:21012068",
@@ -363,116 +165,6 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:21003762",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 17",
-      "straten": [
-        "Wandeldijk 17"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003764",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 17",
-      "straten": [
-        "Wandeldijk 17"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003763",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 22",
-      "straten": [
-        "Wandeldijk 22"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21015181",
-      "titel": "Nutswerken met een hoogtewerker – Camille Huysmanslaan 52",
-      "straten": [
-        "Camille Huysmanslaan 52"
-      ],
-      "begin": "2026-11-19T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21003843",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 27",
-      "straten": [
-        "Hockeystraat 27"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003844",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 27",
-      "straten": [
-        "Hockeystraat 27"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003845",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 29",
-      "straten": [
-        "Hockeystraat 29"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003846",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 29",
-      "straten": [
-        "Hockeystraat 29"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003847",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 33",
-      "straten": [
-        "Hockeystraat 33"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003848",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 33",
-      "straten": [
-        "Hockeystraat 33"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:21018747",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Oude Koornmarkt 71",
       "straten": [
@@ -561,50 +253,6 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:21004128",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 55",
-      "straten": [
-        "Duboisstraat 55"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21004132",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 109",
-      "straten": [
-        "Lange Dijkstraat 109"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21004133",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 111",
-      "straten": [
-        "Lange Dijkstraat 111"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21004134",
-      "titel": "Nieuwe aansluiting op het gasnet – Lange Dijkstraat 111",
-      "straten": [
-        "Lange Dijkstraat 111"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:17529772",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Paardenmarkt 105",
       "straten": [
@@ -660,17 +308,6 @@
       "eersteKeer": "2026-11-21"
     },
     {
-      "id": "work:19662241",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Violetstraat 30",
-      "straten": [
-        "Violetstraat 30"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-19"
-    },
-    {
       "id": "work:21026385",
       "titel": "Nieuwe aansluiting op het gasnet – Vliegenstraat 15",
       "straten": [
@@ -680,17 +317,6 @@
       "einde": "2026-11-27T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:21021435",
-      "titel": "2018 Antwerpen Mercatorstraat 68 werken distributieleiding)",
-      "straten": [
-        "Mercatorstraat 68"
-      ],
-      "begin": "2026-11-21T11:12:00Z",
-      "einde": "2026-11-23T14:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-19"
     },
     {
       "id": "work:21031397",
@@ -708,28 +334,6 @@
       "titel": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 35",
       "straten": [
         "Arthur Goemaerelei 35"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-22"
-    },
-    {
-      "id": "work:21031398",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 41",
-      "straten": [
-        "Arthur Goemaerelei 41"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-22"
-    },
-    {
-      "id": "work:21031400",
-      "titel": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 41",
-      "straten": [
-        "Arthur Goemaerelei 41"
       ],
       "begin": "2026-11-22T01:00:00Z",
       "einde": "2026-11-27T21:00:00Z",
@@ -770,61 +374,6 @@
       "eersteKeer": "2026-11-20"
     },
     {
-      "id": "work:21003836",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 21",
-      "straten": [
-        "Hockeystraat 21"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-28T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003837",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 21",
-      "straten": [
-        "Hockeystraat 21"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-28T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003840",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 25",
-      "straten": [
-        "Hockeystraat 25"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-28T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003841",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 25",
-      "straten": [
-        "Hockeystraat 25"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-28T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:19886424",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Lozanastraat 111",
-      "straten": [
-        "Lange Lozanastraat 111"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-28T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:20938415",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Nassaustraat 37",
       "straten": [
@@ -856,281 +405,6 @@
       "einde": "2026-11-28T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:21010709",
-      "titel": "Nieuwe aansluiting op het telecomnet – Akkerwindestraat 5",
-      "straten": [
-        "Akkerwindestraat 5"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010760",
-      "titel": "Nutswerken met een hoogtewerker – Anselmostraat 71",
-      "straten": [
-        "Anselmostraat 71"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010780",
-      "titel": "Nutswerken met een hoogtewerker – Blauwmoezelstraat 5",
-      "straten": [
-        "Blauwmoezelstraat 5"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010792",
-      "titel": "Nutswerken met een hoogtewerker – Bresstraat 8",
-      "straten": [
-        "Bresstraat 8"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010679",
-      "titel": "Nutswerken met een hoogtewerker – Clementinastraat 49",
-      "straten": [
-        "Clementinastraat 49"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010720",
-      "titel": "Nutswerken met een hoogtewerker – De Bosschaertstraat 255",
-      "straten": [
-        "De Bosschaertstraat 255"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010787",
-      "titel": "Nutswerken met een hoogtewerker – De Marbaixstraat 41",
-      "straten": [
-        "De Marbaixstraat 41"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010756",
-      "titel": "Nutswerken met een hoogtewerker – De Waghemakerestraat 2",
-      "straten": [
-        "De Waghemakerestraat 2"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010777",
-      "titel": "Nutswerken met een hoogtewerker – Desguinlei 166",
-      "straten": [
-        "Desguinlei 166"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010808",
-      "titel": "Nutswerken met een hoogtewerker – Desguinlei 224",
-      "straten": [
-        "Desguinlei 224"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010649",
-      "titel": "Nieuwe aansluiting op het telecomnet – Duinstraat 83",
-      "straten": [
-        "Duinstraat 83"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010711",
-      "titel": "Nutswerken met een hoogtewerker – Frankrijklei 160",
-      "straten": [
-        "Frankrijklei 160"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010794",
-      "titel": "Nutswerken met een hoogtewerker – Goudbloemstraat 22",
-      "straten": [
-        "Goudbloemstraat 22"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010714",
-      "titel": "Nutswerken met een hoogtewerker – Haantjeslei 205",
-      "straten": [
-        "Haantjeslei 205"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010797",
-      "titel": "Nutswerken met een hoogtewerker – Italiëlei 163",
-      "straten": [
-        "Italiëlei 163"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010828",
-      "titel": "Nutswerken met een hoogtewerker – Kleinebeerstraat 22",
-      "straten": [
-        "Kleinebeerstraat 22"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010574",
-      "titel": "Nutswerken met een hoogtewerker – Markgravelei 129",
-      "straten": [
-        "Markgravelei 129"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010801",
-      "titel": "Nutswerken met een hoogtewerker – Oranjestraat 31",
-      "straten": [
-        "Oranjestraat 31"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010796",
-      "titel": "Nutswerken met een hoogtewerker – Pieter van Hobokenstraat 18",
-      "straten": [
-        "Pieter van Hobokenstraat 18"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010781",
-      "titel": "Nutswerken met een hoogtewerker – Sint-Antoniusstraat 12",
-      "straten": [
-        "Sint-Antoniusstraat 12"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010710",
-      "titel": "Nutswerken met een hoogtewerker – Sint-Antoniusstraat 74",
-      "straten": [
-        "Sint-Antoniusstraat 74"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010818",
-      "titel": "Nutswerken met een hoogtewerker – Van Maerlantstraat 17",
-      "straten": [
-        "Van Maerlantstraat 17"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21017926",
-      "titel": "Nieuwe aansluiting op het telecomnet – Verbindingsdok-Westkaai 29",
-      "straten": [
-        "Verbindingsdok-Westkaai 29"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-12-10T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21010771",
-      "titel": "Nutswerken met een hoogtewerker – Verbondstraat 18",
-      "straten": [
-        "Verbondstraat 18"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010800",
-      "titel": "Nutswerken met een hoogtewerker – Violetstraat 15",
-      "straten": [
-        "Violetstraat 15"
-      ],
-      "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-29T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:21036656",
@@ -1221,50 +495,6 @@
       "eersteKeer": "2026-11-22"
     },
     {
-      "id": "work:21003849",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 39",
-      "straten": [
-        "Hockeystraat 39"
-      ],
-      "begin": "2026-11-23T01:00:00Z",
-      "einde": "2026-11-30T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003850",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 39",
-      "straten": [
-        "Hockeystraat 39"
-      ],
-      "begin": "2026-11-23T01:00:00Z",
-      "einde": "2026-11-30T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003851",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 45",
-      "straten": [
-        "Hockeystraat 45"
-      ],
-      "begin": "2026-11-23T01:00:00Z",
-      "einde": "2026-11-30T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003852",
-      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 45",
-      "straten": [
-        "Hockeystraat 45"
-      ],
-      "begin": "2026-11-23T01:00:00Z",
-      "einde": "2026-11-30T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:20818427",
       "titel": "Werk in openbaar domein",
       "straten": [
@@ -1274,17 +504,6 @@
       "einde": "2027-03-31T15:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:20727545",
-      "titel": "Werk in openbaar domein",
-      "straten": [
-        "Lange Lozanastraat"
-      ],
-      "begin": "2026-11-23T06:00:00Z",
-      "einde": "2027-12-24T16:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20829370",
@@ -1309,36 +528,14 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:21021433",
-      "titel": "2018 Antwerpen Balansstraat 34 werken distributieleiding)",
-      "straten": [
-        "Balansstraat 34"
-      ],
-      "begin": "2026-11-23T08:00:00Z",
-      "einde": "2026-11-23T14:42:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21029433",
-      "titel": "2000 Antwerpen Frans Halsplein werken distributieleiding) – Frans Halsplein 1",
-      "straten": [
-        "Frans Halsplein 1"
-      ],
-      "begin": "2026-11-23T08:00:00Z",
-      "einde": "2026-11-23T10:30:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-21"
-    },
-    {
       "id": "work:21033228",
       "titel": "2060 Antwerpen Nikkelstraat 58 werken distributieleiding)",
       "straten": [
         "Nikkelstraat 58"
       ],
       "begin": "2026-11-23T09:00:00Z",
-      "einde": "2026-11-23T10:30:00Z",
-      "status": "Concreet gepland",
+      "einde": "2026-11-24T12:54:00Z",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-24"
     },
     {
@@ -1348,53 +545,9 @@
         "Mulhouselaan-Noord 5"
       ],
       "begin": "2026-11-23T10:00:00Z",
-      "einde": "2026-11-24T11:00:00Z",
+      "einde": "2026-11-24T15:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:21035259",
-      "titel": "2018 Antwerpen Mechelsesteenweg 66 werken distributieleiding)",
-      "straten": [
-        "Mechelsesteenweg 66"
-      ],
-      "begin": "2026-11-23T10:06:00Z",
-      "einde": "2026-11-23T14:06:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-24"
-    },
-    {
-      "id": "work:21033227",
-      "titel": "2018 Antwerpen Gounodstraat 2 werken distributieleiding)",
-      "straten": [
-        "Gounodstraat 2"
-      ],
-      "begin": "2026-11-23T11:00:00Z",
-      "einde": "2026-11-23T12:30:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-24"
-    },
-    {
-      "id": "work:21033229",
-      "titel": "2018 Antwerpen Gounodstraat 6 werken distributieleiding)",
-      "straten": [
-        "Gounodstraat 6"
-      ],
-      "begin": "2026-11-23T12:00:00Z",
-      "einde": "2026-11-23T13:30:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-24"
-    },
-    {
-      "id": "work:21039242",
-      "titel": "2030 Antwerpen Oosterweelsteenweg 66 werken distributieleiding)",
-      "straten": [
-        "Oosterweelsteenweg 66"
-      ],
-      "begin": "2026-11-23T12:48:00Z",
-      "einde": "2026-11-23T21:12:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-24"
     },
     {
       "id": "work:21017560",
@@ -1507,17 +660,6 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:21017516",
-      "titel": "Nutswerken met een hoogtewerker – Minderbroedersrui 26",
-      "straten": [
-        "Minderbroedersrui 26"
-      ],
-      "begin": "2026-11-23T23:00:00Z",
-      "einde": "2026-11-30T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
       "id": "work:21017553",
       "titel": "Nutswerken met een hoogtewerker – Oranjestraat 37",
       "straten": [
@@ -1547,28 +689,6 @@
       ],
       "begin": "2026-11-23T23:00:00Z",
       "einde": "2026-12-02T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21017490",
-      "titel": "Nutswerken met een hoogtewerker – Robert Molsstraat 64",
-      "straten": [
-        "Robert Molsstraat 64"
-      ],
-      "begin": "2026-11-23T23:00:00Z",
-      "einde": "2026-11-30T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21017446",
-      "titel": "Nieuwe aansluiting op het telecomnet – Spoorstraat 28",
-      "straten": [
-        "Spoorstraat 28"
-      ],
-      "begin": "2026-11-23T23:00:00Z",
-      "einde": "2026-11-30T23:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-19"
     },
@@ -1617,37 +737,15 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:20415111",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – De Burburestraat 16",
+      "id": "work:19715393",
+      "titel": "2000 ANTWERPEN VERBONDSTRAAT - WERKEN AAN DRINKWATERLEIDING",
       "straten": [
-        "De Burburestraat 16"
+        "Verbondstraat"
       ],
-      "begin": "2026-11-24T01:00:00Z",
-      "einde": "2026-12-01T21:00:00Z",
+      "begin": "2026-11-24T00:00:00Z",
+      "einde": "2027-05-24T00:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-20"
-    },
-    {
-      "id": "work:21003853",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Speerstraat 26",
-      "straten": [
-        "Speerstraat 26"
-      ],
-      "begin": "2026-11-24T01:00:00Z",
-      "einde": "2026-12-01T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003854",
-      "titel": "Nieuwe aansluiting op het gasnet – Speerstraat 26",
-      "straten": [
-        "Speerstraat 26"
-      ],
-      "begin": "2026-11-24T01:00:00Z",
-      "einde": "2026-12-01T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20892487",
@@ -1662,9 +760,9 @@
     },
     {
       "id": "work:20915146",
-      "titel": "Werk in openbaar domein",
+      "titel": "Werk in openbaar domein – Amerikalei 11",
       "straten": [
-        "Amerikalei"
+        "Amerikalei 11"
       ],
       "begin": "2026-11-24T06:00:00Z",
       "einde": "2026-12-07T16:00:00Z",
@@ -1694,6 +792,68 @@
       "eersteKeer": "2026-11-19"
     },
     {
+      "id": "work:21040117",
+      "titel": "2000 Antwerpen Venusstraat 14 werken distributieleiding)",
+      "straten": [
+        "Venusstraat 14"
+      ],
+      "begin": "2026-11-24T08:00:00Z",
+      "einde": "2026-11-25T12:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21040845",
+      "titel": "2060 Antwerpen Nikkelstraat 26 werken distributieleiding)",
+      "straten": [
+        "Nikkelstraat 26"
+      ],
+      "begin": "2026-11-24T08:54:00Z",
+      "einde": "2026-11-24T10:24:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21040220",
+      "titel": "2020 Antwerpen Jacob le Mairestraat 8 werken distributieleiding)",
+      "straten": [
+        "Jacob le Mairestraat 8"
+      ],
+      "begin": "2026-11-24T09:00:00Z",
+      "einde": "2026-11-25T12:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21040850",
+      "titel": "2000 Antwerpen Leguit 0 werken distributieleiding)",
+      "straten": [
+        "Oudemansstraat"
+      ],
+      "begin": "2026-11-24T10:54:00Z",
+      "einde": "2026-11-24T12:24:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047058",
+      "titel": "2050 Antwerpen Jachthavenweg werken distributieleiding)",
+      "straten": [],
+      "begin": "2026-11-24T12:06:00Z",
+      "einde": "2026-11-24T20:36:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047059",
+      "titel": "2050 Antwerpen Jachthavenweg werken distributieleiding)",
+      "straten": [],
+      "begin": "2026-11-24T12:06:00Z",
+      "einde": "2026-11-24T20:36:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:21024544",
       "titel": "Nutswerken met een hoogtewerker – Aalmoezenierstraat 464",
       "straten": [
@@ -1701,7 +861,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1712,7 +872,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1723,7 +883,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1734,7 +894,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1745,7 +905,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1756,7 +916,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1767,7 +927,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1778,7 +938,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1789,7 +949,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-11-30T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1800,7 +960,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1811,7 +971,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1822,7 +982,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1833,7 +993,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1844,7 +1004,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1855,7 +1015,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1866,7 +1026,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1877,7 +1037,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1888,7 +1048,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1899,7 +1059,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1910,7 +1070,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1921,7 +1081,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1932,7 +1092,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1943,7 +1103,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1954,7 +1114,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1965,7 +1125,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1976,7 +1136,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1987,7 +1147,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -1998,7 +1158,7 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
     },
     {
@@ -2009,8 +1169,41 @@
       ],
       "begin": "2026-11-24T23:00:00Z",
       "einde": "2026-12-01T23:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-20"
+    },
+    {
+      "id": "work:21031398",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 41",
+      "straten": [
+        "Arthur Goemaerelei 41"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-22"
+    },
+    {
+      "id": "work:21031400",
+      "titel": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 41",
+      "straten": [
+        "Arthur Goemaerelei 41"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-22"
+    },
+    {
+      "id": "work:21042134",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Essenstraat 7",
+      "straten": [
+        "Essenstraat 7"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20952186",
@@ -2024,6 +1217,50 @@
       "eersteKeer": "2026-11-22"
     },
     {
+      "id": "work:21042107",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Pothoekstraat 118",
+      "straten": [
+        "Pothoekstraat 118"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21042102",
+      "titel": "Nieuwe aansluiting op het gasnet – Schrijnwerkersstraat 15",
+      "straten": [
+        "Schrijnwerkersstraat 15"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21040894",
+      "titel": "Nieuwe aansluiting op het gasnet – Van Schoonhovenstraat 72",
+      "straten": [
+        "Van Schoonhovenstraat 72"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21040895",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Van Schoonhovenstraat 72",
+      "straten": [
+        "Van Schoonhovenstraat 72"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:21018224",
       "titel": "Nieuwe aansluiting op het gasnet – Victor Driessensstraat 16",
       "straten": [
@@ -2035,6 +1272,50 @@
       "eersteKeer": "2026-11-24"
     },
     {
+      "id": "work:19662241",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Violetstraat 30",
+      "straten": [
+        "Violetstraat 30"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:21042253",
+      "titel": "Nieuwe aansluiting op het gasnet – Wandeldijk 17",
+      "straten": [
+        "Wandeldijk 17"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21007607",
+      "titel": "Werk in openbaar domein",
+      "straten": [
+        "Potgieterstraat"
+      ],
+      "begin": "2026-11-25T06:00:00Z",
+      "einde": "2026-12-21T16:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:20119082",
+      "titel": "2030 Antwerpen - (Antwerpen) - Singaporestraat - 99 - werken aan nutsleiding - 20m.",
+      "straten": [
+        "Singaporestraat 99"
+      ],
+      "begin": "2026-11-25T06:00:00Z",
+      "einde": "2028-05-25T15:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:20911612",
       "titel": "Werk in openbaar domein – Sint-Rochusstraat 30–41",
       "straten": [
@@ -2042,8 +1323,19 @@
       ],
       "begin": "2026-11-25T06:00:00Z",
       "einde": "2026-12-09T16:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:21042886",
+      "titel": "2000 Antwerpen Rijnkaai 36 werken distributieleiding)",
+      "straten": [
+        "Rijnkaai 36"
+      ],
+      "begin": "2026-11-25T11:00:00Z",
+      "einde": "2026-11-25T15:06:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21030993",
@@ -2226,17 +1518,6 @@
       "titel": "Nutswerken met een hoogtewerker – Lange Lozanastraat 210",
       "straten": [
         "Lange Lozanastraat 210"
-      ],
-      "begin": "2026-11-25T23:00:00Z",
-      "einde": "2026-12-02T23:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:21030742",
-      "titel": "Nieuwe aansluiting op het telecomnet – Lange Lozanastraat 233",
-      "straten": [
-        "Lange Lozanastraat 233"
       ],
       "begin": "2026-11-25T23:00:00Z",
       "einde": "2026-12-02T23:00:00Z",
@@ -2431,37 +1712,15 @@
       "eersteKeer": "2026-11-21"
     },
     {
-      "id": "work:20613798",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Britselei 44",
+      "id": "work:20415111",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – De Burburestraat 16",
       "straten": [
-        "Britselei 44"
+        "De Burburestraat 16"
       ],
       "begin": "2026-11-26T01:00:00Z",
-      "einde": "2026-12-03T21:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:20613819",
-      "titel": "Nieuwe aansluiting op het gasnet – Britselei 44",
-      "straten": [
-        "Britselei 44"
-      ],
-      "begin": "2026-11-26T01:00:00Z",
-      "einde": "2026-12-03T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21008299",
-      "titel": "2000 Antwerpen Kloosterstraat 19 werken distributieleiding)",
-      "straten": [
-        "Kloosterstraat 19"
-      ],
-      "begin": "2026-11-26T12:00:00Z",
-      "einde": "2026-11-26T16:30:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-20"
     },
     {
       "id": "work:21032555",
@@ -2838,28 +2097,6 @@
       "eersteKeer": "2026-11-21"
     },
     {
-      "id": "work:21003785",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Schoolstraat 5",
-      "straten": [
-        "Schoolstraat 5"
-      ],
-      "begin": "2026-11-27T01:00:00Z",
-      "einde": "2026-12-04T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21003786",
-      "titel": "Nieuwe aansluiting op het gasnet – Schoolstraat 5",
-      "straten": [
-        "Schoolstraat 5"
-      ],
-      "begin": "2026-11-27T01:00:00Z",
-      "einde": "2026-12-04T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:20971177",
       "titel": "Werk in openbaar domein",
       "straten": [],
@@ -2887,15 +2124,6 @@
       ],
       "begin": "2026-11-27T08:00:00Z",
       "einde": "2026-11-27T14:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21015996",
-      "titel": "R1 - OWL - werfzone R1 na VO58 - Antwerpen",
-      "straten": [],
-      "begin": "2026-11-27T20:00:00Z",
-      "einde": "2026-11-28T20:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
     },
@@ -3011,26 +2239,378 @@
       "eersteKeer": "2026-11-24"
     },
     {
-      "id": "work:21003783",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Schoolstraat 1",
+      "id": "work:21047508",
+      "titel": "Nutswerken met een hoogtewerker – Abdijstraat 240",
       "straten": [
-        "Schoolstraat 1"
+        "Abdijstraat 240"
       ],
-      "begin": "2026-11-30T01:00:00Z",
-      "einde": "2026-12-07T21:00:00Z",
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
-      "id": "work:21003784",
-      "titel": "Nieuwe aansluiting op het gasnet – Schoolstraat 3",
+      "id": "work:21047570",
+      "titel": "Nutswerken met een hoogtewerker – August Michielsstraat 14",
       "straten": [
-        "Schoolstraat 3"
+        "August Michielsstraat 14"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047582",
+      "titel": "Nutswerken met een hoogtewerker – Bisschopstraat 14",
+      "straten": [
+        "Bisschopstraat 14"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047526",
+      "titel": "Nutswerken met een hoogtewerker – Blindestraat 12",
+      "straten": [
+        "Blindestraat 12"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047579",
+      "titel": "Nutswerken met een hoogtewerker – Breydelstraat 26",
+      "straten": [
+        "Breydelstraat 26"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047449",
+      "titel": "Nutswerken met een hoogtewerker – Cuylitsstraat 14",
+      "straten": [
+        "Cuylitsstraat 14"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047454",
+      "titel": "Nutswerken met een hoogtewerker – De Pretstraat 45",
+      "straten": [
+        "De Pretstraat 45"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047376",
+      "titel": "Nutswerken met een hoogtewerker – Grotebeerstraat 72",
+      "straten": [
+        "Grotebeerstraat 72"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047420",
+      "titel": "Nieuwe aansluiting op het telecomnet – Gustaaf Wappersstraat 1",
+      "straten": [
+        "Gustaaf Wappersstraat 1"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047576",
+      "titel": "Nutswerken met een hoogtewerker – Henri Evenepoelstraat 6",
+      "straten": [
+        "Henri Evenepoelstraat 6"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047556",
+      "titel": "Nutswerken met een hoogtewerker – Jef Lambeauxstraat 6",
+      "straten": [
+        "Jef Lambeauxstraat 6"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047472",
+      "titel": "Nutswerken met een hoogtewerker – Karel Rogierstraat 1",
+      "straten": [
+        "Karel Rogierstraat 1"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047533",
+      "titel": "Nutswerken met een hoogtewerker – Leopoldstraat 20",
+      "straten": [
+        "Leopoldstraat 20"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047552",
+      "titel": "Nutswerken met een hoogtewerker – Leopoldstraat 20",
+      "straten": [
+        "Leopoldstraat 20"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047411",
+      "titel": "Nieuwe aansluiting op het telecomnet – Mozartstraat 13",
+      "straten": [
+        "Mozartstraat 13"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047457",
+      "titel": "Nutswerken met een hoogtewerker – Offerandestraat 94",
+      "straten": [
+        "Offerandestraat 94"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047527",
+      "titel": "Nutswerken met een hoogtewerker – Olijftakstraat 25",
+      "straten": [
+        "Olijftakstraat 25"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047573",
+      "titel": "Nutswerken met een hoogtewerker – Oranjestraat 54",
+      "straten": [
+        "Oranjestraat 54"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047557",
+      "titel": "Nutswerken met een hoogtewerker – Oudemansstraat 6",
+      "straten": [
+        "Oudemansstraat 6"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047574",
+      "titel": "Nutswerken met een hoogtewerker – Paardenmarkt 1",
+      "straten": [
+        "Paardenmarkt 1"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047542",
+      "titel": "Nutswerken met een hoogtewerker – Politeshofstraat 46",
+      "straten": [
+        "Politeshofstraat 46"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047575",
+      "titel": "Nutswerken met een hoogtewerker – Provinciestraat 105",
+      "straten": [
+        "Provinciestraat 105"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047528",
+      "titel": "Nutswerken met een hoogtewerker – Rudolfstraat 48",
+      "straten": [
+        "Rudolfstraat 48"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047531",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Jozefstraat 8",
+      "straten": [
+        "Sint-Jozefstraat 8"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047565",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Laureisstraat 138",
+      "straten": [
+        "Sint-Laureisstraat 138"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047532",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Paulusplaats 24",
+      "straten": [
+        "Sint-Paulusplaats 24"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047561",
+      "titel": "Nutswerken met een hoogtewerker – Stadswaag 20",
+      "straten": [
+        "Stadswaag 20"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047545",
+      "titel": "Nutswerken met een hoogtewerker – Suikerrui 14",
+      "straten": [
+        "Suikerrui 14"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047534",
+      "titel": "Nutswerken met een hoogtewerker – Tolstraat 68",
+      "straten": [
+        "Tolstraat 68"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047536",
+      "titel": "Nutswerken met een hoogtewerker – Van Breestraat 19",
+      "straten": [
+        "Van Breestraat 19"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047541",
+      "titel": "Nutswerken met een hoogtewerker – VIIde-Olympiadelaan 161",
+      "straten": [
+        "VIIde-Olympiadelaan 161"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047523",
+      "titel": "Nutswerken met een hoogtewerker – VIIde-Olympiadelaan 20",
+      "straten": [
+        "VIIde-Olympiadelaan 20"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:21047577",
+      "titel": "Nutswerken met een hoogtewerker – Zandvlietstraat 58",
+      "straten": [
+        "Zandvlietstraat 58"
+      ],
+      "begin": "2026-11-29T23:00:00Z",
+      "einde": "2026-12-06T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:20029367",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Stadionstraat 44",
+      "straten": [
+        "Stadionstraat 44"
       ],
       "begin": "2026-11-30T01:00:00Z",
       "einde": "2026-12-07T21:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20933208",
@@ -3044,15 +2624,15 @@
       "eersteKeer": "2026-11-19"
     },
     {
-      "id": "work:20886483",
-      "titel": "Werk in openbaar domein",
+      "id": "work:20847504",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Beatrijslaan 96",
       "straten": [
-        "Blancefloerlaan"
+        "Beatrijslaan 96"
       ],
-      "begin": "2026-11-30T21:00:00Z",
-      "einde": "2026-12-03T05:00:00Z",
+      "begin": "2026-12-01T01:00:00Z",
+      "einde": "2026-12-08T21:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20208289",
@@ -3086,15 +2666,26 @@
       "eersteKeer": "2026-11-24"
     },
     {
-      "id": "work:21007398",
-      "titel": "2060 Antwerpen Pothoekstraat 118 werken distributieleiding)",
+      "id": "work:20985271",
+      "titel": "Inname – Plantin en Moretuslei",
       "straten": [
-        "Pothoekstraat 118"
+        "Plantin en Moretuslei"
       ],
-      "begin": "2026-12-01T08:12:00Z",
-      "einde": "2026-12-01T12:42:00Z",
+      "begin": "2026-12-01T07:00:00Z",
+      "einde": "2026-12-02T11:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:20974839",
+      "titel": "Werk in openbaar domein",
+      "straten": [
+        "Sint-Michielskaai"
+      ],
+      "begin": "2026-12-01T08:00:00Z",
+      "einde": "2026-12-01T14:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21035608",
@@ -3112,20 +2703,20 @@
         "De Marbaixstraat 48"
       ],
       "begin": "2026-12-01T12:00:00Z",
-      "einde": "2026-12-01T15:30:00Z",
+      "einde": "2026-12-01T16:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-24"
     },
     {
-      "id": "work:21007671",
-      "titel": "2060 Antwerpen Pothoekstraat 118 werken distributieleiding)",
+      "id": "work:21017926",
+      "titel": "Nieuwe aansluiting op het telecomnet – Verbindingsdok-Westkaai 29",
       "straten": [
-        "Pothoekstraat 118"
+        "Verbindingsdok-Westkaai 29"
       ],
-      "begin": "2026-12-01T12:12:00Z",
-      "einde": "2026-12-01T16:42:00Z",
+      "begin": "2026-12-01T23:00:00Z",
+      "einde": "2026-12-10T23:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-19"
     },
     {
       "id": "work:20760616",
@@ -3139,15 +2730,37 @@
       "eersteKeer": "2026-11-21"
     },
     {
+      "id": "work:20981018",
+      "titel": "2018 Antwerpen - (Antwerpen) - Schulstraat - 50 - werken aan nutsleiding - 8m.",
+      "straten": [
+        "Schulstraat 50"
+      ],
+      "begin": "2026-12-02T06:00:00Z",
+      "einde": "2026-12-11T16:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:21016848",
       "titel": "2000 Antwerpen Graanmarkt 6 werken distributieleiding)",
       "straten": [
         "Graanmarkt 6"
       ],
-      "begin": "2026-12-02T08:12:00Z",
-      "einde": "2026-12-02T16:42:00Z",
+      "begin": "2026-12-02T08:00:00Z",
+      "einde": "2026-12-02T16:12:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:21041010",
+      "titel": "Nieuwe aansluiting op het gasnet – Ryckmansstraat 6",
+      "straten": [
+        "Ryckmansstraat 6"
+      ],
+      "begin": "2026-12-03T01:00:00Z",
+      "einde": "2026-12-10T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20659676",
@@ -3168,6 +2781,15 @@
       ],
       "begin": "2026-12-04T01:00:00Z",
       "einde": "2026-12-11T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:21015996",
+      "titel": "R1 - OWL - werfzone R1 na VO58 - Antwerpen",
+      "straten": [],
+      "begin": "2026-12-04T21:30:00Z",
+      "einde": "2026-12-05T20:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
     },
@@ -3216,6 +2838,17 @@
       "eersteKeer": "2026-11-19"
     },
     {
+      "id": "work:21017490",
+      "titel": "Nutswerken met een hoogtewerker – Robert Molsstraat 64",
+      "straten": [
+        "Robert Molsstraat 64"
+      ],
+      "begin": "2026-12-06T23:00:00Z",
+      "einde": "2026-12-13T23:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-19"
+    },
+    {
       "id": "work:20290802",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Berendrechtstraat 5",
       "straten": [
@@ -3258,17 +2891,6 @@
       "einde": "2026-12-18T16:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
-    },
-    {
-      "id": "work:21010798",
-      "titel": "Nutswerken met een hoogtewerker – Groendalstraat 2",
-      "straten": [
-        "Groendalstraat 2"
-      ],
-      "begin": "2026-12-07T23:00:00Z",
-      "einde": "2026-12-14T23:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20898097",
@@ -3355,6 +2977,17 @@
       "einde": "2026-12-24T16:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:20993380",
+      "titel": "Inname – Lange Gasthuisstraat",
+      "straten": [
+        "Lange Gasthuisstraat"
+      ],
+      "begin": "2026-12-10T06:00:00Z",
+      "einde": "2026-12-10T14:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21038528",
@@ -3522,55 +3155,24 @@
       "eersteKeer": "2026-11-21"
     },
     {
-      "id": "work:20996929",
-      "titel": "Werk in openbaar domein – Sint-Laureisstraat",
-      "straten": [
-        "Sint-Laureisstraat"
-      ],
-      "begin": "2026-12-14T06:00:00Z",
-      "einde": "2026-12-16T16:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:20940192",
-      "titel": "2030 ANTWERPEN TRANSCONTINENTAALWEG E Klantaansluiting, ZHV uitbreiding net (lengte: 18m)",
-      "straten": [
-        "Transcontinentaalweg"
-      ],
-      "begin": "2026-12-14T23:01:00Z",
-      "einde": "2026-12-15T22:59:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21010399",
-      "titel": "2000 ANTWERPEN, SPITSENSTRAAT",
+      "id": "work:21015708",
+      "titel": "Werk in openbaar domein",
       "straten": [],
-      "begin": "2026-12-17T01:00:00Z",
-      "einde": "2026-12-24T21:00:00Z",
+      "begin": "2026-12-18T06:00:00Z",
+      "einde": "2026-12-18T16:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
-      "id": "work:21010400",
-      "titel": "2000 ANTWERPEN, SPITSENSTRAAT",
-      "straten": [],
-      "begin": "2026-12-17T01:00:00Z",
-      "einde": "2026-12-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:21008187",
-      "titel": "2060 Antwerpen Pothoekstraat 118 werken distributieleiding)",
+      "id": "work:20999864",
+      "titel": "Inname – Carnotstraat",
       "straten": [
-        "Pothoekstraat 118"
+        "Carnotstraat"
       ],
-      "begin": "2026-12-18T08:12:00Z",
-      "einde": "2026-12-18T12:42:00Z",
+      "begin": "2026-12-19T08:00:00Z",
+      "einde": "2026-12-19T11:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:20290797",
@@ -3639,17 +3241,6 @@
       "eersteKeer": "2026-11-24"
     },
     {
-      "id": "work:20921051",
-      "titel": "Werk in openbaar domein – Sandersstraatje 1–6",
-      "straten": [
-        "Sandersstraatje 1–6"
-      ],
-      "begin": "2027-01-01T06:00:00Z",
-      "einde": "2027-03-31T15:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:21039518",
       "titel": "R1 - Kennedytunnel - Regulier onderhoud 2027 - Antwerpen",
       "straten": [
@@ -3672,6 +3263,17 @@
       "eersteKeer": "2026-11-24"
     },
     {
+      "id": "work:20527287",
+      "titel": "2018 ANTWERPEN STIERSTRAAT E Klantaansluiting, LV uitbreiding net (lengte: 52m)",
+      "straten": [
+        "Stierstraat"
+      ],
+      "begin": "2027-01-04T23:01:00Z",
+      "einde": "2027-01-05T22:59:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:21039582",
       "titel": "R1 - Kennedytunnel - Regulier onderhoud 2027 - Antwerpen",
       "straten": [
@@ -3692,6 +3294,17 @@
       "einde": "2027-01-06T04:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-24"
+    },
+    {
+      "id": "work:20831229",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Robert Molsstraat 17",
+      "straten": [
+        "Robert Molsstraat 17"
+      ],
+      "begin": "2027-01-07T01:00:00Z",
+      "einde": "2027-01-14T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21039558",
@@ -3774,6 +3387,39 @@
       "einde": "2027-01-21T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-20"
+    },
+    {
+      "id": "work:17222078",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Houtdok-Noordkaai 10",
+      "straten": [
+        "Houtdok-Noordkaai 10"
+      ],
+      "begin": "2027-01-15T01:00:00Z",
+      "einde": "2027-01-22T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:17237636",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Houtdok-Noordkaai 10",
+      "straten": [
+        "Houtdok-Noordkaai 10"
+      ],
+      "begin": "2027-01-15T01:00:00Z",
+      "einde": "2027-01-22T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:17419366",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Houtdok-Noordkaai 12",
+      "straten": [
+        "Houtdok-Noordkaai 12"
+      ],
+      "begin": "2027-01-15T01:00:00Z",
+      "einde": "2027-01-22T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21039512",
@@ -3887,6 +3533,28 @@
       "eersteKeer": "2026-11-24"
     },
     {
+      "id": "work:20974520",
+      "titel": "Werk in openbaar domein – Arenbergstraat 30",
+      "straten": [
+        "Arenbergstraat 30"
+      ],
+      "begin": "2027-01-18T08:00:00Z",
+      "einde": "2027-01-18T14:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
+      "id": "work:20906434",
+      "titel": "2060 ANTWERPEN KORTE DIJKSTRAAT E, HV uitbreiding net (lengte: 3m)",
+      "straten": [
+        "Korte Dijkstraat"
+      ],
+      "begin": "2027-01-18T23:01:00Z",
+      "einde": "2027-01-19T22:59:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:20835961",
       "titel": "Werk in openbaar domein",
       "straten": [
@@ -3907,26 +3575,6 @@
       "einde": "2027-01-20T22:59:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-21"
-    },
-    {
-      "id": "work:20865447",
-      "titel": "2050 ANTWERPEN LUDWIG BURCHARDSTRAAT E, Moderniseren Distributiecabine",
-      "straten": [],
-      "begin": "2027-01-21T23:01:00Z",
-      "einde": "2027-01-27T22:59:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
-      "id": "work:20479312",
-      "titel": "2050 ANTWERPEN THONETLAAN E Klantaansluiting, Verkaveling",
-      "straten": [
-        "Fromentinstraat"
-      ],
-      "begin": "2027-01-24T23:01:00Z",
-      "einde": "2027-01-25T22:59:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:21039455",
@@ -4017,6 +3665,15 @@
       "eersteKeer": "2026-11-24"
     },
     {
+      "id": "work:21046131",
+      "titel": "A12 - Brandleiding- Bevrijdingstunnel 2026 - Antwerpen",
+      "straten": [],
+      "begin": "2027-02-05T19:00:00Z",
+      "einde": "2027-02-08T05:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:19928591",
       "titel": "2000 ANTWERPEN JOS SMOLDERENSTRAAT E Klantaansluiting, LV uitbreiding net (lengte: 231m)",
       "straten": [
@@ -4048,6 +3705,17 @@
       "einde": "2027-03-12T16:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-19"
+    },
+    {
+      "id": "work:20809920",
+      "titel": "2020 ANTWERPEN RIK SCHAEFELSSTRAAT E, Initiatief Regio (lengte: 60m)",
+      "straten": [
+        "Rik Schaefelsstraat"
+      ],
+      "begin": "2027-02-28T23:01:00Z",
+      "einde": "2027-03-02T22:59:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
     },
     {
       "id": "work:21039498",
@@ -4193,6 +3861,17 @@
       "eersteKeer": "2026-11-24"
     },
     {
+      "id": "work:20670110",
+      "titel": "2050 ANTWERPEN HALEWIJNLAAN OV, Gemeente overgenomen (Verledding) (lengte: 1249m)",
+      "straten": [
+        "Halewijnlaan"
+      ],
+      "begin": "2027-04-07T22:01:00Z",
+      "einde": "2027-04-30T21:59:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-25"
+    },
+    {
       "id": "work:21039449",
       "titel": "N49a - Waaslandtunnel - Regulier onderhoud 2027 - Antwerpen",
       "straten": [
@@ -4259,17 +3938,6 @@
       "eersteKeer": "2026-11-24"
     },
     {
-      "id": "work:19284056",
-      "titel": "2030, Antwerpen, Scheldelaan, aanleg van 2 hdpe's van 50mm",
-      "straten": [
-        "Scheldelaan"
-      ],
-      "begin": "2027-05-18T22:00:00Z",
-      "einde": "2027-06-30T22:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-18"
-    },
-    {
       "id": "work:21039447",
       "titel": "N49a - Waaslandtunnel - Regulier onderhoud 2027 - Antwerpen",
       "straten": [
@@ -4293,665 +3961,6 @@
     }
   ],
   "begint": [
-    {
-      "id": "work:20988257",
-      "titel": "Nutswerken met een hoogtewerker – Abdijstraat 84",
-      "straten": [
-        "Abdijstraat 84"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988238",
-      "titel": "Nutswerken met een hoogtewerker – Beeldhouwersstraat 52",
-      "straten": [
-        "Beeldhouwersstraat 52"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988175",
-      "titel": "Nutswerken met een hoogtewerker – Boerhaavestraat 60",
-      "straten": [
-        "Boerhaavestraat 60"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988068",
-      "titel": "Nutswerken met een hoogtewerker – Boomsesteenweg 379",
-      "straten": [
-        "Boomsesteenweg 379"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988233",
-      "titel": "Nutswerken met een hoogtewerker – Cockerillkaai 3",
-      "straten": [
-        "Cockerillkaai 3"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20854786",
-      "titel": "2060 | Antwerpen | Eggestraat | 16",
-      "straten": [
-        "Eggestraat 16"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-16"
-    },
-    {
-      "id": "work:20988201",
-      "titel": "Nutswerken met een hoogtewerker – Generaal Cabrastraat 2",
-      "straten": [
-        "Generaal Cabrastraat 2"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20981539",
-      "titel": "Nieuwe aansluiting op het telecomnet – Gierstraat 13Z",
-      "straten": [
-        "Gierstraat 13Z"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-23T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988216",
-      "titel": "Nutswerken met een hoogtewerker – Jan Van Beersstraat 42",
-      "straten": [
-        "Jan Van Beersstraat 42"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988144",
-      "titel": "Nieuwe aansluiting op het telecomnet – Katwilgweg 2",
-      "straten": [
-        "Katwilgweg 2"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988051",
-      "titel": "Nutswerken met een hoogtewerker – Klappeistraat 58",
-      "straten": [
-        "Klappeistraat 58"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988183",
-      "titel": "Nutswerken met een hoogtewerker – Korte Ypermanstraat 11",
-      "straten": [
-        "Korte Ypermanstraat 11"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988134",
-      "titel": "Nieuwe aansluiting op het telecomnet – Lange Batterijstraat 5",
-      "straten": [
-        "Lange Batterijstraat 5"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20897692",
-      "titel": "2060 | Antwerpen | Lange Beeldekensstraat | 169",
-      "straten": [
-        "Lange Beeldekensstraat 169"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-24"
-    },
-    {
-      "id": "work:20988189",
-      "titel": "Nutswerken met een hoogtewerker – Lange Scholiersstraat 108",
-      "straten": [
-        "Lange Scholiersstraat 108"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20928349",
-      "titel": "Nutswerken met een hoogtewerker – Nottebohmstraat 2",
-      "straten": [
-        "Nottebohmstraat 2"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-30"
-    },
-    {
-      "id": "work:20988260",
-      "titel": "Nutswerken met een hoogtewerker – Olijftakstraat 36",
-      "straten": [
-        "Olijftakstraat 36"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988163",
-      "titel": "Nutswerken met een hoogtewerker – Oudesteenweg 28",
-      "straten": [
-        "Oudesteenweg 28"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988245",
-      "titel": "Nutswerken met een hoogtewerker – Paardenmarkt 20",
-      "straten": [
-        "Paardenmarkt 20"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988258",
-      "titel": "Nutswerken met een hoogtewerker – Pesthofstraat 61",
-      "straten": [
-        "Pesthofstraat 61"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988200",
-      "titel": "Nutswerken met een hoogtewerker – Prinsesstraat 6",
-      "straten": [
-        "Prinsesstraat 6"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988202",
-      "titel": "Nutswerken met een hoogtewerker – Solvynsstraat 66",
-      "straten": [
-        "Solvynsstraat 66"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988170",
-      "titel": "Nutswerken met een hoogtewerker – Van Halmalestraat 17",
-      "straten": [
-        "Van Halmalestraat 17"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20988214",
-      "titel": "Nutswerken met een hoogtewerker – Wipstraat 48",
-      "straten": [
-        "Wipstraat 48"
-      ],
-      "begin": "2026-11-17T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:19906453",
-      "titel": "2020 ANTWERPEN TENTOONSTELLINGSLAAN OV, Gemeente overgenomen (Verledding)",
-      "straten": [],
-      "begin": "2026-11-17T23:01:00Z",
-      "einde": "2027-02-04T22:59:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-16"
-    },
-    {
-      "id": "work:19401696",
-      "titel": "2018 ANTWERPEN LANGE KIEVITSTRAAT - WERKEN AAN DRINKWATERLEIDING",
-      "straten": [
-        "Lange Kievitstraat"
-      ],
-      "begin": "2026-11-18T00:00:00Z",
-      "einde": "2026-12-04T00:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20906887",
-      "titel": "2018 ANTWERPEN, SINGEL",
-      "straten": [],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-27"
-    },
-    {
-      "id": "work:20906888",
-      "titel": "2018 ANTWERPEN, SINGEL",
-      "straten": [],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-27"
-    },
-    {
-      "id": "work:20906889",
-      "titel": "2018 ANTWERPEN, SINGEL",
-      "straten": [],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-27"
-    },
-    {
-      "id": "work:20906890",
-      "titel": "2018 ANTWERPEN, SINGEL",
-      "straten": [],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-27"
-    },
-    {
-      "id": "work:20922402",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Arthur Goemaerelei 13",
-      "straten": [
-        "Arthur Goemaerelei 13"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-30"
-    },
-    {
-      "id": "work:20922404",
-      "titel": "Nieuwe aansluiting op het gasnet – Arthur Goemaerelei 13",
-      "straten": [
-        "Arthur Goemaerelei 13"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-30"
-    },
-    {
-      "id": "work:20972421",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 75",
-      "straten": [
-        "Duboisstraat 75"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20972427",
-      "titel": "Nieuwe aansluiting op het gasnet – Duboisstraat 75",
-      "straten": [
-        "Duboisstraat 75"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20328451",
-      "titel": "2000 ANTWERPEN, FRANKRIJKLEI 68",
-      "straten": [
-        "Frankrijklei 68"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20752835",
-      "titel": "2018 ANTWERPEN, HELENALEI 25",
-      "straten": [
-        "Helenalei 25"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-16"
-    },
-    {
-      "id": "work:20752839",
-      "titel": "2018 ANTWERPEN, HELENALEI 25",
-      "straten": [
-        "Helenalei 25"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-16"
-    },
-    {
-      "id": "work:20328491",
-      "titel": "2000 ANTWERPEN, ITALIËLEI 215",
-      "straten": [
-        "Italiëlei 215"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20972423",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 101",
-      "straten": [
-        "Lange Dijkstraat 101"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20972429",
-      "titel": "Nieuwe aansluiting op het gasnet – Lange Dijkstraat 101",
-      "straten": [
-        "Lange Dijkstraat 101"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20972424",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 107",
-      "straten": [
-        "Lange Dijkstraat 107"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20972430",
-      "titel": "Nieuwe aansluiting op het gasnet – Lange Dijkstraat 107",
-      "straten": [
-        "Lange Dijkstraat 107"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20551412",
-      "titel": "2018 ANTWERPEN, LEEUWERIKSTRAAT 32",
-      "straten": [
-        "Leeuwerikstraat 32"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-22"
-    },
-    {
-      "id": "work:19953395",
-      "titel": "2000 ANTWERPEN, LONDENSTRAAT 52",
-      "straten": [
-        "Londenstraat 52"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-10"
-    },
-    {
-      "id": "work:20915408",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Marialei 14",
-      "straten": [
-        "Marialei 14"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
-      "id": "work:20915410",
-      "titel": "Nieuwe aansluiting op het gasnet – Marialei 14",
-      "straten": [
-        "Marialei 14"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
-      "id": "work:20915411",
-      "titel": "Nieuwe aansluiting op het gasnet – Marialei 16",
-      "straten": [
-        "Marialei 16"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
-      "id": "work:20922400",
-      "titel": "Nieuwe aansluiting op het gasnet – Marialei 24",
-      "straten": [
-        "Marialei 24"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-30"
-    },
-    {
-      "id": "work:20922401",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Marialei 24",
-      "straten": [
-        "Marialei 24"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-30"
-    },
-    {
-      "id": "work:20931870",
-      "titel": "Nieuwe aansluiting op het gasnet – Marialei 32",
-      "straten": [
-        "Marialei 32"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-31"
-    },
-    {
-      "id": "work:20931871",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Marialei 32",
-      "straten": [
-        "Marialei 32"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-31"
-    },
-    {
-      "id": "work:20995097",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Sint-Jobstraat 35",
-      "straten": [
-        "Sint-Jobstraat 35"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-15"
-    },
-    {
-      "id": "work:20025300",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Stadionstraat 76",
-      "straten": [
-        "Stadionstraat 76"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
-      "id": "work:20820586",
-      "titel": "Nieuwe aansluiting op het gasnet – Vrijheidstraat 39",
-      "straten": [
-        "Vrijheidstraat 39"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-23T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-04"
-    },
-    {
-      "id": "work:20712801",
-      "titel": "2000 ANTWERPEN, WAALSEKAAI 27",
-      "straten": [
-        "Waalsekaai 27"
-      ],
-      "begin": "2026-11-18T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20322441",
-      "titel": "N1800001 - Renovatie Havenwegen N180 - Luithagen - Antwerpen",
-      "straten": [],
-      "begin": "2026-11-18T06:00:00Z",
-      "einde": "2026-12-18T17:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20322439",
-      "titel": "N1800001 - Renovatie Havenwegen N180 - Luithagen - Antwerpen",
-      "straten": [
-        "Noorderlaan"
-      ],
-      "begin": "2026-11-18T06:00:00Z",
-      "einde": "2026-12-18T17:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20322444",
-      "titel": "N1800001 - Renovatie Havenwegen N180 - Luithagen - Antwerpen",
-      "straten": [
-        "Noorderlaan"
-      ],
-      "begin": "2026-11-18T06:00:00Z",
-      "einde": "2026-12-18T17:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:19233324",
-      "titel": "2018 Antwerpen - (Antwerpen) - Terliststraat - 28 - werken aan nutsleiding - 1376m.",
-      "straten": [
-        "Terliststraat 28"
-      ],
-      "begin": "2026-11-18T06:00:00Z",
-      "einde": "2027-03-05T16:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20740803",
-      "titel": "Werk in openbaar domein",
-      "straten": [
-        "Verlatstraat"
-      ],
-      "begin": "2026-11-18T06:00:00Z",
-      "einde": "2027-01-31T16:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-17"
-    },
-    {
-      "id": "work:20869410",
-      "titel": "2060 Antwerpen Dambruggestraat 327 werken distributieleiding)",
-      "straten": [
-        "Dambruggestraat 327"
-      ],
-      "begin": "2026-11-18T08:00:00Z",
-      "einde": "2026-12-04T12:06:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-20"
-    },
     {
       "id": "work:20995488",
       "titel": "Nutswerken met een hoogtewerker – Balansstraat 46",
@@ -5250,17 +4259,6 @@
       "eersteKeer": "2026-11-14"
     },
     {
-      "id": "work:20994622",
-      "titel": "Nutswerken met een hoogtewerker – Vijfkampstraat 31",
-      "straten": [
-        "Vijfkampstraat 31"
-      ],
-      "begin": "2026-11-18T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-14"
-    },
-    {
       "id": "work:20994828",
       "titel": "Nutswerken met een hoogtewerker – Vondelstraat 8",
       "straten": [
@@ -5283,6 +4281,17 @@
       "eersteKeer": "2026-10-01"
     },
     {
+      "id": "work:19401696",
+      "titel": "2018 ANTWERPEN LANGE KIEVITSTRAAT - WERKEN AAN DRINKWATERLEIDING",
+      "straten": [
+        "Lange Kievitstraat"
+      ],
+      "begin": "2026-11-19T00:00:00Z",
+      "einde": "2026-12-04T00:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-10-01"
+    },
+    {
       "id": "work:20944388",
       "titel": "2030 ANTWERPEN, LUITHAGEN-HAVEN",
       "straten": [],
@@ -5290,28 +4299,6 @@
       "einde": "2026-11-26T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-04"
-    },
-    {
-      "id": "work:20799915",
-      "titel": "2000 ANTWERPEN, AMBTMANSTRAAT 2RO",
-      "straten": [
-        "Ambtmanstraat 2"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-21"
-    },
-    {
-      "id": "work:20473217",
-      "titel": "2000 ANTWERPEN, AMERIKALEI 90",
-      "straten": [
-        "Amerikalei 90"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-24T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
     },
     {
       "id": "work:20991147",
@@ -5323,28 +4310,6 @@
       "einde": "2026-11-25T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-14"
-    },
-    {
-      "id": "work:19442341",
-      "titel": "2018 ANTWERPEN, BREDERODESTRAAT 43",
-      "straten": [
-        "Brederodestraat 43"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:19442345",
-      "titel": "2018 ANTWERPEN, BREDERODESTRAAT 43",
-      "straten": [
-        "Brederodestraat 43"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-01"
     },
     {
       "id": "work:20871075",
@@ -5380,15 +4345,26 @@
       "eersteKeer": "2026-10-09"
     },
     {
-      "id": "work:20952380",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Diepestraat 107",
+      "id": "work:21004130",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 57",
       "straten": [
-        "Diepestraat 107"
+        "Duboisstraat 57"
       ],
       "begin": "2026-11-19T01:00:00Z",
       "einde": "2026-11-25T21:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-07"
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21004131",
+      "titel": "Nieuwe aansluiting op het gasnet – Duboisstraat 57",
+      "straten": [
+        "Duboisstraat 57"
+      ],
+      "begin": "2026-11-19T01:00:00Z",
+      "einde": "2026-11-25T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20202783",
@@ -5400,17 +4376,6 @@
       "einde": "2026-11-24T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-07"
-    },
-    {
-      "id": "work:20729247",
-      "titel": "2050 ANTWERPEN, HALEWIJNLAAN 57RO",
-      "straten": [
-        "Halewijnlaan 57"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-08"
     },
     {
       "id": "work:20202780",
@@ -5435,28 +4400,6 @@
       "eersteKeer": "2026-10-06"
     },
     {
-      "id": "work:20729083",
-      "titel": "2060 ANTWERPEN, KORTE DIJKSTRAAT 13",
-      "straten": [
-        "Korte Dijkstraat 13"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-25"
-    },
-    {
-      "id": "work:20729087",
-      "titel": "2060 ANTWERPEN, KORTE DIJKSTRAAT 13",
-      "straten": [
-        "Korte Dijkstraat 13"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-25"
-    },
-    {
       "id": "work:20637613",
       "titel": "2060 ANTWERPEN, KORTE YPERMANSTRAAT 6",
       "straten": [
@@ -5466,17 +4409,6 @@
       "einde": "2026-11-25T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-10-14"
-    },
-    {
-      "id": "work:20962950",
-      "titel": "Nieuwe aansluiting op het gasnet – Limburgstraat 24",
-      "straten": [
-        "Limburgstraat 24"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-07"
     },
     {
       "id": "work:20202781",
@@ -5499,17 +4431,6 @@
       "einde": "2026-11-25T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:20841584",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Pandstraat 1",
-      "straten": [
-        "Pandstraat 1"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
     },
     {
       "id": "work:20996201",
@@ -5567,28 +4488,6 @@
       "eersteKeer": "2026-10-31"
     },
     {
-      "id": "work:20637539",
-      "titel": "Nieuwe aansluiting op het gasnet – Schomhoeveweg 7",
-      "straten": [
-        "Schomhoeveweg 7"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:19680604",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Sint-Gummarusstraat 42",
-      "straten": [
-        "Sint-Gummarusstraat 42"
-      ],
-      "begin": "2026-11-19T01:00:00Z",
-      "einde": "2026-11-25T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-10"
-    },
-    {
       "id": "work:20995098",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Trapstraat 41",
       "straten": [
@@ -5598,6 +4497,17 @@
       "einde": "2026-11-25T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-15"
+    },
+    {
+      "id": "work:21003764",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 17",
+      "straten": [
+        "Wandeldijk 17"
+      ],
+      "begin": "2026-11-19T01:00:00Z",
+      "einde": "2026-11-26T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20325374",
@@ -5906,28 +4816,6 @@
       "eersteKeer": "2026-10-21"
     },
     {
-      "id": "work:19922546",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – De Waghemakerestraat 20",
-      "straten": [
-        "De Waghemakerestraat 20"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
-      "id": "work:19922740",
-      "titel": "Nieuwe aansluiting op het gasnet – De Waghemakerestraat 20",
-      "straten": [
-        "De Waghemakerestraat 20"
-      ],
-      "begin": "2026-11-20T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-29"
-    },
-    {
       "id": "work:20820800",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Eendrachtstraat 12",
       "straten": [
@@ -5948,6 +4836,72 @@
       "einde": "2026-11-26T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-10-28"
+    },
+    {
+      "id": "work:21003843",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 27",
+      "straten": [
+        "Hockeystraat 27"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003844",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 27",
+      "straten": [
+        "Hockeystraat 27"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003845",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 29",
+      "straten": [
+        "Hockeystraat 29"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003846",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 29",
+      "straten": [
+        "Hockeystraat 29"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003847",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 33",
+      "straten": [
+        "Hockeystraat 33"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003848",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 33",
+      "straten": [
+        "Hockeystraat 33"
+      ],
+      "begin": "2026-11-20T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:18922713",
@@ -6071,17 +5025,6 @@
       "eersteKeer": "2026-11-07"
     },
     {
-      "id": "work:20855916",
-      "titel": "Nieuwe aansluiting op het gasnet – Baltimorestraat 53",
-      "straten": [
-        "Baltimorestraat 53"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
       "id": "work:20683742",
       "titel": "Nieuwe aansluiting op het gasnet – De Damhouderestraat 20",
       "straten": [
@@ -6093,6 +5036,17 @@
       "eersteKeer": "2026-11-13"
     },
     {
+      "id": "work:21004128",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Duboisstraat 55",
+      "straten": [
+        "Duboisstraat 55"
+      ],
+      "begin": "2026-11-21T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:20410453",
       "titel": "Nieuwe aansluiting op het gasnet – Gasstraat 15",
       "straten": [
@@ -6102,28 +5056,6 @@
       "einde": "2026-11-27T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-07"
-    },
-    {
-      "id": "work:20386667",
-      "titel": "2018 ANTWERPEN, HARINGRODESTRAAT 5",
-      "straten": [
-        "Haringrodestraat 5"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-09"
-    },
-    {
-      "id": "work:20386668",
-      "titel": "2018 ANTWERPEN, HARINGRODESTRAAT 5",
-      "straten": [
-        "Haringrodestraat 5"
-      ],
-      "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-09"
     },
     {
       "id": "work:20892507",
@@ -6148,15 +5080,37 @@
       "eersteKeer": "2026-10-01"
     },
     {
-      "id": "work:20980006",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Paardenmarkt 119",
+      "id": "work:21004132",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 109",
       "straten": [
-        "Paardenmarkt 119"
+        "Lange Dijkstraat 109"
       ],
       "begin": "2026-11-21T01:00:00Z",
-      "einde": "2026-11-26T21:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
       "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21004133",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Dijkstraat 111",
+      "straten": [
+        "Lange Dijkstraat 111"
+      ],
+      "begin": "2026-11-21T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21004134",
+      "titel": "Nieuwe aansluiting op het gasnet – Lange Dijkstraat 111",
+      "straten": [
+        "Lange Dijkstraat 111"
+      ],
+      "begin": "2026-11-21T01:00:00Z",
+      "einde": "2026-11-27T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20202616",
@@ -6179,28 +5133,6 @@
       "einde": "2026-11-27T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-11-04"
-    },
-    {
-      "id": "work:20972149",
-      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Albrecht Dürerstraat 22",
-      "straten": [
-        "Albrecht Dürerstraat 22"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
-    },
-    {
-      "id": "work:20972150",
-      "titel": "Nieuwe aansluiting op het gasnet – Albrecht Dürerstraat 22",
-      "straten": [
-        "Albrecht Dürerstraat 22"
-      ],
-      "begin": "2026-11-22T01:00:00Z",
-      "einde": "2026-11-27T21:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-13"
     },
     {
       "id": "work:20935195",
@@ -6247,6 +5179,61 @@
       "eersteKeer": "2026-11-07"
     },
     {
+      "id": "work:21003836",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 21",
+      "straten": [
+        "Hockeystraat 21"
+      ],
+      "begin": "2026-11-22T01:00:00Z",
+      "einde": "2026-11-28T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003837",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 21",
+      "straten": [
+        "Hockeystraat 21"
+      ],
+      "begin": "2026-11-22T01:00:00Z",
+      "einde": "2026-11-28T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003840",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 25",
+      "straten": [
+        "Hockeystraat 25"
+      ],
+      "begin": "2026-11-22T01:00:00Z",
+      "einde": "2026-11-28T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003841",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 25",
+      "straten": [
+        "Hockeystraat 25"
+      ],
+      "begin": "2026-11-22T01:00:00Z",
+      "einde": "2026-11-28T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:19886424",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Lange Lozanastraat 111",
+      "straten": [
+        "Lange Lozanastraat 111"
+      ],
+      "begin": "2026-11-22T01:00:00Z",
+      "einde": "2026-11-28T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:20792713",
       "titel": "Nieuwe aansluiting op het elektriciteitsnet – Noorderlaan 502",
       "straten": [
@@ -6291,6 +5278,61 @@
       "eersteKeer": "2026-11-14"
     },
     {
+      "id": "work:21010709",
+      "titel": "Nieuwe aansluiting op het telecomnet – Akkerwindestraat 5",
+      "straten": [
+        "Akkerwindestraat 5"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010760",
+      "titel": "Nutswerken met een hoogtewerker – Anselmostraat 71",
+      "straten": [
+        "Anselmostraat 71"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010780",
+      "titel": "Nutswerken met een hoogtewerker – Blauwmoezelstraat 5",
+      "straten": [
+        "Blauwmoezelstraat 5"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010792",
+      "titel": "Nutswerken met een hoogtewerker – Bresstraat 8",
+      "straten": [
+        "Bresstraat 8"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010679",
+      "titel": "Nutswerken met een hoogtewerker – Clementinastraat 49",
+      "straten": [
+        "Clementinastraat 49"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:20738529",
       "titel": "2000 Antwerpen - Cockerillkaai 28 - Cockerillkaai trenching in open sleuf - Luikstraat trenching in open sleuf.",
       "straten": [
@@ -6302,6 +5344,61 @@
       "eersteKeer": "2026-10-22"
     },
     {
+      "id": "work:21010720",
+      "titel": "Nutswerken met een hoogtewerker – De Bosschaertstraat 255",
+      "straten": [
+        "De Bosschaertstraat 255"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010787",
+      "titel": "Nutswerken met een hoogtewerker – De Marbaixstraat 41",
+      "straten": [
+        "De Marbaixstraat 41"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010756",
+      "titel": "Nutswerken met een hoogtewerker – De Waghemakerestraat 2",
+      "straten": [
+        "De Waghemakerestraat 2"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010777",
+      "titel": "Nutswerken met een hoogtewerker – Desguinlei 166",
+      "straten": [
+        "Desguinlei 166"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010808",
+      "titel": "Nutswerken met een hoogtewerker – Desguinlei 224",
+      "straten": [
+        "Desguinlei 224"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:20951621",
       "titel": "Nutswerken met een hoogtewerker – Falconplein 41",
       "straten": [
@@ -6311,6 +5408,61 @@
       "einde": "2026-11-29T23:00:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-05"
+    },
+    {
+      "id": "work:21010711",
+      "titel": "Nutswerken met een hoogtewerker – Frankrijklei 160",
+      "straten": [
+        "Frankrijklei 160"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010794",
+      "titel": "Nutswerken met een hoogtewerker – Goudbloemstraat 22",
+      "straten": [
+        "Goudbloemstraat 22"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010714",
+      "titel": "Nutswerken met een hoogtewerker – Haantjeslei 205",
+      "straten": [
+        "Haantjeslei 205"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010828",
+      "titel": "Nutswerken met een hoogtewerker – Kleinebeerstraat 22",
+      "straten": [
+        "Kleinebeerstraat 22"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010574",
+      "titel": "Nutswerken met een hoogtewerker – Markgravelei 129",
+      "straten": [
+        "Markgravelei 129"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20542909",
@@ -6335,26 +5487,48 @@
       "eersteKeer": "2026-10-15"
     },
     {
-      "id": "work:20988228",
-      "titel": "Nutswerken met een hoogtewerker – Pyckestraat 45",
+      "id": "work:21010801",
+      "titel": "Nutswerken met een hoogtewerker – Oranjestraat 31",
       "straten": [
-        "Pyckestraat 45"
+        "Oranjestraat 31"
       ],
       "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-24T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
       "status": "In uitvoering",
-      "eersteKeer": "2026-11-13"
+      "eersteKeer": "2026-11-18"
     },
     {
-      "id": "work:20883999",
-      "titel": "Werk in openbaar domein",
+      "id": "work:21010796",
+      "titel": "Nutswerken met een hoogtewerker – Pieter van Hobokenstraat 18",
       "straten": [
-        "Schrijnwerkersstraat"
+        "Pieter van Hobokenstraat 18"
       ],
       "begin": "2026-11-22T23:00:00Z",
-      "einde": "2026-11-23T23:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-22"
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010781",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Antoniusstraat 12",
+      "straten": [
+        "Sint-Antoniusstraat 12"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010710",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Antoniusstraat 74",
+      "straten": [
+        "Sint-Antoniusstraat 74"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20964305",
@@ -6368,6 +5542,39 @@
       "eersteKeer": "2026-11-09"
     },
     {
+      "id": "work:21010818",
+      "titel": "Nutswerken met een hoogtewerker – Van Maerlantstraat 17",
+      "straten": [
+        "Van Maerlantstraat 17"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010771",
+      "titel": "Nutswerken met een hoogtewerker – Verbondstraat 18",
+      "straten": [
+        "Verbondstraat 18"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21010800",
+      "titel": "Nutswerken met een hoogtewerker – Violetstraat 15",
+      "straten": [
+        "Violetstraat 15"
+      ],
+      "begin": "2026-11-22T23:00:00Z",
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:11536813",
       "titel": "2050 ANTWERPEN BLANCEFLOERLAAN OV, Gemeente overgenomen (Verledding)",
       "straten": [],
@@ -6375,17 +5582,6 @@
       "einde": "2027-03-04T22:59:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:19413202",
-      "titel": "2000 ANTWERPEN FALCONRUI E Klantaansluiting, LV uitbreiding net – Falco de Lampageplein 21–38",
-      "straten": [
-        "Falco de Lampageplein 21–38"
-      ],
-      "begin": "2026-11-22T23:01:00Z",
-      "einde": "2026-11-23T22:59:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-30"
     },
     {
       "id": "work:19307906",
@@ -6397,6 +5593,50 @@
       "einde": "2026-12-14T22:59:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-10-01"
+    },
+    {
+      "id": "work:21003849",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 39",
+      "straten": [
+        "Hockeystraat 39"
+      ],
+      "begin": "2026-11-23T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003850",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 39",
+      "straten": [
+        "Hockeystraat 39"
+      ],
+      "begin": "2026-11-23T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003851",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Hockeystraat 45",
+      "straten": [
+        "Hockeystraat 45"
+      ],
+      "begin": "2026-11-23T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003852",
+      "titel": "Nieuwe aansluiting op het gasnet – Hockeystraat 45",
+      "straten": [
+        "Hockeystraat 45"
+      ],
+      "begin": "2026-11-23T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20051756",
@@ -6474,15 +5714,15 @@
       "eersteKeer": "2026-11-03"
     },
     {
-      "id": "work:20819284",
+      "id": "work:20727545",
       "titel": "Werk in openbaar domein",
       "straten": [
-        "Maria Pijpelincxstraat"
+        "Lange Lozanastraat"
       ],
       "begin": "2026-11-23T06:00:00Z",
-      "einde": "2026-12-02T16:00:00Z",
+      "einde": "2027-12-24T16:00:00Z",
       "status": "In uitvoering",
-      "eersteKeer": "2026-10-29"
+      "eersteKeer": "2026-11-18"
     },
     {
       "id": "work:20671459",
@@ -6514,17 +5754,6 @@
       ],
       "begin": "2026-11-23T08:00:00Z",
       "einde": "2026-11-24T16:12:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-11-17"
-    },
-    {
-      "id": "work:21000024",
-      "titel": "2018 Antwerpen Ploegstraat 29 werken distributieleiding)",
-      "straten": [
-        "Ploegstraat 29"
-      ],
-      "begin": "2026-11-23T12:00:00Z",
-      "einde": "2026-11-24T14:06:00Z",
       "status": "In uitvoering",
       "eersteKeer": "2026-11-17"
     },
@@ -6538,66 +5767,26 @@
       "eersteKeer": "2026-11-13"
     },
     {
-      "id": "work:21000171",
-      "titel": "E17, E34, R1 - Opruimen zwerfvuil, vegen en kolken zuigen - Antwerpen",
-      "straten": [],
-      "begin": "2026-11-23T20:00:00Z",
-      "einde": "2026-11-25T04:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-17"
-    },
-    {
-      "id": "work:21000175",
-      "titel": "E17, E34, R1 - Opruimen zwerfvuil, vegen en kolken zuigen - Antwerpen",
-      "straten": [],
-      "begin": "2026-11-23T20:00:00Z",
-      "einde": "2026-11-25T04:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-17"
-    },
-    {
-      "id": "work:18179049",
-      "titel": "R1 - Ringpark Zuid - Antwerpen",
+      "id": "work:21010649",
+      "titel": "Nieuwe aansluiting op het telecomnet – Duinstraat 83",
       "straten": [
-        "Jan De Voslei"
-      ],
-      "begin": "2026-11-23T20:00:00Z",
-      "einde": "2027-05-27T04:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:18179051",
-      "titel": "R1 - Ringpark Zuid - Antwerpen",
-      "straten": [
-        "Jan De Voslei"
-      ],
-      "begin": "2026-11-23T20:00:00Z",
-      "einde": "2027-05-27T04:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
-    },
-    {
-      "id": "work:21000173",
-      "titel": "E17, E34, R1 - Opruimen zwerfvuil, vegen en kolken zuigen - Antwerpen",
-      "straten": [
-        "Kennedytunnel"
-      ],
-      "begin": "2026-11-23T20:00:00Z",
-      "einde": "2026-11-25T04:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-11-17"
-    },
-    {
-      "id": "work:20861130",
-      "titel": "2000 | Antwerpen | Terninckstraat | 10",
-      "straten": [
-        "Terninckstraat 10"
+        "Duinstraat 83"
       ],
       "begin": "2026-11-23T23:00:00Z",
-      "einde": "2026-11-30T23:00:00Z",
-      "status": "Concreet gepland",
-      "eersteKeer": "2026-10-17"
+      "einde": "2026-11-29T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:20868945",
+      "titel": "2000 Antwerpen - Drukkerijstraat - Plaatsen leidingen - 0m",
+      "straten": [
+        "Drukkerijstraat"
+      ],
+      "begin": "2026-11-24T00:00:00Z",
+      "einde": "2026-12-09T00:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-10-29"
     },
     {
       "id": "work:20645273",
@@ -6653,6 +5842,28 @@
       "eersteKeer": "2026-11-14"
     },
     {
+      "id": "work:21003853",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Speerstraat 26",
+      "straten": [
+        "Speerstraat 26"
+      ],
+      "begin": "2026-11-24T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003854",
+      "titel": "Nieuwe aansluiting op het gasnet – Speerstraat 26",
+      "straten": [
+        "Speerstraat 26"
+      ],
+      "begin": "2026-11-24T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
       "id": "work:20712397",
       "titel": "2060 ANTWERPEN, VAN KERCKHOVENSTRAAT 84",
       "straten": [
@@ -6673,15 +5884,6 @@
       "einde": "2026-12-01T21:00:00Z",
       "status": "Concreet gepland",
       "eersteKeer": "2026-10-22"
-    },
-    {
-      "id": "work:20741882",
-      "titel": "R0010001 - R1 - langsvoegen - NGCS - Antwerpen",
-      "straten": [],
-      "begin": "2026-11-24T04:00:00Z",
-      "einde": "2026-11-24T06:00:00Z",
-      "status": "In uitvoering",
-      "eersteKeer": "2026-10-01"
     },
     {
       "id": "work:20906421",
@@ -6713,19 +5915,336 @@
       ],
       "begin": "2026-11-24T09:00:00Z",
       "einde": "2026-11-25T14:00:00Z",
-      "status": "Concreet gepland",
+      "status": "In uitvoering",
       "eersteKeer": "2026-10-24"
     },
     {
-      "id": "work:20615620",
-      "titel": "Werk in openbaar domein – Komedieplaats 1–5",
+      "id": "work:18179049",
+      "titel": "R1 - Ringpark Zuid - Antwerpen",
       "straten": [
-        "Komedieplaats 1–5"
+        "Jan De Voslei"
       ],
-      "begin": "2026-11-24T10:00:00Z",
-      "einde": "2026-11-24T18:00:00Z",
+      "begin": "2026-11-24T20:00:00Z",
+      "einde": "2027-05-28T04:00:00Z",
       "status": "In uitvoering",
-      "eersteKeer": "2026-10-31"
+      "eersteKeer": "2026-10-01"
+    },
+    {
+      "id": "work:18179051",
+      "titel": "R1 - Ringpark Zuid - Antwerpen",
+      "straten": [
+        "Jan De Voslei"
+      ],
+      "begin": "2026-11-24T20:00:00Z",
+      "einde": "2027-05-28T04:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-10-01"
+    },
+    {
+      "id": "work:20981538",
+      "titel": "Nutswerken met een hoogtewerker – Draakstraat 29",
+      "straten": [
+        "Draakstraat 29"
+      ],
+      "begin": "2026-11-24T23:00:00Z",
+      "einde": "2026-12-01T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20994756",
+      "titel": "Nieuwe aansluiting op het telecomnet – Kasteelpleinstraat 59",
+      "straten": [
+        "Kasteelpleinstraat 59"
+      ],
+      "begin": "2026-11-24T23:00:00Z",
+      "einde": "2026-11-25T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-14"
+    },
+    {
+      "id": "work:20981582",
+      "titel": "Nutswerken met een hoogtewerker – Sint-Laureisstraat 69",
+      "straten": [
+        "Sint-Laureisstraat 69"
+      ],
+      "begin": "2026-11-24T23:00:00Z",
+      "einde": "2026-12-01T23:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20452682",
+      "titel": "2018 ANTWERPEN MOZARTSTRAAT E Klantaansluiting, LV uitbreiding net (lengte: 13m) – Mozartstraat 16",
+      "straten": [
+        "Mozartstraat 16"
+      ],
+      "begin": "2026-11-24T23:01:00Z",
+      "einde": "2026-11-25T22:59:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-11-07"
+    },
+    {
+      "id": "work:18865418",
+      "titel": "2018 ANTWERPEN ANNEESSENSSTRAAT E Klantaansluiting, HV uitbreiding net (lengte: 8m)",
+      "straten": [
+        "Van Ertbornstraat"
+      ],
+      "begin": "2026-11-24T23:01:00Z",
+      "einde": "2026-11-25T22:59:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-10-01"
+    },
+    {
+      "id": "work:20972149",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Albrecht Dürerstraat 22",
+      "straten": [
+        "Albrecht Dürerstraat 22"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20972150",
+      "titel": "Nieuwe aansluiting op het gasnet – Albrecht Dürerstraat 22",
+      "straten": [
+        "Albrecht Dürerstraat 22"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20025222",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Aloïs De Laetstraat 7",
+      "straten": [
+        "Aloïs De Laetstraat 7"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-29"
+    },
+    {
+      "id": "work:20799915",
+      "titel": "2000 ANTWERPEN, AMBTMANSTRAAT 2RO",
+      "straten": [
+        "Ambtmanstraat 2"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-21"
+    },
+    {
+      "id": "work:20855916",
+      "titel": "Nieuwe aansluiting op het gasnet – Baltimorestraat 53",
+      "straten": [
+        "Baltimorestraat 53"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20938303",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Boudewijnsstraat 101",
+      "straten": [
+        "Boudewijnsstraat 101"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-02T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-14"
+    },
+    {
+      "id": "work:20938306",
+      "titel": "Nieuwe aansluiting op het gasnet – Boudewijnsstraat 101",
+      "straten": [
+        "Boudewijnsstraat 101"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-02T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-14"
+    },
+    {
+      "id": "work:20729247",
+      "titel": "2050 ANTWERPEN, HALEWIJNLAAN 57RO",
+      "straten": [
+        "Halewijnlaan 57"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-08"
+    },
+    {
+      "id": "work:20729083",
+      "titel": "2060 ANTWERPEN, KORTE DIJKSTRAAT 13",
+      "straten": [
+        "Korte Dijkstraat 13"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-25"
+    },
+    {
+      "id": "work:20729087",
+      "titel": "2060 ANTWERPEN, KORTE DIJKSTRAAT 13",
+      "straten": [
+        "Korte Dijkstraat 13"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-25"
+    },
+    {
+      "id": "work:20962950",
+      "titel": "Nieuwe aansluiting op het gasnet – Limburgstraat 24",
+      "straten": [
+        "Limburgstraat 24"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-07"
+    },
+    {
+      "id": "work:20025218",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Limburgstraat 3",
+      "straten": [
+        "Limburgstraat 3"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-10"
+    },
+    {
+      "id": "work:20841584",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Pandstraat 1",
+      "straten": [
+        "Pandstraat 1"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20512332",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Pothoekstraat 118",
+      "straten": [
+        "Pothoekstraat 118"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-05"
+    },
+    {
+      "id": "work:19481363",
+      "titel": "2018 ANTWERPEN, SOLVYNSSTRAAT 25",
+      "straten": [
+        "Solvynsstraat 25"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-02T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-23"
+    },
+    {
+      "id": "work:20386614",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Turnersstraat 16",
+      "straten": [
+        "Turnersstraat 16"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-11-30T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-10"
+    },
+    {
+      "id": "work:19376872",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Van Stralenstraat 12",
+      "straten": [
+        "Van Stralenstraat 12"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-02T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-03"
+    },
+    {
+      "id": "work:21003762",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 17",
+      "straten": [
+        "Wandeldijk 17"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:21003763",
+      "titel": "Nieuwe aansluiting op het elektriciteitsnet – Wandeldijk 22",
+      "straten": [
+        "Wandeldijk 22"
+      ],
+      "begin": "2026-11-25T01:00:00Z",
+      "einde": "2026-12-01T21:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-18"
+    },
+    {
+      "id": "work:20598517",
+      "titel": "Werk in openbaar domein",
+      "straten": [
+        "Arenbergstraat"
+      ],
+      "begin": "2026-11-25T06:00:00Z",
+      "einde": "2026-11-26T16:00:00Z",
+      "status": "In uitvoering",
+      "eersteKeer": "2026-10-20"
+    },
+    {
+      "id": "work:20986115",
+      "titel": "2018 Antwerpen Boudewijnssteeg 4 werken distributieleiding)",
+      "straten": [
+        "Boudewijnssteeg 4"
+      ],
+      "begin": "2026-11-25T08:00:00Z",
+      "einde": "2026-11-25T12:30:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-11-13"
+    },
+    {
+      "id": "work:20910676",
+      "titel": "E19 - CRA volledige tunnelsluiting - Antwerpen",
+      "straten": [],
+      "begin": "2026-11-25T20:00:00Z",
+      "einde": "2026-11-26T05:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-28"
+    },
+    {
+      "id": "work:20923830",
+      "titel": "E19 - CRA volledige tunnelsluiting - Antwerpen",
+      "straten": [
+        "Lode Craeybeckxtunnel"
+      ],
+      "begin": "2026-11-25T20:00:00Z",
+      "einde": "2026-11-26T05:00:00Z",
+      "status": "Concreet gepland",
+      "eersteKeer": "2026-10-30"
     }
   ]
 }

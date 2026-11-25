@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-24T04:27:10.430Z",
-  "classificationAsOf": "2026-11-24",
-  "sourceCount": 932,
-  "count": 773,
-  "eventPageCount": 773,
-  "archivedEventPageCount": 416,
+  "candidateGeneratedAt": "2026-11-25T04:26:47.618Z",
+  "classificationAsOf": "2026-11-25",
+  "sourceCount": 930,
+  "count": 771,
+  "eventPageCount": 771,
+  "archivedEventPageCount": 422,
   "classifications": {
     "expired": 159,
-    "current": 30,
-    "future": 743,
+    "current": 29,
+    "future": 742,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 112,
+    "district": 110,
     "stad": 661
   },
-  "feedGeneratedAt": "2026-11-24T04:27:10.430Z",
+  "feedGeneratedAt": "2026-11-25T04:26:47.618Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:29:08.331Z",
+      "retrievedAt": "2026-11-25T04:28:57.221Z",
       "state": "fresh"
     },
     {
@@ -37,21 +37,21 @@
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:26:50.463Z",
+      "retrievedAt": "2026-11-25T04:26:34.898Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:24:54.326Z",
+      "retrievedAt": "2026-11-25T04:24:38.946Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:18:47.715Z",
+      "retrievedAt": "2026-11-25T04:18:31.198Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:24:54.964Z",
+      "retrievedAt": "2026-11-25T04:24:40.037Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:18:38.030Z",
+      "retrievedAt": "2026-11-25T04:18:20.806Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:26:24.554Z",
+      "retrievedAt": "2026-11-25T04:26:11.283Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:26:24.554Z",
+      "retrievedAt": "2026-11-25T04:26:11.283Z",
       "state": "empty"
     },
     {
@@ -114,8 +114,8 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:26:50.463Z",
-      "state": "fresh"
+      "retrievedAt": "2026-11-25T04:26:34.898Z",
+      "state": "empty"
     },
     {
       "sourceId": "stad-koopzondagen",
@@ -128,14 +128,14 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:26:20.229Z",
+      "retrievedAt": "2026-11-25T04:26:06.624Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-persberichten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-24T04:25:20.142Z",
+      "retrievedAt": "2026-11-25T04:25:05.291Z",
       "state": "fresh"
     },
     {
@@ -146,7 +146,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "8e418dcdda451114d653cbc4b2d8ebb7a615230b466f7f41e46d538180a02f9a",
+  "digest": "787165cced80fec6f1e8b1eda5da575e3af1ee0edeb8912026b78bdead527478",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -177,12 +177,8 @@
     "Schoolstraat Lange Riddersstraat",
     "Schoolstraat Jan Vanhoenackerstraat",
     "100Y - NMBS",
-    "Evenement in de Grote Kauwenberg: parcours door 5 straten",
     "Futsal Project Seefhoek",
     "Najaarsfoor Sint-Jansplein",
-    "Gemengde markt Sint-Franciscusplein",
-    "Gemengde markt Rooiplein",
-    "Gemengde markt Bist",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
@@ -241,7 +237,7 @@
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
     "Evenement in de Floraliënlaan: lus van 200 m",
-    "Evenement op het Koningin Astridplein: parcours door 64 straten",
+    "Evenement op de Groenplaats: lus van 6,6 km",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -256,10 +252,10 @@
     "Gemengde markt Bist",
     "Vermoedelijk Kerst op UA CGB (Fabiant)",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",
+    "De Warmste Wijk 2026",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
-    "Bijzondere raadscommissie cultuur, sport, financiën, communicatie, evenementen en feestelijkheden, veiligheid en erfgoed",
     "Gemengde markt Gallifortlei",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Dageraadplaats",
@@ -267,7 +263,6 @@
     "Evenement in de Lamorinièrestraat: route van 900 m",
     "Evenement in de Belgiëlei: lus van 7,9 km",
     "Evenement in de Lange Beeldekensstraat: route van 2,5 km",
-    "Evenement in de Rolwagenstraat: route van 250 m",
     "Gemengde markt Michel Willemsplein",
     "VRIJDAGMARKT Wekelijkse openbare veiling",
     "Gemengde markt Sint-Jansplein",
@@ -909,6 +904,9 @@
     "Gemengde markt Sint-Franciscusplein",
     "Gemengde markt Rooiplein",
     "Gemengde markt Bist",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Kristus-Koningplein",
+    "Woensdagmarkt Vosstraat",
     "Futsal Project Seefhoek",
     "Raadscommissie Antwerpen",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",
