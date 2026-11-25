@@ -12,6 +12,7 @@ import { sourceDocument } from "../lib/source-feed.mjs";
 import { VASTE_ADRESSEN_FILE, heeftHuisnummer, itemMetVastAdres, metVastAdres, ontbrekendeHuisnummers, plaatsKennis, plaatsSoort, validateVasteAdressen } from "../lib/vaste-adressen.mjs";
 import { huisnummerMeldingen } from "../scripts/sources-health.mjs";
 import { buildFeed } from "../scripts/build-sources.mjs";
+import { loadExpandedAgendaItems } from "../scripts/agenda-source.mjs";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const doc = JSON.parse(fs.readFileSync(path.join(rootDir, "site", "sources", VASTE_ADRESSEN_FILE), "utf8"));
@@ -68,6 +69,26 @@ test("build:sources: een raadszitting uit eBesluit staat in de feed met het adre
   assert.equal(zonder.location, "Provinciehuis Antwerpen", "zonder het databestand: zoals de bron");
   const met = buildFeed({ status, documents, vasteAdressen: doc }, []).feed.items[0];
   assert.equal(met.location, `Provinciehuis Antwerpen, ${plek("Provinciehuis Antwerpen").adres}`);
+});
+
+// 25-11-2026: een handmatig item (site/agenda.js) in een museum. Het adres mag niet in de code
+// (lib/echte-adressen.mjs); het komt uit het databestand, via de feed.
+test("build:sources: een handmatig item op een vaste plek krijgt het adres via de feed, de site zet het erop", () => {
+  const muhka = plek("Muhka (M HKA)");
+  assert.ok(muhka, "Muhka staat in de lijst");
+  const status = { schemaVersion: 1, generatedAt: "2026-11-25T04:24:42.087Z", classificationAsOf: "2026-11-25", sources: [] };
+  const hand = [
+    { id: "hand-museum", title: "Tentoonstelling", date: "2026-11-27", location: "Muhka (M HKA), INBOX op de vijfde verdieping" },
+    { id: "hand-plein", title: "Buurtfeest", date: "2026-11-27", location: "Grote Markt" },
+  ];
+  assert.equal("handAdressen" in buildFeed({ status, documents: [] }, hand).feed, false, "zonder databestand: niets");
+  const feed = buildFeed({ status, documents: [], vasteAdressen: doc }, hand).feed;
+  assert.deepEqual(feed.handAdressen, { "hand-museum": `Muhka (M HKA), INBOX op de vijfde verdieping, ${muhka.adres}` });
+
+  // De gebouwde site: elk handmatig item op een vaste plek staat er met het adres, ook in de eventpagina's en de .ics.
+  const items = loadExpandedAgendaItems(rootDir).filter((item) => !item.feed && /^Muhka \(M HKA\)/.test(item.location ?? ""));
+  assert.ok(items.length >= 1, "de handmatige items in Muhka");
+  for (const item of items) assert.ok(item.location.endsWith(muhka.adres), `${item.id}: ${item.location}`);
 });
 
 test("de gebouwde feed noemt geen vaste plek meer zonder huisnummer", () => {

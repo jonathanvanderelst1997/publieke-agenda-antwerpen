@@ -174,6 +174,14 @@ export function buildFeed({ status, documents: bronnen, manualCheck = null, teks
     ...document,
     items: document.items.map((item) => itemMetVastAdres(item, adressen)),
   }));
+  // Een handmatig item (site/agenda.js) krijgt het adres van een vaste plek op dezelfde manier: het adres staat alleen
+  // in het databestand, nooit in de code (lib/echte-adressen.mjs). De feed draagt per hand-id de locatie met adres;
+  // site/agenda.js zet ze op het item.
+  const handAdressen = {};
+  for (const hand of Array.isArray(handItems) ? handItems : []) {
+    const metAdres = hand?.id ? itemMetVastAdres(hand, adressen) : hand;
+    if (metAdres !== hand) handAdressen[hand.id] = metAdres.location;
+  }
   const itemsBySource = Object.fromEntries(documents.map((document) => [document.sourceId, { scope: document.scope, items: document.items }]));
   const suppressions = documents.flatMap((document) => Array.isArray(document.suppressions) ? document.suppressions : []);
   const merged = mergeEvents(itemsBySource, handItems, suppressions);
@@ -228,6 +236,7 @@ export function buildFeed({ status, documents: bronnen, manualCheck = null, teks
       sources,
       items,
       supersedes: merged.supersedes,
+      ...(Object.keys(handAdressen).length ? { handAdressen: Object.fromEntries(Object.entries(handAdressen).sort(([a], [b]) => a.localeCompare(b))) } : {}),
       ...(manualCheck ? { manualCheck: manualCheckForFeed(manualCheck) } : {}),
     },
     droppedDuplicates,

@@ -125,6 +125,26 @@
       scope: "district",
       check: { mustContain: ["buurtfeest", "inhuldiging"] },
     },
+    "muhka-preview-s-w-2": {
+      publisher: "Muhka (M HKA)",
+      url: "https://www.muhka.be/activities/preview-s-w-2/",
+      retrievedAt: "2026-11-25T13:50:00Z",
+      state: "verified",
+      note: "Officiële activiteitenpagina van Muhka: preview van de tentoonstelling S & W & … 2 op donderdag 26 november 2026, 18:00 tot 21:00, in INBOX op verdieping 5+, tijdens Muhka Laat; toegang gratis. Vrij bezoek zonder reservatie (pagina openingstijden). Kleine personenlift tijdelijk buiten gebruik: de vijfde verdieping is niet bereikbaar met rolstoel of kinderwagen (melding op de startpagina).",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["S & W", "Muhka Laat"] },
+    },
+    "muhka-inbox-s-w-2": {
+      publisher: "Muhka (M HKA)",
+      url: "https://www.muhka.be/exhibitions/inbox-s-w-2/",
+      retrievedAt: "2026-11-25T13:50:00Z",
+      state: "verified",
+      note: "Officiële tentoonstellingspagina van Muhka: S & W & … 2 in INBOX op verdieping 5+, van 27 november 2026 tot en met 10 januari 2027; toegang gratis. Openingsuren (pagina openingstijden): dinsdag tot zondag 11 tot 18 uur, maandag gesloten, gesloten op 25 december en 1 januari, op 24 en 31 december tot 16 uur; vrij bezoek zonder reservatie. INBOX is ook zonder ticket gratis (pagina tarieven).",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["S & W", "10 januari 2027"] },
+    },
     "publiekeruimte-schoolstraat-vanhoenacker": {
       publisher: "District Antwerpen, team Publieke Ruimte",
       url: "https://www.antwerpen.be/publiekeruimte",
@@ -178,6 +198,14 @@
     {
       match: { title: "Buurtfeest Gaston Burssenslaan en Hanegraefstraat", dates: ["2026-10-10"] },
       sourceId: "city-gaston-buurtfeest",
+    },
+    {
+      match: { title: "Preview tentoonstelling S & W & … 2 in Muhka", dates: ["2026-11-26"] },
+      sourceId: "muhka-preview-s-w-2",
+    },
+    {
+      match: { title: "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka", dates: ["2026-11-27"] },
+      sourceId: "muhka-inbox-s-w-2",
     },
     {
       match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },

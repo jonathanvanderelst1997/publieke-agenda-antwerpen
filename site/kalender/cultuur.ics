@@ -135,4 +135,56 @@ CATEGORIES:Cultuur
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
+BEGIN:VEVENT
+UID:preview-tentoonstelling-s-w-2-muhka-2026-11-26@mijn-publieke-agenda-voo
+ r-district.local
+DTSTAMP:20261125T042647Z
+DTSTART;TZID=Europe/Brussels:20261126T180000
+DTEND;TZID=Europe/Brussels:20261126T210000
+SUMMARY:Preview tentoonstelling S & W & … 2 in Muhka
+LOCATION:Muhka (M HKA)\, INBOX op de vijfde verdieping\, Leuvenstraat 32\, 
+ 2000 Antwerpen
+DESCRIPTION:Preview van de tentoonstelling S & W & … 2 tijdens Muhka Laat
+ : zeven Belgische kunstenaars maken werk rond de wereld van Suske & Wiske 
+ van Willy Vandersteen. Gratis en voor iedereen\, geen inschrijving nodig. 
+ Let op: de kleine personenlift van het museum is tijdelijk buiten gebruik\
+ , waardoor de vijfde verdieping nu niet bereikbaar is met een rolstoel of 
+ kinderwagen.\nWanneer: 18 tot 21 uur\nOp de publieke agenda: https://mijn-
+ publieke-agenda-voor-district.onrender.com/event/preview-tentoonstelling-s
+ -w-2-muhka-2026-11-26/\nOfficiële bron: https://www.muhka.be/activities/p
+ review-s-w-2/\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse g
+ ratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/preview-t
+ entoonstelling-s-w-2-muhka-2026-11-26/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10@mijn-publieke-agenda-
+ voor-district.local
+DTSTAMP:20261125T042647Z
+DTSTART;VALUE=DATE:20261127
+DTEND;VALUE=DATE:20270111
+SUMMARY:Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka
+LOCATION:Muhka (M HKA)\, INBOX op de vijfde verdieping\, Leuvenstraat 32\, 
+ 2000 Antwerpen
+DESCRIPTION:Zeven Belgische kunstenaars maken nieuw werk geïnspireerd op d
+ e wereld van Suske & Wiske van Willy Vandersteen\, naast een origineel ont
+ werp van Vandersteen voor het album De Tartaarse helm. Gratis en voor iede
+ reen\, geen inschrijving of reservatie nodig. Gesloten op 25 december en 1
+  januari\; op 24 en 31 december open tot 16 uur. Let op: de kleine persone
+ nlift van het museum is tijdelijk buiten gebruik\, waardoor de vijfde verd
+ ieping nu niet bereikbaar is met een rolstoel of kinderwagen.\nWanneer: di
+ nsdag tot zondag 11 tot 18 uur\; maandag gesloten\nOp de publieke agenda: 
+ https://mijn-publieke-agenda-voor-district.onrender.com/event/tentoonstell
+ ing-s-w-2-muhka-2026-11-27-2027-01-10/\nOfficiële bron: https://www.muhka
+ .be/exhibitions/inbox-s-w-2/\nBron: district Antwerpen – bron stad Antwe
+ rpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/tentoonst
+ elling-s-w-2-muhka-2026-11-27-2027-01-10/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
 END:VCALENDAR

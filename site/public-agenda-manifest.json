@@ -3,18 +3,18 @@
   "state": "published-release",
   "candidateGeneratedAt": "2026-11-25T04:26:47.618Z",
   "classificationAsOf": "2026-11-25",
-  "sourceCount": 930,
-  "count": 771,
-  "eventPageCount": 771,
+  "sourceCount": 932,
+  "count": 773,
+  "eventPageCount": 773,
   "archivedEventPageCount": 422,
   "classifications": {
     "expired": 159,
     "current": 29,
-    "future": 742,
+    "future": 744,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 110,
+    "district": 112,
     "stad": 661
   },
   "feedGeneratedAt": "2026-11-25T04:26:47.618Z",
@@ -146,13 +146,15 @@
       "state": "inactive"
     }
   ],
-  "digest": "787165cced80fec6f1e8b1eda5da575e3af1ee0edeb8912026b78bdead527478",
+  "digest": "9a9eab014e7ee4d997a83bbf6b8782433ecbf22d42f3063f88184bc47e0b9748",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
+    "Preview tentoonstelling S & W & … 2 in Muhka",
+    "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka",
     "Heraanleg Paardenmarkt: fase 4 (Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt))",
     "Heraanleg Paardenmarkt: fase 5 (Paardenmarkt tussen Rodestraat - Rijnpoortvest (inclusief kruispunt) en Italiëlei)",
     "Heraanleg Balansstraat & Lange Elzenstraat: fase 4b (Ondergrondse persing Lange Elzenstraat)",
