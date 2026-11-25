@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "uitleg": "Vaste plekken die een bron alleen bij naam of zonder huisnummer noemt (eBesluit: de zalen van de districtsraad en de raadscommissies; een lezing van vóór de huisnummerregel), met het adres dat een officiële pagina noemt: de eigenaar van de plek, het district of de open data van de stad. lib/vaste-adressen.mjs zet het adres bij elk bronitem waarvan de locatie met zo'n naam begint en nog geen huisnummer heeft.",
-  "bijgewerkt": "2026-11-04",
+  "uitleg": "Vaste plekken die een bron alleen bij naam of zonder huisnummer noemt (eBesluit: de zalen van de districtsraad en de raadscommissies; een lezing van vóór de huisnummerregel), met het adres dat een officiële pagina noemt: de eigenaar van de plek, het district of de open data van de stad. lib/vaste-adressen.mjs zet het adres bij elk bronitem en elk handmatig item (site/agenda.js) waarvan de locatie met zo'n naam begint en nog geen huisnummer heeft.",
+  "bijgewerkt": "2026-11-25",
   "plekken": [
     {
       "naam": "Provinciehuis Antwerpen",
@@ -37,6 +37,15 @@
       ],
       "adres": "De Coninckplein 26, 2060 Antwerpen",
       "bron": "https://geodata.antwerpen.be/arcgissql/rest/services/P_Atlas/Atlas/MapServer/14"
+    },
+    {
+      "naam": "Muhka (M HKA)",
+      "herken": [
+        "Muhka (M HKA)",
+        "Museum van Hedendaagse Kunst Antwerpen"
+      ],
+      "adres": "Leuvenstraat 32, 2000 Antwerpen",
+      "bron": "https://www.muhka.be/bezoek/praktisch/bereikbaarheid/"
     }
   ]
 }

@@ -1507,6 +1507,33 @@ const agendaItems = [
     "location": "Regatta",
     "info": "Zin in poëzie op verrassende locaties in en rond Antwerpen? Poëtische Rimpelingen serveert deze zomer opnieuw literaire wandelingen en ontmoetingen, telkens met vertrek aan een...",
     "link": "https://www.citaatopstraat.be/"
+  },
+  {
+    "id": "preview-tentoonstelling-s-w-2-muhka-2026-11-26",
+    "title": "Preview tentoonstelling S & W & … 2 in Muhka",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-11-26",
+    "dateLabel": "26 november 2026",
+    "timeSlot": "18:00",
+    "timeText": "18 tot 21 uur",
+    "location": "Muhka (M HKA), INBOX op de vijfde verdieping",
+    "info": "Preview van de tentoonstelling S & W & … 2 tijdens Muhka Laat: zeven Belgische kunstenaars maken werk rond de wereld van Suske & Wiske van Willy Vandersteen. Gratis en voor iedereen, geen inschrijving nodig. Let op: de kleine personenlift van het museum is tijdelijk buiten gebruik, waardoor de vijfde verdieping nu niet bereikbaar is met een rolstoel of kinderwagen.",
+    "link": "https://www.muhka.be/activities/preview-s-w-2/"
+  },
+  {
+    "id": "tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10",
+    "title": "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-11-27",
+    "endDate": "2027-01-10",
+    "dateLabel": "27 november 2026 tot en met 10 januari 2027",
+    "timeSlot": "11:00",
+    "timeText": "dinsdag tot zondag 11 tot 18 uur; maandag gesloten",
+    "location": "Muhka (M HKA), INBOX op de vijfde verdieping",
+    "info": "Zeven Belgische kunstenaars maken nieuw werk geïnspireerd op de wereld van Suske & Wiske van Willy Vandersteen, naast een origineel ontwerp van Vandersteen voor het album De Tartaarse helm. Gratis en voor iedereen, geen inschrijving of reservatie nodig. Gesloten op 25 december en 1 januari; op 24 en 31 december open tot 16 uur. Let op: de kleine personenlift van het museum is tijdelijk buiten gebruik, waardoor de vijfde verdieping nu niet bereikbaar is met een rolstoel of kinderwagen.",
+    "link": "https://www.muhka.be/exhibitions/inbox-s-w-2/"
   }
 ];
 
@@ -1520,9 +1547,12 @@ const CANONICAL_URL = `https://${CANONICAL_HOST}/`;
 const agendaFeed = window.PUBLIC_AGENDA_FEED || { sources: [], items: [], supersedes: [] };
 const supersededHandIds = new Set(Array.isArray(agendaFeed.supersedes) ? agendaFeed.supersedes : []);
 const feedAgendaItems = (Array.isArray(agendaFeed.items) ? agendaFeed.items : []).map((item) => ({ ...item, feed: true }));
-const agendaSourceItems = expandAgendaItems([...agendaItems, ...feedAgendaItems]).filter(
-  (item) => item.feed || !supersededHandIds.has(item.id)
-);
+// Het adres van een vaste plek bij een handmatig item (scripts/build-sources.mjs, site/sources/vaste-adressen.json):
+// een echt adres staat nooit in deze code.
+const handAdressen = agendaFeed.handAdressen && typeof agendaFeed.handAdressen === "object" ? agendaFeed.handAdressen : {};
+const agendaSourceItems = expandAgendaItems([...agendaItems, ...feedAgendaItems])
+  .filter((item) => item.feed || !supersededHandIds.has(item.id))
+  .map((item) => (!item.feed && typeof handAdressen[item.id] === "string" ? { ...item, location: handAdressen[item.id] } : item));
 const agendaReconciliation = refreshEngine.reconcileAgendaItems(agendaSourceItems, todayIso(), { now: agendaNow().toISOString() });
 const onCanonicalHost = window.location.hostname === CANONICAL_HOST;
 // Eén UiT-sleutel geldt voor één website: UiT-items verschijnen alleen op de canonieke site.

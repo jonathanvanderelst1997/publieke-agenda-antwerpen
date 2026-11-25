@@ -77,11 +77,20 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
     if (String(url).includes("publiekeruimte")) return { status: 302, headers: { get: () => "https://www.antwerpen.be/nl/overzicht/district-antwerpen-1/openbare-werken" }, text: async () => "" };
     if (String(url).includes("maandvandevoetganger.be")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Wandelen met woorden – Poëtische Rimpelingen</h1><p>10 oktober om 14 uur</p>" };
     if (String(url).includes("gaston")) return { status: 200, headers: { get: () => null }, text: async () => "<p>Op 10 oktober 2026: officiële inhuldiging en gratis buurtfeest.</p>" };
+    if (String(url).includes("preview-s-w-2")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Preview – S &amp; W &amp; ... 2</h1><p>Kom naar de preview tijdens Muhka Laat. Datum donderdag 26 november 2026</p>" };
+    // Zoals de pagina het schrijft: "27 nov 2026 - 10 jan 2027" bovenaan, de volle datums in de praktische info.
+    if (String(url).includes("inbox-s-w-2")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>S &amp; W &amp; &#8230; 2</h1><p>27 nov 2026 - 10 jan 2027</p><p>Datum 27 november 2026 t.e.m. 10 januari 2027</p>" };
     return { status: 200, headers: { get: () => null }, text: async () => "<p>Openbare werken</p>" };
   };
   const doc = await run({ rootDir: root, fetch, clock: () => new Date("2026-10-06T03:20:00Z"), log: () => {}, sleep: async () => {} });
   const byId = Object.fromEntries(doc.sources.map((entry) => [entry.sourceId, entry.status]));
-  assert.deepEqual(byId, { "poetische-rimpelingen-regatta": "ok", "city-gaston-buurtfeest": "ok", "publiekeruimte-schoolstraat-vanhoenacker": "niet_controleerbaar" });
+  assert.deepEqual(byId, {
+    "poetische-rimpelingen-regatta": "ok",
+    "city-gaston-buurtfeest": "ok",
+    "muhka-preview-s-w-2": "ok",
+    "muhka-inbox-s-w-2": "ok",
+    "publiekeruimte-schoolstraat-vanhoenacker": "niet_controleerbaar",
+  });
   assert.ok(asked.some((url) => url.endsWith("/openbare-werken")), "doorverwijzing gevolgd");
   const written = JSON.parse(fs.readFileSync(path.join(root, "site", "sources", "manual-check.json"), "utf8"));
   assert.deepEqual(validateManualCheck(written), []);

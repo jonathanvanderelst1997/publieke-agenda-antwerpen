@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-11-25",
-  "sourceItemCount": 930,
-  "sourceDigest": "835e6784f46029dee6e227c4398d7f7ec49b06e61ac36bb24bebcdafb06dd2e1",
+  "sourceItemCount": 932,
+  "sourceDigest": "730209478907cff61b1068ea13e9a3aad013b52bc5439f08013ed7643f7dc33d",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -10679,6 +10679,19 @@
       "verificationState": "verified"
     },
     {
+      "id": "preview-tentoonstelling-s-w-2-muhka-2026-11-26",
+      "title": "Preview tentoonstelling S & W & … 2 in Muhka",
+      "eventDate": "2026-11-26",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "muhka-preview-s-w-2",
+      "sourcePublisher": "Muhka (M HKA)",
+      "canonicalSourceUrl": "https://www.muhka.be/activities/preview-s-w-2/",
+      "sourceHost": "www.muhka.be",
+      "sourceRetrievedAt": "2026-11-25T13:50:00Z",
+      "verificationState": "verified"
+    },
+    {
       "id": "project-5d725f47b628f03ea317d3b8-fase-4-2026-05-01",
       "title": "Heraanleg Paardenmarkt: fase 4 (Paardenmarkt tussen Kleine Kauwenberg (inclusief kruispunt) en Rodestraat - Rijnpoortvest (exclusief kruispunt))",
       "eventDate": "2026-05-01",
@@ -11807,6 +11820,19 @@
       "canonicalSourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-09-16T12:46:42Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10",
+      "title": "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka",
+      "eventDate": "2026-11-27",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "muhka-inbox-s-w-2",
+      "sourcePublisher": "Muhka (M HKA)",
+      "canonicalSourceUrl": "https://www.muhka.be/exhibitions/inbox-s-w-2/",
+      "sourceHost": "www.muhka.be",
+      "sourceRetrievedAt": "2026-11-25T13:50:00Z",
       "verificationState": "verified"
     },
     {

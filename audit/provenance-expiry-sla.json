@@ -4,21 +4,21 @@
   "classificationAsOf": "2026-11-25",
   "verifiedSourceSnapshotAt": "2026-11-25T04:26:47.618Z",
   "rollbackBaseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
-  "sourceItemCount": 930,
-  "localCandidateCount": 771,
+  "sourceItemCount": 932,
+  "localCandidateCount": 773,
   "classifications": {
     "current": 29,
     "expired": 159,
-    "future": 742
+    "future": 744
   },
   "slaStatuses": {
     "expired_not_public": 159,
-    "fresh_verified": 771
+    "fresh_verified": 773
   },
   "sourceKinds": {
     "historical_link_only": 81,
     "official_feed": 814,
-    "official_organizer": 6,
+    "official_organizer": 8,
     "public_authority": 29
   },
   "items": [
@@ -2805,6 +2805,54 @@
       "publishEligible": false,
       "includedInLocalCandidate": false,
       "failClosed": true
+    },
+    {
+      "id": "preview-tentoonstelling-s-w-2-muhka-2026-11-26",
+      "title": "Preview tentoonstelling S & W & … 2 in Muhka",
+      "theme": "Activiteit",
+      "eventDate": "2026-11-26",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "muhka-preview-s-w-2",
+      "sourcePublisher": "Muhka (M HKA)",
+      "sourceKind": "official_organizer",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.muhka.be/activities/preview-s-w-2/",
+      "sourceHost": "www.muhka.be",
+      "sourceRetrievedAt": "2026-11-25T13:50:00Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": null,
+      "recheckDueOn": "2026-11-26",
+      "visibleThrough": "2026-11-26",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
+    },
+    {
+      "id": "tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10",
+      "title": "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka",
+      "theme": "Activiteit",
+      "eventDate": "2026-11-27",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "muhka-inbox-s-w-2",
+      "sourcePublisher": "Muhka (M HKA)",
+      "sourceKind": "official_organizer",
+      "scope": "district",
+      "canonicalSourceUrl": "https://www.muhka.be/exhibitions/inbox-s-w-2/",
+      "sourceHost": "www.muhka.be",
+      "sourceRetrievedAt": "2026-11-25T13:50:00Z",
+      "verificationState": "verified",
+      "reviewReason": null,
+      "maxAgeDays": null,
+      "recheckDueOn": "2027-01-10",
+      "visibleThrough": "2027-01-10",
+      "slaStatus": "fresh_verified",
+      "publishEligible": true,
+      "includedInLocalCandidate": true,
+      "failClosed": false
     },
     {
       "id": "ebesluit-2026-dcan-00002-2026-04-05-018b14f7",
