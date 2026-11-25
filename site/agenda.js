@@ -1534,6 +1534,45 @@ const agendaItems = [
     "location": "Muhka (M HKA), INBOX op de vijfde verdieping",
     "info": "Zeven Belgische kunstenaars maken nieuw werk geïnspireerd op de wereld van Suske & Wiske van Willy Vandersteen, naast een origineel ontwerp van Vandersteen voor het album De Tartaarse helm. Gratis en voor iedereen, geen inschrijving of reservatie nodig. Gesloten op 25 december en 1 januari; op 24 en 31 december open tot 16 uur. Let op: de kleine personenlift van het museum is tijdelijk buiten gebruik, waardoor de vijfde verdieping nu niet bereikbaar is met een rolstoel of kinderwagen.",
     "link": "https://www.muhka.be/exhibitions/inbox-s-w-2/"
+  },
+  {
+    "id": "kopcert-xl-bando-het-oude-badhuis-2026-12-04",
+    "title": "Kopcert XL: Bando",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-12-04",
+    "dateLabel": "4 december 2026",
+    "timeSlot": "20:00",
+    "timeText": "20 uur",
+    "location": "Het Oude Badhuis",
+    "info": "Jazzconcert in de reeks Kopcert met Jazz 2060: saxofonist Toine Thys en het collectief Bando, met Motoï Kanamori, Wajdi Riahi en Diogo Alexandre, stellen hun nieuwe album The Ear of the Dragon voor. Ticket nodig: € 12, kansentarief € 3, te koop via de pagina van Het Oude Badhuis.",
+    "link": "https://oudebadhuis.antwerpen.be/bando"
+  },
+  {
+    "id": "wintermagie-tampicopark-2026-12-11",
+    "title": "Wintermagie",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-12-11",
+    "dateLabel": "11 december 2026",
+    "timeSlot": "19:00",
+    "timeText": "19 tot 21 uur",
+    "location": "Tampicopark, Luchtbal, 2030 Antwerpen",
+    "info": "Winteravond in het park voor jong en oud, door BLOC 2030: straattheater met Rein Kristal, de kleinste ker(st)mis van Foletta en Mario Balducci en een vuurshow van Peter Gusta, met soep en warme chocomelk. Gratis en voor iedereen, geen inschrijving nodig.",
+    "link": "https://bloc2030.antwerpen.be/wintermagie-1"
+  },
+  {
+    "id": "wintermarkt-bloc-2030-2026-12-15",
+    "title": "Wintermarkt",
+    "theme": "Activiteit",
+    "className": "activity",
+    "date": "2026-12-15",
+    "dateLabel": "15 december 2026",
+    "timeSlot": "14:00",
+    "timeText": "14 tot 20 uur",
+    "location": "BLOC 2030",
+    "info": "Makersmarkt met kraampjes van creatieve makers uit de buurt en daarbuiten; de leerlingen van BUSO De Ark verkopen hun werk in hout en keramiek, en wafels. Workshops kleurrijke kaarsen (14.30 tot 17.30 uur) en papieren sterren (18 tot 20 uur). Gratis en voor iedereen, geen inschrijving nodig.",
+    "link": "https://bloc2030.antwerpen.be/wintermarkt"
   }
 ];
 

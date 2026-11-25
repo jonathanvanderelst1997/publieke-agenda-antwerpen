@@ -145,6 +145,36 @@
       scope: "district",
       check: { mustContain: ["S & W", "10 januari 2027"] },
     },
+    "oudebadhuis-kopcert-bando": {
+      publisher: "Het Oude Badhuis (ontmoetingscentrum van district Antwerpen)",
+      url: "https://oudebadhuis.antwerpen.be/bando",
+      retrievedAt: "2026-11-25T14:10:00Z",
+      state: "verified",
+      note: "Officiële pagina van Het Oude Badhuis: Kopcert XL: Bando (Jazz 2060), vrijdag 4 december 2026 om 20 uur; tickets € 12, kansentarief € 3, via de ticketknop op de pagina; niet als uitverkocht gemeld (25-11-2026). Ook in de districtskalender van district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["Bando", "Oude Badhuis"] },
+    },
+    "bloc2030-wintermagie": {
+      publisher: "BLOC 2030 (ontmoetingscentrum van district Antwerpen)",
+      url: "https://bloc2030.antwerpen.be/wintermagie-1",
+      retrievedAt: "2026-11-25T14:10:00Z",
+      state: "verified",
+      note: "Officiële pagina van BLOC 2030: Wintermagie, vrijdag 11 december 2026 van 19 tot en met 21 uur in het Tampicopark (buurtpark, Luchtbal); gratis. Ook in de districtskalender van district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["Wintermagie", "Tampicopark"] },
+    },
+    "bloc2030-wintermarkt": {
+      publisher: "BLOC 2030 (ontmoetingscentrum van district Antwerpen)",
+      url: "https://bloc2030.antwerpen.be/wintermarkt",
+      retrievedAt: "2026-11-25T14:10:00Z",
+      state: "verified",
+      note: "Officiële pagina van BLOC 2030: Wintermarkt (makersmarkt en workshops), dinsdag 15 december 2026 van 14 tot en met 20 uur in BLOC 2030; gratis. Ook in de districtskalender van district Antwerpen.",
+      officialPublic: true,
+      scope: "district",
+      check: { mustContain: ["Wintermarkt", "BLOC 2030"] },
+    },
     "publiekeruimte-schoolstraat-vanhoenacker": {
       publisher: "District Antwerpen, team Publieke Ruimte",
       url: "https://www.antwerpen.be/publiekeruimte",
@@ -206,6 +236,18 @@
     {
       match: { title: "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka", dates: ["2026-11-27"] },
       sourceId: "muhka-inbox-s-w-2",
+    },
+    {
+      match: { title: "Kopcert XL: Bando", dates: ["2026-12-04"] },
+      sourceId: "oudebadhuis-kopcert-bando",
+    },
+    {
+      match: { title: "Wintermagie", dates: ["2026-12-11"] },
+      sourceId: "bloc2030-wintermagie",
+    },
+    {
+      match: { title: "Wintermarkt", dates: ["2026-12-15"] },
+      sourceId: "bloc2030-wintermarkt",
     },
     {
       match: { title: "Bevraging proefperiode schoolstraat Jan Vanhoenackerstraat", dates: ["2026-10-05"] },

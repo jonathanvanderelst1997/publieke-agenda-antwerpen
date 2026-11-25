@@ -80,6 +80,9 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
     if (String(url).includes("preview-s-w-2")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Preview – S &amp; W &amp; ... 2</h1><p>Kom naar de preview tijdens Muhka Laat. Datum donderdag 26 november 2026</p>" };
     // Zoals de pagina het schrijft: "27 nov 2026 - 10 jan 2027" bovenaan, de volle datums in de praktische info.
     if (String(url).includes("inbox-s-w-2")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>S &amp; W &amp; &#8230; 2</h1><p>27 nov 2026 - 10 jan 2027</p><p>Datum 27 november 2026 t.e.m. 10 januari 2027</p>" };
+    if (String(url).includes("oudebadhuis")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Kopcert XL: Bando | Het Oude Badhuis</h1><p>Op vrijdag 4 december 2026, 20:00 uur</p>" };
+    if (String(url).includes("wintermagie")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Wintermagie</h1><p>Op vrijdag 11 december 2026 van 19 tot en met 21 uur</p><p>Tampicopark</p>" };
+    if (String(url).includes("wintermarkt")) return { status: 200, headers: { get: () => null }, text: async () => "<h1>Wintermarkt | BLOC 2030</h1><p>Op dinsdag 15 december 2026 van 14 tot en met 20 uur</p>" };
     return { status: 200, headers: { get: () => null }, text: async () => "<p>Openbare werken</p>" };
   };
   const doc = await run({ rootDir: root, fetch, clock: () => new Date("2026-10-06T03:20:00Z"), log: () => {}, sleep: async () => {} });
@@ -89,6 +92,9 @@ test("het script kijkt elke zichtbare handmatige bron na, volgt een doorverwijzi
     "city-gaston-buurtfeest": "ok",
     "muhka-preview-s-w-2": "ok",
     "muhka-inbox-s-w-2": "ok",
+    "oudebadhuis-kopcert-bando": "ok",
+    "bloc2030-wintermagie": "ok",
+    "bloc2030-wintermarkt": "ok",
     "publiekeruimte-schoolstraat-vanhoenacker": "niet_controleerbaar",
   });
   assert.ok(asked.some((url) => url.endsWith("/openbare-werken")), "doorverwijzing gevolgd");

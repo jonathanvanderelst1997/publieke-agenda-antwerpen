@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "state": "local-provenance-snapshot-not-published",
   "classificationAsOf": "2026-11-25",
-  "sourceItemCount": 932,
-  "sourceDigest": "730209478907cff61b1068ea13e9a3aad013b52bc5439f08013ed7643f7dc33d",
+  "sourceItemCount": 935,
+  "sourceDigest": "d0e11399bbf3ab2be45b1edf5c4a1d2e527095ef093dc95cce00f536de831c38",
   "items": [
     {
       "id": "15-van-het-galgenweel-2026-07-05",
@@ -2122,6 +2122,19 @@
       "canonicalSourceUrl": "https://www.antwerpen.be/info/koopzondagen",
       "sourceHost": "www.antwerpen.be",
       "sourceRetrievedAt": "2026-10-22T03:20:28.162Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "kopcert-xl-bando-het-oude-badhuis-2026-12-04",
+      "title": "Kopcert XL: Bando",
+      "eventDate": "2026-12-04",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "oudebadhuis-kopcert-bando",
+      "sourcePublisher": "Het Oude Badhuis (ontmoetingscentrum van district Antwerpen)",
+      "canonicalSourceUrl": "https://oudebadhuis.antwerpen.be/bando",
+      "sourceHost": "oudebadhuis.antwerpen.be",
+      "sourceRetrievedAt": "2026-11-25T14:10:00Z",
       "verificationState": "verified"
     },
     {
@@ -11964,6 +11977,32 @@
       "sourceHost": "minigolfbeatrijs.be",
       "sourceRetrievedAt": null,
       "verificationState": "date_elapsed_only"
+    },
+    {
+      "id": "wintermagie-tampicopark-2026-12-11",
+      "title": "Wintermagie",
+      "eventDate": "2026-12-11",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "bloc2030-wintermagie",
+      "sourcePublisher": "BLOC 2030 (ontmoetingscentrum van district Antwerpen)",
+      "canonicalSourceUrl": "https://bloc2030.antwerpen.be/wintermagie-1",
+      "sourceHost": "bloc2030.antwerpen.be",
+      "sourceRetrievedAt": "2026-11-25T14:10:00Z",
+      "verificationState": "verified"
+    },
+    {
+      "id": "wintermarkt-bloc-2030-2026-12-15",
+      "title": "Wintermarkt",
+      "eventDate": "2026-12-15",
+      "classification": "future",
+      "classificationAsOf": "2026-11-25",
+      "sourceId": "bloc2030-wintermarkt",
+      "sourcePublisher": "BLOC 2030 (ontmoetingscentrum van district Antwerpen)",
+      "canonicalSourceUrl": "https://bloc2030.antwerpen.be/wintermarkt",
+      "sourceHost": "bloc2030.antwerpen.be",
+      "sourceRetrievedAt": "2026-11-25T14:10:00Z",
+      "verificationState": "verified"
     },
     {
       "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",

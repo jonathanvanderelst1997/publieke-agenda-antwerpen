@@ -46,6 +46,23 @@
       ],
       "adres": "Leuvenstraat 32, 2000 Antwerpen",
       "bron": "https://www.muhka.be/bezoek/praktisch/bereikbaarheid/"
+    },
+    {
+      "naam": "Het Oude Badhuis",
+      "herken": [
+        "Het Oude Badhuis",
+        "Oude Badhuis"
+      ],
+      "adres": "Stuivenbergplein 38, 2060 Antwerpen",
+      "bron": "https://oudebadhuis.antwerpen.be/bando"
+    },
+    {
+      "naam": "BLOC 2030",
+      "herken": [
+        "BLOC 2030"
+      ],
+      "adres": "Columbiastraat 110, 2030 Antwerpen",
+      "bron": "https://bloc2030.antwerpen.be/wintermarkt"
     }
   ]
 }
