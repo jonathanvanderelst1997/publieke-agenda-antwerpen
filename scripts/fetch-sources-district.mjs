@@ -2,13 +2,23 @@
 // site/sources/district-kalender.json. Leest alleen; bewaart nooit de ruwe JSON, afbeeldingen of
 // CMS-personeelsvelden (creator, assignee, lockOwner).
 //
+// Weigert www.antwerpen.be (sinds 23-10-2026, bron_weigert_automatisch), dan leest deze bron de districtskalender
+// zoals de eigenaar ze op zijn tik in zijn eigen browser liet lezen, via de Brain Gateway (contract C6,
+// lib/districtskalender-brain.mjs). Er wordt niets omzeild: www.antwerpen.be wordt hier niet opnieuw gevraagd. Elk
+// item met een officiële pagina (een ontmoetingscentrum van het district of een persbericht van het district) wordt
+// op die pagina zelf opnieuw nagekeken: titel, dag en adres. Lukt dat niet, dan valt het item weg.
+//
+//   DISTRICTSKALENDER_BRAIN_URL overschrijft de standaard-URL van de Gateway.
+//
 //   node scripts/fetch-sources-district.mjs            schrijft het bronbestand
 //   node scripts/fetch-sources-district.mjs --dry-run  toont alleen aantallen, schrijft niets
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { DISTRICT_PAGE_UUID, parseDistrictPage } from "../lib/district-parser.mjs";
-import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { DEFAULT_DISTRICTSKALENDER_URL, adresOpPagina, isKalenderPagina, itemFromKalender, titelOpPagina, validateDistrictskalenderFeed } from "../lib/districtskalender-brain.mjs";
+import { FetchError, USER_AGENT, errorCodeOf, fetchWithTimeout, guardShrink, isMainModule, isWeigeringCode, keepPreviousOnError, readSourceDocument, screenItems, statusEntry, suspiciousDrop, upcomingCount, writeSourceDocument } from "../lib/fetch-util.mjs";
+import { dateOnPage, pageText } from "../lib/mail-signals.mjs";
 import { brusselsDate } from "../lib/html-text.mjs";
 import { sourceDocument } from "../lib/source-feed.mjs";
 import {enrichActions} from "../lib/automatic-event-action.mjs";
@@ -45,6 +55,88 @@ async function getPage(fetchImpl) {
   throw lastError ?? new FetchError("network_error");
 }
 
+const MAX_REDIRECTS = 3;
+const MAX_PAGE_BYTES = 3 * 1024 * 1024;
+
+// Eén officiële pagina, hoogstens drie omleidingen, elk op een van de vaste hosts.
+async function officielePagina(fetchImpl, startUrl) {
+  let url = startUrl;
+  for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
+    if (!isKalenderPagina(url)) throw new FetchError("redirect_not_allowed");
+    const response = await fetchWithTimeout(fetchImpl, url, { headers: { "user-agent": USER_AGENT, accept: "text/html" }, redirect: "manual" });
+    if ([301, 302, 303, 307, 308].includes(response.status)) {
+      const location = response.headers?.get?.("location");
+      if (!location) throw new FetchError("redirect_without_location");
+      url = new URL(location, url).href;
+      continue;
+    }
+    if (response.status !== 200) throw new FetchError(`http_${response.status}`);
+    const html = await response.text();
+    if (html.length > MAX_PAGE_BYTES) throw new FetchError("page_too_large");
+    return html;
+  }
+  throw new FetchError("too_many_redirects");
+}
+
+// De districtskalender via de Brain Gateway, als www.antwerpen.be weigert. Geeft het statusitem, of null als de
+// Gateway niets bruikbaars had: dan blijft de vorige stand staan met de weigering als reden.
+async function vanBrain({ fetchImpl, env, rootDir, retrievedAt, today, log, dryRun }) {
+  const endpoint = String(env.DISTRICTSKALENDER_BRAIN_URL || DEFAULT_DISTRICTSKALENDER_URL);
+  let payload;
+  try {
+    if (!/^https:\/\//.test(endpoint)) throw new FetchError("invalid_endpoint");
+    const response = await fetchWithTimeout(fetchImpl, endpoint, { headers: { "user-agent": USER_AGENT, accept: "application/json" }, redirect: "error" });
+    if (response.status !== 200) {
+      log(JSON.stringify({ source: SOURCE_ID, via: "brain", fetchStatus: "error", errorCode: `brain_http_${response.status}` }));
+      return null;
+    }
+    const text = await response.text();
+    payload = JSON.parse(text);
+    const validation = validateDistrictskalenderFeed(payload, { byteLength: Buffer.byteLength(text, "utf8") });
+    if (!validation.ok) {
+      log(JSON.stringify({ source: SOURCE_ID, via: "brain", fetchStatus: "error", errorCode: "brain_invalid_payload", violations: validation.errors.length }));
+      return null;
+    }
+  } catch (error) {
+    log(JSON.stringify({ source: SOURCE_ID, via: "brain", fetchStatus: "error", errorCode: `brain_${errorCodeOf(error)}` }));
+    return null;
+  }
+  const reasons = {};
+  const count = (reason) => { reasons[reason] = (reasons[reason] ?? 0) + 1; };
+  const items = [];
+  for (const entry of payload.items) {
+    if ((entry.end ?? entry.start).slice(0, 10) < today) { count("date_passed"); continue; }
+    if (entry.page) {
+      // Opnieuw nagekeken op de officiële pagina zelf: titel, dag en adres.
+      let text;
+      try {
+        text = pageText(await officielePagina(fetchImpl, entry.page));
+      } catch (error) {
+        count(errorCodeOf(error));
+        continue;
+      }
+      if (!titelOpPagina(entry.title, text)) { count("title_not_on_page"); continue; }
+      if (!dateOnPage(entry.start.slice(0, 10), text)) { count("date_not_on_page"); continue; }
+      if (!adresOpPagina(entry.place, text)) { count("address_not_on_page"); continue; }
+    }
+    items.push(itemFromKalender(entry, { retrievedAt }));
+  }
+  const screened = screenItems(items);
+  if (dryRun) {
+    log(JSON.stringify({ source: SOURCE_ID, via: "brain", dryRun: true, items: screened.items.length, reasons }));
+    return statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: screened.items.length });
+  }
+  // Geen krimpbewaking: deze levering is al gecureerd (de eigenaar kan er iets af halen), en wat er niet meer in
+  // staat, hoort er ook niet meer op.
+  const document = writeSourceDocument(
+    rootDir,
+    SOURCE_ID,
+    sourceDocument(SOURCE_ID, { retrievedAt, fetchStatus: "ok", contentVersion: `brain|${payload.generated_on}`, items: screened.items })
+  );
+  log(JSON.stringify({ source: SOURCE_ID, via: "brain", fetchStatus: "ok", items: document.items.length, reasons, rejected: screened.rejected }));
+  return statusEntry(SOURCE_ID, { fetchStatus: "ok", retrievedAt, itemCount: document.items.length });
+}
+
 export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => new Date(), rootDir, env = process.env, dryRun = false, log = console.log } = {}) {
   const previous = readSourceDocument(rootDir, SOURCE_ID);
   const now = clock();
@@ -56,6 +148,11 @@ export async function run({ fetch: fetchImpl = globalThis.fetch, clock = () => n
   } catch (error) {
     const code = errorCodeOf(error);
     log(JSON.stringify({ source: SOURCE_ID, fetchStatus: "error", errorCode: code }));
+    // De site weigert automatische lezers: dan wat de eigenaar op zijn tik liet lezen, via Brain (zie boven).
+    if (isWeigeringCode(code)) {
+      const viaBrain = await vanBrain({ fetchImpl, env, rootDir, retrievedAt, today, log, dryRun });
+      if (viaBrain) return [viaBrain];
+    }
     return [keepPreviousOnError(rootDir, SOURCE_ID, previous, code, { dryRun })];
   }
 
