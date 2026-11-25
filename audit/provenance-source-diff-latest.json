@@ -4,13 +4,13 @@
   "from": "expanded-agenda-source",
   "to": "provenance-sla-matrix",
   "classificationAsOf": "2026-11-25",
-  "sourceDigest": "730209478907cff61b1068ea13e9a3aad013b52bc5439f08013ed7643f7dc33d",
-  "matrixDigest": "730209478907cff61b1068ea13e9a3aad013b52bc5439f08013ed7643f7dc33d",
+  "sourceDigest": "d0e11399bbf3ab2be45b1edf5c4a1d2e527095ef093dc95cce00f536de831c38",
+  "matrixDigest": "d0e11399bbf3ab2be45b1edf5c4a1d2e527095ef093dc95cce00f536de831c38",
   "counts": {
     "add": 0,
     "change": 0,
     "remove": 0,
-    "unchanged": 932
+    "unchanged": 935
   },
   "actions": [
     {
@@ -990,6 +990,12 @@
       "action": "unchanged",
       "sourceDigest": "261828a92fa9d1eeb95afd06df6d93b503bb71bd020f3160d86c73353a2fabb3",
       "matrixDigest": "261828a92fa9d1eeb95afd06df6d93b503bb71bd020f3160d86c73353a2fabb3"
+    },
+    {
+      "id": "kopcert-xl-bando-het-oude-badhuis-2026-12-04",
+      "action": "unchanged",
+      "sourceDigest": "4e4a4734ac7275637ace61edd95def44b917c6f82453b502f37b383de8cad0d1",
+      "matrixDigest": "4e4a4734ac7275637ace61edd95def44b917c6f82453b502f37b383de8cad0d1"
     },
     {
       "id": "lambermontmartre-2026-06-28",
@@ -5532,6 +5538,18 @@
       "action": "unchanged",
       "sourceDigest": "3732a9806980385d9cb03fad578de89a15caa71117fe3bfa6744a39b13c53144",
       "matrixDigest": "3732a9806980385d9cb03fad578de89a15caa71117fe3bfa6744a39b13c53144"
+    },
+    {
+      "id": "wintermagie-tampicopark-2026-12-11",
+      "action": "unchanged",
+      "sourceDigest": "91890bbc0752b2cba76af3be0cc3ff6663abd9e5bb9f28db0b21e6ab50ca5824",
+      "matrixDigest": "91890bbc0752b2cba76af3be0cc3ff6663abd9e5bb9f28db0b21e6ab50ca5824"
+    },
+    {
+      "id": "wintermarkt-bloc-2030-2026-12-15",
+      "action": "unchanged",
+      "sourceDigest": "b6e72985b4f8771eda06cb75c56efcf99100817d773128062024a583b0a9c22d",
+      "matrixDigest": "b6e72985b4f8771eda06cb75c56efcf99100817d773128062024a583b0a9c22d"
     },
     {
       "id": "yogalates-op-boeienweide-2026-07-01-2026-07-01-b67ef9eb",

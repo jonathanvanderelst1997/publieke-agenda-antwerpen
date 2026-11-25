@@ -15,6 +15,24 @@ SOURCE;VALUE=URI:https://mijn-publieke-agenda-voor-district.onrender.com/ka
  lender/feest-en-festival.ics
 REFRESH-INTERVAL;VALUE=DURATION:PT6H
 X-PUBLISHED-TTL:PT6H
+BEGIN:VTIMEZONE
+TZID:Europe/Brussels
+X-LIC-LOCATION:Europe/Brussels
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00579-2026-11-04@mijn-publieke-agenda-voor-distri
  ct.local
@@ -33,6 +51,29 @@ DESCRIPTION:Gesteund door het Districtsfonds: beleef je buurt! (besluit van
   data licentie)
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/ebesluit-
  ev-2026-dcan-00579-2026-11-04/
+CATEGORIES:Feest & festival
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:wintermarkt-bloc-2030-2026-12-15@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261125T042647Z
+DTSTART;TZID=Europe/Brussels:20261215T140000
+DTEND;TZID=Europe/Brussels:20261215T200000
+SUMMARY:Wintermarkt
+LOCATION:BLOC 2030\, Columbiastraat 110\, 2030 Antwerpen
+DESCRIPTION:Makersmarkt met kraampjes van creatieve makers uit de buurt en 
+ daarbuiten\; de leerlingen van BUSO De Ark verkopen hun werk in hout en ke
+ ramiek\, en wafels. Workshops kleurrijke kaarsen (14.30 tot 17.30 uur) en 
+ papieren sterren (18 tot 20 uur). Gratis en voor iedereen\, geen inschrijv
+ ing nodig.\nWanneer: 14 tot 20 uur\nOp de publieke agenda: https://mijn-pu
+ blieke-agenda-voor-district.onrender.com/event/wintermarkt-bloc-2030-2026-
+ 12-15/\nOfficiële bron: https://bloc2030.antwerpen.be/wintermarkt\nBron: 
+ district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licen
+ tie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/wintermar
+ kt-bloc-2030-2026-12-15/
 CATEGORIES:Feest & festival
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT

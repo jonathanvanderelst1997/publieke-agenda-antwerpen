@@ -86,9 +86,12 @@ test("build:sources: een handmatig item op een vaste plek krijgt het adres via d
   assert.deepEqual(feed.handAdressen, { "hand-museum": `Muhka (M HKA), INBOX op de vijfde verdieping, ${muhka.adres}` });
 
   // De gebouwde site: elk handmatig item op een vaste plek staat er met het adres, ook in de eventpagina's en de .ics.
-  const items = loadExpandedAgendaItems(rootDir).filter((item) => !item.feed && /^Muhka \(M HKA\)/.test(item.location ?? ""));
+  const opDeSite = loadExpandedAgendaItems(rootDir).filter((item) => !item.feed);
+  const items = opDeSite.filter((item) => /^Muhka \(M HKA\)/.test(item.location ?? ""));
   assert.ok(items.length >= 1, "de handmatige items in Muhka");
   for (const item of items) assert.ok(item.location.endsWith(muhka.adres), `${item.id}: ${item.location}`);
+  // Geen enkel handmatig item noemt nog een vaste plek zonder haar adres.
+  for (const item of opDeSite) if (item.location) assert.equal(metVastAdres(item.location, doc), item.location, `${item.id}: ${item.location}`);
 });
 
 test("de gebouwde feed noemt geen vaste plek meer zonder huisnummer", () => {

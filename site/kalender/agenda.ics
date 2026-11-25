@@ -1821,6 +1821,29 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:kopcert-xl-bando-het-oude-badhuis-2026-12-04@mijn-publieke-agenda-voor-
+ district.local
+DTSTAMP:20261125T042647Z
+DTSTART;TZID=Europe/Brussels:20261204T200000
+DURATION:PT1H
+SUMMARY:Kopcert XL: Bando
+LOCATION:Het Oude Badhuis\, Stuivenbergplein 38\, 2060 Antwerpen
+DESCRIPTION:Jazzconcert in de reeks Kopcert met Jazz 2060: saxofonist Toine
+  Thys en het collectief Bando\, met Motoï Kanamori\, Wajdi Riahi en Diogo
+  Alexandre\, stellen hun nieuwe album The Ear of the Dragon voor. Ticket n
+ odig: € 12\, kansentarief € 3\, te koop via de pagina van Het Oude Bad
+ huis.\nWanneer: 20 uur\nOp de publieke agenda: https://mijn-publieke-agend
+ a-voor-district.onrender.com/event/kopcert-xl-bando-het-oude-badhuis-2026-
+ 12-04/\nOfficiële bron: https://oudebadhuis.antwerpen.be/bando\nBron: dis
+ trict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie
+ )
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/kopcert-x
+ l-bando-het-oude-badhuis-2026-12-04/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:asign-ev-et2026006201-2026-12-05@mijn-publieke-agenda-voor-district.loc
  al
 DTSTAMP:20261125T042647Z
@@ -2113,6 +2136,28 @@ STATUS:TENTATIVE
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:wintermagie-tampicopark-2026-12-11@mijn-publieke-agenda-voor-district.l
+ ocal
+DTSTAMP:20261125T042647Z
+DTSTART;TZID=Europe/Brussels:20261211T190000
+DTEND;TZID=Europe/Brussels:20261211T210000
+SUMMARY:Wintermagie
+LOCATION:Tampicopark\, Luchtbal\, 2030 Antwerpen
+DESCRIPTION:Winteravond in het park voor jong en oud\, door BLOC 2030: stra
+ attheater met Rein Kristal\, de kleinste ker(st)mis van Foletta en Mario B
+ alducci en een vuurshow van Peter Gusta\, met soep en warme chocomelk. Gra
+ tis en voor iedereen\, geen inschrijving nodig.\nWanneer: 19 tot 21 uur\nO
+ p de publieke agenda: https://mijn-publieke-agenda-voor-district.onrender.
+ com/event/wintermagie-tampicopark-2026-12-11/\nOfficiële bron: https://bl
+ oc2030.antwerpen.be/wintermagie-1\nBron: district Antwerpen – bron stad 
+ Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/wintermag
+ ie-tampicopark-2026-12-11/
+CATEGORIES:Cultuur
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:koopzondag-2026-12-13@mijn-publieke-agenda-voor-district.local
 DTSTAMP:20261125T042647Z
 DTSTART;VALUE=DATE:20261213
@@ -2149,6 +2194,29 @@ DESCRIPTION:Openbare districtsvergadering volgens de officiële eBesluit-ka
 URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
  vergadering-ebesluit-25-0722-5555-7312/
 CATEGORIES:Raad & commissies
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:wintermarkt-bloc-2030-2026-12-15@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261125T042647Z
+DTSTART;TZID=Europe/Brussels:20261215T140000
+DTEND;TZID=Europe/Brussels:20261215T200000
+SUMMARY:Wintermarkt
+LOCATION:BLOC 2030\, Columbiastraat 110\, 2030 Antwerpen
+DESCRIPTION:Makersmarkt met kraampjes van creatieve makers uit de buurt en 
+ daarbuiten\; de leerlingen van BUSO De Ark verkopen hun werk in hout en ke
+ ramiek\, en wafels. Workshops kleurrijke kaarsen (14.30 tot 17.30 uur) en 
+ papieren sterren (18 tot 20 uur). Gratis en voor iedereen\, geen inschrijv
+ ing nodig.\nWanneer: 14 tot 20 uur\nOp de publieke agenda: https://mijn-pu
+ blieke-agenda-voor-district.onrender.com/event/wintermarkt-bloc-2030-2026-
+ 12-15/\nOfficiële bron: https://bloc2030.antwerpen.be/wintermarkt\nBron: 
+ district Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licen
+ tie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/wintermar
+ kt-bloc-2030-2026-12-15/
+CATEGORIES:Feest & festival
 STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
