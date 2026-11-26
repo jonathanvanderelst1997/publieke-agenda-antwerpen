@@ -13,10 +13,11 @@ export const WERVEN_EERST=12;
 const esc=(v)=>String(v??"").replace(/[&<>"']/g,(c)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const datum=new Intl.DateTimeFormat("nl-BE",{timeZone:"Europe/Brussels",weekday:"short",day:"numeric",month:"short"});
 const datumJaar=new Intl.DateTimeFormat("nl-BE",{timeZone:"Europe/Brussels",day:"numeric",month:"short",year:"numeric"});
-export function dagTekst(iso,{jaar=false}={}){const t=new Date(iso);return Number.isNaN(t.getTime())?"":(jaar?datumJaar:datum).format(t)}
+export function dagTekst(iso,{jaar=false}={}){if(!iso)return"";const t=new Date(iso);return Number.isNaN(t.getTime())?"":(jaar?datumJaar:datum).format(t)}
+const brusselsJaar=new Intl.DateTimeFormat("en-CA",{timeZone:"Europe/Brussels",year:"numeric"});
 // "van ma 16 nov tot 31 jan 2027": het einde met het jaar als het in een ander jaar valt dan het begin.
 export function periodeTekst(begin,einde){
-  const b=dagTekst(begin),e=new Date(einde),anderJaar=!Number.isNaN(e.getTime())&&new Date(begin).getUTCFullYear()!==e.getUTCFullYear();
+  const b=dagTekst(begin),e=dagTekst(einde),anderJaar=Boolean(e)&&(!b||brusselsJaar.format(new Date(begin))!==brusselsJaar.format(new Date(einde)));
   const t=dagTekst(einde,{jaar:anderJaar});
   if(b&&t)return`van ${b} tot ${t}`;
   if(b)return`vanaf ${b}`;
@@ -26,7 +27,7 @@ const dagLabel=(dag)=>dagTekst(`${dag}T12:00:00Z`);
 
 export function werfHtml(w){
   const straat=(w.straten||[]).join(" · ")||onbekendZin("plek");
-  return`<li class="werven-nieuw-werf"><strong>${esc(straat)}</strong><span>${esc(w.titel)}</span><small>${esc(periodeTekst(w.begin,w.einde))}${w.status?` · ${esc(w.status)}`:""}</small></li>`;
+  return`<li class="werven-nieuw-werf"><strong>${esc(straat)}</strong><span>${esc(w.titel)}</span><small>${esc(periodeTekst(w.begin,w.einde))}${w.status?` · ${esc(w.status)}`:""}${w.eersteKeer===null?" · Eerste waarneming onbekend":""}</small></li>`;
 }
 
 function lijstHtml(kop,uitleg,werven,aantal,soort){
@@ -44,7 +45,7 @@ export function wervenNieuwHtml(doc){
   return`<div class="works-live-header"><div><span class="works-live-kicker">Werven</span><h2 id="werven-nieuw-titel">Nieuwe werven deze week</h2><p>Van ${esc(dagLabel(doc.van))} tot ${esc(dagLabel(doc.tot))} in district Antwerpen, uit GIPOD. Elke dag ververst.</p></div></div>`
     +`<div class="werven-nieuw-lijsten">`
     +lijstHtml("Nieuw aangekondigd","Voor het eerst in GIPOD deze week.",doc.nieuw,nieuw,"nieuw")
-    +lijstHtml("Begint deze week","Al eerder aangekondigd, en deze week van start.",doc.begint,begint,"begint")
+    +lijstHtml("Begint deze week","Deze week van start; eerder aangekondigd of eerste waarneming onbekend.",doc.begint,begint,"begint")
     +`</div><p class="works-live-bron">${esc(GIPOD_BRON)}: <a href="${esc(GIPOD_METADATA_URL)}" rel="noopener">datasetfiche</a>. Een werk dat even uit GIPOD verdwijnt en terugkomt, telt niet als nieuw.</p>`;
 }
 
