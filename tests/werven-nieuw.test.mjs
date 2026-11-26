@@ -62,6 +62,18 @@ test("validateWervenNieuw: geen link in een werf, geen onbekende velden", () => 
   assert.deepEqual(validateWervenNieuw({ ...doc, extra: 1 }), ["onbekende sleutel extra"]);
 });
 
+test("weekcontrole: geen dubbels, geen verkeerde telling of onjuiste Brusselse startdag", () => {
+  const doc = berekenWervenNieuw({ huidige: [NIEUW, BEGINT], eersteKeer: eersteKeerGezien({ baseline, dagen }), observedAt: NU });
+  assert.ok(validateWervenNieuw({ ...doc, aantalNieuw: 2 }).includes("nieuw telling komt niet overeen met lijst"));
+  assert.ok(validateWervenNieuw({ ...doc, begint: [{ ...doc.begint[0], id: doc.nieuw[0].id }] }).includes("begint[0] dubbel id"));
+  assert.ok(validateWervenNieuw({ ...doc, nieuw: [{ ...doc.nieuw[0], eersteKeer: "2026-11-10" }] }).includes("nieuw[0] eerste waarneming buiten week"));
+  assert.ok(validateWervenNieuw({ ...doc, begint: [{ ...doc.begint[0], begin: "2026-11-17T23:00:00Z" }] }).includes("begint[0] begin buiten week"));
+  assert.ok(validateWervenNieuw({ ...doc, van: "2026-11-10" }).includes("weekvenster komt niet overeen met observedAt in Brussel"));
+  const onbekend = berekenWervenNieuw({ huidige: [BEGINT], eersteKeer: new Map(), observedAt: NU });
+  assert.deepEqual(validateWervenNieuw(onbekend), []);
+  assert.match(wervenNieuwHtml(onbekend), /Eerste waarneming onbekend/);
+});
+
 test("het blok op de site: ontsnapt, met de datasetfiche als enige link en nooit een ruw record", () => {
   const vals = werk(300, { straat: "Nieuwstraat", start: "2026-11-20T07:00:00Z", titel: "<img src=x onerror=alert(1)>" });
   const doc = berekenWervenNieuw({ huidige: [vals, BEGINT], eersteKeer: new Map([[300, "2026-11-13"], [400, "2026-11-02"]]), observedAt: NU });
@@ -80,6 +92,10 @@ test("periodeTekst: begin en einde in Brussel, het jaar alleen als het einde in 
   assert.equal(periodeTekst("2026-11-16T06:00:00Z", "2026-11-20T16:00:00Z"), "van ma 16 nov tot vr 20 nov");
   assert.equal(periodeTekst("2026-11-09T23:00:00Z", "2027-01-31T22:59:00Z"), "van di 10 nov tot 31 jan 2027");
   assert.equal(periodeTekst("", ""), "datum niet gepubliceerd");
+  assert.equal(periodeTekst(null, null), "datum niet gepubliceerd");
+  assert.equal(periodeTekst("2026-11-16T06:00:00Z", null), "vanaf ma 16 nov");
+  assert.match(periodeTekst("2026-12-31T23:00:00Z", "2027-01-01T23:00:00Z"), /tot za 2 jan$/);
+  assert.match(periodeTekst("2026-12-31T22:00:00Z", "2026-12-31T23:00:00Z"), /tot 1 jan 2027$/);
 });
 
 test("schrijfWervenNieuw: uit het archief op schijf; zonder werkenlaag blijft het vorige bestand staan", (t) => {
