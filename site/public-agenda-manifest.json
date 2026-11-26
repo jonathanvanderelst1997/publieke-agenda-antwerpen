@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-25T04:26:47.618Z",
-  "classificationAsOf": "2026-11-25",
+  "candidateGeneratedAt": "2026-11-26T04:30:17.450Z",
+  "classificationAsOf": "2026-11-26",
   "sourceCount": 935,
   "count": 776,
   "eventPageCount": 776,
-  "archivedEventPageCount": 422,
+  "archivedEventPageCount": 425,
   "classifications": {
     "expired": 159,
-    "current": 29,
-    "future": 747,
+    "current": 31,
+    "future": 745,
     "review_required": 0
   },
   "scopeCounts": {
     "district": 115,
     "stad": 661
   },
-  "feedGeneratedAt": "2026-11-25T04:26:47.618Z",
+  "feedGeneratedAt": "2026-11-26T04:30:17.450Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:28:57.221Z",
+      "retrievedAt": "2026-11-26T04:32:31.135Z",
       "state": "fresh"
     },
     {
@@ -37,21 +37,21 @@
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:26:34.898Z",
+      "retrievedAt": "2026-11-26T04:30:05.007Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:24:38.946Z",
+      "retrievedAt": "2026-11-26T04:28:09.747Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:18:31.198Z",
+      "retrievedAt": "2026-11-26T04:22:02.645Z",
       "state": "empty"
     },
     {
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:24:40.037Z",
+      "retrievedAt": "2026-11-26T04:28:10.616Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:18:20.806Z",
+      "retrievedAt": "2026-11-26T04:21:53.410Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:26:11.283Z",
+      "retrievedAt": "2026-11-26T04:29:42.303Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:26:11.283Z",
+      "retrievedAt": "2026-11-26T04:29:42.303Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:26:34.898Z",
+      "retrievedAt": "2026-11-26T04:30:05.007Z",
       "state": "empty"
     },
     {
@@ -128,14 +128,14 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:26:06.624Z",
+      "retrievedAt": "2026-11-26T04:29:35.141Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-persberichten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-25T04:25:05.291Z",
+      "retrievedAt": "2026-11-26T04:28:35.781Z",
       "state": "fresh"
     },
     {
@@ -146,7 +146,7 @@
       "state": "inactive"
     }
   ],
-  "digest": "6ffaa45ad7fdfbd228ffd108d7fd8ef75f5e163c2301b52d9916accc8931e0ed",
+  "digest": "c80ac4d73b136a7008301224c413166e3a2a09f28c80fb6fc322659202211143",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
@@ -184,9 +184,6 @@
     "100Y - NMBS",
     "Futsal Project Seefhoek",
     "Najaarsfoor Sint-Jansplein",
-    "Gemengde markt Sint-Jansplein",
-    "Gemengde markt Kristus-Koningplein",
-    "Woensdagmarkt Vosstraat",
     "Gemengde markt Gallifortlei",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Dageraadplaats",
@@ -912,6 +909,9 @@
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Kristus-Koningplein",
     "Woensdagmarkt Vosstraat",
+    "Gemengde markt Gallifortlei",
+    "Gemengde markt Frederik van Eedenplein",
+    "Gemengde markt Dageraadplaats",
     "Futsal Project Seefhoek",
     "Raadscommissie Antwerpen",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",
