@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "sinds": "2026-08-13",
-  "bijgewerkt": "2026-11-25",
-  "aantal": 1198,
+  "bijgewerkt": "2026-11-26",
+  "aantal": 1201,
   "maanden": [
     {
       "maand": "2026-06",
@@ -56,8 +56,8 @@
     },
     {
       "maand": "2027-05",
-      "aantal": 96,
-      "digest": "12de6058b898063509ce792c9faa2af49b0b4d0ffa95e69263c020373e4affc0"
+      "aantal": 99,
+      "digest": "d9fdb8f506371c86abc352a642d52c66552c5c6b3a8b7f24c881152ef45392e4"
     },
     {
       "maand": "2027-06",

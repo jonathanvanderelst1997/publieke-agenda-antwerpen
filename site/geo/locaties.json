@@ -115,6 +115,16 @@
    "postcode": "2050",
    "checkedOn": "2026-11-18"
   },
+  "bloc 2030 columbiastraat 110 2030 antwerpen": {
+   "point": [
+    4.42326,
+    51.25301
+   ],
+   "precision": "adres",
+   "street": "Columbiastraat",
+   "postcode": "2030",
+   "checkedOn": "2026-11-26"
+  },
   "constitutiestraat 2060 antwerpen": {
    "point": [
     4.42712,
@@ -285,6 +295,16 @@
    "postcode": "2610",
    "checkedOn": "2026-11-18"
   },
+  "groenplaats adriaan brouwerstraat bataviastraat en 49 andere straten": {
+   "point": [
+    4.4013,
+    51.21873
+   ],
+   "precision": "straat",
+   "street": "Groenplaats",
+   "postcode": "2000",
+   "checkedOn": "2026-11-26"
+  },
   "grote goddaard appelmansstraat blauwmoezelstraat en 17 andere straten": {
    "point": [
     4.40467,
@@ -334,6 +354,16 @@
    "street": "Hertoginstraat",
    "postcode": "2018",
    "checkedOn": "2026-11-07"
+  },
+  "het oude badhuis stuivenbergplein 38 2060 antwerpen": {
+   "point": [
+    4.43234,
+    51.22708
+   ],
+   "precision": "adres",
+   "street": "Stuivenbergplein",
+   "postcode": "2060",
+   "checkedOn": "2026-11-26"
   },
   "jacob jordaensstraat 2018 antwerpen": {
    "point": [
@@ -404,16 +434,6 @@
    "street": "Koningin Astridplein",
    "postcode": "2018",
    "checkedOn": "2026-10-21"
-  },
-  "koningin astridplein appelmansstraat bataviastraat en 61 andere straten": {
-   "point": [
-    4.42075,
-    51.219
-   ],
-   "precision": "straat",
-   "street": "Koningin Astridplein",
-   "postcode": "2018",
-   "checkedOn": "2026-11-15"
   },
   "koningin astridplein appelmansstraat breydelstraat en 20 andere straten": {
    "point": [
@@ -535,6 +555,16 @@
    "postcode": "2018",
    "checkedOn": "2026-11-13"
   },
+  "muhka m hka inbox op de vijfde verdieping leuvenstraat 32 2000 antwerpen": {
+   "point": [
+    4.3898,
+    51.21139
+   ],
+   "precision": "adres",
+   "street": "Leuvenstraat",
+   "postcode": "2000",
+   "checkedOn": "2026-11-26"
+  },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
     4.40911,
@@ -595,16 +625,6 @@
    "postcode": "2060",
    "checkedOn": "2026-11-24"
   },
-  "rolwagenstraat plantin en moretuslei en provinciestraat": {
-   "point": [
-    4.42641,
-    51.20899
-   ],
-   "precision": "straat",
-   "street": "Rolwagenstraat",
-   "postcode": "2018",
-   "checkedOn": "2026-11-20"
-  },
   "rooiplein 2600 berchem": {
    "point": [
     4.43516,
@@ -625,15 +645,15 @@
    "postcode": "2000",
    "checkedOn": "2026-11-07"
   },
-  "schijfstraat 105 2020 antwerpen": {
+  "schijfstraat": {
    "point": [
-    4.37308,
-    51.19068
+    4.37318,
+    51.19085
    ],
-   "precision": "adres",
+   "precision": "straat",
    "street": "Schijfstraat",
    "postcode": "2020",
-   "checkedOn": "2026-11-25"
+   "checkedOn": "2026-11-26"
   },
   "schijnpoortweg 2060 antwerpen": {
    "point": [
@@ -854,6 +874,7 @@
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-21",
   "seefhoek 2060 antwerpen": "2026-11-13",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-21",
+  "tampicopark luchtbal 2030 antwerpen": "2026-11-26",
   "toeristisch centrum antwerpen": "2026-11-16",
   "van maerlantstraat vondelstraat 2060 antwerpen": "2026-11-21",
   "wekelijkse openbare veiling 2000 antwerpen": "2026-11-20",
