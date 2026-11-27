@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "checkedAt": "2026-11-26T04:32:20.842Z",
+  "checkedAt": "2026-11-27T04:28:35.367Z",
   "sources": [
     {
       "sourceId": "bloc2030-wintermagie",
@@ -32,17 +32,6 @@
       "missing": [],
       "items": [
         "tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10"
-      ],
-      "since": null
-    },
-    {
-      "sourceId": "muhka-preview-s-w-2",
-      "url": "https://www.muhka.be/activities/preview-s-w-2/",
-      "status": "ok",
-      "httpStatus": 200,
-      "missing": [],
-      "items": [
-        "preview-tentoonstelling-s-w-2-muhka-2026-11-26"
       ],
       "since": null
     },

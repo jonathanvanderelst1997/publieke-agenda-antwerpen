@@ -225,6 +225,16 @@
    "postcode": "2060",
    "checkedOn": "2026-11-18"
   },
+  "duinstraat de coninckplein alfons engelsstraat en 17 andere straten": {
+   "point": [
+    4.42764,
+    51.22223
+   ],
+   "precision": "straat",
+   "street": "Duinstraat",
+   "postcode": "2060",
+   "checkedOn": "2026-11-27"
+  },
   "durletstraat 2018 antwerpen": {
    "point": [
     4.40507,
@@ -835,16 +845,6 @@
    "postcode": "2600",
    "checkedOn": "2026-11-17"
   },
-  "wzc huizeken van nazareth sint antoniusstraat 21 2000 antwerpen": {
-   "point": [
-    4.40031,
-    51.21588
-   ],
-   "precision": "adres",
-   "street": "Sint-Antoniusstraat",
-   "postcode": "2000",
-   "checkedOn": "2026-10-14"
-  },
   "zillebekelaan 2600 berchem": {
    "point": [
     4.4434,
@@ -858,21 +858,20 @@
  },
  "misses": {
   "2000 en 2018 antwerpen": "2026-11-21",
-  "2060 antwerpen": "2026-11-16",
   "a bib merksem parkweg 1": "2026-11-18",
   "arenaplein 2100 deurne": "2026-11-16",
   "botermarkt 2040 berendrecht zandvliet lillo": "2026-11-16",
   "district borgerhout locatie via de officiele bron": "2026-11-16",
   "district wilrijk locatie via de officiele bron": "2026-11-16",
-  "kastanjedreef 2050 antwerpen": "2026-11-13",
+  "kastanjedreef 2050 antwerpen": "2026-11-27",
   "korte scholierstraat antwerpen": "2026-11-21",
   "lange elzenstraat van de beuckerstraat tot het kruispunt met de balansstraat 2018 antwerpen": "2026-11-21",
   "lange elzenstraat van de desguinlei tot en met het kruispunt met de coebergerstraat 2018 antwerpen": "2026-11-21",
   "ondergrondse persing lange elzenstraat 2018 antwerpen": "2026-11-21",
-  "scheldekaaien zuid 2000 antwerpen": "2026-11-13",
+  "scheldekaaien zuid 2000 antwerpen": "2026-11-27",
   "schijnpoortwegtunnel noord 2060 antwerpen": "2026-11-21",
   "schijnpoortwegtunnel zuid 2060 antwerpen": "2026-11-21",
-  "seefhoek 2060 antwerpen": "2026-11-13",
+  "seefhoek 2060 antwerpen": "2026-11-27",
   "sint jansplein van de wervestraat tot aan cassiersstraat 2060 antwerpen": "2026-11-21",
   "tampicopark luchtbal 2030 antwerpen": "2026-11-26",
   "toeristisch centrum antwerpen": "2026-11-16",
