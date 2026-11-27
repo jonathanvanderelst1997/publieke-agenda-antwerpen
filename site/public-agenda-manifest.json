@@ -1,29 +1,29 @@
 {
   "schemaVersion": 2,
   "state": "published-release",
-  "candidateGeneratedAt": "2026-11-26T04:30:17.450Z",
-  "classificationAsOf": "2026-11-26",
-  "sourceCount": 935,
-  "count": 776,
-  "eventPageCount": 776,
-  "archivedEventPageCount": 425,
+  "candidateGeneratedAt": "2026-11-27T04:26:47.838Z",
+  "classificationAsOf": "2026-11-27",
+  "sourceCount": 939,
+  "count": 783,
+  "eventPageCount": 783,
+  "archivedEventPageCount": 432,
   "classifications": {
-    "expired": 159,
-    "current": 31,
-    "future": 745,
+    "expired": 156,
+    "current": 36,
+    "future": 747,
     "review_required": 0
   },
   "scopeCounts": {
-    "district": 115,
-    "stad": 661
+    "district": 118,
+    "stad": 665
   },
-  "feedGeneratedAt": "2026-11-26T04:30:17.450Z",
+  "feedGeneratedAt": "2026-11-27T04:26:47.838Z",
   "feedSources": [
     {
       "sourceId": "district-asign-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:32:31.135Z",
+      "retrievedAt": "2026-11-27T04:28:45.687Z",
       "state": "fresh"
     },
     {
@@ -37,29 +37,29 @@
       "sourceId": "district-ebesluit-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:30:05.007Z",
+      "retrievedAt": "2026-11-27T04:26:36.136Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-foren",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:28:09.747Z",
+      "retrievedAt": "2026-11-27T04:24:41.790Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-gipod-evenementen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:22:02.645Z",
+      "retrievedAt": "2026-11-27T04:18:34.391Z",
       "state": "empty"
     },
     {
       "sourceId": "district-kalender",
       "scope": "district",
-      "fetchStatus": "error",
-      "retrievedAt": "2026-10-22T03:19:18.427Z",
-      "state": "stale"
+      "fetchStatus": "ok",
+      "retrievedAt": "2026-11-27T04:18:23.848Z",
+      "state": "fresh"
     },
     {
       "sourceId": "district-nieuws",
@@ -79,28 +79,28 @@
       "sourceId": "district-schoolstraten",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:28:10.616Z",
+      "retrievedAt": "2026-11-27T04:24:42.702Z",
       "state": "fresh"
     },
     {
       "sourceId": "district-vergaderingen",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:21:53.410Z",
+      "retrievedAt": "2026-11-27T04:18:24.731Z",
       "state": "fresh"
     },
     {
       "sourceId": "mail-district",
       "scope": "district",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:29:42.303Z",
+      "retrievedAt": "2026-11-27T04:26:12.419Z",
       "state": "empty"
     },
     {
       "sourceId": "mail-stad",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:29:42.303Z",
+      "retrievedAt": "2026-11-27T04:26:12.419Z",
       "state": "empty"
     },
     {
@@ -114,7 +114,7 @@
       "sourceId": "stad-ebesluit-evenementen",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:30:05.007Z",
+      "retrievedAt": "2026-11-27T04:26:36.136Z",
       "state": "empty"
     },
     {
@@ -128,14 +128,14 @@
       "sourceId": "stad-markten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:29:35.141Z",
+      "retrievedAt": "2026-11-27T04:26:07.708Z",
       "state": "fresh"
     },
     {
       "sourceId": "stad-persberichten",
       "scope": "stad",
       "fetchStatus": "ok",
-      "retrievedAt": "2026-11-26T04:28:35.781Z",
+      "retrievedAt": "2026-11-27T04:25:07.901Z",
       "state": "fresh"
     },
     {
@@ -146,14 +146,13 @@
       "state": "inactive"
     }
   ],
-  "digest": "c80ac4d73b136a7008301224c413166e3a2a09f28c80fb6fc322659202211143",
+  "digest": "ccf9c9ab83fa840db7421a4ce6e23dda3ab74b574cf3f5527e72dc3d92e7f6c5",
   "publicUrl": "https://mijn-publieke-agenda-voor-district.onrender.com/",
   "rollback": {
     "baseCommit": "36ea97332e1742d0ed1650a1226c2276733a34f3",
     "strategy": "If live validation fails, revert the release merge on main to the recorded base content and let Render redeploy that rollback."
   },
   "titles": [
-    "Preview tentoonstelling S & W & … 2 in Muhka",
     "Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka",
     "Kopcert XL: Bando",
     "Wintermagie",
@@ -184,17 +183,13 @@
     "100Y - NMBS",
     "Futsal Project Seefhoek",
     "Najaarsfoor Sint-Jansplein",
-    "Gemengde markt Gallifortlei",
-    "Gemengde markt Frederik van Eedenplein",
-    "Gemengde markt Dageraadplaats",
-    "Noorderlicht",
+    "The Next Move",
     "Gemengde markt Michel Willemsplein",
     "VRIJDAGMARKT Wekelijkse openbare veiling",
     "Gemengde markt Sint-Jansplein",
     "Gemengde markt Botermarkt",
     "Gemengde markt Zillebekelaan",
     "Gemengde markt Laar (Borgerhout)",
-    "Tabletcafé",
     "Gemengde markt Desguinlei",
     "To Be Antwerp - kunstroute",
     "Gemengde markt Wim Saerensplein",
@@ -245,6 +240,7 @@
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
     "Hij komt, hij komt in de Antwerpse districten (Berendrecht-Zandvliet-Lillo)",
     "Evenement in de Argentiniëlaan: parcours door 26 straten",
+    "Evenement in de Zwedenstraat: parcours door 3 straten",
     "Koopzondag",
     "Gemengde markt Kioskplaats",
     "Gemengde markt Arenaplein",
@@ -366,6 +362,7 @@
     "Gemengde markt Laar (Borgerhout)",
     "Evenement op de Sint-Michielskaai: verkeersvrije zone in 59 straten",
     "NYE Vaag XL",
+    "Evenement in de Maria-Henriëttalei: route van 1,5 km",
     "Heraanleg Osystraat, Van de Wervestraat, Van Maerlantstraat, Violierstraat en Vondelstraat: fase 3 (Sint-Jansplein + Van de Wervestraat (tot aan Cassiersstraat))",
     "Heraanleg Oostenstraat: fase 3 (Tussen kruispunt met de Lange Van Ruusbroecstraat en Arendstraat)",
     "Werken Halenstraat & Schijnpoortweg: fase 3 (Schijnpoortwegtunnel zuid)",
@@ -400,6 +397,7 @@
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
     "Vermoedelijk een buurtfeest in de Montebellostraat",
+    "Vermoedelijk een buurtfeest in de Dendermondestraat",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -428,6 +426,7 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "Vermoedelijk een buurtfeest in de Pol de Montstraat",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -455,6 +454,7 @@
     "Gemengde markt en exotische markt Oudevaartplaats",
     "Markt voor voeding, bloemen en planten Kioskplaats",
     "Gemengde markt De Villegasstraat",
+    "Vermoedelijk een buurtfeest op het Multatuliplein",
     "Biomarkt Falconplein",
     "Markt voor klein antiek Sint-Jansvliet",
     "Gemengde markt, vogelenmarkt Oudevaartplaats - Blauwtorenplein",
@@ -912,6 +912,13 @@
     "Gemengde markt Gallifortlei",
     "Gemengde markt Frederik van Eedenplein",
     "Gemengde markt Dageraadplaats",
+    "Gemengde markt Michel Willemsplein",
+    "VRIJDAGMARKT Wekelijkse openbare veiling",
+    "Gemengde markt Sint-Jansplein",
+    "Gemengde markt Botermarkt",
+    "Gemengde markt Zillebekelaan",
+    "Gemengde markt Laar (Borgerhout)",
+    "Gemengde markt Desguinlei",
     "Futsal Project Seefhoek",
     "Raadscommissie Antwerpen",
     "Bijzondere raadscommissie lokale economie, markten en foren, toerisme, jeugd, senioren, wijkwerking, dierenwelzijn, participatie en Burgerbegroting",

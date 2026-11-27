@@ -13,7 +13,7 @@
   ],
   "officialPublic": true,
   "method": "pers.antwerpen.be: robots.txt, de RSS-feed met de tien laatste persberichten en elk persbericht, 5 s ertussen; alleen de activiteiten die een persbericht zelf aankondigt, met één datum, een plaats en een district, zonder politiek of persoonsgegevens",
-  "retrievedAt": "2026-11-26T04:28:35.781Z",
+  "retrievedAt": "2026-11-27T04:25:07.901Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
   "contentVersion": null,

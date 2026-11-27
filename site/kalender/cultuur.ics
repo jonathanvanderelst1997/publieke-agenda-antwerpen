@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77d-2026-11-04@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261104T190000
 DURATION:PT1H
 SUMMARY:FURIE!
@@ -62,7 +62,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a77e-2026-11-10@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261110T140000
 DURATION:PT1H
 SUMMARY:Verlangen naar verbinding
@@ -86,7 +86,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a76b-2026-11-20@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261120T150000
 DURATION:PT1H
 SUMMARY:Vrijdagen van de Poëzie
@@ -111,7 +111,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:district-kal-6a746a7ff4182b8edf63a780-2026-11-26@mijn-publieke-agenda-v
  oor-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261126T180000
 DTEND;TZID=Europe/Brussels:20261126T210000
 SUMMARY:Noorderlicht
@@ -138,7 +138,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:preview-tentoonstelling-s-w-2-muhka-2026-11-26@mijn-publieke-agenda-voo
  r-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261126T180000
 DTEND;TZID=Europe/Brussels:20261126T210000
 SUMMARY:Preview tentoonstelling S & W & … 2 in Muhka
@@ -163,7 +163,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:tentoonstelling-s-w-2-muhka-2026-11-27-2027-01-10@mijn-publieke-agenda-
  voor-district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20270111
 SUMMARY:Tentoonstelling S & W & … 2: kunst rond Suske & Wiske in Muhka
@@ -190,7 +190,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:kopcert-xl-bando-het-oude-badhuis-2026-12-04@mijn-publieke-agenda-voor-
  district.local
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261204T200000
 DURATION:PT1H
 SUMMARY:Kopcert XL: Bando
@@ -213,7 +213,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:wintermagie-tampicopark-2026-12-11@mijn-publieke-agenda-voor-district.l
  ocal
-DTSTAMP:20261126T043017Z
+DTSTAMP:20261127T042647Z
 DTSTART;TZID=Europe/Brussels:20261211T190000
 DTEND;TZID=Europe/Brussels:20261211T210000
 SUMMARY:Wintermagie
