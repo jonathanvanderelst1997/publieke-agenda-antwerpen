@@ -1,5 +1,9 @@
 {"schemaVersion":1,"maand":"2028-05","items":[
 {"id":"parking:2026-068798|1206759","location":"Willem Elsschotstraat 1–3, 2050 Antwerpen","start":"2026-10-29","end":"2028-05-26"},
 {"id":"parking:2026-061485|1194520","location":"Willem Elsschotstraat, 2050 Antwerpen","start":"2026-10-05","end":"2028-05-26","weg":"2026-10-22"},
+{"id":"parking:2026-049414|1175793","location":"Arsenaalstraat 3, 2000 Antwerpen","start":"2028-02-25","end":"2028-05-29"},
+{"id":"parking:2026-049414|1175794","location":"Arsenaalstraat 6–10, 2000 Antwerpen","start":"2028-02-25","end":"2028-05-29"},
+{"id":"parking:2026-049414|1175795","location":"Sint-Michielstraat 7–9, 2000 Antwerpen","start":"2028-02-25","end":"2028-05-29"},
+{"id":"parking:2026-049414|1175792","location":"Sint-Michielstraat, 2000 Antwerpen","start":"2028-02-25","end":"2028-05-29"},
 {"id":"parking:2024-011320|900553","location":"Boomsesteenweg 433, 2020 Antwerpen","start":"2024-05-31","end":"2028-05-31"}
 ]}

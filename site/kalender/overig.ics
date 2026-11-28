@@ -36,7 +36,7 @@ END:VTIMEZONE
 BEGIN:VEVENT
 UID:project-6accc80a332512dec219cdf5-inspraakmoment-2026-11-03@mijn-publiek
  e-agenda-voor-district.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;TZID=Europe/Brussels:20261103T190000
 DTEND;TZID=Europe/Brussels:20261103T210000
 SUMMARY:Inspraakmoment: Heraanleg Jeruzalemstraat & Engelse Beurs
@@ -58,7 +58,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2026-11-08@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261108
 DTEND;VALUE=DATE:20270110
 SUMMARY:Futsal Project Seefhoek
@@ -80,7 +80,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025005359-2026-11-11@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261111
 DTEND;VALUE=DATE:20261112
 SUMMARY:Vermoedelijk een markt op het Theaterplein
@@ -104,7 +104,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006108-2026-11-15@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261115
 DTEND;VALUE=DATE:20261116
 SUMMARY:Vermoedelijk een markt op het De Coninckplein
@@ -128,7 +128,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00727-2026-11-23@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261123
 DTEND;VALUE=DATE:20270125
 SUMMARY:The Next Move
@@ -150,7 +150,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00607-2026-11-27@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261127
 DTEND;VALUE=DATE:20261130
 SUMMARY:To Be Antwerp - kunstroute
@@ -172,7 +172,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00729-2026-11-28@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261128
 DTEND;VALUE=DATE:20261129
 SUMMARY:Winter Wonderland Katrinahof 2026
@@ -193,7 +193,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00720-2026-11-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261130
 DTEND;VALUE=DATE:20261220
 SUMMARY:Holly doet dienst
@@ -215,7 +215,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00711-2026-12-01@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261201
 DTEND;VALUE=DATE:20261202
 SUMMARY:Wereldaidsdag 2026 – Verhalen die verbinden\, stigma doorbreken
@@ -236,9 +236,31 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
+UID:district-kal-60388d09c17659b257fb49df-2026-12-13@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261128T003342Z
+DTSTART;TZID=Europe/Brussels:20261213T140000
+DTEND;TZID=Europe/Brussels:20261213T170000
+SUMMARY:Winter Plein Plezier
+LOCATION:Jos Verhelstplein 1\, 2060 Antwerpen
+DESCRIPTION:Wanneer: 14 tot 17 uur\nOp de publieke agenda: https://mijn-pub
+ lieke-agenda-voor-district.onrender.com/event/district-kal-60388d09c17659b
+ 257fb49df-2026-12-13/\nDistrictskalender: https://www.antwerpen.be/info/5e
+ fb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen\nEvenementen op
+  straat (dossiers van de stad in A-Sign): https://geodata.antwerpen.be/arc
+ gissql/rest/services/P_ASign/ASign/MapServer/22\nMeer info bij de organisa
+ tor: https://oudebadhuis.antwerpen.be/winter-plein-plezier-26\nBron: distr
+ ict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-60388d09c17659b257fb49df-2026-12-13/
+CATEGORIES:Overig
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-08112-2026-12-17@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261217
 DTEND;VALUE=DATE:20261218
 SUMMARY:2 jaar Wolf
@@ -259,7 +281,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07833-2026-12-19@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;TZID=Europe/Brussels:20261219T110000
 DTEND;TZID=Europe/Brussels:20261219T190000
 SUMMARY:UCI Wereldbeker Veldrijden
@@ -281,7 +303,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025006109-2026-12-20@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261220
 DTEND;VALUE=DATE:20261221
 SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
@@ -308,7 +330,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-07835-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Eindejaarsvuurwerk 2026-2027
@@ -329,7 +351,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-08113-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Oud op Nieuw
@@ -350,7 +372,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-08114-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:Coming Soon NY
@@ -371,7 +393,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-cbs-08115-2026-12-31@mijn-publieke-agenda-voor-distric
  t.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261231
 DTEND;VALUE=DATE:20270101
 SUMMARY:New Year at China Star
@@ -390,36 +412,50 @@ STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
-UID:asign-ev-et2026004820-2027-01-17@mijn-publieke-agenda-voor-district.loc
- al
-DTSTAMP:20261127T042647Z
-DTSTART;VALUE=DATE:20270117
-DTEND;VALUE=DATE:20270118
-SUMMARY:Vermoedelijk een markt op het De Coninckplein (aanvraag\, nog niet 
- goedgekeurd)
-LOCATION:De Coninckplein
-DESCRIPTION:Soort vermoed via de omschrijving in het dossier\, wat vroeger 
- op dezelfde plek gebeurde en het studentencharter\; niet bevestigd. Een na
- am komt er pas als een besluit\, een kalender of de organisator hem noemt.
-  Evenementendossier ET2026004820 van de stad (A-Sign)\, laatst gewijzigd o
- p 19 augustus 2026: aanvraag nog niet goedgekeurd.\nLet op: dit is een aan
- vraag die de stad nog niet goedkeurde. Wordt ze geweigerd of afgelast\, da
- n verdwijnt ze uit je agenda.\nOp de publieke agenda: https://mijn-publiek
- e-agenda-voor-district.onrender.com/event/asign-ev-et2026004820-2027-01-17
- /\nEvenementen op straat (dossiers van de stad in A-Sign): https://geodata
- .antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServer/22\nBron: di
+UID:district-kal-bb2494f636e0f4ec443f144c-2027-01-21@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261128T003342Z
+DTSTART;TZID=Europe/Brussels:20270121T201500
+DTEND;TZID=Europe/Brussels:20270121T213000
+SUMMARY:Iconen
+LOCATION:CO Nova\, Schijfstraat 105\, 2020 Antwerpen
+DESCRIPTION:Wanneer: 20.15 tot 21.30 uur\nOp de publieke agenda: https://mi
+ jn-publieke-agenda-voor-district.onrender.com/event/district-kal-bb2494f63
+ 6e0f4ec443f144c-2027-01-21/\nDistrictskalender: https://www.antwerpen.be/i
+ nfo/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen\nBron: di
  strict Antwerpen – bron stad Antwerpen (Vlaamse gratis open data licenti
  e)
-URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
- et2026004820-2027-01-17/
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-bb2494f636e0f4ec443f144c-2027-01-21/
 CATEGORIES:Overig
-STATUS:TENTATIVE
+STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:district-kal-8f83df91708407be33f0ad32-2027-02-04@mijn-publieke-agenda-v
+ oor-district.local
+DTSTAMP:20261128T003342Z
+DTSTART;TZID=Europe/Brussels:20270204T201500
+DTEND;TZID=Europe/Brussels:20270204T211500
+SUMMARY:De Mantel
+LOCATION:Nova\, Schijfstraat 105\, 2020 Antwerpen
+DESCRIPTION:Inschrijven of een ticket is nodig: zie de officiële pagina.\n
+ Wanneer: 20.15 tot 21.15 uur\nOp de publieke agenda: https://mijn-publieke
+ -agenda-voor-district.onrender.com/event/district-kal-8f83df91708407be33f0
+ ad32-2027-02-04/\nDistrictskalender: https://www.antwerpen.be/info/5efb047
+ 7b118f7b19c627b69/wat-beleef-je-in-district-antwerpen\nMeer info bij de or
+ ganisator: https://nova.antwerpen.be/de-mantel\nBron: district Antwerpen 
+ – bron stad Antwerpen (Vlaamse gratis open data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/district-
+ kal-8f83df91708407be33f0ad32-2027-02-04/
+CATEGORIES:Overig
+STATUS:CONFIRMED
 TRANSP:TRANSPARENT
 END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00656-2027-05-30@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20270530
 DTEND;VALUE=DATE:20270531
 SUMMARY:Futsal Project Seefhoek
@@ -441,7 +477,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:ebesluit-ev-2026-dcan-00727-2027-08-31@mijn-publieke-agenda-voor-distri
  ct.local
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20270831
 DTEND;VALUE=DATE:20270901
 SUMMARY:The Next Move

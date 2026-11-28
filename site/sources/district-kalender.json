@@ -13,9 +13,92 @@
   ],
   "officialPublic": true,
   "method": "antwerpen.be page-content-by-uuid (publieke portaal-API)",
-  "retrievedAt": "2026-11-27T04:18:23.848Z",
+  "retrievedAt": "2026-11-28T00:25:14.551Z",
   "fetchStatus": "ok",
   "maxAgeHours": 48,
-  "contentVersion": "brain|2026-11-27",
-  "items": []
+  "contentVersion": "brain|2026-11-28",
+  "items": [
+    {
+      "id": "district-kal-60388d09c17659b257fb49df-2026-12-13",
+      "externalId": "60388d09c17659b257fb49df",
+      "title": "Winter Plein Plezier",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2026-12-13",
+      "endDate": null,
+      "timeSlot": "14:00",
+      "timeText": "14 tot 17 uur",
+      "location": "Jos Verhelstplein 1, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "",
+      "infoUrl": "https://oudebadhuis.antwerpen.be/winter-plein-plezier-26",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-11-28T00:25:14.551Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-4752511af01ea84cccecc7f8-2027-01-17",
+      "externalId": "4752511af01ea84cccecc7f8",
+      "title": "Familiedag A-bib Permeke",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2027-01-17",
+      "endDate": null,
+      "timeSlot": "10:00",
+      "timeText": "10 tot 16 uur",
+      "location": "A-bib Permeke, De Coninckplein 26, 2060 Antwerpen",
+      "postcodes": [
+        "2060"
+      ],
+      "info": "",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-11-28T00:25:14.551Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-bb2494f636e0f4ec443f144c-2027-01-21",
+      "externalId": "bb2494f636e0f4ec443f144c",
+      "title": "Iconen",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2027-01-21",
+      "endDate": null,
+      "timeSlot": "20:15",
+      "timeText": "20.15 tot 21.30 uur",
+      "location": "CO Nova, Schijfstraat 105, 2020 Antwerpen",
+      "postcodes": [
+        "2020"
+      ],
+      "info": "",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-11-28T00:25:14.551Z",
+      "reviewRequired": false
+    },
+    {
+      "id": "district-kal-8f83df91708407be33f0ad32-2027-02-04",
+      "externalId": "8f83df91708407be33f0ad32",
+      "title": "De Mantel",
+      "theme": "Activiteit",
+      "className": "activity",
+      "date": "2027-02-04",
+      "endDate": null,
+      "timeSlot": "20:15",
+      "timeText": "20.15 tot 21.15 uur",
+      "location": "Nova, Schijfstraat 105, 2020 Antwerpen",
+      "postcodes": [
+        "2020"
+      ],
+      "info": "Inschrijven of een ticket is nodig: zie de officiële pagina.",
+      "infoUrl": "https://nova.antwerpen.be/de-mantel",
+      "kind": "activity",
+      "sourceUrl": "https://www.antwerpen.be/info/5efb0477b118f7b19c627b69/wat-beleef-je-in-district-antwerpen",
+      "retrievedAt": "2026-11-28T00:25:14.551Z",
+      "reviewRequired": false
+    }
+  ]
 }

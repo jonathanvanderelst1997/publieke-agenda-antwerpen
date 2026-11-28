@@ -5,6 +5,16 @@
   "url": "https://geo.api.vlaanderen.be/geolocation/v4/Location"
  },
  "entries": {
+  "a bib permeke de coninckplein 26 2060 antwerpen": {
+   "point": [
+    4.42107,
+    51.22177
+   ],
+   "precision": "adres",
+   "street": "De Coninckplein",
+   "postcode": "2060",
+   "checkedOn": "2026-11-28"
+  },
   "archipel slachthuislaan 23 2060 antwerpen": {
    "point": [
     4.43671,
@@ -125,6 +135,16 @@
    "postcode": "2030",
    "checkedOn": "2026-11-26"
   },
+  "co nova schijfstraat 105 2020 antwerpen": {
+   "point": [
+    4.37308,
+    51.19068
+   ],
+   "precision": "adres",
+   "street": "Schijfstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-11-28"
+  },
   "constitutiestraat 2060 antwerpen": {
    "point": [
     4.42712,
@@ -185,6 +205,16 @@
    "postcode": "2060",
    "checkedOn": "2026-11-07"
   },
+  "dendermondestraat": {
+   "point": [
+    4.39445,
+    51.20435
+   ],
+   "precision": "straat",
+   "street": "Dendermondestraat",
+   "postcode": "2018",
+   "checkedOn": "2026-11-28"
+  },
   "desguinlei 2020 antwerpen": {
    "point": [
     4.39973,
@@ -224,16 +254,6 @@
    "street": "Duinstraat",
    "postcode": "2060",
    "checkedOn": "2026-11-18"
-  },
-  "duinstraat de coninckplein alfons engelsstraat en 17 andere straten": {
-   "point": [
-    4.42764,
-    51.22223
-   ],
-   "precision": "straat",
-   "street": "Duinstraat",
-   "postcode": "2060",
-   "checkedOn": "2026-11-27"
   },
   "durletstraat 2018 antwerpen": {
    "point": [
@@ -405,15 +425,15 @@
    "postcode": "2000",
    "checkedOn": "2026-10-05"
   },
-  "kaasrui ernest van dijckkaai grote markt en 8 andere straten": {
+  "jos verhelstplein 1 2060 antwerpen": {
    "point": [
-    4.40168,
-    51.2211
+    4.4322,
+    51.22742
    ],
-   "precision": "straat",
-   "street": "Kaasrui",
-   "postcode": "2000",
-   "checkedOn": "2026-10-29"
+   "precision": "adres",
+   "street": "Jos Verhelstplein",
+   "postcode": "2060",
+   "checkedOn": "2026-11-28"
   },
   "kioskplaats 2660 hoboken": {
    "point": [
@@ -535,6 +555,16 @@
    "postcode": "2018",
    "checkedOn": "2026-11-07"
   },
+  "maria henriettalei blauwtorenplein bourlastraat en 14 andere straten": {
+   "point": [
+    4.40931,
+    51.21286
+   ],
+   "precision": "straat",
+   "street": "Blauwtorenplein",
+   "postcode": "2000",
+   "checkedOn": "2026-11-28"
+  },
   "michel willemsplein antwerpen": {
    "point": [
     4.37472,
@@ -575,6 +605,26 @@
    "postcode": "2000",
    "checkedOn": "2026-11-26"
   },
+  "multatuliplein": {
+   "point": [
+    4.38416,
+    51.22282
+   ],
+   "precision": "straat",
+   "street": "Multatuliplein",
+   "postcode": "2050",
+   "checkedOn": "2026-11-28"
+  },
+  "nova schijfstraat 105 2020 antwerpen": {
+   "point": [
+    4.37308,
+    51.19068
+   ],
+   "precision": "adres",
+   "street": "Schijfstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-11-28"
+  },
   "oudevaartplaats 2000 antwerpen": {
    "point": [
     4.40911,
@@ -614,6 +664,16 @@
    "street": "Rijnpoortvest",
    "postcode": "2000",
    "checkedOn": "2026-11-07"
+  },
+  "pol de montstraat": {
+   "point": [
+    4.3917,
+    51.18872
+   ],
+   "precision": "straat",
+   "street": "Pol de Montstraat",
+   "postcode": "2020",
+   "checkedOn": "2026-11-28"
   },
   "provinciehuis antwerpen koningin elisabethlei 22 2018 antwerpen": {
    "point": [
@@ -735,6 +795,16 @@
    "postcode": "2000",
    "checkedOn": "2026-11-02"
   },
+  "steenplein ernest van dijckkaai grote markt en 8 andere straten": {
+   "point": [
+    4.39671,
+    51.22179
+   ],
+   "precision": "straat",
+   "street": "Steenplein",
+   "postcode": "2000",
+   "checkedOn": "2026-11-28"
+  },
   "stoet van kristus koningplein naar kasteel veltwijck veltwijcklaan 27 2180 ekeren": {
    "point": [
     4.42454,
@@ -854,6 +924,16 @@
    "street": "Zillebekelaan",
    "postcode": "2600",
    "checkedOn": "2026-10-05"
+  },
+  "zwedenstraat ankerrui tunnelplaats en 1 andere straten": {
+   "point": [
+    4.41256,
+    51.22677
+   ],
+   "precision": "straat",
+   "street": "Ankerrui",
+   "postcode": "2000",
+   "checkedOn": "2026-11-28"
   }
  },
  "misses": {
