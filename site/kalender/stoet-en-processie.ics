@@ -18,7 +18,7 @@ X-PUBLISHED-TTL:PT6H
 BEGIN:VEVENT
 UID:asign-ev-et2026001197-2026-11-14@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261114
 DTEND;VALUE=DATE:20261115
 SUMMARY:Vermoedelijk een stoet in de Hofstraat
@@ -45,7 +45,7 @@ END:VEVENT
 BEGIN:VEVENT
 UID:asign-ev-et2025003100-2026-11-21@mijn-publieke-agenda-voor-district.loc
  al
-DTSTAMP:20261127T042647Z
+DTSTAMP:20261128T003342Z
 DTSTART;VALUE=DATE:20261121
 DTEND;VALUE=DATE:20261122
 SUMMARY:Optocht van de Nobele Orde van de Papegay (50 jaar)
@@ -66,6 +66,58 @@ URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
  et2025003100-2026-11-21/
 CATEGORIES:Stoet & processie
 STATUS:CONFIRMED
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2026006685-2026-12-09@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261128T003342Z
+DTSTART;VALUE=DATE:20261209
+DTEND;VALUE=DATE:20261210
+SUMMARY:Vermoedelijk een stoet op het De Coninckplein (aanvraag\, nog niet 
+ goedgekeurd)
+LOCATION:De Coninckplein
+DESCRIPTION:Soort vermoed via dezelfde route als een vorige keer\; niet bev
+ estigd. Een naam komt er pas als een besluit\, een kalender of de organisa
+ tor hem noemt. Evenementendossier ET2026006685 van de stad (A-Sign)\, laat
+ st gewijzigd op 26 november 2026: aanvraag nog niet goedgekeurd.\nLet op: 
+ dit is een aanvraag die de stad nog niet goedkeurde. Wordt ze geweigerd of
+  afgelast\, dan verdwijnt ze uit je agenda.\nOp de publieke agenda: https:
+ //mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026006
+ 685-2026-12-09/\nEvenementen op straat (dossiers van de stad in A-Sign): h
+ ttps://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServe
+ r/22\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis ope
+ n data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026006685-2026-12-09/
+CATEGORIES:Stoet & processie
+STATUS:TENTATIVE
+TRANSP:TRANSPARENT
+END:VEVENT
+BEGIN:VEVENT
+UID:asign-ev-et2026006226-2026-12-12@mijn-publieke-agenda-voor-district.loc
+ al
+DTSTAMP:20261128T003342Z
+DTSTART;VALUE=DATE:20261212
+DTEND;VALUE=DATE:20261213
+SUMMARY:Vermoedelijk een stoet op het De Coninckplein (aanvraag\, nog niet 
+ goedgekeurd)
+LOCATION:De Coninckplein
+DESCRIPTION:Soort vermoed via dezelfde route als een vorige keer\; niet bev
+ estigd. Een naam komt er pas als een besluit\, een kalender of de organisa
+ tor hem noemt. Evenementendossier ET2026006226 van de stad (A-Sign)\, laat
+ st gewijzigd op 20 november 2026: aanvraag nog niet goedgekeurd.\nLet op: 
+ dit is een aanvraag die de stad nog niet goedkeurde. Wordt ze geweigerd of
+  afgelast\, dan verdwijnt ze uit je agenda.\nOp de publieke agenda: https:
+ //mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-et2026006
+ 226-2026-12-12/\nEvenementen op straat (dossiers van de stad in A-Sign): h
+ ttps://geodata.antwerpen.be/arcgissql/rest/services/P_ASign/ASign/MapServe
+ r/22\nBron: district Antwerpen – bron stad Antwerpen (Vlaamse gratis ope
+ n data licentie)
+URL:https://mijn-publieke-agenda-voor-district.onrender.com/event/asign-ev-
+ et2026006226-2026-12-12/
+CATEGORIES:Stoet & processie
+STATUS:TENTATIVE
 TRANSP:TRANSPARENT
 END:VEVENT
 END:VCALENDAR

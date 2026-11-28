@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "sinds": "2026-08-13",
-  "bijgewerkt": "2026-11-27",
-  "aantal": 1215,
+  "bijgewerkt": "2026-11-28",
+  "aantal": 1226,
   "maanden": [
     {
       "maand": "2026-06",
@@ -31,18 +31,18 @@
     },
     {
       "maand": "2026-12",
-      "aantal": 168,
-      "digest": "a76657e5522ce13cbe70ba3f769056797ce9e36f17718619e4de5634aac57ec9"
+      "aantal": 172,
+      "digest": "fcbd3b1eef81d1aca85a57822002beac62e447422f8e29dac31f7a07bdf258a9"
     },
     {
       "maand": "2027-01",
-      "aantal": 140,
-      "digest": "9410bd98b77b2757174bdffc255e0f82d23003dc7b7c7fc36ac48f1cc47bede9"
+      "aantal": 142,
+      "digest": "075081857158bd3292aa5b314d1421d5d2669353f9a0e9f9fd8d4668a8a35a5e"
     },
     {
       "maand": "2027-02",
-      "aantal": 108,
-      "digest": "bcf5ddc8465530452beaf4f08cb4d8a9e39a81ef6330d40a86915ea1999e8c20"
+      "aantal": 109,
+      "digest": "113f67e8601e577a61c3b94cdc285b19633ce22d5a080dab2d220d70f92e51f0"
     },
     {
       "maand": "2027-03",
@@ -56,8 +56,8 @@
     },
     {
       "maand": "2027-05",
-      "aantal": 106,
-      "digest": "965adebe0135875fe62b5c4de5496917cca10798efaeba242585a1f9a68ed954"
+      "aantal": 110,
+      "digest": "66f5c5ea1f7ff69144c26407b9a6a04e5c644ef824162cc015a1186a46249b34"
     },
     {
       "maand": "2027-06",
@@ -100,7 +100,7 @@
       "digest": "87d36dea13edc1cbd48076139a038d76806c49f93cd32666baa706ec740a4ae0"
     }
   ],
-  "parkeerAantal": 8932,
+  "parkeerAantal": 9125,
   "parkeerverboden": [
     {
       "maand": "2026-10",
@@ -109,38 +109,38 @@
     },
     {
       "maand": "2026-11",
-      "aantal": 2966,
-      "digest": "fafd32e60a24d3972e39373a4febd562647aeee407b13551baf735c0bb54aa31"
+      "aantal": 2948,
+      "digest": "ee30973b465e4ffe0f9c7e2c99fd15eb10842ddc41476a52cd836df82c7ecc8b"
     },
     {
       "maand": "2026-12",
-      "aantal": 1477,
-      "digest": "270ebf024124aa49e5a1256f96e03f493b7ea214c118f58540fd079632e6ad1b"
+      "aantal": 1639,
+      "digest": "af7aabc86dd9e0b7b71e1d73b7bd9765f969bc4f620a781fd34613859208c851"
     },
     {
       "maand": "2027-01",
-      "aantal": 254,
-      "digest": "6febdeb4879c0f2a512840b0bb5ef4aa1147339acbaa141604f41af49b2e4ce9"
+      "aantal": 279,
+      "digest": "e0a590c3e08f32d5998de47048d4ceb701de825ac405e6e713393583b7454f2a"
     },
     {
       "maand": "2027-02",
-      "aantal": 115,
-      "digest": "402382bd824c9db363fd2f93e59c3d0aabfe58934e7df616cb201f1b71e9bac3"
+      "aantal": 116,
+      "digest": "6428d3a9554dd16c5ff3d2a1c2792d4cf5e151d1d3f68bdd969ac1c6cec53fd4"
     },
     {
       "maand": "2027-03",
-      "aantal": 127,
-      "digest": "af938856adcd5c4d4cc2b368e6804521bbf801a0fd5e5fea3de8d9ab59259791"
+      "aantal": 135,
+      "digest": "369c7a9d21bb39fb3965983d4ffdcff74461f00318023028dd3f5ca61f5bffb2"
     },
     {
       "maand": "2027-04",
-      "aantal": 40,
-      "digest": "e45529a0d15a308af7d8d8d46c4e50602bd680906a7e1ce9a5acbebeda63ece1"
+      "aantal": 49,
+      "digest": "d368ec6d1d41e3121378404684c1c13bfff6456b73ab0e7538dd6f33ed84ff01"
     },
     {
       "maand": "2027-05",
       "aantal": 35,
-      "digest": "55aff4c64b9daddca57861a76c466ac6c4a91b59e3bbe83567ac5a53991ccf98"
+      "digest": "26ad2ef395439fdb952d4277137af7c1bc12711c4676294592b5b166574ab8e6"
     },
     {
       "maand": "2027-06",
@@ -159,28 +159,28 @@
     },
     {
       "maand": "2027-09",
-      "aantal": 15,
-      "digest": "3155c3021c0f308b99f3a7dbe143396ad411ebf36ea83b3f3d4aa4e8d246f318"
+      "aantal": 20,
+      "digest": "492d7587bbf331d099e4c62fc8a0dc9383b9c185c13a9a1f81c3ed394900d4ae"
     },
     {
       "maand": "2027-10",
-      "aantal": 13,
-      "digest": "3a05f1f03f8e82b40398ea962f891f50e67c05c14de56926200c253db9fd8db1"
+      "aantal": 4,
+      "digest": "851698f1a9bb659d3e54ba2253962b94970ae4aa97dbac676cbbefb91328dd6f"
     },
     {
       "maand": "2027-12",
-      "aantal": 16,
-      "digest": "f2533fec86b30c70754f3a948c63386fbcf7776f56da85316b7d7bcac3d83e79"
+      "aantal": 17,
+      "digest": "4fc8dbb968855d51baea109eb86fca3ac6eefc0e2e69228971e14b1e83dc78fb"
     },
     {
       "maand": "2028-02",
-      "aantal": 8,
-      "digest": "a9245bc7e9f8c5a34f9dea9eaa41e7e18c6b738d8ddedc08f4503dd643a52727"
+      "aantal": 13,
+      "digest": "50f70c6a02213446007b4c4a498a20829be23117818fce97299746133d02048b"
     },
     {
       "maand": "2028-05",
-      "aantal": 3,
-      "digest": "1351a39e68d9f7c33c08d84eb3dd6ec45791e341dfced246d62955051dce3e3b"
+      "aantal": 7,
+      "digest": "4fd4e67651ff337d774d9d52d2c2fbc721ee269147d8e585f11fc3e79dc805f4"
     },
     {
       "maand": "2028-06",

@@ -3,10 +3,10 @@
   "bron": "https://ebesluit.antwerpen.be/",
   "methode": "eBesluit Antwerpen: besluiten over evenementen, muziekactiviteiten en het Districtsfonds, gelezen met vaste zinpatronen (lib/ebesluit-evenementen.mjs)",
   "leesversie": 3,
-  "generatedAt": "2026-11-27T04:26:36.136Z",
+  "generatedAt": "2026-11-28T00:33:27.103Z",
   "venster": {
-    "van": "2026-09-28",
-    "tot": "2027-03-27"
+    "van": "2026-09-29",
+    "tot": "2027-03-28"
   },
   "zoektermen": [
     "Evenementen",
@@ -17,12 +17,12 @@
     "feestelijkheden"
   ],
   "samenvatting": {
-    "besluiten": 46,
-    "gelezen": 32,
+    "besluiten": 49,
+    "gelezen": 31,
     "teLezen": 0,
-    "metDag": 26,
-    "inDistrict": 26,
-    "agendapunten": 22
+    "metDag": 25,
+    "inDistrict": 25,
+    "agendapunten": 21
   },
   "besluiten": [
     {
@@ -83,41 +83,6 @@
       "wijziging": null,
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.5389.9722/agendapunten/26.0911.9405.4945",
-      "leesversie": 3
-    },
-    {
-      "id": "26.0925.6545.8937",
-      "code": "2026_DCAN_00625",
-      "soort": "districtsfonds",
-      "status": "goedkeuring",
-      "orgaan": "districtscollege Antwerpen",
-      "zitting": "2026-09-28",
-      "gepubliceerd": true,
-      "gelezen": true,
-      "naam": "Antwerp Fashion Weekend",
-      "organisator": "Antwerp Retail Shopping Promotion vzw",
-      "dagen": [
-        "2026-10-03",
-        "2026-10-04"
-      ],
-      "uren": null,
-      "plaats": "Groenplaats, Theodoor Van Rijswijckplaats, Kammenstraat, Nationalestraat, Steenhouwersvest",
-      "straten": [
-        "Groenplaats",
-        "Kammenstraat",
-        "Nationalestraat",
-        "Steenhouwersvest",
-        "Theodoor Van Rijswijckplaats"
-      ],
-      "postcodes": [
-        "2000"
-      ],
-      "inDistrict": true,
-      "opbouw": null,
-      "afbouw": null,
-      "wijziging": null,
-      "vervangt": [],
-      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0828.3988/agendapunten/26.0925.6545.8937",
       "leesversie": 3
     },
     {
@@ -1500,6 +1465,98 @@
       "vervangt": [],
       "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0848.6954/agendapunten/26.1116.2667.0849",
       "leesversie": 3
+    },
+    {
+      "id": "26.1124.1131.7660",
+      "code": "2026_DCAN_00758",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-30",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0730.8281/agendapunten/26.1124.1131.7660"
+    },
+    {
+      "id": "26.1119.1937.0744",
+      "code": "2026_DCAN_00759",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-30",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0730.8281/agendapunten/26.1119.1937.0744"
+    },
+    {
+      "id": "26.1118.9443.1158",
+      "code": "2026_DCAN_00760",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-30",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": null,
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0730.8281/agendapunten/26.1118.9443.1158"
+    },
+    {
+      "id": "26.1116.5212.2300",
+      "code": "2026_DCAN_00761",
+      "soort": "districtsfonds",
+      "status": "goedkeuring",
+      "orgaan": "districtscollege Antwerpen",
+      "zitting": "2026-11-30",
+      "gepubliceerd": false,
+      "gelezen": false,
+      "naam": null,
+      "organisator": "WIJKCOMITE WILLIBRORDUS vzw",
+      "dagen": [],
+      "uren": null,
+      "plaats": null,
+      "straten": [],
+      "postcodes": [],
+      "inDistrict": null,
+      "opbouw": null,
+      "afbouw": null,
+      "wijziging": null,
+      "vervangt": [],
+      "bron": "https://ebesluit.antwerpen.be/zittingen/25.0902.0730.8281/agendapunten/26.1116.5212.2300"
     }
   ]
 }

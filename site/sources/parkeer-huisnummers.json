@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "observedAt": "2026-11-27T04:26:47.852Z",
-  "totaal": 2648,
-  "metNummer": 2286,
-  "zonderNummer": 362,
+  "observedAt": "2026-11-28T00:33:42.275Z",
+  "totaal": 2604,
+  "metNummer": 2253,
+  "zonderNummer": 351,
   "redenen": {
-    "bron_zonder_nummer": 362,
+    "bron_zonder_nummer": 351,
     "vorm_niet_herkend": 0,
     "straat_niet_officieel": 0,
     "verboden_woord": 0,
